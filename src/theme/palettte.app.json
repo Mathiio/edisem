@@ -1,5 +1,63 @@
 [
   {
+    "paletteName": "dark",
+    "swatches": [
+      {
+        "name": "900",
+        "color": "18181B"
+      },
+      {
+        "name": "300",
+        "color": "D4D4D8"
+      },
+      {
+        "name": "400",
+        "color": "A1A1AA"
+      },
+      {
+        "name": "700",
+        "color": "3F3F46"
+      },
+      {
+        "name": "800",
+        "color": "27272A"
+      },
+      {
+        "name": "100",
+        "color": "7828C8"
+      }
+    ]
+  },
+  {
+    "paletteName": "white",
+    "swatches": [
+      {
+        "name": "50",
+        "color": "FAFAFA"
+      },
+      {
+        "name": "200",
+        "color": "E4E4E7"
+      },
+      {
+        "name": "300",
+        "color": "D4D4D8"
+      },
+      {
+        "name": "100",
+        "color": "7828C8"
+      },
+      {
+        "name": "500",
+        "color": "71717A"
+      },
+      {
+        "name": "600",
+        "color": "52525B"
+      }
+    ]
+  },
+  {
     "paletteName": "gray",
     "swatches": [
       {

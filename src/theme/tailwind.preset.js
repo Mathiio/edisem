@@ -1015,22 +1015,31 @@ module.exports = {
         },
         borderWidth: {
           small: '1px',
-          medium: '1px',
+          medium: '2px',
           large: '3px',
+        },
+        fontSize: {
+          small: '16px',
+          medium: '24px',
+          large: '32px',
         },
       },
       themes: {
         light: {
           colors: {
             primary: {
-              ...getPaletteSwatches('red'),
+              ...getPaletteSwatches('white'),
               foreground: '#FFFFFF',
               DEFAULT: '#E03E52',
             },
-            secondary: {
-              ...getPaletteSwatches('blue'),
+          },
+        },
+        dark: {
+          colors: {
+            primary: {
+              ...getPaletteSwatches('dark'),
               foreground: '#FFFFFF',
-              DEFAULT: '#181556',
+              DEFAULT: '#E03E52',
             },
           },
         },
