@@ -1,5 +1,5 @@
 import { useThemeMode } from '@/hooks/use-theme-mode';
-import { Button, Link  } from '@/theme/components';
+import { Link  } from '@/theme/components';
 import { ButtonProps } from '@nextui-org/react';
 import {
   SunIcon,
