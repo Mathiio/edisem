@@ -28,17 +28,17 @@ export const Navbar = () => {
         </div>
       </div>
       <div className='flex justify-between items-center gap-6'>
-        <Button className='bg-default-200 hover:bg-default-300'>
+        <Button className='bg-default-200 hover:bg-default-300 flex items-center'>
             <SearchIcon className='text-default-600'/>
             <p className="text-default-600 text-base">Recherche avancée... </p>
             <Kbd className="default-600" keys={["command"]}>K</Kbd>
         </Button>
         <Link className='cursor-pointer'>
-          <CreditIcon className='text-default-600'/>
-        </Link>  
+          <CreditIcon className='text-default-600 hover:text-secondary-400'/>
+        </Link>
         <Link className='cursor-pointer'>
-          <MoonIcon className='text-default-600'/>
-        </Link>   
+          <MoonIcon className='text-default-600 hover:text-secondary-400'/>
+        </Link>
       </div>
     </nav>
   );
