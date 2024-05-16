@@ -1,6 +1,7 @@
 import { EmblaOptionsType } from 'embla-carousel'
 import { EmblaCarousel } from '@/components/EmblaCarousel'
 import { Navbar } from '@/components/Navbar'
+import { NavKeyWords } from '@/components/NavKeyWords'
 import { useDisclosure } from '@nextui-org/react'
 
 /*
@@ -16,7 +17,7 @@ export const Home = () => {
   return (
     <div className='container mx-auto flex flex-col items-start gap-6 my-6'>
       <Navbar />
-      
+      <NavKeyWords/>
     </div>
   )
 }

@@ -73,6 +73,8 @@ module.exports = {
       gray: getPaletteSwatches('gray'),
       red: getPaletteSwatches('red'),
       blue: getPaletteSwatches('blue'),
+      dark: getPaletteSwatches('dark'),
+      light: getPaletteSwatches('light'),
     }),
     columns: {
       auto: 'auto',
@@ -1028,7 +1030,7 @@ module.exports = {
         light: {
           colors: {
             primary: {
-              ...getPaletteSwatches('white'),
+              ...getPaletteSwatches('light'),
               foreground: '#FFFFFF',
               DEFAULT: '#E03E52',
             },
