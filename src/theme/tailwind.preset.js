@@ -106,6 +106,7 @@ module.exports = {
     },
     spacing: {
       px: '1px',
+      vvs: '5px',
       vs: '10px',
       sm: '25px',
       md: '50px',
@@ -432,8 +433,9 @@ module.exports = {
     },
     fontSize: {
       title: ['32px', { lineHeight: '100%' }],
-      secondary: ['24px', { lineHeight: '20px' }],
+      smtitle: ['24px', { lineHeight: '20px' }],
       other: ['18px', { lineHeight: '120%' }],
+      date: ['14px', { lineHeight: '120%' }],
       xs: ['0.75rem', { lineHeight: '1rem' }],
       sm: ['0.875rem', { lineHeight: '1.25rem' }],
       base: ['1rem', { lineHeight: '1.5rem' }],
@@ -1036,16 +1038,18 @@ module.exports = {
           medium: '24px',
           large: '32px',
         },
+        lineHeight: {
+          tiny: "1rem", // text-tiny
+          small: "10px", // text-small
+          medium: "1.5rem", // text-medium
+          large: "1.75rem", // text-large
+        },
       },
       themes: {
         light: {
           layout: {
             hoverOpacity: "1", // this value is applied as opacity-[value] when the component is hovered
-            gap: {
-              small: '25px',
-              medium: '50px',
-              large: '75px',
-            }
+
           },
           colors: {
             primary: {
@@ -1058,11 +1062,7 @@ module.exports = {
         dark: {
           layout: {
             hoverOpacity: "1", // this value is applied as opacity-[value] when the component is hovered
-            gap: {
-              small: '25px',
-              medium: '50px',
-              large: '75px',
-            }
+
           },
           colors: {
             primary: {

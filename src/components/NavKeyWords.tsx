@@ -17,7 +17,7 @@ export const NavKeyWords: React.FC<ButtonGeneratorProps & ButtonProps> = ({ numb
       <Button
         key={i}
         onClick={onClick}
-        className=' min-w-fit bg-default-50 border-2 border-default-300 hover:border-secondary-400 hover:opacity-100 h-8 text-default-500 hover:text-secondary-400 px-sm'>
+        className='p-0 text-otherbtn min-w-fit bg-default-50 border-2 border-default-300 hover:border-secondary-400 hover:opacity-100 text-default-500 hover:text-secondary-400 px-sm h-8'>
         Press me
       </Button>,
     );
