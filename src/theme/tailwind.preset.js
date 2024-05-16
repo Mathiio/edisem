@@ -106,9 +106,10 @@ module.exports = {
     },
     spacing: {
       px: '1px',
-      sm: '1.563rem',
-      md: '3.125rem',
-      lg: '4.688rem',
+      vs: '10px',
+      sm: '25px',
+      md: '50px',
+      lg: '75px',
       0: '0px',
       0.5: '0.125rem',
       1: '0.25rem',
@@ -235,7 +236,7 @@ module.exports = {
     borderOpacity: ({ theme }) => theme('opacity'),
     borderRadius: {
       none: '0px',
-      sm: '0.125rem',
+      sm: '8px', //sm: '0.125rem',
       DEFAULT: '0.25rem',
       md: '0.375rem',
       lg: '0.5rem',
@@ -401,6 +402,7 @@ module.exports = {
     fontFamily: {
       sans: [
         'Poppins',
+        'Inter',
         'ui-sans-serif',
         'system-ui',
         '-apple-system',
@@ -429,6 +431,9 @@ module.exports = {
       ],
     },
     fontSize: {
+      title: ['32px', { lineHeight: '100%' }],
+      secondary: ['24px', { lineHeight: '20px' }],
+      other: ['18px', { lineHeight: '120%' }],
       xs: ['0.75rem', { lineHeight: '1rem' }],
       sm: ['0.875rem', { lineHeight: '1.25rem' }],
       base: ['1rem', { lineHeight: '1.5rem' }],
@@ -1007,10 +1012,13 @@ module.exports = {
     'disabled',
   ],
 
+
+
   /**
    * Here add all the custom UI theme for NextUI library
    */
   plugins: [
+
     nextui({
       layout: {
         radius: {
