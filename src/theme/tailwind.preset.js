@@ -106,6 +106,9 @@ module.exports = {
     },
     spacing: {
       px: '1px',
+      sm: '1.563rem',
+      md: '3.125rem',
+      lg: '4.688rem',
       0: '0px',
       0.5: '0.125rem',
       1: '0.25rem',
@@ -1028,15 +1031,31 @@ module.exports = {
       },
       themes: {
         light: {
+          layout: {
+            hoverOpacity: "1", // this value is applied as opacity-[value] when the component is hovered
+            gap: {
+              small: '25px',
+              medium: '50px',
+              large: '75px',
+            }
+          },
           colors: {
             primary: {
               ...getPaletteSwatches('light'),
-              foreground: '#FFFFFF',
+              foreground: '#FAFAFA',
               DEFAULT: '#E03E52',
             },
           },
         },
         dark: {
+          layout: {
+            hoverOpacity: "1", // this value is applied as opacity-[value] when the component is hovered
+            gap: {
+              small: '25px',
+              medium: '50px',
+              large: '75px',
+            }
+          },
           colors: {
             primary: {
               ...getPaletteSwatches('dark'),

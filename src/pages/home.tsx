@@ -15,9 +15,9 @@ const SLIDES = [
 
 export const Home = () => {
   return (
-    <div className='container mx-auto flex flex-col items-start gap-6 my-6'>
+    <div className=' bg-default-50 flex flex-col items-start gap-md p-md'>
       <Navbar />
-      <NavKeyWords/>
+      <NavKeyWords />
     </div>
   )
 }
