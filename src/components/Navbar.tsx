@@ -3,13 +3,12 @@ import {
   } from '@/theme/components';
 import { useState } from 'react';
 import Logo from '@/assets/svg/logo.svg';
-import {Kbd} from "@nextui-org/kbd";
+import { Kbd } from "@nextui-org/kbd";
 import { Link } from "@nextui-org/link";
 import { Button } from "@nextui-org/button";
+import { ChangeThemeButton } from '@/components/change-theme';
 import {
 	CreditIcon,
-  SunIcon,
-  MoonIcon,
   SearchIcon,
 } from "@/components/icons";
 
@@ -18,13 +17,13 @@ import {
 export const Navbar = () => {
   return (
     <nav className="w-full flex justify-between">
-      <div className='flex justify-between items-center gap-2.5	'>
+      <div className='flex justify-between items-center gap-2.5'>
         <Link href="/" className='flex space-x-4'>
           <Image width={40} src={Logo} alt='Logo' />
         </Link>
         <div className="flex flex-col justify-center items-start">
-          <h2 className='text-2xl text-black text-default-600'>Séminaire ARCANES</h2>
-          <p className='text-base text-black text-default-500'>Images trompeuses et modèles d'intelligence artificielle</p>
+          <h2 className='text-2xl text-black text-default-600 font-semibold'>Séminaire ARCANES</h2>
+          <p className='text-base text-black text-default-500 font-normal'>Images trompeuses et modèles d'intelligence artificielle</p>
         </div>
       </div>
       <div className='flex justify-between items-center gap-6'>
@@ -36,9 +35,7 @@ export const Navbar = () => {
         <Link className='cursor-pointer'>
           <CreditIcon className='text-default-600 hover:text-secondary-400'/>
         </Link>
-        <Link className='cursor-pointer'>
-          <MoonIcon className='text-default-600 hover:text-secondary-400'/>
-        </Link>
+        <ChangeThemeButton className="text-default-600 hover:text-secondary-400" />
       </div>
     </nav>
   );
