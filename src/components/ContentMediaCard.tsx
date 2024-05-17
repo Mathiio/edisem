@@ -24,12 +24,12 @@ export const ContentMediaCard: React.FC<ContentMediaCardProps> = ({ title, autho
         <ArrowIcon transform='rotate(180deg)'/>
       </div>
 
-      <div className='w-full flex flex-col gap-vs'>
-        <div className='flex-col gap-vvs flex'>
-          <div className='text-default-600 text-other font-semibold'>{title}</div>
-          <div className='text-default-500 text-other'>{author}</div>
+      <div className='w-full flex flex-col gap-xs'>
+        <div className='flex-col gap-xxs flex'>
+          <div className='text-default-600 text-sm font-semibold'>{title}</div>
+          <div className='text-default-500 text-sm'>{author}</div>
         </div>
-        <div className='text-default-500 text-date'>{year}</div>
+        <div className='text-default-500 text-xs'>{year}</div>
       </div>
 
       <div

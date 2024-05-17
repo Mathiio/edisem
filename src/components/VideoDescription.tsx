@@ -15,7 +15,7 @@ export const VideoDescription: React.FC<ExpandableTextProps> = ({ text }) => {
   return (
     <div className='flex flex-col bg-default-200 p-sm rounded-sm gap-vs'>
       <div
-        className='text-other text-default-600'
+        className='text-sm text-default-600'
         style={{ maxHeight: expanded ? 'none' : '65px', overflow: 'hidden' }}
         onClick={toggleExpansion}>
         {text}
