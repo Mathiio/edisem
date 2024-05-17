@@ -4,7 +4,7 @@ import { DotButton, useDotButton } from './EmblaCarouselDotButton';
 import { PrevButton, NextButton, usePrevNextButtons } from './EmblaCarouselArrowButtons';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Button } from '@nextui-org/button';
-import { HeartIcon } from '@/components/icons';
+import { ArrowIcon } from '@/components/icons';
 
 type PropType = {
   slides: number[];
@@ -38,13 +38,13 @@ export const EmblaCarousel: React.FC<PropType> = (props) => {
             className='p-0 min-w-[40px] min-h-[40px] text-default-50 bg-secondary-400'
             onClick={onPrevButtonClick}
             isDisabled={prevBtnDisabled}>
-            <HeartIcon />
+            <ArrowIcon transform='rotate(180deg)'/>
           </Button>
           <Button
             className='p-0 min-w-[40px] min-h-[40px] text-default-50 bg-secondary-400'
             onClick={onNextButtonClick}
             isDisabled={nextBtnDisabled}>
-            <HeartIcon />
+            <ArrowIcon/>
           </Button>
         </div>
 

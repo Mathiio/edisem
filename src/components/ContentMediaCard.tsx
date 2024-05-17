@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { HeartIcon } from './icons';
-import { BigHeartIcon } from './icons';
+import { ArrowIcon } from './icons';
 import { Link } from 'react-router-dom';
 
 interface ContentMediaCardProps {
@@ -22,7 +21,7 @@ export const ContentMediaCard: React.FC<ContentMediaCardProps> = ({ title, autho
       }`}>
       <div
         className={`   transition-transform-colors-opacity ${isHovered ? 'text-secondary-400' : 'text-default-300'}`}>
-        <BigHeartIcon />
+        <ArrowIcon transform='rotate(180deg)'/>
       </div>
 
       <div className='w-full flex flex-col gap-vs'>
@@ -37,7 +36,7 @@ export const ContentMediaCard: React.FC<ContentMediaCardProps> = ({ title, autho
         className={`flex min-w-[40px] min-h-[40px] border-2 rounded-[12px] justify-center items-center transition-transform-colors-opacity 
         ${isHovered ? 'border-secondary-400' : 'border-default-300'} 
         ${isHovered ? 'text-secondary-400' : 'text-default-300'}`}>
-        <HeartIcon />
+        <ArrowIcon/>
       </div>
     </Link>
   );
