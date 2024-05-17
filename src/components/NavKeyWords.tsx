@@ -17,11 +17,11 @@ export const NavKeyWords: React.FC<ButtonGeneratorProps & ButtonProps> = ({ numb
       <Button
         key={i}
         onClick={onClick}
-        className='p-0 text-sm min-w-fit bg-default-50 border-2 border-default-300 hover:border-secondary-400 hover:opacity-100 text-default-500 hover:text-secondary-400 px-sm h-8'>
+        className='p-5 text-16 font-regular bg-default-100 border-2 border-default-300 hover:border-default-600 hover:opacity-100 text-default-400 hover:text-default-600 transition-all ease-in-out duration-200'>
         Press me
       </Button>,
     );
   }
 
-  return <div className='w-full flex gap-xs overflow-x-auto scrollbar-hide'>{buttons}</div>;
+  return <div className='w-full flex gap-10 overflow-x-auto scrollbar-hide'>{buttons}</div>;
 };

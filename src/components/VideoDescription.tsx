@@ -13,15 +13,15 @@ export const VideoDescription: React.FC<ExpandableTextProps> = ({ text }) => {
   };
 
   return (
-    <div className='flex flex-col bg-default-200 p-sm rounded-sm gap-vs'>
+    <div className='cursor-pointer flex flex-col bg-default-200 hover:bg-default-300 p-10 rounded-8 gap-10 transition-all ease-in-out duration-200' onClick={toggleExpansion}>
       <div
-        className='text-sm text-default-600'
+        className='text-16 text-default-500 font-thin transition-all ease-in-out duration-200'
         style={{ maxHeight: expanded ? 'none' : '65px', overflow: 'hidden' }}
-        onClick={toggleExpansion}>
+        >
         {text}
       </div>
 
-      <div className=' text-secondary-500 text-other font-semibold cursor-pointer' onClick={toggleExpansion}>
+      <div className='text-16 text-default-600 font-bold transition-all ease-in-out duration-200' onClick={toggleExpansion}>
         {expanded ? 'moins' : '...affichez plus'}
       </div>
     </div>

@@ -12,7 +12,7 @@ export const ChangeThemeButton = (props: ButtonProps) => {
 
   return (
     <Link onClick={toggleThemeMode} className="cursor-pointer">
-      {isDark ? <SunIcon className='text-default-600 hover:text-secondary-400' /> : <MoonIcon className='text-default-600 hover:text-secondary-400' />}
+      {isDark ? <SunIcon className='text-default-500 hover:text-default-600 transition-all ease-in-out duration-200' /> : <MoonIcon className='text-default-500 hover:text-default-600 transition-all ease-in-out duration-200' />}
     </Link>
   );
 };

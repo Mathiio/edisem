@@ -5,7 +5,7 @@ interface YouTubeVideoProps {
 }
 export const YouTubeVideo: React.FC<YouTubeVideoProps> = ({ videoUrl }) => {
   return (
-    <div className='rounded-sm overflow-hidden'>
+    <div className='rounded-14 overflow-hidden'>
       <iframe
         title='YouTube Video'
         width='100%'

@@ -6,13 +6,13 @@ export const ContentTab: React.FC = () => {
   const [selected, setSelected] = useState<string>('photos');
 
   return (
-    <div className='flex w-full flex-col'>
+    <div className='flex w-full flex-col gap-25'>
       <Tabs
         classNames={{
-          tabList: ' bg-default-50 w-full gap-sm p-0 ',
-          cursor: 'w-full bg-secondary-400 rounded-sm ',
-          tab: ' w-full px-0 h-12 bg-default-200 rounded-sm p-0 ',
-          tabContent: 'group-data-[selected=true]:text-default-50 group-data-[selected=true]:font-semibold ',
+          tabList: 'bg-default-100 w-full gap-10',
+          cursor: 'w-full rounded-sm ',
+          tab: 'w-full bg-default-200 rounded-8 p-10 ',
+          tabContent: 'group-data-[selected=true]:text-default-500  group-data-[selected=true]:font-semibold ',
         }}
         aria-label='Options'
         selectedKey={selected}

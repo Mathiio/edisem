@@ -2,11 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --text-body: rgb(54, 49, 61);
-  --text-high-contrast: rgb(49, 49, 49);
-  --detail-high-contrast: rgb(192, 192, 192);
-  --detail-medium-contrast: rgb(234, 234, 234);
+body{
+  background-color: hsl(var(--nextui-100));
 }
 
 .embla {
