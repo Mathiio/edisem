@@ -1,20 +1,5 @@
 const { nextui } = require('@nextui-org/react');
-const jsonData = require('./palettte.app.json');
 
-function getPaletteSwatches(paletteName) {
-  const palette = jsonData.find((p) => p.paletteName === paletteName);
-
-  if (!palette) {
-    throw new Error(`Palette with name "${paletteName}" not found`);
-  }
-
-  const swatchesObject = palette.swatches.reduce((acc, swatch) => {
-    acc[swatch.name] = `#${swatch.color}`;
-    return acc;
-  }, {});
-
-  return swatchesObject;
-}
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -36,8 +21,6 @@ module.exports = {
       inherit: colors.inherit,
       current: colors.current,
       transparent: colors.transparent,
-      dark: getPaletteSwatches('dark'),
-      light: getPaletteSwatches('light'),
     }),
     spacing: {
       5: '5px',
@@ -96,9 +79,9 @@ module.exports = {
     },
     fontSize: {
       32: ['32px', { lineHeight: '100%' }],
-      24: ['24px', { lineHeight: '20px' }],
-      16: ['16px', { lineHeight: '120%' }],
-      14: ['14px', { lineHeight: '120%' }],
+      24: ['24px', { lineHeight: '100%' }],
+      16: ['16px', { lineHeight: '100%' }],
+      14: ['14px', { lineHeight: '100%' }],
     },
     fontWeight: {
       thin: '200',
@@ -284,26 +267,25 @@ module.exports = {
         light: {
           colors: {
             default: {
-              ...getPaletteSwatches('light'),
               100: '#fafafa',
               200: '#e4e4e7',
               300: '#d4d4d8',
               400: '#71717a',
               500: '#52525b',
-              600: '#7828c8'
+              action: '#7828c8'
             },
           },
         },
         dark: {
           colors: {
             default: {
-              ...getPaletteSwatches('dark'),
+
               100: '#18181b',
               200: '#27272a',
               300: '#3f3f46',
               400: '#a1a1aa',
               500: '#d4d4d8',
-              600: '#7828c8'
+              action: '#7828c8'
             },
           },
         },
