@@ -14,7 +14,7 @@ export const Home = () => {
       <div className='w-full flex flex-row gap-75'>
         <section className='w-[60%] flex flex-col gap-50'>
           <div className='w-full flex flex-col gap-25'>
-            <NavKeyWords numberOfButtons={50} />
+            <NavKeyWords numberOfButtons={16} />
             <YouTubeVideo videoUrl='56STvMBKYdw?si=6TJjovmA3ezE4_3v' />
           </div>
           <div className='w-full flex flex-col gap-25'>
