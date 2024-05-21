@@ -10,18 +10,18 @@ interface ButtonProps {
 interface ButtonGeneratorProps {
   numberOfButtons: number;
 }
-const translate_amount = 200;
 
 export const NavKeyWords: React.FC<ButtonGeneratorProps & ButtonProps> = ({ numberOfButtons, onClick }) => {
   const buttons = [];
   const [translate, setTranslate] = useState(0);
   const [isLeftVisible, setIsLeftVisible] = useState(false);
   const [isRightVisible, setIsRightVisible] = useState(false);
-  const translateAmount = 100; // Adjust this value as needed
+  const translateAmount = 200; // Adjust this value as needed
 
   for (let i = 0; i < numberOfButtons; i++) {
     buttons.push(
       <Button
+        style={{ transform: `translateX(-${translate}px)` }}
         key={i}
         onClick={onClick}
         radius='none'
@@ -57,11 +57,7 @@ export const NavKeyWords: React.FC<ButtonGeneratorProps & ButtonProps> = ({ numb
           <ArrowIcon size={20} transform='rotate(180deg)' />
         </Button>
       )}
-      <div
-        className='button-container flex gap-10 overflow-x-auto scrollbar-hide'
-        style={{ transform: `translateX(${translate}px)` }}>
-        {buttons}
-      </div>
+      <div className='button-container flex gap-10 overflow-x-auto scrollbar-hide'>{buttons}</div>
       {isRightVisible && (
         <Button
           onClick={handleRightClick}
