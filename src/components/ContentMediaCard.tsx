@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowIcon } from './icons';
+import { LinkIcon, ImageIcon } from './icons';
 import { Link } from 'react-router-dom';
 
 interface ContentMediaCardProps {
@@ -21,7 +21,7 @@ export const ContentMediaCard: React.FC<ContentMediaCardProps> = ({ title, autho
       }`}>
       <div
         className={`   transition-transform-colors-opacity ${isHovered ? 'text-secondary-400' : 'text-default-300'}`}>
-        <ArrowIcon transform='rotate(180deg)' />
+            <ImageIcon size={22}/>
       </div>
 
       <div className='w-full flex flex-col gap-10 '>
@@ -36,7 +36,7 @@ export const ContentMediaCard: React.FC<ContentMediaCardProps> = ({ title, autho
         className={`flex min-w-[40px] min-h-[40px] border-2 rounded-12 justify-center items-center transition-transform-colors-opacity 
         ${isHovered ? 'border-secondary-400' : 'border-default-300'} 
         ${isHovered ? 'text-secondary-400' : 'text-default-300'}`}>
-        <ArrowIcon />
+        <LinkIcon size={22}/>
       </div>
     </Link>
   );
