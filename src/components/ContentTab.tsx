@@ -9,11 +9,10 @@ export const ContentTab: React.FC = () => {
     <div className='flex w-full flex-col gap-25'>
       <Tabs
         classNames={{
-          tabList: 'bg-default-100 w-full gap-10',
-          cursor: 'w-full rounded-sm ',
+          tabList: 'w-full bg-default-100 gap-10',
+          cursor: 'w-full rounded-8',
           tab: 'w-full bg-default-200 data-[selected=true]:bg-default-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-default-300 ',
-          tabContent:
-            'group-data-[selected=true]:text-default-100 data-[selected=true]:bg-default-action group-data-[selected=true]:font-semibold ',
+          tabContent: 'w-full group-data-[selected=true]:text-default-100 data-[selected=true]:bg-default-action group-data-[selected=true]:font-semibold ',
         }}
         aria-label='Options'
         selectedKey={selected}
