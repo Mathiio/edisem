@@ -6,7 +6,6 @@ import { VideoInfos } from '@/components/VideoInfos';
 import { ContentTab } from '@/components/ContentTab';
 import { Carousel } from '@/components/Carousel';
 
-
 export const Home = () => {
   return (
     <main className='w-full bg-default-100 flex flex-col items-start gap-75 p-50 transition-all ease-in-out duration-200'>
@@ -14,7 +13,7 @@ export const Home = () => {
       <div className='w-full flex flex-row gap-75'>
         <section className='w-[60%] flex flex-col gap-50'>
           <div className='w-full flex flex-col gap-25'>
-            <NavKeyWords numberOfButtons={50} />
+            <NavKeyWords numberOfButtons={12} />
             <YouTubeVideo videoUrl='56STvMBKYdw?si=6TJjovmA3ezE4_3v' />
           </div>
           <div className='w-full flex flex-col gap-25'>
