@@ -6,7 +6,6 @@ import { VideoInfos } from '@/components/VideoInfos';
 import { ContentTab } from '@/components/ContentTab';
 import { Carousel } from '@/components/Carousel';
 
-
 export const Home = () => {
   return (
     <main className='w-full bg-default-100 flex flex-col items-start gap-75 p-50 transition-all ease-in-out duration-200'>
