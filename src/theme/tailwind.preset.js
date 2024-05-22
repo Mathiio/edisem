@@ -25,7 +25,7 @@ module.exports = {
     spacing: {
       5: '5px',
       10: '10px',
-      25: '25px',
+      25: '20px',
       50: '50px',
       75: '75px',
     },
@@ -35,9 +35,9 @@ module.exports = {
     }),
     borderOpacity: ({ theme }) => theme('opacity'),
     borderRadius: {
-      8: '8px',
-      12: '12px',
-      14: '14px',
+      8: '8px !important',
+      12: '12px !important',
+      14: '14px !important',
       18: '18px',
       xl: '99999px',
     },
@@ -375,6 +375,7 @@ module.exports = {
         light: {
           colors: {
             default: {
+              0: 'transparent',
               100: '#fafafa',
               200: '#e4e4e7',
               300: '#d4d4d8',
@@ -387,7 +388,7 @@ module.exports = {
         dark: {
           colors: {
             default: {
-
+              0: 'transparent',
               100: '#18181b',
               200: '#27272a',
               300: '#3f3f46',

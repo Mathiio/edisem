@@ -24,9 +24,9 @@ export const Navbar = () => {
       </div>
       <div className='flex justify-between items-center gap-25'>
         <Button className='bg-default-200 hover:bg-default-300 flex items-center gap-10 p-25'>
-          <SearchIcon className='text-500' size={20}/>
-          <p className='text-500 text-16 font-regular'>Recherche avancée...</p>
-          <Kbd className='text-400 text-sm p-5 bg-200 gap-5' keys={['command']}>
+          <SearchIcon className='text-500' size={18}/>
+          <p className='text-500 text-14 font-regular'>Recherche avancée...</p>
+          <Kbd className='text-400 text-14 p-5 bg-200 gap-5' keys={['command']}>
             K
           </Kbd>
         </Button>
