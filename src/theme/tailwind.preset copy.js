@@ -1,18 +1,3 @@
-/**
- * NOTES
- * -----
- * Visit this link to read more about how to configure a preset file:
- * https://tailwindcss.com/docs/presets
- *
- * Visit this link for default configuration reference:
- * https://unpkg.com/browse/tailwindcss@3.2.4/stubs/defaultConfig.stub.js
- *
- * If you want to get a default value, the following line may help you:
- * const defaultTheme = require("tailwindcss/defaultTheme");
- *
- * Visit https://palettte.app to edit the color palette and use palettte.app.json file as import file.
- */
-
 // tailwind.config.js
 const { nextui } = require('@nextui-org/react');
 const jsonData = require('./palettte.app.json');
@@ -45,36 +30,17 @@ module.exports = {
   theme: {
     screens: {
       xs: '375px',
-      // => @media (min-width: 375px) { ... }
-
       sm: '640px',
-      // => @media (min-width: 640px) { ... }
-
       md: '768px',
-      // => @media (min-width: 768px) { ... }
-
       lg: '1024px',
-      // => @media (min-width: 1024px) { ... }
-
       xl: '1280px',
-      // => @media (min-width: 1280px) { ... }
-
       '2xl': '1536px',
-      // => @media (min-width: 1536px) { ... }
     },
     supports: {},
     colors: ({ colors }) => ({
       inherit: colors.inherit,
       current: colors.current,
       transparent: colors.transparent,
-      black: colors.black,
-      white: colors.white,
-      green: colors.green,
-      gray: getPaletteSwatches('gray'),
-      red: getPaletteSwatches('red'),
-      blue: getPaletteSwatches('blue'),
-      dark: getPaletteSwatches('dark'),
-      light: getPaletteSwatches('light'),
     }),
     columns: {
       auto: 'auto',
