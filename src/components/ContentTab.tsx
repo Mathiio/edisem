@@ -12,7 +12,7 @@ export const ContentTab: React.FC = () => {
           tabList: 'w-full gap-10 bg-default-0 rounded-8',
           cursor: 'w-full',
           tab: 'w-full bg-default-200 data-[selected=true]:bg-default-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-default-300 transition-all ease-in-out duration-200n',
-          tabContent: 'group-data-[selected=true]:text-default-100 data-[selected=true]:bg-default-action group-data-[selected=true]:font-semibold ',
+          tabContent: 'group-data-[selected=true]:text-default-100  group-data-[selected=true]:font-semibold ',
         }}
         aria-label='Options'
         selectedKey={selected}
@@ -23,8 +23,8 @@ export const ContentTab: React.FC = () => {
         <Tab key='Citations' title='Citations'>
           <div>sss</div>
         </Tab>
-        <Tab key='Medias' title='Médias' className='px-0 py-0'>
-          <ContentMedia numberOfCards={7} />
+        <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
+          <ContentMedia numberOfCards={50} />
         </Tab>
 
         <Tab key='Annexes' title='Annexes'>

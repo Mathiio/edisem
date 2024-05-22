@@ -39,7 +39,7 @@ module.exports = {
       12: '12px !important',
       14: '14px !important',
       18: '18px',
-      xl: '99999px',
+      xl: '99999px !important',
     },
     borderSpacing: ({ theme }) => ({
       ...theme('spacing'),
@@ -86,7 +86,8 @@ module.exports = {
     fontWeight: {
       thin: '200',
       regular: '400',
-      semibold: '500',
+      medium: '500',
+      semibold: '600',
       bold: '700',
     },
     gap: ({ theme }) => theme('spacing'),

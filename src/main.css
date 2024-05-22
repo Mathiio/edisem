@@ -121,3 +121,29 @@ body{
 .button-transition {
   transition: background-color 200ms ease-in-out;
 }
+
+
+[role="tablist"] span {
+  background-color: #9653d2 !important;
+}
+
+
+/* Add this to your global CSS file */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
+
+
+
+
+
+
+
+
