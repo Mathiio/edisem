@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 body{
   background-color: hsl(var(--nextui-100));
 }
@@ -36,7 +37,7 @@ body{
   align-items: center;
   justify-content: center;
   height: var(--slide-height);
-  background-color: blue;
+  background-color: hsl(var(--nextui-default-action));
   color: #fafafa;
 }
 .embla__controls {
@@ -115,7 +116,7 @@ body{
   content: '';
 }
 .embla__dot--selected:after {
-  box-shadow: inset 0 0 0 0.2rem #9653d2;
+  box-shadow: inset 0 0 0 0.2rem hsl(var(--nextui-default-action));
 }
 
 .button-transition {
@@ -124,7 +125,7 @@ body{
 
 
 [role="tablist"] span {
-  background-color: #9653d2 !important;
+  background-color: hsl(var(--nextui-default-action)) !important;
 }
 
 
@@ -139,7 +140,9 @@ body{
 }
 
 
-
+.hover\:opacity-80:hover {
+  opacity: 1 !important;
+}
 
 
 

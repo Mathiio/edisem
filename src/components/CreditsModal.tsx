@@ -19,20 +19,45 @@ const CreditsModal = () => {
           <CreditIcon className='text-default-500 hover:text-default-action transition-all ease-in-out duration-200' />
         </Link>
       </div>
+
       <Modal
+        backdrop='blur'
         className='bg-default-100'
         size='2xl'
         isOpen={isOpen}
         onClose={onClose}
         hideCloseButton={true}
-        scrollBehavior='inside'>
+        scrollBehavior='inside'
+        motionProps={{
+          variants: {
+            enter: {
+              y: 0,
+              opacity: 1,
+              transition: {
+                duration: 0.3,
+                ease: 'easeOut',
+              },
+            },
+            exit: {
+              y: -20,
+              opacity: 0,
+              transition: {
+                duration: 0.2,
+                ease: 'easeIn',
+              },
+            },
+          },
+        }}>
         <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader className='flex justify-between p-25 border-b-2 border-default-300'>
                 <h2 className='text-default-500 text-32 font-semibold'>Crédits</h2>
                 <Link onPress={onClose}>
-                  <CloseIcon className='text-default-500 cursor-pointer hover:text-default-600' size={24} />
+                  <CloseIcon
+                    className='text-default-500 cursor-pointer hover:text-default-action transition-all ease-in-out duration-200'
+                    size={24}
+                  />
                 </Link>
               </ModalHeader>
               <ModalBody className='flex p-25'>
@@ -47,6 +72,12 @@ const CreditsModal = () => {
                     <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
                     <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
                     <div className='text-default-400'>Equipe Arcanes</div>
+                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
+                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
+                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
+                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
+                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
+                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
                     <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
                     <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
                     <ContentCreditCard name='Junior Garcia' job='Software Engineer' />

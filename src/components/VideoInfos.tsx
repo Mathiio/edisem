@@ -8,14 +8,14 @@ export const VideoInfos: React.FC = () => {
     <>
       <div className='w-full flex flex-col gap-10'>
         <div className='font-semibold text-32'>Théorie des Graphes et Optimisation Combinatoire</div>
-        <div className='w-full flex justify-start gap-10'>
+        <div className='w-full flex justify-start gap-10 items-center'>
           <h3 className='text-default-400 font-regular text-24 gap-10 transition-all ease-in-out duration-200'>
             Hao Li, Université Paris Sud, Allemagne
           </h3>
           <Link className='cursor-pointer'>
             <CreditIcon
-              size={18}
-              className='text-default-500 hover:text-default-action transition-all ease-in-out duration-200'
+              size={20}
+              className='top-[1px] relative text-default-500 hover:text-default-action transition-all ease-in-out duration-200'
             />
           </Link>
         </div>
