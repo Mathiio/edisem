@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { SearchIcon, CloseIcon } from '@/components/icons';
-import { Link, Modal, ModalContent, ModalHeader, ModalBody, ModalProps, useDisclosure } from '@nextui-org/react';
+import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@nextui-org/react';
 import { Kbd } from '@nextui-org/kbd';
 import { Button } from '@nextui-org/button';
 import { ContentCreditCard } from './ContentMediaCard';

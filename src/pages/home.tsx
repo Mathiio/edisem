@@ -1,4 +1,3 @@
-import React from 'react';
 import { Navbar } from '@/components/Navbar';
 import { NavKeyWords } from '@/components/NavKeyWords';
 import { YouTubeVideo } from '@/components/VideoEmbed';

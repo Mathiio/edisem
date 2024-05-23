@@ -1,4 +1,3 @@
-import React from 'react';
 import { EmblaOptionsType } from 'embla-carousel';
 import { EmblaCarousel } from '@/components/EmblaCarousel';
 

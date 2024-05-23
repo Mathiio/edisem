@@ -6,7 +6,6 @@ import { Scrollbar } from './Scrollbar';
 
 const CreditsModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [scrollBehavior, setScrollBehavior] = React.useState<ModalProps['scrollBehavior']>('inside');
 
   const handleOpen = () => {
     onOpen();

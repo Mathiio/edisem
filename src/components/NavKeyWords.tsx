@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@nextui-org/react';
 import { ArrowIcon } from './icons';
-import moduleName from 'module';
 
 interface ButtonProps {
   onClick?: () => void;

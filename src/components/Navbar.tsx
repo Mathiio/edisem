@@ -1,5 +1,4 @@
 import { Image } from '@/theme/components';
-import { useState } from 'react';
 import Logo from '@/assets/svg/logo.svg';
 
 import { Link } from '@nextui-org/link';
