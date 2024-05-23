@@ -10,25 +10,27 @@ export const Home = () => {
   return (
     <div className='relative h-screen overflow-hidden'>
       <Scrollbar>
-        <main className='w-full max-w-xl grid grid-cols-12 gap-75 p-50 transition-all ease-in-out duration-200 '>
-          <div className='col-span-9 md:col-span-12'>
+        <main className='w-full flex flex-col gap-75 p-50 transition-all ease-in-out duration-200   '>
+          <div className='w-full'>
             <Navbar />
           </div>
-          <div className='col-span-9 md:col-span-7 flex flex-col gap-50'>
-            <div className='w-full flex flex-col gap-25'>
-              <NavKeyWords numberOfButtons={16} />
-              <YouTubeVideo videoUrl='56STvMBKYdw?si=6TJjovmA3ezE4_3v' />
+          <div className='w-full full flex lg:flex-row flex-col flex-1 gap-75'>
+            <div className=' flex flex-col gap-50'>
+              <div className=' flex flex-col gap-25'>
+                <YouTubeVideo videoUrl='56STvMBKYdw?si=6TJjovmA3ezE4_3v' />
+              </div>
+              <div className='w-full flex flex-col gap-25'>
+                <VideoInfos />
+              </div>
             </div>
-            <div className='w-full flex flex-col gap-25'>
-              <VideoInfos />
+            <div className='flex flex-col gap-50'>
+              <ContentTab />
+              <Carousel />
             </div>
-          </div>
-          <div className='col-span-9 md:col-span-5 flex flex-col gap-50'>
-            <ContentTab />
-            <Carousel />
           </div>
         </main>
       </Scrollbar>
     </div>
   );
 };
+<NavKeyWords numberOfButtons={20} />;
