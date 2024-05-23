@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { SearchIcon, CloseIcon } from '@/components/icons';
+import { SearchIcon, CloseIcon, FilterIcon, CalendarIcon, UserIcon } from '@/components/icons';
 import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@nextui-org/react';
 import { Kbd } from '@nextui-org/kbd';
 import { Button } from '@nextui-org/button';
@@ -85,17 +85,17 @@ export const SearchModal = () => {
               </ModalHeader>
               <ModalBody className='flex p-25'>
                 <div className='flex flex-row gap-25'>
-                  <Select color='secondary' label='Date' placeholder='AAAA' startContent={<SearchIcon />}>
+                  <Select color='secondary' label='Date' placeholder='AAAA' startContent={<CalendarIcon size={22}/>}>
                     <SelectItem key={2024} value={2024}>
                       2024
                     </SelectItem>
                   </Select>
-                  <Select color='secondary' label='Conférencier' placeholder='John Doe' startContent={<SearchIcon />}>
+                  <Select color='secondary' label='Conférencier' placeholder='John Doe' startContent={<UserIcon size={22}/>}>
                     <SelectItem key={1} value={2024}>
-                      2024
+                      John Doe
                     </SelectItem>
                   </Select>
-                  <Select color='secondary' label='Type' placeholder='Type' startContent={<SearchIcon />}>
+                  <Select color='secondary' label='Type' placeholder='Type' startContent={<FilterIcon size={22}/>}>
                     <SelectItem key={1} value={2024}>
                       2024
                     </SelectItem>
