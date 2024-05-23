@@ -1,6 +1,5 @@
-import React from 'react';
 import { CreditIcon, CloseIcon } from '@/components/icons';
-import { Link, Modal, ModalContent, ModalHeader, ModalBody, ModalProps, useDisclosure } from '@nextui-org/react';
+import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@nextui-org/react';
 import { ContentCreditCard } from './ContentMediaCard';
 import { Scrollbar } from './Scrollbar';
 

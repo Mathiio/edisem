@@ -1,9 +1,8 @@
 import { useThemeMode } from '@/hooks/use-theme-mode';
 import { Link } from '@/theme/components';
-import { ButtonProps } from '@nextui-org/react';
 import { SunIcon, MoonIcon } from '@/components/icons';
 
-export const ChangeThemeButton = (props: ButtonProps) => {
+export const ChangeThemeButton = () => {
   const { isDark, toggleThemeMode } = useThemeMode();
 
   return (
