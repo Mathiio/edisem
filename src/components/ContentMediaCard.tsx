@@ -17,10 +17,10 @@ export const ContentMediaCard: React.FC<ContentMediaCardProps> = ({ title, autho
       onMouseLeave={() => setIsHovered(false)}
       to='https://github.com/nextui-org/nextui'
       className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 p-25 transition-transform-colors-opacity ${
-        isHovered ? 'border-secondary-400' : 'border-default-300'
+        isHovered ? 'border-default-action' : 'border-default-300'
       }`}>
       <div
-        className={`   transition-transform-colors-opacity ${isHovered ? 'text-secondary-400' : 'text-default-300'}`}>
+        className={`   transition-transform-colors-opacity ${isHovered ? 'text-default-action' : 'text-default-300'}`}>
         <ImageIcon size={22} />
       </div>
 
@@ -34,8 +34,8 @@ export const ContentMediaCard: React.FC<ContentMediaCardProps> = ({ title, autho
 
       <div
         className={`flex min-w-[40px] min-h-[40px] border-2 rounded-12 justify-center items-center transition-transform-colors-opacity 
-        ${isHovered ? 'border-secondary-400' : 'border-default-300'} 
-        ${isHovered ? 'text-secondary-400' : 'text-default-300'}`}>
+        ${isHovered ? 'border-default-action' : 'border-default-300'} 
+        ${isHovered ? 'text-default-action' : 'text-default-300'}`}>
         <LinkIcon size={22} />
       </div>
     </Link>
@@ -56,10 +56,10 @@ export const ContentCreditCard: React.FC<ContentCreditCardProps> = ({ name, job 
       onMouseLeave={() => setIsHovered(false)}
       to='https://github.com/nextui-org/nextui'
       className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 p-25 transition-transform-colors-opacity ${
-        isHovered ? 'border-secondary-400' : 'border-default-300'
+        isHovered ? 'border-default-action' : 'border-default-300'
       }`}>
       <div
-        className={`   transition-transform-colors-opacity ${isHovered ? 'text-secondary-400' : 'text-default-300'}`}>
+        className={`   transition-transform-colors-opacity ${isHovered ? 'text-default-action' : 'text-default-300'}`}>
         <img
           className=' max-w-[40px] max-h-[40px] rounded-xl'
           src='https://www.digicatapult.org.uk/wp-content/uploads/2021/11/DC_square_People_juergen-600x600-c-default.jpg'
@@ -76,8 +76,8 @@ export const ContentCreditCard: React.FC<ContentCreditCardProps> = ({ name, job 
 
       <div
         className={`flex min-w-[40px] min-h-[40px] border-2 rounded-12 justify-center items-center transition-transform-colors-opacity 
-        ${isHovered ? 'border-secondary-400' : 'border-default-300'} 
-        ${isHovered ? 'text-secondary-400' : 'text-default-300'}`}>
+        ${isHovered ? 'border-default-action' : 'border-default-300'} 
+        ${isHovered ? 'text-default-action' : 'text-default-300'}`}>
         <MailIcon size={22} />
       </div>
     </Link>
