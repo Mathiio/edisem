@@ -26,11 +26,11 @@ export const SearchModal = () => {
       <Button
         onPress={handleOpen}
         className='bg-default-200 hover:bg-default-300 data-[hover=true]:opacity-100 items-center gap-25 p-25 h-[50px] hidden sm:flex'>
-            <SearchIcon className='text-default-600' size={18} />
-            <p className='flex text-default-600 text-16 font-regular'>Recherche avancée...</p>
-            <Kbd className='flex sm:flex text-default-600 text-14 px-[8px] py-5 bg-default-200 gap-5' keys={['command']}>
-              K
-            </Kbd>
+        <SearchIcon className='text-default-600' size={18} />
+        <p className='flex text-default-600 text-16 font-regular'>Recherche avancée...</p>
+        <Kbd className='flex sm:flex text-default-600 text-14 px-[8px] py-5 bg-default-200 gap-5' keys={['command']}>
+          K
+        </Kbd>
       </Button>
       {/* <Link onPress={handleOpen} className='cursor-pointer'>
         <SearchIcon className='text-default-600 flex sm:hidden' size={22} />
@@ -38,10 +38,9 @@ export const SearchModal = () => {
       <Button
         onPress={handleOpen}
         className='bg-default-200 hover:bg-default-300 data-[hover=true]:opacity-100 items-center gap-10 p-25 flex sm:hidden'>
-            <SearchIcon className='text-default-600' size={18} />
-            <p className='flex text-default-600 text-16 font-regular'>...</p>
+        <SearchIcon className='text-default-600' size={18} />
+        <p className='flex text-default-600 text-16 font-regular'>...</p>
       </Button>
-      
 
       <Modal
         backdrop='blur'
@@ -95,23 +94,27 @@ export const SearchModal = () => {
               </ModalHeader>
               <ModalBody className='flex p-25'>
                 <div className='flex flex-row gap-25'>
-                  <Select color='secondary' label='Date' placeholder='AAAA' startContent={<CalendarIcon size={22}/>}>
+                  <Select color='secondary' label='Date' placeholder='AAAA' startContent={<CalendarIcon size={22} />}>
                     <SelectItem key={2024} value={2024}>
                       2024
                     </SelectItem>
                   </Select>
-                  <Select color='secondary' label='Conférencier' placeholder='John Doe' startContent={<UserIcon size={22}/>}>
+                  <Select
+                    color='secondary'
+                    label='Conférencier'
+                    placeholder='John Doe'
+                    startContent={<UserIcon size={22} />}>
                     <SelectItem key={1} value={2024}>
                       John Doe
                     </SelectItem>
                   </Select>
-                  <Select color='secondary' label='Type' placeholder='Type' startContent={<FilterIcon size={22}/>}>
+                  <Select color='secondary' label='Type' placeholder='Type' startContent={<FilterIcon size={22} />}>
                     <SelectItem key={1} value={2024}>
                       2024
                     </SelectItem>
                   </Select>
                 </div>
-                <Scrollbar>
+                <Scrollbar withGap>
                   <div className='flex flex-col gap-25'>
                     <div className='text-default-400'>Equipe Arcanes</div>
                     <ContentCreditCard name='Junior Garcia' job='Software Engineer' />

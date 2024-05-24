@@ -50,7 +50,7 @@ export const NavKeyWords: React.FC<ButtonGeneratorProps & ButtonProps> = ({ numb
         <Button
           onClick={handleLeftClick}
           size='sm'
-          className='p-0 min-w-[32px] min-h-[32px] text-default-50 bg-default-action'>
+          className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action'>
           <ArrowIcon size={20} transform='rotate(180deg)' />
         </Button>
       )}
@@ -59,7 +59,7 @@ export const NavKeyWords: React.FC<ButtonGeneratorProps & ButtonProps> = ({ numb
         <Button
           onClick={handleRightClick}
           size='sm'
-          className='p-0 min-w-[32px] min-h-[32px] text-default-50 bg-default-action'>
+          className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action'>
           <ArrowIcon size={20} />
         </Button>
       )}
