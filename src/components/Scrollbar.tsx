@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-export const Scrollbar = ({ children }: { children: React.ReactNode }) => {
+interface ScrollbarProps {
+  children: React.ReactNode;
+  withGap?: boolean;
+}
+
+export const Scrollbar: React.FC<ScrollbarProps> = ({ children, withGap = false }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollTrackRef = useRef<HTMLDivElement>(null);
   const scrollThumbRef = useRef<HTMLDivElement>(null);
@@ -113,7 +118,7 @@ export const Scrollbar = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className=' flex h-full overflow-hidden relative'>
+    <div className={`flex h-full overflow-hidden relative ${withGap ? 'gap-25' : ''}`}>
       <div className='overflow-auto flex-1 scrollbar-hide' id='custom-scrollbars-content' ref={contentRef}>
         {children}
       </div>
@@ -123,12 +128,12 @@ export const Scrollbar = ({ children }: { children: React.ReactNode }) => {
           role='scrollbar'
           aria-controls='custom-scrollbars-content'>
           <div
-            className=' cursor-pointer absolute w-[5px] rounded-xl inset-y-0 bg-default-200 '
+            className='cursor-pointer absolute w-[5px] rounded-xl inset-y-0 bg-default-200'
             ref={scrollTrackRef}
             onClick={handleTrackClick}
             style={{ cursor: isDragging ? 'grabbing' : 'pointer' }}></div>
           <div
-            className=' bg-default-action w-[5px] absolute rounded-xl '
+            className='bg-default-action w-[5px] absolute rounded-xl'
             ref={scrollThumbRef}
             onMouseDown={handleThumbMousedown}
             style={{

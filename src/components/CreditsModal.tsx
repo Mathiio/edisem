@@ -59,7 +59,7 @@ const CreditsModal = () => {
                 </Link>
               </ModalHeader>
               <ModalBody className='flex p-25'>
-                <Scrollbar>
+                <Scrollbar withGap>
                   <div className='flex flex-col gap-25'>
                     <div className='text-default-400'>Equipe Arcanes</div>
                     <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
