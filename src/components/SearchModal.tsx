@@ -83,7 +83,9 @@ export const SearchModal = () => {
                       <CalendarIcon size={20} />
                       <div>Date de publication</div>
                     </div>
-                    <DateRangePicker />
+                    <div className='h-[80px]'>
+                      <DateRangePicker />
+                    </div>
                   </div>
                 </div>
               </ModalBody>
