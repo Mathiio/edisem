@@ -41,9 +41,10 @@ export const Navbar = () => {
       />
       <SearchModal />
       <div className='flex items-center gap-6'>
-        <ChangeThemeButton />
 
         <CreditsModal />
+
+        <ChangeThemeButton />
 
         <ProfilDropdown />
       </div>

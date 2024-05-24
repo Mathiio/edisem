@@ -15,7 +15,7 @@ const CreditsModal = () => {
       <div className='flex flex-wrap'>
         <Tooltip content='voir les crédits'>
           <Link onPress={handleOpen} className='cursor-pointer'>
-            <CreditIcon className='text-default-500 hover:text-default-action transition-all ease-in-out duration-200' />
+            <CreditIcon size={22} className='text-default-500 hover:text-default-action transition-all ease-in-out duration-200' />
           </Link>
         </Tooltip>
       </div>
