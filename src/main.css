@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 body{
   background-color: hsl(var(--nextui-100));
@@ -150,6 +154,13 @@ body{
   background-color: hsl(var(--nextui-default-100));
 }
 
+.nav_searchbar {
+  padding-inline-start: 20px !important;
+  padding-inline-end: 20px !important;
+}
 
-
-
+.navkeyword {
+  min-width: fit-content;
+  padding-right: 20px;
+  padding-left: 20px;
+}
