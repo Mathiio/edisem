@@ -3,7 +3,7 @@ import { EmblaOptionsType } from 'embla-carousel';
 import { DotButton, useDotButton } from './EmblaCarouselDotButton';
 import { usePrevNextButtons } from './EmblaCarouselArrowButtons';
 import useEmblaCarousel from 'embla-carousel-react';
-import { Button } from '@nextui-org/button';
+import { Button } from '@nextui-org/react';
 import { ArrowIcon } from '@/components/icons';
 
 type PropType = {
