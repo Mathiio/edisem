@@ -1,6 +1,6 @@
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
-import { Link, Input, Kbd, Tooltip } from '@nextui-org/react';
+import { Link, Input, Kbd } from '@nextui-org/react';
 import { ChangeThemeButton } from '@/components/change-theme';
 import CreditsModal from '@/components/CreditsModal';
 import { SearchModal } from './SearchModal';
@@ -42,9 +42,9 @@ export const Navbar = () => {
       <SearchModal />
       <div className='flex items-center gap-6'>
         <ChangeThemeButton />
-        <Tooltip content='voir les crédits'>
-          <CreditsModal />
-        </Tooltip>
+
+        <CreditsModal />
+
         <ProfilDropdown />
       </div>
     </nav>

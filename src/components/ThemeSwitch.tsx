@@ -1,11 +1,11 @@
 import React from 'react';
-import { Switch, useSwitch, VisuallyHidden, SwitchProps } from '@nextui-org/react';
+import { useSwitch, VisuallyHidden, SwitchProps } from '@nextui-org/react';
 import { MoonIcon, SunIcon } from './icons';
 import { useThemeMode } from '@/hooks/use-theme-mode';
 
 export const ThemeSwitch: React.FC<SwitchProps> = (props) => {
   const { isDark, toggleThemeMode } = useThemeMode();
-  const { Component, slots, isSelected, getBaseProps, getInputProps, getWrapperProps } = useSwitch({
+  const { Component, slots, getBaseProps, getInputProps, getWrapperProps } = useSwitch({
     ...props,
     isSelected: isDark, // Set the initial selected state based on isDark
     onChange: () => toggleThemeMode(), // Toggle theme mode on change

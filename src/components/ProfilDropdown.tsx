@@ -1,14 +1,9 @@
 import React from 'react';
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem, cn, user } from '@nextui-org/react';
-import { CalendarIcon, UserIcon } from './icons';
-import { Button, User, Link, Avatar } from '@nextui-org/react';
-import { Select, SelectSection, SelectItem } from '@nextui-org/select';
-import { ChangeThemeButton } from './change-theme';
-user;
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem } from '@nextui-org/react';
+import { UserIcon } from './icons';
+import { User, Link, Avatar } from '@nextui-org/react';
 
 export const ProfilDropdown: React.FC = () => {
-  const iconClasses = 'text-md text-default-300 pointer-events-none flex-shrink-0 ';
-
   return (
     <Dropdown>
       <DropdownTrigger>

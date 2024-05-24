@@ -1,12 +1,9 @@
 import { useRef, useEffect } from 'react';
-import { SearchIcon, CloseIcon, FilterIcon, CalendarIcon, UserIcon } from '@/components/icons';
+import { SearchIcon, CloseIcon, CalendarIcon } from '@/components/icons';
 import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@nextui-org/react';
 import { DateRangePicker } from '@nextui-org/date-picker';
-import { Kbd } from '@nextui-org/kbd';
+
 import { Button } from '@nextui-org/button';
-import { ContentCreditCard } from './ContentMediaCard';
-import { Scrollbar } from './Scrollbar';
-import { Select, SelectItem } from '@nextui-org/react';
 
 export const SearchModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
