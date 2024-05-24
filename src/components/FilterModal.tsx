@@ -5,7 +5,7 @@ import { DateRangePicker } from '@nextui-org/date-picker';
 
 import { Button } from '@nextui-org/button';
 
-export const SearchModal = () => {
+export const FilterModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const inputRef = useRef<HTMLInputElement>(null); // Référence pour l'élément input
 
