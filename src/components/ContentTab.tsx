@@ -18,16 +18,16 @@ export const ContentTab: React.FC = () => {
         selectedKey={selected}
         onSelectionChange={(key: React.Key) => setSelected(key as string)}>
         <Tab key='Bibliographie' title='Bibliographie' className='px-0 py-0 flex'>
-          {selected === 'Bibliographie' && <ContentMedia numberOfCards={50} />}
+          {selected === 'Bibliographie' && <ContentMedia numberOfCards={35} />}
         </Tab>
         <Tab key='Citations' title='Citations' className='px-0 py-0 flex'>
-          {selected === 'Citations' && <ContentMedia numberOfCards={50} />}
+          {selected === 'Citations' && <ContentMedia numberOfCards={35} />}
         </Tab>
         <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
-          {selected === 'Medias' && <ContentMedia numberOfCards={50} />}
+          {selected === 'Medias' && <ContentMedia numberOfCards={35} />}
         </Tab>
         <Tab key='Annexes' title='Annexes' className='px-0 py-0 flex'>
-          {selected === 'Annexes' && <ContentMedia numberOfCards={50} />}
+          {selected === 'Annexes' && <ContentMedia numberOfCards={35} />}
         </Tab>
       </Tabs>
     </div>

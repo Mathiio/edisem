@@ -35,7 +35,7 @@ export const ContentMedia: React.FC<ContentMediaProps> = ({ numberOfCards }) => 
   }
 
   return (
-    <div className='w-full h-[500px]'>
+    <div className='w-full lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] h-[450px]'>
       <Scrollbar>
         <motion.div className='flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
           {cards}

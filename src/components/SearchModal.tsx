@@ -25,13 +25,23 @@ export const SearchModal = () => {
     <>
       <Button
         onPress={handleOpen}
-        className='bg-default-200 hover:bg-default-300  data-[hover=true]:opacity-100 flex items-center gap-25 p-25 h-[50px]'>
-        <SearchIcon className='text-default-600' size={18} />
-        <p className='text-default-600 text-16 font-regular'>Recherche avancée...</p>
-        <Kbd className='text-default-600 text-14 px-[8px] py-5 bg-default-200 gap-5' keys={['command']}>
-          K
-        </Kbd>
+        className='bg-default-200 hover:bg-default-300 data-[hover=true]:opacity-100 items-center gap-25 p-25 h-[50px] hidden sm:flex'>
+            <SearchIcon className='text-default-600' size={18} />
+            <p className='flex text-default-600 text-16 font-regular'>Recherche avancée...</p>
+            <Kbd className='flex sm:flex text-default-600 text-14 px-[8px] py-5 bg-default-200 gap-5' keys={['command']}>
+              K
+            </Kbd>
       </Button>
+      {/* <Link onPress={handleOpen} className='cursor-pointer'>
+        <SearchIcon className='text-default-600 flex sm:hidden' size={22} />
+      </Link> */}
+      <Button
+        onPress={handleOpen}
+        className='bg-default-200 hover:bg-default-300 data-[hover=true]:opacity-100 items-center gap-10 p-25 flex sm:hidden'>
+            <SearchIcon className='text-default-600' size={18} />
+            <p className='flex text-default-600 text-16 font-regular'>...</p>
+      </Button>
+      
 
       <Modal
         backdrop='blur'

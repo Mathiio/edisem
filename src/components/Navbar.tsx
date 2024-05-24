@@ -10,10 +10,6 @@ import { FaBars, FaTimes } from 'react-icons/fa';
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
   return (
     <nav className='w-full flex justify-between items-center'>
       <div className='flex items-center gap-4'>
@@ -27,23 +23,11 @@ export const Navbar = () => {
           </p>
         </div>
       </div>
-      <div className='hidden sm:flex items-center gap-6'>
+      <div className='flex items-center gap-6'>
         <SearchModal />
         <ChangeThemeButton />
         <CreditsModal />
       </div>
-      <div className='sm:hidden flex items-center'>
-        <button onClick={toggleMenu} aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}>
-          {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-        </button>
-      </div>
-      {isMenuOpen && (
-        <div className='absolute top-16 right-0 mt-2 w-48 bg-default-100 shadow-lg rounded-lg p-4 flex flex-col gap-4 sm:hidden'>
-          <SearchModal />
-          <ChangeThemeButton />
-          <CreditsModal />
-        </div>
-      )}
     </nav>
   );
 };

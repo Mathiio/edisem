@@ -113,7 +113,7 @@ export const Scrollbar = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <div className=' flex h-full overflow-hidden relative gap-25'>
+    <div className=' flex h-full overflow-hidden relative'>
       <div className='overflow-auto flex-1 scrollbar-hide' id='custom-scrollbars-content' ref={contentRef}>
         {children}
       </div>
