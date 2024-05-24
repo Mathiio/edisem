@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { FilterIcon, SearchIcon, CloseIcon, CalendarIcon } from '@/components/icons';
+import { FilterIcon, CloseIcon, CalendarIcon } from '@/components/icons';
 import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@nextui-org/react';
 import { DateRangePicker } from '@nextui-org/date-picker';
 
