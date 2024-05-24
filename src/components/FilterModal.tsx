@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { SearchIcon, CloseIcon, CalendarIcon } from '@/components/icons';
+import { FilterIcon, SearchIcon, CloseIcon, CalendarIcon } from '@/components/icons';
 import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@nextui-org/react';
 import { DateRangePicker } from '@nextui-org/date-picker';
 
@@ -24,16 +24,7 @@ export const FilterModal = () => {
       <Button
         onPress={handleOpen}
         className='bg-default-200 hover:bg-default-300 data-[hover=true]:opacity-100 items-center gap-25 p-25 h-[50px] hidden sm:flex'>
-        <SearchIcon className='text-default-600' size={18} />
-      </Button>
-      {/* <Link onPress={handleOpen} className='cursor-pointer'>
-        <SearchIcon className='text-default-600 flex sm:hidden' size={22} />
-      </Link> */}
-      <Button
-        onPress={handleOpen}
-        className='bg-default-200 hover:bg-default-300 data-[hover=true]:opacity-100 items-center gap-10 p-25 flex sm:hidden'>
-        <SearchIcon className='text-default-600' size={18} />
-        <p className='flex text-default-600 text-16 font-regular'>...</p>
+        <FilterIcon className='text-default-600' size={22} />
       </Button>
 
       <Modal
