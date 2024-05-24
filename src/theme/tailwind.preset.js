@@ -691,7 +691,8 @@ module.exports = {
               300: '#d4d4d8',
               400: '#71717a',
               500: '#52525b',
-              action: '#7828c8'
+              action: '#7828c8',
+              selected: '#fafafa'
             },
           },
         },
@@ -704,7 +705,8 @@ module.exports = {
               300: '#3f3f46',
               400: '#a1a1aa',
               500: '#d4d4d8',
-              action: '#7828c8'
+              action: '#7828c8',
+              selected: '#fafafa'
             },
           },
         },

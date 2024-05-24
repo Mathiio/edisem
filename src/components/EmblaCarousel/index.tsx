@@ -35,13 +35,13 @@ export const EmblaCarousel: React.FC<PropType> = (props) => {
       <div className='embla__controls'>
         <div className='embla__buttons'>
           <Button
-            className='p-0 min-w-[40px] min-h-[40px] text-default-50 bg-default-action'
+            className='p-0 min-w-[40px] min-h-[40px] text-default-selected bg-default-action'
             onClick={onPrevButtonClick}
             isDisabled={prevBtnDisabled}>
             <ArrowIcon transform='rotate(180deg)' />
           </Button>
           <Button
-            className='p-0 min-w-[40px] min-h-[40px] text-default-50 bg-default-action'
+            className='p-0 min-w-[40px] min-h-[40px] text-default-selected bg-default-action'
             onClick={onNextButtonClick}
             isDisabled={nextBtnDisabled}>
             <ArrowIcon />
