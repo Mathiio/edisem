@@ -1,14 +1,11 @@
-import { useState } from 'react';
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { Link } from '@nextui-org/link';
 import { ChangeThemeButton } from '@/components/change-theme';
 import CreditsModal from '@/components/CreditsModal';
 import { SearchModal } from './SearchModal';
-import { FaBars, FaTimes } from 'react-icons/fa';
 
 export const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <nav className='w-full flex justify-between items-center'>
