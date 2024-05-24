@@ -145,7 +145,10 @@ body{
 }
 
 
-
+:root, [data-theme] {
+  color: hsl(var(--nextui-foreground));
+  background-color: hsl(var(--nextui-default-100));
+}
 
 
 
