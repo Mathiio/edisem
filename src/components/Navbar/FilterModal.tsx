@@ -2,7 +2,8 @@ import { useRef, useEffect } from 'react';
 import { FilterIcon, CloseIcon, CalendarIcon } from '@/components/Utils/icons';
 import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@nextui-org/react';
 import { DateRangePicker } from '@nextui-org/date-picker';
-
+import { NavConferencierFilter } from './NavConferencierFilter';
+import { NavTypeFilter } from './NavTypeFilter';
 import { Button } from '@nextui-org/button';
 
 export const FilterModal = () => {
@@ -69,17 +70,65 @@ export const FilterModal = () => {
               </ModalHeader>
               <ModalBody className='flex p-25'>
                 <div className='flex flex-col gap-25'>
-                  <div>
+                  <div className=' flex flex-col  gap-10'>
                     <div className='flex flex-row items-center gap-10'>
-                      <CalendarIcon size={20} />
-                      <div>Date de publication</div>
+                      <CalendarIcon className='text-default-600' size={20} />
+                      <div className='text-default-600 font-semibold'>Date de publication</div>
                     </div>
-                    <div className='h-[80px]'>
-                      <DateRangePicker />
+                    <div className='sm:max-w-[350px]'>
+                      <DateRangePicker
+                        classNames={{
+                          selectorButton: 'w-[50px] rounded-8',
+                          calendarContent: 'rounded-8',
+                          calendar: 'rounded-8',
+                          timeInput: 'rounded-8',
+                          timeInputWrapper: 'rounded-8',
+                        }}
+                        color='secondary'
+                        visibleMonths={3}
+                        pageBehavior='single'
+                        label='Date de publication'
+                        selectorIcon={<CalendarIcon size={20} />}
+                        className='h-full'
+                      />
+                    </div>
+                  </div>
+                  <div className=' flex flex-col  gap-10'>
+                    <div className='flex flex-row items-center gap-10'>
+                      <CalendarIcon className='text-default-600' size={20} />
+                      <div className='text-default-600 font-semibold'>Type de contenus</div>
+                    </div>
+                    <div>
+                      <NavConferencierFilter numberOfButtons={50} />
+                    </div>
+                  </div>
+                  <div className=' flex flex-col  gap-10'>
+                    <div className='flex flex-row items-center gap-10'>
+                      <CalendarIcon className='text-default-600' size={20} />
+                      <div className='text-default-600 font-semibold'>Type de contenus</div>
+                    </div>
+                    <div>
+                      <NavTypeFilter buttonNames={['Image', 'Vidéo', 'Document texte', 'Bande sonore']} />
                     </div>
                   </div>
                 </div>
               </ModalBody>
+              <ModalHeader className='flex items-center justify-between p-25 '>
+                <div className='flex flex-row gap-25 items-center text-16'>6 séléctionnés</div>
+                <div className='flex flex-row gap-25'>
+                  <Button
+                    radius='none'
+                    className={`h-[32px]  text-16 rounded-8 text-default-500 bg-default-200 hover:text-default-500 hover:bg-default-300 transition-all ease-in-out duration-200 navfilter flex items-center`}>
+                    Réinitialiser
+                  </Button>
+                  <Button
+                    onPress={onClose}
+                    radius='none'
+                    className={`h-[32px]  text-16 rounded-8 text-default-100 bg-default-action transition-all ease-in-out duration-200 navfilter flex items-center`}>
+                    Appliquer
+                  </Button>
+                </div>
+              </ModalHeader>
             </>
           )}
         </ModalContent>
