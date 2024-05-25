@@ -2,6 +2,7 @@ import { ContentMediaCard } from './ContentMediaCard';
 import { Scrollbar } from '../Utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
 import React from 'react';
+import { ScrollShadow } from '@nextui-org/react';
 
 interface ContentMediaProps {
   numberOfCards: number;
@@ -35,7 +36,7 @@ export const ContentMedia: React.FC<ContentMediaProps> = ({ numberOfCards }) => 
   }
 
   return (
-    <div className='w-full lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] h-[450px]'>
+    <div className='w-full lg:h-[400px] xl:h-[450px]  sm:h-[450px] '>
       <Scrollbar withGap>
         <motion.div className='flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
           {cards}

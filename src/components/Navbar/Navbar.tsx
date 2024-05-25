@@ -32,7 +32,9 @@ export const Navbar = () => {
           size='sm'
           startContent={<SearchIcon size={18} />}
           endContent={
-            <Kbd className='flex sm:flex text-default-600 text-14 px-[8px] py-5 bg-default-200 gap-5' keys={['command']}>
+            <Kbd
+              className='flex sm:flex text-default-600 text-14 px-[8px] py-5 bg-default-200 gap-5'
+              keys={['command']}>
               K
             </Kbd>
           }
@@ -42,7 +44,6 @@ export const Navbar = () => {
         <FilterModal />
       </div>
       <div className='flex items-center gap-6'>
-
         <CreditsModal />
 
         <ChangeThemeButton />
