@@ -1,6 +1,6 @@
 import { useThemeMode } from '@/hooks/use-theme-mode';
 import { Link } from '@/theme/components';
-import { SunIcon, MoonIcon } from '@/components/icons';
+import { SunIcon, MoonIcon } from '@/components/Utils/icons';
 
 export const ChangeThemeButton = () => {
   const { isDark, toggleThemeMode } = useThemeMode();

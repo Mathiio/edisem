@@ -1,11 +1,11 @@
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { Link, Input, Kbd } from '@nextui-org/react';
-import { ChangeThemeButton } from '@/components/change-theme';
-import CreditsModal from '@/components/CreditsModal';
+import { ChangeThemeButton } from '@/components/Navbar/change-theme';
+import CreditsModal from '@/components/Navbar/CreditsModal';
 import { FilterModal } from './FilterModal';
 import { ProfilDropdown } from './ProfilDropdown';
-import { SearchIcon } from './icons';
+import { SearchIcon } from '../Utils/icons';
 
 export const Navbar = () => {
   return (

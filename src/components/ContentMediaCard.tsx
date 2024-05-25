@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LinkIcon, ImageIcon, MailIcon } from './icons';
+import { LinkIcon, ImageIcon, MailIcon } from './Utils/icons';
 import { Link } from 'react-router-dom';
 
 interface ContentMediaCardProps {

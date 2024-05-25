@@ -1,10 +1,8 @@
-import { Navbar } from '@/components/Navbar';
-import { NavKeyWords } from '@/components/NavKeyWords';
-import { YouTubeVideo } from '@/components/VideoEmbed';
+import { Navbar } from '@/components/Navbar/Navbar';
 import { VideoInfos } from '@/components/VideoInfos';
 import { ContentTab } from '@/components/ContentTab';
 import { Carousel } from '@/components/Carousel';
-import { Scrollbar } from '@/components/Scrollbar';
+import { Scrollbar } from '@/components/Utils/Scrollbar';
 
 export const Home = () => {
   return (
@@ -15,13 +13,7 @@ export const Home = () => {
             <Navbar />
           </div>
           <div className='col-span-10 lg:col-span-6 flex flex-col gap-50'>
-            <div className='w-full flex flex-col gap-25'>
-              <NavKeyWords numberOfButtons={16} />
-              <YouTubeVideo videoUrl='56STvMBKYdw?si=6TJjovmA3ezE4_3v' />
-            </div>
-            <div className='w-full flex flex-col gap-25'>
-              <VideoInfos />
-            </div>
+            <VideoInfos/>
           </div>
           <div className='col-span-10 lg:col-span-4 flex flex-col gap-50'>
             <ContentTab />

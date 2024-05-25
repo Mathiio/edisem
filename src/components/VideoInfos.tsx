@@ -1,19 +1,32 @@
 import React, { useState } from 'react';
 import { Link, Tooltip, Button } from '@nextui-org/react';
-import { CreditIcon } from '@/components/icons';
+import { CreditIcon } from '@/components/Utils/icons';
+import { NavKeyWords } from '@/components/NavKeyWords';
 
 export const VideoInfos: React.FC = () => {
   const [expanded, setExpanded] = useState<boolean>(false);
 
   const toggleExpansion = () => {
     setExpanded(!expanded);
-    console.log('click');
   };
 
   return (
     <>
+      <div className='w-full flex flex-col gap-25'>
+        <NavKeyWords numberOfButtons={16} />
+        <div className='rounded-14 lg:w-full overflow-hidden'>
+          <iframe
+            className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'
+            title='YouTube Video'
+            width='100%'
+            src={`https://www.youtube.com/embed/PjjRd03jmJY`}
+            allowFullScreen>
+          </iframe>
+        </div>
+      </div>
+      <div className='w-full flex flex-col gap-25'>  
+      <h1 className='font-semibold text-32'>Théorie des Graphes et Optimisation Combinatoire</h1>  
       <div className='w-full flex flex-col gap-10'>
-        <div className='font-semibold text-32'>Théorie des Graphes et Optimisation Combinatoire</div>
         <div className='w-full flex justify-between gap-10 items-center'>
           <div className='w-full flex justify-start gap-10 items-center'>
             <h3 className='text-default-400 font-regular text-24 gap-10 transition-all ease-in-out duration-200'>
@@ -21,16 +34,11 @@ export const VideoInfos: React.FC = () => {
             </h3>
             <Tooltip content='voir plus'>
               <Link className='cursor-pointer'>
-                <CreditIcon
-                  size={20}
-                  className='relative text-default-500 hover:text-default-action transition-all ease-in-out duration-200'
-                />
+                <CreditIcon size={20} className='relative text-default-500 hover:text-default-action transition-all ease-in-out duration-200' />
               </Link>
             </Tooltip>
           </div>
-          <Button
-            size='md'
-            className='h-[32px] text-16 rounded-8 text-default-500 hover:text-default-500 bg-default-200 hover:bg-default-300 transition-all ease-in-out duration-200'>
+          <Button size='md' className='h-[32px] text-16 rounded-8 text-default-500 hover:text-default-500 bg-default-200 hover:bg-default-300 transition-all ease-in-out duration-200'>
             séance complète
           </Button>
         </div>
@@ -52,10 +60,10 @@ export const VideoInfos: React.FC = () => {
           artificielle Mohamed Bin Zayed. Hao Li est un informaticien, un innovateur et un entrepreneur allemand,
           travaillant dans les domaines de l'infographie et de la vision par ordinateur.
         </p>
-
-        <div className='text-16 text-default-action font-bold transition-all ease-in-out duration-200'>
+        <p className='text-16 text-default-action font-bold transition-all ease-in-out duration-200'>
           {expanded ? 'moins' : '...affichez plus'}
-        </div>
+        </p>
+      </div>
       </div>
     </>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem } from '@nextui-org/react';
-import { UserIcon } from './icons';
+import { UserIcon } from '../Utils/icons';
 import { User, Link, Avatar } from '@nextui-org/react';
 
 export const ProfilDropdown: React.FC = () => {
@@ -61,9 +61,3 @@ export const ProfilDropdown: React.FC = () => {
     </Dropdown>
   );
 };
-/*
-<DropdownItem isReadOnly key='theme' className='cursor-default  ' endContent={<ChangeThemeButton />}>
-          Thème
-        </DropdownItem>
-
-        */

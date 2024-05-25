@@ -4,7 +4,7 @@ import { DotButton, useDotButton } from './EmblaCarouselDotButton';
 import { usePrevNextButtons } from './EmblaCarouselArrowButtons';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Button } from '@nextui-org/react';
-import { ArrowIcon } from '@/components/icons';
+import { ArrowIcon } from '@/components/Utils/icons';
 
 type PropType = {
   slides: number[];
