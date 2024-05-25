@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem } from '@nextui-org/react';
-import { UserIcon } from '../Utils/icons';
+import { UserIcon, AddIcon, ExitIcon, SettingsIcon } from '../Utils/icons';
 import { User, Link, Avatar } from '@nextui-org/react';
 
 export const ProfilDropdown: React.FC = () => {
@@ -19,7 +19,7 @@ export const ProfilDropdown: React.FC = () => {
           <DropdownItem isReadOnly key='profile' className='h-14 gap-2 opacity-100'>
             <User
               name='Junior Garcia'
-              description='@jrgarciadev'
+              description='Étudiant'
               className='cursor-default'
               classNames={{
                 name: 'text-default-600',
@@ -42,19 +42,32 @@ export const ProfilDropdown: React.FC = () => {
             classNames={{
               shortcut: 'p-[5px] rounded-8',
             }}
-            className='hover:bg-default-100'
-            endContent={'+'}>
-            Nouveau cahier
+            className='hover:bg-default-200 text-default-300 hover:text-default-400'
+            endContent={<AddIcon size={15}/>}>
+            <p className='text-default-500'>Nouveau cahier</p>
           </DropdownItem>
-          <DropdownItem key='copy' className='hover:bg-default-100'>
-            Préférence
+          
+          <DropdownItem
+            key='copy'
+            classNames={{
+              shortcut: 'p-[5px] rounded-8',
+            }}
+            className='hover:bg-default-200 text-default-300 hover:text-default-400'
+            endContent={<SettingsIcon size={15}/>}>
+            <p className='text-default-500'>Préférences</p>
           </DropdownItem>
 
-          <DropdownItem key='edit' className='hover:bg-default-100'>
+          <DropdownItem key='edit' className='hover:bg-default-200'>
             Aide
           </DropdownItem>
-          <DropdownItem key='edit' className='hover:bg-default-100'>
-            Déconnexion
+          <DropdownItem
+            key='edit'
+            classNames={{
+              shortcut: 'p-[5px] rounded-8',
+            }}
+            className='hover:bg-default-200 text-default-300 hover:text-default-400'
+            endContent={<ExitIcon size={15}/>}>
+            <p className='text-default-500'>Déconnexion</p>
           </DropdownItem>
         </DropdownSection>
       </DropdownMenu>
