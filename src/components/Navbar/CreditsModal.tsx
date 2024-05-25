@@ -1,6 +1,6 @@
 import { CreditIcon, CloseIcon } from '@/components/Utils/icons';
 import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure, Tooltip } from '@nextui-org/react';
-import { ContentCreditCard } from '../ContentMediaCard';
+import { ContentCreditCard } from '../conference/ContentMediaCard';
 import { Scrollbar } from '../Utils/Scrollbar';
 
 const CreditsModal = () => {

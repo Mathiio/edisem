@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Tooltip, Button } from '@nextui-org/react';
 import { CreditIcon } from '@/components/Utils/icons';
-import { NavKeyWords } from '@/components/NavKeyWords';
+import { NavKeyWords } from '@/components/conference/NavKeyWords';
 
 export const VideoInfos: React.FC = () => {
   const [expanded, setExpanded] = useState<boolean>(false);

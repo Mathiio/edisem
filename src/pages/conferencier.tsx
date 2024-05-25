@@ -1,7 +1,7 @@
 import { Navbar } from '@/components/Navbar/Navbar';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 
-export const Home = () => {
+export const Conferencier = () => {
   return (
     <div className='relative h-screen overflow-hidden'>
       <Scrollbar>
