@@ -2,7 +2,6 @@ import { ContentMediaCard } from './ContentMediaCard';
 import { Scrollbar } from '../Utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
 import React from 'react';
-import { ScrollShadow } from '@nextui-org/react';
 
 interface ContentMediaProps {
   numberOfCards: number;
