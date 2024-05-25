@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Tabs, Tab } from '@nextui-org/react';
-import { ContentMedia } from './ContentMedia';
+import { BibliographieCards, MediaCards, CitationCards } from './ConferenceCardsGroup';
 
 export const ContentTab: React.FC = () => {
   const [selected, setSelected] = useState<string>('Bibliographie');
@@ -18,16 +18,16 @@ export const ContentTab: React.FC = () => {
         selectedKey={selected}
         onSelectionChange={(key: React.Key) => setSelected(key as string)}>
         <Tab key='Bibliographie' title='Bibliographie' className='px-0 py-0 flex'>
-          {selected === 'Bibliographie' && <ContentMedia numberOfCards={35} />}
+          {selected === 'Bibliographie' && <BibliographieCards/>}
         </Tab>
         <Tab key='Citations' title='Citations' className='px-0 py-0 flex'>
-          {selected === 'Citations' && <ContentMedia numberOfCards={35} />}
+          {selected === 'Citations' && <CitationCards/>}
         </Tab>
         <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
-          {selected === 'Medias' && <ContentMedia numberOfCards={35} />}
+          {selected === 'Medias' && <MediaCards/>}
         </Tab>
         <Tab key='Annexes' title='Annexes' className='px-0 py-0 flex'>
-          {selected === 'Annexes' && <ContentMedia numberOfCards={35} />}
+          {selected === 'Annexes' && <MediaCards/>}
         </Tab>
       </Tabs>
     </div>

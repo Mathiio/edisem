@@ -1,6 +1,6 @@
 import { CreditIcon, CloseIcon } from '@/components/Utils/icons';
 import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure, Tooltip } from '@nextui-org/react';
-import { ContentCreditCard } from '../conference/ContentMediaCard';
+import { CreditCard } from '@/components/Navbar/CreditCard';
 import { Scrollbar } from '../Utils/Scrollbar';
 
 const CreditsModal = () => {
@@ -64,24 +64,24 @@ const CreditsModal = () => {
                 <Scrollbar withGap>
                   <div className='flex flex-col gap-25'>
                     <div className='text-default-400'>Equipe Arcanes</div>
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
                     <div className='text-default-400'>Equipe Arcanes</div>
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
                     <div className='text-default-400'>Equipe Arcanes</div>
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
-                    <ContentCreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard name='Junior Garcia' job='Software Engineer' />
                   </div>
                 </Scrollbar>
               </ModalBody>

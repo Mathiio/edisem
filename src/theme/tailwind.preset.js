@@ -148,6 +148,7 @@ module.exports = {
     }),
     borderOpacity: ({ theme }) => theme('opacity'),
     borderRadius: {
+      6: '6px !important',
       8: '8px !important',
       12: '12px !important',
       14: '14px !important',
