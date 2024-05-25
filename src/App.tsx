@@ -9,8 +9,8 @@ function App() {
 
   return (
     <Routes>
-      <Route path='/conférence' Component={ Conference } />
-      <Route path='/conférencier' Component={ Conferencier } />
+      <Route path='/conference' Component={ Conference } />
+      <Route path='/conferencier' Component={ Conferencier } />
       <Route path='/' Component={ Home } />
     </Routes>
   );
