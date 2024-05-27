@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@nextui-org/react';
-import { ArrowIcon } from '../Utils/icons';
-import { CloseIcon } from '../Utils/icons'; // Assurez-vous d'importer votre icône de croix
+import { ArrowIcon, CloseIcon } from '../Utils/icons'; // Assurez-vous d'importer votre icône de croix
 
 interface ButtonProps {
   onClick?: (index: number) => void;
+  reset: boolean; // Add reset prop
 }
 interface ButtonGeneratorProps {
   numberOfButtons: number;
 }
 
-export const NavConferencierFilter: React.FC<ButtonGeneratorProps & ButtonProps> = ({ numberOfButtons, onClick }) => {
+export const NavConferencierFilter: React.FC<ButtonGeneratorProps & ButtonProps> = ({
+  numberOfButtons,
+  onClick,
+  reset,
+}) => {
   const [translate, setTranslate] = useState(0);
   const [isLeftVisible, setIsLeftVisible] = useState(false);
   const [isRightVisible, setIsRightVisible] = useState(false);
   const [selectedButtons, setSelectedButtons] = useState<number[]>([]);
   const translateAmount = 200; // Adjust this value as needed
+
+  useEffect(() => {
+    if (reset) {
+      setSelectedButtons([]);
+    }
+  }, [reset]);
 
   const handleButtonClick = (index: number) => {
     setSelectedButtons((prevSelected) =>

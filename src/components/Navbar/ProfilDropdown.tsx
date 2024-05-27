@@ -43,17 +43,17 @@ export const ProfilDropdown: React.FC = () => {
               shortcut: 'p-[5px] rounded-8',
             }}
             className='hover:bg-default-200 text-default-300 hover:text-default-400'
-            endContent={<AddIcon size={15}/>}>
+            endContent={<AddIcon size={15} />}>
             <p className='text-default-500'>Nouveau cahier</p>
           </DropdownItem>
-          
+
           <DropdownItem
             key='copy'
             classNames={{
               shortcut: 'p-[5px] rounded-8',
             }}
             className='hover:bg-default-200 text-default-300 hover:text-default-400'
-            endContent={<SettingsIcon size={15}/>}>
+            endContent={<SettingsIcon size={15} />}>
             <p className='text-default-500'>Préférences</p>
           </DropdownItem>
 
@@ -66,7 +66,7 @@ export const ProfilDropdown: React.FC = () => {
               shortcut: 'p-[5px] rounded-8',
             }}
             className='hover:bg-default-200 text-default-300 hover:text-default-400'
-            endContent={<ExitIcon size={15}/>}>
+            endContent={<ExitIcon size={15} />}>
             <p className='text-default-500'>Déconnexion</p>
           </DropdownItem>
         </DropdownSection>

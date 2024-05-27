@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@nextui-org/react';
 import { CloseIcon } from '../Utils/icons';
 
 interface ButtonProps {
   onClick?: (index: number) => void;
+  reset: boolean; // Add reset prop
 }
 interface ButtonGeneratorProps {
   buttonNames: string[]; // Liste des noms de boutons
 }
 
-export const NavTypeFilter: React.FC<ButtonGeneratorProps & ButtonProps> = ({ buttonNames, onClick }) => {
+export const NavTypeFilter: React.FC<ButtonGeneratorProps & ButtonProps> = ({ buttonNames, onClick, reset }) => {
   const [selectedButtons, setSelectedButtons] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (reset) {
+      setSelectedButtons([]);
+    }
+  }, [reset]);
 
   const handleButtonClick = (index: number) => {
     setSelectedButtons((prevSelected) =>
