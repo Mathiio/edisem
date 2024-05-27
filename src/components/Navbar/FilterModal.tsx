@@ -5,8 +5,6 @@ import { DateRangePicker } from '@nextui-org/date-picker';
 import { NavConferencierFilter } from './NavConferencierFilter';
 import { NavTypeFilter } from './NavTypeFilter';
 import { Button } from '@nextui-org/button';
-import { getLocalTimeZone } from '@internationalized/date';
-import { useDateFormatter } from '@react-aria/i18n';
 import { RangeValue } from '@react-types/shared';
 import { DateValue } from '@react-types/datepicker';
 
@@ -18,8 +16,6 @@ export const FilterModal = () => {
   const [selectedConferenciers, setSelectedConferenciers] = useState<number[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
   const [resetFilters, setResetFilters] = useState(false);
-
-  let formatter = useDateFormatter({ dateStyle: 'long' });
 
   const handleOpen = () => {
     onOpen();
