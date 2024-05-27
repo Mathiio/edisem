@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Tabs, Tab } from '@nextui-org/react';
 import { BibliographieCards, MediaCards, CitationCards } from './ConferenceCardsGroup';
+import { UnloadedCard } from './ConferenceCards';
 
 export const ContentTab: React.FC = () => {
   const [selected, setSelected] = useState<string>('Bibliographie');
@@ -27,7 +28,7 @@ export const ContentTab: React.FC = () => {
           {selected === 'Medias' && <MediaCards/>}
         </Tab>
         <Tab key='Annexes' title='Annexes' className='px-0 py-0 flex'>
-          {selected === 'Annexes' && <MediaCards/>}
+          {selected === 'Annexes' && <UnloadedCard/>}
         </Tab>
       </Tabs>
     </div>
