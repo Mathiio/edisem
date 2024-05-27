@@ -1,3 +1,4 @@
+import React from 'react';
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { Link, Input, Kbd } from '@nextui-org/react';
@@ -6,19 +7,43 @@ import CreditsModal from '@/components/Navbar/CreditsModal';
 import { FilterModal } from './FilterModal';
 import { ProfilDropdown } from './ProfilDropdown';
 import { SearchIcon } from '../Utils/icons';
+import { motion, Variants } from 'framer-motion';
 
-export const Navbar = () => {
+const navbarVariants: Variants = {
+  hidden: { opacity: 0, y: -20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 80, damping: 15 },
+  },
+};
+
+const containerVariants: Variants = {
+  hidden: { opacity: 1 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2, // Delays the appearance of each child by 0.3 seconds
+    },
+  },
+};
+
+export const Navbar: React.FC = () => {
   return (
-    <nav className='w-full flex justify-between items-center'>
-      <div className='flex items-center gap-4'>
+    <motion.nav
+      className='w-full flex justify-between items-center'
+      initial='hidden'
+      animate='visible'
+      variants={containerVariants}>
+      <motion.div className='flex items-center gap-4' variants={navbarVariants}>
         <Link href='/' className='flex items-center'>
           <Image width={40} src={Logo} alt='Logo' />
         </Link>
         <div className='hidden lg:flex flex-col justify-center items-start'>
           <div className='text-24 text-default-500 font-semibold'>Arcanes</div>
         </div>
-      </div>
-      <div className='flex justify-center items-start gap-10'>
+      </motion.div>
+      <motion.div className='flex justify-center items-start gap-10' variants={navbarVariants}>
         <Input
           classNames={{
             base: 'md:w-[400px] w-[300px]  ',
@@ -42,14 +67,12 @@ export const Navbar = () => {
           fullWidth
         />
         <FilterModal />
-      </div>
-      <div className='flex items-center gap-6'>
+      </motion.div>
+      <motion.div className='flex items-center gap-6' variants={navbarVariants}>
         <CreditsModal />
-
         <ChangeThemeButton />
-
         <ProfilDropdown />
-      </div>
-    </nav>
+      </motion.div>
+    </motion.nav>
   );
 };

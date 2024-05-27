@@ -5,10 +5,31 @@ import { usePrevNextButtons } from './EmblaCarouselArrowButtons';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Button } from '@nextui-org/react';
 import { ArrowIcon } from '@/components/Utils/icons';
+import { motion, Variants } from 'framer-motion';
 
 type PropType = {
   slides: number[];
   options?: EmblaOptionsType;
+};
+
+const containerVariants: Variants = {
+  hidden: { opacity: 1 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2, // Stagger each child animation by 0.3 seconds
+      delayChildren: 0.6, // Start after a delay of 0.2 seconds
+    },
+  },
+};
+
+const slideVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 80, damping: 15 },
+  },
 };
 
 export const EmblaCarousel: React.FC<PropType> = (props) => {
@@ -16,20 +37,19 @@ export const EmblaCarousel: React.FC<PropType> = (props) => {
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
 
   const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton(emblaApi);
-
   const { prevBtnDisabled, nextBtnDisabled, onPrevButtonClick, onNextButtonClick } = usePrevNextButtons(emblaApi);
 
   return (
     <section className='embla'>
       <div className='embla__viewport' ref={emblaRef}>
-        <div className='embla__container'>
+        <motion.div className='embla__container' variants={containerVariants} initial='hidden' animate='visible'>
           {slides.map((index) => (
-            <div className='embla__slide' key={index}>
+            <motion.div className='embla__slide' key={index} variants={slideVariants}>
               <div className='embla__slide__number'>{index + 1}</div>
               <div className='font-semibold'>Introduction à la 3e édition du séminaire...</div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       <div className='embla__controls'>
