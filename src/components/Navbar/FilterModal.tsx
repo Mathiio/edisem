@@ -19,6 +19,7 @@ export const FilterModal = () => {
 
   const handleOpen = () => {
     onOpen();
+    console.log(selectedConferenciers);
   };
 
   const handleReset = () => {
@@ -57,11 +58,18 @@ export const FilterModal = () => {
 
   return (
     <>
-      <Button
-        onPress={handleOpen}
-        className='bg-default-200 hover:bg-default-300 data-[hover=true]:opacity-100 items-center gap-25 p-25 h-[50px] hidden sm:flex'>
-        <FilterIcon className='text-default-600' size={22} />
-      </Button>
+      <div className='relative'>
+        <Button
+          onPress={handleOpen}
+          className='bg-default-200 hover:bg-default-300 data-[hover=true]:opacity-100 items-center gap-25 p-25 h-[50px] hidden sm:flex relative'>
+          <FilterIcon className='text-default-600' size={22} />
+        </Button>
+        {selectedFiltersCount() > 0 && (
+          <span className='absolute top-[-6px] right-[-6px] text-12 text-default-100  bg-default-action rounded-[99px] w-[20px] h-[20px] flex items-center justify-center '>
+            {selectedFiltersCount()}
+          </span>
+        )}
+      </div>
 
       <Modal
         backdrop='blur'
@@ -138,6 +146,7 @@ export const FilterModal = () => {
                     <div>
                       <NavConferencierFilter
                         numberOfButtons={50}
+                        selected={selectedConferenciers}
                         onClick={handleConferencierClick}
                         reset={resetFilters}
                       />
@@ -151,6 +160,7 @@ export const FilterModal = () => {
                     <div>
                       <NavTypeFilter
                         buttonNames={['Image', 'Vidéo', 'Document texte', 'Bande sonore']}
+                        selected={selectedTypes}
                         onClick={handleTypeClick}
                         reset={resetFilters}
                       />

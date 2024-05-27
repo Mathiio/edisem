@@ -276,6 +276,7 @@ module.exports = {
       24: ['1.5rem', { lineHeight: '100%' }],
       16: ['1rem', { lineHeight: '100%' }],
       14: ['0.875rem', { lineHeight: '100%' }],
+      12: ['12px', { lineHeight: '100%' }],
     },
     fontWeight: {
       thin: '200',

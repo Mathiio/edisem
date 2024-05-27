@@ -19,7 +19,7 @@ export const VideoInfos: React.FC = () => {
             className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'
             title='YouTube Video'
             width='100%'
-            src={`https://www.youtube.com/embed/wJgoFuwW1Tg`}
+            src={`https://www.youtube.com/embed/5pjKjncwFBw?si=cPeAdPHTDbFFpVwg`}
             allowFullScreen></iframe>
         </div>
       </div>

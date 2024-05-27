@@ -4,14 +4,20 @@ import { CloseIcon } from '../Utils/icons';
 
 interface ButtonProps {
   onClick?: (index: number) => void;
-  reset: boolean; // Add reset prop
+  reset: boolean;
+  selected: number[]; // Add selected prop
 }
 interface ButtonGeneratorProps {
   buttonNames: string[]; // Liste des noms de boutons
 }
 
-export const NavTypeFilter: React.FC<ButtonGeneratorProps & ButtonProps> = ({ buttonNames, onClick, reset }) => {
-  const [selectedButtons, setSelectedButtons] = useState<number[]>([]);
+export const NavTypeFilter: React.FC<ButtonGeneratorProps & ButtonProps> = ({
+  buttonNames,
+  onClick,
+  reset,
+  selected,
+}) => {
+  const [selectedButtons, setSelectedButtons] = useState<number[]>(selected);
 
   useEffect(() => {
     if (reset) {
