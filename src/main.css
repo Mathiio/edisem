@@ -12,9 +12,10 @@ body{
 }
 
 .embla {
-  --slide-height: 170px;
+  
   --slide-spacing: 2rem;
-  --slide-size: 60%;
+  /* Comment out or adjust --slide-size if necessary */
+  /* --slide-size: 60%; */
 }
 .embla__viewport {
   overflow: hidden;
@@ -25,14 +26,21 @@ body{
   touch-action: pan-y pinch-zoom;
   margin-left: calc(var(--slide-spacing) * -1);
 }
-.embla__slide {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex: 0 0 var(--slide-size);
+.embla__slide29 {
+  flex: 0 0 29%;
   min-width: 0;
-  padding-left: var(--slide-spacing);
 }
+
+.embla__slide19 {
+  flex: 0 0 19%;
+  min-width: 0;
+}
+
+.embla__slide22 {
+  flex: 0 0 22%;
+  min-width: 0;
+}
+
 .embla__slide__number {
   border-radius: 8px;
   font-size: 4rem;
@@ -40,10 +48,18 @@ body{
   display: flex;
   align-items: center;
   justify-content: center;
-  height: var(--slide-height);
   background-color: hsl(var(--nextui-default-action));
   color: #fafafa;
 }
+
+.embla__slide__height170 {
+  height: 170px;
+}
+
+.embla__slide__height150 {
+  height: 120px;
+}
+
 .embla__controls {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -51,6 +67,7 @@ body{
   gap: 1.2rem;
   margin-top: 1.8rem;
 }
+
 .embla__buttons {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -221,6 +221,8 @@ module.exports = {
     },
     flex: {
       1: '1 1 0%',
+      '0-5': '0 0 19%',
+      '0-3': '0 0 29%',
       auto: '1 1 auto',
       initial: '0 1 auto',
       none: 'none',
@@ -274,9 +276,13 @@ module.exports = {
     fontSize: {
       32: ['2rem', { lineHeight: '100%' }],
       24: ['1.5rem', { lineHeight: '100%' }],
-      16: ['1rem', { lineHeight: '100%' }],
+      16: '1rem',
       14: ['0.875rem', { lineHeight: '100%' }],
       12: ['12px', { lineHeight: '100%' }],
+    },
+    lineHeight: {
+      '100': '100%',
+      '120': '120%',
     },
     fontWeight: {
       thin: '200',
