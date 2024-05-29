@@ -21,7 +21,6 @@ export const Conferencier: React.FC = () => {
             <div>
               <h1>Data from API:</h1>
               <h2>{title}</h2>
-              {/* Affichez ici d'autres propriétés de l'objet */}
             </div>
           </div>
         </main>

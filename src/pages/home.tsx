@@ -40,7 +40,6 @@ export const Home: React.FC = () => {
           <motion.div className='col-span-10  flex flex-col gap-50' variants={itemVariants}>
             <NavKeyWords numberOfButtons={16} />
             <HighlightSection />
-
             <CarouselVideoHome widthCard={29} heightCard={170} titre='Derniers séminaires Arcanes' />
             <CarouselConferencierHome widthCard={22} heightCard={170} titre='Découvrez nos conférenciers' />
             <CarouselVideoHome widthCard={19} heightCard={150} titre='Séminaires de la session A22' />
