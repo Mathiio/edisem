@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@nextui-org/react';
 import { Link } from '@nextui-org/react';
 import { UserIcon, LinkIcon } from '../Utils/icons';
+import { motion } from 'framer-motion';
 
 interface Conferencier {
   name: string;
@@ -21,6 +22,7 @@ interface Seminaire {
 interface RechercheResultatProps {
   conferenciers?: Conferencier[];
   seminaires?: Seminaire[];
+  sortedResults?: (Conferencier | Seminaire)[];
 }
 
 export const RechercheResultat: React.FC<RechercheResultatProps> = ({ conferenciers, seminaires }) => {

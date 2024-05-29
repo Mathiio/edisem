@@ -4,15 +4,21 @@ import { UserIcon } from '../Utils/icons';
 
 interface RechercheBarProps {
   Nombre: number;
+  onSelectionChange: (keys: Set<string>) => void; // Prop de fonction de rappel
 }
 
-export const RechercheBar: React.FC<RechercheBarProps> = ({ Nombre }) => {
+export const RechercheBar: React.FC<RechercheBarProps> = ({ Nombre, onSelectionChange }) => {
   const [selectedKeys, setSelectedKeys] = React.useState<Set<string>>(new Set(['Trier']));
 
   const selectedValue = React.useMemo(() => {
     const keysArray = Array.from(selectedKeys);
     return keysArray.join(', ').replace(/_/g, ' '); // Use replace with a regex as a workaround
   }, [selectedKeys]);
+
+  const handleSelectionChange = (keys: Set<string>) => {
+    setSelectedKeys(keys); // Met à jour l'état local
+    onSelectionChange(keys); // Appelle la fonction de rappel dans le composant parent
+  };
 
   return (
     <div className='flex flex-row place-content-between'>
@@ -29,9 +35,8 @@ export const RechercheBar: React.FC<RechercheBarProps> = ({ Nombre }) => {
           disallowEmptySelection
           selectionMode='single'
           selectedKeys={selectedKeys}
-          onSelectionChange={(keys) => setSelectedKeys(new Set(keys as Set<string>))} // Ensure proper type casting
+          onSelectionChange={(keys) => handleSelectionChange(new Set(keys as Set<string>))} // Utilise la fonction de rappel
           className='p-10'>
-          <DropdownItem key='populaire'>Les plus populaires</DropdownItem>
           <DropdownItem key='croissant'>A-Z</DropdownItem>
           <DropdownItem key='decroissant'>Z-A</DropdownItem>
         </DropdownMenu>

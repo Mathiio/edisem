@@ -186,3 +186,11 @@ body{
   min-width: fit-content;
 }
 
+.card {
+  border: 2px solid #ccc;
+  transition: transform 0.3s ease;
+}
+
+.card.hovered {
+  transform: scale(1.05);
+}

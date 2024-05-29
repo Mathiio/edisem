@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
@@ -43,7 +43,7 @@ const conferenciers = [
 
 const seminaires = [
   {
-    name: 'L’étude des controverses : littéracie des fake news et formation à l’esprit',
+    name: 'A L’étude des controverses : littéracie des fake news et formation à l’esprit',
     conferencier: 'Larrue Jean-Marc',
     date: '2021-02-19',
     keyword: ['Régimes performatifs', 'Canular', 'Fiction'],
@@ -51,7 +51,7 @@ const seminaires = [
       'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/1200px-Sunflower_from_Silesia2.jpg',
   },
   {
-    name: 'L’illusion est un objet. Perspectives néomatérialistes sur les arts trompeurs',
+    name: 'B L’illusion est un objet. Perspectives néomatérialistes sur les arts trompeurs',
     conferencier: 'Larrue Jean-Marc',
     date: '2021-02-19',
     keyword: ['Régimes performatifs', 'Canular', 'Fiction'],
@@ -59,7 +59,7 @@ const seminaires = [
       'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/1200px-Sunflower_from_Silesia2.jpg',
   },
   {
-    name: 'L’illusion est un objet. Perspectives néomatérialistes sur les arts trompeurs',
+    name: 'C L’illusion est un objet. Perspectives néomatérialistes sur les arts trompeurs',
     conferencier: 'Larrue Jean-Marc',
     date: '2021-02-19',
     keyword: ['Régimes performatifs', 'Canular', 'Fiction'],
@@ -67,7 +67,7 @@ const seminaires = [
       'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/1200px-Sunflower_from_Silesia2.jpg',
   },
   {
-    name: 'L’illusion est un objet. Perspectives néomatérialistes sur les arts trompeurs',
+    name: 'D L’illusion est un objet. Perspectives néomatérialistes sur les arts trompeurs',
     conferencier: 'Larrue Jean-Marc',
     date: '2021-02-19',
     keyword: ['Régimes performatifs', 'Canular', 'Fiction'],
@@ -77,9 +77,44 @@ const seminaires = [
 ];
 
 export const Recherche: React.FC = () => {
-  const totalConferenciers = conferenciers.length;
-  const totalSeminaires = seminaires.length;
-  const totalResultats = totalConferenciers + totalSeminaires;
+  const [sortOrder, setSortOrder] = useState<'croissant' | 'decroissant'>('croissant');
+
+  const handleSelectionChange = (keys: Set<string>) => {
+    let newSortOrder: 'croissant' | 'decroissant' = 'croissant';
+
+    // Votre logique de tri en fonction des clés sélectionnées
+    if (keys.has('croissant')) {
+      newSortOrder = 'croissant';
+    } else if (keys.has('decroissant')) {
+      newSortOrder = 'decroissant';
+    }
+
+    // Mettre à jour l'état sortOrder
+    setSortOrder(newSortOrder);
+  };
+  const sortResults = () => {
+    let sortedConferenciers = [...conferenciers];
+    let sortedSeminaires = [...seminaires];
+
+    switch (sortOrder) {
+      case 'croissant':
+        sortedConferenciers.sort((a, b) => a.name.localeCompare(b.name));
+        sortedSeminaires.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'decroissant':
+        sortedConferenciers.sort((a, b) => b.name.localeCompare(a.name));
+        sortedSeminaires.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      default:
+        // Pas de tri
+        break;
+    }
+
+    return { conferenciers: sortedConferenciers, seminaires: sortedSeminaires };
+  };
+
+  const { conferenciers: sortedConferenciers, seminaires: sortedSeminaires } = sortResults();
+  const totalResultats = sortedConferenciers.length + sortedSeminaires.length;
 
   return (
     <div className='relative h-screen overflow-hidden'>
@@ -94,8 +129,8 @@ export const Recherche: React.FC = () => {
           </motion.div>
           <motion.div className='col-span-10 flex flex-col items-center' variants={itemVariants}>
             <div className='w-2/3 flex flex-col gap-50'>
-              <RechercheBar Nombre={totalResultats} />
-              <RechercheResultat conferenciers={conferenciers} seminaires={seminaires} />
+              <RechercheBar Nombre={totalResultats} onSelectionChange={handleSelectionChange} />
+              <RechercheResultat conferenciers={sortedConferenciers} seminaires={sortedSeminaires} />
             </div>
           </motion.div>
         </motion.main>
