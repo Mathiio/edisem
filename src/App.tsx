@@ -12,7 +12,7 @@ function App() {
       <Route path='/conference' Component={Conference} />
       <Route path='/conferencier' Component={Conferencier} />
       <Route path='/recherche' Component={Recherche} />
-      <Route path='/' Component={Home} />
+      <Route path='/home' Component={Home} />
     </Routes>
   );
 }
