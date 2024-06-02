@@ -5,12 +5,10 @@ import { useFetchData } from '../hooks/useFetchData';
 
 export const Conferencier: React.FC = () => {
   const { data, loading, error } = useFetchData();
+  console.log(data);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
-
-  // Extraction de o:title
-  const title = data ? data['o:title'] : 'Title not found';
 
   return (
     <div className='relative h-screen overflow-hidden'>
@@ -20,7 +18,15 @@ export const Conferencier: React.FC = () => {
             <Navbar />
             <div>
               <h1>Data from API:</h1>
-              <h2>{title}</h2>
+              {data && data.length > 0 ? (
+                data.map((item, index) => (
+                  <h2 key={index}>
+                    {item['o:title']} - {item['schema:addressCountry'][0]?.['display_title']}
+                  </h2>
+                ))
+              ) : (
+                <p>No data found</p>
+              )}
             </div>
           </div>
         </main>
