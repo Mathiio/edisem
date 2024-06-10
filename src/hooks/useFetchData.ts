@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchData, Data } from '../services/api';
 
-export const useFetchData = () => {
+export const useFetchData = (resourceClassId: number) => {
   const [data, setData] = useState<Data[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -9,7 +9,7 @@ export const useFetchData = () => {
   useEffect(() => {
     const getData = async () => {
       try {
-        const fetchedData = await fetchData();
+        const fetchedData = await fetchData(resourceClassId);
         setData(fetchedData);
       } catch (error) {
         if (error instanceof Error) {
@@ -23,7 +23,7 @@ export const useFetchData = () => {
     };
 
     getData();
-  }, []);
+  }, [resourceClassId]);
 
   return { data, loading, error };
 };
