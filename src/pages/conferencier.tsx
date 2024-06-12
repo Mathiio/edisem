@@ -9,7 +9,7 @@ export const Conferencier: React.FC = () => {
   const [speakerDetails, setSpeakerDetails] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!speakersLoading && !speakersError && speakers !== null) {
+    if (!speakersLoading && !speakersError && speakers !== undefined) {
       const fetchSpeakersDetails = async () => {
         const details = await Promise.all(
           speakers.map(async (speaker) => {

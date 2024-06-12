@@ -194,3 +194,11 @@ body{
 .card.hovered {
   transform: scale(1.05);
 }
+
+.animate-spinner-linear-spin, .animate-spinner-ease-spin {
+  border-radius: 9999px;
+}
+
+.after\:text-danger::after {
+  color: hsl(var(--nextui-secondary-500)) !important;
+}
