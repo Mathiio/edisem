@@ -44,6 +44,55 @@ function getValueByPath<T>(object: T[], path: string): any {
   return value;
 }
 
+interface PropertyValue {
+  type: string;
+  property_id: number;
+  property_label: string;
+  '@value': string;
+}
+
+function buildOmekaSUpdateData(key: string, value: string): { [key: string]: PropertyValue[] } {
+  const propertyIdMap: { [key: string]: number } = {
+    'dcterms:title': 1, // Add more mappings if necessary
+    // Add other property IDs as needed
+  };
+
+  if (!propertyIdMap[key]) {
+    throw new Error(`Property ID for key "${key}" not found`);
+  }
+  console.log(value);
+  return {
+    [key]: [
+      {
+        type: 'literal',
+        property_id: propertyIdMap[key],
+        property_label: key,
+        '@value': value,
+      },
+    ],
+  };
+}
+
+async function updateResource(url: string, data: any): Promise<any> {
+  try {
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update resource');
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw new Error(`Failed to update resource: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
 export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onClose }) => {
   const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchDataDetails(itemUrl);
   const [itemData, setItemData] = useState<any>({});
@@ -62,78 +111,62 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
     }
   }, [detailsError]);
 
-  const saveChanges = async () => {
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveError(null);
+
     try {
-      setSaving(true);
-
-      // Prepare payload with itemData
-      const payload = { ...itemData };
-
-      // Replace with your API endpoint and method (PUT)
-      const response = await fetch(`${itemUrl}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      // Handle successful response
-      const responseData = await response.json();
-      console.log('Updated item:', responseData);
-
+      const updatedData = buildOmekaSUpdateData('dcterms:title', itemData['o:title']);
+      await updateResource(itemUrl, updatedData);
       setSaving(false);
-      onClose(); // Close modal after successful save
+      onClose(); // Ferme le modal après la sauvegarde
     } catch (error) {
-      console.error('Error saving item:', error);
-      setSaveError('Error saving item. Please try again.');
+      if (error instanceof Error) {
+        setSaveError(error.message);
+      } else {
+        setSaveError('An unknown error occurred');
+      }
       setSaving(false);
     }
   };
 
   return (
-    <>
-      <div className='edit-modal'>
-        <button onClick={onClose}>Retour au tableau</button>
+    <div className='edit-modal'>
+      <button onClick={onClose}>Retour au tableau</button>
 
-        {activeConfig && !detailsLoading ? (
-          itemDetailsData &&
-          inputConfigs[activeConfig]?.map((col: ColumnConfig) => {
-            const value = getValueByPath(itemDetailsData, col.dataPath);
-            return (
-              <Input
-                key={col.key}
-                size='lg'
-                classNames={{
-                  label: 'text-semibold',
-                  inputWrapper: 'bg-default-100',
-                  input: 'h-[50px]',
-                }}
-                className='min-h-[50px]'
-                type='text'
-                label={col.label}
-                labelPlacement='outside'
-                placeholder={`Entrez ${col.label}`}
-                isRequired
-                defaultValue={value}
-                onChange={(e) => setItemData({ ...itemData, [col.dataPath]: e.target.value })}
-              />
-            );
-          })
-        ) : (
-          <Spinner />
-        )}
+      {activeConfig && !detailsLoading ? (
+        itemDetailsData &&
+        inputConfigs[activeConfig]?.map((col: ColumnConfig) => {
+          const value = getValueByPath(itemDetailsData, col.dataPath);
+          return (
+            <Input
+              key={col.key}
+              size='lg'
+              classNames={{
+                label: 'text-semibold',
+                inputWrapper: 'bg-default-100',
+                input: 'h-[50px]',
+              }}
+              className='min-h-[50px]'
+              type='text'
+              label={col.label}
+              labelPlacement='outside'
+              placeholder={`Entrez ${col.label}`}
+              isRequired
+              defaultValue={value}
+              onChange={(e) => setItemData({ ...itemData, [col.dataPath]: e.target.value })}
+            />
+          );
+        })
+      ) : (
+        <Spinner />
+      )}
 
-        {saveError && <div className='error-message'>{saveError}</div>}
+      {saveError && <div className='error'>{saveError}</div>}
 
-        <Button className='mt-4' onClick={saveChanges} disabled={saving}>
-          {saving ? <Spinner color='white' size='sm' /> : 'Enregistrer'}
-        </Button>
-      </div>
-    </>
+      <Button onClick={handleSave} disabled={saving}>
+        {saving ? 'Saving...' : 'Save Changes'}
+      </Button>
+    </div>
   );
 };
