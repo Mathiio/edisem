@@ -13,43 +13,83 @@ import {
   ModalFooter,
   Button,
 } from '@nextui-org/react';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
-
 import { useFetchDataDetails } from '@/hooks/useFetchData';
 
 interface EditModalProps {
   itemUrl: string;
+  activeConfig: string | null;
 }
 
-export const EditModal: React.FC<EditModalProps> = ({ itemUrl }) => {
+interface ColumnConfig {
+  key: string;
+  label: string;
+  dataPath: string;
+}
+
+const inputConfigs: { [key: string]: ColumnConfig[] } = {
+  conferences: [
+    { key: 'o:id', label: 'ID', dataPath: 'o:id' },
+    { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
+  ],
+  conferenciers: [
+    { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
+    { key: 'jdc:hasUniversity', label: 'Université', dataPath: 'jdc:hasUniversity.0.display_title' },
+  ],
+};
+
+function getValueByPath<T>(object: T[], path: string): any {
+  if (!path) return undefined;
+  if (!Array.isArray(object) || object.length === 0) return undefined;
+
+  const keys = path.split('.');
+  let value: any = object[0]; // Access the first element of the array
+
+  for (const key of keys) {
+    if (Array.isArray(value)) {
+      value = value[parseInt(key)];
+    } else if (value && typeof value === 'object' && key in value) {
+      value = value[key];
+    } else {
+      return undefined;
+    }
+  }
+  return value;
+}
+
+export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [speakers, setSpeakers] = useState<any[]>([]);
-  const { data: speakersData, loading: speakersLoading, error: speakersError } = useFetchDataDetails(itemUrl);
-  const [value, setValue] = React.useState('');
+  const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchDataDetails(itemUrl);
+  const [itemData, setItemData] = useState<any>({});
 
   useEffect(() => {
-    if (speakersData) {
-      setSpeakers(speakersData);
+    if (itemDetailsData) {
+      setItemData(itemDetailsData);
     }
-  }, [speakersData]);
+  }, [itemDetailsData]);
 
-  const Send = () => {
-    console.log(value);
+  useEffect(() => {
+    if (detailsError) {
+      console.error('Error fetching item details:', detailsError);
+    }
+  }, [detailsError]);
+
+  const handleApplyChanges = () => {
+    console.log('Updated Item Data:', itemData);
+    onClose();
   };
 
   return (
     <>
       <div className='flex flex-wrap'>
-        <Tooltip content='voir les crédits'>
+        <Tooltip content='Voir les crédits'>
           <Link onPress={onOpen} className='cursor-pointer'>
             <CreditIcon
-              size={22}
+              size={18}
               className='text-default-500 hover:text-default-action transition-all ease-in-out duration-200'
             />
           </Link>
         </Tooltip>
       </div>
-
       <Modal
         backdrop='blur'
         className='bg-default-200'
@@ -79,65 +119,53 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl }) => {
           },
         }}>
         <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className='flex justify-between p-25 '>
-                <h2 className='text-default-500 text-32 font-semibold'>Édition</h2>
-                <Link onPress={onClose}>
-                  <CloseIcon
-                    className='text-default-500 cursor-pointer hover:text-default-action transition-all ease-in-out duration-200'
-                    size={24}
+          <ModalHeader className='flex justify-between p-25 '>
+            <h2 className='text-default-500 text-32 font-semibold'>Édition</h2>
+            <Link onPress={onClose}>
+              <CloseIcon
+                className='text-default-500 cursor-pointer hover:text-default-action transition-all ease-in-out duration-200'
+                size={24}
+              />
+            </Link>
+          </ModalHeader>
+          <ModalBody>
+            {activeConfig && !detailsLoading ? (
+              itemDetailsData &&
+              inputConfigs[activeConfig]?.map((col: ColumnConfig) => {
+                const value = getValueByPath(itemDetailsData, col.dataPath);
+                return (
+                  <Input
+                    key={col.key}
+                    size='lg'
+                    classNames={{
+                      label: 'text-semibold',
+                      inputWrapper: 'bg-default-100',
+                      input: 'h-[50px]',
+                    }}
+                    className='min-h-[50px]'
+                    type='text'
+                    label={col.label}
+                    labelPlacement='outside'
+                    placeholder={`Entrez ${col.label}`}
+                    isRequired
+                    defaultValue={value}
+                    onChange={(e) => setItemData({ ...itemData, [col.dataPath]: e.target.value })}
                   />
-                </Link>
-              </ModalHeader>
-              <ModalBody className='flex p-25'>
-                <Scrollbar withGap>
-                  <div className='flex flex-col gap-25'>
-                    {speakersLoading ? (
-                      <Spinner />
-                    ) : (
-                      speakers.map((speaker, index) => (
-                        <Input
-                          size='lg'
-                          classNames={{
-                            label: 'text-semibold',
-                            inputWrapper: 'bg-default-100',
-                            input: 'h-[50px]',
-                          }}
-                          className='min-h-[50px]'
-                          key={index}
-                          type='text'
-                          label='Titre'
-                          labelPlacement='outside'
-                          placeholder='Entre le titre'
-                          isRequired
-                          onValueChange={setValue}
-                          defaultValue={speaker['o:title']}
-                        />
-                      ))
-                    )}
-                  </div>
-                </Scrollbar>
-              </ModalBody>
-              <ModalFooter className='flex items-center justify-end p-25 '>
-                <div className='flex flex-row gap-25'>
-                  {/* <Button
-                    radius='none'
-                    onClick={handleReset}
-                    className={`h-[32px] text-16 rounded-8 text-default-500 bg-default-200 hover:text-default-500 hover:bg-default-300 transition-all ease-in-out duration-200 navfilter flex items-center`}>
-                    Réinitialiser
-                  </Button> */}
-                  <Button
-                    onPress={onClose}
-                    onClick={Send}
-                    radius='none'
-                    className={`h-[32px] text-16 rounded-8 text-default-selected bg-default-action transition-all ease-in-out duration-200 navfilter flex items-center`}>
-                    Appliquer
-                  </Button>
-                </div>
-              </ModalFooter>
-            </>
-          )}
+                );
+              })
+            ) : (
+              <Spinner />
+            )}
+          </ModalBody>
+          <ModalFooter className='flex items-center justify-end p-25 '>
+            <Button
+              onPress={onClose}
+              onClick={handleApplyChanges}
+              radius='none'
+              className={`h-[32px] text-16 rounded-8 text-default-selected bg-default-action transition-all ease-in-out duration-200 navfilter flex items-center`}>
+              Appliquer
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </>

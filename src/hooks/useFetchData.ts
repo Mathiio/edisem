@@ -44,25 +44,27 @@ export const useFetchDataDetails = (ItemUrl: string | null) => {
       if (ItemUrl !== null) {
         try {
           const fetchedData = await fetchSpeakerDetails(ItemUrl);
-          setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]); // Convertir en tableau si ce n'est pas déjà le cas
+          setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
         } catch (error) {
           if (error instanceof Error) {
             setError(error);
+            console.error('Error fetching data:', error);
           } else {
             setError(new Error('An unknown error occurred'));
+            console.error('Unknown error fetching data');
           }
         } finally {
           setLoading(false);
         }
       } else {
-        setData(undefined); // Réinitialiser les données à null si resourceClassId est null
+        setData(undefined);
         setLoading(false);
       }
     };
-
+  
     getData();
-   
   }, [ItemUrl]);
+  
 
   return { data, loading, error };
 };
