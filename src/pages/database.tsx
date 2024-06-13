@@ -3,7 +3,7 @@ import { Navbar } from '@/components/Navbar/Navbar';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { SunIcon } from '@/components/Utils/icons';
+import { SunIcon, UserIcon, ThemeIcon, SeanceIcon, SchoolIcon, LaboritoryIcon, EditionIcon, CollectionIcon, CountryIcon, CitationIcon, ConferenceIcon, KeywordIcon } from '@/components/Utils/icons';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Spinner } from '@nextui-org/react';
 import { useFetchData } from '../hooks/useFetchData';
 import { EditModal } from '@/components/database/EditModal';
@@ -151,34 +151,34 @@ export const Database = () => {
                   to='#'
                   onClick={() => handleCardClick('Conférences', 47, columnConfigs.conferences)}
                   className='flex justify-center items-center min-w-[200px] min-h-[300px] border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10'>
-                  <SunIcon size={24} className='text-default-action' />
+                  <ConferenceIcon size={24} className='text-default-action' />
                   Conférences
                 </Link>
                 <div className='grid grid-rows-2 min-w-[200px] min-h-[200px] gap-25'>
                   <Link
                     to='#'
                     className='flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10'>
-                    <SunIcon size={24} className='text-default-action' />
+                    <EditionIcon size={24} className='text-default-action' />
                     Éditions
                   </Link>
                   <Link
                     to='#'
                     className='flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10'>
-                    <SunIcon size={24} className='text-default-action' />
+                    <SeanceIcon size={24} className='text-default-action' />
                     Séances
                   </Link>
                 </div>
                 <Link
                   to='#'
                   className='flex justify-center items-center min-w-[200px] min-h-[200px] border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10'>
-                  <SunIcon size={24} className='text-default-action' />
+                  <KeywordIcon size={24} className='text-default-action' />
                   Mots clés
                 </Link>
                 <Link
                   to='#'
                   onClick={() => handleCardClick('Conférences', 1375, columnConfigs.conferences)}
                   className='flex justify-center items-center min-w-[200px] min-h-[200px] border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10'>
-                  <SunIcon size={24} className='text-default-action' />
+                  <UserIcon size={24} className='text-default-action' />
                   Conférenciers
                 </Link>
                 <div className='grid grid-cols-2 grid-rows-2 aspect-w-1 aspect-h-1 min-w-[200px] min-h-[200px] gap-25'>
@@ -191,13 +191,13 @@ export const Database = () => {
                   <Link
                     to='#'
                     className='flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10'>
-                    <SunIcon size={24} className='text-default-action' />
+                    <ThemeIcon size={24} className='text-default-action' />
                     Thèmes
                   </Link>
                   <Link
                     to='#'
                     className='flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10'>
-                    <SunIcon size={24} className='text-default-action' />
+                    <CollectionIcon size={24} className='text-default-action' />
                     Collections
                   </Link>
                   <Link
@@ -211,7 +211,7 @@ export const Database = () => {
                   <Link
                     to='#'
                     className='flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10'>
-                    <SunIcon size={24} className='text-default-action' />
+                    <CitationIcon size={24} className='text-default-action' />
                     Citations
                   </Link>
                   <Link
