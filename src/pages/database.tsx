@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'; // Importez useEffect depuis React
+import { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { SunIcon } from '@/components/Utils/icons';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Spinner } from '@nextui-org/react';
-import { useFetchData } from '../hooks/useFetchData'; // Assurez-vous d'importer depuis le bon chemin
+import { useFetchData } from '../hooks/useFetchData';
 import { EditModal } from '@/components/database/EditModal';
 import { Data } from '@/services/api';
 
@@ -28,18 +28,49 @@ const itemVariants: Variants = {
   },
 };
 
+// Configuration des colonnes pour chaque catégorie
+const columnConfigs = {
+  conferences: [
+    { key: 'o:id', label: 'ID', dataPath: 'o:id' }, // Exemple simple
+    { key: 'o:title', label: 'Titre', dataPath: 'o:title' }, // Exemple simple
+    { key: 'schema:agent', label: 'Conférenciers', dataPath: 'schema:agent.0.display_title' }, // Utilisation de dataPath pour un chemin d'accès
+    { key: 'actions', label: 'Actions', isAction: true },
+  ],
+  // Ajoutez d'autres configurations selon vos besoins
+};
+
+// Fonction utilitaire pour accéder à une propriété dans un objet par chemin d'accès
+function getValueByPath<T>(object: T, path: string): any {
+  if (!path) return undefined; // Vérifier si path est défini
+
+  // Séparer le chemin d'accès en tableau de clés
+  const keys = path.split('.');
+  let value: any = object;
+
+  // Parcourir chaque clé dans le chemin
+  for (const key of keys) {
+    if (value && typeof value === 'object' && key in value) {
+      value = value[key];
+    } else {
+      return undefined; // Si une clé est manquante, renvoyer undefined
+    }
+  }
+
+  return value;
+}
+
 export const Database = () => {
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [speakers, setSpeakers] = useState<any[]>([]);
-
-  console.log(speakers);
+  const [columns, setColumns] = useState<any[]>([]); // État pour stocker les colonnes
 
   const { data: speakersData, loading: speakersLoading, error: speakersError } = useFetchData(selectedCardId);
 
-  const handleCardClick = (cardName: string, cardId: number) => {
+  const handleCardClick = (cardName: string, cardId: number, columnsConfig: any[]) => {
     setSelectedCard(cardName);
     setSelectedCardId(cardId);
+    setColumns(columnsConfig); // Définir les colonnes en fonction de la configuration
   };
 
   useEffect(() => {
@@ -47,6 +78,8 @@ export const Database = () => {
       setSpeakers(speakersData);
     }
   }, [speakersData]);
+
+  console.log(speakers);
 
   return (
     <div className='relative h-screen overflow-hidden'>
@@ -67,13 +100,14 @@ export const Database = () => {
                     setSelectedCard(null);
                     setSpeakers([]);
                     setSelectedCardId(null);
+                    setColumns([]);
                   }}
                   className='mr-2'>
                   &larr; Retour
                 </button>
                 <h2>{selectedCard}</h2>
                 {speakersLoading ? (
-                  <Spinner color='secondary' size='md' /> // Afficher le spinner en dehors du bloc de rendu de la table
+                  <Spinner color='secondary' size='md' />
                 ) : speakersError ? (
                   <div>Error: {speakersError.message}</div>
                 ) : (
@@ -84,20 +118,26 @@ export const Database = () => {
                         table: 'min-h-[400px]',
                       }}>
                       <TableHeader>
-                        <TableColumn key='name'>Name</TableColumn>
-                        <TableColumn key='Actions'>Actions</TableColumn>
+                        {columns.map((col) => (
+                          <TableColumn key={col.key}>{col.label}</TableColumn>
+                        ))}
                       </TableHeader>
                       <TableBody
                         items={speakers || []}
                         emptyContent={<Spinner label='Chargement des données Omeka S' color='secondary' size='md' />}>
                         {(item) => (
                           <TableRow key={item['o:id']}>
-                            <TableCell>{item['o:title']}</TableCell>
-                            <TableCell>
-                              <div>
-                                <EditModal itemUrl={item['@id']} />
-                              </div>
-                            </TableCell>
+                            {columns.map((col) => (
+                              <TableCell key={col.key}>
+                                {col.isAction ? (
+                                  <div>
+                                    <EditModal itemUrl={item['@id']} />
+                                  </div>
+                                ) : (
+                                  <div>{getValueByPath(item, col.dataPath)}</div>
+                                )}
+                              </TableCell>
+                            ))}
                           </TableRow>
                         )}
                       </TableBody>
@@ -109,7 +149,7 @@ export const Database = () => {
               <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 grid-rows-2 gap-25 font-semibold text-default-600'>
                 <Link
                   to='#'
-                  onClick={() => handleCardClick('Conférences', 47)}
+                  onClick={() => handleCardClick('Conférences', 47, columnConfigs.conferences)}
                   className='flex justify-center items-center min-w-[200px] min-h-[300px] border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10'>
                   <SunIcon size={24} className='text-default-action' />
                   Conférences
@@ -136,7 +176,7 @@ export const Database = () => {
                 </Link>
                 <Link
                   to='#'
-                  onClick={() => handleCardClick('Conférences', 1375)}
+                  onClick={() => handleCardClick('Conférences', 1375, columnConfigs.conferences)}
                   className='flex justify-center items-center min-w-[200px] min-h-[200px] border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10'>
                   <SunIcon size={24} className='text-default-action' />
                   Conférenciers
