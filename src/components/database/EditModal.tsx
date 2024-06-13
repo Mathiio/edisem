@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Spinner } from '@nextui-org/react';
+import { Input, Spinner, Button } from '@nextui-org/react';
 import { useFetchDataDetails } from '@/hooks/useFetchData';
 
 interface EditModalProps {
@@ -47,6 +47,8 @@ function getValueByPath<T>(object: T[], path: string): any {
 export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onClose }) => {
   const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchDataDetails(itemUrl);
   const [itemData, setItemData] = useState<any>({});
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (itemDetailsData) {
@@ -59,6 +61,39 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
       console.error('Error fetching item details:', detailsError);
     }
   }, [detailsError]);
+
+  const saveChanges = async () => {
+    try {
+      setSaving(true);
+
+      // Prepare payload with itemData
+      const payload = { ...itemData };
+
+      // Replace with your API endpoint and method (PUT)
+      const response = await fetch(`${itemUrl}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      // Handle successful response
+      const responseData = await response.json();
+      console.log('Updated item:', responseData);
+
+      setSaving(false);
+      onClose(); // Close modal after successful save
+    } catch (error) {
+      console.error('Error saving item:', error);
+      setSaveError('Error saving item. Please try again.');
+      setSaving(false);
+    }
+  };
 
   return (
     <>
@@ -92,6 +127,12 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
         ) : (
           <Spinner />
         )}
+
+        {saveError && <div className='error-message'>{saveError}</div>}
+
+        <Button className='mt-4' onClick={saveChanges} disabled={saving}>
+          {saving ? <Spinner color='white' size='sm' /> : 'Enregistrer'}
+        </Button>
       </div>
     </>
   );
