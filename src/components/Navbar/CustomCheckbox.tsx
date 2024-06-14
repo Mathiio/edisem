@@ -49,6 +49,9 @@ export const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ children, onChan
     }
   };
 
+   // Exclude 'ref' from props to avoid passing it to Chip
+   const { ref, ...rest } = getLabelProps();
+
   return (
     <label {...getBaseProps()}>
       <VisuallyHidden>
@@ -62,7 +65,7 @@ export const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ children, onChan
         color='primary'
         startContent={isSelected ? <CalendarIcon size={22} /> : null}
         variant='faded'
-        {...getLabelProps()}>
+        {...rest}>
         {children ? children : isSelected ? 'Enabled' : 'Disabled'}
       </Chip>
     </label>
