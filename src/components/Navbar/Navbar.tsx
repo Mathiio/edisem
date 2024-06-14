@@ -1,13 +1,14 @@
 import React from 'react';
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
-import { Link, Input, Kbd } from '@nextui-org/react';
+import { Input, Kbd } from '@nextui-org/react';
 import { ChangeThemeButton } from '@/components/Navbar/change-theme';
 import CreditsModal from '@/components/Navbar/CreditsModal';
 import { FilterModal } from './FilterModal';
 import { ProfilDropdown } from './ProfilDropdown';
 import { SearchIcon } from '../Utils/icons';
 import { motion, Variants } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const navbarVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
@@ -36,12 +37,13 @@ export const Navbar: React.FC = () => {
       animate='visible'
       variants={containerVariants}>
       <motion.div className='flex items-center gap-4' variants={navbarVariants}>
-        <Link href='/' className='flex items-center'>
+        <Link to='/' className='flex items-center'>
           <Image width={40} src={Logo} alt='Logo' />
         </Link>
         <div className='hidden lg:flex flex-col justify-center items-start'>
           <div className='text-24 text-default-500 font-semibold'>Arcanes</div>
         </div>
+        <Link to='/database'>databse</Link>
       </motion.div>
       <motion.div className='flex justify-center items-start gap-10' variants={navbarVariants}>
         <Input
