@@ -2,19 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Input, Spinner, Button } from '@nextui-org/react';
 import { useFetchDataDetails } from '@/hooks/useFetchData';
 
-interface Item {
-  // Définissez ici la structure d'un item si nécessaire
-}
-
-interface Media {
-  // Définissez ici la structure d'un média si nécessaire
-}
-
-interface User {
-  // Définissez ici la structure d'un utilisateur si nécessaire
-}
 class Omk {
-  private modal: any;
   private key: string | undefined;
   private ident: string | undefined;
   private mail: string | undefined;
@@ -28,7 +16,6 @@ class Omk {
   private types: { [key: string]: string } = { items: 'o:item', media: 'o:media' };
 
   constructor(params: { key?: string; ident?: string; mail?: string; api?: string; vocabs?: string[] }) {
-    this.modal = undefined;
     this.key = params.key || undefined;
     this.ident = params.ident || undefined;
     this.mail = params.mail || undefined;
@@ -498,7 +485,6 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
   const [itemData, setItemData] = useState<any>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [props, setProps] = useState<any[]>([]);
 
   const pa = {
     mail: 'erwan.tbd@gmail.com',

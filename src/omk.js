@@ -11,8 +11,8 @@ export class omk {
         this.props = [];
         this.class = [];
         this.rts
-        let perPage = 1000, types = { 'items': 'o:item', 'media': 'o:media' };
-
+        let perPage = 1000;
+        let types = { 'items': 'o:item', 'media': 'o:media' }
         this.init = function () {
             //récupères les propriétés
             me.vocabs.forEach(v => {

@@ -10,7 +10,6 @@ interface User {
   // Définissez ici la structure d'un utilisateur si nécessaire
 }
 class Omk {
-  private modal: any;
   private key: string | undefined;
   private ident: string | undefined;
   private mail: string | undefined;
@@ -24,7 +23,6 @@ class Omk {
   private types: { [key: string]: string } = { items: 'o:item', media: 'o:media' };
 
   constructor(params: { key?: string; ident?: string; mail?: string; api?: string; vocabs?: string[] }) {
-    this.modal = undefined;
     this.key = params.key || undefined;
     this.ident = params.ident || undefined;
     this.mail = params.mail || undefined;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
@@ -38,7 +38,7 @@ export const Database = () => {
   const [previousTableState, setPreviousTableState] = useState<any[]>([]);
 
   const { data: speakersData, loading: speakersLoading, error: speakersError } = useFetchData(selectedCardId);
-
+  console.log(isEditing);
   const handleCardClick = (cardName: string, cardId: number, configKey: string, columnsConfig: any[]) => {
     setSelectedCard(cardName);
     setSelectedCardId(cardId);
