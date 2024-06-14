@@ -1,7 +1,5 @@
 import React from 'react';
-import { EmblaCarousel } from '@/components/EmblaCarousel';
 import { EmblaOptionsType } from 'embla-carousel';
-import { DotButton, useDotButton } from '../EmblaCarousel/EmblaCarouselDotButton';
 import { usePrevNextButtons } from '../EmblaCarousel/EmblaCarouselArrowButtons';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Button } from '@nextui-org/react';

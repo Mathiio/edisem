@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Button } from '@nextui-org/react';
 import { Link } from '@nextui-org/react';
 import { UserIcon, LinkIcon } from '../Utils/icons';
-import { motion } from 'framer-motion';
 
 interface Conferencier {
   name: string;

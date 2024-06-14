@@ -1,4 +1,3 @@
-import React from 'react';
 import { UserIcon } from '../Utils/icons';
 import { MiniCardCoferencier } from '../conference/ConferenceCards';
 import { Button } from '@nextui-org/react';
