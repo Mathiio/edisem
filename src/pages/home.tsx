@@ -5,7 +5,6 @@ import { HighlightSection } from '@/components/home/HighlightSection';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
 import { CarouselVideoHome, CarouselConferencierHome } from '@/components/home/CarouselHome';
-import { Link } from '@nextui-org/react';
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
