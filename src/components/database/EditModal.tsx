@@ -302,7 +302,7 @@ class Omk {
     data: any,
     type: string = 'items',
     fd: any | null = null,
-    m: string = 'PUT',
+    m: string = 'PATCH',
     cb: ((rs: any) => void) | false = false,
   ): void => {
     let oriData, newData;
@@ -310,7 +310,9 @@ class Omk {
     // Vérifiez que this.ident et this.key ne sont pas undefined avant de les utiliser
     if (this.ident !== undefined && this.key !== undefined) {
       // Construire l'URL avec le bon segment en fonction du type
-      let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(this.ident)}&key_credential=${encodeURIComponent(this.key)}`;
+      let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(
+        this.ident,
+      )}&key_credential=${encodeURIComponent(this.key)}`;
 
       // Traitement des données
       if (data) {
@@ -490,11 +492,11 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
     mail: 'erwan.tbd@gmail.com',
     api: 'https://tests.arcanes.ca/omk/api/',
     ident: 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj',
-    key: 'AEqkdEaz7HLW9AIZZTZsFzR2IorGYgbg',
+    key: import.meta.env.VITE_API_KEY,
   };
 
   const omks = new Omk(pa);
-  omks.init(); // Assurez-vous d'appeler init() si c'est nécessaire pour initialiser votre classe
+  omks.init();
 
   useEffect(() => {
     if (itemDetailsData) {
