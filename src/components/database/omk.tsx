@@ -236,7 +236,7 @@ class Omk {
     data: any,
     type: string = 'items',
     fd: any | null = null,
-    m: string = 'PUT',
+    m: string = 'PATCH',
     cb: ((rs: any) => void) | false = false,
   ): void => {
     let oriData,
