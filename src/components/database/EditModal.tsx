@@ -305,34 +305,53 @@ class Omk {
     m: string = 'PATCH',
     cb: ((rs: any) => void) | false = false,
   ): void => {
-    let oriData, newData;
+    let oriData: { [key: string]: any } = {};
+    let newData: { [key: string]: any };
 
-    // Vérifiez que this.ident et this.key ne sont pas undefined avant de les utiliser
     if (this.ident !== undefined && this.key !== undefined) {
-      // Construire l'URL avec le bon segment en fonction du type
       let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(
         this.ident,
       )}&key_credential=${encodeURIComponent(this.key)}`;
 
-      // Traitement des données
       if (data) {
-        oriData = this.getItem(id); // Obtenez les données d'origine de l'item
-        newData = this.formatData(data, this.types[type]); // Formatez les nouvelles données
+        oriData = this.getItem(id);
+        console.log('Original Data:', oriData);
+        newData = this.formatData(data, this.types[type]);
+        console.log('Formatted New Data:', newData);
 
-        for (const p in newData) {
-          if (p !== '@type') {
-            if (oriData[p]) {
-              oriData[p] = oriData[p].concat(newData[p]); // Concaténez les nouvelles données à celles existantes
-            } else {
-              oriData[p] = newData[p]; // Ou attribuez simplement les nouvelles données
+        if (oriData) {
+          // Vérifiez que oriData n'est pas null avant de continuer
+          // Fusion correcte des données
+          for (const p in newData) {
+            if (newData.hasOwnProperty(p) && p !== '@type') {
+              if (
+                Array.isArray(newData[p]) &&
+                newData[p].length > 0 &&
+                typeof newData[p][0] === 'object' &&
+                '@id' in newData[p][0]
+              ) {
+                oriData[p] = oriData[p] || []; // Assurez-vous que oriData[p] est initialisé comme tableau s'il est null ou undefined
+                newData[p].forEach((newItem: any) => {
+                  const index = oriData[p]?.findIndex((oriItem: any) => oriItem && oriItem['@id'] === newItem['@id']);
+                  if (index !== undefined && index !== -1) {
+                    oriData[p][index] = newItem;
+                  } else {
+                    oriData[p].push(newItem);
+                  }
+                });
+              } else {
+                oriData[p] = newData[p];
+              }
             }
           }
+          console.log('Merged Data:', oriData);
+        } else {
+          console.error('Original data is null');
         }
       }
 
-      // Appel à la méthode postData pour effectuer la requête PUT
       this.postData({ u: url, m: m }, fd ? fd : oriData).then((rs: any) => {
-        if (cb) cb(rs); // Appeler le callback avec la réponse
+        if (cb) cb(rs);
       });
     } else {
       console.error('this.ident or this.key is undefined');
@@ -340,6 +359,7 @@ class Omk {
   };
 
   private formatData = (data: any, type: string = 'o:Item'): any => {
+    console.log('formatage..');
     let fd: any = { '@type': type },
       p: any;
 
@@ -364,6 +384,8 @@ class Omk {
           fd['o:media'] = [{ 'o:ingester': 'upload', file_index: '1' }];
           break;
         case 'labels':
+          console.log('k', k);
+          console.log('v', v);
           if (Array.isArray(v)) {
             v.forEach((d: any) => {
               p = this.props.find((prp: any) => prp['o:label'] == d.p);
@@ -373,14 +395,19 @@ class Omk {
           }
           break;
         default:
-          if (!fd[k]) fd[k] = [];
-          p = this.props.find((prp: any) => prp['o:term'] == k);
+          p = this.props.find((prp: any) => prp['o:term'] == k)[0];
+          console.log('k', k);
+          console.log('p', p);
           if (p) {
+            if (!fd[k]) fd[k] = [];
             if (Array.isArray(v)) {
               fd[k] = v.map((val: any) => this.formatValue(p, val));
             } else {
               fd[k].push(this.formatValue(p, v));
             }
+          } else {
+            console.warn(`Property "${k}" not found in props. Adding it directly.`);
+            fd[k] = Array.isArray(v) ? v : [v];
           }
           break;
       }
@@ -413,6 +440,7 @@ class Omk {
         bodyData.append('file[1]', file);
       } else {
         bodyData = JSON.stringify(data);
+        console.log(bodyData);
         options.headers = {
           'Content-Type': 'application/json',
         };
@@ -528,7 +556,7 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
       if (!itemId) {
         throw new Error('Failed to extract item ID');
       }
-
+      console.log(itemData);
       await omks.updateRessource(itemId, itemData);
 
       setSaving(false);
