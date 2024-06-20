@@ -305,18 +305,19 @@ class Omk {
     m: string = 'PATCH',
     cb: ((rs: any) => void) | false = false,
   ): void => {
-    let oriData: { [key: string]: any } = {}; // Initialisation avec un objet vide par défaut
+    let oriData: { [key: string]: any } = {};
     let newData: { [key: string]: any };
-  
+
     if (this.ident !== undefined && this.key !== undefined) {
       let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(
         this.ident,
       )}&key_credential=${encodeURIComponent(this.key)}`;
-  
+
       if (data) {
         oriData = this.getItem(id);
+        console.log('Original Data:', oriData);
         newData = this.formatData(data, this.types[type]);
-        
+        console.log('New Data:', newData);
         if (oriData) {
           // Vérifiez que oriData n'est pas null avant de continuer
           // Fusion correcte des données
@@ -328,9 +329,7 @@ class Omk {
                 typeof newData[p][0] === 'object' &&
                 '@id' in newData[p][0]
               ) {
-                console.log('Original Data:', oriData);
-                console.log('New Data:', newData);
-                oriData[p] = oriData[p] || []; // Assurez-vous que oriData[p] est initialisé comme tableau s'il est null ou undefined
+                oriData[p] = oriData[p] || [];
                 newData[p].forEach((newItem: any) => {
                   const index = oriData[p]?.findIndex((oriItem: any) => oriItem && oriItem['@id'] === newItem['@id']);
                   if (index !== undefined && index !== -1) {
@@ -344,12 +343,25 @@ class Omk {
               }
             }
           }
+
+          // Déplace les propriétés de la racine vers l'objet dans "0"
+          if (oriData['0'] && Array.isArray(oriData['0'])) {
+            oriData['0'].forEach((obj: any) => {
+              for (const key in oriData) {
+                if (oriData.hasOwnProperty(key) && key !== '0') {
+                  obj[key] = oriData[key];
+                  delete oriData[key];
+                }
+              }
+            });
+          }
+
           console.log('Merged Data:', oriData);
         } else {
           console.error('Original data is null');
         }
       }
-  
+
       this.postData({ u: url, m: m }, fd ? fd : oriData).then((rs: any) => {
         if (cb) cb(rs);
       });
@@ -357,14 +369,11 @@ class Omk {
       console.error('this.ident or this.key is undefined');
     }
   };
-  
-  
-  
 
   private formatData = (data: any, type: string = 'o:Item'): any => {
     let fd: any = { '@type': type },
       p: any;
-  
+
     for (let [k, v] of Object.entries(data)) {
       switch (k) {
         case 'o:item_set':
@@ -394,30 +403,25 @@ class Omk {
             });
           }
           break;
-          default:
-            p = this.props.find((prp: any) => prp['o:term'] == k);
-            if (p) {
-              if (!fd[k]) fd[k] = [];
-              if (Array.isArray(v)) {
-                fd[k] = v.map((val: any) => this.formatValue(p, val));
-              } else {
-                fd[k].push(this.formatValue(p, v));
-              }
+        default:
+          p = this.props.find((prp: any) => prp['o:term'] == k);
+          if (p) {
+            if (!fd[k]) fd[k] = [];
+            if (Array.isArray(v)) {
+              fd[k] = v.map((val: any) => this.formatValue(p, val));
             } else {
-              console.warn(`Property "${k}" not found in props. Adding it directly.`);
-              fd[k] = Array.isArray(v) ? v : [v];
+              fd[k].push(this.formatValue(p, v));
             }
-            break;
-          
+          } else {
+            console.warn(`Property "${k}" not found in props. Adding it directly.`);
+            fd[k] = Array.isArray(v) ? v : [v];
+          }
+          break;
       }
     }
-  
+
     return fd;
   };
-  
-
-
-
 
   private formatValue = (p: any, v: any): any => {
     if (typeof v === 'object' && v.rid) return { property_id: p['o:id'], value_resource_id: v.rid, type: 'resource' };
@@ -443,7 +447,7 @@ class Omk {
         bodyData.append('file[1]', file);
       } else {
         bodyData = JSON.stringify(data);
-        console.log("bodydata",bodyData);
+        console.log('bodydata', bodyData);
         options.headers = {
           'Content-Type': 'application/json',
         };
@@ -541,6 +545,25 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
     }
   }, [detailsError]);
 
+  const handleInputChange = (path: string, value: any) => {
+    setItemData((prevData: any) => {
+      const newData = { ...prevData };
+      const keys = path.split('.');
+      let current = newData;
+
+      // Traverse and create the path
+      for (let i = 0; i < keys.length - 1; i++) {
+        if (!current[keys[i]]) {
+          current[keys[i]] = {};
+        }
+        current = current[keys[i]];
+      }
+
+      current[keys[keys.length - 1]] = value;
+      return newData;
+    });
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setSaveError(null);
@@ -559,7 +582,8 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
       if (!itemId) {
         throw new Error('Failed to extract item ID');
       }
-      console.log(itemData);
+
+      console.log(JSON.stringify(itemData));
       await omks.updateRessource(itemId, itemData);
 
       setSaving(false);
@@ -573,8 +597,6 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
       setSaving(false);
     }
   };
-
-  //console.log(itemDetailsData);
 
   return (
     <div className='edit-modal'>
@@ -600,7 +622,7 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
               placeholder={`Entrez ${col.label}`}
               isRequired
               defaultValue={value}
-              onChange={(e) => setItemData({ ...itemData, [col.dataPath]: e.target.value })}
+              onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
             />
           );
         })
