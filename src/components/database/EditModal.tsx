@@ -305,20 +305,18 @@ class Omk {
     m: string = 'PATCH',
     cb: ((rs: any) => void) | false = false,
   ): void => {
-    let oriData: { [key: string]: any } = {};
+    let oriData: { [key: string]: any } = {}; // Initialisation avec un objet vide par défaut
     let newData: { [key: string]: any };
-
+  
     if (this.ident !== undefined && this.key !== undefined) {
       let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(
         this.ident,
       )}&key_credential=${encodeURIComponent(this.key)}`;
-
+  
       if (data) {
         oriData = this.getItem(id);
-        console.log('Original Data:', oriData);
         newData = this.formatData(data, this.types[type]);
-        console.log('Formatted New Data:', newData);
-
+        
         if (oriData) {
           // Vérifiez que oriData n'est pas null avant de continuer
           // Fusion correcte des données
@@ -330,6 +328,8 @@ class Omk {
                 typeof newData[p][0] === 'object' &&
                 '@id' in newData[p][0]
               ) {
+                console.log('Original Data:', oriData);
+                console.log('New Data:', newData);
                 oriData[p] = oriData[p] || []; // Assurez-vous que oriData[p] est initialisé comme tableau s'il est null ou undefined
                 newData[p].forEach((newItem: any) => {
                   const index = oriData[p]?.findIndex((oriItem: any) => oriItem && oriItem['@id'] === newItem['@id']);
@@ -349,7 +349,7 @@ class Omk {
           console.error('Original data is null');
         }
       }
-
+  
       this.postData({ u: url, m: m }, fd ? fd : oriData).then((rs: any) => {
         if (cb) cb(rs);
       });
@@ -357,12 +357,14 @@ class Omk {
       console.error('this.ident or this.key is undefined');
     }
   };
+  
+  
+  
 
   private formatData = (data: any, type: string = 'o:Item'): any => {
-    console.log('formatage..');
     let fd: any = { '@type': type },
       p: any;
-
+  
     for (let [k, v] of Object.entries(data)) {
       switch (k) {
         case 'o:item_set':
@@ -384,8 +386,6 @@ class Omk {
           fd['o:media'] = [{ 'o:ingester': 'upload', file_index: '1' }];
           break;
         case 'labels':
-          console.log('k', k);
-          console.log('v', v);
           if (Array.isArray(v)) {
             v.forEach((d: any) => {
               p = this.props.find((prp: any) => prp['o:label'] == d.p);
@@ -394,27 +394,30 @@ class Omk {
             });
           }
           break;
-        default:
-          p = this.props.find((prp: any) => prp['o:term'] == k)[0];
-          console.log('k', k);
-          console.log('p', p);
-          if (p) {
-            if (!fd[k]) fd[k] = [];
-            if (Array.isArray(v)) {
-              fd[k] = v.map((val: any) => this.formatValue(p, val));
+          default:
+            p = this.props.find((prp: any) => prp['o:term'] == k);
+            if (p) {
+              if (!fd[k]) fd[k] = [];
+              if (Array.isArray(v)) {
+                fd[k] = v.map((val: any) => this.formatValue(p, val));
+              } else {
+                fd[k].push(this.formatValue(p, v));
+              }
             } else {
-              fd[k].push(this.formatValue(p, v));
+              console.warn(`Property "${k}" not found in props. Adding it directly.`);
+              fd[k] = Array.isArray(v) ? v : [v];
             }
-          } else {
-            console.warn(`Property "${k}" not found in props. Adding it directly.`);
-            fd[k] = Array.isArray(v) ? v : [v];
-          }
-          break;
+            break;
+          
       }
     }
-
+  
     return fd;
   };
+  
+
+
+
 
   private formatValue = (p: any, v: any): any => {
     if (typeof v === 'object' && v.rid) return { property_id: p['o:id'], value_resource_id: v.rid, type: 'resource' };
@@ -440,7 +443,7 @@ class Omk {
         bodyData.append('file[1]', file);
       } else {
         bodyData = JSON.stringify(data);
-        console.log(bodyData);
+        console.log("bodydata",bodyData);
         options.headers = {
           'Content-Type': 'application/json',
         };
