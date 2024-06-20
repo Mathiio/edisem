@@ -13,7 +13,6 @@ class Omk {
   private class: any[]; // Adapter le type si possible
   private rts: any[]; // Adapter le type si possible
   private perPage: number = 1000;
-  private types: { [key: string]: string } = { items: 'o:item', media: 'o:media' };
 
   constructor(params: { key?: string; ident?: string; mail?: string; api?: string; vocabs?: string[] }) {
     this.key = params.key || undefined;
@@ -302,73 +301,61 @@ class Omk {
     data: any,
     type: string = 'items',
     fd: any | null = null,
-    m: string = 'PATCH',
+    m: string = 'PUT',
     cb: ((rs: any) => void) | false = false,
   ): void => {
-    let oriData: { [key: string]: any } = {};
-    let newData: { [key: string]: any };
-
     if (this.ident !== undefined && this.key !== undefined) {
       let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(
         this.ident,
       )}&key_credential=${encodeURIComponent(this.key)}`;
 
       if (data) {
-        console.log('data juste avant envoie', data['0']);
-        oriData = this.getItem(id);
-        console.log('Original Data:', oriData);
-        newData = this.formatData(data, this.types[type]);
-        console.log('New Data:', newData);
-        if (oriData) {
-          // Vérifiez que oriData n'est pas null avant de continuer
-          // Fusion correcte des données
-          for (const p in newData) {
-            if (newData.hasOwnProperty(p) && p !== '@type') {
-              if (
-                Array.isArray(newData[p]) &&
-                newData[p].length > 0 &&
-                typeof newData[p][0] === 'object' &&
-                '@id' in newData[p][0]
-              ) {
-                oriData[p] = oriData[p] || [];
-                newData[p].forEach((newItem: any) => {
-                  const index = oriData[p]?.findIndex((oriItem: any) => oriItem && oriItem['@id'] === newItem['@id']);
-                  if (index !== undefined && index !== -1) {
-                    oriData[p][index] = newItem;
-                  } else {
-                    oriData[p].push(newItem);
-                  }
-                });
-              } else {
-                oriData[p] = newData[p];
-              }
-            }
-          }
+        // Récupérer les données actuelles de l'élément
+        this.getItem(id).then((oriData: any) => {
+          console.log('Original Data:', JSON.stringify(oriData));
+          console.log('Update Data:', JSON.stringify(data));
 
-          // Déplace les propriétés de la racine vers l'objet dans "0"
-          if (oriData['0'] && Array.isArray(oriData['0'])) {
-            oriData['0'].forEach((obj: any) => {
-              for (const key in oriData) {
-                if (oriData.hasOwnProperty(key) && key !== '0') {
-                  obj[key] = oriData[key];
-                  delete oriData[key];
-                }
-              }
-            });
-          }
+          // Mettre à jour oriData avec les nouvelles valeurs de data
+          this.updateOriDataWithNewValues(oriData, data);
+          console.log('Final Data:', JSON.stringify(oriData));
 
-          console.log('Merged Data:', oriData);
-        } else {
-          console.error('Original data is null');
-        }
+          // Envoyer les données mises à jour à l'API
+          this.postData({ u: url, m: m }, fd ? fd : oriData).then((rs: any) => {
+            console.log('Result:', rs);
+            if (cb) cb(rs);
+          });
+        });
+      } else {
+        console.error('Invalid data provided');
       }
-
-      this.postData({ u: url, m: m }, fd ? fd : oriData).then((rs: any) => {
-        console.log('result', rs);
-        if (cb) cb(rs);
-      });
     } else {
       console.error('this.ident or this.key is undefined');
+    }
+  };
+
+  private updateOriDataWithNewValues = (oriData: any, data: any): void => {
+    const updateValue = (obj: any, path: string[], value: any): void => {
+      console.log(`Current path: ${path.join('.')}`);
+      console.log(`Current object state:`, JSON.stringify(obj));
+
+      if (path.length === 1) {
+        console.log(`Updating path: ${path[0]} with value:`, value);
+        obj[path[0]] = value;
+      } else {
+        if (obj.hasOwnProperty(path[0])) {
+          updateValue(obj[path[0]], path.slice(1), value);
+        } else {
+          console.error(`Path ${path[0]} not found in the object.`);
+        }
+      }
+    };
+
+    for (let key in data) {
+      if (data.hasOwnProperty(key)) {
+        console.log('Processing key:', key);
+        const path = key.split('.');
+        updateValue(oriData, path, data[key]);
+      }
     }
   };
 
@@ -384,6 +371,15 @@ class Omk {
         case 'o:resource_class':
           p = this.class.filter((prp: any) => prp['o:term'] == v)[0];
           fd[k] = { 'o:id': p['o:id'] };
+          break;
+        case 'dcterms:title':
+          p = this.props.find((prp: any) => prp['o:term'] === k);
+          if (p) {
+            fd[k] = this.formatValue(p, v);
+          } else {
+            console.warn(`Property "${k}" not found in props. Adding it directly.`);
+            fd[k] = { type: 'literal', '@value': v }; // Fallback if property metadata not found
+          }
           break;
         case 'o:resource_template':
           p = this.rts.filter((rt: any) => rt['o:label'] == v)[0];
@@ -406,6 +402,7 @@ class Omk {
           }
           break;
         default:
+          console.log('props', this.props);
           p = this.props.find((prp: any) => prp['o:term'] == k);
           if (p) {
             if (Array.isArray(v)) {
@@ -489,14 +486,7 @@ interface ColumnConfig {
 }
 
 const inputConfigs: { [key: string]: ColumnConfig[] } = {
-  conferences: [
-    { key: 'o:id', label: 'ID', dataPath: 'o:id' },
-    { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
-  ],
-  conferenciers: [
-    { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
-    { key: 'jdc:hasUniversity', label: 'Université', dataPath: 'jdc:hasUniversity.0.display_title' },
-  ],
+  conferences: [{ key: 'o:title', label: 'Titre', dataPath: 'dcterms:title.0.@value' }],
 };
 
 function getValueByPath<T>(object: T[], path: string): any {
@@ -535,12 +525,6 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
   omks.init();
 
   useEffect(() => {
-    if (itemDetailsData) {
-      setItemData(itemDetailsData);
-    }
-  }, [itemDetailsData]);
-
-  useEffect(() => {
     if (detailsError) {
       console.error('Error fetching item details:', detailsError);
     }
@@ -549,30 +533,20 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
   const handleInputChange = (path: string, value: any) => {
     setItemData((prevData: any) => {
       const newData = { ...prevData };
-      const keys = path.split('.');
+      const keys = path;
       let current = newData;
-
-      // Traverse and create the path
-      for (let i = 0; i < keys.length - 1; i++) {
-        if (!current[keys[i]]) {
-          current[keys[i]] = {};
-        }
-        current = current[keys[i]];
-      }
-
-      const lastKey = keys[keys.length - 1];
 
       // Check if the value should be treated as an array
       if (Array.isArray(value)) {
         // If the current value is an array and the new value is also an array,
         // we want to replace the array, not encapsulate it in another array.
-        if (Array.isArray(current[lastKey])) {
-          current[lastKey] = value;
+        if (Array.isArray(current[keys])) {
+          current[keys] = value;
         } else {
-          current[lastKey] = [value];
+          current[keys] = [value];
         }
       } else {
-        current[lastKey] = value;
+        current[keys] = value;
       }
 
       return newData;
@@ -599,7 +573,7 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
       }
 
       //console.log(JSON.stringify(itemData));
-      console.log('data juste avant updateressource', itemData['0']);
+      //console.log('data juste avant updateressource', itemData['0']);
       await omks.updateRessource(itemId, itemData);
 
       setSaving(false);
