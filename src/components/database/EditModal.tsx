@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Spinner, Button } from '@nextui-org/react';
-import { useFetchDataDetails } from '@/hooks/useFetchData';
+import { useFetchDataDetails, useFetchData } from '@/hooks/useFetchData';
 
 class Omk {
   private key: string | undefined;
@@ -402,7 +402,6 @@ class Omk {
           }
           break;
         default:
-          console.log('props', this.props);
           p = this.props.find((prp: any) => prp['o:term'] == k);
           if (p) {
             if (Array.isArray(v)) {
@@ -479,16 +478,6 @@ interface EditModalProps {
   onClose: () => void;
 }
 
-interface ColumnConfig {
-  key: string;
-  label: string;
-  dataPath: string;
-}
-
-const inputConfigs: { [key: string]: ColumnConfig[] } = {
-  conferences: [{ key: 'o:title', label: 'Titre', dataPath: 'dcterms:title.0.@value' }],
-};
-
 function getValueByPath<T>(object: T[], path: string): any {
   if (!path) return undefined;
   if (!Array.isArray(object) || object.length === 0) return undefined;
@@ -508,8 +497,32 @@ function getValueByPath<T>(object: T[], path: string): any {
   return value;
 }
 
+interface InputConfig {
+  key: string;
+  label: string;
+  dataPath: string;
+  type: 'input' | 'selection';
+  options?: string[]; // Only for selection type
+  selectionId?: number[];
+}
+
+const inputConfigs: { [key: string]: InputConfig[] } = {
+  conferences: [
+    { key: 'titre', label: 'Titre', dataPath: 'dcterms:title.0.@value', type: 'input' },
+    {
+      key: 'conferencier',
+      label: 'Conférencier',
+      dataPath: 'schema:agent',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [1375],
+    },
+  ],
+};
+
 export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onClose }) => {
   const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchDataDetails(itemUrl);
+
   const [itemData, setItemData] = useState<any>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -536,10 +549,7 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
       const keys = path;
       let current = newData;
 
-      // Check if the value should be treated as an array
       if (Array.isArray(value)) {
-        // If the current value is an array and the new value is also an array,
-        // we want to replace the array, not encapsulate it in another array.
         if (Array.isArray(current[keys])) {
           current[keys] = value;
         } else {
@@ -572,12 +582,10 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
         throw new Error('Failed to extract item ID');
       }
 
-      //console.log(JSON.stringify(itemData));
-      //console.log('data juste avant updateressource', itemData['0']);
       await omks.updateRessource(itemId, itemData);
 
       setSaving(false);
-      onClose(); // Fermer le modal après la sauvegarde réussie
+      onClose(); // Close the modal after successful save
     } catch (error) {
       if (error instanceof Error) {
         setSaveError(error.message);
@@ -591,30 +599,83 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
   return (
     <div className='edit-modal'>
       <button onClick={onClose}>Retour au tableau</button>
-
       {activeConfig && !detailsLoading ? (
         itemDetailsData &&
-        inputConfigs[activeConfig]?.map((col: ColumnConfig) => {
+        inputConfigs[activeConfig]?.map((col: InputConfig) => {
           const value = getValueByPath(itemDetailsData, col.dataPath);
-          return (
-            <Input
-              key={col.key}
-              size='lg'
-              classNames={{
-                label: 'text-semibold',
-                inputWrapper: 'bg-default-100',
-                input: 'h-[50px]',
-              }}
-              className='min-h-[50px]'
-              type='text'
-              label={col.label}
-              labelPlacement='outside'
-              placeholder={`Entrez ${col.label}`}
-              isRequired
-              defaultValue={value}
-              onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
-            />
-          );
+          if (col.type === 'input') {
+            return (
+              <Input
+                key={col.key}
+                size='lg'
+                classNames={{
+                  label: 'text-semibold',
+                  inputWrapper: 'bg-default-100',
+                  input: 'h-[50px]',
+                }}
+                className='min-h-[50px]'
+                type='text'
+                label={col.label}
+                labelPlacement='outside'
+                placeholder={`Entrez ${col.label}`}
+                isRequired
+                defaultValue={value}
+                onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
+              />
+            );
+          } else if (col.type === 'selection') {
+            // Extrait valueSelect avec getValueByPath
+            const valueSelect = getValueByPath(itemDetailsData, col.dataPath);
+            console.log(JSON.stringify(valueSelect));
+
+            // Vérifiez si valueSelect est défini et est un tableau non vide
+            if (valueSelect && Array.isArray(valueSelect) && valueSelect.length > 0) {
+              // Accédez au premier élément de valueSelect
+              const firstItem = valueSelect[0];
+
+              // Vérifiez si col.options est défini et non vide
+              if (col.options && col.options.length > 0) {
+                // Accédez à selectedValue en utilisant col.options[0]
+                let selectedValue = firstItem[col.options[0]];
+
+                // Si selectedValue est un tableau, ajustez comme suit :
+                if (Array.isArray(selectedValue)) {
+                  selectedValue = selectedValue[0]; // Prenez le premier élément du tableau
+                }
+
+                // Rendu du select avec les options disponibles
+                return (
+                  <div key={col.key}>
+                    <label className='text-semibold'>{col.label}</label>
+                    <select
+                      className='min-h-[50px] bg-default-100'
+                      value={selectedValue || ''}
+                      onChange={(e) => handleInputChange(col.dataPath, e.target.value)}>
+                      {Array.isArray(selectedValue)
+                        ? selectedValue.map((option, index) => (
+                            <option key={index} value={option}>
+                              {option}
+                            </option>
+                          ))
+                        : selectedValue && (
+                            <option key={selectedValue} value={selectedValue}>
+                              {selectedValue}
+                            </option>
+                          )}
+                    </select>
+                  </div>
+                );
+              } else {
+                // Gérer le cas où col.options est undefined ou vide
+                return <div>Options non définies pour {col.label}</div>;
+              }
+            } else {
+              // Gérer le cas où valueSelect est undefined ou vide
+              return <div>Données non disponibles pour {col.label}</div>;
+            }
+          } else {
+            return null; // Or handle other types accordingly
+          }
         })
       ) : (
         <Spinner />
