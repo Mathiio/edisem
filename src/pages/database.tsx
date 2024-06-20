@@ -33,31 +33,28 @@ export const Database = () => {
   const [speakers, setSpeakers] = useState<any[]>([]);
   const [columns, setColumns] = useState<any[]>([]);
   const [selectedItemForEdit, setSelectedItemForEdit] = useState<any | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
   const [currentView, setCurrentView] = useState<'grid' | 'table' | 'element'>('grid');
   const [previousTableState, setPreviousTableState] = useState<any[]>([]);
 
   const { data: speakersData, loading: speakersLoading, error: speakersError } = useFetchData(selectedCardId);
+
   const handleCardClick = (cardName: string, cardId: number, configKey: string, columnsConfig: any[]) => {
     setSelectedCard(cardName);
     setSelectedCardId(cardId);
     setSelectedConfigKey(configKey);
     setColumns(columnsConfig);
     setSelectedItemForEdit(null);
-    setIsEditing(false);
     setCurrentView('table'); // Changer la vue actuelle pour afficher le tableau
     setPreviousTableState([...speakers]);
   };
 
   const handleCellClick = (item: any) => {
     setSelectedItemForEdit(item);
-    setIsEditing(true);
     setCurrentView('element'); // Changer la vue actuelle pour afficher l'élément
   };
 
   const handleReturn = () => {
     if (currentView === 'element') {
-      setIsEditing(false);
       setCurrentView('table'); // Revenir à la vue du tableau si vous étiez sur l'élément
     } else if (currentView === 'table') {
       setSelectedCard(null);
@@ -70,7 +67,6 @@ export const Database = () => {
   };
 
   const handleEditModalReturn = () => {
-    setIsEditing(false);
     setCurrentView('table'); // Revenir à la vue du tableau depuis EditModal
   };
 

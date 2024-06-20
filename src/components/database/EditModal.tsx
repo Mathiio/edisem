@@ -314,6 +314,7 @@ class Omk {
       )}&key_credential=${encodeURIComponent(this.key)}`;
 
       if (data) {
+        console.log('data juste avant envoie', data['0']);
         oriData = this.getItem(id);
         console.log('Original Data:', oriData);
         newData = this.formatData(data, this.types[type]);
@@ -363,6 +364,7 @@ class Omk {
       }
 
       this.postData({ u: url, m: m }, fd ? fd : oriData).then((rs: any) => {
+        console.log('result', rs);
         if (cb) cb(rs);
       });
     } else {
@@ -406,11 +408,10 @@ class Omk {
         default:
           p = this.props.find((prp: any) => prp['o:term'] == k);
           if (p) {
-            if (!fd[k]) fd[k] = [];
             if (Array.isArray(v)) {
               fd[k] = v.map((val: any) => this.formatValue(p, val));
             } else {
-              fd[k].push(this.formatValue(p, v));
+              fd[k] = this.formatValue(p, v); // Assigner directement la valeur sans encapsulation dans un tableau
             }
           } else {
             console.warn(`Property "${k}" not found in props. Adding it directly.`);
@@ -559,7 +560,21 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
         current = current[keys[i]];
       }
 
-      current[keys[keys.length - 1]] = value;
+      const lastKey = keys[keys.length - 1];
+
+      // Check if the value should be treated as an array
+      if (Array.isArray(value)) {
+        // If the current value is an array and the new value is also an array,
+        // we want to replace the array, not encapsulate it in another array.
+        if (Array.isArray(current[lastKey])) {
+          current[lastKey] = value;
+        } else {
+          current[lastKey] = [value];
+        }
+      } else {
+        current[lastKey] = value;
+      }
+
       return newData;
     });
   };
@@ -583,7 +598,8 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
         throw new Error('Failed to extract item ID');
       }
 
-      console.log(JSON.stringify(itemData));
+      //console.log(JSON.stringify(itemData));
+      console.log('data juste avant updateressource', itemData['0']);
       await omks.updateRessource(itemId, itemData);
 
       setSaving(false);
