@@ -163,6 +163,25 @@ export const columnConfigs = {
     { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
     { key: 'jdc:hasUniversity', label: 'Université', dataPath: 'jdc:hasUniversity.0.display_title' },
   ],
+  citations: [
+    { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
+    { key: 'Conceptes', label: 'Conceptes', dataPath: 'skos:hasTopConcept.0.display_title' },
+    { key: 'schema:startTime', label: 'schema:startTime', dataPath: 'schema:startTime.0.@value' },
+    { key: 'schema:endTime', label: 'schema:endTime', dataPath: 'schema:endTime.0.@value' },
+  ],
+  pays: [{ key: 'o:title', label: 'Titre', dataPath: 'o:title' }],
+  laboratoire: [
+    { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
+    { key: 'schema:url', label: 'Url', dataPath: 'schema:url.0.@value' },
+  ],
+  ecolesdoctorales: [
+    { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
+    { key: 'schema:url', label: 'Url', dataPath: 'schema:url.0.@value' },
+  ],
+  universites: [
+    { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
+    { key: 'schema:url', label: 'Url', dataPath: 'schema:url.0.@id' },
+  ],
   // Ajoutez d'autres configurations selon vos besoins
 };
 
