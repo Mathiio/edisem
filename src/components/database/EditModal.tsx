@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Spinner, Button } from '@nextui-org/react';
-import { useFetchDataDetails, useFetchData } from '@/hooks/useFetchData';
+import { useFetchDataDetails } from '@/hooks/useFetchData';
+import { SelectionInput } from './SelectionInput';
+import { Textarea } from '@nextui-org/input';
+
+import { TimecodeInput } from './TimecodeInput';
 
 class Omk {
   private key: string | undefined;
@@ -354,7 +358,38 @@ class Omk {
       if (data.hasOwnProperty(key)) {
         console.log('Processing key:', key);
         const path = key.split('.');
-        updateValue(oriData, path, data[key]);
+        const value = data[key];
+
+        // Check if the key is "schema:agent"
+        if (key === 'schema:agent') {
+          // Assuming value is an array of IDs
+          const resourceObjects = value.map((id: number) => ({
+            type: 'resource',
+            property_id: 386,
+            property_label: 'agent',
+            is_public: true,
+            '@id': `https://tests.arcanes.ca/omk/api/items/${id}`,
+            value_resource_id: id,
+            value_resource_name: 'items',
+          }));
+
+          updateValue(oriData, path, resourceObjects);
+        } else if (key === 'schema:addressCountry') {
+          // Assuming value is an array of IDs
+          const resourceObjects = value.map((id: number) => ({
+            type: 'customvocab:27',
+            property_id: 377,
+            property_label: 'addressCountry',
+            is_public: true,
+            '@id': `https://tests.arcanes.ca/omk/api/items/${id}`,
+            value_resource_id: id,
+            value_resource_name: 'items',
+          }));
+
+          updateValue(oriData, path, resourceObjects);
+        } else {
+          updateValue(oriData, path, value);
+        }
       }
     }
   };
@@ -497,11 +532,11 @@ function getValueByPath<T>(object: T[], path: string): any {
   return value;
 }
 
-interface InputConfig {
+export interface InputConfig {
   key: string;
   label: string;
   dataPath: string;
-  type: 'input' | 'selection';
+  type: 'input' | 'selection' | 'textarea' | 'time';
   options?: string[]; // Only for selection type
   selectionId?: number[];
 }
@@ -518,7 +553,65 @@ const inputConfigs: { [key: string]: InputConfig[] } = {
       selectionId: [1375],
     },
   ],
+  citations: [
+    { key: 'citationss', label: 'Citations', dataPath: 'cito:hasCitedEntity.0.@value', type: 'textarea' },
+    {
+      key: 'conferencier',
+      label: 'Conférencier',
+      dataPath: 'cito:isCitedBy',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [1375],
+    },
+    {
+      key: 'concepts',
+      label: 'Concepts et mot clés',
+      dataPath: 'skos:hasTopConcept',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [1379],
+    },
+    {
+      key: 'starttime',
+      label: 'Timecode de début',
+      dataPath: 'schema:startTime.0.@value',
+      type: 'time',
+    },
+    {
+      key: 'endtime',
+      label: 'Timecode de fin',
+      dataPath: 'schema:endTime.0.@value',
+      type: 'time',
+    },
+  ],
+  conferenciers: [
+    { key: 'nom', label: 'Nom', dataPath: 'foaf:lastName.0.@value', type: 'input' },
+    { key: 'prenom', label: 'Prénom', dataPath: 'foaf:firstName.0.@value', type: 'input' },
+  ],
+  pays: [{ key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' }],
+  laboratoire: [
+    { key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' },
+    { key: 'url', label: 'Url', dataPath: 'schema:url.0.@value', type: 'input' },
+  ],
+  ecolesdoctorales: [
+    { key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' },
+    { key: 'url', label: 'Url', dataPath: 'schema:url.0.@value', type: 'input' },
+  ],
+  universites: [
+    { key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' },
+    { key: 'url', label: 'Url', dataPath: 'schema:url.0.@id', type: 'input' },
+    {
+      key: 'pays',
+      label: 'Pays',
+      dataPath: 'schema:addressCountry',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [322],
+    },
+  ],
 };
+
+//schema:startTime
 
 export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onClose }) => {
   const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchDataDetails(itemUrl);
@@ -597,7 +690,7 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
   };
 
   return (
-    <div className='edit-modal'>
+    <div className='flex flex-col gap-50 items-start'>
       <button onClick={onClose}>Retour au tableau</button>
       {activeConfig && !detailsLoading ? (
         itemDetailsData &&
@@ -605,12 +698,34 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
           const value = getValueByPath(itemDetailsData, col.dataPath);
           if (col.type === 'input') {
             return (
-              <Input
+              <>
+                <Input
+                  key={col.key}
+                  size='lg'
+                  classNames={{
+                    label: 'text-semibold',
+                    inputWrapper: 'bg-default-100',
+                    input: 'h-[50px]',
+                  }}
+                  className='min-h-[50px]'
+                  type='text'
+                  label={col.label}
+                  labelPlacement='outside'
+                  placeholder={`Entrez ${col.label}`}
+                  isRequired
+                  defaultValue={value}
+                  onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
+                />
+              </>
+            );
+          } else if (col.type === 'textarea') {
+            return (
+              <Textarea
                 key={col.key}
                 size='lg'
                 classNames={{
-                  label: 'text-semibold',
-                  inputWrapper: 'bg-default-100',
+                  label: 'text-semibold text-default-600 text-24',
+                  inputWrapper: 'bg-default-50 shadow-none border-1 border-default-200',
                   input: 'h-[50px]',
                 }}
                 className='min-h-[50px]'
@@ -623,56 +738,26 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
                 onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
               />
             );
+          } else if (col.type === 'time') {
+            return (
+              <>
+                <TimecodeInput
+                  label={col.label}
+                  seconds={value}
+                  handleInputChange={(value) => handleInputChange(col.dataPath, value)}
+                />
+              </>
+            );
           } else if (col.type === 'selection') {
-            // Extrait valueSelect avec getValueByPath
-            const valueSelect = getValueByPath(itemDetailsData, col.dataPath);
-            console.log(JSON.stringify(valueSelect));
-
-            // Vérifiez si valueSelect est défini et est un tableau non vide
-            if (valueSelect && Array.isArray(valueSelect) && valueSelect.length > 0) {
-              // Accédez au premier élément de valueSelect
-              const firstItem = valueSelect[0];
-
-              // Vérifiez si col.options est défini et non vide
-              if (col.options && col.options.length > 0) {
-                // Accédez à selectedValue en utilisant col.options[0]
-                let selectedValue = firstItem[col.options[0]];
-
-                // Si selectedValue est un tableau, ajustez comme suit :
-                if (Array.isArray(selectedValue)) {
-                  selectedValue = selectedValue[0]; // Prenez le premier élément du tableau
-                }
-
-                // Rendu du select avec les options disponibles
-                return (
-                  <div key={col.key}>
-                    <label className='text-semibold'>{col.label}</label>
-                    <select
-                      className='min-h-[50px] bg-default-100'
-                      value={selectedValue || ''}
-                      onChange={(e) => handleInputChange(col.dataPath, e.target.value)}>
-                      {Array.isArray(selectedValue)
-                        ? selectedValue.map((option, index) => (
-                            <option key={index} value={option}>
-                              {option}
-                            </option>
-                          ))
-                        : selectedValue && (
-                            <option key={selectedValue} value={selectedValue}>
-                              {selectedValue}
-                            </option>
-                          )}
-                    </select>
-                  </div>
-                );
-              } else {
-                // Gérer le cas où col.options est undefined ou vide
-                return <div>Options non définies pour {col.label}</div>;
-              }
-            } else {
-              // Gérer le cas où valueSelect est undefined ou vide
-              return <div>Données non disponibles pour {col.label}</div>;
-            }
+            // console.log(itemDetailsData);
+            return (
+              <SelectionInput
+                key={col.key}
+                col={col}
+                actualData={itemDetailsData}
+                handleInputChange={handleInputChange}
+              />
+            );
           } else {
             return null; // Or handle other types accordingly
           }
@@ -683,7 +768,7 @@ export const EditModal: React.FC<EditModalProps> = ({ itemUrl, activeConfig, onC
 
       {saveError && <div className='error'>{saveError}</div>}
 
-      <Button onClick={handleSave} disabled={saving}>
+      <Button className='p-10' onClick={handleSave} disabled={saving}>
         {saving ? 'Saving...' : 'Save Changes'}
       </Button>
     </div>

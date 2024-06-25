@@ -54,6 +54,7 @@ module.exports = {
     spacing: {
       5: '5px',
       10: '10px',
+      20: '20px',
       25: '20px',
       50: '50px',
       75: '75px',
@@ -73,7 +74,7 @@ module.exports = {
       12: '3rem',
       14: '3.5rem',
       16: '4rem',
-      20: '5rem',
+
       24: '6rem',
       28: '7rem',
       32: '8rem',
@@ -700,6 +701,7 @@ module.exports = {
           colors: {
             default: {
               0: 'transparent',
+              50: '#ffffff',
               100: '#fafafa',
               200: '#e4e4e7',
               300: '#d4d4d8',
@@ -714,6 +716,7 @@ module.exports = {
           colors: {
             default: {
               0: 'transparent',
+              50: '#000',
               100: '#18181b',
               200: '#27272a',
               300: '#3f3f46',
