@@ -3,12 +3,12 @@ import { TimeInput } from '@nextui-org/date-input'; // Assurez-vous que l'import
 import { Time } from '@internationalized/date';
 
 interface TimecodeInputProps {
-  seconds: number;
+  seconds?: number;
   handleInputChange: (value: number) => void;
   label: string;
 }
 
-export const TimecodeInput: React.FC<TimecodeInputProps> = ({ seconds, label, handleInputChange }) => {
+export const TimecodeInput: React.FC<TimecodeInputProps> = ({ seconds = 0, label, handleInputChange }) => {
   // Convertir les secondes en objet Time
   const convertSecondsToTime = (seconds: number): Time => {
     const hours = Math.floor(seconds / 3600);
@@ -56,3 +56,5 @@ export const TimecodeInput: React.FC<TimecodeInputProps> = ({ seconds, label, ha
     />
   );
 };
+
+export default TimecodeInput;

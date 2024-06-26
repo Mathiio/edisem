@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchData,fetchSpeakerDetails, Data } from '../services/api';
+import { fetchData,fetchSpeakerDetails,fetchRT, Data } from '../services/api';
 
 export const useFetchData = (resourceClassId: number | null) => {
   const [data, setData] = useState<Data[]>();
@@ -68,4 +68,36 @@ export const useFetchDataDetails = (ItemUrl: string | null) => {
 
   return { data, loading, error };
 };
+export const useFetchRT = (resourceTemplateId: number | null) => {
+  const [data, setData] = useState<Data[]>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
+  useEffect(() => {
+    const getData = async () => {
+      if (resourceTemplateId !== null) {
+        try {
+          const fetchedData = await fetchRT(resourceTemplateId);
+          setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
+        } catch (error) {
+          if (error instanceof Error) {
+            setError(error);
+            console.error('Error fetching data:', error);
+          } else {
+            setError(new Error('An unknown error occurred'));
+            console.error('Unknown error fetching data');
+          }
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setData(undefined);
+        setLoading(false);
+      }
+    };
+
+    getData();
+  }, [resourceTemplateId]);
+
+  return { data, loading, error };
+};

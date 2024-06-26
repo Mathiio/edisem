@@ -23,6 +23,20 @@ export const fetchData = async (resourceClassId: number): Promise<Data[]> => {
   }
 };
 
+export const fetchRT = async (resourceTemplateId: number): Promise<Data[]> => {
+  try {
+    const response = await fetch(`${API_URL}/resource_templates/${resourceTemplateId}`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data: Data[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
 export const fetchSpeakerDetails = async (speakerUrl: string): Promise<Data[]> => {
   try {
     const response = await fetch(speakerUrl);
