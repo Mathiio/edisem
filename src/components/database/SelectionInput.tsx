@@ -8,12 +8,12 @@ import { Scrollbar } from '../Utils/Scrollbar';
 
 interface SelectionInputProps {
   col: InputConfig;
-  actualData: any;
+  actualData?: any;
   handleInputChange: (dataPath: string, value: string[]) => void;
 }
 
 export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData, handleInputChange }) => {
-  const initialValues = actualData[0][col.dataPath] || [];
+  const initialValues = actualData?.[0]?.[col.dataPath] || [];
   const [selectedValues, setSelectedValues] = useState<string[]>(
     initialValues.map((item: any) => item.value_resource_id),
   );

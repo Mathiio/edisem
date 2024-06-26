@@ -10,13 +10,14 @@ import {
   Link,
   ModalHeader,
 } from '@nextui-org/react';
-import { useFetchDataDetails } from '@/hooks/useFetchData';
+import { useFetchRT } from '@/hooks/useFetchData';
 import { SelectionInput } from './SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
 import { TimecodeInput } from './TimecodeInput';
 import { Scrollbar } from '../Utils/Scrollbar';
 import { CloseIcon } from '../Utils/icons';
+import { inputConfigs, InputConfig } from './EditModal';
 
 class Omk {
   private key: string | undefined;
@@ -25,9 +26,9 @@ class Omk {
   private api: string | undefined;
   private vocabs: string[];
   private user: User | false;
-  private props: any[]; // Adapter le type si possible
+  public props: any[]; // Adapter le type si possible
   private class: any[]; // Adapter le type si possible
-  private rts: any[]; // Adapter le type si possible
+  public rts: any[]; // Adapter le type si possible
   private perPage: number = 1000;
 
   constructor(params: { key?: string; ident?: string; mail?: string; api?: string; vocabs?: string[] }) {
@@ -56,6 +57,7 @@ class Omk {
       const data = await this.syncRequest(this.api + 'resource_templates?per_page=1000');
       if (data) {
         this.rts = data;
+
         if (cb) cb(this.rts);
       } else {
         console.error('Failed to fetch resource templates');
@@ -304,10 +306,23 @@ class Omk {
     });
   };
 
-  public createItem = async (data: any, cb: ((rs: any) => void) | false = false): Promise<any> => {
-    console.log(data);
+  public createItem = async (data: any = null, cb: ((rs: any) => void) | false = false): Promise<any> => {
+    console.log('-----------', data);
+    const item = {
+      '@type': ['o:Item', 'https://tests.arcanes.ca/omk/api/resource_classes/47'],
+
+      'o:resource_class': {
+        'o:id': 47,
+        '@id': 'https://tests.arcanes.ca/omk/api/resource_classes/47',
+      },
+
+      'o:resource_template': { '@id': 'https://tests.arcanes.ca/omk/api/resource_templates/71', 'o:id': 71 },
+
+      'dcterms:title': { '@value': 'test' },
+    };
     let url = this.api + 'items?key_identity=' + this.ident + '&key_credential=' + this.key;
-    return await this.postData({ u: url, m: 'POST' }, this.formatData(data)).then((rs: any) => {
+    return await this.postData({ u: url, m: 'POST' }, item).then((rs: any) => {
+      console.log('Result:', rs);
       if (cb) cb(rs);
       return rs;
     });
@@ -386,6 +401,8 @@ class Omk {
             value_resource_name: 'items',
           }));
 
+          console.log('formated schema:agent', this.formatValue(key, resourceObjects));
+
           updateValue(oriData, path, resourceObjects);
         } else if (key === 'schema:addressCountry') {
           // Assuming value is an array of IDs
@@ -407,7 +424,7 @@ class Omk {
     }
   };
 
-  private formatData = (data: any, type: string = 'o:Item'): any => {
+  public formatData = (data: any, type: string = 'o:Item'): any => {
     let fd: any = { '@type': type },
       p: any;
 
@@ -520,117 +537,16 @@ class Omk {
   }
 }
 
-export default Omk;
-
-function getValueByPath<T>(object: T[], path: string): any {
-  if (!path) return undefined;
-  if (!Array.isArray(object) || object.length === 0) return undefined;
-
-  const keys = path.split('.');
-  let value: any = object[0];
-
-  for (const key of keys) {
-    if (Array.isArray(value)) {
-      value = value[parseInt(key)];
-    } else if (value && typeof value === 'object' && key in value) {
-      value = value[key];
-    } else {
-      return undefined;
-    }
-  }
-  return value;
-}
-
-export interface InputConfig {
-  key: string;
-  label: string;
-  dataPath: string;
-  type: 'input' | 'selection' | 'textarea' | 'time';
-  options?: string[]; // Only for selection type
-  selectionId?: number[];
-}
-
-interface EditModalProps {
+interface NewModalProps {
   isOpen: boolean;
   onClose: () => void;
-  itemUrl: string;
+  itemId: number;
   activeConfig: string | null; // Modifiez ce type en fonction de votre besoin
 }
 
-export const inputConfigs: { [key: string]: InputConfig[] } = {
-  conferences: [
-    { key: 'titre', label: 'Titre', dataPath: 'dcterms:title.0.@value', type: 'input' },
-    {
-      key: 'conferencier',
-      label: 'Conférencier',
-      dataPath: 'schema:agent',
-      type: 'selection',
-      options: ['display_title'],
-      selectionId: [1375],
-    },
-  ],
-  citations: [
-    { key: 'citationss', label: 'Citations', dataPath: 'cito:hasCitedEntity.0.@value', type: 'textarea' },
-    {
-      key: 'conferencier',
-      label: 'Conférencier',
-      dataPath: 'cito:isCitedBy',
-      type: 'selection',
-      options: ['display_title'],
-      selectionId: [1375],
-    },
-    {
-      key: 'concepts',
-      label: 'Concepts et mot clés',
-      dataPath: 'skos:hasTopConcept',
-      type: 'selection',
-      options: ['display_title'],
-      selectionId: [1379],
-    },
-    {
-      key: 'starttime',
-      label: 'Timecode de début',
-      dataPath: 'schema:startTime.0.@value',
-      type: 'time',
-    },
-    {
-      key: 'endtime',
-      label: 'Timecode de fin',
-      dataPath: 'schema:endTime.0.@value',
-      type: 'time',
-    },
-  ],
-  conferenciers: [
-    { key: 'nom', label: 'Nom', dataPath: 'foaf:lastName.0.@value', type: 'input' },
-    { key: 'prenom', label: 'Prénom', dataPath: 'foaf:firstName.0.@value', type: 'input' },
-  ],
-  pays: [{ key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' }],
-  laboratoire: [
-    { key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' },
-    { key: 'url', label: 'Url', dataPath: 'schema:url.0.@value', type: 'input' },
-  ],
-  ecolesdoctorales: [
-    { key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' },
-    { key: 'url', label: 'Url', dataPath: 'schema:url.0.@value', type: 'input' },
-  ],
-  universites: [
-    { key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' },
-    { key: 'url', label: 'Url', dataPath: 'schema:url.0.@id', type: 'input' },
-    {
-      key: 'pays',
-      label: 'Pays',
-      dataPath: 'schema:addressCountry',
-      type: 'selection',
-      options: ['display_title'],
-      selectionId: [322],
-    },
-  ],
-};
-
-//schema:startTime
-
-export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, activeConfig }) => {
-  const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchDataDetails(itemUrl);
+export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, activeConfig }) => {
+  const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchRT(71);
+  //console.log(itemDetailsData);
 
   const [itemData, setItemData] = useState<any>({});
   const [saving, setSaving] = useState(false);
@@ -675,23 +591,27 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
   const handleSave = async () => {
     setSaving(true);
     setSaveError(null);
+    //console.log(omks.getRT());
 
     try {
-      if (!itemUrl) {
+      if (!itemId) {
         throw new Error('Item URL is not defined or empty');
       }
 
-      const segments = itemUrl.split('/');
-      if (segments.length === 0) {
-        throw new Error('Invalid item URL format');
+      // const segments = itemUrl.split('/');
+      // if (segments.length === 0) {
+      //   throw new Error('Invalid item URL format');
+      // }
+
+      // const itemId = segments.pop();
+      // if (!itemId) {
+      //   throw new Error('Failed to extract item ID');
+      // }
+      if (itemDetailsData != undefined) {
+        console.log(omks.formatData(itemDetailsData));
       }
 
-      const itemId = segments.pop();
-      if (!itemId) {
-        throw new Error('Failed to extract item ID');
-      }
-
-      await omks.updateRessource(itemId, itemData);
+      await omks.createItem(itemId, itemData);
 
       setSaving(false);
       onClose(); // Close the modal after successful save
@@ -709,7 +629,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
     <>
       <Modal
         backdrop='blur'
-        className='bg-default-200'
+        className='bg-default-100'
         size='2xl'
         isOpen={isOpen}
         onClose={onClose}
@@ -753,7 +673,6 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                     {activeConfig && !detailsLoading ? (
                       itemDetailsData &&
                       inputConfigs[activeConfig]?.map((col: InputConfig) => {
-                        const value = getValueByPath(itemDetailsData, col.dataPath);
                         if (col.type === 'input') {
                           return (
                             <>
@@ -771,7 +690,6 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                                 labelPlacement='outside'
                                 placeholder={`Entrez ${col.label}`}
                                 isRequired
-                                defaultValue={value}
                                 onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
                               />
                             </>
@@ -792,7 +710,6 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                               labelPlacement='outside'
                               placeholder={`Entrez ${col.label}`}
                               isRequired
-                              defaultValue={value}
                               onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
                             />
                           );
@@ -801,21 +718,12 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                             <>
                               <TimecodeInput
                                 label={col.label}
-                                seconds={value}
                                 handleInputChange={(value) => handleInputChange(col.dataPath, value)}
                               />
                             </>
                           );
                         } else if (col.type === 'selection') {
-                          // console.log(itemDetailsData);
-                          return (
-                            <SelectionInput
-                              key={col.key}
-                              col={col}
-                              actualData={itemDetailsData}
-                              handleInputChange={handleInputChange}
-                            />
-                          );
+                          return <SelectionInput key={col.key} col={col} handleInputChange={handleInputChange} />;
                         } else {
                           return null; // Or handle other types accordingly
                         }
