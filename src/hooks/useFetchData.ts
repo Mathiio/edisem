@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchData,fetchSpeakerDetails,fetchRT, Data, fetchProperties } from '../services/api';
 
-export const useFetchData = (resourceClassId: number | null, refreshTrigger: number) => {
+export const useFetchData = (resourceClassId: number | null, refreshTrigger: number = 0) => {
   const [data, setData] = useState<Data[]>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

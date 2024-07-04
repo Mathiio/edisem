@@ -91,6 +91,7 @@ export const Database = () => {
   const { isOpen: isOpenCreate, onOpen: onOpenCreate, onClose: onCloseCreate } = useDisclosure();
 
   const [currentItemUrl, setCurrentItemUrl] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const handleCellClick = (item: any) => {
     setCurrentItemUrl(item['@id']);
@@ -120,11 +121,21 @@ export const Database = () => {
   const rowsPerPage = 10;
   const pages = useMemo(() => (speakersData ? Math.ceil(speakersData.length / rowsPerPage) : 0), [speakersData]);
 
-  const items = useMemo(() => {
+  const filteredSpeakers = useMemo(() => {
     if (!speakersData) return [];
+    return speakersData.filter((item) =>
+      columns.some((col) => {
+        const value = getValueByPath(item, col.dataPath);
+        return value && value.toString().toLowerCase().includes(searchQuery.toLowerCase());
+      }),
+    );
+  }, [searchQuery, speakersData, columns]);
+
+  const items = useMemo(() => {
+    if (!filteredSpeakers) return [];
     const start = (page - 1) * rowsPerPage;
-    return speakersData.slice(start, start + rowsPerPage);
-  }, [page, speakersData]);
+    return filteredSpeakers.slice(start, start + rowsPerPage);
+  }, [page, filteredSpeakers]);
 
   const handleCardClick = (cardName: string, cardId: number, RTId: number, configKey: string, columnsConfig: any[]) => {
     setSelectedCard(cardName);
@@ -166,170 +177,165 @@ export const Database = () => {
 
   return (
     <div className='relative h-screen overflow-hidden'>
-      <Scrollbar>
-        <motion.main
-          className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200'
-          initial='hidden'
-          animate='visible'
-          variants={containerVariants}>
-          <motion.div className='col-span-10' variants={itemVariants}>
-            <Navbar />
-          </motion.div>
-          <motion.div className='col-span-10 flex flex-col gap-50' variants={itemVariants}>
-            <div>
-              {currentView === 'grid' && (
-                <GridComponent
-                  handleCardClick={handleCardClick}
-                  initializePropertiesLoading={initializePropertiesLoading}
-                />
-              )}
-              {currentView === 'table' && (
-                <>
-                  <div className='flex flex-col gap-50'>
-                    <div className='flex flex-row justify-between'>
-                      <div>
-                        {selectedCard && (
-                          <>
-                            <button
-                              onClick={handleReturn}
-                              className=' min-w-fit border-2 border-default-300 hover:border-default-action transition-colors duration-300 text-default-600 font-semibold px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '>
-                              <BackIcon
-                                className='text-default-action flex flex-col items-center justify-center'
-                                size={14}
-                              />
-                              <div className='text-default-600'>Retour</div>
-                            </button>
-                          </>
-                        )}
-                      </div>
-                      <div className='flex flex-row gap-20'>
-                        <Input
-                          classNames={{
-                            base: '',
-                            clearButton: 'bg-default-600',
-                            mainWrapper: ' h-[48px] ',
-                            input: 'text-default-400  Inter  text-16 nav_searchbar h-[48px] px-[10px]',
-                            inputWrapper:
-                              ' shadow-none border-1 border-default-200 group-data-[focus=true]:bg-default-200 rounded-8 font-normal text-default-600 bg-default-50 dark:bg-default-200 px-[15px] py-[10px] h-full ',
-                          }}
-                          placeholder='Recherche avancée...'
-                          startContent={<SearchIcon size={16} />}
-                          type='search'
-                          fullWidth
-                        />
-                        <button
-                          className=' min-w-fit bg-default-action text-default-100 px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '
-                          onClick={() => handleCreateClick()}>
-                          <div className='text-default-selected'>Créer un item</div>
-                          <PlusIcon size={14} className='text-default-selected ' />
-                        </button>
-                      </div>
-                    </div>
-                    <div className='flex flex-col gap-20'>
-                      <div>
-                        <h2 className='text-24 font-semibold text-default-600'>{selectedCard}</h2>
-                      </div>
-                      <Table
-                        aria-label='Speakers Table'
-                        bottomContent={
-                          <div className='flex w-full justify-start'>
-                            <Pagination
-                              classNames={{
-                                item: 'rounded-none border-0',
-                                prev: 'rounded-none rounded-l-[8px] ',
-                                next: 'rounded-none rounded-r-[8px]',
-                              }}
-                              isCompact
-                              showControls
-                              color='secondary'
-                              page={page}
-                              total={pages}
-                              initialPage={1}
-                              onChange={(page) => setPage(page)}
+      <motion.main
+        className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200'
+        initial='hidden'
+        animate='visible'
+        variants={containerVariants}>
+        <motion.div className='col-span-10' variants={itemVariants}>
+          <Navbar />
+        </motion.div>
+        <motion.div className='col-span-10 flex flex-col gap-50' variants={itemVariants}>
+          <div>
+            {currentView === 'grid' && (
+              <GridComponent
+                handleCardClick={handleCardClick}
+                initializePropertiesLoading={initializePropertiesLoading}
+              />
+            )}
+            {currentView === 'table' && (
+              <>
+                <div className='flex flex-col gap-50'>
+                  <div className='flex flex-row justify-between'>
+                    <div>
+                      {selectedCard && (
+                        <>
+                          <button
+                            onClick={handleReturn}
+                            className=' min-w-fit border-2 border-default-300 hover:border-default-action transition-colors duration-300 text-default-600 font-semibold px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '>
+                            <BackIcon
+                              className='text-default-action flex flex-col items-center justify-center'
+                              size={14}
                             />
-                          </div>
-                        }
-                        classNames={{
-                          wrapper: 'shadow-none shadow-none border-1 border-default-200 ',
-                          table: 'min-h-[400px] rounded-8 shadow-none',
-                          thead: 'min-h-[80px] rounded-8 ',
-                          th: ['bg-transparent', 'text-default-500', 'border-b', 'border-divider'],
-                          tr: ['rounded-8'],
-                          td: [
-                            'group-data-[first=true]:first:before:rounded-8',
-                            'group-data-[first=true]:last:before:rounded-8',
-                            // middle
-                            'group-data-[middle=true]:before:rounded-8',
-                            // last
-                            'group-data-[last=true]:first:before:rounded-8',
-                            'group-data-[last=true]:last:before:rounded-8',
-                          ],
-                        }}>
-                        <TableHeader className='min-h-[40px]'>
-                          {columns.map((col) => (
-                            <TableColumn key={col.key} className={`${col.isAction ? 'flex justify-end' : ''}`}>
-                              {col.label}
-                            </TableColumn>
-                          ))}
-                        </TableHeader>
-                        <TableBody
-                          items={(!speakersLoading && items) || []}
-                          emptyContent={<Spinner label='Chargement des données Omeka S' color='secondary' size='md' />}>
-                          {(item) => (
-                            <TableRow key={item['o:id']} className='rounded-8 hover:bg-default-100'>
-                              {columns.map((col, colIndex) => (
-                                <TableCell
-                                  key={col.key}
-                                  className={`
-            ${colIndex === 0 ? 'rounded-tl-8 rounded-bl-8' : ''} 
-            ${colIndex === columns.length - 1 ? 'rounded-tr-8 rounded-br-8' : ''}
-          `}>
-                                  {col.isAction ? (
-                                    <div className='flex justify-end'>
-                                      <button onClick={() => handleCellClick(item)} className='pl-[10px]'>
-                                        <EditIcon
-                                          size={22}
-                                          className='mr-[10px] text-default-400 hover:text-default-action transition-all ease-in-out duration-200'
-                                        />
-                                      </button>
-                                    </div>
-                                  ) : (
-                                    <div>{reducer(getValueByPath(item, col.dataPath))}</div>
-                                  )}
-                                </TableCell>
-                              ))}
-                            </TableRow>
-                          )}
-                        </TableBody>
-                      </Table>
+                            <div className='text-default-600'>Retour</div>
+                          </button>
+                        </>
+                      )}
                     </div>
-                    {currentItemUrl && (
-                      <EditModal
-                        isOpen={isOpenEdit}
-                        onClose={handleModalClose}
-                        itemUrl={currentItemUrl}
-                        activeConfig={selectedConfigKey}
-                        itemPropertiesData={itemPropertiesData}
-                        propertiesLoading={propertiesLoading}
+                    <div className='flex flex-row gap-20'>
+                      <Input
+                        classNames={{
+                          base: '',
+                          clearButton: 'bg-default-600',
+                          mainWrapper: ' h-[48px] ',
+                          input: 'text-default-400  Inter  text-16 nav_searchbar h-[48px] px-[10px]',
+                          inputWrapper:
+                            ' shadow-none border-1 border-default-200 group-data-[focus=true]:bg-default-200 rounded-8 font-normal text-default-600 bg-default-50 dark:bg-default-200 px-[15px] py-[10px] h-full ',
+                        }}
+                        placeholder='Recherche avancée...'
+                        startContent={<SearchIcon size={16} />}
+                        type='search'
+                        fullWidth
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                       />
-                    )}
-                    {selectedRTId && (
-                      <CreateModal
-                        isOpen={isOpenCreate}
-                        onClose={handleModalClose}
-                        itemId={selectedRTId}
-                        activeConfig={selectedConfigKey}
-                        itemPropertiesData={itemPropertiesData}
-                        propertiesLoading={propertiesLoading}
-                      />
-                    )}
+                      <button
+                        className=' min-w-fit bg-default-action text-default-100 px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '
+                        onClick={() => handleCreateClick()}>
+                        <div className='text-default-selected'>Créer un item</div>
+                        <PlusIcon size={14} className='text-default-selected ' />
+                      </button>
+                    </div>
                   </div>
-                </>
-              )}
-            </div>
-          </motion.div>
-        </motion.main>
-      </Scrollbar>
+                  <div className='flex flex-col gap-20'>
+                    <div>
+                      <h2 className='text-24 font-semibold text-default-600'>{selectedCard}</h2>
+                    </div>
+                    <Table
+                      aria-label='Speakers Table'
+                      bottomContent={
+                        <div className='flex w-full justify-start'>
+                          <Pagination
+                            classNames={{
+                              item: 'rounded-none border-0',
+                              prev: 'rounded-none rounded-l-[8px] ',
+                              next: 'rounded-none rounded-r-[8px]',
+                            }}
+                            isCompact
+                            showControls
+                            color='secondary'
+                            page={page}
+                            total={pages}
+                            initialPage={1}
+                            onChange={(page) => setPage(page)}
+                          />
+                        </div>
+                      }
+                      classNames={{
+                        wrapper: 'shadow-none shadow-none border-1 border-default-200 min-h-[400px]', // Ensure wrapper has a fixed height
+                        table: 'rounded-8 shadow-none min-h-[400px]', // Ensure table has a fixed height
+                        thead: 'rounded-8 ',
+                        th: ['bg-transparent', 'text-default-500', 'border-b', 'border-divider'],
+                        tr: ['rounded-8'],
+                      }}>
+                      <TableHeader className='min-h-[40px]'>
+                        {columns.map((col) => (
+                          <TableColumn key={col.key} className={`${col.isAction ? 'flex justify-end' : ''}`}>
+                            {col.label}
+                          </TableColumn>
+                        ))}
+                      </TableHeader>
+                      <TableBody
+                        items={(!speakersLoading && items) || []}
+                        emptyContent={<Spinner label='Chargement des données Omeka S' color='secondary' size='md' />}>
+                        {(item) => (
+                          <TableRow key={item['o:id']} className='hover:bg-default-100'>
+                            {columns.map((col, colIndex) => (
+                              <TableCell
+                                key={col.key}
+                                className={`
+              ${colIndex === 0 ? 'rounded-tl-8 rounded-bl-8' : ''} 
+              ${colIndex === columns.length - 1 ? 'rounded-tr-8 rounded-br-8' : ''}
+            `}>
+                                {col.isAction ? (
+                                  <div className='flex justify-end'>
+                                    <button onClick={() => handleCellClick(item)} className='pl-[10px]'>
+                                      <EditIcon
+                                        size={22}
+                                        className='mr-[10px] text-default-400 hover:text-default-action transition-all ease-in-out duration-200'
+                                      />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    {col.multiple
+                                      ? reducer(getValuesByPath(item, col.dataPath))
+                                      : reducer(getValueByPath(item, col.dataPath))}
+                                  </div>
+                                )}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  {currentItemUrl && (
+                    <EditModal
+                      isOpen={isOpenEdit}
+                      onClose={handleModalClose}
+                      itemUrl={currentItemUrl}
+                      activeConfig={selectedConfigKey}
+                      itemPropertiesData={itemPropertiesData}
+                      propertiesLoading={propertiesLoading}
+                    />
+                  )}
+                  {selectedRTId && (
+                    <CreateModal
+                      isOpen={isOpenCreate}
+                      onClose={handleModalClose}
+                      itemId={selectedRTId}
+                      activeConfig={selectedConfigKey}
+                      itemPropertiesData={itemPropertiesData}
+                      propertiesLoading={propertiesLoading}
+                    />
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </motion.div>
+      </motion.main>
     </div>
   );
 };
@@ -338,7 +344,7 @@ export const Database = () => {
 export const columnConfigs = {
   conferences: [
     { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
-    { key: 'schema:agent', label: 'Conférenciers', dataPath: 'schema:agent.0.display_title' },
+    { key: 'schema:agent', label: 'Conférenciers', dataPath: 'schema:agent.0.display_title', multiple: true },
     { key: 'actions', label: 'Actions', isAction: true },
   ],
   conferenciers: [
@@ -348,8 +354,7 @@ export const columnConfigs = {
   ],
   citations: [
     { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
-    { key: 'schema:startTime', label: 'schema:startTime', dataPath: 'schema:startTime.0.@value' },
-    { key: 'schema:endTime', label: 'schema:endTime', dataPath: 'schema:endTime.0.@value' },
+    { key: 'cito:isCitedBy', label: 'Conférenciers', dataPath: 'cito:isCitedBy.0.display_title', multiple: true },
     { key: 'actions', label: 'Actions', isAction: true },
   ],
   pays: [
@@ -375,6 +380,44 @@ export const columnConfigs = {
 };
 
 // Fonction utilitaire pour accéder à une propriété dans un objet par chemin d'accès
+function getValuesByPath<T>(object: T, path: string): string {
+  if (!path) return '';
+
+  const keys = path.split('.');
+  let value: any = object;
+  const result: string[] = [];
+
+  const traverse = (obj: any, keyParts: string[], index: number = 0) => {
+    if (index >= keyParts.length) {
+      if (obj !== undefined && obj !== null) {
+        result.push(obj.toString());
+      }
+      return;
+    }
+
+    const key = keyParts[index];
+    const arrayMatch = key.match(/^(.+)\[(\d+)?\]$/);
+
+    if (arrayMatch) {
+      const arrayKey = arrayMatch[1];
+      const arrayIndex = arrayMatch[2] ? parseInt(arrayMatch[2]) : null;
+
+      if (Array.isArray(obj[arrayKey])) {
+        if (arrayIndex !== null && arrayIndex < obj[arrayKey].length) {
+          traverse(obj[arrayKey][arrayIndex], keyParts, index + 1);
+        } else {
+          obj[arrayKey].forEach((item) => traverse(item, keyParts, index + 1));
+        }
+      }
+    } else if (key in obj) {
+      traverse(obj[key], keyParts, index + 1);
+    }
+  };
+
+  traverse(value, keys);
+  return result.join(', ');
+}
+
 function getValueByPath<T>(object: T, path: string): any {
   if (!path) return undefined;
   const keys = path.split('.');
