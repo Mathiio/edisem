@@ -829,27 +829,18 @@ export const CreateModal: React.FC<NewModalProps> = ({
                     )}
 
                     {saveError && <div className='error'>{saveError}</div>}
-
-                    <Button className='p-10' onClick={handleSave} disabled={saving}>
-                      {saving ? 'Saving...' : 'Save Changes'}
-                    </Button>
                   </div>
                 </Scrollbar>
               </ModalBody>
               <ModalFooter className='flex items-center justify-end p-25 '>
                 <div className='flex flex-row gap-25'>
                   <Button
-                    radius='none'
-                    className={`h-[32px] px-10 text-16 rounded-8 text-default-500 bg-default-200 hover:text-default-500 hover:bg-default-300 transition-all ease-in-out duration-200 navfilter flex items-center`}>
-                    Réinitialiser
-                  </Button>
-                  <Button
                     onPress={onClose}
                     onClick={handleSave}
                     disabled={saving}
                     radius='none'
                     className={`h-[32px] px-10 text-16 rounded-8 text-default-selected bg-default-action transition-all ease-in-out duration-200 navfilter flex items-center`}>
-                    Appliquer
+                    Créer
                   </Button>
                 </div>
               </ModalFooter>

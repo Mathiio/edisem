@@ -525,8 +525,8 @@ export const EditIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...
     />
     <path
       fill='currentColor'
-      fill-rule='evenodd'
-      clip-rule='evenodd'
+      fillRule='evenodd'
+      clipRule='evenodd'
       d='M4.00195 19.5C4.00195 19.0858 4.33774 18.75 4.75195 18.75H17.1895C17.6037 18.75 17.998 19.0858 17.998 19.5C17.998 19.9142 17.6037 20.25 17.1895 20.25H4.75195C4.33774 20.25 4.00195 19.9142 4.00195 19.5Z'
     />
   </svg>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { InputConfig } from './EditModal';
 import { useFetchData } from '../../hooks/useFetchData';
-import { Button, Input } from '@nextui-org/react';
+import { Button, Input, Spinner } from '@nextui-org/react';
 import { CloseIcon, SearchIcon } from '../Utils/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/dropdown';
 import { Scrollbar } from '../Utils/Scrollbar';
@@ -22,7 +22,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // State for sorting order
 
   const selectionId = col.selectionId?.[0] ?? null;
-  const { data: speakersData } = useFetchData(selectionId);
+  const { data: speakersData, loading } = useFetchData(selectionId);
 
   useEffect(() => {
     if (speakersData) {
@@ -35,6 +35,14 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
       setIdToDisplayNameMap(map);
     }
   }, [speakersData]);
+
+  if (loading) {
+    return (
+      <div className='flex items-center flex-col w-full'>
+        <Spinner label={`Chargement des ${col.label}`} color='secondary' size='md' />
+      </div>
+    );
+  }
 
   if (!speakersData || !Array.isArray(speakersData) || speakersData.length === 0) {
     return <div>Données non disponibles pour {col.label}</div>;
@@ -90,7 +98,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   });
 
   return (
-    <div className='flex flex-col gap-10' key={col.key}>
+    <div className='flex flex-col gap-10 w-full' key={col.key}>
       <label>{col.label}</label>
       <div className='flex flex-row gap-10 items-center'>
         <Input
