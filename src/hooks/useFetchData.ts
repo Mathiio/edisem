@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { fetchData,fetchSpeakerDetails,fetchRT, Data } from '../services/api';
+import { fetchData,fetchSpeakerDetails,fetchRT, Data, fetchProperties } from '../services/api';
 
-export const useFetchData = (resourceClassId: number | null) => {
+export const useFetchData = (resourceClassId: number | null, refreshTrigger: number) => {
   const [data, setData] = useState<Data[]>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -9,9 +9,10 @@ export const useFetchData = (resourceClassId: number | null) => {
   useEffect(() => {
     const getData = async () => {
       if (resourceClassId !== null) {
+        setLoading(true);
         try {
           const fetchedData = await fetchData(resourceClassId);
-          setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]); // Convertir en tableau si ce n'est pas déjà le cas
+          setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
         } catch (error) {
           if (error instanceof Error) {
             setError(error);
@@ -22,14 +23,14 @@ export const useFetchData = (resourceClassId: number | null) => {
           setLoading(false);
         }
       } else {
-        setData(undefined); // Réinitialiser les données à null si resourceClassId est null
+        setData(undefined);
         setLoading(false);
       }
     };
 
     getData();
    
-  }, [resourceClassId]);
+  }, [resourceClassId, refreshTrigger]);
 
   return { data, loading, error };
 };
@@ -98,6 +99,37 @@ export const useFetchRT = (resourceTemplateId: number | null) => {
 
     getData();
   }, [resourceTemplateId]);
+
+  return { data, loading, error };
+};
+
+
+export const useFetchProperties = () => {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const getData = async () => {  
+      try {
+        const fetchedData = await fetchProperties();
+       
+        setData(fetchedData);
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error);
+          console.error('Error fetching data:', error);
+        } else {
+          setError(new Error('An unknown error occurred'));
+          console.error('Unknown error fetching data');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getData();
+  }, []);
 
   return { data, loading, error };
 };

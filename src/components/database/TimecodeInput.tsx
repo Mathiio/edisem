@@ -31,10 +31,16 @@ export const TimecodeInput: React.FC<TimecodeInputProps> = ({ seconds = 0, label
   }, [seconds]);
 
   // Gérer le changement de temps
-  const handleTimeChange = (newTime: Time) => {
-    setTime(newTime); // Mettre à jour l'état local avec le nouveau temps
-    const newSeconds = convertTimeToSeconds(newTime); // Convertir le nouveau temps en secondes
-    handleInputChange(newSeconds); // Appeler handleInputChange avec les nouvelles secondes
+  const handleTimeChange = (newTime: any) => {
+    console.log('Time changed:', newTime);
+    if (newTime instanceof Time) {
+      setTime(newTime);
+      const newSeconds = convertTimeToSeconds(newTime);
+      console.log('New seconds:', newSeconds);
+      handleInputChange(newSeconds);
+    } else {
+      console.error('Unexpected time format:', newTime);
+    }
   };
 
   return (
