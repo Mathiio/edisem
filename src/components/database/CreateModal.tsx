@@ -26,7 +26,7 @@ class Omk {
   private api: string | undefined;
   private vocabs: string[];
   private user: User | false;
-  public props: any[]; // Adapter le type si possible
+  public props: any[] | undefined;
   private class: any[]; // Adapter le type si possible
   public rts: any[]; // Adapter le type si possible
   private perPage: number = 1000;
@@ -46,7 +46,6 @@ class Omk {
 
   public init = () => {
     this.vocabs.forEach((v) => {
-      this.getProps(v);
       this.getClass(v);
     });
     this.getRT();
@@ -71,31 +70,21 @@ class Omk {
     return this.rts.filter((rt) => rt['o:label'] == label)[0]['o:id'];
   };
 
-  public getProps = async (prefix: string, cb: ((props: any[]) => void) | false = false): Promise<void> => {
-    try {
-      const url = this.api + 'properties?per_page=1000&vocabulary_prefix=' + prefix;
-      const data = await this.syncRequest(url);
-
-      // Manipulez les données comme nécessaire
-      if (data && Array.isArray(data)) {
-        data.forEach((p: any) => this.props.push(p));
-        if (cb) cb(this.props);
-      } else {
-        throw new Error('Failed to fetch properties or received invalid data');
-      }
-    } catch (error) {
-      console.error('Failed to fetch properties:', error);
-
-      //throw new Error(`Failed to fetch properties: ${error.message}`);
+  public getPropId = (t: string): string | undefined => {
+    if (!this.props) {
+      console.error('Props are undefined');
+      return undefined;
     }
+    const prop = this.props.find((prp) => prp['o:term'] === t);
+    return prop ? prop['o:id'] : undefined;
   };
 
-  public getPropId = (t: string): string => {
-    return this.props.filter((prp) => prp['o:term'] == t)[0]['o:id'];
-  };
-
-  public getPropByTerm = (t: string): any => {
-    return this.props.filter((prp) => prp['o:term'] == t)[0];
+  public getPropByTerm = (t: string): any | undefined => {
+    if (!this.props) {
+      console.error('Props are undefined');
+      return undefined;
+    }
+    return this.props.find((prp) => prp['o:term'] === t);
   };
 
   public getClass = async (prefix: string, cb: ((data: any[]) => void) | false = false): Promise<void> => {
@@ -301,6 +290,7 @@ class Omk {
 
   public createRessource = (data: any, cb: ((rs: any) => void) | false = false, type: string = 'items'): void => {
     let url = this.api + type + '?key_identity=' + this.ident + '&key_credential=' + this.key;
+
     this.postData({ u: url, m: 'POST' }, this.formatData(data), data['file']).then((rs: any) => {
       if (cb) cb(rs);
     });
@@ -308,24 +298,95 @@ class Omk {
 
   public createItem = async (data: any = null, cb: ((rs: any) => void) | false = false): Promise<any> => {
     console.log('-----------', data);
-    const item = {
-      '@type': ['o:Item', 'https://tests.arcanes.ca/omk/api/resource_classes/47'],
 
-      'o:resource_class': {
-        'o:id': 47,
-        '@id': 'https://tests.arcanes.ca/omk/api/resource_classes/47',
-      },
-
-      'o:resource_template': { '@id': 'https://tests.arcanes.ca/omk/api/resource_templates/71', 'o:id': 71 },
-
-      'dcterms:title': { '@value': 'test' },
-    };
     let url = this.api + 'items?key_identity=' + this.ident + '&key_credential=' + this.key;
-    return await this.postData({ u: url, m: 'POST' }, item).then((rs: any) => {
+    return await this.postData({ u: url, m: 'POST' }, data).then((rs: any) => {
       console.log('Result:', rs);
       if (cb) cb(rs);
       return rs;
     });
+  };
+
+  public buildObject = (resourceTemplate: any, formValues: any): any => {
+    let RT = resourceTemplate[0]['o:resource_template_property'];
+    console.log(resourceTemplate);
+    console.log(RT[0]);
+    let result: any = {
+      '@type': ['o:Item', resourceTemplate[0]['o:resource_class']['@id']],
+      'o:resource_class': {
+        'o:id': resourceTemplate[0]['o:resource_class']['o:id'],
+        '@id': resourceTemplate[0]['o:resource_class']['@id'],
+      },
+      'o:resource_template': { '@id': resourceTemplate[0]['@id'], 'o:id': resourceTemplate[0]['o:id'] },
+    };
+
+    // Iterate over each property in the resource template
+    for (let property of RT) {
+      // Find the term in this.props matching the current property
+      let term = this.props?.find((prp: any) => prp['o:id'] === property['o:property']['o:id']);
+      if (!term) {
+        continue; // If term is not found, skip to the next property
+      }
+
+      console.log('Term:', term['o:term']);
+
+      // Find the form value that matches the term
+      let formValueKey = Object.keys(formValues).find((key) => key.split('.')[0] === term['o:term']);
+      if (!formValueKey) {
+        continue; // If form value key is not found, skip to the next property
+      }
+
+      let formattedValue;
+      console.log('Form Value Key:', formValueKey);
+      let formValue = formValues[formValueKey];
+      console.log(formValue);
+
+      if (isArray(formValue)) {
+        console.log('It is an array!', formValue);
+        if (formValue.length > 1) {
+          for (let index = 0; index < formValue.length; index++) {
+            console.log(formValue[index]);
+            formattedValue = this.formatValue(term, formValue[index]);
+
+            if (!result[term['o:term']]) {
+              result[term['o:term']] = [];
+            }
+            result[term['o:term']].push(formattedValue);
+          }
+        } else {
+          console.log('solo value', formValue[0][0]);
+          console.log('solo term', term);
+          formattedValue = this.formatValue(term, formValue[0][0]);
+
+          if (!result[term['o:term']]) {
+            result[term['o:term']] = [];
+          }
+          result[term['o:term']].push(formattedValue);
+        }
+      } else {
+        formattedValue = this.formatValue(term, formValue);
+
+        if (!result[term['o:term']]) {
+          result[term['o:term']] = [];
+        }
+        result[term['o:term']].push(formattedValue);
+      }
+      // Format the value using the formatValue function
+    }
+
+    console.log(result);
+
+    return result;
+  };
+
+  public formatValue = (p: any, v: any): any => {
+    if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735))
+      return { property_id: p['o:id'], '@value': v, type: 'numeric:integer', is_public: true };
+    else if (typeof v === 'number') return { property_id: p['o:id'], value_resource_id: v, type: 'resource' };
+    else if (typeof v === 'object' && v.u) return { property_id: p['o:id'], '@id': v.u, 'o:label': v.l, type: 'uri' };
+    else if (typeof v === 'object')
+      return { property_id: p['o:id'], '@value': JSON.stringify(v), type: 'literal', is_public: true };
+    else return { property_id: p['o:id'], '@value': v, type: 'literal', is_public: true };
   };
 
   public updateRessource = (
@@ -434,11 +495,15 @@ class Omk {
           fd[k] = [{ 'o:id': v }];
           break;
         case 'o:resource_class':
-          p = this.class.filter((prp: any) => prp['o:term'] == v)[0];
-          fd[k] = { 'o:id': p['o:id'] };
+          p = this.class?.find((prp: any) => prp['o:term'] === v);
+          if (p) {
+            fd[k] = { 'o:id': p['o:id'] };
+          } else {
+            console.warn(`Resource class "${v}" not found.`);
+          }
           break;
         case 'dcterms:title':
-          p = this.props.find((prp: any) => prp['o:term'] === k);
+          p = this.props?.find((prp: any) => prp['o:term'] === k);
           if (p) {
             fd[k] = this.formatValue(p, v);
           } else {
@@ -447,8 +512,12 @@ class Omk {
           }
           break;
         case 'o:resource_template':
-          p = this.rts.filter((rt: any) => rt['o:label'] == v)[0];
-          fd[k] = { 'o:id': p['o:id'] };
+          p = this.rts?.find((rt: any) => rt['o:label'] === v);
+          if (p) {
+            fd[k] = { 'o:id': p['o:id'] };
+          } else {
+            console.warn(`Resource template "${v}" not found.`);
+          }
           break;
         case 'o:media':
           if (!fd[k]) fd[k] = [];
@@ -460,19 +529,23 @@ class Omk {
         case 'labels':
           if (Array.isArray(v)) {
             v.forEach((d: any) => {
-              p = this.props.find((prp: any) => prp['o:label'] == d.p);
-              if (p && !fd[p.term]) fd[p.term] = [];
-              if (p) fd[p.term].push(this.formatValue(p, d));
+              p = this.props?.find((prp: any) => prp['o:label'] === d.p);
+              if (p) {
+                if (!fd[p.term]) fd[p.term] = [];
+                fd[p.term].push(this.formatValue(p, d));
+              } else {
+                console.warn(`Label property "${d.p}" not found in props.`);
+              }
             });
           }
           break;
         default:
-          p = this.props.find((prp: any) => prp['o:term'] == k);
+          p = this.props?.find((prp: any) => prp['o:term'] === k);
           if (p) {
             if (Array.isArray(v)) {
               fd[k] = v.map((val: any) => this.formatValue(p, val));
             } else {
-              fd[k] = this.formatValue(p, v); // Assigner directement la valeur sans encapsulation dans un tableau
+              fd[k] = this.formatValue(p, v); // Assign directly without array encapsulation
             }
           } else {
             console.warn(`Property "${k}" not found in props. Adding it directly.`);
@@ -483,13 +556,6 @@ class Omk {
     }
 
     return fd;
-  };
-
-  private formatValue = (p: any, v: any): any => {
-    if (typeof v === 'object' && v.rid) return { property_id: p['o:id'], value_resource_id: v.rid, type: 'resource' };
-    else if (typeof v === 'object' && v.u) return { property_id: p['o:id'], '@id': v.u, 'o:label': v.l, type: 'uri' };
-    else if (typeof v === 'object') return { property_id: p['o:id'], '@value': JSON.stringify(v), type: 'literal' };
-    else return { property_id: p['o:id'], '@value': v, type: 'literal' };
   };
 
   private postData = async (url: any, data: any = {}, file: any = null): Promise<any> => {
@@ -537,16 +603,30 @@ class Omk {
   }
 }
 
+function isArray(variable: any): variable is any[] {
+  return variable instanceof Array;
+}
+
 interface NewModalProps {
   isOpen: boolean;
   onClose: () => void;
   itemId: number;
   activeConfig: string | null; // Modifiez ce type en fonction de votre besoin
+  itemPropertiesData: any; // Ajoutez le type approprié
+  propertiesLoading: boolean;
 }
 
-export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, activeConfig }) => {
-  const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchRT(71);
-  //console.log(itemDetailsData);
+export const CreateModal: React.FC<NewModalProps> = ({
+  isOpen,
+  onClose,
+  itemId,
+  activeConfig,
+  itemPropertiesData,
+  propertiesLoading,
+}) => {
+  const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchRT(itemId);
+
+  //console.log(itemPropertiesData);
 
   const [itemData, setItemData] = useState<any>({});
   const [saving, setSaving] = useState(false);
@@ -607,11 +687,15 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
       // if (!itemId) {
       //   throw new Error('Failed to extract item ID');
       // }
-      if (itemDetailsData != undefined) {
-        console.log(omks.formatData(itemDetailsData));
-      }
+      // if (itemDetailsData != undefined) {
+      //   console.log(omks.formatData(itemDetailsData));
+      // }
 
-      await omks.createItem(itemId, itemData);
+      omks.props = itemPropertiesData;
+
+      let object = omks.buildObject(itemDetailsData, itemData);
+
+      await omks.createItem(object);
 
       setSaving(false);
       onClose(); // Close the modal after successful save
@@ -624,6 +708,18 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
       setSaving(false);
     }
   };
+
+  // Spinner et message de chargement
+  if (propertiesLoading) {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalContent>
+          <Spinner />
+          <p>Chargement...</p>
+        </ModalContent>
+      </Modal>
+    );
+  }
 
   return (
     <>
@@ -681,7 +777,7 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
                                 size='lg'
                                 classNames={{
                                   label: 'text-semibold',
-                                  inputWrapper: 'bg-default-100',
+                                  inputWrapper: 'bg-default-50',
                                   input: 'h-[50px]',
                                 }}
                                 className='min-h-[50px]'
@@ -701,7 +797,7 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
                               size='lg'
                               classNames={{
                                 label: 'text-semibold text-default-600 text-24',
-                                inputWrapper: 'bg-default-50 shadow-none border-1 border-default-200',
+                                inputWrapper: 'bg-default-50 shadow-none border-1 border-default-200 rounded-8',
                                 input: 'h-[50px]',
                               }}
                               className='min-h-[50px]'

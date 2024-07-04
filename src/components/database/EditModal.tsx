@@ -25,9 +25,9 @@ class Omk {
   private api: string | undefined;
   private vocabs: string[];
   private user: User | false;
-  private props: any[]; // Adapter le type si possible
+  public props: any[] | undefined;
   private class: any[]; // Adapter le type si possible
-  private rts: any[]; // Adapter le type si possible
+  public rts: any[]; // Adapter le type si possible
   private perPage: number = 1000;
 
   constructor(params: { key?: string; ident?: string; mail?: string; api?: string; vocabs?: string[] }) {
@@ -45,7 +45,6 @@ class Omk {
 
   public init = () => {
     this.vocabs.forEach((v) => {
-      this.getProps(v);
       this.getClass(v);
     });
     this.getRT();
@@ -56,6 +55,7 @@ class Omk {
       const data = await this.syncRequest(this.api + 'resource_templates?per_page=1000');
       if (data) {
         this.rts = data;
+
         if (cb) cb(this.rts);
       } else {
         console.error('Failed to fetch resource templates');
@@ -69,31 +69,21 @@ class Omk {
     return this.rts.filter((rt) => rt['o:label'] == label)[0]['o:id'];
   };
 
-  public getProps = async (prefix: string, cb: ((props: any[]) => void) | false = false): Promise<void> => {
-    try {
-      const url = this.api + 'properties?per_page=1000&vocabulary_prefix=' + prefix;
-      const data = await this.syncRequest(url);
-
-      // Manipulez les données comme nécessaire
-      if (data && Array.isArray(data)) {
-        data.forEach((p: any) => this.props.push(p));
-        if (cb) cb(this.props);
-      } else {
-        throw new Error('Failed to fetch properties or received invalid data');
-      }
-    } catch (error) {
-      console.error('Failed to fetch properties:', error);
-
-      //throw new Error(`Failed to fetch properties: ${error.message}`);
+  public getPropId = (t: string): string | undefined => {
+    if (!this.props) {
+      console.error('Props are undefined');
+      return undefined;
     }
+    const prop = this.props.find((prp) => prp['o:term'] === t);
+    return prop ? prop['o:id'] : undefined;
   };
 
-  public getPropId = (t: string): string => {
-    return this.props.filter((prp) => prp['o:term'] == t)[0]['o:id'];
-  };
-
-  public getPropByTerm = (t: string): any => {
-    return this.props.filter((prp) => prp['o:term'] == t)[0];
+  public getPropByTerm = (t: string): any | undefined => {
+    if (!this.props) {
+      console.error('Props are undefined');
+      return undefined;
+    }
+    return this.props.find((prp) => prp['o:term'] === t);
   };
 
   public getClass = async (prefix: string, cb: ((data: any[]) => void) | false = false): Promise<void> => {
@@ -350,6 +340,78 @@ class Omk {
     }
   };
 
+  public updateItem = (
+    id: string,
+    data: any,
+    type: string = 'items',
+    fd: any | null = null,
+    m: string = 'PUT',
+    cb: ((rs: any) => void) | false = false,
+  ): void => {
+    if (this.ident !== undefined && this.key !== undefined) {
+      let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(
+        this.ident,
+      )}&key_credential=${encodeURIComponent(this.key)}`;
+
+      if (data) {
+        this.postData({ u: url, m: m }, fd ? fd : data).then((rs: any) => {
+          console.log('Result:', rs);
+          if (cb) cb(rs);
+        });
+      } else {
+        console.error('Invalid data provided');
+      }
+    } else {
+      console.error('this.ident or this.key is undefined');
+    }
+  };
+
+  public buildObject2 = (existingObject: any, formValues: any): any => {
+    let result = { ...existingObject }; // Clone existingObject to avoid modifying it directly
+
+    for (let formValueKey in formValues) {
+      if (formValues.hasOwnProperty(formValueKey)) {
+        let keys = formValueKey.split('.');
+        let term_isolated = keys[0];
+
+        console.log(term_isolated);
+        console.log(this.props);
+        let term = this.props?.find((prp: any) => prp['o:term'] === term_isolated);
+        if (!term) {
+          console.log('pas trouvé');
+          continue;
+        }
+
+        console.log('term', term);
+        let formValue = formValues[formValueKey];
+        result[term['o:term']] = [];
+
+        if (isArray(formValue)) {
+          // Si formValue est un tableau
+          if (formValue.length === 1 && isArray(formValue[0])) {
+            // Si c'est un tableau contenant un seul élément qui est lui-même un tableau
+            formValue[0].forEach((value: any) => {
+              let formattedValue = this.formatValue(term, value);
+              result[term['o:term']].push(formattedValue);
+            });
+          } else {
+            // Pour les autres cas de tableaux
+            formValue.forEach((value: any) => {
+              let formattedValue = this.formatValue(term, value);
+              result[term['o:term']].push(formattedValue);
+            });
+          }
+        } else {
+          // Si formValue n'est pas un tableau
+          let formattedValue = this.formatValue(term, formValue);
+          result[term['o:term']].push(formattedValue);
+        }
+      }
+    }
+    console.log('result', result);
+    return result;
+  };
+
   private updateOriDataWithNewValues = (oriData: any, data: any): void => {
     const updateValue = (obj: any, path: string[], value: any): void => {
       console.log(`Current path: ${path.join('.')}`);
@@ -421,7 +483,7 @@ class Omk {
           fd[k] = { 'o:id': p['o:id'] };
           break;
         case 'dcterms:title':
-          p = this.props.find((prp: any) => prp['o:term'] === k);
+          p = this.props?.find((prp: any) => prp['o:term'] === k);
           if (p) {
             fd[k] = this.formatValue(p, v);
           } else {
@@ -443,14 +505,14 @@ class Omk {
         case 'labels':
           if (Array.isArray(v)) {
             v.forEach((d: any) => {
-              p = this.props.find((prp: any) => prp['o:label'] == d.p);
+              p = this.props?.find((prp: any) => prp['o:label'] == d.p);
               if (p && !fd[p.term]) fd[p.term] = [];
               if (p) fd[p.term].push(this.formatValue(p, d));
             });
           }
           break;
         default:
-          p = this.props.find((prp: any) => prp['o:term'] == k);
+          p = this.props?.find((prp: any) => prp['o:term'] == k);
           if (p) {
             if (Array.isArray(v)) {
               fd[k] = v.map((val: any) => this.formatValue(p, val));
@@ -468,11 +530,14 @@ class Omk {
     return fd;
   };
 
-  private formatValue = (p: any, v: any): any => {
-    if (typeof v === 'object' && v.rid) return { property_id: p['o:id'], value_resource_id: v.rid, type: 'resource' };
+  public formatValue = (p: any, v: any): any => {
+    if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735))
+      return { property_id: p['o:id'], '@value': v, type: 'numeric:integer', is_public: true };
+    else if (typeof v === 'number') return { property_id: p['o:id'], value_resource_id: v, type: 'resource' };
     else if (typeof v === 'object' && v.u) return { property_id: p['o:id'], '@id': v.u, 'o:label': v.l, type: 'uri' };
-    else if (typeof v === 'object') return { property_id: p['o:id'], '@value': JSON.stringify(v), type: 'literal' };
-    else return { property_id: p['o:id'], '@value': v, type: 'literal' };
+    else if (typeof v === 'object')
+      return { property_id: p['o:id'], '@value': JSON.stringify(v), type: 'literal', is_public: true };
+    else return { property_id: p['o:id'], '@value': v, type: 'literal', is_public: true };
   };
 
   private postData = async (url: any, data: any = {}, file: any = null): Promise<any> => {
@@ -541,6 +606,10 @@ function getValueByPath<T>(object: T[], path: string): any {
   return value;
 }
 
+function isArray(variable: any): variable is any[] {
+  return variable instanceof Array;
+}
+
 export interface InputConfig {
   key: string;
   label: string;
@@ -555,6 +624,8 @@ interface EditModalProps {
   onClose: () => void;
   itemUrl: string;
   activeConfig: string | null; // Modifiez ce type en fonction de votre besoin
+  itemPropertiesData: any; // Ajoutez le type approprié
+  propertiesLoading: boolean;
 }
 
 export const inputConfigs: { [key: string]: InputConfig[] } = {
@@ -579,14 +650,7 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       options: ['display_title'],
       selectionId: [1375],
     },
-    {
-      key: 'concepts',
-      label: 'Concepts et mot clés',
-      dataPath: 'skos:hasTopConcept',
-      type: 'selection',
-      options: ['display_title'],
-      selectionId: [1379],
-    },
+
     {
       key: 'starttime',
       label: 'Timecode de début',
@@ -629,9 +693,17 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
 
 //schema:startTime
 
-export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, activeConfig }) => {
+export const EditModal: React.FC<EditModalProps> = ({
+  isOpen,
+  onClose,
+  itemUrl,
+  activeConfig,
+  itemPropertiesData,
+  propertiesLoading,
+}) => {
   const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchDataDetails(itemUrl);
 
+  console.log(itemPropertiesData);
   const [itemData, setItemData] = useState<any>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -691,7 +763,14 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
         throw new Error('Failed to extract item ID');
       }
 
-      await omks.updateRessource(itemId, itemData);
+      omks.props = itemPropertiesData;
+      if (itemDetailsData) {
+        let object = omks.buildObject2(itemDetailsData[0], itemData);
+        console.log(object);
+        await omks.updateItem(itemId, object);
+      }
+
+      //await omks.updateRessource(itemId, itemData);
 
       setSaving(false);
       onClose(); // Close the modal after successful save
@@ -705,11 +784,23 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
     }
   };
 
+  // Spinner et message de chargement
+  if (propertiesLoading) {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalContent>
+          <Spinner />
+          <p>Chargement...</p>
+        </ModalContent>
+      </Modal>
+    );
+  }
+
   return (
     <>
       <Modal
         backdrop='blur'
-        className='bg-default-200'
+        className='bg-default-100'
         size='2xl'
         isOpen={isOpen}
         onClose={onClose}
@@ -762,8 +853,8 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                                 size='lg'
                                 classNames={{
                                   label: 'text-semibold',
-                                  inputWrapper: 'bg-default-100',
-                                  input: 'h-[50px]',
+                                  inputWrapper: 'bg-default-50 shadow-none border-1 border-default-200',
+                                  input: 'h-[50px] ',
                                 }}
                                 className='min-h-[50px]'
                                 type='text'
@@ -800,6 +891,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                           return (
                             <>
                               <TimecodeInput
+                                key={col.key}
                                 label={col.label}
                                 seconds={value}
                                 handleInputChange={(value) => handleInputChange(col.dataPath, value)}

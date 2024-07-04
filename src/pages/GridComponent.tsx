@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ConferenceIcon,
@@ -18,11 +18,16 @@ import {
   ImageIcon,
 } from '@/components/Utils/icons';
 import { columnConfigs } from './database';
+
 interface GridProps {
-  handleCardClick: (cardName: string, cardId: number, configKey: string, columnsConfig: any[]) => void;
+  handleCardClick: (cardName: string, cardId: number, RTId: number, configKey: string, columnsConfig: any[]) => void;
+  initializePropertiesLoading: () => void;
 }
 
-const GridComponent: React.FC<GridProps> = ({ handleCardClick }) => {
+const GridComponent: React.FC<GridProps> = ({ handleCardClick, initializePropertiesLoading }) => {
+  useEffect(() => {
+    initializePropertiesLoading();
+  }, []);
   return (
     <div className='flex flex-col gap-25'>
       <h1 className='flex flex-col gap-25 text-24 text-default-500 font-bold'>Base données</h1>
@@ -30,13 +35,13 @@ const GridComponent: React.FC<GridProps> = ({ handleCardClick }) => {
         <Link
           to='#'
           className='col-span-4 row-span-3 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 gap-10 flex-col p-25'
-          onClick={() => handleCardClick('Conférences', 47, 'conferences', columnConfigs.conferences)}>
+          onClick={() => handleCardClick('Conférences', 47, 71, 'conferences', columnConfigs.conferences)}>
           <ConferenceIcon size={24} className='text-default-action' />
           Conférences
         </Link>
         <Link
           to='#'
-          onClick={() => handleCardClick('Citations', 134, 'citations', columnConfigs.citations)}
+          onClick={() => handleCardClick('Citations', 134, 80, 'citations', columnConfigs.citations)}
           className='col-span-2 row-span-2 col-start-5 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 gap-10 flex-col p-25'>
           <CitationIcon size={24} className='text-default-action' />
           Citations
@@ -56,35 +61,37 @@ const GridComponent: React.FC<GridProps> = ({ handleCardClick }) => {
         </div>
         <Link
           to='#'
-          onClick={() => handleCardClick('Conférenciers', 1375, 'conferenciers', columnConfigs.conferenciers)}
+          onClick={() => handleCardClick('Conférenciers', 1375, 71, 'conferenciers', columnConfigs.conferenciers)}
           className='col-span-2 row-span-3 col-start-11 row-start-1 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 gap-10 flex-col p-25'>
           <UserIcon size={24} className='text-default-action' />
           Conférenciers
         </Link>
         <Link
           to='#'
-          onClick={() => handleCardClick('Écoles doctorales', 1572, 'ecolesdoctorales', columnConfigs.ecolesdoctorales)}
+          onClick={() =>
+            handleCardClick('Écoles doctorales', 1572, 71, 'ecolesdoctorales', columnConfigs.ecolesdoctorales)
+          }
           className='col-span-2 row-span-2 col-start-9 row-start-3 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
           <SchoolIcon size={24} className='text-default-action' />
           Écoles doctorales
         </Link>
         <Link
           to='#'
-          onClick={() => handleCardClick('Laboratoires', 1574, 'laboratoire', columnConfigs.laboratoire)}
+          onClick={() => handleCardClick('Laboratoires', 1574, 71, 'laboratoire', columnConfigs.laboratoire)}
           className='col-span-2 col-start-9 row-start-5 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
           <LaboritoryIcon size={24} className='text-default-action' />
           Laboratoires
         </Link>
         <Link
           to='#'
-          onClick={() => handleCardClick('Universités', 1563, 'universites', columnConfigs.universites)}
+          onClick={() => handleCardClick('Universités', 1563, 71, 'universites', columnConfigs.universites)}
           className='col-span-2 row-span-2 col-start-11 row-start-4 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
           <UniversityIcon size={24} className='text-default-action' />
           Universités
         </Link>
         <Link
           to='#'
-          onClick={() => handleCardClick('Pays', 322, 'pays', columnConfigs.pays)}
+          onClick={() => handleCardClick('Pays', 322, 71, 'pays', columnConfigs.pays)}
           className='col-span-4 col-start-9 row-start-6 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
           <CountryIcon size={24} className='text-default-action' />
           Pays

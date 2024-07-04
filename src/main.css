@@ -202,3 +202,7 @@ body{
 .after\:text-danger::after {
   color: hsl(var(--nextui-secondary-500)) !important;
 }
+
+.row_rounded{
+  border-radius: 8px;
+}
