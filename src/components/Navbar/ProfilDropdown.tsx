@@ -66,7 +66,9 @@ export const ProfilDropdown: React.FC = () => {
           </DropdownItem>
 
           <DropdownItem key='edit' className='hover:bg-default-200'>
-            <p className='text-default-500 text-16'>Omeka S</p>
+            <NextLink href="https://tests.arcanes.ca/omk/login" className='w-full'>
+              <p className='text-default-500 text-16 '>Omeka S</p>
+            </NextLink>
           </DropdownItem>
 
           {/* <DropdownItem key='edit' className='hover:bg-default-200 text-default-500'>
