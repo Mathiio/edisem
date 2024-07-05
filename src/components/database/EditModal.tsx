@@ -637,7 +637,7 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       dataPath: 'schema:agent',
       type: 'selection',
       options: ['display_title'],
-      selectionId: [1375],
+      selectionId: [72],
     },
   ],
   citations: [
@@ -648,7 +648,7 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       dataPath: 'cito:isCitedBy',
       type: 'selection',
       options: ['display_title'],
-      selectionId: [1375],
+      selectionId: [72],
     },
 
     {
@@ -686,7 +686,7 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       dataPath: 'schema:addressCountry',
       type: 'selection',
       options: ['display_title'],
-      selectionId: [322],
+      selectionId: [94],
     },
   ],
 };
