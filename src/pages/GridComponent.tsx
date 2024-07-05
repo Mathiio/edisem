@@ -35,13 +35,13 @@ const GridComponent: React.FC<GridProps> = ({ handleCardClick, initializePropert
         <Link
           to='#'
           className='col-span-4 row-span-3 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 gap-10 flex-col p-25'
-          onClick={() => handleCardClick('Conférences', 47, 71, 'conferences', columnConfigs.conferences)}>
+          onClick={() => handleCardClick('Conférences', 71, 71, 'conferences', columnConfigs.conferences)}>
           <ConferenceIcon size={24} className='text-default-action' />
           Conférences
         </Link>
         <Link
           to='#'
-          onClick={() => handleCardClick('Citations', 134, 80, 'citations', columnConfigs.citations)}
+          onClick={() => handleCardClick('Citations', 80, 80, 'citations', columnConfigs.citations)}
           className='col-span-2 row-span-2 col-start-5 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 gap-10 flex-col p-25'>
           <CitationIcon size={24} className='text-default-action' />
           Citations
@@ -61,7 +61,7 @@ const GridComponent: React.FC<GridProps> = ({ handleCardClick, initializePropert
         </div>
         <Link
           to='#'
-          onClick={() => handleCardClick('Conférenciers', 1375, 71, 'conferenciers', columnConfigs.conferenciers)}
+          onClick={() => handleCardClick('Conférenciers', 72, 72, 'conferenciers', columnConfigs.conferenciers)}
           className='col-span-2 row-span-3 col-start-11 row-start-1 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 gap-10 flex-col p-25'>
           <UserIcon size={24} className='text-default-action' />
           Conférenciers
@@ -69,7 +69,7 @@ const GridComponent: React.FC<GridProps> = ({ handleCardClick, initializePropert
         <Link
           to='#'
           onClick={() =>
-            handleCardClick('Écoles doctorales', 1572, 71, 'ecolesdoctorales', columnConfigs.ecolesdoctorales)
+            handleCardClick('Écoles doctorales', 74, 74, 'ecolesdoctorales', columnConfigs.ecolesdoctorales)
           }
           className='col-span-2 row-span-2 col-start-9 row-start-3 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
           <SchoolIcon size={24} className='text-default-action' />
@@ -77,21 +77,21 @@ const GridComponent: React.FC<GridProps> = ({ handleCardClick, initializePropert
         </Link>
         <Link
           to='#'
-          onClick={() => handleCardClick('Laboratoires', 1574, 71, 'laboratoire', columnConfigs.laboratoire)}
+          onClick={() => handleCardClick('Laboratoires', 91, 91, 'laboratoire', columnConfigs.laboratoire)}
           className='col-span-2 col-start-9 row-start-5 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
           <LaboritoryIcon size={24} className='text-default-action' />
           Laboratoires
         </Link>
         <Link
           to='#'
-          onClick={() => handleCardClick('Universités', 1563, 71, 'universites', columnConfigs.universites)}
+          onClick={() => handleCardClick('Universités', 73, 73, 'universites', columnConfigs.universites)}
           className='col-span-2 row-span-2 col-start-11 row-start-4 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
           <UniversityIcon size={24} className='text-default-action' />
           Universités
         </Link>
         <Link
           to='#'
-          onClick={() => handleCardClick('Pays', 322, 71, 'pays', columnConfigs.pays)}
+          onClick={() => handleCardClick('Pays', 94, 94, 'pays', columnConfigs.pays)}
           className='col-span-4 col-start-9 row-start-6 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
           <CountryIcon size={24} className='text-default-action' />
           Pays
