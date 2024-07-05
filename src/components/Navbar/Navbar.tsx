@@ -43,7 +43,6 @@ export const Navbar: React.FC = () => {
         <div className='hidden lg:flex flex-col justify-center items-start'>
           <div className='text-24 text-default-500 font-semibold'>Arcanes</div>
         </div>
-        <Link to='/database'>databse</Link>
       </motion.div>
       <motion.div className='flex justify-center items-start gap-10' variants={navbarVariants}>
         <Input

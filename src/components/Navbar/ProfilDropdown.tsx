@@ -1,18 +1,19 @@
 import React from 'react';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem } from '@nextui-org/react';
-import { UserIcon, AddIcon, ExitIcon, SettingsIcon } from '../Utils/icons';
-import { User, Link, Avatar } from '@nextui-org/react';
+import { UserIcon, AddIcon, DataIcon, ExitIcon, LinkIcon, SettingsIcon } from '../Utils/icons';
+import { User, Link as NextLink, Avatar } from '@nextui-org/react';
+import { Link } from 'react-router-dom';
 
 export const ProfilDropdown: React.FC = () => {
   return (
     <Dropdown>
       <DropdownTrigger>
-        <Link className='cursor-pointer flex flex-col items-center'>
+        <NextLink className='cursor-pointer flex flex-col items-center'>
           <UserIcon
             size={22}
-            className='text-default-600 hover:text-default-action transition-all ease-in-out duration-200'
+            className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200'
           />
-        </Link>
+        </NextLink>
       </DropdownTrigger>
       <DropdownMenu variant='light' aria-label='Dropdown menu with description' className='p-10'>
         <DropdownSection showDivider>
@@ -38,29 +39,40 @@ export const ProfilDropdown: React.FC = () => {
         </DropdownSection>
 
         <DropdownSection>
-          <DropdownItem
+          {/* <DropdownItem
             classNames={{
               shortcut: 'p-[5px] rounded-8',
             }}
             className='hover:bg-default-200 text-default-300 hover:text-default-400'
             endContent={<AddIcon size={15} />}>
             <p className='text-default-500'>Nouveau cahier</p>
-          </DropdownItem>
+          </DropdownItem> */}
 
           <DropdownItem
             key='copy'
             classNames={{
               shortcut: 'p-[5px] rounded-8',
             }}
-            className='hover:bg-default-200 text-default-300 hover:text-default-400'
+            className='rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400'
             endContent={<SettingsIcon size={15} />}>
-            <p className='text-default-500'>Préférences</p>
+            <p className='text-default-500 text-16'>Préférences</p>
+          </DropdownItem>
+
+          <DropdownItem className="rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400">
+            <Link to="/database" className="flex justify-between items-center w-full">
+              <p className="text-default-500 text-16">Données</p>
+              <DataIcon size={15} />
+            </Link>
           </DropdownItem>
 
           <DropdownItem key='edit' className='hover:bg-default-200'>
-            Aide
+            <p className='text-default-500 text-16'>Omeka S</p>
           </DropdownItem>
-          <DropdownItem
+
+          {/* <DropdownItem key='edit' className='hover:bg-default-200 text-default-500'>
+            Aide
+          </DropdownItem> */}
+          {/* <DropdownItem
             key='edit'
             classNames={{
               shortcut: 'p-[5px] rounded-8',
@@ -68,7 +80,7 @@ export const ProfilDropdown: React.FC = () => {
             className='hover:bg-default-200 text-default-300 hover:text-default-400'
             endContent={<ExitIcon size={15} />}>
             <p className='text-default-500'>Déconnexion</p>
-          </DropdownItem>
+          </DropdownItem> */}
         </DropdownSection>
       </DropdownMenu>
     </Dropdown>
