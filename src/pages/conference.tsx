@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { VideoInfos } from '@/components/conference/VideoInfos';
 import { ContentTab } from '@/components/conference/ContentTab';
@@ -26,6 +27,9 @@ const itemVariants: Variants = {
 };
 
 export const Conference: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  console.log("l'id de cette conférence est : " + id)
+
   return (
     <div className='relative h-screen overflow-hidden'>
       <Scrollbar>
