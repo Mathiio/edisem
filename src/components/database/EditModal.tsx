@@ -531,6 +531,7 @@ class Omk {
   };
 
   public formatValue = (p: any, v: any): any => {
+    if (p['o:id'] == 1517) return { property_id: p['o:id'], '@id': v, type: 'uri', is_public: true };
     if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735))
       return { property_id: p['o:id'], '@value': v, type: 'numeric:integer', is_public: true };
     else if (typeof v === 'number') return { property_id: p['o:id'], value_resource_id: v, type: 'resource' };
@@ -639,9 +640,52 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       options: ['display_title'],
       selectionId: [72],
     },
+    { key: 'dcterms:abstract', label: 'Résumé', dataPath: 'dcterms:abstract.0.@value', type: 'textarea' },
+    { key: 'schema:abstract', label: 'Résumé ChatGPT', dataPath: 'schema:abstract.0.@value', type: 'textarea' },
+    {
+      key: 'schema:citation',
+      label: 'Citations',
+      dataPath: 'schema:citation',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [80],
+    },
+    {
+      key: 'schema:isRelatedTo',
+      label: 'Conférence associés',
+      dataPath: 'schema:isRelatedTo',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [71],
+    },
+    { key: 'url', label: 'Url de la vidéo', dataPath: 'schema:url.0.@id', type: 'input' },
+    {
+      key: 'dcterms:isPartOf',
+      label: 'Séances',
+      dataPath: 'dcterms:isPartOf',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [76],
+    },
+    // {
+    //   key: 'dcterms:references',
+    //   label: 'Bibliographie de la conférence',
+    //   dataPath: 'dcterms:references',
+    //   type: 'selection',
+    //   options: ['display_title'],
+    //   selectionId: [81],
+    // },
+    // {
+    //   key: 'dcterms:bibliographicCitation',
+    //   label: 'Bibliographie de la conférence',
+    //   dataPath: 'dcterms:bibliographicCitation',
+    //   type: 'selection',
+    //   options: ['display_title'],
+    //   selectionId: [81],
+    // },
   ],
   citations: [
-    { key: 'citationss', label: 'Citations', dataPath: 'cito:hasCitedEntity.0.@value', type: 'textarea' },
+    { key: 'schema:citation', label: 'Citations', dataPath: 'cito:hasCitedEntity.0.@value', type: 'textarea' },
     {
       key: 'conferencier',
       label: 'Conférencier',
@@ -667,18 +711,43 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
   conferenciers: [
     { key: 'nom', label: 'Nom', dataPath: 'foaf:lastName.0.@value', type: 'input' },
     { key: 'prenom', label: 'Prénom', dataPath: 'foaf:firstName.0.@value', type: 'input' },
+    { key: 'titre', label: 'Nom et prénom', dataPath: 'dcterms:title.0.@value', type: 'input' },
+    {
+      key: 'jdc:hasUniversity',
+      label: 'Université',
+      dataPath: 'jdc:hasUniversity',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [73],
+    },
+    {
+      key: 'jdc:hasEcoleDoctorale',
+      label: 'École doctorale',
+      dataPath: 'jdc:hasEcoleDoctorale',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [74],
+    },
+    {
+      key: 'jdc:hasLaboratoire',
+      label: 'Laboratoire',
+      dataPath: 'jdc:hasLaboratoire',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [91],
+    },
   ],
-  pays: [{ key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' }],
+  pays: [{ key: 'Pays', label: 'Nom du pays', dataPath: 'dcterms:title.0.@value', type: 'input' }],
   laboratoire: [
-    { key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' },
-    { key: 'url', label: 'Url', dataPath: 'schema:url.0.@value', type: 'input' },
+    { key: 'nom', label: 'Nom du laboratoire', dataPath: 'dcterms:title.0.@value', type: 'input' },
+    { key: 'url', label: 'Url', dataPath: 'schema:url.0.@id', type: 'input' },
   ],
   ecolesdoctorales: [
-    { key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' },
-    { key: 'url', label: 'Url', dataPath: 'schema:url.0.@value', type: 'input' },
+    { key: 'nom', label: "Nom de l'école", dataPath: 'dcterms:title.0.@value', type: 'input' },
+    { key: 'url', label: 'Url', dataPath: 'schema:url.0.@id', type: 'input' },
   ],
   universites: [
-    { key: 'nom', label: 'Nom', dataPath: 'dcterms:title.0.@value', type: 'input' },
+    { key: 'nom', label: "Nom de l'univeristé", dataPath: 'dcterms:title.0.@value', type: 'input' },
     { key: 'url', label: 'Url', dataPath: 'schema:url.0.@id', type: 'input' },
     {
       key: 'pays',
@@ -701,12 +770,29 @@ export const EditModal: React.FC<EditModalProps> = ({
   itemPropertiesData,
   propertiesLoading,
 }) => {
-  const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchDataDetails(itemUrl);
+  const {
+    data: itemDetailsData,
+    loading: detailsLoading,
+    error: detailsError,
+    refetch: refetchItemDetails,
+  } = useFetchDataDetails(itemUrl);
 
-  console.log(itemPropertiesData);
+  //console.log(itemPropertiesData);
   const [itemData, setItemData] = useState<any>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  const clearState = () => {
+    setItemData({});
+  };
+
+  const clearDetailsState = () => {
+    refetchItemDetails(); // Optionally, if your hook supports refetching data
+    // Otherwise, manually reset your state variables
+    // setItemDetailsData(null);
+    // setDetailsLoading(false);
+    // setDetailsError(null);
+  };
 
   const pa = {
     mail: 'erwan.tbd@gmail.com',
@@ -773,6 +859,7 @@ export const EditModal: React.FC<EditModalProps> = ({
       //await omks.updateRessource(itemId, itemData);
 
       setSaving(false);
+      refetchItemDetails(); // Trigger data refresh
       onClose(); // Close the modal after successful save
     } catch (error) {
       if (error instanceof Error) {
@@ -789,7 +876,7 @@ export const EditModal: React.FC<EditModalProps> = ({
     return (
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
-          <Spinner />
+          <Spinner color='secondary' />
           <p>Chargement...</p>
         </ModalContent>
       </Modal>
@@ -803,7 +890,11 @@ export const EditModal: React.FC<EditModalProps> = ({
         className='bg-default-100'
         size='2xl'
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={() => {
+          clearState(); // Clear state when modal closes
+          clearDetailsState();
+          onClose(); // Close the modal
+        }}
         hideCloseButton={true}
         scrollBehavior='inside'
         motionProps={{
@@ -830,7 +921,7 @@ export const EditModal: React.FC<EditModalProps> = ({
           {(onClose) => (
             <>
               <ModalHeader className='flex justify-between p-25 '>
-                <h2 className='text-default-500 text-32 font-semibold'>Édition</h2>
+                <h2 className='text-default-500 text-32 font-semibold'>Modification</h2>
                 <Link onPress={onClose}>
                   <CloseIcon
                     className='text-default-500 cursor-pointer hover:text-default-action transition-all ease-in-out duration-200'
@@ -861,7 +952,6 @@ export const EditModal: React.FC<EditModalProps> = ({
                                 label={col.label}
                                 labelPlacement='outside'
                                 placeholder={`Entrez ${col.label}`}
-                                isRequired
                                 defaultValue={value}
                                 onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
                               />
@@ -882,7 +972,6 @@ export const EditModal: React.FC<EditModalProps> = ({
                               label={col.label}
                               labelPlacement='outside'
                               placeholder={`Entrez ${col.label}`}
-                              isRequired
                               defaultValue={value}
                               onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
                             />
@@ -913,7 +1002,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                         }
                       })
                     ) : (
-                      <Spinner />
+                      <Spinner color='secondary' />
                     )}
 
                     {saveError && <div className='error'>{saveError}</div>}

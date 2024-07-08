@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
+
 import { motion, Variants } from 'framer-motion';
 import {
   Table,
@@ -13,6 +13,7 @@ import {
   Pagination,
   useDisclosure,
   Input,
+  SortDescriptor,
 } from '@nextui-org/react';
 import { useFetchData } from '../hooks/useFetchData';
 import GridComponent from './GridComponent';
@@ -92,6 +93,11 @@ export const Database = () => {
 
   const [currentItemUrl, setCurrentItemUrl] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ column: '', direction: 'ascending' });
+
+  const handleSortChange = (descriptor: SortDescriptor) => {
+    setSortDescriptor(descriptor);
+  };
 
   const handleCellClick = (item: any) => {
     setCurrentItemUrl(item['@id']);
@@ -105,11 +111,7 @@ export const Database = () => {
   const [currentView, setCurrentView] = useState<'grid' | 'table' | 'element'>('grid');
   const [previousTableState, setPreviousTableState] = useState<any[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const {
-    data: speakersData,
-    loading: speakersLoading,
-    error: speakersError,
-  } = useFetchData(selectedCardId, refreshTrigger);
+  const { data: speakersData, loading: speakersLoading } = useFetchData(selectedCardId, refreshTrigger);
 
   const handleModalClose = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -121,15 +123,34 @@ export const Database = () => {
   const rowsPerPage = 10;
   const pages = useMemo(() => (speakersData ? Math.ceil(speakersData.length / rowsPerPage) : 0), [speakersData]);
 
+  const sortItems = useCallback((items: any[], sortDescriptor: SortDescriptor) => {
+    return [...items].sort((a, b) => {
+      const column = sortDescriptor.column as string;
+      let first = getValueByPath(a, column);
+      let second = getValueByPath(b, column);
+      first = first && first.toString().toLowerCase();
+      second = second && second.toString().toLowerCase();
+
+      let cmp = (parseInt(first) || first) < (parseInt(second) || second) ? -1 : 1;
+
+      if (sortDescriptor.direction === 'descending') {
+        cmp *= -1;
+      }
+
+      return cmp;
+    });
+  }, []);
+
   const filteredSpeakers = useMemo(() => {
     if (!speakersData) return [];
-    return speakersData.filter((item) =>
+    let filtered = speakersData.filter((item) =>
       columns.some((col) => {
         const value = getValueByPath(item, col.dataPath);
         return value && value.toString().toLowerCase().includes(searchQuery.toLowerCase());
       }),
     );
-  }, [searchQuery, speakersData, columns]);
+    return sortItems(filtered, sortDescriptor);
+  }, [searchQuery, speakersData, columns, sortDescriptor, sortItems]);
 
   const items = useMemo(() => {
     if (!filteredSpeakers) return [];
@@ -204,7 +225,7 @@ export const Database = () => {
                             onClick={handleReturn}
                             className=' min-w-fit border-2 border-default-300 hover:border-default-action transition-colors duration-300 text-default-600 font-semibold px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '>
                             <BackIcon
-                              className='text-default-action flex flex-col items-center justify-center'
+                              className='text-default-600 flex flex-col items-center justify-center'
                               size={14}
                             />
                             <div className='text-default-600'>Retour</div>
@@ -220,7 +241,7 @@ export const Database = () => {
                           mainWrapper: ' h-[48px] ',
                           input: 'text-default-400  Inter  text-16 nav_searchbar h-[48px] px-[10px]',
                           inputWrapper:
-                            ' shadow-none border-1 border-default-200 group-data-[focus=true]:bg-default-200 rounded-8 font-normal text-default-600 bg-default-50 dark:bg-default-200 px-[15px] py-[10px] h-full ',
+                            ' shadow-none border-1 border-default-200 group-data-[focus=true]:bg-default-200 rounded-8 font-normal text-default-600  bg-default-pur opacity-1 dark:bg-default-200 px-[15px] py-[10px] h-full ',
                         }}
                         placeholder='Recherche avancée...'
                         startContent={<SearchIcon size={16} />}
@@ -243,6 +264,8 @@ export const Database = () => {
                     </div>
                     <Table
                       aria-label='Speakers Table'
+                      sortDescriptor={sortDescriptor}
+                      onSortChange={handleSortChange}
                       bottomContent={
                         <div className='flex w-full justify-start'>
                           <Pagination
@@ -262,7 +285,7 @@ export const Database = () => {
                         </div>
                       }
                       classNames={{
-                        wrapper: 'shadow-none shadow-none border-1 border-default-200 min-h-[400px]', // Ensure wrapper has a fixed height
+                        wrapper: 'shadow-none shadow-none border-1 border-default-200 min-h-[400px] bg-default-pur', // Ensure wrapper has a fixed height
                         table: 'rounded-8 shadow-none min-h-[400px]', // Ensure table has a fixed height
                         thead: 'rounded-8 ',
                         th: ['bg-transparent', 'text-default-500', 'border-b', 'border-divider'],
@@ -270,7 +293,10 @@ export const Database = () => {
                       }}>
                       <TableHeader className='min-h-[40px]'>
                         {columns.map((col) => (
-                          <TableColumn key={col.key} className={`${col.isAction ? 'flex justify-end' : ''}`}>
+                          <TableColumn
+                            allowsSorting
+                            key={col.key}
+                            className={`${col.isAction ? 'flex justify-end' : ''}`}>
                             {col.label}
                           </TableColumn>
                         ))}
@@ -284,9 +310,9 @@ export const Database = () => {
                               <TableCell
                                 key={col.key}
                                 className={`
-              ${colIndex === 0 ? 'rounded-tl-8 rounded-bl-8' : ''} 
-              ${colIndex === columns.length - 1 ? 'rounded-tr-8 rounded-br-8' : ''}
-            `}>
+                                  ${colIndex === 0 ? 'rounded-tl-8 rounded-bl-8' : ''} 
+                                  ${colIndex === columns.length - 1 ? 'rounded-tr-8 rounded-br-8' : ''}
+                                `}>
                                 {col.isAction ? (
                                   <div className='flex justify-end'>
                                     <button onClick={() => handleCellClick(item)} className='pl-[10px]'>
@@ -348,7 +374,8 @@ export const columnConfigs = {
     { key: 'actions', label: 'Actions', isAction: true },
   ],
   conferenciers: [
-    { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
+    { key: 'nom', label: 'Nom', dataPath: 'foaf:lastName.0.@value' },
+    { key: 'prenom', label: 'Prénom', dataPath: 'foaf:firstName.0.@value' },
     { key: 'jdc:hasUniversity', label: 'Université', dataPath: 'jdc:hasUniversity.0.display_title' },
     { key: 'actions', label: 'Actions', isAction: true },
   ],
@@ -363,12 +390,12 @@ export const columnConfigs = {
   ],
   laboratoire: [
     { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
-    { key: 'schema:url', label: 'Url', dataPath: 'schema:url.0.@value' },
+    { key: 'schema:url', label: 'Url', dataPath: 'schema:url.0.@id' },
     { key: 'actions', label: 'Actions', isAction: true },
   ],
   ecolesdoctorales: [
     { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
-    { key: 'schema:url', label: 'Url', dataPath: 'schema:url.0.@value' },
+    { key: 'schema:url', label: 'Url', dataPath: 'schema:url.0.@id' },
     { key: 'actions', label: 'Actions', isAction: true },
   ],
   universites: [
@@ -383,7 +410,10 @@ export const columnConfigs = {
 function getValuesByPath<T>(object: T, path: string): string {
   if (!path) return '';
 
-  const keys = path.split('.');
+  // Adjust path by removing specific indices
+  const adjustedPath = path.replace(/\.\d+\./g, '.');
+
+  const keys = adjustedPath.split('.');
   let value: any = object;
   const result: string[] = [];
 
@@ -396,20 +426,12 @@ function getValuesByPath<T>(object: T, path: string): string {
     }
 
     const key = keyParts[index];
-    const arrayMatch = key.match(/^(.+)\[(\d+)?\]$/);
 
-    if (arrayMatch) {
-      const arrayKey = arrayMatch[1];
-      const arrayIndex = arrayMatch[2] ? parseInt(arrayMatch[2]) : null;
-
-      if (Array.isArray(obj[arrayKey])) {
-        if (arrayIndex !== null && arrayIndex < obj[arrayKey].length) {
-          traverse(obj[arrayKey][arrayIndex], keyParts, index + 1);
-        } else {
-          obj[arrayKey].forEach((item) => traverse(item, keyParts, index + 1));
-        }
+    if (Array.isArray(obj[key])) {
+      for (const item of obj[key]) {
+        traverse(item, keyParts, index + 1);
       }
-    } else if (key in obj) {
+    } else if (obj[key] !== undefined && obj[key] !== null) {
       traverse(obj[key], keyParts, index + 1);
     }
   };

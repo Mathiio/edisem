@@ -36,38 +36,42 @@ export const useFetchData = (resourceClassId: number | null, refreshTrigger: num
 };
 
 export const useFetchDataDetails = (ItemUrl: string | null) => {
-  const [data, setData] = useState<Data[]>();
+  const [data, setData] = useState<Data[] | undefined>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const getData = async () => {
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
       if (ItemUrl !== null) {
-        try {
-          const fetchedData = await fetchSpeakerDetails(ItemUrl);
-          setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
-        } catch (error) {
-          if (error instanceof Error) {
-            setError(error);
-            console.error('Error fetching data:', error);
-          } else {
-            setError(new Error('An unknown error occurred'));
-            console.error('Unknown error fetching data');
-          }
-        } finally {
-          setLoading(false);
-        }
+        const fetchedData = await fetchSpeakerDetails(ItemUrl); // Replace with your actual fetching function
+        setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
       } else {
         setData(undefined);
-        setLoading(false);
       }
-    };
-  
-    getData();
-  }, [ItemUrl]);
-  
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error);
+        console.error('Error fetching data:', error);
+      } else {
+        setError(new Error('An unknown error occurred'));
+        console.error('Unknown error fetching data');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  return { data, loading, error };
+  useEffect(() => {
+    fetchData();
+  }, [ItemUrl]);
+
+  const refetch = () => {
+    fetchData(); // Call fetchData function again to refetch data
+  };
+
+  return { data, loading, error, refetch };
 };
 
 export const useFetchDetails = (ItemUrl: string | null) => {

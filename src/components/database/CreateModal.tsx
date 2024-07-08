@@ -380,6 +380,7 @@ class Omk {
   };
 
   public formatValue = (p: any, v: any): any => {
+    if (p['o:id'] == 1517) return { property_id: p['o:id'], '@id': v, type: 'uri', is_public: true };
     if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735))
       return { property_id: p['o:id'], '@value': v, type: 'numeric:integer', is_public: true };
     else if (typeof v === 'number') return { property_id: p['o:id'], value_resource_id: v, type: 'resource' };
@@ -625,8 +626,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
   propertiesLoading,
 }) => {
   const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchRT(itemId);
-
-  //console.log(itemPropertiesData);
+  //console.log(itemDetailsData);
 
   const [itemData, setItemData] = useState<any>({});
   const [saving, setSaving] = useState(false);
@@ -694,7 +694,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
       omks.props = itemPropertiesData;
 
       let object = omks.buildObject(itemDetailsData, itemData);
-
+      console.log(object);
       await omks.createItem(object);
 
       setSaving(false);
@@ -714,7 +714,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
     return (
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
-          <Spinner />
+          <Spinner color='secondary' />
           <p>Chargement...</p>
         </ModalContent>
       </Modal>
@@ -755,7 +755,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
           {(onClose) => (
             <>
               <ModalHeader className='flex justify-between p-25 '>
-                <h2 className='text-default-500 text-32 font-semibold'>Édition</h2>
+                <h2 className='text-default-500 text-32 font-semibold'>Nouvel item</h2>
                 <Link onPress={onClose}>
                   <CloseIcon
                     className='text-default-500 cursor-pointer hover:text-default-action transition-all ease-in-out duration-200'
@@ -825,7 +825,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
                         }
                       })
                     ) : (
-                      <Spinner />
+                      <Spinner color='secondary' />
                     )}
 
                     {saveError && <div className='error'>{saveError}</div>}
