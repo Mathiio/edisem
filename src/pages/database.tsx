@@ -225,7 +225,7 @@ export const Database = () => {
                             onClick={handleReturn}
                             className=' min-w-fit border-2 border-default-300 hover:border-default-action transition-colors duration-300 text-default-600 font-semibold px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '>
                             <BackIcon
-                              className='text-default-action flex flex-col items-center justify-center'
+                              className='text-default-600 flex flex-col items-center justify-center'
                               size={14}
                             />
                             <div className='text-default-600'>Retour</div>
