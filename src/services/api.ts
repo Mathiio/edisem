@@ -17,7 +17,7 @@ export const fetchData = async (resourceClassId: number): Promise<Data[]> => {
 
   while (morePages) {
     try {
-      const response = await fetch(`${API_URL}/items?resource_class_id=${resourceClassId}&page=${page}&per_page=${perPage}`);
+      const response = await fetch(`${API_URL}/items?resource_template_id=${resourceClassId}&page=${page}&per_page=${perPage}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
