@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchData,fetchSpeakerDetails,fetchRT, Data, fetchProperties } from '../services/api';
+import { fetchData, fetchSpeakerDetails, fetchRT, Data, fetchProperties, fetchDetails } from '../services/api';
 
 export const useFetchData = (resourceClassId: number | null, refreshTrigger: number = 0) => {
   const [data, setData] = useState<Data[]>();
@@ -69,6 +69,42 @@ export const useFetchDataDetails = (ItemUrl: string | null) => {
 
   return { data, loading, error };
 };
+
+export const useFetchDetails = (ItemUrl: string | null) => {
+  const [data, setData] = useState<Data[]>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const getData = async () => {
+      if (ItemUrl !== null) {
+        try {
+          const fetchedData = await fetchDetails(ItemUrl);
+          setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
+        } catch (error) {
+          if (error instanceof Error) {
+            setError(error);
+            console.error('Error fetching data:', error);
+          } else {
+            setError(new Error('An unknown error occurred'));
+            console.error('Unknown error fetching data');
+          }
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setData(undefined);
+        setLoading(false);
+      }
+    };
+  
+    getData();
+  }, [ItemUrl]);
+  
+
+  return { data, loading, error };
+};
+
 export const useFetchRT = (resourceTemplateId: number | null) => {
   const [data, setData] = useState<Data[]>();
   const [loading, setLoading] = useState(true);

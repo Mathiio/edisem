@@ -73,7 +73,7 @@ export const ArrowIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, tr
   </svg>
 );
 
-export const CloseIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const CloseIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -84,7 +84,7 @@ export const CloseIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ..
   </svg>
 );
 
-export const LinkIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const LinkIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -95,7 +95,7 @@ export const LinkIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...
   </svg>
 );
 
-export const MailIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const MailIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -106,7 +106,7 @@ export const MailIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...
   </svg>
 );
 
-export const CameraIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const CameraIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -123,7 +123,7 @@ export const CameraIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, .
   </svg>
 );
 
-export const ImageIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const ImageIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -134,7 +134,7 @@ export const ImageIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ..
   </svg>
 );
 
-export const SoundIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const SoundIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -157,7 +157,7 @@ export const SoundIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ..
   </svg>
 );
 
-export const FilterIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const FilterIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -168,7 +168,7 @@ export const FilterIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, .
   </svg>
 );
 
-export const CalendarIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const CalendarIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -191,7 +191,7 @@ export const CalendarIcon: React.FC<IconSvgProps> = ({ size = 35, width, height,
   </svg>
 );
 
-export const UserIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const UserIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -208,7 +208,7 @@ export const UserIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...
   </svg>
 );
 
-export const AddIcon2: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const AddIcon2: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -225,7 +225,7 @@ export const AddIcon2: React.FC<IconSvgProps> = ({ size = 35, width, height, ...
   </svg>
 );
 
-export const AddIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const AddIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -236,7 +236,7 @@ export const AddIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...p
   </svg>
 );
 
-export const SettingsIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const SettingsIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -247,7 +247,7 @@ export const SettingsIcon: React.FC<IconSvgProps> = ({ size = 35, width, height,
   </svg>
 );
 
-export const ExitIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const ExitIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -258,7 +258,7 @@ export const ExitIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...
   </svg>
 );
 
-export const FileIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const FileIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -269,7 +269,7 @@ export const FileIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...
   </svg>
 );
 
-export const KeywordIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const KeywordIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -280,7 +280,7 @@ export const KeywordIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, 
   </svg>
 );
 
-export const CitationIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const CitationIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -291,7 +291,7 @@ export const CitationIcon: React.FC<IconSvgProps> = ({ size = 35, width, height,
   </svg>
 );
 
-export const CollectionIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const CollectionIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -314,7 +314,7 @@ export const CollectionIcon: React.FC<IconSvgProps> = ({ size = 35, width, heigh
   </svg>
 );
 
-export const ConferenceIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const ConferenceIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -331,7 +331,7 @@ export const ConferenceIcon: React.FC<IconSvgProps> = ({ size = 35, width, heigh
   </svg>
 );
 
-export const CountryIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const CountryIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -348,7 +348,7 @@ export const CountryIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, 
   </svg>
 );
 
-export const EditionIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const EditionIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -371,36 +371,36 @@ export const EditionIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, 
   </svg>
 );
 
-export const LaboritoryIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const LaboritoryIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
       fillRule='evenodd'
       clipRule='evenodd'
-      d='M2.82537 17.8715C2.66634 17.9294 2.50032 17.9198 2.36117 17.8633C2.2207 17.8032 2.10578 17.6926 2.0515 17.5435L0.15043 12.3204C0.0418735 12.0221 0.213054 11.6838 0.531114 11.5681C0.690145 11.5102 0.856164 11.5198 0.996635 11.5799C1.13711 11.64 1.25203 11.7505 1.30631 11.8997L1.48503 12.3907L4.97765 11.1195L6.52789 15.3787L3.03527 16.65L3.20738 17.1228C3.31205 17.4225 3.14343 17.7557 2.82537 17.8715Z'
+      d="M2.82537 17.8715C2.66634 17.9294 2.50032 17.9198 2.36117 17.8633C2.2207 17.8032 2.10578 17.6926 2.0515 17.5435L0.15043 12.3204C0.0418735 12.0221 0.213054 11.6838 0.531114 11.5681C0.690145 11.5102 0.856164 11.5198 0.996635 11.5799C1.13711 11.64 1.25203 11.7505 1.30631 11.8997L1.48503 12.3907L4.97765 11.1195L6.52789 15.3787L3.03527 16.65L3.20738 17.1228C3.31205 17.4225 3.14343 17.7557 2.82537 17.8715Z"
     />
     <path
       fill='currentColor'
       fillRule='evenodd'
       clipRule='evenodd'
-      d='M12.5788 14.3339L10.2846 8.03044L5.74988 9.68094L8.04414 15.9844L12.5788 14.3339Z'
+      d="M12.5788 14.3339L10.2846 8.03044L5.74988 9.68094L8.04414 15.9844L12.5788 14.3339Z"
     />
     <path
       fill='currentColor'
       fillRule='evenodd'
       clipRule='evenodd'
-      d='M13.6688 13.7683L11.4818 7.75946C11.3362 7.35936 11.5661 6.90494 11.9928 6.74965L15.7517 5.3815L18.4683 12.8452L14.7093 14.2134C14.2788 14.3701 13.8158 14.172 13.6688 13.7683Z'
+      d="M13.6688 13.7683L11.4818 7.75946C11.3362 7.35936 11.5661 6.90494 11.9928 6.74965L15.7517 5.3815L18.4683 12.8452L14.7093 14.2134C14.2788 14.3701 13.8158 14.172 13.6688 13.7683Z"
     />
     <path
       fill='currentColor'
       fillRule='evenodd'
       clipRule='evenodd'
-      d='M19.6403 12.5051L16.8682 4.88865C16.6603 4.31759 16.9848 3.67637 17.5976 3.45331C18.2066 3.23166 18.8673 3.5143 19.0752 4.08536L21.846 11.6982C22.0539 12.2692 21.7294 12.9105 21.1204 13.1321C20.5089 13.3588 19.8482 13.0762 19.6403 12.5051Z'
+      d="M19.6403 12.5051L16.8682 4.88865C16.6603 4.31759 16.9848 3.67637 17.5976 3.45331C18.2066 3.23166 18.8673 3.5143 19.0752 4.08536L21.846 11.6982C22.0539 12.2692 21.7294 12.9105 21.1204 13.1321C20.5089 13.3588 19.8482 13.0762 19.6403 12.5051Z"
     />
   </svg>
 );
 
-export const SchoolIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const SchoolIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -423,7 +423,7 @@ export const SchoolIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, .
   </svg>
 );
 
-export const SeanceIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const SeanceIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -434,7 +434,7 @@ export const SeanceIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, .
   </svg>
 );
 
-export const ThemeIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const ThemeIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -475,7 +475,7 @@ export const ThemeIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ..
   </svg>
 );
 
-export const UniversityIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const UniversityIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -492,7 +492,7 @@ export const UniversityIcon: React.FC<IconSvgProps> = ({ size = 35, width, heigh
   </svg>
 );
 
-export const OtherIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const OtherIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -509,7 +509,7 @@ export const OtherIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ..
   </svg>
 );
 
-export const EditIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const EditIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'
@@ -532,7 +532,7 @@ export const EditIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...
   </svg>
 );
 
-export const PlusIcon: React.FC<IconSvgProps> = ({ size = 14, width, height, ...props }) => (
+export const PlusIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg
     width={size || width}
     height={size || height}
@@ -544,7 +544,7 @@ export const PlusIcon: React.FC<IconSvgProps> = ({ size = 14, width, height, ...
   </svg>
 );
 
-export const BackIcon: React.FC<IconSvgProps> = ({ size = 14, width, height, ...props }) => (
+export const BackIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg
     width={size || width}
     height={size || height}
@@ -556,7 +556,7 @@ export const BackIcon: React.FC<IconSvgProps> = ({ size = 14, width, height, ...
   </svg>
 );
 
-export const DataIcon: React.FC<IconSvgProps> = ({ size = 35, width, height, ...props }) => (
+export const DataIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path
       fill='currentColor'

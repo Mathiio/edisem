@@ -19,6 +19,7 @@
     "@react-stately/data": "^3.11.4",
     "@react-types/datepicker": "^3.7.4",
     "@react-types/shared": "^3.23.1",
+    "@splidejs/react-splide": "^0.7.12",
     "dotenv": "^16.4.5",
     "embla-carousel": "^8.0.4",
     "embla-carousel-react": "^8.0.4",
