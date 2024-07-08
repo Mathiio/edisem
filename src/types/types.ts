@@ -6,3 +6,4 @@ export type IconSvgProps = SVGProps<SVGSVGElement> & {
   height?: number;
   transform?: string;
 };
+

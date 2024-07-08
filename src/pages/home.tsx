@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
-import { FullCarrousel, MidCarrousel } from '@/components/home/CarrouselsHome'
+import { FullCarrousel, MidCarrousel } from '@/components/home/CarrouselsHome';
 import { getSeminaires, getRandomConferences, getActants } from '../services/api';
 import { EventCard, EventSkeleton } from '@/components/home/EventCards';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { ActantCard, ActantSkeleton } from '@/components/home/ActantCards';
-
-
 
 export const Home: React.FC = () => {
   const [seminaires, setSeminaires] = useState<{ id: number; title: string; numConf: number }[]>([]);
@@ -46,7 +44,6 @@ export const Home: React.FC = () => {
     }
   }, []);
 
-
   return (
     <div className='relative h-screen overflow-hidden'>
       <Scrollbar>
@@ -55,27 +52,42 @@ export const Home: React.FC = () => {
             <Navbar />
           </div>
           <div className='col-span-10 flex flex-col gap-100'>
-            <FullCarrousel title="Derniers séminaires Arcanes" perPage={2} perMove={1} data={loadingSeminaires  ? Array.from({ length: 4 }) : seminaires} renderSlide={(item, index) => (
-              loadingSeminaires  ? <EventSkeleton key={index} /> : <EventCard key={item.id} id={item.id} title={item.title} numConf={item.numConf} />
-            )}>
-            </FullCarrousel>
-            <MidCarrousel title="Découvrez Nos Conférenciers" 
-              description='Rencontrez les experts et visionnaires qui interviennent lors de nos conférences. Cliquez pour découvrir leur profil complet, incluant leur participation à divers séminaires, les thématiques qui leur sont chères, et bien plus encore.' 
-              perPage={3} perMove={1} data={loadingActants  ? Array.from({ length: 4 }) : actants} renderSlide={(item, index) => (
-              loadingActants  ? <ActantSkeleton key={index} /> : <ActantCard key={item.id} id={item.id} name={item.name} interventions={item.interventions} />
-            )}>
-            </MidCarrousel>
+            <FullCarrousel
+              title='Derniers séminaires Arcanes'
+              perPage={2}
+              perMove={1}
+              data={loadingSeminaires ? Array.from({ length: 4 }) : seminaires}
+              renderSlide={(item, index) =>
+                loadingSeminaires ? (
+                  <EventSkeleton key={index} />
+                ) : (
+                  <EventCard key={item.id} id={item.id} title={item.title} numConf={item.numConf} />
+                )
+              }></FullCarrousel>
+            <MidCarrousel
+              title='Découvrez Nos Conférenciers'
+              description='Rencontrez les experts et visionnaires qui interviennent lors de nos conférences. Cliquez pour découvrir leur profil complet, incluant leur participation à divers séminaires, les thématiques qui leur sont chères, et bien plus encore.'
+              perPage={3}
+              perMove={1}
+              data={loadingActants ? Array.from({ length: 4 }) : actants}
+              renderSlide={(item, index) =>
+                loadingActants ? (
+                  <ActantSkeleton key={index} />
+                ) : (
+                  <ActantCard key={item.id} id={item.id} name={item.name} interventions={item.interventions} />
+                )
+              }></MidCarrousel>
             <div className='gap-25 flex flex-col'>
               <h2 className='text-24 font-bold text-default-600'>Séléction de conférences</h2>
               <div className='grid grid-cols-4 grid-rows-2 gap-25'>
-                {loadingRandomConf ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />) : randomConf.map((item, index) => (
-                    <LgConfCard key={item.id} id={item.id} title={item.title} actant={item.actant} date={item.date} />
-                ))}
+                {loadingRandomConf
+                  ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
+                  : randomConf.map((item) => (
+                      <LgConfCard key={item.id} id={item.id} title={item.title} actant={item.actant} date={item.date} />
+                    ))}
               </div>
             </div>
-            <div className='flex gap-75 w-full'>
-              
-            </div>
+            <div className='flex gap-75 w-full'></div>
           </div>
         </main>
       </Scrollbar>

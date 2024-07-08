@@ -667,22 +667,6 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       options: ['display_title'],
       selectionId: [76],
     },
-    // {
-    //   key: 'dcterms:references',
-    //   label: 'Bibliographie de la conférence',
-    //   dataPath: 'dcterms:references',
-    //   type: 'selection',
-    //   options: ['display_title'],
-    //   selectionId: [81],
-    // },
-    // {
-    //   key: 'dcterms:bibliographicCitation',
-    //   label: 'Bibliographie de la conférence',
-    //   dataPath: 'dcterms:bibliographicCitation',
-    //   type: 'selection',
-    //   options: ['display_title'],
-    //   selectionId: [81],
-    // },
   ],
   citations: [
     { key: 'schema:citation', label: 'Citations', dataPath: 'cito:hasCitedEntity.0.@value', type: 'textarea' },
