@@ -7,7 +7,6 @@ import { Recherche } from '@/pages/recherche';
 import { Database } from '@/pages/database';
 import { Edition } from '@/pages/edition';
 
-
 function App() {
   useThemeMode();
 
@@ -16,9 +15,10 @@ function App() {
       <Route path='/conference/:id' element={<Conference />} />
       <Route path='/conferencier/:id' element={<Conferencier />} />
       <Route path='/recherche' Component={Recherche} />
+      <Route path='/home' Component={Home} />
       <Route path='/database' Component={Database} />
-      <Route path='/' Component={Home} />
-      <Route path="/edition/:id/:title?" element={<Edition />} />
+      <Route path='/' Component={Database} />
+      <Route path='/edition/:id/:title?' element={<Edition />} />
     </Routes>
   );
 }

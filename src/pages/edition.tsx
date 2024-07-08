@@ -5,10 +5,8 @@ import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { getConfByEdition } from '../services/api';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 
-
-
 export const Edition: React.FC = () => {
-  const { id, title } = useParams<{ id: string, title?: string; }>();
+  const { id, title } = useParams<{ id: string; title?: string }>();
   const [conf, setConf] = useState<{ id: number; title: string; actant: string; date: string }[]>([]);
   const [loadingConf, setLoadingConf] = useState(true);
   const firstRender = useRef(true);
@@ -23,11 +21,9 @@ export const Edition: React.FC = () => {
     if (firstRender.current) {
       firstRender.current = false;
     } else {
-      fetchConf()
+      fetchConf();
     }
   }, []);
-
-
 
   return (
     <div className='relative h-screen overflow-hidden'>
@@ -40,9 +36,11 @@ export const Edition: React.FC = () => {
             <div className='gap-25 flex flex-col'>
               <h2 className='text-24 font-bold text-default-600'>Conférences de {title}</h2>
               <div className='grid grid-cols-4 grid-rows-3 gap-25'>
-                {loadingConf ? Array.from({ length: 12 }).map((_, index) => <LgConfSkeleton key={index} />) : conf.map((item, index) => (
-                    <LgConfCard key={item.id} id={item.id} title={item.title} actant={item.actant} date={item.date} />
-                ))}
+                {loadingConf
+                  ? Array.from({ length: 12 }).map((_, index) => <LgConfSkeleton key={index} />)
+                  : conf.map((item) => (
+                      <LgConfCard key={item.id} id={item.id} title={item.title} actant={item.actant} date={item.date} />
+                    ))}
               </div>
             </div>
           </div>
