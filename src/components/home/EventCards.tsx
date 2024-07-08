@@ -12,7 +12,7 @@ export const EventCard: React.FC<EventCardProps> = ({ id, title, numConf }) => {
   const navigate = useNavigate();
 
   const openEdition = () => {
-    navigate(`/edition/${id}`);
+    navigate(`/edition/${id}/${encodeURIComponent(title)}`);
   };
 
   return (

@@ -29,7 +29,6 @@ export const Conferencier: React.FC = () => {
       const conf = await getConfByActant(Number(id));
       setConf(conf);
       setLoadingConf(false);
-      console.log(actant)
     };
 
     if (firstRender.current) {

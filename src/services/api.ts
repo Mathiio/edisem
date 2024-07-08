@@ -193,26 +193,42 @@ export async function getSeminaires() {
 
 
 
-export async function getEdition(editionId: number) {
-  const fetchedEdition: { id: number, title: string; numConf: number }[] = [];
+export async function getConfByEdition(editionId: number) {
+  const fetchedEdition: { id: number, actant: string; title: string; date: string }[] = [];
 
   try {
     const response = await fetch(`${API_URL}/items/${editionId}`);
     const edition: Data[] = await response.json();
 
-    for (let item of seminaires['schema:isRelatedTo']) {
+    for (let item of edition['schema:isRelatedTo']) {
       try {
-        const edition = await fetchSpeakerDetails(item['@id']);
+        const conf = await fetchSpeakerDetails(item['@id']);
 
-        if (edition && edition['schema:isRelatedTo']) {
-          const countConf = edition['schema:isRelatedTo'].length;
-          fetchedEditions.push({ id: edition['o:id'], title: item.display_title, numConf: countConf });
-          console.log(edition)
+        let title = 'Non renseigné';
+        let actant = 'Non renseigné';
+        let date = 'Non renseigné';
+  
+        if (conf['o:title']) {
+          title = conf['o:title'] 
         }
+        if (conf['schema:agent'] && conf['schema:agent'][0]?.display_title) {
+          actant = conf['schema:agent'][0].display_title;
+        }
+        if (conf['dcterms:date'] && conf['dcterms:date'][0]?.display_title) {
+          date = conf['dcterms:date'][0].display_title;
+        }
+        fetchedEdition.push({
+          id: conf['o:id'],
+          title: title,
+          actant: actant,
+          date: date
+        });
+
       } catch (error) {
         console.error(`Error fetching edition details for ${item['@id']}:`, error);
       }
     }
+    console.log(fetchedEdition)
     return fetchedEdition;
   } catch (error) {
     console.error('Error fetching seminaires:', error);
@@ -225,7 +241,7 @@ export async function getEdition(editionId: number) {
 
 export async function getRandomConferences(confNum: number) {
   try {
-    const conferences = await getDataByRT(71); // Assuming 71 is the resource template ID for conferences
+    const conferences = await getDataByRT(71); 
 
     const fetchedConf: { id: number, title: string; actant: string, date: string}[] = [];
 
