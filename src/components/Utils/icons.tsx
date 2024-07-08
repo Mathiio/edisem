@@ -578,6 +578,3 @@ export const DataIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...
     />
   </svg>
 );
-
-
-

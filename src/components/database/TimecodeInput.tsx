@@ -57,7 +57,6 @@ export const TimecodeInput: React.FC<TimecodeInputProps> = ({ seconds = 0, label
         input: 'h-[50px]',
       }}
       className='min-h-[50px]'
-      isRequired
       hideTimeZone
     />
   );
