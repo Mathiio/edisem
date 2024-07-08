@@ -3,8 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { VideoInfos } from '@/components/conference/VideoInfos';
 import { ContentTab } from '@/components/conference/ContentTab';
-import { Carousel } from '@/components/conference/Carousel';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
 
 const containerVariants: Variants = {
@@ -46,7 +45,6 @@ export const Conference: React.FC = () => {
           </motion.div>
           <motion.div className='col-span-10 lg:col-span-4 flex flex-col gap-50' variants={itemVariants}>
             <ContentTab />
-            <Carousel />
           </motion.div>
         </motion.main>
       </Scrollbar>

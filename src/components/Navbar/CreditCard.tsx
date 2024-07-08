@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LinkIcon } from '../Utils/icons';
+import { LinkIcon } from '../utils/icons';
 import { Link } from 'react-router-dom';
 
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { useParams } from 'react-router-dom';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
 import { getConfByEdition } from '../services/api';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 

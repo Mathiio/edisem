@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { InputConfig } from './EditModal';
-import { useFetchData } from '../../hooks/useFetchData';
+import { usegetDataByClass } from '@/hooks/useFetchData';
 import { Button, Input, Spinner } from '@nextui-org/react';
-import { CloseIcon, SearchIcon, SortIcon } from '../Utils/icons';
+import { CloseIcon, SearchIcon, SortIcon } from '@/components/utils/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/dropdown';
-import { Scrollbar } from '../Utils/Scrollbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
 
 interface SelectionInputProps {
   col: InputConfig;
@@ -35,7 +35,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // State for sorting order
 
   const selectionId = col.selectionId?.[0] ?? null;
-  const { data: speakersData, loading } = useFetchData(selectionId);
+  const { data: speakersData, loading } = usegetDataByClass(selectionId);
 
   useEffect(() => {
     if (speakersData) {

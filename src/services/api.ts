@@ -19,7 +19,7 @@ export interface Data {
   // Autres propriétés que vous utilisez
 }
 
-export const fetchData = async (resourceClassId: number): Promise<Data[]> => {
+export const getDataByClass = async (resourceClassId: number): Promise<Data[]> => {
   let page = 1;
   const perPage = 100; // Adjust per your API's pagination limit
   let allData: Data[] = [];
@@ -96,7 +96,7 @@ export const fetchRT = async (resourceTemplateId: number): Promise<Data[]> => {
 
 
 
-export const fetchProperties = async (): Promise<any[]> => {
+export const getAllProperties = async (): Promise<any[]> => {
   let page = 1;
   const perPage = 100; // Number of items per page, change if different
   let allProperties: any[] = [];
@@ -127,26 +127,9 @@ export const fetchProperties = async (): Promise<any[]> => {
 
 
 
-export const fetchSpeakerDetails = async (speakerUrl: string): Promise<Data[]> => {
+export const getDataByUrl = async (url: string): Promise<Data[]> => {
   try {
-    const response = await fetch(speakerUrl);
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const data: Data[] = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Fetch error:', error);
-    throw error;
-  }
-};
-
-
-
-
-export const fetchDetails = async (Url: string): Promise<Data[]> => {
-  try {
-    const response = await fetch(`${API_URL}${Url}`);
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
@@ -170,7 +153,7 @@ export async function getSeminaires() {
 
     for (let item of seminaires['schema:isRelatedTo'] || []) {
       try {
-        const edition = await fetchSpeakerDetails(item['@id']);
+        const edition = await getDataByUrl(item['@id']);
 
         if (edition && edition['schema:isRelatedTo' as any]) {
           const countConf = edition['schema:isRelatedTo' as any].length;
@@ -203,7 +186,7 @@ export async function getEdition(editionId: number) {
     if (edition['schema:isRelatedTo']) {
       for (let item of edition['schema:isRelatedTo'] as Array<{ '@id': string, display_title?: string }>) {
         try {
-          const editionDetails = await fetchSpeakerDetails(item['@id']);
+          const editionDetails = await getDataByUrl(item['@id']);
       
           if (editionDetails && editionDetails['schema:isRelatedTo' as any]) {
             const countConf = editionDetails['schema:isRelatedTo' as any].length;
@@ -414,7 +397,6 @@ export async function getActant(actantId: number) {
       schools: schools,
     };
 
-    console.log(fetchedActant);
     return fetchedActant;
   } catch (error) {
     console.error('Error fetching actants:', error);
@@ -482,7 +464,7 @@ export async function getConfByEdition(editionId: number) {
 
     for (let item of edition['schema:isRelatedTo'] || []) {
       try {
-        const conf  = await fetchSpeakerDetails(item['@id']) as unknown as Data;
+        const conf  = await getDataByUrl(item['@id']) as unknown as Data;
 
         let title = 'Non renseigné';
         let actant = 'Non renseigné';
@@ -508,7 +490,6 @@ export async function getConfByEdition(editionId: number) {
         console.error(`Error fetching edition details for ${item['@id']}:`, error);
       }
     }
-    console.log(fetchedEdition)
     return fetchedEdition;
   } catch (error) {
     console.error('Error fetching seminaires:', error);
