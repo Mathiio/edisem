@@ -18,7 +18,7 @@ function App() {
       <Route path='/recherche' Component={Recherche} />
       <Route path='/database' Component={Database} />
       <Route path='/' Component={Home} />
-      <Route path="/edition/:id" element={<Edition />} />
+      <Route path="/edition/:id/:title?" element={<Edition />} />
     </Routes>
   );
 }
