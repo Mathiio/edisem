@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Tooltip, Button } from '@nextui-org/react';
-import { CreditIcon } from '@/components/Utils/icons';
-import { NavKeyWords } from '@/components/conference/NavKeyWords';
+import { CreditIcon } from '@/components/utils/icons';
 import { motion, Variants } from 'framer-motion';
 
 const itemVariants: Variants = {
@@ -30,7 +29,6 @@ export const VideoInfos: React.FC = () => {
   return (
     <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
       <motion.div variants={itemVariants}>
-        <NavKeyWords numberOfButtons={16} />
       </motion.div>
       <motion.div variants={itemVariants} className='rounded-14 lg:w-full overflow-hidden'>
         <iframe

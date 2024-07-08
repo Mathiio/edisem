@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
 import { FullCarrousel, MidCarrousel } from '@/components/home/CarrouselsHome';
 import { getSeminaires, getRandomConferences, getActants } from '../services/api';
 import { EventCard, EventSkeleton } from '@/components/home/EventCards';

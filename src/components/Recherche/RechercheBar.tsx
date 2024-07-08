@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from '@nextui-org/react';
-import { UserIcon } from '../Utils/icons';
+import { UserIcon } from '../utils/icons';
 
 interface RechercheBarProps {
   Nombre: number;

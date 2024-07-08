@@ -15,13 +15,13 @@ import {
   Input,
   SortDescriptor,
 } from '@nextui-org/react';
-import { useFetchData } from '../hooks/useFetchData';
-import GridComponent from './GridComponent';
+import { usegetDataByClass } from '../hooks/useFetchData';
+import GridComponent from '@/components/database/GridComponent';
 import { EditModal } from '@/components/database/EditModal';
 import { CreateModal } from '@/components/database/CreateModal';
 
-import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/Utils/icons';
-import { useFetchProperties } from '@/hooks/useFetchData';
+import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/utils/icons';
+import { usegetAllProperties } from '@/hooks/useFetchData';
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
@@ -54,7 +54,7 @@ const useLocalStorageProperties = () => {
   const [itemPropertiesData, setItemPropertiesData] = useState<any[] | null>(null);
   const [propertiesLoading, setPropertiesLoading] = useState(true);
 
-  const { data, loading } = useFetchProperties(); // Assurez-vous que ce hook existe
+  const { data, loading } = usegetAllProperties(); // Assurez-vous que ce hook existe
 
   useEffect(() => {
     if (!loading && data) {
@@ -79,7 +79,7 @@ export const Database = () => {
   const { itemPropertiesData, propertiesLoading } = useLocalStorageProperties();
 
   const initializePropertiesLoading = () => {
-    // Vide car useFetchProperties est appelé au niveau du composant via le hook
+    // Vide car usegetAllProperties est appelé au niveau du composant via le hook
   };
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -111,7 +111,7 @@ export const Database = () => {
   const [currentView, setCurrentView] = useState<'grid' | 'table' | 'element'>('grid');
   const [previousTableState, setPreviousTableState] = useState<any[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const { data: speakersData, loading: speakersLoading } = useFetchData(selectedCardId, refreshTrigger);
+  const { data: speakersData, loading: speakersLoading } = usegetDataByClass(selectedCardId, refreshTrigger);
 
   const handleModalClose = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -260,7 +260,7 @@ export const Database = () => {
                   </div>
                   <div className='flex flex-col gap-20'>
                     <div>
-                      <h2 className='text-24 font-semibold text-default-600'>{selectedCard}</h2>
+                      <h2 className='text-24 font-bold text-default-600'>{selectedCard}</h2>
                     </div>
                     <Table
                       aria-label='Speakers Table'

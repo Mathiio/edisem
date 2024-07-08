@@ -10,14 +10,16 @@ import {
   Link,
   ModalHeader,
 } from '@nextui-org/react';
-import { useFetchDataDetails } from '@/hooks/useFetchData';
+import { usegetDataByClassDetails } from '@/hooks/useFetchData';
 import { SelectionInput } from './SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
 import { TimecodeInput } from './TimecodeInput';
-import { Scrollbar } from '../Utils/Scrollbar';
-import { CloseIcon } from '../Utils/icons';
+import { Scrollbar } from '@/components/utils/Scrollbar';
+import { CloseIcon } from '@/components/utils/icons';
 
+interface User {
+}
 class Omk {
   private key: string | undefined;
   private ident: string | undefined;
@@ -759,7 +761,7 @@ export const EditModal: React.FC<EditModalProps> = ({
     loading: detailsLoading,
     error: detailsError,
     refetch: refetchItemDetails,
-  } = useFetchDataDetails(itemUrl);
+  } = usegetDataByClassDetails(itemUrl);
 
   //console.log(itemPropertiesData);
   const [itemData, setItemData] = useState<any>({});

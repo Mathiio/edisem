@@ -16,8 +16,8 @@ import {
   UniversityIcon,
   OtherIcon,
   ImageIcon,
-} from '@/components/Utils/icons';
-import { columnConfigs } from './database';
+} from '@/components/utils/icons';
+import { columnConfigs } from '@/pages/database';
 
 interface GridProps {
   handleCardClick: (cardName: string, cardId: number, RTId: number, configKey: string, columnsConfig: any[]) => void;
@@ -30,7 +30,7 @@ const GridComponent: React.FC<GridProps> = ({ handleCardClick, initializePropert
   }, []);
   return (
     <div className='flex flex-col gap-25'>
-      <h1 className='flex flex-col gap-25 text-24 font-semibold text-default-600'>Base données</h1>
+      <h1 className='text-24 font-bold text-default-600'>Base données</h1>
       <div className='grid grid-cols-12 grid-rows-8 gap-25 font-semibold text-default-600'>
         <Link
           to='#'

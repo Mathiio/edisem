@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { fetchData, fetchSpeakerDetails, fetchRT, Data, fetchProperties, fetchDetails } from '../services/api';
+import { getDataByClass, getDataByUrl, fetchRT, Data, getAllProperties } from '../services/api';
 
-export const useFetchData = (resourceClassId: number | null, refreshTrigger: number = 0) => {
+export const usegetDataByClass = (resourceClassId: number | null, refreshTrigger: number = 0) => {
   const [data, setData] = useState<Data[]>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -11,7 +11,7 @@ export const useFetchData = (resourceClassId: number | null, refreshTrigger: num
       if (resourceClassId !== null) {
         setLoading(true);
         try {
-          const fetchedData = await fetchData(resourceClassId);
+          const fetchedData = await getDataByClass(resourceClassId);
           setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
         } catch (error) {
           if (error instanceof Error) {
@@ -35,17 +35,17 @@ export const useFetchData = (resourceClassId: number | null, refreshTrigger: num
   return { data, loading, error };
 };
 
-export const useFetchDataDetails = (ItemUrl: string | null) => {
+export const usegetDataByClassDetails = (ItemUrl: string | null) => {
   const [data, setData] = useState<Data[] | undefined>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchData = async () => {
+  const getDataByClass = async () => {
     setLoading(true);
     setError(null);
     try {
       if (ItemUrl !== null) {
-        const fetchedData = await fetchSpeakerDetails(ItemUrl); // Replace with your actual fetching function
+        const fetchedData = await getDataByUrl(ItemUrl); // Replace with your actual fetching function
         setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
       } else {
         setData(undefined);
@@ -64,50 +64,17 @@ export const useFetchDataDetails = (ItemUrl: string | null) => {
   };
 
   useEffect(() => {
-    fetchData();
+    getDataByClass();
   }, [ItemUrl]);
 
   const refetch = () => {
-    fetchData(); // Call fetchData function again to refetch data
+    getDataByClass(); // Call getDataByClass function again to refetch data
   };
 
   return { data, loading, error, refetch };
 };
 
-export const useFetchDetails = (ItemUrl: string | null) => {
-  const [data, setData] = useState<Data[]>();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const getData = async () => {
-      if (ItemUrl !== null) {
-        try {
-          const fetchedData = await fetchDetails(ItemUrl);
-          setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
-        } catch (error) {
-          if (error instanceof Error) {
-            setError(error);
-            console.error('Error fetching data:', error);
-          } else {
-            setError(new Error('An unknown error occurred'));
-            console.error('Unknown error fetching data');
-          }
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setData(undefined);
-        setLoading(false);
-      }
-    };
-  
-    getData();
-  }, [ItemUrl]);
-  
-
-  return { data, loading, error };
-};
 
 export const useFetchRT = (resourceTemplateId: number | null) => {
   const [data, setData] = useState<Data[]>();
@@ -144,7 +111,7 @@ export const useFetchRT = (resourceTemplateId: number | null) => {
 };
 
 
-export const useFetchProperties = () => {
+export const usegetAllProperties = () => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -152,7 +119,7 @@ export const useFetchProperties = () => {
   useEffect(() => {
     const getData = async () => {  
       try {
-        const fetchedData = await fetchProperties();
+        const fetchedData = await getAllProperties();
        
         setData(fetchedData);
       } catch (error) {
