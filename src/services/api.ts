@@ -6,6 +6,8 @@ export interface Data {
   'schema:addressCountry'?: any[];
   'display_name'?: any[];
   '@id': string;
+  '@type'?: string[];
+  'cito:hasCitedEntity'?: Array<{ '@value': string }>;
   // Autres propriétés que vous utilisez
 }
 
@@ -70,30 +72,17 @@ export const getDataByRT = async (resourceTemplateId: number): Promise<Data[]> =
 
 
 export const fetchRT = async (resourceTemplateId: number): Promise<Data[]> => {
-  let page = 1;
-  const perPage = 100; // Adjust per your API's pagination limit
-  let allData: Data[] = [];
-  let morePages = true;
-
-  while (morePages) {
-    try {
-      const response = await fetch(`${API_URL}/resource_templates/${resourceTemplateId}?page=${page}&per_page=${perPage}`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data: Data[] = await response.json();
-      if (data.length > 0) {
-        allData = allData.concat(data);
-        page++;
-      } else {
-        morePages = false;
-      }
-    } catch (error) {
-      console.error('Fetch error:', error);
-      throw error;
+  try {
+    const response = await fetch(`${API_URL}/resource_templates/${resourceTemplateId}`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
+    const data: Data[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
   }
-  return allData;
 };
 
 
