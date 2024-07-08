@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { InputConfig } from './EditModal';
 import { useFetchData } from '../../hooks/useFetchData';
 import { Button, Input, Spinner } from '@nextui-org/react';
-import { CloseIcon, SearchIcon } from '../Utils/icons';
+import { CloseIcon, SearchIcon, SortIcon } from '../Utils/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/dropdown';
 import { Scrollbar } from '../Utils/Scrollbar';
 
@@ -12,11 +12,24 @@ interface SelectionInputProps {
   handleInputChange: (dataPath: string, value: string[]) => void;
 }
 
+// Reducer function to slice the result and append '...'
+const reducer = (text: any, maxLength = 70) => {
+  const str = String(text); // Convert text to a string
+  if (str.length <= maxLength) return str;
+  return str.slice(0, maxLength) + '...';
+};
+
 export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData, handleInputChange }) => {
+  if (col.dataPath == 'cito:AuthorSelfCitation') {
+    col.dataPath = 'cito:hasCitedEntity';
+  }
+
   const initialValues = actualData?.[0]?.[col.dataPath] || [];
+
   const [selectedValues, setSelectedValues] = useState<string[]>(
     initialValues.map((item: any) => item.value_resource_id),
   );
+  console.log('selectedValues', selectedValues);
   const [idToDisplayNameMap, setIdToDisplayNameMap] = useState<{ [key: string]: string }>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // State for sorting order
@@ -27,11 +40,21 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   useEffect(() => {
     if (speakersData) {
       const map: { [key: string]: string } = {};
-      speakersData.forEach((item: any) => {
-        if (item['o:id'] && item['dcterms:title'] && item['dcterms:title'][0]) {
-          map[item['o:id']] = item['dcterms:title'][0]['@value'];
-        }
-      });
+      if (speakersData[0]?.['@type']?.[1] === 'cito:AuthorSelfCitation') {
+        speakersData.forEach((item) => {
+          if (item['o:id'] && item['cito:hasCitedEntity']?.[0]?.['@value']) {
+            map[item['o:id']] = item['cito:hasCitedEntity'][0]['@value'];
+          }
+        });
+      } else {
+        speakersData.forEach((item: any) => {
+          if (item['o:id'] && item['dcterms:title'] && item['dcterms:title'][0]) {
+            map[item['o:id']] = item['dcterms:title'][0]['@value'];
+          }
+        });
+      }
+
+      console.log(map);
       setIdToDisplayNameMap(map);
     }
   }, [speakersData]);
@@ -121,7 +144,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
         <Dropdown>
           <DropdownTrigger>
             <Button
-              startContent={<SearchIcon size={9} />}
+              startContent={<SortIcon size={16} className='text-default-600' />}
               className='px-[15px] py-10 flex gap-10 bg-default-200 border-none rounded-8'>
               Trier
             </Button>
@@ -148,7 +171,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
               radius='none'
               className={`py-10 px-10 gap-10 text-14 rounded-8 bg-default-action text-default-selected transition-all ease-in-out duration-200 navfilter flex items-center`}
               endContent={<CloseIcon size={18} />}>
-              {idToDisplayNameMap[id]}
+              {reducer(idToDisplayNameMap[id], 30)}
             </Button>
           ))}
         </ul>
@@ -160,7 +183,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
                 onClick={() => handleSelect(id)}
                 radius='none'
                 className={` py-10 px-10 text-14 rounded-8 text-default-600 bg-default-50 hover:text-default-selected hover:bg-default-action transition-all ease-in-out duration-200  flex items-center`}>
-                {idToDisplayNameMap[id]}
+                {reducer(idToDisplayNameMap[id])}
               </Button>
             ))}
           </ul>
