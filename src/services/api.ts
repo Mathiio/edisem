@@ -151,7 +151,6 @@ function getSeason(dateString: string) {
   const month = date.getMonth() + 1; 
   const day = date.getDate();
   const year = date.getFullYear();
-
   let season = '';
 
   if ((month === 3 && day >= 20) || (month > 3 && month < 6) || (month === 6 && day < 21)) {
@@ -269,19 +268,10 @@ export async function getRandomConferences(confNum: number) {
     randomIndexes.forEach(index => {
       const conference = conferences[index];
 
-      let title = 'Non renseigné';
-      let actant = 'Non renseigné';
-      let date = 'Non renseigné';
+      let title = conference['o:title'] ? conference['o:title'] as string : "Non renseigné" ;
+      let actant = conference['schema:agent'] ? conference['schema:agent'][0]['display_title'] as string : "Non renseigné" ;
+      let date = conference['dcterms:date'] ? conference['dcterms:date'][0]['display_title'] as string : "Non renseignée" ;
 
-      if (conference['o:title']) {
-        title = conference['o:title'] 
-      }
-      if (conference['schema:agent'] && conference['schema:agent'][0]?.display_title) {
-        actant = conference['schema:agent'][0].display_title;
-      }
-      if (conference['dcterms:date'] && conference['dcterms:date'][0]?.display_title) {
-        date = conference['dcterms:date'][0].display_title;
-      }
       fetchedConf.push({
         id: conference['o:id'],
         title: title,
@@ -462,9 +452,10 @@ export async function getConfByActant(actantId: number) {
       if (conference['schema:agent'] && Array.isArray(conference['schema:agent'])) {
         for (let agent of conference['schema:agent']) {
           if (agent && agent['value_resource_id'] && agent['value_resource_id'] === actantId) {
-            const title = conference['o:title'] || 'Non renseigné';
-            const actant = agent.display_title || 'Non renseigné';
-            const date = conference['dcterms:date']?.[0]?.display_title || 'Non renseigné';
+
+            const title = conference['o:title'] ? conference['o:title'] as string : 'Non renseigné';
+            const actant = agent['display_title'] ? agent['display_title'] as string : 'Non renseigné';
+            const date = conference['dcterms:date'] ? conference['dcterms:date'][0]['display_title'] as string : 'Non renseignée';
 
             fetchedConferences.push({
               id: conference['o:id'],
@@ -477,9 +468,10 @@ export async function getConfByActant(actantId: number) {
         }
       } else if (conference['schema:agent'] && typeof conference['schema:agent'] === 'object' && 'value_resource_id' in conference['schema:agent']) {
         if (conference['schema:agent']['value_resource_id'] === actantId) {
-          const title = conference['o:title'] || 'Non renseigné';
-          const actant = (conference['schema:agent'] as { display_title?: string }).display_title || 'Non renseigné';
-          const date = conference['dcterms:date']?.[0]?.display_title || 'Non renseigné';
+
+          const title = conference['o:title'] ? conference['o:title'] : 'Non renseigné';
+          const actant = conference['schema:agent'] ? conference['schema:agent'][0]['display_title'] as string : 'Non renseigné';
+          const date = conference['dcterms:date'] ? conference['dcterms:date'][0]['display_title'] as string : 'Non renseigné';
 
           fetchedConferences.push({
             id: conference['o:id'],
@@ -506,25 +498,16 @@ export async function getConfByEdition(editionId: number) {
 
   try {
     const response = await fetch(`${API_URL}/items/${editionId}`);
-    const edition = await response.json() as unknown as Data;
+    const edition = await response.json() as Data;
 
     for (let item of edition['schema:isRelatedTo'] || []) {
       try {
-        const conf  = await getDataByUrl(item['@id']) as unknown as Data;
+        const conf  = await getDataByUrl(item['@id']) as Data;
 
-        let title = 'Non renseigné';
-        let actant = 'Non renseigné';
-        let date = 'Non renseigné';
-  
-        if (conf['o:title']) {
-          title = conf['o:title'] 
-        }
-        if (conf['schema:agent'] && conf['schema:agent'][0]?.display_title) {
-          actant = conf['schema:agent'][0].display_title;
-        }
-        if (conf['dcterms:date'] && conf['dcterms:date'][0]?.display_title) {
-          date = conf['dcterms:date'][0].display_title;
-        }
+        let title = conf['o:title'] ? conf['o:title'] as string : 'Non renseigné';
+        let actant = conf['schema:agent'] ? conf['schema:agent'][0]['display_title'] as string : 'Non renseigné';
+        let date = conf['dcterms:date'] ? conf['dcterms:date'][0]['display_title'] as string : 'Non renseigné';
+
         fetchedEdition.push({
           id: conf['o:id'],
           title: title,
@@ -554,11 +537,11 @@ export async function getConference(confId: number) {
     const response = await fetch(`${API_URL}/items/${confId}`);
     const conf = await response.json() as Data;
     
-    const title = conf["dcterms:title"] ? conf["dcterms:title"][0]["@value"] as string : "";
-    const actant = conf["schema:agent"] ? conf["schema:agent"][0]["display_title"] as string : "";
-    const date = conf["dcterms:date"] ? conf["dcterms:date"][0]["display_title"] as string : "";
+    const title = conf["dcterms:title"] ? conf["dcterms:title"][0]["@value"] as string : "Non renseigné";
+    const actant = conf["schema:agent"] ? conf["schema:agent"][0]["display_title"] as string : "Non renseigné";
+    const date = conf["dcterms:date"] ? conf["dcterms:date"][0]["display_title"] as string : "Non renseignée";
     const fullUrlId = conf["dcterms:isPartOf"] ? conf["dcterms:isPartOf"][0]["@id"] as string : "";
-    const description = conf["dcterms:abstract"] ? conf["dcterms:abstract"][0]["@value"] as string : "";
+    const description = conf["dcterms:abstract"] ? conf["dcterms:abstract"][0]["@value"] as string : "Non renseignée";
     let url = conf["schema:url"] ? conf["schema:url"][0]["@id"] as string : "";
     if(url != ""){
       const videoId = url.substr(-11);
