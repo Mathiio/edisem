@@ -11,11 +11,14 @@ export interface Data {
   'schema:isRelatedTo'?: Array<{ '@id': string, display_title?: string, value_resource_id?: number }>;
   'schema:agent'?: Array<{ display_title?: string, value_resource_id?: number }>;
   'dcterms:date'?: Array<{ display_title?: string }>;
+  'dcterms:title'?: Array<{ display_title?: string, '@value'?: string }>;
   'jdc:hasLaboratoire'?: Array<{ value_resource_id: number }>;
   'jdc:hasUniversity'?: Array<{ value_resource_id: number }>;
   'jdc:hasEcoleDoctorale'?: Array<{ value_resource_id: number }>;
   'schema:url'?: Array<{ '@id': string }>;
   'cito:hasCitedEntity'?: Array<{ '@value': string }>;
+  'dcterms:abstract'?: Array<{ display_title?: string, '@value'?: string }>;
+  'dcterms:isPartOf'?: Array<{ '@id': string, display_title?: string, value_resource_id?: number }>;
   // Autres propriétés que vous utilisez
 }
 
@@ -127,13 +130,13 @@ export const getAllProperties = async (): Promise<any[]> => {
 
 
 
-export const getDataByUrl = async (url: string): Promise<Data[]> => {
+export async function getDataByUrl (url: string) {
   try {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
-    const data: Data[] = await response.json();
+    const data = await response.json() as Data;;
     return data;
   } catch (error) {
     console.error('Fetch error:', error);
@@ -190,10 +193,7 @@ export async function getSeminaires() {
             const confId: number = Number(edition['schema:isRelatedTo'][i]['value_resource_id']);
             const confRep = await fetch(`${API_URL}/items/${confId}`);
             const conf = await confRep.json();
-            const dateId = conf['dcterms:date'][0]['value_resource_id'];
-            const dateRep = await fetch(`${API_URL}/items/${dateId}`);
-            const dateData = await dateRep.json();
-            const date = dateData['dcterms:date'][0]['@value'];
+            const date = conf['dcterms:date'][0]['display_title'];
             const { year, season } = getSeason(date);
 
             totalYear += year;
@@ -235,10 +235,10 @@ export async function getEdition(editionId: number) {
         try {
           const editionDetails = await getDataByUrl(item['@id']);
       
-          if (editionDetails && editionDetails['schema:isRelatedTo' as any]) {
-            const countConf = editionDetails['schema:isRelatedTo' as any].length;
+          if (editionDetails && editionDetails['schema:isRelatedTo']) {
+            const countConf = editionDetails['schema:isRelatedTo'].length;
             fetchedEditions.push({
-              id: Number(editionDetails['o:id' as any]),
+              id: Number(editionDetails['o:id']),
               title: item.display_title || 'Unknown Title',
               numConf: Number(countConf),
             });
@@ -540,5 +540,44 @@ export async function getConfByEdition(editionId: number) {
   } catch (error) {
     console.error('Error fetching seminaires:', error);
     throw new Error('Failed to fetch editions');
+  }
+}
+
+
+
+
+
+export async function getConference(confId: number) {
+  const fetchedConf: { title: string, description: string, actant: string, date: string, url: string, fullUrl: string }[] = [];
+
+  try {
+    const response = await fetch(`${API_URL}/items/${confId}`);
+    const conf = await response.json() as Data;
+    
+    const title = conf["dcterms:title"] ? conf["dcterms:title"][0]["@value"] as string : "";
+    const actant = conf["schema:agent"] ? conf["schema:agent"][0]["display_title"] as string : "";
+    const date = conf["dcterms:date"] ? conf["dcterms:date"][0]["display_title"] as string : "";
+    const fullUrlId = conf["dcterms:isPartOf"] ? conf["dcterms:isPartOf"][0]["@id"] as string : "";
+    const description = conf["dcterms:abstract"] ? conf["dcterms:abstract"][0]["@value"] as string : "";
+    let url = conf["schema:url"] ? conf["schema:url"][0]["@id"] as string : "";
+    if(url != ""){
+      const videoId = url.substr(-11);
+      url = `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    const seance = await getDataByUrl(fullUrlId);
+    let fullUrl = seance["schema:url"] ? seance["schema:url"][0]["@id"] as string : "";
+    if(fullUrl != ""){
+      const videoId = fullUrl.substr(-11);
+      fullUrl = `https://www.youtube.com/embed/${videoId}`;
+    }
+    
+
+    fetchedConf.push({ title: title, description: description, actant: actant, date: date, url: url, fullUrl: fullUrl})
+   
+    return fetchedConf;
+  } catch (error) {
+    console.error('Error fetching seminaires:', error);
+    throw new Error('Failed to fetch seminaires');
   }
 }

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { getConference } from '../services/api';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { VideoInfos } from '@/components/conference/VideoInfos';
 import { ContentTab } from '@/components/conference/ContentTab';
@@ -27,7 +28,23 @@ const itemVariants: Variants = {
 
 export const Conference: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  console.log("l'id de cette conférence est : " + id)
+  const [conference, setConference] = useState<{ title: string, description: string, actant: string, date: string, url: string, fullUrl: string }[]>([]);
+  const [loadingConference, setLoadingConference] = useState(true);
+  const firstRender = useRef(true);
+
+  useEffect(() => {
+    const fetchConference = async () => {
+      const conference = await getConference(Number(id));
+      setConference(conference);
+      setLoadingConference(false);
+    };
+
+    if (firstRender.current) {
+      firstRender.current = false;
+    } else {
+      fetchConference();
+    }
+  }, []);
 
   return (
     <div className='relative h-screen overflow-hidden'>
@@ -41,7 +58,7 @@ export const Conference: React.FC = () => {
             <Navbar />
           </motion.div>
           <motion.div className='col-span-10 lg:col-span-6 flex flex-col gap-50' variants={itemVariants}>
-            <VideoInfos />
+          {loadingConference ? "" : <VideoInfos title={conference[0].title} description={conference[0].description} actant={conference[0].actant} date={conference[0].date} url={conference[0].url} fullUrl={conference[0].fullUrl}/>}
           </motion.div>
           <motion.div className='col-span-10 lg:col-span-4 flex flex-col gap-50' variants={itemVariants}>
             <ContentTab />
