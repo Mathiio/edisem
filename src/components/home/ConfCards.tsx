@@ -10,11 +10,25 @@ type LgConfCardProps = {
 };
 
 const truncateTitle = (title: string, maxLength: number) => {
-    if (title.length > maxLength) {
-      return title.slice(0, maxLength) + "...";
-    }
-    return title;
-  };
+  if (title.length > maxLength) {
+    return title.slice(0, maxLength) + "...";
+  }
+  return title;
+};
+
+function formatDate(dateString: string) {
+  const mois = [
+    "janvier", "février", "mars", "avril", "mai", "juin",
+    "juillet", "août", "septembre", "octobre", "novembre", "décembre"
+  ];
+  const dateParts = dateString.split("-");
+  const year = dateParts[0];
+  const monthIndex = parseInt(dateParts[1], 10) - 1; 
+  const day = parseInt(dateParts[2], 10);
+  const formattedDate = `${day} ${mois[monthIndex]} ${year}`;
+  
+  return formattedDate;
+}
 
 
 export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date }) => {
@@ -36,7 +50,7 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date 
         <div className="flex flex-col gap-5">
             <p className='text-16 text-default-600 font-semibold'>{truncateTitle(title, 56)}</p>
             <p className='text-16 text-default-500 font-regular'>{actant}</p>
-            <p className='text-14 text-default-500 font-regular'>{date}</p>
+            <p className='text-14 text-default-500 font-regular'>{formatDate(date)}</p>
         </div>
     </div>
   );
