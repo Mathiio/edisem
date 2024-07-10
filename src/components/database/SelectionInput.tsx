@@ -20,7 +20,7 @@ const reducer = (text: any, maxLength = 70) => {
 };
 
 export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData, handleInputChange }) => {
-  if (col.dataPath == 'cito:AuthorSelfCitation') {
+  if (col.dataPath === 'cito:AuthorSelfCitation') {
     col.dataPath = 'cito:hasCitedEntity';
   }
 
@@ -30,34 +30,49 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
     initialValues.map((item: any) => item.value_resource_id),
   );
   console.log('selectedValues', selectedValues);
+
   const [idToDisplayNameMap, setIdToDisplayNameMap] = useState<{ [key: string]: string }>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // State for sorting order
+  const [nonSelectedValues, setNonSelectedValues] = useState<string[]>([]); // State for non-selected values
 
   const selectionId = col.selectionId?.[0] ?? null;
+
   const { data: speakersData, loading } = usegetDataByClass(selectionId);
 
   useEffect(() => {
     if (speakersData) {
+      let filteredData = speakersData;
+
+      // Apply filtering based on selectionId and item_set
+      if (selectionId === 34 && col.options?.[1]) {
+        filteredData = speakersData.filter((item: any) => item['o:item_set'][0]['o:id'] === col.options?.[1]);
+      }
+
       const map: { [key: string]: string } = {};
-      if (speakersData[0]?.['@type']?.[1] === 'cito:AuthorSelfCitation') {
-        speakersData.forEach((item) => {
+      if (filteredData[0]?.['@type']?.[1] === 'cito:AuthorSelfCitation') {
+        filteredData.forEach((item: any) => {
           if (item['o:id'] && item['cito:hasCitedEntity']?.[0]?.['@value']) {
             map[item['o:id']] = item['cito:hasCitedEntity'][0]['@value'];
           }
         });
       } else {
-        speakersData.forEach((item: any) => {
+        filteredData.forEach((item: any) => {
           if (item['o:id'] && item['dcterms:title'] && item['dcterms:title'][0]) {
             map[item['o:id']] = item['dcterms:title'][0]['@value'];
           }
         });
       }
 
-      console.log(map);
+      console.log('map', map);
       setIdToDisplayNameMap(map);
+
+      const allValues = filteredData.map((item: any) => item['o:id']);
+      const nonSelectedValues = allValues.filter((value) => !selectedValues.includes(value));
+      setNonSelectedValues(nonSelectedValues);
+      console.log('nonSelectedValues', nonSelectedValues);
     }
-  }, [speakersData]);
+  }, [speakersData, selectionId, selectedValues]);
 
   if (loading) {
     return (
@@ -70,9 +85,6 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   if (!speakersData || !Array.isArray(speakersData) || speakersData.length === 0) {
     return <div>Données non disponibles pour {col.label}</div>;
   }
-
-  const allValues = speakersData.map((item: any) => item['o:id']);
-  const nonSelectedValues = allValues.filter((value) => !selectedValues.includes(value));
 
   // Function to handle sorting based on sortOrder
   const sortedValues = [...nonSelectedValues].sort((id1, id2) => {
