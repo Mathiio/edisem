@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Navbar } from '@/components/Navbar/Navbar';
+import { Navbar } from '@/components/navbar/Navbar';
 import { Scrollbar } from '@/components/utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
-import { SearchBar } from '@/components/recherche/SearchBar';
-import { SearchResults } from '@/components/recherche/SearchResults';
+import { SearchBar } from '@/components/search/SearchBar';
+import { SearchResults } from '@/components/search/SearchResults';
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },

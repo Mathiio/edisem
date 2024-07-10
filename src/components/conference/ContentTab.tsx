@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Tabs, Tab } from '@nextui-org/react';
-import { BibliographieCards, MediaCards, CitationCards } from './ConferenceCardsGroup';
-import { UnloadedCard } from './ConferenceCards';
+import { BibliographieCards, MediaCards, CitationCards } from '@/components/conference/ConferenceCardsGroup';
+import { UnloadedCard } from '@/components/conference/ConferenceCards';
 
 export const ContentTab: React.FC = () => {
   const [selected, setSelected] = useState<string>('Bibliographie');
