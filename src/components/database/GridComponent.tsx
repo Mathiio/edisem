@@ -16,7 +16,7 @@ import {
   UniversityIcon,
   OtherIcon,
   ImageIcon,
-} from '@/components/utils/icons';
+} from '@/components/Utils/icons';
 import { columnConfigs } from '@/pages/database';
 
 interface GridProps {
@@ -46,12 +46,10 @@ const GridComponent: React.FC<GridProps> = ({ handleCardClick, initializePropert
           <CitationIcon size={24} className='text-default-action' />
           Citations
         </Link>
-        <Link
-          to='#'
-          className='col-span-4 row-span-2 col-start-7 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 gap-10 flex-col p-25'>
-          <SunIcon size={24} className='text-default-action' />
+        <div className='col-span-4 row-span-2 col-start-7 flex justify-center items-center border-2 border-default-300  transition-colors duration-300 rounded-8 gap-10 flex-col p-25'>
+          <SunIcon size={24} className='text-default-400' />
           Bibliographies
-        </Link>
+        </div>
         <div className='col-span-4 row-span-4 col-start-5 row-start-3 rounded-8 gap-10 flex justify-center items-center border-2 border-default-300 p-50'>
           <h2 className='col-span-4 row-span-2 col-start-7 text-32 text-default-500 font-bold'>
             <span className='col-span-4 row-span-2 col-start-7 text-default-action'>Sélectionnez </span>
@@ -96,48 +94,37 @@ const GridComponent: React.FC<GridProps> = ({ handleCardClick, initializePropert
           <CountryIcon size={24} className='text-default-action' />
           Pays
         </Link>
-        <Link
-          to='#'
-          className='col-span-2 row-span-2 col-start-3 row-start-4 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
-          <OtherIcon size={24} className='text-default-action' />
+        <div className='col-span-2 row-span-2 col-start-3 row-start-4 flex justify-center items-center border-2 border-default-300  transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
+          <OtherIcon size={24} className='text-default-400' />
           Annexes
-        </Link>
-        <Link
-          to='#'
-          className='col-span-2 row-span-2 col-start-1 row-start-4 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
-          <ImageIcon size={24} className='text-default-action' />
+        </div>
+        <div className='col-span-2 row-span-2 col-start-1 row-start-4 flex justify-center items-center border-2 border-default-300  transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
+          <ImageIcon size={24} className='text-default-400' />
           Médiagraphies
-        </Link>
+        </div>
         <Link
           to='#'
+          onClick={() => handleCardClick('Concept et mots-clés', 34, 34, 'motcles', columnConfigs.motcles)}
           className='col-span-4 col-start-1 row-start-6 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
           <KeywordIcon size={24} className='text-default-action' />
           Mots clés
         </Link>
-        <Link
-          to='#'
-          className='col-span-3 row-span-2 col-start-1 row-start-7 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
-          <ThemeIcon size={24} className='text-default-action' />
+        <div className='col-span-3 row-span-2 col-start-1 row-start-7 flex justify-center items-center border-2 border-default-300  transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
+          <ThemeIcon size={24} className='text-default-400' />
           Thèmes
-        </Link>
-        <Link
-          to='#'
-          className='col-span-2 row-span-2 col-start-4 row-start-7 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
-          <CollectionIcon size={24} className='text-default-action' />
+        </div>
+        <div className='col-span-2 row-span-2 col-start-4 row-start-7 flex justify-center items-center border-2 border-default-300 transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
+          <CollectionIcon size={24} className='text-default-400' />
           Collections
-        </Link>
-        <Link
-          to='#'
-          className='col-span-2 row-span-2 col-start-6 row-start-7 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
-          <EditionIcon size={24} className='text-default-action' />
+        </div>
+        <div className='col-span-2 row-span-2 col-start-6 row-start-7 flex justify-center items-center border-2 border-default-300  transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
+          <EditionIcon size={24} className='text-default-400' />
           Éditions
-        </Link>
-        <Link
-          to='#'
-          className='col-span-5 row-span-2 col-start-8 row-start-7 flex justify-center items-center border-2 border-default-300 hover:border-default-action transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
-          <SeanceIcon size={24} className='text-default-action' />
+        </div>
+        <div className='col-span-5 row-span-2 col-start-8 row-start-7 flex justify-center items-center border-2 border-default-300  transition-colors duration-300 rounded-8 flex-col gap-10 p-25'>
+          <SeanceIcon size={24} className='text-default-400' />
           Séances
-        </Link>
+        </div>
       </div>
     </div>
   );

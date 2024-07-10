@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@nextui-org/react';
-import { UserIcon } from '../utils/icons';
+import { UserIcon } from '@/components/Utils/icons';
 import { Link } from '@nextui-org/react';
 
 type ActantCardProps = {

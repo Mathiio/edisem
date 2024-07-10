@@ -1,7 +1,7 @@
-import { CreditIcon, CloseIcon } from '@/components/utils/icons';
+import { CreditIcon, CloseIcon } from '@/components/Utils/icons';
 import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure, Tooltip } from '@nextui-org/react';
 import { CreditCard } from '@/components/Navbar/CreditCard';
-import { Scrollbar } from '../utils/Scrollbar';
+import { Scrollbar } from '@/components/Utils/Scrollbar';
 
 const CreditsModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -15,7 +15,10 @@ const CreditsModal = () => {
       <div className='flex flex-wrap'>
         <Tooltip content='voir les crédits'>
           <Link onPress={handleOpen} className='cursor-pointer'>
-            <CreditIcon size={22} className='text-default-500 hover:text-default-action transition-all ease-in-out duration-200' />
+            <CreditIcon
+              size={22}
+              className='text-default-500 hover:text-default-action transition-all ease-in-out duration-200'
+            />
           </Link>
         </Tooltip>
       </div>

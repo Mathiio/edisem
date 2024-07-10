@@ -15,11 +15,11 @@ import { SelectionInput } from './SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
 import { TimecodeInput } from './TimecodeInput';
-import { Scrollbar } from '@/components/utils/Scrollbar';
-import { CloseIcon } from '@/components/utils/icons';
+import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { CloseIcon } from '@/components/Utils/icons';
+import MultipleInputs from './MultipleInputs';
 
-interface User {
-}
+interface User {}
 class Omk {
   private key: string | undefined;
   private ident: string | undefined;
@@ -370,7 +370,7 @@ class Omk {
 
   public buildObject2 = (existingObject: any, formValues: any): any => {
     let result = { ...existingObject }; // Clone existingObject to avoid modifying it directly
-
+    console.log('formValues', formValues);
     for (let formValueKey in formValues) {
       if (formValues.hasOwnProperty(formValueKey)) {
         let keys = formValueKey.split('.');
@@ -393,19 +393,20 @@ class Omk {
           if (formValue.length === 1 && isArray(formValue[0])) {
             // Si c'est un tableau contenant un seul élément qui est lui-même un tableau
             formValue[0].forEach((value: any) => {
-              let formattedValue = this.formatValue(term, value);
+              console.log('value', value);
+              let formattedValue = this.formatValue(term, value.values, value.language);
               result[term['o:term']].push(formattedValue);
             });
           } else {
             // Pour les autres cas de tableaux
             formValue.forEach((value: any) => {
-              let formattedValue = this.formatValue(term, value);
+              let formattedValue = this.formatValue(term, value.values, value.language);
               result[term['o:term']].push(formattedValue);
             });
           }
         } else {
           // Si formValue n'est pas un tableau
-          let formattedValue = this.formatValue(term, formValue);
+          let formattedValue = this.formatValue(term, formValue.values, formValue.language);
           result[term['o:term']].push(formattedValue);
         }
       }
@@ -471,6 +472,48 @@ class Omk {
     }
   };
 
+  // public formatValue = (p: any, v: any): any => {
+  //   if (p['o:id'] == 1517) return { property_id: p['o:id'], '@id': v, type: 'uri', is_public: true };
+  //   if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735))
+  //     return { property_id: p['o:id'], '@value': v, type: 'numeric:integer', is_public: true };
+  //   else if (typeof v === 'number') return { property_id: p['o:id'], value_resource_id: v, type: 'resource' };
+  //   else if (typeof v === 'object' && v.u) return { property_id: p['o:id'], '@id': v.u, 'o:label': v.l, type: 'uri' };
+  //   else if (typeof v === 'object')
+  //     return { property_id: p['o:id'], '@value': JSON.stringify(v), type: 'literal', is_public: true };
+  //   else return { property_id: p['o:id'], '@value': v, type: 'literal', is_public: true };
+  // };
+
+  public formatValue = (p: any, v: any, language: string = 'fr'): any => {
+    let baseValue: any = { property_id: p['o:id'], is_public: true };
+
+    if (p['o:id'] == 1517) {
+      baseValue['@id'] = v;
+      baseValue.type = 'uri';
+    } else if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735)) {
+      baseValue['@value'] = v;
+      baseValue.type = 'numeric:integer';
+    } else if (typeof v === 'number') {
+      baseValue.value_resource_id = v;
+      baseValue.type = 'resource';
+    } else if (typeof v === 'object' && v.u) {
+      baseValue['@id'] = v.u;
+      baseValue['o:label'] = v.l;
+      baseValue.type = 'uri';
+    } else if (typeof v === 'object') {
+      baseValue['@value'] = JSON.stringify(v);
+      baseValue.type = 'literal';
+    } else {
+      baseValue['@value'] = v;
+      baseValue.type = 'literal';
+    }
+
+    if (language) {
+      baseValue['@language'] = language;
+    }
+
+    return baseValue;
+  };
+
   private formatData = (data: any, type: string = 'o:Item'): any => {
     let fd: any = { '@type': type },
       p: any;
@@ -532,17 +575,6 @@ class Omk {
     return fd;
   };
 
-  public formatValue = (p: any, v: any): any => {
-    if (p['o:id'] == 1517) return { property_id: p['o:id'], '@id': v, type: 'uri', is_public: true };
-    if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735))
-      return { property_id: p['o:id'], '@value': v, type: 'numeric:integer', is_public: true };
-    else if (typeof v === 'number') return { property_id: p['o:id'], value_resource_id: v, type: 'resource' };
-    else if (typeof v === 'object' && v.u) return { property_id: p['o:id'], '@id': v.u, 'o:label': v.l, type: 'uri' };
-    else if (typeof v === 'object')
-      return { property_id: p['o:id'], '@value': JSON.stringify(v), type: 'literal', is_public: true };
-    else return { property_id: p['o:id'], '@value': v, type: 'literal', is_public: true };
-  };
-
   private postData = async (url: any, data: any = {}, file: any = null): Promise<any> => {
     let bodyData: any,
       options: any = {
@@ -559,8 +591,9 @@ class Omk {
         bodyData.append('data', JSON.stringify(data));
         bodyData.append('file[1]', file);
       } else {
+        console.log('bodydata', data);
         bodyData = JSON.stringify(data);
-        console.log('bodydata', bodyData);
+
         options.headers = {
           'Content-Type': 'application/json',
         };
@@ -617,7 +650,7 @@ export interface InputConfig {
   key: string;
   label: string;
   dataPath: string;
-  type: 'input' | 'selection' | 'textarea' | 'time';
+  type: 'input' | 'selection' | 'textarea' | 'time' | 'inputs';
   options?: string[]; // Only for selection type
   selectionId?: number[];
 }
@@ -744,6 +777,31 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       selectionId: [94],
     },
   ],
+  motcles: [
+    { key: 'Motcles', label: 'Titre du mot clé', dataPath: 'dcterms:title.0.@value', type: 'input' },
+    { key: 'skos:prefLabel', label: 'Titre du mot clé', dataPath: 'dcterms:title.0.@value', type: 'input' },
+    {
+      key: 'skos:prefLabel',
+      label: 'Titre préféré',
+      dataPath: 'skos:prefLabel.0.@value',
+      type: 'inputs',
+      options: ['language'],
+    },
+    {
+      key: 'skos:altLabel',
+      label: 'Titre préféré',
+      dataPath: 'skos:altLabel.0.@value',
+      type: 'inputs',
+      options: ['language'],
+    },
+    {
+      key: 'skos:hiddenLabel',
+      label: 'Titre caché',
+      dataPath: 'skos:hiddenLabel.0.@value',
+      type: 'inputs',
+      options: ['language'],
+    },
+  ],
 };
 
 //schema:startTime
@@ -838,7 +896,7 @@ export const EditModal: React.FC<EditModalProps> = ({
       omks.props = itemPropertiesData;
       if (itemDetailsData) {
         let object = omks.buildObject2(itemDetailsData[0], itemData);
-        console.log(object);
+        console.log('obj', object);
         await omks.updateItem(itemId, object);
       }
 
@@ -977,6 +1035,16 @@ export const EditModal: React.FC<EditModalProps> = ({
                           // console.log(itemDetailsData);
                           return (
                             <SelectionInput
+                              key={col.key}
+                              col={col}
+                              actualData={itemDetailsData}
+                              handleInputChange={handleInputChange}
+                            />
+                          );
+                        } else if (col.type === 'inputs') {
+                          // console.log(itemDetailsData);
+                          return (
+                            <MultipleInputs
                               key={col.key}
                               col={col}
                               actualData={itemDetailsData}

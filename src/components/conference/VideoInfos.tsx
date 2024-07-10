@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Tooltip, Button } from '@nextui-org/react';
-import { CreditIcon } from '@/components/utils/icons';
+import { CreditIcon } from '@/components/Utils/icons';
 import { motion, Variants } from 'framer-motion';
 
 const itemVariants: Variants = {
@@ -20,12 +20,12 @@ const containerVariants: Variants = {
 };
 
 type VideoInfosProps = {
-  title: string,
-  description: string, 
-  actant: string, 
-  date: string, 
-  url: string,
-  fullUrl: string,
+  title: string;
+  description: string;
+  actant: string;
+  date: string;
+  url: string;
+  fullUrl: string;
 };
 
 export const VideoInfos: React.FC<VideoInfosProps> = ({ title, description, actant, date, url, fullUrl }) => {
@@ -43,14 +43,13 @@ export const VideoInfos: React.FC<VideoInfosProps> = ({ title, description, acta
       setButtonText('conférence');
     } else {
       setVideoUrl(url);
-      setButtonText('séance complète'); 
+      setButtonText('séance complète');
     }
   };
 
   return (
     <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
-      <motion.div variants={itemVariants}>
-      </motion.div>
+      <motion.div variants={itemVariants}></motion.div>
       <motion.div variants={itemVariants} className='rounded-14 lg:w-full overflow-hidden'>
         <iframe
           className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'
@@ -76,7 +75,7 @@ export const VideoInfos: React.FC<VideoInfosProps> = ({ title, description, acta
                 </Link>
               </Tooltip>
             </div>
-            {url !== fullUrl && fullUrl !== "" && (
+            {url !== fullUrl && fullUrl !== '' && (
               <Button
                 size='md'
                 className='h-[32px] text-16 p-10 rounded-8 text-default-500 hover:text-default-500 bg-default-200 hover:bg-default-300 transition-all ease-in-out duration-200'
