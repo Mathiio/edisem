@@ -651,7 +651,7 @@ export interface InputConfig {
   label: string;
   dataPath: string;
   type: 'input' | 'selection' | 'textarea' | 'time' | 'inputs';
-  options?: string[]; // Only for selection type
+  options?: (string | number)[];
   selectionId?: number[];
 }
 
@@ -789,17 +789,47 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
     },
     {
       key: 'skos:altLabel',
-      label: 'Titre préféré',
+      label: 'Titre alternatif',
       dataPath: 'skos:altLabel.0.@value',
       type: 'inputs',
-      options: ['language'],
     },
     {
       key: 'skos:hiddenLabel',
       label: 'Titre caché',
       dataPath: 'skos:hiddenLabel.0.@value',
       type: 'inputs',
-      options: ['language'],
+    },
+    {
+      key: 'skos:exactMatch',
+      label: 'skos:exactMatch',
+      dataPath: 'skos:exactMatch',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [34],
+    },
+    {
+      key: 'skos:broader',
+      label: 'skos:broader',
+      dataPath: 'skos:broader',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [34],
+    },
+    {
+      key: 'skos:narrower',
+      label: 'skos:narrower',
+      dataPath: 'skos:narrower',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [34],
+    },
+    {
+      key: 'schema:genre',
+      label: 'Genre',
+      dataPath: 'schema:genre',
+      type: 'selection',
+      options: ['display_title', 13544],
+      selectionId: [34],
     },
   ],
 };
