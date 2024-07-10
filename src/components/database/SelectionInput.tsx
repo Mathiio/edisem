@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { InputConfig } from './EditModal';
+import { InputConfig } from '@/components/database/EditModal';
 import { usegetDataByClass } from '@/hooks/useFetchData';
 import { Button, Input, Spinner } from '@nextui-org/react';
 import { CloseIcon, SearchIcon, SortIcon } from '@/components/utils/Icons';

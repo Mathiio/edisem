@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getConfOverview, getConfDetails, getConfKeyWords } from '../services/api';
-import { Navbar } from '@/components/Navbar/Navbar';
+import { Navbar } from '@/components/navbar/Navbar';
 import { ContentTab } from '@/components/conference/ContentTab';
 import { Scrollbar } from '@/components/utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';

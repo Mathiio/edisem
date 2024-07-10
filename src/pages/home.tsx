@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Navbar } from '@/components/Navbar/Navbar';
+import { Navbar } from '@/components/navbar/Navbar';
 import { Scrollbar } from '@/components/utils/Scrollbar';
 import { FullCarrousel, MidCarrousel } from '@/components/utils/Carrousels';
 import { getSeminaires, getRandomConferences, getActants } from '../services/api';

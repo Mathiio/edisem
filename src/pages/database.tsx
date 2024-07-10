@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Navbar } from '@/components/Navbar/Navbar';
+import { Navbar } from '@/components/navbar/Navbar';
 
 import { motion, Variants } from 'framer-motion';
 import {

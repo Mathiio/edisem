@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input } from '@nextui-org/react';
-import { InputConfig } from './EditModal';
+import { InputConfig } from '@/components/database/EditModal';
 import { AddIcon, SortIcon } from '@/components/utils/Icons';
 
 interface SelectionInputProps {

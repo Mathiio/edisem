@@ -11,13 +11,13 @@ import {
   ModalHeader,
 } from '@nextui-org/react';
 import { useFetchRT } from '@/hooks/useFetchData';
-import { SelectionInput } from './SelectionInput';
+import { SelectionInput } from '@/components/database/SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
-import { TimecodeInput } from './TimecodeInput';
+import { TimecodeInput } from '@/components/database/TimecodeInput';
 import { Scrollbar } from '@/components/utils/Scrollbar';
 import { CloseIcon } from '@/components/utils/Icons';
-import { inputConfigs, InputConfig } from './EditModal';
+import { inputConfigs, InputConfig } from '@/components/database/EditModal';
 
 interface User {}
 class Omk {
