@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { LinkIcon } from '../utils/icons';
+import { LinkIcon } from '@/components/Utils/icons';
 import { Link } from 'react-router-dom';
-
 
 interface CreditCardProps {
   name: string;

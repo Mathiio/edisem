@@ -20,7 +20,7 @@ import GridComponent from '@/components/database/GridComponent';
 import { EditModal } from '@/components/database/EditModal';
 import { CreateModal } from '@/components/database/CreateModal';
 
-import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/utils/icons';
+import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/Utils/icons';
 import { usegetAllProperties } from '@/hooks/useFetchData';
 
 const containerVariants: Variants = {
@@ -305,13 +305,14 @@ export const Database = () => {
                         items={(!speakersLoading && items) || []}
                         emptyContent={<Spinner label='Chargement des données Omeka S' color='secondary' size='md' />}>
                         {(item) => (
-                          <TableRow key={item['o:id']} className='hover:bg-default-100'>
+                          <TableRow key={item['o:id']} className='hover:bg-default-100 max-height-40'>
                             {columns.map((col, colIndex) => (
                               <TableCell
                                 key={col.key}
                                 className={`
                                   ${colIndex === 0 ? 'rounded-tl-8 rounded-bl-8' : ''} 
                                   ${colIndex === columns.length - 1 ? 'rounded-tr-8 rounded-br-8' : ''}
+                                  
                                 `}>
                                 {col.isAction ? (
                                   <div className='flex justify-end'>
@@ -401,6 +402,10 @@ export const columnConfigs = {
   universites: [
     { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
     { key: 'schema:url', label: 'Url', dataPath: 'schema:url.0.@id' },
+    { key: 'actions', label: 'Actions', isAction: true },
+  ],
+  motcles: [
+    { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
     { key: 'actions', label: 'Actions', isAction: true },
   ],
   // Ajoutez d'autres configurations selon vos besoins

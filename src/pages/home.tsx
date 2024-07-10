@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
-import { Scrollbar } from '@/components/utils/Scrollbar';
+import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { FullCarrousel, MidCarrousel } from '@/components/home/CarrouselsHome';
 import { getSeminaires, getRandomConferences, getActants } from '../services/api';
 import { EventCard, EventSkeleton } from '@/components/home/EventCards';
@@ -8,7 +8,9 @@ import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { ActantCard, ActantSkeleton } from '@/components/home/ActantCards';
 
 export const Home: React.FC = () => {
-  const [seminaires, setSeminaires] = useState<{ id: number, title: string; numConf: number, year: number, season: string }[]>([]);
+  const [seminaires, setSeminaires] = useState<
+    { id: number; title: string; numConf: number; year: number; season: string }[]
+  >([]);
   const [actants, setActants] = useState<{ id: number; name: string; interventions: number }[]>([]);
   const [randomConf, setRandomConf] = useState<{ id: number; title: string; actant: string; date: string }[]>([]);
   const [loadingSeminaires, setLoadingSeminaires] = useState(true);
@@ -61,7 +63,12 @@ export const Home: React.FC = () => {
                 loadingSeminaires ? (
                   <EventSkeleton key={index} />
                 ) : (
-                  <EventCard key={item.id} id={item.id} title={`Édition ${item.season} ${item.year}`} numConf={item.numConf} />
+                  <EventCard
+                    key={item.id}
+                    id={item.id}
+                    title={`Édition ${item.season} ${item.year}`}
+                    numConf={item.numConf}
+                  />
                 )
               }></FullCarrousel>
             <MidCarrousel

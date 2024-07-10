@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LinkIcon, ImageIcon, SoundIcon, CameraIcon, FileIcon, UserIcon } from '../utils/icons';
+import { LinkIcon, ImageIcon, SoundIcon, CameraIcon, FileIcon, UserIcon } from '@/components/Utils/icons';
 import { Link } from 'react-router-dom';
 import { Button } from '@nextui-org/button';
 

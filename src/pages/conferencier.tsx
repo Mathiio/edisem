@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { useParams } from 'react-router-dom';
-import { Scrollbar } from '@/components/utils/Scrollbar';
+import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { getActant, getConfByActant } from '../services/api';
-import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon, ConferenceIcon } from '@/components/utils/icons';
+import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon, ConferenceIcon } from '@/components/Utils/icons';
 import { InfoCard, InfoSkeleton } from '@/components/home/ActantCards';
 import { Link } from '@nextui-org/react';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';

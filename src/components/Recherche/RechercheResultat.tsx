@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@nextui-org/react';
 import { Link } from '@nextui-org/react';
-import { UserIcon, LinkIcon } from '../utils/icons';
+import { UserIcon, LinkIcon } from '@/components/Utils/icons';
 
 interface Conferencier {
   name: string;

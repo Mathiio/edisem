@@ -15,12 +15,11 @@ import { SelectionInput } from './SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
 import { TimecodeInput } from './TimecodeInput';
-import { Scrollbar } from '@/components/utils/Scrollbar';
-import { CloseIcon } from '@/components/utils/icons';
+import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { CloseIcon } from '@/components/Utils/icons';
 import { inputConfigs, InputConfig } from './EditModal';
 
-interface User {
-}
+interface User {}
 class Omk {
   private key: string | undefined;
   private ident: string | undefined;
