@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input } from '@nextui-org/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input } from '@nextui-org/react';
 import { InputConfig } from './EditModal';
-import { AddIcon } from '@/components/utils/Icons';
+import { AddIcon, SortIcon } from '@/components/utils/Icons';
 
 interface SelectionInputProps {
   col: InputConfig;
@@ -46,29 +46,14 @@ const MultipleInputs: React.FC<SelectionInputProps> = ({ col, actualData, handle
     setInputValues([...inputValues, { values: '', language: 'fr' }]);
   };
 
+  const isLanguageField = col.options && col.options[0] === 'language';
+  const canAddMoreInputs = !isLanguageField || inputValues.length < 2;
+
   return (
     <div className='flex flex-col gap-10 w-full'>
       <div className='text-semibold'>{col.label}</div>
       {inputValues.map((value, index) => (
-        <div key={`${col.key}-${index}`} className=' w-full'>
-          <div className='flex flex-row gap-10 mb-4 w-full justify-between'>
-            <div className='flex flex-row gap-10'>
-              <Button
-                className={`p-10 rounded-12 ${value.language === 'fr' ? 'bg-default-action' : 'bg-default-pur'}`}
-                onClick={() => {
-                  handleLanguageChange(index, 'fr');
-                }}>
-                <img src='french_flag.png' alt='French Flag' />
-              </Button>
-              <Button
-                className={`p-10 rounded-12 ${value.language === 'en' ? 'bg-default-action' : 'bg-default-pur'}`}
-                onClick={() => {
-                  handleLanguageChange(index, 'en');
-                }}>
-                <img src='english_flag.png' alt='English Flag' />
-              </Button>
-            </div>
-          </div>
+        <div key={`${col.key}-${index}`} className=' w-full flex flex-row gap-10 '>
           <Input
             classNames={{
               label: 'text-semibold',
@@ -82,14 +67,50 @@ const MultipleInputs: React.FC<SelectionInputProps> = ({ col, actualData, handle
             defaultValue={value.values || ''}
             onChange={(e) => handleChange(index, e.target.value)}
           />
+          {isLanguageField && (
+            <div className='flex flex-row gap-10 mb-4'>
+              <Dropdown classNames={{ content: 'w-fit min-w-[10px]', base: 'w-[fit]', backdrop: 'w-fit' }}>
+                <DropdownTrigger>
+                  <Button
+                    startContent={<SortIcon size={16} className='text-default-600' />}
+                    className='px-[15px] py-10 flex gap-10 bg-default-200 border-none rounded-8'>
+                    {value.language === 'fr' ? 'Fr' : 'En'}
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  classNames={{ base: 'w-fit', list: 'w-fit' }}
+                  aria-label='Language selection'
+                  variant='flat'
+                  disallowEmptySelection
+                  selectionMode='single'>
+                  <DropdownItem
+                    onClick={() => {
+                      handleLanguageChange(index, 'fr');
+                    }}
+                    key='fr'>
+                    Fr
+                  </DropdownItem>
+                  <DropdownItem
+                    onClick={() => {
+                      handleLanguageChange(index, 'en');
+                    }}
+                    key='en'>
+                    En
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+          )}
         </div>
       ))}
-      <Button
-        startContent={<AddIcon size={16} />}
-        className='px-[15px] py-10 flex gap-10 bg-default-200 border-none rounded-8 w-full hover:text-default-action text-default-600 font-semibold'
-        onClick={handleAddInput}>
-        Ajouter {col.label}
-      </Button>
+      {canAddMoreInputs && (
+        <Button
+          startContent={<AddIcon size={16} />}
+          className='px-[15px] py-10 flex gap-10 bg-default-200 border-none rounded-8 w-full hover:text-default-action text-default-600 font-semibold'
+          onClick={handleAddInput}>
+          Ajouter {col.label}
+        </Button>
+      )}
     </div>
   );
 };
