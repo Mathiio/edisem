@@ -1,13 +1,13 @@
 import React from 'react';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from '@nextui-org/react';
-import { UserIcon } from '@/components/Utils/icons';
+import { UserIcon } from '@/components/utils/Icons';
 
-interface RechercheBarProps {
+interface SearchBarProps {
   Nombre: number;
   onSelectionChange: (keys: Set<string>) => void; // Prop de fonction de rappel
 }
 
-export const RechercheBar: React.FC<RechercheBarProps> = ({ Nombre, onSelectionChange }) => {
+export const SearchBar: React.FC<SearchBarProps> = ({ Nombre, onSelectionChange }) => {
   const [selectedKeys, setSelectedKeys] = React.useState<Set<string>>(new Set(['Trier']));
 
   const selectedValue = React.useMemo(() => {

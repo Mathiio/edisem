@@ -20,7 +20,7 @@ import GridComponent from '@/components/database/GridComponent';
 import { EditModal } from '@/components/database/EditModal';
 import { CreateModal } from '@/components/database/CreateModal';
 
-import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/Utils/icons';
+import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/utils/Icons';
 import { usegetAllProperties } from '@/hooks/useFetchData';
 
 const containerVariants: Variants = {

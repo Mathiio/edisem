@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { InputConfig } from './EditModal';
 import { usegetDataByClass } from '@/hooks/useFetchData';
 import { Button, Input, Spinner } from '@nextui-org/react';
-import { CloseIcon, SearchIcon, SortIcon } from '@/components/Utils/icons';
+import { CloseIcon, SearchIcon, SortIcon } from '@/components/utils/Icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/dropdown';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
 
 interface SelectionInputProps {
   col: InputConfig;

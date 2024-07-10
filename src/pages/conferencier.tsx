@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { useParams } from 'react-router-dom';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
 import { getActant, getConfByActant } from '../services/api';
-import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon, ConferenceIcon } from '@/components/Utils/icons';
+import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon, ConferenceIcon } from '@/components/utils/Icons';
 import { InfoCard, InfoSkeleton } from '@/components/home/ActantCards';
 import { Link } from '@nextui-org/react';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
@@ -68,7 +68,7 @@ export const Conferencier: React.FC = () => {
                     <div className='w-[22px]'>
                       <UniversityIcon className='transition-transform-colors-opacity' size={22} />
                     </div>
-                    <h3 className='text-16 text-center text-default-600 font-semibold'>Université(s)</h3>
+                    <h3 className='text-16 text-left text-default-600 font-semibold'>Université(s)</h3>
                   </div>
                   <div className='flex flex-col justify-center items-start gap-10'>
                     {loadingActant
@@ -83,7 +83,7 @@ export const Conferencier: React.FC = () => {
                     <div className='w-[22px]'>
                       <SchoolIcon className='transition-transform-colors-opacity' size={22} />
                     </div>
-                    <h3 className='text-16 text-center text-default-600 font-semibold'>École(s) doctorale(s)</h3>
+                    <h3 className='text-16 text-left text-default-600 font-semibold'>École(s) doctorale(s)</h3>
                   </div>
                   <div className='flex flex-col justify-center items-start gap-10'>
                     {loadingActant
@@ -98,7 +98,7 @@ export const Conferencier: React.FC = () => {
                     <div className='w-[22px]'>
                       <LaboritoryIcon className='transition-transform-colors-opacity' size={22} />
                     </div>
-                    <h3 className='text-16 text-center text-default-600 font-semibold'>Laboratoire(s)</h3>
+                    <h3 className='text-16 text-left text-default-600 font-semibold'>Laboratoire(s)</h3>
                   </div>
                   <div className='flex flex-col justify-center items-start gap-10'>
                     {loadingActant
@@ -113,7 +113,7 @@ export const Conferencier: React.FC = () => {
                     <div className='w-[22px]'>
                       <ConferenceIcon className='transition-transform-colors-opacity' size={22} />
                     </div>
-                    <h3 className='text-16 text-center text-default-600 font-semibold'>Participations(s)</h3>
+                    <h3 className='text-16 text-left text-default-600 font-semibold'>Participations(s)</h3>
                   </div>
                   <div className='flex flex-col justify-center items-start gap-10'>
                     {loadingActant ? (

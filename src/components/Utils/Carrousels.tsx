@@ -1,7 +1,13 @@
 import { Button } from '@nextui-org/react';
-import { ArrowIcon } from '@/components/Utils/icons';
+import { ArrowIcon } from '@/components/utils/Icons';
 import { Splide, SplideSlide, SplideTrack } from '@splidejs/react-splide';
 import '@splidejs/react-splide/css';
+
+
+
+
+
+
 
 type FullCarrouselProps = {
   data: any[];
@@ -41,6 +47,15 @@ export const FullCarrousel: React.FC<FullCarrouselProps> = ({ data, title, perPa
     </Splide>
   );
 };
+
+
+
+
+
+
+
+
+
 
 type MidCarrouselProps = {
   data: any[];
@@ -86,6 +101,53 @@ export const MidCarrousel: React.FC<MidCarrouselProps> = ({
           <SplideSlide key={index}>{renderSlide(item, index)}</SplideSlide>
         ))}
       </SplideTrack>
+    </Splide>
+  );
+};
+
+
+
+
+
+
+
+
+
+
+type LongCarrouselProps = {
+  data: any[];
+  perPage: number;
+  perMove: number;
+  autowidth: boolean;
+  renderSlide: (item: any, index: number) => React.ReactNode;
+};
+
+export const LongCarrousel: React.FC<LongCarrouselProps> = ({ data, autowidth, perPage, perMove, renderSlide }) => {
+  return (
+    <Splide
+      options={{ perPage: perPage, gap: '1rem', pagination: false,  perMove: perMove, speed: 1000, autoWidth: autowidth }}
+      hasTrack={false}
+      aria-label='...'
+      className='flex w-full justify-between items-center gap-25'>
+      <SplideTrack className='w-full'>
+        {data.map((item, index) => (
+          <SplideSlide key={index}>{renderSlide(item, index)}</SplideSlide>
+        ))}
+      </SplideTrack>
+      <div className=' flex justify-between items-center'>
+        <div className='splide__arrows relative flex gap-10'>
+          <Button
+            size='sm'
+            className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
+            <ArrowIcon size={20} transform='rotate(180deg)' />
+          </Button>
+          <Button
+            size='sm'
+            className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
+            <ArrowIcon size={20} />
+          </Button>
+        </div>
+      </div>
     </Splide>
   );
 };

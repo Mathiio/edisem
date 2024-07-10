@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton} from "@nextui-org/react";
 
+
+
 type LgConfCardProps = {
   id: number;
   title: string;

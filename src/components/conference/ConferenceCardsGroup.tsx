@@ -1,5 +1,5 @@
 import { MediaCard, BibliographieCard, CitationCard } from './ConferenceCards';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
 import React from 'react';
 

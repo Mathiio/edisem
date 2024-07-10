@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
-import { FullCarrousel, MidCarrousel } from '@/components/home/CarrouselsHome';
+import { Scrollbar } from '@/components/utils/Scrollbar';
+import { FullCarrousel, MidCarrousel } from '@/components/utils/Carrousels';
 import { getSeminaires, getRandomConferences, getActants } from '../services/api';
 import { EventCard, EventSkeleton } from '@/components/home/EventCards';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { ActantCard, ActantSkeleton } from '@/components/home/ActantCards';
+import { motion, Variants } from 'framer-motion';
+
+const fadeIn: Variants = {
+  hidden: { opacity: 0, y: 6 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } 
+};
+
 
 export const Home: React.FC = () => {
-  const [seminaires, setSeminaires] = useState<
-    { id: number; title: string; numConf: number; year: number; season: string }[]
-  >([]);
+  const [seminaires, setSeminaires] = useState<{ id: number; title: string; ConfNumb: number; year: string; season: string }[]>([]);
   const [actants, setActants] = useState<{ id: number; name: string; interventions: number }[]>([]);
   const [randomConf, setRandomConf] = useState<{ id: number; title: string; actant: string; date: string }[]>([]);
   const [loadingSeminaires, setLoadingSeminaires] = useState(true);
@@ -59,39 +64,43 @@ export const Home: React.FC = () => {
               perPage={2}
               perMove={1}
               data={loadingSeminaires ? Array.from({ length: 4 }) : seminaires}
-              renderSlide={(item, index) =>
-                loadingSeminaires ? (
-                  <EventSkeleton key={index} />
-                ) : (
-                  <EventCard
-                    key={item.id}
-                    id={item.id}
-                    title={`Édition ${item.season} ${item.year}`}
-                    numConf={item.numConf}
-                  />
-                )
-              }></FullCarrousel>
+              renderSlide={(item) =>
+                loadingSeminaires ? 
+                  <EventSkeleton />
+                : 
+                  <motion.div initial="hidden" animate="visible" variants={fadeIn} key={item.id}>
+                    <EventCard id={item.id} title={`Édition ${item.season} ${item.year}`} numConf={item.ConfNumb}/>
+                  </motion.div>   
+              }
+            />
             <MidCarrousel
               title='Découvrez Nos Conférenciers'
               description='Rencontrez les experts et visionnaires qui interviennent lors de nos conférences. Cliquez pour découvrir leur profil complet, incluant leur participation à divers séminaires, les thématiques qui leur sont chères, et bien plus encore.'
               perPage={3}
               perMove={1}
               data={loadingActants ? Array.from({ length: 4 }) : actants}
-              renderSlide={(item, index) =>
-                loadingActants ? (
-                  <ActantSkeleton key={index} />
-                ) : (
-                  <ActantCard key={item.id} id={item.id} name={item.name} interventions={item.interventions} />
-                )
-              }></MidCarrousel>
+              renderSlide={(item) =>
+                loadingActants ? 
+                  <ActantSkeleton />
+                :  
+                  <motion.div initial="hidden" animate="visible" variants={fadeIn} key={item.id}>
+                    <ActantCard key={item.id} id={item.id} name={item.name} interventions={item.interventions} />
+                  </motion.div>
+              }
+            />
             <div className='gap-25 flex flex-col'>
               <h2 className='text-24 font-bold text-default-600'>Séléction de conférences</h2>
               <div className='grid grid-cols-4 grid-rows-2 gap-25'>
-                {loadingRandomConf
-                  ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
-                  : randomConf.map((item) => (
+                {loadingRandomConf ? 
+                    Array.from({ length: 8 }).map((_) => (
+                      <LgConfSkeleton />
+                    ))
+                  : 
+                  randomConf.map((item) => (
+                    <motion.div initial="hidden" animate="visible" variants={fadeIn} key={item.id}>
                       <LgConfCard key={item.id} id={item.id} title={item.title} actant={item.actant} date={item.date} />
-                    ))}
+                    </motion.div>
+                  ))}
               </div>
             </div>
             <div className='flex gap-75 w-full'></div>

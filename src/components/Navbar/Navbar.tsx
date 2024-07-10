@@ -6,7 +6,7 @@ import { ChangeThemeButton } from '@/components/Navbar/change-theme';
 import CreditsModal from '@/components/Navbar/CreditsModal';
 import { FilterModal } from './FilterModal';
 import { ProfilDropdown } from './ProfilDropdown';
-import { SearchIcon } from '@/components/Utils/icons';
+import { SearchIcon } from '@/components/utils/Icons';
 import { motion, Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
 

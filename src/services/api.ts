@@ -8,19 +8,21 @@ export interface Data {
   'display_name'?: any[];
   '@id': string;
   '@type'?: string[];
-  'schema:isRelatedTo'?: Array<{ '@id': string, display_title?: string, value_resource_id?: number }>;
-  'schema:agent'?: Array<{ display_title?: string, value_resource_id?: number }>;
-  'dcterms:date'?: Array<{ display_title?: string }>;
-  'dcterms:title'?: Array<{ display_title?: string, '@value'?: string }>;
-  'jdc:hasLaboratoire'?: Array<{ value_resource_id: number }>;
-  'jdc:hasUniversity'?: Array<{ value_resource_id: number }>;
-  'jdc:hasEcoleDoctorale'?: Array<{ value_resource_id: number }>;
-  'schema:url'?: Array<{ '@id': string }>;
+  'jdc:hasConcept'?: Array<{ 'display_title': string, '@id': string, 'value_resource_id': number }>;
+  'schema:season'?: Array<{ '@value': string }>;
+  'schema:isRelatedTo'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
+  'schema:agent'?: Array<{ 'display_title': string, 'value_resource_id': number }>;
+  'dcterms:date'?: Array<{ 'display_title': string }>;
+  'dcterms:title'?: Array<{ 'display_title': string, '@value'?: string }>;
+  'jdc:hasLaboratoire'?: Array<{ 'value_resource_id': number }>;
+  'jdc:hasUniversity'?: Array<{ 'value_resource_id': number }>;
+  'jdc:hasEcoleDoctorale'?: Array<{ 'value_resource_id': number }>;
+  'schema:url'?: Array<{ '@id'?: string }>;
   'cito:hasCitedEntity'?: Array<{ '@value': string }>;
-  'dcterms:abstract'?: Array<{ display_title?: string, '@value'?: string }>;
-  'dcterms:isPartOf'?: Array<{ '@id': string, display_title?: string, value_resource_id?: number }>;
-  // Autres propriétés que vous utilisez
+  'dcterms:abstract'?: Array<{ 'display_title': string, '@value': string }>;
+  'dcterms:isPartOf'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
 }
+
 
 export const getDataByClass = async (resourceClassId: number): Promise<Data[]> => {
   let page = 1;
@@ -146,30 +148,9 @@ export async function getDataByUrl (url: string) {
 
 
 
-function getSeason(dateString: string) {
-  const date = new Date(dateString);
-  const month = date.getMonth() + 1; 
-  const day = date.getDate();
-  const year = date.getFullYear();
-  let season = '';
-
-  if ((month === 3 && day >= 20) || (month > 3 && month < 6) || (month === 6 && day < 21)) {
-    season = 'printemps';
-  } else if ((month === 6 && day >= 21) || (month > 6 && month < 9) || (month === 9 && day < 21)) {
-    season = 'ete';
-  } else if ((month === 9 && day >= 21) || (month > 9 && month < 12) || (month === 12 && day < 21)) {
-    season = 'automne';
-  } else {
-    season = 'hiver';
-  }
-
-  return { year, season };
-}
-
-
 
 export async function getSeminaires() {
-  const fetchedEditions: { id: number, title: string; numConf: number, year: number, season: string }[] = [];
+  const fetchedEditions: { id: number, title: string; ConfNumb: number, year: string, season: string }[] = [];
 
   try {
     const response = await fetch(`${API_URL}/items/15086`);
@@ -180,35 +161,24 @@ export async function getSeminaires() {
         const edition: Data = await getDataByUrl(item['@id']) as unknown as Data;
 
         if (edition && edition['schema:isRelatedTo']) {
-          const countConf = edition['schema:isRelatedTo'].length;
 
-          const NbEchantillons = 3;
-          const randomIndices = getRandomIndexes(countConf, NbEchantillons);
-
-          let totalYear = 0;
-          const seasons: { [key: string]: number } = { hiver: 0, printemps: 0, ete: 0, automne: 0 };
-
-          for (let i of randomIndices) {
-            const confId: number = Number(edition['schema:isRelatedTo'][i]['value_resource_id']);
-            const confRep = await fetch(`${API_URL}/items/${confId}`);
-            const conf = await confRep.json();
-            const date = conf['dcterms:date'][0]['display_title'];
-            const { year, season } = getSeason(date);
-
-            totalYear += year;
-            seasons[season]++;
-          }
-
-          const avgYear = Math.round(totalYear / NbEchantillons);
-          const maxSeason = Object.keys(seasons).reduce((a, b) => seasons[a] > seasons[b] ? a : b);
+          const ConfNumb = Number(edition['schema:isRelatedTo'].length);
+          const title = edition['dcterms:title'] ? edition['dcterms:title'][0]['@value'] as unknown as string : "Non renseigné";
+          const confUrl = edition['schema:isRelatedTo'][0]['@id'] as string;
+          const conf = await getDataByUrl(confUrl) as Data;
+          const date = conf['dcterms:date'] ? conf['dcterms:date'][0]['display_title'] as string : "Non renseigné";
+          const dateFormated = new Date(date)
+          const year = dateFormated.getFullYear().toString();
+          const season = edition['schema:season'] ? edition['schema:season'][0]['@value'] as string : "Non renseigné";
+          const id = Number(edition['o:id']);
           
-          fetchedEditions.push({ id: Number(edition['o:id']), title: item.display_title || 'Non renseigné', numConf: Number(countConf), year: avgYear, season: maxSeason  });
+          fetchedEditions.push({ id, title, ConfNumb, year, season });
         }
       } catch (error) {
         console.error(`Error fetching seminaires details for ${item['@id']}:`, error);
       }
     }
-    fetchedEditions.sort((a, b) => b.year - a.year || (a.season > b.season ? -1 : 1));
+    fetchedEditions.sort((a, b) => b.year.localeCompare(a.year) || (a.season > b.season ? -1 : 1));
     return fetchedEditions;
   } catch (error) {
     console.error('Error fetching seminaires:', error);
@@ -334,7 +304,6 @@ export async function getActants() {
     throw new Error('Failed to fetch actants');
   }
 }
-
 
 
 
@@ -492,7 +461,6 @@ export async function getConfByActant(actantId: number) {
 
 
 
-
 export async function getConfByEdition(editionId: number) {
   const fetchedEdition: { id: number, actant: string; title: string; date: string }[] = [];
 
@@ -500,25 +468,32 @@ export async function getConfByEdition(editionId: number) {
     const response = await fetch(`${API_URL}/items/${editionId}`);
     const edition = await response.json() as Data;
 
-    for (let item of edition['schema:isRelatedTo'] || []) {
+    const relatedItems = edition['schema:isRelatedTo'] || [];
+    const confPromises = relatedItems.map(async (item) => {
       try {
-        const conf  = await getDataByUrl(item['@id']) as Data;
+        const conf = await getDataByUrl(item['@id']) as Data;
 
-        let title = conf['o:title'] ? conf['o:title'] as string : 'Non renseigné';
-        let actant = conf['schema:agent'] ? conf['schema:agent'][0]['display_title'] as string : 'Non renseigné';
-        let date = conf['dcterms:date'] ? conf['dcterms:date'][0]['display_title'] as string : 'Non renseigné';
+        const title = conf['o:title'] ? conf['o:title'] as string : 'Non renseigné';
+        const actant = conf['schema:agent'] ? conf['schema:agent'][0]['display_title'] as string : 'Non renseigné';
+        const date = conf['dcterms:date'] ? conf['dcterms:date'][0]['display_title'] as string : 'Non renseigné';
 
-        fetchedEdition.push({
+        return {
           id: conf['o:id'],
           title: title,
           actant: actant,
           date: date
-        });
-
+        };
       } catch (error) {
         console.error(`Error fetching edition details for ${item['@id']}:`, error);
+        return null;
       }
-    }
+    });
+
+    const confs = await Promise.all(confPromises);
+    confs.forEach((conf) => {
+      if (conf) fetchedEdition.push(conf);
+    });
+
     return fetchedEdition;
   } catch (error) {
     console.error('Error fetching seminaires:', error);
@@ -529,9 +504,8 @@ export async function getConfByEdition(editionId: number) {
 
 
 
-
-export async function getConference(confId: number) {
-  const fetchedConf: { title: string, description: string, actant: string, date: string, url: string, fullUrl: string }[] = [];
+export async function getConfOverview(confId: number) {
+  const fetchedOverview: { title: string, actant: string, actantId: number, university: string, url: string, fullUrl: string }[] = [];
 
   try {
     const response = await fetch(`${API_URL}/items/${confId}`);
@@ -539,9 +513,10 @@ export async function getConference(confId: number) {
     
     const title = conf["dcterms:title"] ? conf["dcterms:title"][0]["@value"] as string : "Non renseigné";
     const actant = conf["schema:agent"] ? conf["schema:agent"][0]["display_title"] as string : "Non renseigné";
-    const date = conf["dcterms:date"] ? conf["dcterms:date"][0]["display_title"] as string : "Non renseignée";
+    const actantId = conf["schema:agent"] ? conf["schema:agent"][0]["value_resource_id"] as number : {} as number;
+    const universityRep = await getActant(actantId);
+    const university = universityRep['universities'] ? universityRep['universities'][0]['name'] as string : "";
     const fullUrlId = conf["dcterms:isPartOf"] ? conf["dcterms:isPartOf"][0]["@id"] as string : "";
-    const description = conf["dcterms:abstract"] ? conf["dcterms:abstract"][0]["@value"] as string : "Non renseignée";
     let url = conf["schema:url"] ? conf["schema:url"][0]["@id"] as string : "";
     if(url != ""){
       const videoId = url.substr(-11);
@@ -556,9 +531,73 @@ export async function getConference(confId: number) {
     }
     
 
-    fetchedConf.push({ title: title, description: description, actant: actant, date: date, url: url, fullUrl: fullUrl})
+    fetchedOverview.push({ title, actant, actantId, university, url, fullUrl})
    
-    return fetchedConf;
+    return fetchedOverview;
+  } catch (error) {
+    console.error('Error fetching seminaires:', error);
+    throw new Error('Failed to fetch seminaires');
+  }
+}
+
+
+
+
+export async function getConfDetails(confId: number) {
+  const fetchedDetails: { edition: string, date: string, description: string }[] = [];
+
+  try {
+    const confRep = await fetch(`${API_URL}/items/${confId}`);
+    const conf = await confRep.json() as Data;
+    
+    const date = conf["dcterms:date"] ? conf["dcterms:date"][0]["display_title"] as string : "Non renseignée";
+    const description = conf["dcterms:abstract"] ? conf["dcterms:abstract"][0]["@value"] as string : "Non renseignée";
+    const id = conf['o:id'];
+    const editions = await getDataByRT(77);
+    let edition = '';
+
+    for(let item of editions || []){
+      for(let conference of item['schema:isRelatedTo'] || []){
+        if(conference['value_resource_id']===id){
+          edition= item['dcterms:title'] ? item['dcterms:title'][0]['@value'] as string : "Non renseigné";
+        }
+      }
+    }
+
+    fetchedDetails.push({ edition, date, description})
+   
+    return fetchedDetails;
+  } catch (error) {
+    console.error('Error fetching seminaires:', error);
+    throw new Error('Failed to fetch seminaires');
+  }
+}
+
+
+
+
+export async function getConfKeyWords(confId: number) {
+  const fetchedDetails: { id: number, keyword: string }[] = [];
+
+  try {
+    const confRep = await fetch(`${API_URL}/items/${confId}`);
+    const conf = await confRep.json() as Data;
+    
+    if(conf["jdc:hasConcept"]){
+      for(let word of conf["jdc:hasConcept"]){
+        const id = Number(word["value_resource_id"] ? word["value_resource_id"] as number : "");
+        const keyword = word["display_title"] ? word["display_title"] as string : "";
+        console.log(word["display_title"])
+        fetchedDetails.push({ id, keyword })
+      }
+    }
+    // const edition = "";
+    // const date = "";
+    // const description = "";
+
+    // fetchedDetails.push({ date, description })
+    console.log(fetchedDetails)
+    return fetchedDetails;
   } catch (error) {
     console.error('Error fetching seminaires:', error);
     throw new Error('Failed to fetch seminaires');

@@ -1,18 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getConference } from '../services/api';
+import { getConfOverview, getConfDetails, getConfKeyWords } from '../services/api';
 import { Navbar } from '@/components/Navbar/Navbar';
-import { VideoInfos } from '@/components/conference/VideoInfos';
 import { ContentTab } from '@/components/conference/ContentTab';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
+import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/conference/ConfOverview';
+import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/conference/ConfDetails';
+import { LongCarrousel } from '@/components/utils/Carrousels';
+import { Skeleton } from "@nextui-org/react";
+
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2, // Delays the appearance of each child by 0.3 seconds
+      staggerChildren: 0.2,
     },
   },
 };
@@ -28,23 +32,39 @@ const itemVariants: Variants = {
 
 export const Conference: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [conference, setConference] = useState<
-    { title: string; description: string; actant: string; date: string; url: string; fullUrl: string }[]
-  >([]);
-  const [loadingConference, setLoadingConference] = useState(true);
+  const [confOverview, setConfOverview] = useState<{ title: string, actant: string, actantId: number, university: string, url: string, fullUrl: string }[]>([]);
+  const [confDetails, setConfDetails] = useState<{ edition: string, date: string, description: string }[]>([]);
+  const [confKeyWords, setConfKeyWords] = useState<{ id: number, keyword: string }[]>([]);
+  const [loadingConfOverview, setLoadingConfOverview] = useState(true);
+  const [loadingConfDetails, setLoadingConfDetails] = useState(true);
+  const [loadingConfKeyWords, setLoadingConfKeyWords] = useState(true);
   const firstRender = useRef(true);
 
   useEffect(() => {
-    const fetchConference = async () => {
-      const conference = await getConference(Number(id));
-      setConference(conference);
-      setLoadingConference(false);
+    const fetchConfOverview = async () => {
+      const confOverview = await getConfOverview(Number(id));
+      setConfOverview(confOverview);
+      setLoadingConfOverview(false);
+    };
+
+    const fetchConfDetails = async () => {
+      const confDetails = await getConfDetails(Number(id));
+      setConfDetails(confDetails);
+      setLoadingConfDetails(false);
+    };
+
+    const fetchConfKeyWords = async () => {
+      const confKeyWords = await getConfKeyWords(Number(id));
+      setConfKeyWords(confKeyWords);
+      setLoadingConfKeyWords(false);
     };
 
     if (firstRender.current) {
       firstRender.current = false;
     } else {
-      fetchConference();
+      fetchConfOverview();
+      fetchConfDetails();
+      fetchConfKeyWords();
     }
   }, []);
 
@@ -59,18 +79,28 @@ export const Conference: React.FC = () => {
           <motion.div className='col-span-10' variants={itemVariants}>
             <Navbar />
           </motion.div>
-          <motion.div className='col-span-10 lg:col-span-6 flex flex-col gap-50' variants={itemVariants}>
-            {loadingConference ? (
-              ''
-            ) : (
-              <VideoInfos
-                title={conference[0].title}
-                description={conference[0].description}
-                actant={conference[0].actant}
-                date={conference[0].date}
-                url={conference[0].url}
-                fullUrl={conference[0].fullUrl}
-              />
+          <motion.div className='col-span-10 lg:col-span-6 flex flex-col gap-20' variants={itemVariants}>
+            <LongCarrousel
+              perPage={3}
+              perMove={1}
+              autowidth={true}
+              data={loadingConfKeyWords ? Array.from({ length: 8 }) : confKeyWords}
+                renderSlide={(item) =>
+                  loadingConfKeyWords ? 
+                    <Skeleton className="w-[100%] rounded-8">
+                        <p className="w-[120px] font-semibold text-16 p-5">_</p>
+                    </Skeleton>
+                  :
+                    <div className="border-2 border-default-300 h-full rounded-8 flex items-center justify-start p-10" key={item.id}>
+                      <p className='font-regular text-default-500 text-14'>{item.keyword}</p>
+                    </div>
+                }
+            />
+            {loadingConfOverview ? ( <ConfOverviewSkeleton></ConfOverviewSkeleton>) : (
+              <ConfOverviewCard title={confOverview[0].title} actant={confOverview[0].actant} actantId={confOverview[0].actantId} university={confOverview[0].university} url={confOverview[0].url} fullUrl={confOverview[0].fullUrl}/>
+            )}
+            {loadingConfDetails ? ( <ConfDetailsSkeleton></ConfDetailsSkeleton>) : (
+              <ConfDetailsCard edition={confDetails[0].edition} date={confDetails[0].date} description={confDetails[0].description}/>
             )}
           </motion.div>
           <motion.div className='col-span-10 lg:col-span-4 flex flex-col gap-50' variants={itemVariants}>

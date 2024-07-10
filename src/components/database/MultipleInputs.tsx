@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input } from '@nextui-org/react';
 import { InputConfig } from './EditModal';
-import { AddIcon } from '@/components/Utils/icons';
+import { AddIcon } from '@/components/utils/Icons';
 
 interface SelectionInputProps {
   col: InputConfig;

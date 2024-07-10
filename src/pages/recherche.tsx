@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
-import { RechercheBar } from '@/components/Recherche/RechercheBar';
-import { RechercheResultat } from '@/components/Recherche/RechercheResultat';
+import { SearchBar } from '@/components/recherche/SearchBar';
+import { SearchResults } from '@/components/recherche/SearchResults';
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
@@ -129,8 +129,8 @@ export const Recherche: React.FC = () => {
           </motion.div>
           <motion.div className='col-span-10 flex flex-col items-center' variants={itemVariants}>
             <div className='w-2/3 flex flex-col gap-50'>
-              <RechercheBar Nombre={totalResultats} onSelectionChange={handleSelectionChange} />
-              <RechercheResultat conferenciers={sortedConferenciers} seminaires={sortedSeminaires} />
+              <SearchBar Nombre={totalResultats} onSelectionChange={handleSelectionChange} />
+              <SearchResults conferenciers={sortedConferenciers} seminaires={sortedSeminaires} />
             </div>
           </motion.div>
         </motion.main>
