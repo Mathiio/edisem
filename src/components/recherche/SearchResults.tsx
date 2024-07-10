@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@nextui-org/react';
 import { Link } from '@nextui-org/react';
-import { UserIcon, LinkIcon } from '@/components/Utils/icons';
+import { UserIcon, LinkIcon } from '@/components/utils/Icons';
 
 interface Conferencier {
   name: string;
@@ -18,13 +18,13 @@ interface Seminaire {
   image: string; // Add image property here
 }
 
-interface RechercheResultatProps {
+interface SearchResultsProps {
   conferenciers?: Conferencier[];
   seminaires?: Seminaire[];
   sortedResults?: (Conferencier | Seminaire)[];
 }
 
-export const RechercheResultat: React.FC<RechercheResultatProps> = ({ conferenciers, seminaires }) => {
+export const SearchResults: React.FC<SearchResultsProps> = ({ conferenciers, seminaires }) => {
   const [hoveredIndex, setHoveredIndex] = useState<string | null>(null);
 
   const handleClick = (keyword: string) => {

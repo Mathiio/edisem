@@ -15,8 +15,8 @@ import { SelectionInput } from './SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
 import { TimecodeInput } from './TimecodeInput';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
-import { CloseIcon } from '@/components/Utils/icons';
+import { Scrollbar } from '@/components/utils/Scrollbar';
+import { CloseIcon } from '@/components/utils/Icons';
 import { inputConfigs, InputConfig } from './EditModal';
 
 interface User {}

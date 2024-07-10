@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LinkIcon } from '@/components/Utils/icons';
+import { LinkIcon } from '@/components/utils/Icons';
 import { Link } from 'react-router-dom';
 
 interface CreditCardProps {
