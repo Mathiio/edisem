@@ -591,11 +591,6 @@ export async function getConfKeyWords(confId: number) {
         fetchedDetails.push({ id, keyword })
       }
     }
-    // const edition = "";
-    // const date = "";
-    // const description = "";
-
-    // fetchedDetails.push({ date, description })
     console.log(fetchedDetails)
     return fetchedDetails;
   } catch (error) {
