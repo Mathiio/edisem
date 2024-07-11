@@ -133,7 +133,7 @@ export const Scrollbar: React.FC<ScrollbarProps> = ({ children, withGap = false 
             onClick={handleTrackClick}
             style={{ cursor: isDragging ? 'grabbing' : 'pointer' }}></div>
           <div
-            className='bg-default-action w-[5px] absolute rounded-xl'
+            className='bg-default-400 w-[5px] absolute rounded-xl'
             ref={scrollThumbRef}
             onMouseDown={handleThumbMousedown}
             style={{

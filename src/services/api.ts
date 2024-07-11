@@ -8,19 +8,28 @@ export interface Data {
   'display_name'?: any[];
   '@id': string;
   '@type'?: string[];
+  'schema:citation'?: Array<{ 'display_title': string, '@id': string, 'value_resource_id': number }>;
   'jdc:hasConcept'?: Array<{ 'display_title': string, '@id': string, 'value_resource_id': number }>;
   'schema:season'?: Array<{ '@value': string }>;
   'schema:isRelatedTo'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
   'schema:agent'?: Array<{ 'display_title': string, 'value_resource_id': number }>;
-  'dcterms:date'?: Array<{ 'display_title': string }>;
+  'dcterms:date'?: Array<{ '@value': string }>;
   'dcterms:title'?: Array<{ 'display_title': string, '@value'?: string }>;
   'jdc:hasLaboratoire'?: Array<{ 'value_resource_id': number }>;
   'jdc:hasUniversity'?: Array<{ 'value_resource_id': number }>;
   'jdc:hasEcoleDoctorale'?: Array<{ 'value_resource_id': number }>;
   'schema:url'?: Array<{ '@id'?: string }>;
   'cito:hasCitedEntity'?: Array<{ '@value': string }>;
+  'cito:isCitedBy'?: Array<{ 'display_title': string }>;
+  'schema:startTime'?: Array<{ '@value': string }>;
+  'schema:endTime'?: Array<{ '@value': string }>;
   'dcterms:abstract'?: Array<{ 'display_title': string, '@value': string }>;
   'dcterms:isPartOf'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
+  'dcterms:bibliographicCitation'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
+  'bibo:authorList'?: Array<{ '@value': string }>;
+  'dcterms:references'?: Array<{ '@value': string }>;
+  'schema:associatedMedia'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
+  'dcterms:hasFormat'?: Array<{ '@value': string }>;
 }
 
 
@@ -166,7 +175,7 @@ export async function getSeminaires() {
           const title = edition['dcterms:title'] ? edition['dcterms:title'][0]['@value'] as unknown as string : "Non renseigné";
           const confUrl = edition['schema:isRelatedTo'][0]['@id'] as string;
           const conf = await getDataByUrl(confUrl) as Data;
-          const date = conf['dcterms:date'] ? conf['dcterms:date'][0]['display_title'] as string : "Non renseigné";
+          const date = conf['dcterms:date'] ? conf['dcterms:date'][0]['@value'] as string : "Non renseigné";
           const dateFormated = new Date(date)
           const year = dateFormated.getFullYear().toString();
           const season = edition['schema:season'] ? edition['schema:season'][0]['@value'] as string : "Non renseigné";
@@ -240,7 +249,7 @@ export async function getRandomConferences(confNum: number) {
 
       let title = conference['o:title'] ? conference['o:title'] as string : "Non renseigné" ;
       let actant = conference['schema:agent'] ? conference['schema:agent'][0]['display_title'] as string : "Non renseigné" ;
-      let date = conference['dcterms:date'] ? conference['dcterms:date'][0]['display_title'] as string : "Non renseignée" ;
+      let date = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : "Non renseignée" ;
 
       fetchedConf.push({
         id: conference['o:id'],
@@ -424,7 +433,7 @@ export async function getConfByActant(actantId: number) {
 
             const title = conference['o:title'] ? conference['o:title'] as string : 'Non renseigné';
             const actant = agent['display_title'] ? agent['display_title'] as string : 'Non renseigné';
-            const date = conference['dcterms:date'] ? conference['dcterms:date'][0]['display_title'] as string : 'Non renseignée';
+            const date = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : 'Non renseignée';
 
             fetchedConferences.push({
               id: conference['o:id'],
@@ -440,7 +449,7 @@ export async function getConfByActant(actantId: number) {
 
           const title = conference['o:title'] ? conference['o:title'] : 'Non renseigné';
           const actant = conference['schema:agent'] ? conference['schema:agent'][0]['display_title'] as string : 'Non renseigné';
-          const date = conference['dcterms:date'] ? conference['dcterms:date'][0]['display_title'] as string : 'Non renseigné';
+          const date = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : 'Non renseigné';
 
           fetchedConferences.push({
             id: conference['o:id'],
@@ -475,7 +484,7 @@ export async function getConfByEdition(editionId: number) {
 
         const title = conf['o:title'] ? conf['o:title'] as string : 'Non renseigné';
         const actant = conf['schema:agent'] ? conf['schema:agent'][0]['display_title'] as string : 'Non renseigné';
-        const date = conf['dcterms:date'] ? conf['dcterms:date'][0]['display_title'] as string : 'Non renseigné';
+        const date = conf['dcterms:date'] ? conf['dcterms:date'][0]['@value'] as string : 'Non renseigné';
 
         return {
           id: conf['o:id'],
@@ -550,7 +559,7 @@ export async function getConfDetails(confId: number) {
     const confRep = await fetch(`${API_URL}/items/${confId}`);
     const conf = await confRep.json() as Data;
     
-    const date = conf["dcterms:date"] ? conf["dcterms:date"][0]["display_title"] as string : "Non renseignée";
+    const date = conf["dcterms:date"] ? conf["dcterms:date"][0]["@value"] as string : "Non renseignée";
     const description = conf["dcterms:abstract"] ? conf["dcterms:abstract"][0]["@value"] as string : "Non renseignée";
     const id = conf['o:id'];
     const editions = await getDataByRT(77);
@@ -587,12 +596,97 @@ export async function getConfKeyWords(confId: number) {
       for(let word of conf["jdc:hasConcept"]){
         const id = Number(word["value_resource_id"] ? word["value_resource_id"] as number : "");
         const keyword = word["display_title"] ? word["display_title"] as string : "";
-        console.log(word["display_title"])
         fetchedDetails.push({ id, keyword })
       }
     }
-    console.log(fetchedDetails)
     return fetchedDetails;
+  } catch (error) {
+    console.error('Error fetching seminaires:', error);
+    throw new Error('Failed to fetch seminaires');
+  }
+}
+
+
+
+
+export async function getConfCitations(confId: number) {
+  const fetchedCitations: { citation: string, actant: string, startTime: number, endTime: number }[] = [];
+
+  try {
+    const confRep = await fetch(`${API_URL}/items/${confId}`);
+    const conf = await confRep.json() as Data;
+    
+    if(conf["schema:citation"]){
+      for(let item of conf["schema:citation"]){
+        if(item["@id"]){
+          const citationRep = await getDataByUrl(item["@id"])
+          const citation = citationRep['cito:hasCitedEntity'] ? citationRep['cito:hasCitedEntity'][0]['@value'] as string : "Non renseignée";
+          const actant = citationRep['cito:isCitedBy'] ? citationRep['cito:isCitedBy'][0]['display_title'] as string : "Non renseigné";
+          const startTime = Number(citationRep['schema:startTime'] ? citationRep['schema:startTime'][0]['@value'] : "");
+          const endTime = Number(citationRep['schema:endTime'] ? citationRep['schema:endTime'][0]['@value'] : "");
+          fetchedCitations.push({ citation, actant, startTime, endTime })
+        }
+      }
+    }
+    return fetchedCitations;
+  } catch (error) {
+    console.error('Error fetching seminaires:', error);
+    throw new Error('Failed to fetch seminaires');
+  }
+}
+
+
+
+
+export async function getConfBibliographies(confId: number) {
+  const fetchedCitations: { bibliography: string, author: string, date: string }[] = [];
+
+  try {
+    const confRep = await fetch(`${API_URL}/items/${confId}`);
+    const conf = await confRep.json() as Data;
+    
+    if(conf["dcterms:bibliographicCitation"]){
+      for(let item of conf["dcterms:bibliographicCitation"]){
+        if(item["@id"]){
+          const bibliographyRep = await getDataByUrl(item["@id"])
+          const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "Non renseignée";
+          const author = bibliographyRep['bibo:authorList'] ? bibliographyRep['bibo:authorList'][0]['@value'] as string : "Non renseigné";
+          const bibliography = bibliographyRep['dcterms:references'] ? bibliographyRep['dcterms:references'][0]['@value'] as string : "Non renseigné";
+          fetchedCitations.push({ bibliography, author, date })
+        }
+      }
+    }
+    return fetchedCitations;
+  } catch (error) {
+    console.error('Error fetching seminaires:', error);
+    throw new Error('Failed to fetch seminaires');
+  }
+}
+
+
+
+
+export async function getConfMediagraphies(confId: number) {
+  const fetchedCitations: { mediagraphy: string, author: string, date: string, type: string, url: string }[] = [];
+
+  try {
+    const confRep = await fetch(`${API_URL}/items/${confId}`);
+    const conf = await confRep.json() as Data;
+    
+    if(conf["schema:associatedMedia"]){
+      for(let item of conf["schema:associatedMedia"]){
+        if(item["@id"]){
+          const MediagraphyRep = await getDataByUrl(item["@id"])
+          const date = MediagraphyRep['dcterms:date'] ? MediagraphyRep['dcterms:date'][0]['@value'] as string : "Non renseignée";
+          const author = MediagraphyRep['bibo:authorList'] ? MediagraphyRep['bibo:authorList'][0]['@value'] as string : "Non renseigné";
+          const mediagraphy = MediagraphyRep['dcterms:references'] ? MediagraphyRep['dcterms:references'][0]['@value'] as string : "Non renseigné";
+          const type = MediagraphyRep['dcterms:hasFormat']? MediagraphyRep['dcterms:hasFormat'][0]['@value'] as string : "Non renseigné";
+          const url = MediagraphyRep['schema:url']? MediagraphyRep['schema:url'][0]['@id'] as string : "Non renseigné";
+          fetchedCitations.push({ mediagraphy, author, date, type, url })
+        }
+      }
+    }
+    return fetchedCitations;
   } catch (error) {
     console.error('Error fetching seminaires:', error);
     throw new Error('Failed to fetch seminaires');
