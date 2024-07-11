@@ -20,6 +20,7 @@ const containerVariants: Variants = {
 };
 
 
+
 type ConfDetailsProps = {
     edition: string;
     description: string;
@@ -29,7 +30,6 @@ type ConfDetailsProps = {
 
 
 export const ConfDetailsCard: React.FC<ConfDetailsProps> = ({ edition, description, date }) => {
-    console.log(date)
     const [expanded, setExpanded] = useState<boolean>(false);
 
     const toggleExpansion = () => {

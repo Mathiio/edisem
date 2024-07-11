@@ -5,6 +5,7 @@ import { CreditIcon, CameraIcon } from '@/components/utils/Icons';
 import { motion, Variants } from 'framer-motion';
 
 
+
 const itemVariants: Variants = {
     hidden: { opacity: 0, y: 5 },
     visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 80, damping: 10 } },
@@ -70,13 +71,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ title, actant, a
                         src={videoUrl}
                         allowFullScreen></iframe>
                     ) : (
-                    <div className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] flex flex-col items-center justify-center p-20 bg-default-200 rounded-14 gap-20'>
-                        <CameraIcon className='text-default-300' size={42}></CameraIcon>
-                        <div className='flex flex-col items-center justify-center gap-10'>
-                            <h3 className='text-default-400 text-center text-32 font-semibold'>Oups !</h3>
-                            <p className='w-[300px] text-default-400 text-16 font-regular text-center'>Il n'existe actuellement aucun contenu vidéo pour cette conférence</p>
-                        </div>
-                    </div>
+                    <UnloadedCard />
                 )}
             </motion.div>
             <motion.div variants={itemVariants} className='w-full flex flex-col gap-25'>
@@ -138,3 +133,22 @@ export const ConfOverviewSkeleton: React.FC = () => {
     </div>
   );
 };
+
+
+
+
+
+export const UnloadedCard: React.FC = () => {
+    return (
+        <div className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] flex flex-col items-center justify-center p-20 bg-default-200 rounded-14 gap-20'>
+            <CameraIcon size={42} className='text-default-300' />
+            <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
+                <h2 className='text-default-400 text-32 font-semibold'>Oups !</h2>
+                <p className='w-[400px] text-default-400 text-16 text-regular text-center'>
+                    Aucune vidéo n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer
+                    d'autres sections de notre site.
+                </p>
+            </div>
+        </div>
+    );
+};   
