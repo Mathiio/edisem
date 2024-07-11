@@ -15,7 +15,7 @@ type KeywordsCardProps = {
 };
 
 
-export const KeywordsCard: React.FC<KeywordsCardProps> = ({ id, word }) => {
+export const KeywordsCard: React.FC<KeywordsCardProps> = ({ word }) => {
   return (
     <motion.div variants={itemVariants} className='border-2 border-default-300 h-full rounded-8 flex items-center justify-start p-10'>
         <p className='font-regular text-default-500 text-14'>{word}</p>
