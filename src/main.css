@@ -221,3 +221,7 @@ body{
 /* .max-height-40 *, .max-height-40{
   height: 38px;
 } */
+
+.calendarbase div:nth-child(2){
+  width: 100% !important;
+}
