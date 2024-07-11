@@ -14,7 +14,7 @@ import { usegetDataByClassDetails } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/database/SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
-import { TimecodeInput } from '@/components/database/TimecodeInput';
+import { TimecodeInput, DateTimeIntervalPicker } from '@/components/database/TimecodeInput';
 import { Scrollbar } from '@/components/utils/Scrollbar';
 import { CloseIcon } from '@/components/utils/Icons';
 import MultipleInputs from '@/components/database/MultipleInputs';
@@ -406,7 +406,7 @@ class Omk {
           }
         } else {
           // Si formValue n'est pas un tableau
-          let formattedValue = this.formatValue(term, formValue.values, formValue.language);
+          let formattedValue = this.formatValue(term, formValue);
           result[term['o:term']].push(formattedValue);
         }
       }
@@ -489,6 +489,9 @@ class Omk {
     if (p['o:id'] == 1517) {
       baseValue['@id'] = v;
       baseValue.type = 'uri';
+    } else if (p['o:id'] == 630) {
+      baseValue['@value'] = v;
+      baseValue.type = 'numeric:interval';
     } else if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735)) {
       baseValue['@value'] = v;
       baseValue.type = 'numeric:integer';
@@ -507,10 +510,10 @@ class Omk {
       baseValue.type = 'literal';
     }
 
-    if (language) {
+    if (p['o:id'] == 1716 && language) {
       baseValue['@language'] = language;
     }
-
+    console.log('baseValue', baseValue);
     return baseValue;
   };
 
@@ -650,7 +653,7 @@ export interface InputConfig {
   key: string;
   label: string;
   dataPath: string;
-  type: 'input' | 'selection' | 'textarea' | 'time' | 'inputs';
+  type: 'input' | 'selection' | 'textarea' | 'time' | 'inputs' | 'intervalTime';
   options?: (string | number)[];
   selectionId?: number[];
 }
@@ -725,6 +728,12 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       label: 'Timecode de fin',
       dataPath: 'schema:endTime.0.@value',
       type: 'time',
+    },
+    {
+      key: 'schema:datasetTimeInterval',
+      label: 'Timecode',
+      dataPath: 'schema:datasetTimeInterval.0.@value',
+      type: 'intervalTime',
     },
   ],
   conferenciers: [
@@ -1010,6 +1019,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                       itemDetailsData &&
                       inputConfigs[activeConfig]?.map((col: InputConfig) => {
                         const value = getValueByPath(itemDetailsData, col.dataPath);
+
                         if (col.type === 'input') {
                           return (
                             <>
@@ -1057,6 +1067,17 @@ export const EditModal: React.FC<EditModalProps> = ({
                                 key={col.key}
                                 label={col.label}
                                 seconds={value}
+                                handleInputChange={(value) => handleInputChange(col.dataPath, value)}
+                              />
+                            </>
+                          );
+                        } else if (col.type === 'intervalTime') {
+                          return (
+                            <>
+                              <DateTimeIntervalPicker
+                                key={col.key}
+                                label={col.label}
+                                interval={value}
                                 handleInputChange={(value) => handleInputChange(col.dataPath, value)}
                               />
                             </>

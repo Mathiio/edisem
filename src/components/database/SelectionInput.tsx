@@ -29,7 +29,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   const [selectedValues, setSelectedValues] = useState<string[]>(
     initialValues.map((item: any) => item.value_resource_id),
   );
-  console.log('selectedValues', selectedValues);
+  //console.log('selectedValues', selectedValues);
 
   const [idToDisplayNameMap, setIdToDisplayNameMap] = useState<{ [key: string]: string }>({});
   const [searchTerm, setSearchTerm] = useState('');
@@ -64,13 +64,13 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
         });
       }
 
-      console.log('map', map);
+      //console.log('map', map);
       setIdToDisplayNameMap(map);
 
       const allValues = filteredData.map((item: any) => item['o:id']);
       const nonSelectedValues = allValues.filter((value) => !selectedValues.includes(value));
       setNonSelectedValues(nonSelectedValues);
-      console.log('nonSelectedValues', nonSelectedValues);
+      //console.log('nonSelectedValues', nonSelectedValues);
     }
   }, [speakersData, selectionId, selectedValues]);
 
