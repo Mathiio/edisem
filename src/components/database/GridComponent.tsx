@@ -16,7 +16,7 @@ import {
   UniversityIcon,
   OtherIcon,
   ImageIcon,
-} from '@/components/utils/Icons';
+} from '@/components/Utils/icons';
 import { columnConfigs } from '@/pages/database';
 
 interface GridProps {

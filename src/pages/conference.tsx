@@ -13,7 +13,6 @@ import { KeywordsCard, KeywordsSkeleton } from '@/components/conference/Keywords
 import { Bibliographies } from '@/components/conference/BibliographyCards';
 import { Mediagraphies } from '@/components/conference/MediagraphyCards';
 
-
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
   visible: {

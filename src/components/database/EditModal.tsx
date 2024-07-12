@@ -14,9 +14,9 @@ import { usegetDataByClassDetails } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/database/SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
-import { TimecodeInput, DateTimeIntervalPicker } from '@/components/database/TimecodeInput';
-import { Scrollbar } from '@/components/utils/Scrollbar';
-import { CloseIcon } from '@/components/utils/Icons';
+import { TimecodeInput, DateTimeIntervalPicker, DatePicker } from '@/components/database/TimecodeInput';
+import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { CloseIcon } from '@/components/Utils/icons';
 import MultipleInputs from '@/components/database/MultipleInputs';
 
 interface User {}
@@ -492,6 +492,9 @@ class Omk {
     } else if (p['o:id'] == 630) {
       baseValue['@value'] = v;
       baseValue.type = 'numeric:interval';
+    } else if (p['o:id'] == 7) {
+      baseValue['@value'] = v;
+      baseValue.type = 'numeric:timestamp';
     } else if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735)) {
       baseValue['@value'] = v;
       baseValue.type = 'numeric:integer';
@@ -653,7 +656,7 @@ export interface InputConfig {
   key: string;
   label: string;
   dataPath: string;
-  type: 'input' | 'selection' | 'textarea' | 'time' | 'inputs' | 'intervalTime';
+  type: 'input' | 'selection' | 'textarea' | 'time' | 'inputs' | 'intervalTime' | 'date';
   options?: (string | number)[];
   selectionId?: number[];
 }
@@ -698,6 +701,12 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
     },
     { key: 'url', label: 'Url de la vidéo', dataPath: 'schema:url.0.@id', type: 'input' },
     {
+      key: 'dcterms:date',
+      label: 'Date',
+      dataPath: 'dcterms:date.0.@value',
+      type: 'date',
+    },
+    {
       key: 'dcterms:isPartOf',
       label: 'Séances',
       dataPath: 'dcterms:isPartOf',
@@ -728,12 +737,6 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       label: 'Timecode de fin',
       dataPath: 'schema:endTime.0.@value',
       type: 'time',
-    },
-    {
-      key: 'schema:datasetTimeInterval',
-      label: 'Timecode',
-      dataPath: 'schema:datasetTimeInterval.0.@value',
-      type: 'intervalTime',
     },
   ],
   conferenciers: [
@@ -1078,6 +1081,17 @@ export const EditModal: React.FC<EditModalProps> = ({
                                 key={col.key}
                                 label={col.label}
                                 interval={value}
+                                handleInputChange={(value) => handleInputChange(col.dataPath, value)}
+                              />
+                            </>
+                          );
+                        } else if (col.type === 'date') {
+                          return (
+                            <>
+                              <DatePicker
+                                key={col.key}
+                                label={col.label}
+                                date={value}
                                 handleInputChange={(value) => handleInputChange(col.dataPath, value)}
                               />
                             </>

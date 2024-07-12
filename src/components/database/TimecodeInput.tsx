@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TimeInput } from '@nextui-org/date-input'; // Assurez-vous que l'importation est correcte
 import { Time } from '@internationalized/date';
-import { Calendar } from '@nextui-org/calendar';
+import { Calendar, DateValue } from '@nextui-org/calendar';
 
 import { CalendarDate } from '@internationalized/date';
 
@@ -61,11 +61,6 @@ export const TimecodeInput: React.FC<TimecodeInputProps> = ({ seconds = 0, label
 function intlParseDate(dateString: string): CalendarDate {
   const [year, month, day] = dateString.split('-').map(Number);
   return new CalendarDate(year, month, day);
-}
-
-// Function to get local time zone
-function intlGetLocalTimeZone(): string {
-  return new Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
 interface DateTimeIntervalPickerProps {
@@ -201,6 +196,67 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
           {formatDateTime(parsedInterval.date, parsedInterval.end)}
         </p> */}
       </div>
+    </div>
+  );
+};
+interface DateInputProps {
+  date?: string;
+  handleInputChange: (value: string) => void;
+  label: string;
+}
+
+export const DatePicker: React.FC<DateInputProps> = ({ label, date, handleInputChange }) => {
+  const getInitialDateValue = (): CalendarDate | null => {
+    if (date) {
+      const parsedDate = new Date(date);
+      if (isValidDate(parsedDate)) {
+        // Convertir en CalendarDate si nécessaire
+        return new CalendarDate(parsedDate.getFullYear(), parsedDate.getMonth() + 1, parsedDate.getDate());
+      }
+    }
+    return null;
+  };
+
+  const isValidDate = (d: Date): boolean => {
+    return d instanceof Date && !isNaN(d.getTime());
+  };
+
+  const [selectedDate, setSelectedDate] = useState<CalendarDate | null>(getInitialDateValue());
+
+  useEffect(() => {
+    setSelectedDate(getInitialDateValue());
+  }, [date]);
+
+  const handleDateChange = (newDate: DateValue | null) => {
+    if (newDate instanceof CalendarDate) {
+      setSelectedDate(newDate);
+      handleInputChange(newDate.toString().split('T')[0]); // Exemple de format ISO 8601 sans l'heure
+    } else {
+      setSelectedDate(null);
+      handleInputChange(''); // Peut-être gérer le cas où newDate est null
+    }
+  };
+
+  return (
+    <div className='datetime-picker'>
+      <label>{label}</label>
+      <Calendar
+        classNames={{
+          cellButton: 'rounded-12',
+          base: 'w-full calendarbase shadow-none',
+          content: 'w-full',
+          headerWrapper: 'w-full',
+          prevButton: 'rounded-8 w-[50px]',
+          nextButton: 'rounded-8 w-[50px]',
+        }}
+        aria-label='Date'
+        value={selectedDate}
+        onChange={handleDateChange}
+        showMonthAndYearPickers
+        visibleMonths={2}
+        color='secondary'
+        showShadow={false}
+      />
     </div>
   );
 };

@@ -15,8 +15,8 @@ import { SelectionInput } from '@/components/database/SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
 import { TimecodeInput } from '@/components/database/TimecodeInput';
-import { Scrollbar } from '@/components/utils/Scrollbar';
-import { CloseIcon } from '@/components/utils/Icons';
+import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { CloseIcon } from '@/components/Utils/icons';
 import { inputConfigs, InputConfig } from '@/components/database/EditModal';
 
 interface User {}
@@ -380,15 +380,41 @@ class Omk {
     return result;
   };
 
-  public formatValue = (p: any, v: any): any => {
-    if (p['o:id'] == 1517) return { property_id: p['o:id'], '@id': v, type: 'uri', is_public: true };
-    if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735))
-      return { property_id: p['o:id'], '@value': v, type: 'numeric:integer', is_public: true };
-    else if (typeof v === 'number') return { property_id: p['o:id'], value_resource_id: v, type: 'resource' };
-    else if (typeof v === 'object' && v.u) return { property_id: p['o:id'], '@id': v.u, 'o:label': v.l, type: 'uri' };
-    else if (typeof v === 'object')
-      return { property_id: p['o:id'], '@value': JSON.stringify(v), type: 'literal', is_public: true };
-    else return { property_id: p['o:id'], '@value': v, type: 'literal', is_public: true };
+  public formatValue = (p: any, v: any, language: string = 'fr'): any => {
+    let baseValue: any = { property_id: p['o:id'], is_public: true };
+
+    if (p['o:id'] == 1517) {
+      baseValue['@id'] = v;
+      baseValue.type = 'uri';
+    } else if (p['o:id'] == 630) {
+      baseValue['@value'] = v;
+      baseValue.type = 'numeric:interval';
+    } else if (p['o:id'] == 7) {
+      baseValue['@value'] = v;
+      baseValue.type = 'numeric:timestamp';
+    } else if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735)) {
+      baseValue['@value'] = v;
+      baseValue.type = 'numeric:integer';
+    } else if (typeof v === 'number') {
+      baseValue.value_resource_id = v;
+      baseValue.type = 'resource';
+    } else if (typeof v === 'object' && v.u) {
+      baseValue['@id'] = v.u;
+      baseValue['o:label'] = v.l;
+      baseValue.type = 'uri';
+    } else if (typeof v === 'object') {
+      baseValue['@value'] = JSON.stringify(v);
+      baseValue.type = 'literal';
+    } else {
+      baseValue['@value'] = v;
+      baseValue.type = 'literal';
+    }
+
+    if (p['o:id'] == 1716 && language) {
+      baseValue['@language'] = language;
+    }
+    console.log('baseValue', baseValue);
+    return baseValue;
   };
 
   public updateRessource = (

@@ -2,11 +2,11 @@ import React from 'react';
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { Input, Kbd } from '@nextui-org/react';
-import { ChangeThemeButton } from '@/components/navbar/change-theme';
-import CreditsModal from '@/components/navbar/CreditsModal';
-import { FilterModal } from '@/components/navbar/FilterModal';
-import { ProfilDropdown } from '@/components/navbar/ProfilDropdown';
-import { SearchIcon } from '@/components/utils/Icons';
+import { ChangeThemeButton } from '@/components/Navbar/change-theme';
+import CreditsModal from '@/components/Navbar/CreditsModal';
+import { FilterModal } from '@/components/Navbar/FilterModal';
+import { ProfilDropdown } from '@/components/Navbar/ProfilDropdown';
+import { SearchIcon } from '@/components/Utils/icons';
 import { motion, Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
 

@@ -1,13 +1,7 @@
 import { Button } from '@nextui-org/react';
-import { ArrowIcon } from '@/components/utils/Icons';
+import { ArrowIcon } from '@/components/Utils/icons';
 import { Splide, SplideSlide, SplideTrack } from '@splidejs/react-splide';
 import '@splidejs/react-splide/css';
-
-
-
-
-
-
 
 type FullCarrouselProps = {
   data: any[];
@@ -47,15 +41,6 @@ export const FullCarrousel: React.FC<FullCarrouselProps> = ({ data, title, perPa
     </Splide>
   );
 };
-
-
-
-
-
-
-
-
-
 
 type MidCarrouselProps = {
   data: any[];
@@ -105,15 +90,6 @@ export const MidCarrousel: React.FC<MidCarrouselProps> = ({
   );
 };
 
-
-
-
-
-
-
-
-
-
 type LongCarrouselProps = {
   data: any[];
   perPage: number;
@@ -125,7 +101,14 @@ type LongCarrouselProps = {
 export const LongCarrousel: React.FC<LongCarrouselProps> = ({ data, autowidth, perPage, perMove, renderSlide }) => {
   return (
     <Splide
-      options={{ perPage: perPage, gap: '1rem', pagination: false,  perMove: perMove, speed: 1000, autoWidth: autowidth }}
+      options={{
+        perPage: perPage,
+        gap: '1rem',
+        pagination: false,
+        perMove: perMove,
+        speed: 1000,
+        autoWidth: autowidth,
+      }}
       hasTrack={false}
       aria-label='...'
       className='flex w-full justify-between items-center gap-25'>
