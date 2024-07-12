@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Navbar } from '@/components/navbar/Navbar';
-import { Scrollbar } from '@/components/utils/Scrollbar';
+import { Navbar } from '@/components/Navbar/Navbar';
+import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
 import { SearchBar } from '@/components/search/SearchBar';
 import { SearchResults } from '@/components/search/SearchResults';

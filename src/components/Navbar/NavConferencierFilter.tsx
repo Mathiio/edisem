@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@nextui-org/react';
-import { ArrowIcon, CloseIcon } from '@/components/utils/Icons';
+import { ArrowIcon, CloseIcon } from '@/components/Utils/icons';
 
 interface ButtonProps {
   onClick?: (index: number) => void;
