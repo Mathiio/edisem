@@ -11,28 +11,43 @@ interface SelectionInputProps {
 
 type InputValue = {
   values: string;
-  language: string;
+  language?: string; // Make language optional
 };
 
 const MultipleInputs: React.FC<SelectionInputProps> = ({ col, actualData, handleInputChange }) => {
   const [inputValues, setInputValues] = useState<InputValue[]>([]);
+  const isLanguageField = col.options && col.options[0] === 'language';
 
   useEffect(() => {
     if (actualData && actualData[0] && actualData[0][col.key] && actualData[0][col.key].length > 0) {
-      const initialValues: InputValue[] = actualData[0][col.key].map((data: any) => ({
-        values: data['@value'] || '',
-        language: data['@language'] || 'fr', // Assuming default language is 'fr'
-      }));
+      let initialValues: InputValue[] = [];
+      if (isLanguageField) {
+        initialValues = actualData[0][col.key].map((data: any) => ({
+          values: data['@value'] || '',
+          language: data['@language'] || 'fr', // Assuming default language is 'fr'
+        }));
+      } else {
+        initialValues = actualData[0][col.key].map((data: any) => ({
+          values: data['@value'] || '',
+        }));
+      }
 
       setInputValues(initialValues);
     }
-  }, [actualData, col.key]);
+  }, [actualData, col.key, isLanguageField]);
 
   const handleChange = (index: number, newValue: string) => {
     const updatedValues = [...inputValues];
     updatedValues[index].values = newValue;
     setInputValues(updatedValues);
-    handleInputChange(col.dataPath, updatedValues);
+    if (isLanguageField) {
+      handleInputChange(col.dataPath, updatedValues);
+    } else {
+      handleInputChange(
+        col.dataPath,
+        updatedValues.map((value) => value.values),
+      );
+    }
   };
 
   const handleLanguageChange = (index: number, newLanguage: string) => {
@@ -46,7 +61,6 @@ const MultipleInputs: React.FC<SelectionInputProps> = ({ col, actualData, handle
     setInputValues([...inputValues, { values: '', language: 'fr' }]);
   };
 
-  const isLanguageField = col.options && col.options[0] === 'language';
   const canAddMoreInputs = !isLanguageField || inputValues.length < 2;
 
   return (

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
@@ -24,6 +25,7 @@ const itemVariants: Variants = {
   },
 };
 
+// Dummy data for demonstration purposes
 const conferenciers = [
   {
     name: 'Samuel Szoniecky',
@@ -47,54 +49,64 @@ const seminaires = [
     conferencier: 'Larrue Jean-Marc',
     date: '2021-02-19',
     keyword: ['Régimes performatifs', 'Canular', 'Fiction'],
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/1200px-Sunflower_from_Silesia2.jpg',
   },
   {
     name: 'B L’illusion est un objet. Perspectives néomatérialistes sur les arts trompeurs',
     conferencier: 'Larrue Jean-Marc',
     date: '2021-02-19',
     keyword: ['Régimes performatifs', 'Canular', 'Fiction'],
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/1200px-Sunflower_from_Silesia2.jpg',
   },
   {
     name: 'C L’illusion est un objet. Perspectives néomatérialistes sur les arts trompeurs',
     conferencier: 'Larrue Jean-Marc',
     date: '2021-02-19',
     keyword: ['Régimes performatifs', 'Canular', 'Fiction'],
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/1200px-Sunflower_from_Silesia2.jpg',
   },
   {
     name: 'D L’illusion est un objet. Perspectives néomatérialistes sur les arts trompeurs',
     conferencier: 'Larrue Jean-Marc',
     date: '2021-02-19',
     keyword: ['Régimes performatifs', 'Canular', 'Fiction'],
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/1200px-Sunflower_from_Silesia2.jpg',
   },
 ];
 
 export const Recherche: React.FC = () => {
+  const location = useLocation();
   const [sortOrder, setSortOrder] = useState<'croissant' | 'decroissant'>('croissant');
+  const [query, setQuery] = useState('');
+  const [filteredConferenciers, setFilteredConferenciers] = useState(conferenciers);
+  const [filteredSeminaires, setFilteredSeminaires] = useState(seminaires);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const searchQuery = params.get('query') || '';
+    setQuery(searchQuery);
+
+    if (searchQuery) {
+      // Replace with your API call
+      const filteredConfs = conferenciers.filter((conf) => conf.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      const filteredSems = seminaires.filter((sem) => sem.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      setFilteredConferenciers(filteredConfs);
+      setFilteredSeminaires(filteredSems);
+    }
+  }, [location.search]);
 
   const handleSelectionChange = (keys: Set<string>) => {
     let newSortOrder: 'croissant' | 'decroissant' = 'croissant';
 
-    // Votre logique de tri en fonction des clés sélectionnées
     if (keys.has('croissant')) {
       newSortOrder = 'croissant';
     } else if (keys.has('decroissant')) {
       newSortOrder = 'decroissant';
     }
 
-    // Mettre à jour l'état sortOrder
     setSortOrder(newSortOrder);
   };
+
   const sortResults = () => {
-    let sortedConferenciers = [...conferenciers];
-    let sortedSeminaires = [...seminaires];
+    let sortedConferenciers = [...filteredConferenciers];
+    let sortedSeminaires = [...filteredSeminaires];
 
     switch (sortOrder) {
       case 'croissant':
@@ -106,7 +118,6 @@ export const Recherche: React.FC = () => {
         sortedSeminaires.sort((a, b) => b.name.localeCompare(a.name));
         break;
       default:
-        // Pas de tri
         break;
     }
 

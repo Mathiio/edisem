@@ -81,35 +81,40 @@ export const useFetchRT = (resourceTemplateId: number | null) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const getData = async () => {
-      if (resourceTemplateId !== null) {
-        try {
-          const fetchedData = await fetchRT(resourceTemplateId);
-          setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
-        } catch (error) {
-          if (error instanceof Error) {
-            setError(error);
-            console.error('Error fetching data:', error);
-          } else {
-            setError(new Error('An unknown error occurred'));
-            console.error('Unknown error fetching data');
-          }
-        } finally {
-          setLoading(false);
+  const getData = async () => {
+    setLoading(true);
+    setError(null);
+    if (resourceTemplateId !== null) {
+      try {
+        const fetchedData = await fetchRT(resourceTemplateId);
+        setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error);
+          console.error('Error fetching data:', error);
+        } else {
+          setError(new Error('An unknown error occurred'));
+          console.error('Unknown error fetching data');
         }
-      } else {
-        setData(undefined);
+      } finally {
         setLoading(false);
       }
-    };
+    } else {
+      setData(undefined);
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     getData();
   }, [resourceTemplateId]);
 
-  return { data, loading, error };
-};
+  const refetch = () => {
+    getData();
+  };
 
+  return { data, loading, error, refetch };
+};
 
 export const usegetAllProperties = () => {
   const [data, setData] = useState<any[]>([]);

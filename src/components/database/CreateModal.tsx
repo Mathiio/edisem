@@ -14,10 +14,11 @@ import { useFetchRT } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/database/SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
-import { TimecodeInput } from '@/components/database/TimecodeInput';
+import { DatePicker, TimecodeInput } from '@/components/database/TimecodeInput';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { CloseIcon } from '@/components/Utils/icons';
 import { inputConfigs, InputConfig } from '@/components/database/EditModal';
+import MultipleInputs from './MultipleInputs';
 
 interface User {}
 class Omk {
@@ -309,6 +310,7 @@ class Omk {
   };
 
   public buildObject = (resourceTemplate: any, formValues: any): any => {
+    console.log(formValues);
     let RT = resourceTemplate[0]['o:resource_template_property'];
     console.log(resourceTemplate);
     console.log(RT[0]);
@@ -347,8 +349,12 @@ class Omk {
         if (formValue.length > 1) {
           for (let index = 0; index < formValue.length; index++) {
             console.log(formValue[index]);
-            formattedValue = this.formatValue(term, formValue[index]);
-
+            if (term['o:id'] === 1716) {
+              console.log('ici1');
+              formattedValue = this.formatValue(term, formValue[index].values, formValue[index].language);
+            } else {
+              formattedValue = this.formatValue(term, formValue[index]);
+            }
             if (!result[term['o:term']]) {
               result[term['o:term']] = [];
             }
@@ -357,7 +363,17 @@ class Omk {
         } else {
           console.log('solo value', formValue[0][0]);
           console.log('solo term', term);
-          formattedValue = this.formatValue(term, formValue[0][0]);
+          if (term['o:id'] === 1716) {
+            console.log('ici1');
+            formattedValue = this.formatValue(term, formValue[0].values, formValue[0].language);
+          } else if (term['o:id'] === 1720 || term['o:id'] === 1721) {
+            console.log('term[o:id]', term['o:id']);
+            console.log('ici2', term, formValue[0]);
+            formattedValue = this.formatValue(term, formValue[0]);
+          } else {
+            console.log('ici3');
+            formattedValue = this.formatValue(term, formValue[0][0]);
+          }
 
           if (!result[term['o:term']]) {
             result[term['o:term']] = [];
@@ -602,6 +618,7 @@ class Omk {
         bodyData.append('data', JSON.stringify(data));
         bodyData.append('file[1]', file);
       } else {
+        console.log('bodydata', data);
         bodyData = JSON.stringify(data);
         console.log('bodydata', bodyData);
         options.headers = {
@@ -652,12 +669,29 @@ export const CreateModal: React.FC<NewModalProps> = ({
   itemPropertiesData,
   propertiesLoading,
 }) => {
-  const { data: itemDetailsData, loading: detailsLoading, error: detailsError } = useFetchRT(itemId);
+  const {
+    data: itemDetailsData,
+    loading: detailsLoading,
+    error: detailsError,
+    refetch: refetchItemDetails,
+  } = useFetchRT(itemId);
   //console.log(itemDetailsData);
 
   const [itemData, setItemData] = useState<any>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  const clearState = () => {
+    setItemData({});
+  };
+
+  const clearDetailsState = () => {
+    refetchItemDetails(); // Optionally, if your hook supports refetching data
+    // Otherwise, manually reset your state variables
+    // setItemDetailsData(null);
+    // setDetailsLoading(false);
+    // setDetailsError(null);
+  };
 
   const pa = {
     mail: 'erwan.tbd@gmail.com',
@@ -719,12 +753,13 @@ export const CreateModal: React.FC<NewModalProps> = ({
       // }
 
       omks.props = itemPropertiesData;
-
+      console.log(itemData);
       let object = omks.buildObject(itemDetailsData, itemData);
       console.log(object);
       await omks.createItem(object);
 
       setSaving(false);
+      refetchItemDetails();
       onClose(); // Close the modal after successful save
     } catch (error) {
       if (error instanceof Error) {
@@ -755,7 +790,11 @@ export const CreateModal: React.FC<NewModalProps> = ({
         className='bg-default-100'
         size='2xl'
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={() => {
+          clearState(); // Clear state when modal closes
+          clearDetailsState();
+          onClose(); // Close the modal
+        }}
         hideCloseButton={true}
         scrollBehavior='inside'
         motionProps={{
@@ -845,8 +884,40 @@ export const CreateModal: React.FC<NewModalProps> = ({
                               />
                             </>
                           );
+                        }
+                        // else if (col.type === 'intervalTime') {
+                        //   return (
+                        //     <>
+                        //       <DateTimeIntervalPicker
+                        //         key={col.key}
+                        //         label={col.label}
+                        //         handleInputChange={(value) => handleInputChange(col.dataPath, value)}
+                        //       />
+                        //     </>
+                        //   );
+                        // }
+                        else if (col.type === 'date') {
+                          return (
+                            <>
+                              <DatePicker
+                                key={col.key}
+                                label={col.label}
+                                handleInputChange={(value) => handleInputChange(col.dataPath, value)}
+                              />
+                            </>
+                          );
                         } else if (col.type === 'selection') {
                           return <SelectionInput key={col.key} col={col} handleInputChange={handleInputChange} />;
+                        } else if (col.type === 'inputs') {
+                          // console.log(itemDetailsData);
+                          return (
+                            <MultipleInputs
+                              key={col.key}
+                              col={col}
+                              actualData={itemDetailsData}
+                              handleInputChange={handleInputChange}
+                            />
+                          );
                         } else {
                           return null; // Or handle other types accordingly
                         }
