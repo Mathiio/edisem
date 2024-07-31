@@ -14,7 +14,7 @@ import { usegetDataByClassDetails } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/database/SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
-import { TimecodeInput, DateTimeIntervalPicker, DatePicker } from '@/components/database/TimecodeInput';
+import { TimecodeInput, DatePicker } from '@/components/database/TimecodeInput';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { CloseIcon } from '@/components/Utils/icons';
 import MultipleInputs from '@/components/database/MultipleInputs';
@@ -394,19 +394,35 @@ class Omk {
             // Si c'est un tableau contenant un seul élément qui est lui-même un tableau
             formValue[0].forEach((value: any) => {
               console.log('value', value);
-              let formattedValue = this.formatValue(term, value.values, value.language);
+              let formattedValue;
+              if (term['o:id'] == 1716) {
+                formattedValue = this.formatValue(term, value.values, value.language);
+              } else {
+                formattedValue = this.formatValue(term, value, value);
+              }
+
               result[term['o:term']].push(formattedValue);
             });
           } else {
             // Pour les autres cas de tableaux
             formValue.forEach((value: any) => {
-              let formattedValue = this.formatValue(term, value.values, value.language);
+              let formattedValue;
+              if (term['o:id'] == 1716) {
+                formattedValue = this.formatValue(term, value.values, value.language);
+              } else {
+                formattedValue = this.formatValue(term, value, value);
+              }
+
               result[term['o:term']].push(formattedValue);
             });
           }
         } else {
-          // Si formValue n'est pas un tableau
-          let formattedValue = this.formatValue(term, formValue);
+          let formattedValue;
+          if (term['o:id'] == 1716) {
+            formattedValue = this.formatValue(term, formValue.values, formValue.language);
+          } else {
+            formattedValue = this.formatValue(term, formValue, formValue);
+          }
           result[term['o:term']].push(formattedValue);
         }
       }
@@ -714,6 +730,14 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       options: ['display_title'],
       selectionId: [76],
     },
+    {
+      key: 'jdc:hasConcept',
+      label: 'Concept associé',
+      dataPath: 'jdc:hasConcept',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [34],
+    },
   ],
   citations: [
     { key: 'schema:citation', label: 'Citations', dataPath: 'cito:hasCitedEntity.0.@value', type: 'textarea' },
@@ -791,7 +815,7 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
   ],
   motcles: [
     { key: 'Motcles', label: 'Titre du mot clé', dataPath: 'dcterms:title.0.@value', type: 'input' },
-    { key: 'skos:prefLabel', label: 'Titre du mot clé', dataPath: 'dcterms:title.0.@value', type: 'input' },
+
     {
       key: 'skos:prefLabel',
       label: 'Titre préféré',
@@ -811,9 +835,10 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       dataPath: 'skos:hiddenLabel.0.@value',
       type: 'inputs',
     },
+    { key: 'Description', label: 'Description du mot clé', dataPath: 'dcterms:description.0.@value', type: 'textarea' },
     {
       key: 'skos:exactMatch',
-      label: 'skos:exactMatch',
+      label: 'Concept synonyme',
       dataPath: 'skos:exactMatch',
       type: 'selection',
       options: ['display_title'],
@@ -821,7 +846,7 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
     },
     {
       key: 'skos:broader',
-      label: 'skos:broader',
+      label: 'Concept parent',
       dataPath: 'skos:broader',
       type: 'selection',
       options: ['display_title'],
@@ -829,8 +854,24 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
     },
     {
       key: 'skos:narrower',
-      label: 'skos:narrower',
+      label: 'Concept enfant',
       dataPath: 'skos:narrower',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [34],
+    },
+    {
+      key: 'skos:related',
+      label: 'Concept associatif',
+      dataPath: 'skos:related',
+      type: 'selection',
+      options: ['display_title'],
+      selectionId: [34],
+    },
+    {
+      key: 'skos:broadMatch',
+      label: 'Concept ChatGPT',
+      dataPath: 'skos:broadMatch',
       type: 'selection',
       options: ['display_title'],
       selectionId: [34],
@@ -845,8 +886,6 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
     },
   ],
 };
-
-//schema:startTime
 
 export const EditModal: React.FC<EditModalProps> = ({
   isOpen,
@@ -1022,7 +1061,6 @@ export const EditModal: React.FC<EditModalProps> = ({
                       itemDetailsData &&
                       inputConfigs[activeConfig]?.map((col: InputConfig) => {
                         const value = getValueByPath(itemDetailsData, col.dataPath);
-
                         if (col.type === 'input') {
                           return (
                             <>
@@ -1074,18 +1112,20 @@ export const EditModal: React.FC<EditModalProps> = ({
                               />
                             </>
                           );
-                        } else if (col.type === 'intervalTime') {
-                          return (
-                            <>
-                              <DateTimeIntervalPicker
-                                key={col.key}
-                                label={col.label}
-                                interval={value}
-                                handleInputChange={(value) => handleInputChange(col.dataPath, value)}
-                              />
-                            </>
-                          );
-                        } else if (col.type === 'date') {
+                        }
+                        // else if (col.type === 'intervalTime') {
+                        //   return (
+                        //     <>
+                        //       <DateTimeIntervalPicker
+                        //         key={col.key}
+                        //         label={col.label}
+                        //         interval={value}
+                        //         handleInputChange={(value) => handleInputChange(col.dataPath, value)}
+                        //       />
+                        //     </>
+                        //   );
+                        // }
+                        else if (col.type === 'date') {
                           return (
                             <>
                               <DatePicker

@@ -46,7 +46,8 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
 
       // Apply filtering based on selectionId and item_set
       if (selectionId === 34 && col.options?.[1]) {
-        filteredData = speakersData.filter((item: any) => item['o:item_set'][0]['o:id'] === col.options?.[1]);
+        console.log(filteredData);
+        filteredData = speakersData.filter((item: any) => item['o:item_set'][0]?.['o:id'] === col.options?.[1]);
       }
 
       const map: { [key: string]: string } = {};
@@ -101,6 +102,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   const handleSelect = (id: string) => {
     const newSelectedValues = [...selectedValues, id];
     setSelectedValues(newSelectedValues);
+    console.log(newSelectedValues);
     handleInputChange(col.dataPath, newSelectedValues);
   };
 

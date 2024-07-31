@@ -15,7 +15,6 @@ interface Seminaire {
   conferencier: string;
   date: string;
   keyword: string[];
-  image: string; // Add image property here
 }
 
 interface SearchResultsProps {
@@ -99,13 +98,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ conferenciers, sem
                 <div
                   className={`transition-transform-colors-opacity ${
                     hoveredIndex === `seminaire-${index}` ? 'text-default-action' : 'text-default-300'
-                  }`}>
-                  <div
-                    className=' w-[300px] h-[160px] rounded-8 bg-cover bg-center'
-                    style={{
-                      backgroundImage: `url(${seminaire.image})`,
-                    }}></div>
-                </div>
+                  }`}></div>
 
                 <div className='w-full flex flex-col gap-10'>
                   <div className='flex-col gap-5 flex'>

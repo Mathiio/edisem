@@ -1,14 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getConfOverview, getConfDetails, getConfKeyWords, getConfCitations, getConfBibliographies, getConfMediagraphies } from '../services/api';
-import { Navbar } from '@/components/navbar/Navbar';
-import { Scrollbar } from '@/components/utils/Scrollbar';
+import {
+  getConfOverview,
+  getConfDetails,
+  getConfKeyWords,
+  getConfCitations,
+  getConfBibliographies,
+  getConfMediagraphies,
+} from '../services/api';
+import { Navbar } from '@/components/Navbar/Navbar';
+import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/conference/ConfOverview';
 import { Citations } from '@/components/conference/CitationsCards';
 import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/conference/ConfDetails';
-import { LongCarrousel } from '@/components/utils/Carrousels';
-import { Tabs, Tab } from "@nextui-org/react";
+import { LongCarrousel } from '@/components/Utils/Carrousels';
+import { Tabs, Tab } from '@nextui-org/react';
 import { KeywordsCard, KeywordsSkeleton } from '@/components/conference/KeywordsCards';
 import { Bibliographies } from '@/components/conference/BibliographyCards';
 import { Mediagraphies } from '@/components/conference/MediagraphyCards';
@@ -35,12 +42,20 @@ const itemVariants: Variants = {
 export const Conference: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [selected, setSelected] = useState<string>('Bibliographie');
-  const [confOverview, setConfOverview] = useState<{ title: string, actant: string, actantId: number, university: string, url: string, fullUrl: string }[]>([]);
-  const [confDetails, setConfDetails] = useState<{ edition: string, date: string, description: string }[]>([]);
-  const [confKeyWords, setConfKeyWords] = useState<{ id: number, keyword: string }[]>([]);
-  const [confCitations, setConfCitations] = useState<{ citation: string, actant: string, startTime: number, endTime: number }[]>([]);
-  const [confBibliographies, setConfBibliographies] = useState<{ bibliography: string, author: string, date: string }[]>([]);
-  const [confMediagraphies, setConfMediagraphies] = useState<{ mediagraphy: string, author: string, date: string, type: string, url: string }[]>([]);
+  const [confOverview, setConfOverview] = useState<
+    { title: string; actant: string; actantId: number; university: string; url: string; fullUrl: string }[]
+  >([]);
+  const [confDetails, setConfDetails] = useState<{ edition: string; date: string; description: string }[]>([]);
+  const [confKeyWords, setConfKeyWords] = useState<{ id: number; keyword: string }[]>([]);
+  const [confCitations, setConfCitations] = useState<
+    { citation: string; actant: string; startTime: number; endTime: number }[]
+  >([]);
+  const [confBibliographies, setConfBibliographies] = useState<
+    { bibliography: string; author: string; date: string }[]
+  >([]);
+  const [confMediagraphies, setConfMediagraphies] = useState<
+    { mediagraphy: string; author: string; date: string; type: string; url: string }[]
+  >([]);
   const [loadingConfOverview, setLoadingConfOverview] = useState(true);
   const [loadingConfDetails, setLoadingConfDetails] = useState(true);
   const [loadingConfKeyWords, setLoadingConfKeyWords] = useState(true);
@@ -110,14 +125,39 @@ export const Conference: React.FC = () => {
             <Navbar />
           </motion.div>
           <motion.div className='col-span-10 lg:col-span-6 flex flex-col gap-20' variants={itemVariants}>
-            <LongCarrousel perPage={3} perMove={1} autowidth={true} data={loadingConfKeyWords ? Array.from({ length: 8 }) : confKeyWords}
-              renderSlide={(item) => loadingConfKeyWords ? <KeywordsSkeleton /> : <KeywordsCard key={item.id} id={item.id} word={item.keyword} />} 
+            <LongCarrousel
+              perPage={3}
+              perMove={1}
+              autowidth={true}
+              data={loadingConfKeyWords ? Array.from({ length: 8 }) : confKeyWords}
+              renderSlide={(item) =>
+                loadingConfKeyWords ? (
+                  <KeywordsSkeleton />
+                ) : (
+                  <KeywordsCard key={item.id} id={item.id} word={item.keyword} />
+                )
+              }
             />
-            {loadingConfOverview ? (<ConfOverviewSkeleton></ConfOverviewSkeleton>) : (
-              <ConfOverviewCard title={confOverview[0].title} actant={confOverview[0].actant} actantId={confOverview[0].actantId} university={confOverview[0].university} url={confOverview[0].url} fullUrl={confOverview[0].fullUrl} />
+            {loadingConfOverview ? (
+              <ConfOverviewSkeleton></ConfOverviewSkeleton>
+            ) : (
+              <ConfOverviewCard
+                title={confOverview[0].title}
+                actant={confOverview[0].actant}
+                actantId={confOverview[0].actantId}
+                university={confOverview[0].university}
+                url={confOverview[0].url}
+                fullUrl={confOverview[0].fullUrl}
+              />
             )}
-            {loadingConfDetails ? (<ConfDetailsSkeleton></ConfDetailsSkeleton>) : (
-              <ConfDetailsCard edition={confDetails[0].edition} date={confDetails[0].date} description={confDetails[0].description} />
+            {loadingConfDetails ? (
+              <ConfDetailsSkeleton></ConfDetailsSkeleton>
+            ) : (
+              <ConfDetailsCard
+                edition={confDetails[0].edition}
+                date={confDetails[0].date}
+                description={confDetails[0].description}
+              />
             )}
           </motion.div>
           <motion.div className='col-span-10 lg:col-span-4 flex flex-col gap-50' variants={itemVariants}>
@@ -127,28 +167,27 @@ export const Conference: React.FC = () => {
                   tabList: 'w-full gap-10 bg-default-0 rounded-8',
                   cursor: 'w-full',
                   tab: 'w-full bg-default-200 data-[selected=true]:bg-default-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-default-300 transition-all ease-in-out duration-200n',
-                  tabContent: 'group-data-[selected=true]:text-default-selected group-data-[selected=true]:font-semibold',
+                  tabContent:
+                    'group-data-[selected=true]:text-default-selected group-data-[selected=true]:font-semibold',
                 }}
                 aria-label='Options'
                 selectedKey={selected}
                 onSelectionChange={(key: React.Key) => setSelected(key as string)}>
                 <Tab key='Bibliographie' title='Bibliographie' className='px-0 py-0 flex'>
                   {selected === 'Bibliographie' && (
-                    <Bibliographies bibliographies={confBibliographies} loading={loadingConfBibliographies}/>
+                    <Bibliographies bibliographies={confBibliographies} loading={loadingConfBibliographies} />
                   )}
                 </Tab>
                 <Tab key='Citations' title='Citations' className='px-0 py-0 flex'>
-                  {selected === 'Citations' && (
-                    <Citations citations={confCitations} loading={loadingConfCitations}/>
-                  )}
+                  {selected === 'Citations' && <Citations citations={confCitations} loading={loadingConfCitations} />}
                 </Tab>
                 <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
                   {selected === 'Medias' && (
-                    <Mediagraphies mediagraphies={confMediagraphies} loading={loadingConfMediagraphies}/>
+                    <Mediagraphies mediagraphies={confMediagraphies} loading={loadingConfMediagraphies} />
                   )}
                 </Tab>
                 <Tab key='Annexes' title='Annexes' className='px-0 py-0 flex'>
-                  {selected === 'Annexes' && ""}
+                  {selected === 'Annexes' && ''}
                 </Tab>
               </Tabs>
             </div>

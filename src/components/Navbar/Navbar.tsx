@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { Input, Kbd } from '@nextui-org/react';
@@ -8,7 +8,7 @@ import { FilterModal } from '@/components/Navbar/FilterModal';
 import { ProfilDropdown } from '@/components/Navbar/ProfilDropdown';
 import { SearchIcon } from '@/components/Utils/icons';
 import { motion, Variants } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const navbarVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
@@ -24,12 +24,21 @@ const containerVariants: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2, // Delays the appearance of each child by 0.3 seconds
+      staggerChildren: 0.2,
     },
   },
 };
 
 export const Navbar: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearchKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && searchQuery.trim() !== '') {
+      navigate(`/recherche?query=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
   return (
     <motion.nav
       className='w-full flex justify-between items-center'
@@ -47,9 +56,9 @@ export const Navbar: React.FC = () => {
       <motion.div className='flex justify-center items-start gap-10' variants={navbarVariants}>
         <Input
           classNames={{
-            base: 'md:w-[400px] w-[300px]  ',
+            base: 'md:w-[400px] w-[300px]',
             clearButton: 'bg-default-600',
-            mainWrapper: 'h-full ',
+            mainWrapper: 'h-full',
             input: 'text-default-600 Inter font-semibold text-16 nav_searchbar',
             inputWrapper:
               'group-data-[focus=true]:bg-default-200 rounded-12 font-normal text-default-600 bg-default-200 dark:bg-default-200 p-25 h-[50px]',
@@ -66,6 +75,9 @@ export const Navbar: React.FC = () => {
           }
           type='search'
           fullWidth
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyPress={handleSearchKeyPress}
         />
         <FilterModal />
       </motion.div>
