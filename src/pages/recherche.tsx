@@ -81,6 +81,7 @@ export const Recherche: React.FC = () => {
     const params = new URLSearchParams(location.search);
     const searchQuery = params.get('query') || '';
     setQuery(searchQuery);
+    console.log(query);
 
     if (searchQuery) {
       // Replace with your API call

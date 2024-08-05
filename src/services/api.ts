@@ -160,8 +160,10 @@ export async function getDataByUrl (url: string) {
 
 export async function getSeminaires() {
   const fetchedEditions: { id: number, title: string; ConfNumb: number, year: string, season: string }[] = [];
+  console.log('debut du call');
 
   try {
+    console.log('debut du try');
     const response = await fetch(`${API_URL}/items/15086`);
     const seminaires: Data = await response.json();
 

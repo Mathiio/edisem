@@ -4,7 +4,7 @@ import { Conference } from '@/pages/conference';
 import { Conferencier } from '@/pages/conferencier';
 import { Home } from '@/pages/home';
 import { Recherche } from '@/pages/recherche';
-import { Database } from '@/pages/database';
+// import { Database } from '@/pages/database';
 import { Edition } from '@/pages/edition';
 
 function App() {
@@ -16,8 +16,8 @@ function App() {
       <Route path='/conferencier/:id' element={<Conferencier />} />
       <Route path='/recherche' Component={Recherche} />
       <Route path='/home' Component={Home} />
-      <Route path='/database' Component={Database} />
-      <Route path='/' Component={Database} />
+      {/* <Route path='/database' Component={Database} /> */}
+      <Route path='/' Component={Home} />
       <Route path='/edition/:id/:title?' element={<Edition />} />
     </Routes>
   );
