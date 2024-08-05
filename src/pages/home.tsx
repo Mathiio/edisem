@@ -26,7 +26,9 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     const fetchSeminaires = async () => {
+      console.log('call to semainaire fonction');
       const seminaires = await getSeminaires();
+      console.log('after call');
       setSeminaires(seminaires);
       setLoadingSeminaires(false);
     };
