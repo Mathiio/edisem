@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { FullCarrousel, MidCarrousel } from '@/components/Utils/Carrousels';
@@ -14,6 +14,7 @@ const fadeIn: Variants = {
 };
 
 export const Home: React.FC = () => {
+  console.log('home');
   const [seminaires, setSeminaires] = useState<
     { id: number; title: string; ConfNumb: number; year: string; season: string }[]
   >([]);
@@ -22,37 +23,42 @@ export const Home: React.FC = () => {
   const [loadingSeminaires, setLoadingSeminaires] = useState(true);
   const [loadingActants, setLoadingActants] = useState(true);
   const [loadingRandomConf, setLoadingRandomConf] = useState(true);
-  const firstRender = useRef(true);
+
+  const dataFetchedRef = useRef(false);
+
+  const fetchSeminaires = useCallback(async () => {
+    if (dataFetchedRef.current) return;
+    console.log('call to seminaire fonction');
+    const seminaires = await getSeminaires();
+    console.log('after call');
+    setSeminaires(seminaires);
+    setLoadingSeminaires(false);
+  }, []);
+
+  const fetchActants = useCallback(async () => {
+    if (dataFetchedRef.current) return;
+    const actants = await getActants();
+    setActants(actants);
+    setLoadingActants(false);
+  }, []);
+
+  const fetchRandomConf = useCallback(async () => {
+    if (dataFetchedRef.current) return;
+    const randomConf = await getRandomConferences(8);
+    setRandomConf(randomConf);
+    setLoadingRandomConf(false);
+  }, []);
 
   useEffect(() => {
-    const fetchSeminaires = async () => {
-      console.log('call to semainaire fonction');
-      const seminaires = await getSeminaires();
-      console.log('after call');
-      setSeminaires(seminaires);
-      setLoadingSeminaires(false);
-    };
+    if (dataFetchedRef.current) return;
+    console.log('useeffect');
 
-    const fetchActants = async () => {
-      const actants = await getActants();
-      setActants(actants);
-      setLoadingActants(false);
-    };
+    fetchSeminaires();
+    fetchActants();
+    fetchRandomConf();
 
-    const fetchRandomConf = async () => {
-      const randomConf = await getRandomConferences(8);
-      setRandomConf(randomConf);
-      setLoadingRandomConf(false);
-    };
-
-    if (firstRender.current) {
-      firstRender.current = false;
-    } else {
-      fetchSeminaires();
-      fetchActants();
-      fetchRandomConf();
-    }
-  }, []);
+    dataFetchedRef.current = true;
+  }, [fetchSeminaires, fetchActants, fetchRandomConf]);
 
   return (
     <div className='relative h-screen overflow-hidden'>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { useParams } from 'react-router-dom';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
@@ -9,21 +9,26 @@ export const Edition: React.FC = () => {
   const { id, title } = useParams<{ id: string; title?: string }>();
   const [conf, setConf] = useState<{ id: number; title: string; actant: string; date: string }[]>([]);
   const [loadingConf, setLoadingConf] = useState(true);
-  const firstRender = useRef(true);
+  const dataFetchedRef = useRef(false);
+
+  const fetchConf = useCallback(async () => {
+    if (dataFetchedRef.current) return;
+    console.log('Fetching conferences for edition:', id);
+    const conferences = await getConfByEdition(Number(id));
+    console.log('Conferences fetched:', conferences.length);
+    setConf(conferences);
+    setLoadingConf(false);
+    dataFetchedRef.current = true;
+  }, [id]);
 
   useEffect(() => {
-    const fetchConf = async () => {
-      const conf = await getConfByEdition(Number(id));
-      setConf(conf);
-      setLoadingConf(false);
-    };
-
-    if (firstRender.current) {
-      firstRender.current = false;
-    } else {
-      fetchConf();
+    console.log('useEffect called, dataFetchedRef:', dataFetchedRef.current);
+    if (dataFetchedRef.current) {
+      console.log('Data already fetched, skipping');
+      return;
     }
-  }, []);
+    fetchConf();
+  }, [fetchConf]);
 
   return (
     <div className='relative h-screen overflow-hidden'>

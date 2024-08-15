@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   getConfOverview,
@@ -62,56 +62,73 @@ export const Conference: React.FC = () => {
   const [loadingConfCitations, setLoadingConfCitations] = useState(true);
   const [loadingConfBibliographies, setLoadingConfBibliographies] = useState(true);
   const [loadingConfMediagraphies, setLoadingConfMediagraphies] = useState(true);
-  const firstRender = useRef(true);
+  const dataFetchedRef = useRef(false);
+
+  const fetchConfOverview = useCallback(async () => {
+    if (dataFetchedRef.current) return;
+    const data = await getConfOverview(Number(id));
+    setConfOverview(data);
+    setLoadingConfOverview(false);
+  }, [id]);
+
+  const fetchConfDetails = useCallback(async () => {
+    if (dataFetchedRef.current) return;
+    const data = await getConfDetails(Number(id));
+    setConfDetails(data);
+    setLoadingConfDetails(false);
+  }, [id]);
+
+  const fetchConfKeyWords = useCallback(async () => {
+    if (dataFetchedRef.current) return;
+    const data = await getConfKeyWords(Number(id));
+    setConfKeyWords(data);
+    setLoadingConfKeyWords(false);
+  }, [id]);
+
+  const fetchConfCitations = useCallback(async () => {
+    if (dataFetchedRef.current) return;
+    const data = await getConfCitations(Number(id));
+    setConfCitations(data);
+    setLoadingConfCitations(false);
+  }, [id]);
+
+  const fetchConfBibliographies = useCallback(async () => {
+    if (dataFetchedRef.current) return;
+    const data = await getConfBibliographies(Number(id));
+    setConfBibliographies(data);
+    setLoadingConfBibliographies(false);
+  }, [id]);
+
+  const fetchConfMediagraphies = useCallback(async () => {
+    if (dataFetchedRef.current) return;
+    const data = await getConfMediagraphies(Number(id));
+    setConfMediagraphies(data);
+    setLoadingConfMediagraphies(false);
+  }, [id]);
 
   useEffect(() => {
-    const fetchConfOverview = async () => {
-      const confOverview = await getConfOverview(Number(id));
-      setConfOverview(confOverview);
-      setLoadingConfOverview(false);
-    };
-
-    const fetchConfDetails = async () => {
-      const confDetails = await getConfDetails(Number(id));
-      setConfDetails(confDetails);
-      setLoadingConfDetails(false);
-    };
-
-    const fetchConfKeyWords = async () => {
-      const confKeyWords = await getConfKeyWords(Number(id));
-      setConfKeyWords(confKeyWords);
-      setLoadingConfKeyWords(false);
-    };
-
-    const fetchConfCitations = async () => {
-      const confCitations = await getConfCitations(Number(id));
-      setConfCitations(confCitations);
-      setLoadingConfCitations(false);
-    };
-
-    const fetchConfBibliographies = async () => {
-      const confBibliographies = await getConfBibliographies(Number(id));
-      setConfBibliographies(confBibliographies);
-      setLoadingConfBibliographies(false);
-    };
-
-    const fetchConfMediagraphies = async () => {
-      const confMediagraphies = await getConfMediagraphies(Number(id));
-      setConfMediagraphies(confMediagraphies);
-      setLoadingConfMediagraphies(false);
-    };
-
-    if (firstRender.current) {
-      firstRender.current = false;
-    } else {
-      fetchConfOverview();
-      fetchConfDetails();
-      fetchConfKeyWords();
-      fetchConfCitations();
-      fetchConfBibliographies();
-      fetchConfMediagraphies();
+    console.log('useEffect called, dataFetchedRef:', dataFetchedRef.current);
+    if (dataFetchedRef.current) {
+      console.log('Data already fetched, skipping');
+      return;
     }
-  }, []);
+
+    fetchConfOverview();
+    fetchConfDetails();
+    fetchConfKeyWords();
+    fetchConfCitations();
+    fetchConfBibliographies();
+    fetchConfMediagraphies();
+
+    dataFetchedRef.current = true;
+  }, [
+    fetchConfOverview,
+    fetchConfDetails,
+    fetchConfKeyWords,
+    fetchConfCitations,
+    fetchConfBibliographies,
+    fetchConfMediagraphies,
+  ]);
 
   return (
     <div className='relative h-screen overflow-hidden'>

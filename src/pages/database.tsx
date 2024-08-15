@@ -75,7 +75,7 @@ const useLocalStorageProperties = () => {
   return { itemPropertiesData, propertiesLoading };
 };
 
-export const Database = () => {
+export const Database: React.FC = () => {
   const { itemPropertiesData, propertiesLoading } = useLocalStorageProperties();
 
   const initializePropertiesLoading = () => {

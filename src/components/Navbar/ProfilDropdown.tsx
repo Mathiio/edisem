@@ -59,8 +59,8 @@ export const ProfilDropdown: React.FC = () => {
           </DropdownItem>
 
           <DropdownItem className='rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400'>
-            <Link to='/' className='flex justify-between items-center w-full'>
-              {/* <Link to='/database' className='flex justify-between items-center w-full'> */}
+            {/* <Link to='/' className='flex justify-between items-center w-full'> */}
+            <Link to='/database' className='flex justify-between items-center w-full'>
               <p className='text-default-500 text-16'>Données</p>
               <DataIcon size={15} />
             </Link>
