@@ -14,7 +14,7 @@ const fadeIn: Variants = {
 };
 
 export const Home: React.FC = () => {
-  console.log('home');
+  //console.log('home');
   const [seminaires, setSeminaires] = useState<
     { id: number; title: string; ConfNumb: number; year: string; season: string }[]
   >([]);
