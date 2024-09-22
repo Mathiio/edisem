@@ -7,7 +7,9 @@ import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 
 export const Edition: React.FC = () => {
   const { id, title } = useParams<{ id: string; title?: string }>();
-  const [conf, setConf] = useState<{ id: number; title: string; actant: string; date: string }[]>([]);
+  const [conf, setConf] = useState<
+    { id: number; title: string; actant: string; date: string; ytb: string; universite: string }[]
+  >([]);
   const [loadingConf, setLoadingConf] = useState(true);
   const dataFetchedRef = useRef(false);
 
@@ -44,7 +46,15 @@ export const Edition: React.FC = () => {
                 {loadingConf
                   ? Array.from({ length: 12 }).map((_, index) => <LgConfSkeleton key={index} />)
                   : conf.map((item) => (
-                      <LgConfCard key={item.id} id={item.id} title={item.title} actant={item.actant} date={item.date} />
+                      <LgConfCard
+                        key={item.id}
+                        id={item.id}
+                        title={item.title}
+                        actant={item.actant}
+                        date={item.date}
+                        ytb={item.ytb}
+                        universite={item.universite}
+                      />
                     ))}
               </div>
             </div>

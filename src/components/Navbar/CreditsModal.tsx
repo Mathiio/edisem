@@ -67,24 +67,33 @@ const CreditsModal = () => {
                 <Scrollbar withGap>
                   <div className='flex flex-col gap-25'>
                     <div className='text-default-400'>Equipe Arcanes</div>
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <div className='text-default-400'>Equipe Arcanes</div>
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <div className='text-default-400'>Equipe Arcanes</div>
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
-                    <CreditCard name='Junior Garcia' job='Software Engineer' />
+                    <CreditCard
+                      name='Gabrielle Godin'
+                      job=''
+                      description={[
+                        'Modèle de données',
+                        'Veille informationnelle',
+                        'Administration de la base de données',
+                        'Contenus (citations, bibliographies et médiagraphies)',
+                      ]}
+                    />
+                    <CreditCard name='Renée Bourassa' job='' />
+                    <CreditCard
+                      name='Sandrine Bienvenu'
+                      job='Assistanat de recherche'
+                      description={[
+                        'Developed web applications',
+                        'Managed a small team',
+                        'Collaborated with cross-functional teams',
+                      ]}
+                    />
+                    <CreditCard
+                      name='Maxime Girard'
+                      job='Technicien en travaux d’enseignement et de recherche'
+                      description={['Montage vidéo', 'Expérimentation de générateurs conversationnels', 'Graphisme']}
+                    />
+                    <CreditCard name='Erwan THIBAUD' job='Developpeur / Designer' />
+                    <CreditCard name='Mathéo Pougalan' job='Developpeur / Designer' />
                   </div>
                 </Scrollbar>
               </ModalBody>

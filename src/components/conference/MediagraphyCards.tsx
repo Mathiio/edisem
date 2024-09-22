@@ -89,7 +89,7 @@ interface MediagraphiesProps {
 
 export const Mediagraphies: React.FC<MediagraphiesProps> = ({ mediagraphies, loading }) => {
   return (
-    <div className='w-full lg:h-[400px] xl:h-[450px] sm:h-[450px] overflow-hidden flex flex-col gap-20'>
+    <div className='w-full lg:h-[700px] xl:h-[750px] overflow-hidden flex flex-col gap-20'>
       <Scrollbar withGap>
         <div className='flex flex-col gap-20'>
           {loading ? (

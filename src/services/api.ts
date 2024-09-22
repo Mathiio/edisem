@@ -8,15 +8,18 @@ export interface Data {
   'display_name'?: any[];
   '@id': string;
   '@type'?: string[];
+  'o:resource_class'?: { '@id': string, 'o:id': number };
+  'thumbnail_display_urls'?: { 'large': string, };
+  'bibo:uri'?: Array<{ '@id': string,}>;
   'schema:citation'?: Array<{ 'display_title': string, '@id': string, 'value_resource_id': number }>;
   'jdc:hasConcept'?: Array<{ 'display_title': string, '@id': string, 'value_resource_id': number }>;
   'schema:season'?: Array<{ '@value': string }>;
   'schema:isRelatedTo'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
-  'schema:agent'?: Array<{ 'display_title': string, 'value_resource_id': number }>;
+  'schema:agent'?: Array<{ 'display_title': string, 'value_resource_id': number , '@id' : string}>;
   'dcterms:date'?: Array<{ '@value': string }>;
   'dcterms:title'?: Array<{ 'display_title': string, '@value'?: string }>;
   'jdc:hasLaboratoire'?: Array<{ 'value_resource_id': number }>;
-  'jdc:hasUniversity'?: Array<{ 'value_resource_id': number }>;
+  'jdc:hasUniversity'?: Array<{ 'value_resource_id': number, 'display_title': string,  }>;
   'jdc:hasEcoleDoctorale'?: Array<{ 'value_resource_id': number }>;
   'schema:url'?: Array<{ '@id'?: string }>;
   'cito:hasCitedEntity'?: Array<{ '@value': string }>;
@@ -27,11 +30,16 @@ export interface Data {
   'dcterms:isPartOf'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
   'dcterms:bibliographicCitation'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
   'bibo:authorList'?: Array<{ '@value': string }>;
-  'dcterms:references'?: Array<{ '@value': string }>;
+  'dcterms:references'?: Array<{ '@value': string , '@id': string}>;
   'schema:associatedMedia'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
   'dcterms:hasFormat'?: Array<{ '@value': string }>;
+  'schema:image'?: Array<{ '@id': string }>;
+  'o:original_url': string;
+  'dcterms:creator'?: Array<{ '@value': string, 'display_title': string }>;
+  'bibo:editor'?: Array<{ '@value': string }>;
+  'dcterms:publisher'?: Array<{ '@value': string }>;
 }
-
+//bibo:creator
 
 export const getDataByClass = async (resourceClassId: number): Promise<Data[]> => {
   let page = 1;
@@ -166,13 +174,15 @@ export async function getSeminaires() {
     console.log('debut du try');
     const response = await fetch(`${API_URL}/items/15086`);
     const seminaires: Data = await response.json();
+    
 
     for (let item of seminaires['schema:isRelatedTo'] || []) {
+     
       try {
         const edition: Data = await getDataByUrl(item['@id']) as unknown as Data;
-
+        console.log(edition)
         if (edition && edition['schema:isRelatedTo']) {
-
+          
           const ConfNumb = Number(edition['schema:isRelatedTo'].length);
           const title = edition['dcterms:title'] ? edition['dcterms:title'][0]['@value'] as unknown as string : "Non renseigné";
           const confUrl = edition['schema:isRelatedTo'][0]['@id'] as string;
@@ -185,11 +195,32 @@ export async function getSeminaires() {
           
           fetchedEditions.push({ id, title, ConfNumb, year, season });
         }
+        
       } catch (error) {
         console.error(`Error fetching seminaires details for ${item['@id']}:`, error);
       }
     }
-    fetchedEditions.sort((a, b) => b.year.localeCompare(a.year) || (a.season > b.season ? -1 : 1));
+
+    const getSeasonValue = (season: string): number => {
+      switch(season.toLowerCase()) {
+        case 'hiver': return 0;
+        case 'printemps': return 1;
+        case 'été': return 2;
+        case 'automne': return 3;
+        default: return -1;
+      }
+    };
+   
+   // Tri modifié
+   fetchedEditions.sort((a, b) => {
+    // D'abord, comparer les années
+    const yearComparison = b.year.localeCompare(a.year);
+    if (yearComparison !== 0) return yearComparison;
+
+    // Si les années sont identiques, comparer les saisons
+    return getSeasonValue(b.season) - getSeasonValue(a.season);
+  });
+  
     return fetchedEditions;
   } catch (error) {
     console.error('Error fetching seminaires:', error);
@@ -240,32 +271,52 @@ export async function getEdition(editionId: number) {
 
 export async function getRandomConferences(confNum: number) {
   try {
-    const conferences = await getDataByRT(71); 
+    const conferences = await getDataByRT(71);
 
-    const fetchedConf: { id: number, title: string; actant: string, date: string}[] = [];
+    // Filtrer les conférences pour ne garder que celles dont la date est inférieure à 2023
+    const filteredConferences = conferences.filter(conference => {
+      const dateStr = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : null;
+      return dateStr && new Date(dateStr).getFullYear() < 2023;
+    });
 
-    const randomIndexes = getRandomIndexes(conferences.length, confNum);
+    // S'assurer de prendre confNum conférences aléatoires parmi celles filtrées
+    const randomIndexes = getRandomIndexes(filteredConferences.length, confNum);
 
-    randomIndexes.forEach(index => {
-      const conference = conferences[index];
+    // Utiliser Promise.all avec map pour attendre toutes les opérations asynchrones
+    const fetchedConf = await Promise.all(randomIndexes.map(async index => {
+      const conference = filteredConferences[index];
 
-      let title = conference['o:title'] ? conference['o:title'] as string : "Non renseigné" ;
-      let actant = conference['schema:agent'] ? conference['schema:agent'][0]['display_title'] as string : "Non renseigné" ;
-      let date = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : "Non renseignée" ;
+      let title = conference['o:title'] ? conference['o:title'] as string : "Non renseigné";
+      let actant_name = conference['schema:agent'] ? conference['schema:agent'][0]['display_title'] as string : "Non renseigné";
+      let date = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : "Non renseignée";
+      let ytb = conference['schema:url'] ? conference['schema:url'][0]['@id'] as string : "Non renseignée";
+      let actant_id = conference['schema:agent'] ? conference['schema:agent'][0]['@id'] as string : "Non renseignée";
 
-      fetchedConf.push({
+      let actant = await getDataByUrl(actant_id);
+      
+      let universite = actant['jdc:hasUniversity'] ? actant['jdc:hasUniversity'][0]['display_title'] as string : "Non renseignée";
+
+      const formattedUniversityName = universite.replace(/Vincennes-Saint-Denis/g, '').replace(/École Nationale Supérieure/g, 'ENS').replace(/Université Polytechnique des Hauts-de-France/g, 'UPHF').replace(/Université/g, 'U.');
+
+
+      return {
         id: conference['o:id'],
         title: title,
-        actant: actant,
-        date: date
-      });
-    });
-    return fetchedConf;
+        actant: actant_name,
+        date: date,
+        ytb: ytb,
+        universite: formattedUniversityName
+      };
+    }));
+
+    console.log(fetchedConf);
+    return fetchedConf.slice(0, confNum); // S'assure de retourner seulement confNum résultats
   } catch (error) {
     console.error('Error fetching conferences:', error);
     throw new Error('Failed to fetch conferences');
   }
 }
+
 
 
 
@@ -285,13 +336,17 @@ function getRandomIndexes(max: number, num: number): number[] {
 
 
 export async function getActants() {
-  const fetchedActants: { id: number, name: string; interventions: number }[] = [];
+  const fetchedActants: { id: number, name: string; interventions: number, university_img:string,university_name:string }[] = [];
 
   try {
     const actants = await getDataByRT(72);
     const conferences = await getDataByRT(71);
+    const universities = await getDataByRT(73);
     for (let item of actants) {
       let interventions = 0;
+      let universityImage = "";
+      let universityName = "";
+     
       for (let conference of conferences) {
         if (conference['schema:agent']) {
           if (Array.isArray(conference['schema:agent'])) {
@@ -307,7 +362,28 @@ export async function getActants() {
           }
         }
       }
-      fetchedActants.push({ id: item['o:id'], name: item['o:title'], interventions: interventions });
+      for (let university of universities) {
+        if (university['schema:image']) {
+
+            
+              if (item['jdc:hasUniversity'] && item['jdc:hasUniversity'][0]['value_resource_id'] === university['o:id']) {
+                universityName = item['jdc:hasUniversity'][0]['display_title'];
+                
+                let media_univ = await getDataByUrl(university['schema:image'][0]['@id']);
+                
+                if (media_univ && media_univ['o:original_url']) {
+                  universityImage = media_univ['o:original_url'];
+                  //console.log(universityImage)
+                 
+                }
+                 
+              }
+          
+       
+          
+        }
+      }
+      fetchedActants.push({ id: item['o:id'], name: item['o:title'], interventions: interventions, university_img : universityImage, university_name : universityName });
     }
     return fetchedActants;
   } catch (error) {
@@ -425,7 +501,7 @@ export async function getActant(actantId: number) {
 
 export async function getConfByActant(actantId: number) {
   try {
-    const fetchedConferences: { id: number, title: string; actant: string, date: string}[] = [];
+    const fetchedConferences: { id: number, title: string; actant: string, date: string; ytb: string, universite:string}[] = [];
     const conferences = await getDataByRT(71);
 
     for (let conference of conferences) {
@@ -434,14 +510,24 @@ export async function getConfByActant(actantId: number) {
           if (agent && agent['value_resource_id'] && agent['value_resource_id'] === actantId) {
 
             const title = conference['o:title'] ? conference['o:title'] as string : 'Non renseigné';
-            const actant = agent['display_title'] ? agent['display_title'] as string : 'Non renseigné';
+            const actant_name = agent['display_title'] ? agent['display_title'] as string : 'Non renseigné';
             const date = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : 'Non renseignée';
+            const ytb = conference['schema:url'] ? conference['schema:url'][0]['@id'] as string : "Non renseignée";
+            let actant_id = conference['schema:agent'] ? conference['schema:agent'][0]['@id'] as string : "Non renseignée";
+  
+        let actant = await getDataByUrl(actant_id);
+        
+        let universite = actant['jdc:hasUniversity'] ? actant['jdc:hasUniversity'][0]['display_title'] as string : "Non renseignée";
+  
+        const formattedUniversityName = universite.replace(/Vincennes-Saint-Denis/g, '').replace(/École Nationale Supérieure/g, 'ENS').replace(/Université Polytechnique des Hauts-de-France/g, 'UPHF').replace(/Université/g, 'U.');
 
             fetchedConferences.push({
               id: conference['o:id'],
               title: title,
-              actant: actant,
-              date: date
+              actant: actant_name,
+              date: date,
+              ytb: ytb,
+              universite:formattedUniversityName
             });
             break; 
           }
@@ -450,14 +536,24 @@ export async function getConfByActant(actantId: number) {
         if (conference['schema:agent']['value_resource_id'] === actantId) {
 
           const title = conference['o:title'] ? conference['o:title'] : 'Non renseigné';
-          const actant = conference['schema:agent'] ? conference['schema:agent'][0]['display_title'] as string : 'Non renseigné';
+          const actant_name = conference['schema:agent'] ? conference['schema:agent'][0]['display_title'] as string : 'Non renseigné';
           const date = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : 'Non renseigné';
+          const ytb = conference['schema:url'] ? conference['schema:url'][0]['@id'] as string : "Non renseignée";
+          let actant_id = conference['schema:agent'] ? conference['schema:agent'][0]['@id'] as string : "Non renseignée";
+  
+        let actant = await getDataByUrl(actant_id);
+        
+        let universite = actant['jdc:hasUniversity'] ? actant['jdc:hasUniversity'][0]['display_title'] as string : "Non renseignée";
+  
+        const formattedUniversityName = universite.replace(/Vincennes-Saint-Denis/g, '').replace(/École Nationale Supérieure/g, 'ENS').replace(/Université Polytechnique des Hauts-de-France/g, 'UPHF').replace(/Université/g, 'U.');
 
           fetchedConferences.push({
             id: conference['o:id'],
             title: title,
-            actant: actant,
-            date: date
+            actant: actant_name,
+            date: date,
+            ytb: ytb,
+            universite: formattedUniversityName
           });
         }
       }
@@ -473,7 +569,7 @@ export async function getConfByActant(actantId: number) {
 
 
 export async function getConfByEdition(editionId: number) {
-  const fetchedEdition: { id: number, actant: string; title: string; date: string }[] = [];
+  const fetchedEdition: { id: number, actant: string; title: string; date: string, ytb: string, universite: string }[] = [];
 
   try {
     const response = await fetch(`${API_URL}/items/${editionId}`);
@@ -485,15 +581,29 @@ export async function getConfByEdition(editionId: number) {
         const conf = await getDataByUrl(item['@id']) as Data;
 
         const title = conf['o:title'] ? conf['o:title'] as string : 'Non renseigné';
-        const actant = conf['schema:agent'] ? conf['schema:agent'][0]['display_title'] as string : 'Non renseigné';
+        const actant_name = conf['schema:agent'] ? conf['schema:agent'][0]['display_title'] as string : 'Non renseigné';
         const date = conf['dcterms:date'] ? conf['dcterms:date'][0]['@value'] as string : 'Non renseigné';
+        let ytb = conf['schema:url'] ? conf['schema:url'][0]['@id'] as string : "Non renseignée";
+        let actant_id = conf['schema:agent'] ? conf['schema:agent'][0]['@id'] as string : "Non renseignée";
+  
+        let actant = await getDataByUrl(actant_id);
+        
+        let universite = actant['jdc:hasUniversity'] ? actant['jdc:hasUniversity'][0]['display_title'] as string : "Non renseignée";
+  
+        const formattedUniversityName = universite.replace(/Vincennes-Saint-Denis/g, '').replace(/École Nationale Supérieure/g, 'ENS').replace(/Université Polytechnique des Hauts-de-France/g, 'UPHF').replace(/Université/g, 'U.');
+
+        
 
         return {
           id: conf['o:id'],
           title: title,
-          actant: actant,
-          date: date
+          actant: actant_name,
+          date: date,
+          ytb: ytb,
+          universite: formattedUniversityName
         };
+
+        
       } catch (error) {
         console.error(`Error fetching edition details for ${item['@id']}:`, error);
         return null;
@@ -641,24 +751,83 @@ export async function getConfCitations(confId: number) {
 
 
 export async function getConfBibliographies(confId: number) {
-  const fetchedCitations: { bibliography: string, author: string, date: string }[] = [];
+  const fetchedBibliographies: {author: string, date: string , bibliography_title: string, source?: string,ressource_id: number; thumbnail?: string; url?: string;   }[] = [];
 
   try {
     const confRep = await fetch(`${API_URL}/items/${confId}`);
     const conf = await confRep.json() as Data;
+    console.log(conf)
     
-    if(conf["dcterms:bibliographicCitation"]){
-      for(let item of conf["dcterms:bibliographicCitation"]){
+    
+    if(conf["dcterms:references"]){
+      for(let item of conf["dcterms:references"]){
         if(item["@id"]){
           const bibliographyRep = await getDataByUrl(item["@id"])
-          const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "Non renseignée";
-          const author = bibliographyRep['bibo:authorList'] ? bibliographyRep['bibo:authorList'][0]['@value'] as string : "Non renseigné";
-          const bibliography = bibliographyRep['dcterms:references'] ? bibliographyRep['dcterms:references'][0]['@value'] as string : "Non renseigné";
-          fetchedCitations.push({ bibliography, author, date })
+          if (bibliographyRep["o:resource_class"]) {
+            if ( bibliographyRep["o:resource_class"]["o:id"] == 40) {
+              const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "";
+              const author = bibliographyRep['dcterms:creator'] ? bibliographyRep['dcterms:creator'][0]['display_title'] as string : "";
+              const bibliography_title = bibliographyRep['dcterms:title'] ? bibliographyRep['dcterms:title'][0]['@value'] as string : "";
+              const source = bibliographyRep['dcterms:publisher'] ? bibliographyRep['dcterms:publisher'][0]['@value'] as string : "";
+              const ressource_id = bibliographyRep["o:resource_class"]["o:id"];
+              const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
+              const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
+              console.log(bibliographyRep)
+              fetchedBibliographies.push({ bibliography_title, author, date,source,ressource_id, url,thumbnail  })
+            }
+
+            else if (bibliographyRep["o:resource_class"] && bibliographyRep["o:resource_class"]["o:id"] == 81) {
+              const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "";
+              const author = bibliographyRep['dcterms:creator'] ? bibliographyRep['dcterms:creator'][0]['display_title'] as string : "";
+              const bibliography_title = bibliographyRep['dcterms:references'] ? bibliographyRep['dcterms:references'][0]['@value'] as string : "";
+              const ressource_id = bibliographyRep["o:resource_class"]["o:id"];
+              const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
+              const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
+              fetchedBibliographies.push({ bibliography_title, author, date,ressource_id, url,thumbnail  })
+            }
+
+            else if (bibliographyRep["o:resource_class"] && bibliographyRep["o:resource_class"]["o:id"] == 36) {
+              const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "";
+              const author = bibliographyRep['dcterms:creator'] ? bibliographyRep['dcterms:creator'][0]['display_title'] as string : "";
+              const bibliography_title = bibliographyRep['dcterms:title'] ? bibliographyRep['dcterms:title'][0]['@value'] as string : "";
+              const ressource_id = bibliographyRep["o:resource_class"]["o:id"];
+              const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
+              const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
+              console.log(bibliographyRep)
+              fetchedBibliographies.push({ bibliography_title, author, date,ressource_id, url,thumbnail  })
+            }
+            else if (bibliographyRep["o:resource_class"] && bibliographyRep["o:resource_class"]["o:id"] == 35) {
+              const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "";
+              const author = bibliographyRep['dcterms:creator'] ? bibliographyRep['dcterms:creator'][0]['display_title'] as string : "";
+              const bibliography_title = bibliographyRep['dcterms:title'] ? bibliographyRep['dcterms:title'][0]['@value'] as string : "";
+              const ressource_id = bibliographyRep["o:resource_class"] ? bibliographyRep["o:resource_class"]["o:id"] as number : 0;
+              const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
+              const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
+              //console.log(bibliographyRep)
+              console.log(thumbnail)
+              fetchedBibliographies.push({ bibliography_title, author, date,ressource_id, url,thumbnail })
+
+            }
+            else {
+              const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "";
+              const author = bibliographyRep['dcterms:creator'] ? bibliographyRep['dcterms:creator'][0]['display_title'] as string : "";
+              const bibliography_title = bibliographyRep['dcterms:title'] ? bibliographyRep['dcterms:title'][0]['@value'] as string : "";
+              const ressource_id = bibliographyRep["o:resource_class"] ? bibliographyRep["o:resource_class"]["o:id"] as number : 0;
+              const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
+              const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
+              //console.log(bibliographyRep)
+              console.log(thumbnail)
+              fetchedBibliographies.push({ bibliography_title, author, date,ressource_id, url,thumbnail })
+
+            }
+
+             
+            
+            }
         }
       }
     }
-    return fetchedCitations;
+    return fetchedBibliographies;
   } catch (error) {
     console.error('Error fetching seminaires:', error);
     throw new Error('Failed to fetch seminaires');

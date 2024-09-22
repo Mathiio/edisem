@@ -2,21 +2,72 @@ import React from 'react';
 import { Skeleton } from '@nextui-org/react';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { FileIcon } from '@/components/Utils/icons';
+import { Link } from 'react-router-dom';
 
 interface BibliographyCardProps {
-  bibliography: string;
+  bibliography_title: string;
   author: string;
   date: string;
+  source?: string;
+  ressource_id: number;
+  thumbnail?: string;
+  url?: string;
 }
 
-export const BibliographyCard: React.FC<BibliographyCardProps> = ({ author, bibliography, date }) => {
+// export const BibliographyCard: React.FC<BibliographyCardProps> = ({ author, bibliography, date }) => {
+//   return (
+//     <div className='w-full flex flex-col justify-start items-start gap-10 transition-transform-colors-opacity'>
+//       <div className='w-full flex flex-col gap-10 '>
+//         {/* <h3 className='text-default-500 text-16 font-semibold'>{author}</h3> */}
+//         <p className='text-default-400 text-16'>{bibliography}</p>
+//       </div>
+//       {/* <p className='text-default-400 text-14'>{date}</p> */}
+//     </div>
+//   );
+// };
+
+export const BibliographyCard: React.FC<BibliographyCardProps> = ({
+  author,
+  date,
+  bibliography_title,
+  source,
+  ressource_id,
+  thumbnail,
+  url,
+}) => {
+  const hasContent = (value: string | undefined) => value && value.trim() !== '';
+  //console.log(thumbnail);
+
   return (
     <div className='w-full flex flex-col justify-start items-start gap-10 transition-transform-colors-opacity'>
-      <div className='w-full flex flex-col gap-5 '>
-        <h3 className='text-default-500 text-16 font-semibold'>{author}</h3>
-        <p className='text-default-400 text-16'>{bibliography}</p>
+      {/* Flex row si thumbnail est présent */}
+      <div className={`flex ${thumbnail ? 'flex-row' : 'flex-col'} gap-4 items-start`}>
+        {/* Si une miniature est présente, elle s'affiche ici */}
+        {thumbnail && (
+          <div className='flex-shrink-0'>
+            <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' />
+          </div>
+        )}
+
+        {/* Contenu texte à droite de la miniature */}
+        <div className='w-full flex flex-col gap-10'>
+          {ressource_id === 40 || ressource_id === 41 ? (
+            <p className='text-default-600 text-16'>
+              {hasContent(author) && <span>{author}.</span>}
+              {hasContent(date) && <span> ({date}).</span>}
+              {hasContent(bibliography_title) && <span className='italic'> {bibliography_title}.</span>}
+              {hasContent(source) && <span> {source}.</span>}
+            </p>
+          ) : (
+            <p className='text-default-600 text-16'>{bibliography_title}</p>
+          )}
+          {url && (
+            <Link to={url} className='text-default-500 underline'>
+              Voir la source
+            </Link>
+          )}
+        </div>
       </div>
-      <p className='text-default-400 text-14'>{date}</p>
     </div>
   );
 };
@@ -43,15 +94,23 @@ export const BibliographySkeleton: React.FC = () => {
 };
 
 interface BibliographiesProps {
-  bibliographies: { bibliography: string; author: string; date: string }[];
+  bibliographies: {
+    author: string;
+    date: string;
+    bibliography_title: string;
+    source?: string;
+    ressource_id: number;
+    thumbnail?: string;
+    url?: string;
+  }[];
   loading: boolean;
 }
 
 export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, loading }) => {
   return (
-    <div className='w-full lg:h-[400px] xl:h-[450px] sm:h-[450px] overflow-hidden flex flex-col gap-20'>
+    <div className='w-full lg:h-[700px] xl:h-[750px] overflow-hidden flex flex-col gap-20'>
       <Scrollbar withGap>
-        <div className='flex flex-col gap-20'>
+        <div className='flex flex-col gap-50'>
           {loading ? (
             Array.from({ length: 4 }).map((_, index) => <BibliographySkeleton key={index} />)
           ) : bibliographies.length === 0 ? (
@@ -60,9 +119,13 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, 
             bibliographies.map((bibliography, index) => (
               <BibliographyCard
                 key={index}
-                bibliography={bibliography.bibliography}
+                bibliography_title={bibliography.bibliography_title}
                 author={bibliography.author}
                 date={bibliography.date}
+                source={bibliography.source}
+                ressource_id={bibliography.ressource_id}
+                thumbnail={bibliography.thumbnail}
+                url={bibliography.url}
               />
             ))
           )}

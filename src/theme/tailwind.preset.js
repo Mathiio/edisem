@@ -684,6 +684,10 @@ module.exports = {
       40: '40',
       50: '50',
     },
+    listStyleType: {
+      none: 'none',
+      disc: 'disc',
+    }
   },
   variantOrder: [
     'first',
