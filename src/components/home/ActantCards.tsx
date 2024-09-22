@@ -1,22 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@nextui-org/react';
-import { UserIcon } from '@/components/Utils/icons';
+
 import { Link } from '@nextui-org/react';
 
 type ActantCardProps = {
   id: number;
   name: string;
   interventions: number;
+  university_img: string;
+  university_name: string;
 };
 
-export const ActantCard: React.FC<ActantCardProps> = ({ id, name, interventions }) => {
+export const ActantCard: React.FC<ActantCardProps> = ({ id, name, interventions, university_img, university_name }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+
+  // Remplacer "Université" par "U." si présent dans university_name
+
+  const formattedUniversityName = university_name.replace(/Université/g, 'U.').replace(/Vincennes-Saint-Denis/g, '');
 
   const openConf = () => {
     navigate(`/conferencier/${id}`);
   };
+  console.log(university_img);
 
   return (
     <div
@@ -26,12 +33,10 @@ export const ActantCard: React.FC<ActantCardProps> = ({ id, name, interventions 
       className={`cursor-pointer border-2 h-full rounded-12 flex flex-col items-center justify-center p-20 gap-20 transition-transform-colors-opacity ${
         isHovered ? 'border-default-action' : 'border-default-300'
       }`}>
-      <UserIcon
-        className={`transition-transform-colors-opacity ${isHovered ? 'text-default-action' : 'text-default-600'}`}
-        size={40}
-      />
+      <img src={university_img} alt={`${name}'s university`} className='w-20 h-20 object-cover rounded-full' />
       <div className='flex flex-col justify-center items-center gap-5'>
         <p className='text-16 text-center text-default-600 font-semibold'>{name}</p>
+        <p className='text-12 text-center text-default-600 font-semibold'>{formattedUniversityName}</p>
         <p className='text-16 text-default-500 font-regular'>
           {interventions} intervention{interventions > 1 ? 's' : ''}
         </p>
