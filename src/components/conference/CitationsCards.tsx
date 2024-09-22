@@ -8,9 +8,10 @@ interface CitationCardProps {
   endTime: number;
   actant: string;
   citation: string;
+  onTimeChange: (time: number) => void;
 }
 
-export const CitationCard: React.FC<CitationCardProps> = ({ startTime, endTime, actant, citation }) => {
+export const CitationCard: React.FC<CitationCardProps> = ({ startTime, endTime, actant, citation, onTimeChange }) => {
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -23,10 +24,17 @@ export const CitationCard: React.FC<CitationCardProps> = ({ startTime, endTime, 
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
   };
 
+  const handleClick = () => {
+    console.log('Bouton de citation cliqué, startTime:', startTime);
+    onTimeChange(startTime);
+  };
+
   return (
     <div className='w-full flex flex-col justify-start rounded-12 items-start gap-5 transition-transform-colors-opacity'>
       <div className='w-full flex justify-start items-center gap-10'>
-        <Button className='p-5 text-16 rounded-6 text-default-500 hover:text-default-500 bg-default-200 hover:bg-default-300 transition-all ease-in-out duration-200'>
+        <Button
+          onClick={handleClick}
+          className='p-5 text-16 rounded-6 text-default-500 hover:text-default-500 bg-default-200 hover:bg-default-300 transition-all ease-in-out duration-200'>
           {formatTime(startTime) + ' - ' + formatTime(endTime)}
         </Button>
         <h3 className='text-default-500 text-16 font-semibold'>{actant}</h3>
@@ -72,11 +80,12 @@ export const CitationSkeleton: React.FC = () => {
 interface CitationsProps {
   citations: { citation: string; actant: string; startTime: number; endTime: number }[];
   loading: boolean;
+  onTimeChange: (time: number) => void;
 }
 
-export const Citations: React.FC<CitationsProps> = ({ citations, loading }) => {
+export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTimeChange }) => {
   return (
-    <div className='w-full lg:h-[400px] xl:h-[450px] sm:h-[450px] overflow-hidden flex flex-col gap-20'>
+    <div className='w-full lg:h-[700px] xl:h-[750px]  overflow-hidden flex flex-col gap-20'>
       <Scrollbar withGap>
         <div className='flex flex-col gap-20'>
           {loading ? (
@@ -91,6 +100,7 @@ export const Citations: React.FC<CitationsProps> = ({ citations, loading }) => {
                 endTime={citation.endTime}
                 actant={citation.actant}
                 citation={citation.citation}
+                onTimeChange={onTimeChange}
               />
             ))
           )}

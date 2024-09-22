@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton, Link, Tooltip, Button } from '@nextui-org/react';
 import { CreditIcon, CameraIcon } from '@/components/Utils/icons';
@@ -27,6 +27,7 @@ type ConfOverviewProps = {
   university: string;
   url: string;
   fullUrl: string;
+  currentTime: number;
 };
 
 export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
@@ -36,10 +37,32 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
   university,
   url,
   fullUrl,
+  currentTime,
 }) => {
   const [videoUrl, setVideoUrl] = useState<string>(url);
   const [buttonText, setButtonText] = useState<string>('séance complète');
   const navigate = useNavigate();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    console.log('ConfOverviewCard: currentTime mis à jour:', currentTime);
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      console.log('Tentative de mise à jour du temps de la vidéo');
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func: 'seekTo', args: [currentTime, true] }),
+        '*',
+      );
+    } else {
+      console.log('iframeRef ou contentWindow non disponible');
+    }
+  }, [currentTime]);
+
+  useEffect(() => {
+    const updatedUrl = new URL(videoUrl);
+    updatedUrl.searchParams.set('enablejsapi', '1');
+    console.log("URL de l'iframe:", updatedUrl.toString());
+    setVideoUrl(updatedUrl.toString());
+  }, [url, fullUrl]);
 
   const openActant = () => {
     navigate(`/conferencier/${actantId}`);
@@ -67,6 +90,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
       <motion.div variants={itemVariants} className='rounded-14 lg:w-full overflow-hidden'>
         {videoUrl ? (
           <iframe
+            ref={iframeRef}
             className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'
             title='YouTube Video'
             width='100%'

@@ -41,7 +41,9 @@ const itemVariants: Variants = {
 
 export const Conference: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [selected, setSelected] = useState<string>('Bibliographie');
+  const [selected, setSelected] = useState<string>('Citations');
+  const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
+
   const [confOverview, setConfOverview] = useState<
     { title: string; actant: string; actantId: number; university: string; url: string; fullUrl: string }[]
   >([]);
@@ -51,7 +53,15 @@ export const Conference: React.FC = () => {
     { citation: string; actant: string; startTime: number; endTime: number }[]
   >([]);
   const [confBibliographies, setConfBibliographies] = useState<
-    { bibliography: string; author: string; date: string }[]
+    {
+      author: string;
+      date: string;
+      bibliography_title: string;
+      source?: string;
+      ressource_id: number;
+      thumbnail?: string;
+      url?: string;
+    }[]
   >([]);
   const [confMediagraphies, setConfMediagraphies] = useState<
     { mediagraphy: string; author: string; date: string; type: string; url: string }[]
@@ -63,6 +73,15 @@ export const Conference: React.FC = () => {
   const [loadingConfBibliographies, setLoadingConfBibliographies] = useState(true);
   const [loadingConfMediagraphies, setLoadingConfMediagraphies] = useState(true);
   const dataFetchedRef = useRef(false);
+
+  const handleTimeChange = (newTime: number) => {
+    console.log('handleTimeChange appelé avec:', newTime);
+    setCurrentVideoTime(newTime);
+  };
+
+  useEffect(() => {
+    console.log('currentVideoTime mis à jour:', currentVideoTime);
+  }, [currentVideoTime]);
 
   const fetchConfOverview = useCallback(async () => {
     if (dataFetchedRef.current) return;
@@ -94,6 +113,7 @@ export const Conference: React.FC = () => {
 
   const fetchConfBibliographies = useCallback(async () => {
     if (dataFetchedRef.current) return;
+
     const data = await getConfBibliographies(Number(id));
     setConfBibliographies(data);
     setLoadingConfBibliographies(false);
@@ -165,6 +185,7 @@ export const Conference: React.FC = () => {
                 university={confOverview[0].university}
                 url={confOverview[0].url}
                 fullUrl={confOverview[0].fullUrl}
+                currentTime={currentVideoTime}
               />
             )}
             {loadingConfDetails ? (
@@ -177,8 +198,10 @@ export const Conference: React.FC = () => {
               />
             )}
           </motion.div>
-          <motion.div className='col-span-10 lg:col-span-4 flex flex-col gap-50' variants={itemVariants}>
-            <div className='flex w-full flex-col gap-20'>
+          <motion.div
+            className='col-span-10 h-full lg:col-span-4 flex flex-col gap-50 flex-grow'
+            variants={itemVariants}>
+            <div className='flex w-full flex-col gap-20 flex-grow'>
               <Tabs
                 classNames={{
                   tabList: 'w-full gap-10 bg-default-0 rounded-8',
@@ -190,22 +213,28 @@ export const Conference: React.FC = () => {
                 aria-label='Options'
                 selectedKey={selected}
                 onSelectionChange={(key: React.Key) => setSelected(key as string)}>
-                <Tab key='Bibliographie' title='Bibliographie' className='px-0 py-0 flex'>
+                <Tab key='Citations' title='Citations' className='px-0 py-0 flex'>
+                  {selected === 'Citations' && (
+                    <Citations
+                      citations={confCitations}
+                      loading={loadingConfCitations}
+                      onTimeChange={handleTimeChange}
+                    />
+                  )}
+                </Tab>
+                <Tab key='Bibliographie' title='Bibliographie' className='px-0 py-0 flex flex-grow'>
                   {selected === 'Bibliographie' && (
                     <Bibliographies bibliographies={confBibliographies} loading={loadingConfBibliographies} />
                   )}
-                </Tab>
-                <Tab key='Citations' title='Citations' className='px-0 py-0 flex'>
-                  {selected === 'Citations' && <Citations citations={confCitations} loading={loadingConfCitations} />}
                 </Tab>
                 <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
                   {selected === 'Medias' && (
                     <Mediagraphies mediagraphies={confMediagraphies} loading={loadingConfMediagraphies} />
                   )}
                 </Tab>
-                <Tab key='Annexes' title='Annexes' className='px-0 py-0 flex'>
+                {/* <Tab key='Annexes' title='Aller plus loin' className='px-0 py-0 flex'>
                   {selected === 'Annexes' && ''}
-                </Tab>
+                </Tab> */}
               </Tabs>
             </div>
           </motion.div>

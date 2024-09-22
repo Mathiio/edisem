@@ -225,3 +225,25 @@ body{
 .calendarbase div:nth-child(2){
   width: 100% !important;
 }
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@keyframes marquee {
+	0% { transform: translateX(0%); }
+	100% { transform: translateX(-100%); }
+  }
+  
+  .marquee {
+	white-space: nowrap;
+	overflow: hidden;
+	position: relative;
+  }
+  
+  .marquee-content {
+	animation: marquee 20s linear infinite;
+  }

@@ -20,7 +20,9 @@ export const Conferencier: React.FC = () => {
     schools: { name: string; link: string }[];
   } | null>(null);
   const [loadingActant, setLoadingActant] = useState(true);
-  const [conf, setConf] = useState<{ id: number; title: string; actant: string; date: string }[]>([]);
+  const [conf, setConf] = useState<
+    { id: number; title: string; actant: string; date: string; ytb: string; universite: string }[]
+  >([]);
   const [loadingConf, setLoadingConf] = useState(true);
   const dataFetchedRef = useRef(false);
 
@@ -139,7 +141,15 @@ export const Conferencier: React.FC = () => {
                 {loadingConf
                   ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
                   : conf.map((item) => (
-                      <LgConfCard key={item.id} id={item.id} title={item.title} actant={item.actant} date={item.date} />
+                      <LgConfCard
+                        key={item.id}
+                        id={item.id}
+                        title={item.title}
+                        actant={item.actant}
+                        date={item.date}
+                        ytb={item.ytb}
+                        universite={item.universite}
+                      />
                     ))}
               </div>
             </div>
