@@ -18,8 +18,12 @@ export const Home: React.FC = () => {
   const [seminaires, setSeminaires] = useState<
     { id: number; title: string; ConfNumb: number; year: string; season: string }[]
   >([]);
-  const [actants, setActants] = useState<{ id: number; name: string; interventions: number }[]>([]);
-  const [randomConf, setRandomConf] = useState<{ id: number; title: string; actant: string; date: string }[]>([]);
+  const [actants, setActants] = useState<
+    { id: number; name: string; interventions: number; university_img: string; university_name: string }[]
+  >([]);
+  const [randomConf, setRandomConf] = useState<
+    { id: number; title: string; actant: string; date: string; ytb: string; universite: string }[]
+  >([]);
   const [loadingSeminaires, setLoadingSeminaires] = useState(true);
   const [loadingActants, setLoadingActants] = useState(true);
   const [loadingRandomConf, setLoadingRandomConf] = useState(true);
@@ -38,6 +42,7 @@ export const Home: React.FC = () => {
   const fetchActants = useCallback(async () => {
     if (dataFetchedRef.current) return;
     const actants = await getActants();
+
     setActants(actants);
     setLoadingActants(false);
   }, []);
@@ -68,11 +73,19 @@ export const Home: React.FC = () => {
             <Navbar />
           </div>
           <div className='col-span-10 flex flex-col gap-100'>
+            {/* <div className='flex flex-wrap justify-between items-center gap-[100px] mt-[-25px] mb-[-50px] w-full'>
+              <img className='h-[25px] object-contain' src='/crilcq.png' alt='CRILCQ logo' />
+              <img className='h-[40px] object-contain' src='/laval.png' alt='Laval logo' />
+              <img className='h-[40px] object-contain' src='/univmtl.png' alt='Université de Montréal logo' />
+              <img className='h-[50px] object-contain' src='/uqam.png' alt='UQAM logo' />
+              <img className='h-[40px] object-contain' src='/paris8.png' alt='Paris 8 logo' />
+              <img className='h-[40px] object-contain' src='/paragraphe.png' alt='Paragraphe logo' />
+            </div> */}
             <FullCarrousel
               title='Derniers séminaires Arcanes'
               perPage={2}
               perMove={1}
-              data={loadingSeminaires ? Array.from({ length: 4 }) : seminaires}
+              data={loadingSeminaires ? Array.from({ length: 5 }) : seminaires}
               renderSlide={(item) =>
                 loadingSeminaires ? (
                   <EventSkeleton />
@@ -84,7 +97,7 @@ export const Home: React.FC = () => {
               }
             />
             <MidCarrousel
-              title='Découvrez Nos Conférenciers'
+              title='Découvrez nos conférenciers'
               description='Rencontrez les experts et visionnaires qui interviennent lors de nos conférences. Cliquez pour découvrir leur profil complet, incluant leur participation à divers séminaires, les thématiques qui leur sont chères, et bien plus encore.'
               perPage={3}
               perMove={1}
@@ -94,13 +107,20 @@ export const Home: React.FC = () => {
                   <ActantSkeleton />
                 ) : (
                   <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
-                    <ActantCard key={item.id} id={item.id} name={item.name} interventions={item.interventions} />
+                    <ActantCard
+                      key={item.id}
+                      id={item.id}
+                      name={item.name}
+                      interventions={item.interventions}
+                      university_img={item.university_img}
+                      university_name={item.university_name}
+                    />
                   </motion.div>
                 )
               }
             />
             <div className='gap-25 flex flex-col'>
-              <h2 className='text-24 font-bold text-default-600'>Séléction de conférences</h2>
+              <h2 className='text-24 font-bold text-default-600'>Sélection de conférences</h2>
               <div className='grid grid-cols-4 grid-rows-2 gap-25'>
                 {loadingRandomConf
                   ? Array.from({ length: 8 }).map((_) => <LgConfSkeleton />)
@@ -112,12 +132,13 @@ export const Home: React.FC = () => {
                           title={item.title}
                           actant={item.actant}
                           date={item.date}
+                          ytb={item.ytb}
+                          universite={item.universite}
                         />
                       </motion.div>
                     ))}
               </div>
             </div>
-            <div className='flex gap-75 w-full'></div>
           </div>
         </main>
       </Scrollbar>

@@ -6,6 +6,10 @@ import { Home } from '@/pages/home';
 import { Recherche } from '@/pages/recherche';
 import { Database } from '@/pages/database';
 import { Edition } from '@/pages/edition';
+import LoginPage from '@/pages/login';
+import { withAuth } from '@/pages/withAuth';
+
+const ProtectedDatabase = withAuth(Database);
 
 function App() {
   useThemeMode();
@@ -15,10 +19,10 @@ function App() {
       <Route path='/conference/:id' Component={Conference} />
       <Route path='/conferencier/:id' Component={Conferencier} />
       <Route path='/recherche' Component={Recherche} />
-      {/* <Route path='/home' Component={Home} /> */}
-      <Route path='/database' Component={Database} />
-      <Route path='/' Component={Home} />
+      <Route path='/database' Component={ProtectedDatabase} />
+      <Route index path='/' Component={Home} />
       <Route path='/edition/:id/:title?' Component={Edition} />
+      <Route path='/login' Component={LoginPage} />
     </Routes>
   );
 }
