@@ -8,16 +8,16 @@ interface SearchBarProps {
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({ Nombre, onSelectionChange }) => {
-  const [selectedKeys, setSelectedKeys] = React.useState<Set<string>>(new Set(['Trier']));
+  const [selectedKeys, setSelectedKeys] = React.useState<Set<string>>(new Set(['Croissant']));
 
   const selectedValue = React.useMemo(() => {
     const keysArray = Array.from(selectedKeys);
-    return keysArray.join(', ').replace(/_/g, ' '); // Use replace with a regex as a workaround
+    return keysArray.join(', ').replace(/_/g, ' ');
   }, [selectedKeys]);
 
   const handleSelectionChange = (keys: Set<string>) => {
-    setSelectedKeys(keys); // Met à jour l'état local
-    onSelectionChange(keys); // Appelle la fonction de rappel dans le composant parent
+    setSelectedKeys(keys); 
+    onSelectionChange(keys);
   };
 
   return (
@@ -35,7 +35,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ Nombre, onSelectionChange 
           disallowEmptySelection
           selectionMode='single'
           selectedKeys={selectedKeys}
-          onSelectionChange={(keys) => handleSelectionChange(new Set(keys as Set<string>))} // Utilise la fonction de rappel
+          onSelectionChange={(keys) => handleSelectionChange(new Set(keys as Set<string>))} 
           className='p-10'>
           <DropdownItem key='croissant'>A-Z</DropdownItem>
           <DropdownItem key='decroissant'>Z-A</DropdownItem>

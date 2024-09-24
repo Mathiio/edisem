@@ -45,9 +45,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    console.log('ConfOverviewCard: currentTime mis à jour:', currentTime);
     if (iframeRef.current && iframeRef.current.contentWindow) {
-      console.log('Tentative de mise à jour du temps de la vidéo');
       iframeRef.current.contentWindow.postMessage(
         JSON.stringify({ event: 'command', func: 'seekTo', args: [currentTime, true] }),
         '*',
@@ -60,7 +58,6 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
   useEffect(() => {
     const updatedUrl = new URL(videoUrl);
     updatedUrl.searchParams.set('enablejsapi', '1');
-    console.log("URL de l'iframe:", updatedUrl.toString());
     setVideoUrl(updatedUrl.toString());
   }, [url, fullUrl]);
 

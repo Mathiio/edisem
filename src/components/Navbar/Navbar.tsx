@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 
@@ -8,7 +8,9 @@ import CreditsModal from '@/components/Navbar/CreditsModal';
 import { ProfilDropdown } from '@/components/Navbar/ProfilDropdown';
 
 import { motion, Variants } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Input, Kbd } from '@nextui-org/react';
+import { SearchIcon } from '../Utils/icons';
 
 const navbarVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
@@ -30,14 +32,15 @@ const containerVariants: Variants = {
 };
 
 export const Navbar: React.FC = () => {
-  // const [searchQuery, setSearchQuery] = useState('');
-  // const navigate = useNavigate();
+  const [search, setSearch] = useState('');
+  const navigate = useNavigate();
 
-  // const handleSearchKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (event.key === 'Enter' && searchQuery.trim() !== '') {
-  //     navigate(`/recherche?query=${encodeURIComponent(searchQuery)}`);
-  //   }
-  // };
+  const handleSearchKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && search.trim() !== '') {
+      navigate(`/recherche?query=${encodeURIComponent(search)}`);
+      setSearch('');
+    }
+  };
 
   return (
     <motion.nav
@@ -45,19 +48,28 @@ export const Navbar: React.FC = () => {
       initial='hidden'
       animate='visible'
       variants={containerVariants}>
-      <motion.div className='flex items-center gap-4' variants={navbarVariants}>
-        <Link to='/' className='flex items-center'>
+      <motion.div className='flex items-center gap-20' variants={navbarVariants}>
+        <Link to='/' className='flex items-center gap-5'>
           <Image width={40} src={Logo} alt='Logo' />
+          <div className='text-24 text-default-600 font-bold'>Arcanes</div>
         </Link>
-        <div className='hidden lg:flex flex-col justify-center items-start'>
-          <div className='text-24 text-default-500 font-semibold'>Arcanes</div>
+        <div className='h-20 border-1 border-default-400'>
+        </div>
+        <div className='flex flex-wrap justify-between items-center gap-15'>
+          <img className='h-[15px] object-contain' src='/crilcq.png' alt='CRILCQ logo' />
+          <img className='h-[25px] object-contain' src='/laval.png' alt='Laval logo' />
+          <img className='h-[25px] object-contain' src='/univmtl.png' alt='Université de Montréal logo' />
+          <img className='h-[30px] object-contain' src='/uqam.png' alt='UQAM logo' />
+          <img className='h-[25px] object-contain' src='/paris8.png' alt='Paris 8 logo' />
+          <img className='h-[25px] object-contain' src='/paragraphe.png' alt='Paragraphe logo' />
+          <img className='h-[30px] object-contain' src='/sshrc.png' alt='SSHRC CRSH logo' />
         </div>
       </motion.div>
 
-      <motion.div className='flex justify-center items-start gap-10' variants={navbarVariants}>
-        {/* <Input
+      <motion.div className='flex items-center gap-6' variants={navbarVariants}>
+      <Input
           classNames={{
-            base: 'md:w-[400px] w-[300px]',
+            base: 'md:w-[320px] w-[300px]',
             clearButton: 'bg-default-600',
             mainWrapper: 'h-full',
             input: 'text-default-600 Inter font-semibold text-16 nav_searchbar',
@@ -76,22 +88,10 @@ export const Navbar: React.FC = () => {
           }
           type='search'
           fullWidth
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           onKeyPress={handleSearchKeyPress}
         />
-        <FilterModal /> */}
-        <div className='flex flex-wrap justify-between items-center gap-[25px]'>
-          <img className='h-[15px] object-contain' src='/crilcq.png' alt='CRILCQ logo' />
-          <img className='h-[25px] object-contain' src='/laval.png' alt='Laval logo' />
-          <img className='h-[25px] object-contain' src='/univmtl.png' alt='Université de Montréal logo' />
-          <img className='h-[30px] object-contain' src='/uqam.png' alt='UQAM logo' />
-          <img className='h-[25px] object-contain' src='/paris8.png' alt='Paris 8 logo' />
-          <img className='h-[25px] object-contain' src='/paragraphe.png' alt='Paragraphe logo' />
-          <img className='h-[30px] object-contain' src='/sshrc.png' alt='SSHRC CRSH logo' />
-        </div>
-      </motion.div>
-      <motion.div className='flex items-center gap-6' variants={navbarVariants}>
         <CreditsModal />
         <ChangeThemeButton />
         <ProfilDropdown />
