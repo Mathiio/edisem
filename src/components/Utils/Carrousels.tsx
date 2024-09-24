@@ -65,7 +65,7 @@ export const MidCarrousel: React.FC<MidCarrouselProps> = ({
       hasTrack={false}
       aria-label='...'
       className='flex w-full items-center justify-center gap-20'>
-      <div className='w-[50%] flex flex-col justify-center gap-10 items-start'>
+      <div className='w-[40%] flex flex-col justify-center gap-10 items-start'>
         <h2 className='text-24 font-bold text-default-600'>{title}</h2>
         <p className='text-16 font-regular text-default-500'>{description}</p>
         <div className='splide__arrows relative flex gap-10'>
@@ -81,7 +81,7 @@ export const MidCarrousel: React.FC<MidCarrouselProps> = ({
           </Button>
         </div>
       </div>
-      <SplideTrack className='w-full'>
+      <SplideTrack className='w-full h-max'>
         {data.map((item, index) => (
           <SplideSlide key={index}>{renderSlide(item, index)}</SplideSlide>
         ))}

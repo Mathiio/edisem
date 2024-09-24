@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { Scrollbar } from '@/components/Utils/Scrollbar';
 import { FullCarrousel, MidCarrousel } from '@/components/Utils/Carrousels';
-import { getSeminaires, getRandomConferences, getActants } from '../services/api';
+import { getSeminaires, getRandomConfs, getActants } from '../services/api';
 import { EventCard, EventSkeleton } from '@/components/home/EventCards';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { ActantCard, ActantSkeleton } from '@/components/home/ActantCards';
@@ -10,20 +10,17 @@ import { motion, Variants } from 'framer-motion';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  visible: (index: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: index * 0.15 },
+  }),
 };
 
 export const Home: React.FC = () => {
-  //console.log('home');
-  const [seminaires, setSeminaires] = useState<
-    { id: number; title: string; ConfNumb: number; year: string; season: string }[]
-  >([]);
-  const [actants, setActants] = useState<
-    { id: number; name: string; interventions: number; university_img: string; university_name: string }[]
-  >([]);
-  const [randomConf, setRandomConf] = useState<
-    { id: number; title: string; actant: string; date: string; ytb: string; universite: string }[]
-  >([]);
+  const [seminaires, setSeminaires] = useState<any[]>([]);
+  const [actants, setActants] = useState<any[]>([]);
+  const [randomConf, setRandomConf] = useState<any[]>([]);
   const [loadingSeminaires, setLoadingSeminaires] = useState(true);
   const [loadingActants, setLoadingActants] = useState(true);
   const [loadingRandomConf, setLoadingRandomConf] = useState(true);
@@ -32,9 +29,7 @@ export const Home: React.FC = () => {
 
   const fetchSeminaires = useCallback(async () => {
     if (dataFetchedRef.current) return;
-    console.log('call to seminaire fonction');
     const seminaires = await getSeminaires();
-    console.log('after call');
     setSeminaires(seminaires);
     setLoadingSeminaires(false);
   }, []);
@@ -42,21 +37,19 @@ export const Home: React.FC = () => {
   const fetchActants = useCallback(async () => {
     if (dataFetchedRef.current) return;
     const actants = await getActants();
-
-    setActants(actants);
+    setActants(actants as any);
     setLoadingActants(false);
   }, []);
 
   const fetchRandomConf = useCallback(async () => {
     if (dataFetchedRef.current) return;
-    const randomConf = await getRandomConferences(8);
-    setRandomConf(randomConf);
+    const randomConf = await getRandomConfs(8);
+    setRandomConf(randomConf as any);
     setLoadingRandomConf(false);
   }, []);
 
   useEffect(() => {
     if (dataFetchedRef.current) return;
-    console.log('useeffect');
 
     fetchSeminaires();
     fetchActants();
@@ -72,15 +65,7 @@ export const Home: React.FC = () => {
           <div className='col-span-10'>
             <Navbar />
           </div>
-          <div className='col-span-10 flex flex-col gap-100'>
-            {/* <div className='flex flex-wrap justify-between items-center gap-[100px] mt-[-25px] mb-[-50px] w-full'>
-              <img className='h-[25px] object-contain' src='/crilcq.png' alt='CRILCQ logo' />
-              <img className='h-[40px] object-contain' src='/laval.png' alt='Laval logo' />
-              <img className='h-[40px] object-contain' src='/univmtl.png' alt='Université de Montréal logo' />
-              <img className='h-[50px] object-contain' src='/uqam.png' alt='UQAM logo' />
-              <img className='h-[40px] object-contain' src='/paris8.png' alt='Paris 8 logo' />
-              <img className='h-[40px] object-contain' src='/paragraphe.png' alt='Paragraphe logo' />
-            </div> */}
+          <div className='col-span-10 flex flex-col gap-75'>
             <FullCarrousel
               title='Derniers séminaires Arcanes'
               perPage={2}
@@ -91,29 +76,33 @@ export const Home: React.FC = () => {
                   <EventSkeleton />
                 ) : (
                   <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
-                    <EventCard id={item.id} title={`Édition ${item.season} ${item.year}`} numConf={item.ConfNumb} />
+                    <EventCard id={item.id} title={`Édition ${item.season} ${item.year}`} numConf={item.confNum} />
                   </motion.div>
                 )
               }
             />
             <MidCarrousel
               title='Découvrez nos conférenciers'
-              description='Rencontrez les experts et visionnaires qui interviennent lors de nos conférences. Cliquez pour découvrir leur profil complet, incluant leur participation à divers séminaires, les thématiques qui leur sont chères, et bien plus encore.'
-              perPage={3}
+              description='Rencontrez les experts de nos conférences, explorez leurs contributions aux séminaires et découvrez les institutions qui les accompagnent.'
+              perPage={4}
               perMove={1}
               data={loadingActants ? Array.from({ length: 4 }) : actants}
-              renderSlide={(item) =>
+              renderSlide={(item, index) =>
                 loadingActants ? (
                   <ActantSkeleton />
                 ) : (
-                  <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
+                  <motion.div initial='hidden' animate='visible' className="h-full" variants={fadeIn} key={item.id} custom={index}>
                     <ActantCard
                       key={item.id}
                       id={item.id}
-                      name={item.name}
+                      firstname={item.firstname}
+                      lastname={item.lastname}
+                      picture={item.picture}
                       interventions={item.interventions}
-                      university_img={item.university_img}
-                      university_name={item.university_name}
+                      universities={item.universities.map((uni: { name: string; picture: string; }) => ({
+                        name: uni.name,
+                        picture: uni.picture,
+                      }))}
                     />
                   </motion.div>
                 )
@@ -124,16 +113,16 @@ export const Home: React.FC = () => {
               <div className='grid grid-cols-4 grid-rows-2 gap-25'>
                 {loadingRandomConf
                   ? Array.from({ length: 8 }).map((_) => <LgConfSkeleton />)
-                  : randomConf.map((item) => (
-                      <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
+                  : randomConf.map((item, index) => (
+                      <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id} custom={index}>
                         <LgConfCard
                           key={item.id}
                           id={item.id}
                           title={item.title}
-                          actant={item.actant}
+                          actant={item.actant.firstname + ' ' + item.actant.lastname}
                           date={item.date}
-                          ytb={item.ytb}
-                          universite={item.universite}
+                          url={item.url}
+                          universite={item.actant.universities && item.actant.universities.length > 0 ? item.actant.universities[0].name : ''}
                         />
                       </motion.div>
                     ))}

@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-  getConfOverview,
-  getConfDetails,
+  getConf,
   getConfKeyWords,
   getConfCitations,
   getConfBibliographies,
@@ -43,11 +42,7 @@ export const Conference: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [selected, setSelected] = useState<string>('Citations');
   const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
-
-  const [confOverview, setConfOverview] = useState<
-    { title: string; actant: string; actantId: number; university: string; url: string; fullUrl: string }[]
-  >([]);
-  const [confDetails, setConfDetails] = useState<{ edition: string; date: string; description: string }[]>([]);
+  const [confDetails, setConfDetails] = useState<any>(null);
   const [confKeyWords, setConfKeyWords] = useState<{ id: number; keyword: string }[]>([]);
   const [confCitations, setConfCitations] = useState<
     { citation: string; actant: string; startTime: number; endTime: number }[]
@@ -63,10 +58,7 @@ export const Conference: React.FC = () => {
       url?: string;
     }[]
   >([]);
-  const [confMediagraphies, setConfMediagraphies] = useState<
-    { mediagraphy: string; author: string; date: string; type: string; url: string }[]
-  >([]);
-  const [loadingConfOverview, setLoadingConfOverview] = useState(true);
+  const [confMediagraphies, setConfMediagraphies] = useState<{ mediagraphy: string; author: string; date: string; type: string; url: string }[]>([]);
   const [loadingConfDetails, setLoadingConfDetails] = useState(true);
   const [loadingConfKeyWords, setLoadingConfKeyWords] = useState(true);
   const [loadingConfCitations, setLoadingConfCitations] = useState(true);
@@ -75,25 +67,16 @@ export const Conference: React.FC = () => {
   const dataFetchedRef = useRef(false);
 
   const handleTimeChange = (newTime: number) => {
-    console.log('handleTimeChange appelé avec:', newTime);
     setCurrentVideoTime(newTime);
   };
 
   useEffect(() => {
-    console.log('currentVideoTime mis à jour:', currentVideoTime);
   }, [currentVideoTime]);
-
-  const fetchConfOverview = useCallback(async () => {
-    if (dataFetchedRef.current) return;
-    const data = await getConfOverview(Number(id));
-    setConfOverview(data);
-    setLoadingConfOverview(false);
-  }, [id]);
 
   const fetchConfDetails = useCallback(async () => {
     if (dataFetchedRef.current) return;
-    const data = await getConfDetails(Number(id));
-    setConfDetails(data);
+    const confDetails = await getConf(Number(id));
+    setConfDetails(confDetails as any);
     setLoadingConfDetails(false);
   }, [id]);
 
@@ -127,13 +110,10 @@ export const Conference: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    console.log('useEffect called, dataFetchedRef:', dataFetchedRef.current);
     if (dataFetchedRef.current) {
-      console.log('Data already fetched, skipping');
       return;
     }
 
-    fetchConfOverview();
     fetchConfDetails();
     fetchConfKeyWords();
     fetchConfCitations();
@@ -142,7 +122,6 @@ export const Conference: React.FC = () => {
 
     dataFetchedRef.current = true;
   }, [
-    fetchConfOverview,
     fetchConfDetails,
     fetchConfKeyWords,
     fetchConfCitations,
@@ -175,16 +154,16 @@ export const Conference: React.FC = () => {
                 )
               }
             />
-            {loadingConfOverview ? (
+            {loadingConfDetails ? (
               <ConfOverviewSkeleton></ConfOverviewSkeleton>
             ) : (
               <ConfOverviewCard
-                title={confOverview[0].title}
-                actant={confOverview[0].actant}
-                actantId={confOverview[0].actantId}
-                university={confOverview[0].university}
-                url={confOverview[0].url}
-                fullUrl={confOverview[0].fullUrl}
+                title={confDetails.title}
+                actant={confDetails.actant.firstname + ' ' + confDetails.actant.lastname}
+                actantId={confDetails.actant.id}
+                university={confDetails.actant.universities[0].name}
+                url={confDetails.url}
+                fullUrl={confDetails.fullUrl}
                 currentTime={currentVideoTime}
               />
             )}
@@ -192,9 +171,9 @@ export const Conference: React.FC = () => {
               <ConfDetailsSkeleton></ConfDetailsSkeleton>
             ) : (
               <ConfDetailsCard
-                edition={confDetails[0].edition}
-                date={confDetails[0].date}
-                description={confDetails[0].description}
+                edition={"Édition " + confDetails.season + " " + confDetails.date.split('-')[0]}
+                date={confDetails.date}
+                description={confDetails.description}
               />
             )}
           </motion.div>

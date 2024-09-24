@@ -1,45 +1,29 @@
 const API_URL = 'https://tests.arcanes.ca/omk/api';
 
 export interface Data {
+  [x: string]: any;
   length: any;
-  'o:title': string;
   'o:id': number;
-  'schema:addressCountry'?: any[];
-  'display_name'?: any[];
   '@id': string;
   '@type'?: string[];
   'o:resource_class'?: { '@id': string, 'o:id': number };
-  'thumbnail_display_urls'?: { 'large': string, };
   'bibo:uri'?: Array<{ '@id': string,}>;
   'schema:citation'?: Array<{ 'display_title': string, '@id': string, 'value_resource_id': number }>;
-  'jdc:hasConcept'?: Array<{ 'display_title': string, '@id': string, 'value_resource_id': number }>;
-  'schema:season'?: Array<{ '@value': string }>;
-  'schema:isRelatedTo'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
-  'schema:agent'?: Array<{ 'display_title': string, 'value_resource_id': number , '@id' : string}>;
-  'dcterms:date'?: Array<{ '@value': string }>;
   'dcterms:title'?: Array<{ 'display_title': string, '@value'?: string }>;
-  'jdc:hasLaboratoire'?: Array<{ 'value_resource_id': number }>;
-  'jdc:hasUniversity'?: Array<{ 'value_resource_id': number, 'display_title': string,  }>;
-  'jdc:hasEcoleDoctorale'?: Array<{ 'value_resource_id': number }>;
-  'schema:url'?: Array<{ '@id'?: string }>;
   'cito:hasCitedEntity'?: Array<{ '@value': string }>;
   'cito:isCitedBy'?: Array<{ 'display_title': string }>;
-  'schema:startTime'?: Array<{ '@value': string }>;
-  'schema:endTime'?: Array<{ '@value': string }>;
-  'dcterms:abstract'?: Array<{ 'display_title': string, '@value': string }>;
-  'dcterms:isPartOf'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
   'dcterms:bibliographicCitation'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
   'bibo:authorList'?: Array<{ '@value': string }>;
   'dcterms:references'?: Array<{ '@value': string , '@id': string}>;
   'schema:associatedMedia'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
   'dcterms:hasFormat'?: Array<{ '@value': string }>;
-  'schema:image'?: Array<{ '@id': string }>;
-  'o:original_url': string;
   'dcterms:creator'?: Array<{ '@value': string, 'display_title': string }>;
   'bibo:editor'?: Array<{ '@value': string }>;
   'dcterms:publisher'?: Array<{ '@value': string }>;
 }
-//bibo:creator
+
+
+
 
 export const getDataByClass = async (resourceClassId: number): Promise<Data[]> => {
   let page = 1;
@@ -68,6 +52,7 @@ export const getDataByClass = async (resourceClassId: number): Promise<Data[]> =
 
   return allData;
 };
+
 
 
 
@@ -120,7 +105,7 @@ export const fetchRT = async (resourceTemplateId: number): Promise<Data[]> => {
 
 export const getAllProperties = async (): Promise<any[]> => {
   let page = 1;
-  const perPage = 100; // Number of items per page, change if different
+  const perPage = 100; 
   let allProperties: any[] = [];
   let morePages = true;
 
@@ -167,226 +152,63 @@ export async function getDataByUrl (url: string) {
 
 
 export async function getSeminaires() {
-  const fetchedEditions: { id: number, title: string; ConfNumb: number, year: string, season: string }[] = [];
-  console.log('debut du call');
-
   try {
-    console.log('debut du try');
-    const response = await fetch(`${API_URL}/items/15086`);
-    const seminaires: Data = await response.json();
-    
+    const confs = await getConfs();
+    const filteredConfs = confs.filter((conf: { event: string; }) => conf.event === "Séminaire Arcanes");
+    const editionMap: { [key: string]: { confNum: number; date: string; season: string } } = {};
 
-    for (let item of seminaires['schema:isRelatedTo'] || []) {
-     
-      try {
-        const edition: Data = await getDataByUrl(item['@id']) as unknown as Data;
-        console.log(edition)
-        if (edition && edition['schema:isRelatedTo']) {
-          
-          const ConfNumb = Number(edition['schema:isRelatedTo'].length);
-          const title = edition['dcterms:title'] ? edition['dcterms:title'][0]['@value'] as unknown as string : "Non renseigné";
-          const confUrl = edition['schema:isRelatedTo'][0]['@id'] as string;
-          const conf = await getDataByUrl(confUrl) as Data;
-          const date = conf['dcterms:date'] ? conf['dcterms:date'][0]['@value'] as string : "Non renseigné";
-          const dateFormated = new Date(date)
-          const year = dateFormated.getFullYear().toString();
-          const season = edition['schema:season'] ? edition['schema:season'][0]['@value'] as string : "Non renseigné";
-          const id = Number(edition['o:id']);
-          
-          fetchedEditions.push({ id, title, ConfNumb, year, season });
-        }
-        
-      } catch (error) {
-        console.error(`Error fetching seminaires details for ${item['@id']}:`, error);
+    filteredConfs.forEach((conf: { edition: any; date: string; season: string; }) => {
+      const editionId = conf.edition;
+      const season = conf.season.trim();
+
+      if (!editionMap[editionId]) {
+        editionMap[editionId] = { confNum: 0, date: conf.date, season };
       }
-    }
-
-    const getSeasonValue = (season: string): number => {
-      switch(season.toLowerCase()) {
-        case 'hiver': return 0;
-        case 'printemps': return 1;
-        case 'été': return 2;
-        case 'automne': return 3;
-        default: return -1;
-      }
-    };
-   
-   // Tri modifié
-   fetchedEditions.sort((a, b) => {
-    // D'abord, comparer les années
-    const yearComparison = b.year.localeCompare(a.year);
-    if (yearComparison !== 0) return yearComparison;
-
-    // Si les années sont identiques, comparer les saisons
-    return getSeasonValue(b.season) - getSeasonValue(a.season);
-  });
-  
-    return fetchedEditions;
-  } catch (error) {
-    console.error('Error fetching seminaires:', error);
-    throw new Error('Failed to fetch seminaires');
-  }
-}
-
-
-
-
-export async function getEdition(editionId: number) {
-  const fetchedEditions: { id: number, title: string; numConf: number }[] = [];
-
-  try {
-    const response = await fetch(`${API_URL}/items/${editionId}`);
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const edition = response.json() as unknown as Data;
-
-    if (edition['schema:isRelatedTo']) {
-      for (let item of edition['schema:isRelatedTo'] as Array<{ '@id': string, display_title?: string }>) {
-        try {
-          const editionDetails = await getDataByUrl(item['@id']);
-      
-          if (editionDetails && editionDetails['schema:isRelatedTo']) {
-            const countConf = editionDetails['schema:isRelatedTo'].length;
-            fetchedEditions.push({
-              id: Number(editionDetails['o:id']),
-              title: item.display_title || 'Unknown Title',
-              numConf: Number(countConf),
-            });
-          }
-        } catch (error) {
-          console.error(`Error fetching edition details for ${item['@id']}:`, error);
-        }
-      }
-    }
-    return fetchedEditions;
-  } catch (error) {
-    console.error('Error fetching seminaires:', error);
-    throw new Error('Failed to fetch editions');
-  }
-}
-
-
-
-
-export async function getRandomConferences(confNum: number) {
-  try {
-    const conferences = await getDataByRT(71);
-
-    // Filtrer les conférences pour ne garder que celles dont la date est inférieure à 2023
-    const filteredConferences = conferences.filter(conference => {
-      const dateStr = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : null;
-      return dateStr && new Date(dateStr).getFullYear() < 2023;
+      editionMap[editionId].confNum++;
     });
 
-    // S'assurer de prendre confNum conférences aléatoires parmi celles filtrées
-    const randomIndexes = getRandomIndexes(filteredConferences.length, confNum);
+    const editions = Object.entries(editionMap).map(([id, { confNum, date, season }]) => ({
+      id,
+      confNum,
+      year: date.split('-')[0],
+      date,
+      season,
+    })).sort((a, b) => {
+      const yearDiff = parseInt(b.year) - parseInt(a.year);
+      if (yearDiff !== 0) return yearDiff;
 
-    // Utiliser Promise.all avec map pour attendre toutes les opérations asynchrones
-    const fetchedConf = await Promise.all(randomIndexes.map(async index => {
-      const conference = filteredConferences[index];
-
-      let title = conference['o:title'] ? conference['o:title'] as string : "Non renseigné";
-      let actant_name = conference['schema:agent'] ? conference['schema:agent'][0]['display_title'] as string : "Non renseigné";
-      let date = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : "Non renseignée";
-      let ytb = conference['schema:url'] ? conference['schema:url'][0]['@id'] as string : "Non renseignée";
-      let actant_id = conference['schema:agent'] ? conference['schema:agent'][0]['@id'] as string : "Non renseignée";
-
-      let actant = await getDataByUrl(actant_id);
-      
-      let universite = actant['jdc:hasUniversity'] ? actant['jdc:hasUniversity'][0]['display_title'] as string : "Non renseignée";
-
-      const formattedUniversityName = universite.replace(/Vincennes-Saint-Denis/g, '').replace(/École Nationale Supérieure/g, 'ENS').replace(/Université Polytechnique des Hauts-de-France/g, 'UPHF').replace(/Université/g, 'U.');
-
-
-      return {
-        id: conference['o:id'],
-        title: title,
-        actant: actant_name,
-        date: date,
-        ytb: ytb,
-        universite: formattedUniversityName
-      };
-    }));
-
-    console.log(fetchedConf);
-    return fetchedConf.slice(0, confNum); // S'assure de retourner seulement confNum résultats
+      const seasonOrder = ['printemps', 'été', 'automne', 'hiver'];
+      return seasonOrder.indexOf(b.season) - seasonOrder.indexOf(a.season);
+    });
+    return editions;
   } catch (error) {
-    console.error('Error fetching conferences:', error);
-    throw new Error('Failed to fetch conferences');
+    console.error('Error fetching seminars:', error);
+    throw new Error('Failed to fetch seminars');
   }
 }
 
 
 
 
+export async function getRandomConfs(confNum: number){
+  try{
+    const confs = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAllConferences&json=1');
+    
+    if (Array.isArray(confs)) {
+      const randomConfs = confs.sort(() => 0.5 - Math.random());
+      const selectedConfs = randomConfs.slice(0, confNum);
 
-function getRandomIndexes(max: number, num: number): number[] {
-  const indexes: number[] = [];
-  while (indexes.length < num) {
-    const randomIndex = Math.floor(Math.random() * max);
-    if (!indexes.includes(randomIndex)) {
-      indexes.push(randomIndex);
+      const updatedConfs = await Promise.all(selectedConfs.map(async (conf) => {
+        if (conf.actant) {
+          const actantDetails = await getActant(conf.actant);
+          return { ...conf, actant: actantDetails }; 
+        }
+        return conf;
+      }));
+      return updatedConfs;
     }
   }
-  return indexes;
-}
-
-
-
-
-export async function getActants() {
-  const fetchedActants: { id: number, name: string; interventions: number, university_img:string,university_name:string }[] = [];
-
-  try {
-    const actants = await getDataByRT(72);
-    const conferences = await getDataByRT(71);
-    const universities = await getDataByRT(73);
-    for (let item of actants) {
-      let interventions = 0;
-      let universityImage = "";
-      let universityName = "";
-     
-      for (let conference of conferences) {
-        if (conference['schema:agent']) {
-          if (Array.isArray(conference['schema:agent'])) {
-            for (let actant of conference['schema:agent']) {
-              if (actant['value_resource_id'] && actant['value_resource_id'] === item['o:id']) {
-                interventions++;
-              }
-            }
-          } else {
-            if (conference['schema:agent']['value_resource_id'] && conference['schema:agent']['value_resource_id'] === item['o:id']) {
-              interventions++;
-            }
-          }
-        }
-      }
-      for (let university of universities) {
-        if (university['schema:image']) {
-
-            
-              if (item['jdc:hasUniversity'] && item['jdc:hasUniversity'][0]['value_resource_id'] === university['o:id']) {
-                universityName = item['jdc:hasUniversity'][0]['display_title'];
-                
-                let media_univ = await getDataByUrl(university['schema:image'][0]['@id']);
-                
-                if (media_univ && media_univ['o:original_url']) {
-                  universityImage = media_univ['o:original_url'];
-                  //console.log(universityImage)
-                 
-                }
-                 
-              }
-          
-       
-          
-        }
-      }
-      fetchedActants.push({ id: item['o:id'], name: item['o:title'], interventions: interventions, university_img : universityImage, university_name : universityName });
-    }
-    return fetchedActants;
-  } catch (error) {
+  catch (error) {
     console.error('Error fetching actants:', error);
     throw new Error('Failed to fetch actants');
   }
@@ -395,45 +217,84 @@ export async function getActants() {
 
 
 
-export async function getLaboritory(id: number): Promise<{ name: string; link: string }> {
+export async function getConfs() {
   try {
-    const response = await fetch(`${API_URL}/items/${id}`);
-    const laboritory = await response.json();
-    const fetchedLaboritory = { name: laboritory['o:title'] || 'non renseigné', link: (laboritory['schema:url'][0]?.['@value']) || 'non renseigné'};
-    return fetchedLaboritory;
-  } catch (error) {
-    console.error('Error fetching laboritory:', error);
-    throw new Error('Failed to fetch laboritory');
+    const storedConfs = localStorage.getItem('confs');
+  
+    if (storedConfs) {
+      return JSON.parse(storedConfs);
+    }
+
+    const confs = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAllConferences&json=1');
+    localStorage.setItem('confs', JSON.stringify(confs));
+
+    return confs;
+  }
+  catch (error) {
+    console.error('Error fetching actants:', error);
+    throw new Error('Failed to fetch actants');
   }
 }
 
 
 
 
-export async function getUniveristy(id: number): Promise<{ name: string; link: string }> {
+export async function getConf(confId: number) {
   try {
-    const response = await fetch(`${API_URL}/items/${id}`);
-    const university = await response.json();
-    const fetchedUniveristy = {name: university['o:title'] || 'non renseigné', link: (university['schema:url'][0]?.['@id']) || 'non renseigné'};
-    return fetchedUniveristy;
-  } catch (error) {
-    console.error('Error fetching university:', error);
-    throw new Error('Failed to fetch university');
+    const confs = await getConfs();
+  
+    if (Array.isArray(confs)) {
+      const conf = confs.find((a) => a.id === String(confId));
+
+      if (conf) {
+        if (conf.url !== "") {
+          const videoId = conf.url.substr(-11);
+          conf.url = `https://www.youtube.com/embed/${videoId}`;
+        }
+        if (conf.fullUrl !== "") {
+          const videoId = conf.fullUrl.substr(-11);
+          conf.fullUrl = `https://www.youtube.com/embed/${videoId}`;
+        }
+        if (conf.actant) {
+          const actant = await getActant(conf.actant);
+          conf.actant = actant;
+        }
+        return conf;
+      } else {
+        throw new Error(`Actant with id ${confId} not found`);
+      }
+    } 
+  }
+  catch (error) {
+    console.error('Error fetching actants:', error);
+    throw new Error('Failed to fetch actants');
   }
 }
 
 
 
 
-export async function getSchool(id: number): Promise<{ name: string; link: string }> {
+export async function getActants() {
   try {
-    const response = await fetch(`${API_URL}/items/${id}`);
-    const school = await response.json();
-    const fetchedSchool = {name: school['o:title'] || 'non renseigné', link: (school['schema:url'][0]?.['@id']) || 'non renseigné'};
-    return fetchedSchool;
-  } catch (error) {
-    console.error('Error fetching school:', error);
-    throw new Error('Failed to fetch school');
+    const storedActants = localStorage.getItem('actants');
+    if (storedActants) {
+      return JSON.parse(storedActants);
+    }
+
+    const actants = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAllConferencier&json=1');
+    const confs = await getConfs();
+
+    const updatedActants = actants.map((actant: { id: number }) => {
+      const interventionsCount = confs.filter((conf: { actant: string }) => conf.actant === String(actant.id)).length;
+      return { ...actant, interventions: interventionsCount };
+    });
+
+    localStorage.setItem('actants', JSON.stringify(updatedActants));
+    return updatedActants;
+  }
+  catch (error) {
+    console.error('Error fetching actants:', error);
+    throw new Error('Failed to fetch actants');
   }
 }
 
@@ -442,126 +303,20 @@ export async function getSchool(id: number): Promise<{ name: string; link: strin
 
 export async function getActant(actantId: number) {
   try {
-    const response = await fetch(`${API_URL}/items/${actantId}`);
-    const actant = await response.json();
-    const conferences = await getDataByRT(71);
+    const actants = await getActants();
 
-    let interventions = 0;
-    const title = actant['o:title'] || 'non renseigné';
-    const link = (actant['schema:url'] && actant['schema:url'][0]?.['@id']) || 'non renseigné';
+    if (Array.isArray(actants)) {
+      const actant = actants.find((a) => a.id === String(actantId));
 
-    const laboratoryPromises = actant['jdc:hasLaboratoire']
-      ? actant['jdc:hasLaboratoire'].map((lab: any) => getLaboritory(lab['value_resource_id']))
-      : [ { name: "Non renseigné", link: ""} ];
-    const universityPromises = actant['jdc:hasUniversity']
-      ? actant['jdc:hasUniversity'].map((uni: any) => getUniveristy(uni['value_resource_id']))
-      : [ { name: "Non renseigné", link: ""} ];
-    const schoolPromises = actant['jdc:hasEcoleDoctorale']
-      ? actant['jdc:hasEcoleDoctorale'].map((school: any) => getSchool(school['value_resource_id']))
-      : [ { name: "Non renseigné", link: ""} ];
-
-    const laboratories = await Promise.all(laboratoryPromises);
-    const universities = await Promise.all(universityPromises);
-    const schools = await Promise.all(schoolPromises);
-
-    for (let conference of conferences) {
-      if (conference['schema:agent']) {
-        if (Array.isArray(conference['schema:agent'])) {
-          for (let agent of conference['schema:agent']) {
-            if (agent['value_resource_id'] && agent['value_resource_id'] === actant['o:id']) {
-              interventions++;
-            }
-          }
-        } else {
-          if (conference['schema:agent']['value_resource_id'] && conference['schema:agent']['value_resource_id'] === actant['o:id']) {
-            interventions++;
-          }
-        }
+      if (actant) {
+        return actant;
+      } else {
+        throw new Error(`Actant with id ${actantId} not found`);
       }
-    }
-    const fetchedActant = {
-      id: actantId,
-      name: title,
-      link: link,
-      interventions: interventions + " conférence" + (interventions > 1 ? 's' : ""),
-      laboratories: laboratories,
-      universities: universities,
-      schools: schools,
-    };
-
-    return fetchedActant;
+    } 
   } catch (error) {
-    console.error('Error fetching actants:', error);
-    throw new Error('Failed to fetch actants');
-  }
-}
-
-
-
-
-export async function getConfByActant(actantId: number) {
-  try {
-    const fetchedConferences: { id: number, title: string; actant: string, date: string; ytb: string, universite:string}[] = [];
-    const conferences = await getDataByRT(71);
-
-    for (let conference of conferences) {
-      if (conference['schema:agent'] && Array.isArray(conference['schema:agent'])) {
-        for (let agent of conference['schema:agent']) {
-          if (agent && agent['value_resource_id'] && agent['value_resource_id'] === actantId) {
-
-            const title = conference['o:title'] ? conference['o:title'] as string : 'Non renseigné';
-            const actant_name = agent['display_title'] ? agent['display_title'] as string : 'Non renseigné';
-            const date = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : 'Non renseignée';
-            const ytb = conference['schema:url'] ? conference['schema:url'][0]['@id'] as string : "Non renseignée";
-            let actant_id = conference['schema:agent'] ? conference['schema:agent'][0]['@id'] as string : "Non renseignée";
-  
-        let actant = await getDataByUrl(actant_id);
-        
-        let universite = actant['jdc:hasUniversity'] ? actant['jdc:hasUniversity'][0]['display_title'] as string : "Non renseignée";
-  
-        const formattedUniversityName = universite.replace(/Vincennes-Saint-Denis/g, '').replace(/École Nationale Supérieure/g, 'ENS').replace(/Université Polytechnique des Hauts-de-France/g, 'UPHF').replace(/Université/g, 'U.');
-
-            fetchedConferences.push({
-              id: conference['o:id'],
-              title: title,
-              actant: actant_name,
-              date: date,
-              ytb: ytb,
-              universite:formattedUniversityName
-            });
-            break; 
-          }
-        }
-      } else if (conference['schema:agent'] && typeof conference['schema:agent'] === 'object' && 'value_resource_id' in conference['schema:agent']) {
-        if (conference['schema:agent']['value_resource_id'] === actantId) {
-
-          const title = conference['o:title'] ? conference['o:title'] : 'Non renseigné';
-          const actant_name = conference['schema:agent'] ? conference['schema:agent'][0]['display_title'] as string : 'Non renseigné';
-          const date = conference['dcterms:date'] ? conference['dcterms:date'][0]['@value'] as string : 'Non renseigné';
-          const ytb = conference['schema:url'] ? conference['schema:url'][0]['@id'] as string : "Non renseignée";
-          let actant_id = conference['schema:agent'] ? conference['schema:agent'][0]['@id'] as string : "Non renseignée";
-  
-        let actant = await getDataByUrl(actant_id);
-        
-        let universite = actant['jdc:hasUniversity'] ? actant['jdc:hasUniversity'][0]['display_title'] as string : "Non renseignée";
-  
-        const formattedUniversityName = universite.replace(/Vincennes-Saint-Denis/g, '').replace(/École Nationale Supérieure/g, 'ENS').replace(/Université Polytechnique des Hauts-de-France/g, 'UPHF').replace(/Université/g, 'U.');
-
-          fetchedConferences.push({
-            id: conference['o:id'],
-            title: title,
-            actant: actant_name,
-            date: date,
-            ytb: ytb,
-            universite: formattedUniversityName
-          });
-        }
-      }
-    }
-    return fetchedConferences;
-  } catch (error) {
-    console.error('Error fetching conferences:', error);
-    throw new Error('Failed to fetch conferences');
+    console.error('Error fetching actant:', error);
+    throw new Error('Failed to fetch actant');
   }
 }
 
@@ -569,53 +324,22 @@ export async function getConfByActant(actantId: number) {
 
 
 export async function getConfByEdition(editionId: number) {
-  const fetchedEdition: { id: number, actant: string; title: string; date: string, ytb: string, universite: string }[] = [];
-
   try {
-    const response = await fetch(`${API_URL}/items/${editionId}`);
-    const edition = await response.json() as Data;
+    const confs = await getConfs();
 
-    const relatedItems = edition['schema:isRelatedTo'] || [];
-    const confPromises = relatedItems.map(async (item) => {
-      try {
-        const conf = await getDataByUrl(item['@id']) as Data;
+    const editionConfs = confs.filter((conf: { event: string; edition: number }) => 
+      Number(conf.edition) === editionId
+    );
 
-        const title = conf['o:title'] ? conf['o:title'] as string : 'Non renseigné';
-        const actant_name = conf['schema:agent'] ? conf['schema:agent'][0]['display_title'] as string : 'Non renseigné';
-        const date = conf['dcterms:date'] ? conf['dcterms:date'][0]['@value'] as string : 'Non renseigné';
-        let ytb = conf['schema:url'] ? conf['schema:url'][0]['@id'] as string : "Non renseignée";
-        let actant_id = conf['schema:agent'] ? conf['schema:agent'][0]['@id'] as string : "Non renseignée";
-  
-        let actant = await getDataByUrl(actant_id);
-        
-        let universite = actant['jdc:hasUniversity'] ? actant['jdc:hasUniversity'][0]['display_title'] as string : "Non renseignée";
-  
-        const formattedUniversityName = universite.replace(/Vincennes-Saint-Denis/g, '').replace(/École Nationale Supérieure/g, 'ENS').replace(/Université Polytechnique des Hauts-de-France/g, 'UPHF').replace(/Université/g, 'U.');
-
-        
-
-        return {
-          id: conf['o:id'],
-          title: title,
-          actant: actant_name,
-          date: date,
-          ytb: ytb,
-          universite: formattedUniversityName
-        };
-
-        
-      } catch (error) {
-        console.error(`Error fetching edition details for ${item['@id']}:`, error);
-        return null;
+    const updatedConfs = await Promise.all(editionConfs.map(async (conf: { actant: number; }) => {
+      if (conf.actant) {
+        const actantDetails = await getActant(conf.actant);
+        return { ...conf, actant: actantDetails }; 
       }
-    });
+      return conf;
+    }));
 
-    const confs = await Promise.all(confPromises);
-    confs.forEach((conf) => {
-      if (conf) fetchedEdition.push(conf);
-    });
-
-    return fetchedEdition;
+    return updatedConfs;
   } catch (error) {
     console.error('Error fetching seminaires:', error);
     throw new Error('Failed to fetch editions');
@@ -625,74 +349,62 @@ export async function getConfByEdition(editionId: number) {
 
 
 
-export async function getConfOverview(confId: number) {
-  const fetchedOverview: { title: string, actant: string, actantId: number, university: string, url: string, fullUrl: string }[] = [];
+export async function getConfByActant(actantId: number) {
+  try{
+    const confs = await getConfs();
 
-  try {
-    const response = await fetch(`${API_URL}/items/${confId}`);
-    const conf = await response.json() as Data;
-    
-    const title = conf["dcterms:title"] ? conf["dcterms:title"][0]["@value"] as string : "Non renseigné";
-    const actant = conf["schema:agent"] ? conf["schema:agent"][0]["display_title"] as string : "Non renseigné";
-    const actantId = conf["schema:agent"] ? conf["schema:agent"][0]["value_resource_id"] as number : {} as number;
-    const universityRep = await getActant(actantId);
-    const university = universityRep['universities'] ? universityRep['universities'][0]['name'] as string : "";
-    const fullUrlId = conf["dcterms:isPartOf"] ? conf["dcterms:isPartOf"][0]["@id"] as string : "";
-    let url = conf["schema:url"] ? conf["schema:url"][0]["@id"] as string : "";
-    if(url != ""){
-      const videoId = url.substr(-11);
-      url = `https://www.youtube.com/embed/${videoId}`;
-    }
+    const actantConfs = confs.filter((conf: { event: string; actant: number }) => 
+      Number(conf.actant) === actantId
+    );
 
-    const seance = await getDataByUrl(fullUrlId);
-    let fullUrl = seance["schema:url"] ? seance["schema:url"][0]["@id"] as string : "";
-    if(fullUrl != ""){
-      const videoId = fullUrl.substr(-11);
-      fullUrl = `https://www.youtube.com/embed/${videoId}`;
-    }
-    
-
-    fetchedOverview.push({ title, actant, actantId, university, url, fullUrl})
-   
-    return fetchedOverview;
-  } catch (error) {
-    console.error('Error fetching seminaires:', error);
-    throw new Error('Failed to fetch seminaires');
-  }
-}
-
-
-
-
-export async function getConfDetails(confId: number) {
-  const fetchedDetails: { edition: string, date: string, description: string }[] = [];
-
-  try {
-    const confRep = await fetch(`${API_URL}/items/${confId}`);
-    const conf = await confRep.json() as Data;
-    
-    const date = conf["dcterms:date"] ? conf["dcterms:date"][0]["@value"] as string : "Non renseignée";
-    const description = conf["dcterms:abstract"] ? conf["dcterms:abstract"][0]["@value"] as string : "Non renseignée";
-    const id = conf['o:id'];
-    const editions = await getDataByRT(77);
-    let edition = '';
-
-    for(let item of editions || []){
-      for(let conference of item['schema:isRelatedTo'] || []){
-        if(conference['value_resource_id']===id){
-          edition= item['dcterms:title'] ? item['dcterms:title'][0]['@value'] as string : "Non renseigné";
-        }
+    const updatedConfs = await Promise.all(actantConfs.map(async (conf: { actant: number; }) => {
+      if (conf.actant) {
+        const actantDetails = await getActant(conf.actant);
+        return { ...conf, actant: actantDetails }; 
       }
-    }
+      return conf;
+    }));
 
-    fetchedDetails.push({ edition, date, description})
-   
-    return fetchedDetails;
+    return updatedConfs;
+
   } catch (error) {
-    console.error('Error fetching seminaires:', error);
-    throw new Error('Failed to fetch seminaires');
+    console.error('Error fetching conferences:', error);
+    throw new Error('Failed to fetch conferences');
   }
 }
+
+
+
+
+export async function filterBySearch(searchQuery: string) {
+  const confs = await getConfs();
+  const actants = await getActants();
+
+  const normalizedQuery = searchQuery.toLowerCase();
+
+  const filteredActants = actants.filter((actant: { firstname: string; lastname: string; universities: any[]; docotralSchools: any[]; laboritories: any[]; }) => {
+    return (
+      (actant.firstname && actant.firstname.toLowerCase().includes(normalizedQuery)) ||
+      (actant.lastname && actant.lastname.toLowerCase().includes(normalizedQuery)) ||
+      (actant.universities && actant.universities.some((university: { name: string; }) => university.name.toLowerCase().includes(normalizedQuery))) ||
+      (actant.docotralSchools && actant.docotralSchools.some((school: { name: string; }) => school.name.toLowerCase().includes(normalizedQuery))) ||
+      (actant.laboritories && actant.laboritories.some((laboratory: { name: string; }) => laboratory.name.toLowerCase().includes(normalizedQuery)))
+    );
+  });
+
+  // const filteredConferences = confs.filter((conference: { event: string; title: string; description: string; }) => {
+  //   return (
+  //     conference.event.toLowerCase().includes(normalizedQuery) ||
+  //     conference.title.toLowerCase().includes(normalizedQuery) ||
+  //     conference.description.toLowerCase().includes(normalizedQuery)
+  //   );
+  // });
+
+  return {
+    filteredActants,
+  };
+}
+
 
 
 
@@ -756,7 +468,6 @@ export async function getConfBibliographies(confId: number) {
   try {
     const confRep = await fetch(`${API_URL}/items/${confId}`);
     const conf = await confRep.json() as Data;
-    console.log(conf)
     
     
     if(conf["dcterms:references"]){
@@ -772,7 +483,6 @@ export async function getConfBibliographies(confId: number) {
               const ressource_id = bibliographyRep["o:resource_class"]["o:id"];
               const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
               const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
-              console.log(bibliographyRep)
               fetchedBibliographies.push({ bibliography_title, author, date,source,ressource_id, url,thumbnail  })
             }
 
@@ -793,7 +503,6 @@ export async function getConfBibliographies(confId: number) {
               const ressource_id = bibliographyRep["o:resource_class"]["o:id"];
               const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
               const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
-              console.log(bibliographyRep)
               fetchedBibliographies.push({ bibliography_title, author, date,ressource_id, url,thumbnail  })
             }
             else if (bibliographyRep["o:resource_class"] && bibliographyRep["o:resource_class"]["o:id"] == 35) {
@@ -804,7 +513,6 @@ export async function getConfBibliographies(confId: number) {
               const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
               const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
               //console.log(bibliographyRep)
-              console.log(thumbnail)
               fetchedBibliographies.push({ bibliography_title, author, date,ressource_id, url,thumbnail })
 
             }
@@ -816,7 +524,6 @@ export async function getConfBibliographies(confId: number) {
               const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
               const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
               //console.log(bibliographyRep)
-              console.log(thumbnail)
               fetchedBibliographies.push({ bibliography_title, author, date,ressource_id, url,thumbnail })
 
             }

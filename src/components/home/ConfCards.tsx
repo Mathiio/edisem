@@ -46,14 +46,14 @@ type LgConfCardProps = {
   actant: string;
   date: string;
   universite: string;
-  ytb?: string;
+  url?: string;
 };
 
-export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, ytb, universite }) => {
+export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, url, universite }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  const thumbnailUrl = ytb ? getYouTubeThumbnailUrl(ytb) : '';
+  const thumbnailUrl = url ? getYouTubeThumbnailUrl(url) : '';
 
   const [isTruncated, setIsTruncated] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
@@ -77,14 +77,14 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
       onMouseLeave={() => setIsHovered(false)}
       className='cursor-pointer flex flex-col gap-10 transition-all ease-in-out duration-200 relative'>
       <div
-        className={`absolute w-full h-full -z-10  rounded-12 transition-all ease-in-out duration-200 
+        className={`absolute w-full h-full -z-10 rounded-12 transition-all ease-in-out duration-200 
         ${isHovered ? 'bg-default-200 scale-105' : 'scale-100'}`}></div>
       <div
-        className={`p-50 w-full rounded-12 justify-center flex  ${
-          thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-default-action200 to-default-action400'
+        className={`p-50 h-200 w-full rounded-12 justify-center items-center flex  ${
+          thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-default-200 to-default-400'
         }`}
         style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
-        <h3 className={`text-16 opacity-50 font-semibold text-default-selected ${thumbnailUrl ? 'invisible' : ''}`}>
+        <h3 className={`text-16 text-default-100 font-semibold text-default-selected ${thumbnailUrl ? 'invisible' : ''}`}>
           CONFÉRENCE
         </h3>
       </div>
@@ -92,7 +92,7 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
         <div className='relative'>
           <p
             ref={textRef}
-            className='text-16 text-default-600 font-semibold overflow-hidden max-h-[4.5rem] line-clamp-3'>
+            className='text-16 text-default-600 font-bold overflow-hidden max-h-[4.5rem] line-clamp-3'>
             {title}
           </p>
           {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-default-600'></span>}
@@ -110,7 +110,7 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
 export const LgConfSkeleton: React.FC = () => {
   return (
     <div className='flex flex-col gap-10'>
-      <Skeleton className='p-50 w-full rounded-12 justify-center flex'>
+      <Skeleton className='p-50 w-full h-200 rounded-12 justify-center flex'>
         <p className='text-16'>_</p>
       </Skeleton>
       <div className='flex flex-col gap-5'>
