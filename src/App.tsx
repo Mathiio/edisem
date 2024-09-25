@@ -3,7 +3,6 @@ import { Route, Routes } from 'react-router-dom';
 import { Conference } from '@/pages/conference';
 import { Conferencier } from '@/pages/conferencier';
 import { Home } from '@/pages/home';
-import { Recherche } from '@/pages/recherche';
 import { Database } from '@/pages/database';
 import { Edition } from '@/pages/edition';
 import LoginPage from '@/pages/login';
@@ -18,7 +17,6 @@ function App() {
     <Routes>
       <Route path='/conference/:id' Component={Conference} />
       <Route path='/conferencier/:id' Component={Conferencier} />
-      <Route path='/recherche' Component={Recherche} />
       <Route path='/database' Component={ProtectedDatabase} />
       <Route index path='/' Component={Home} />
       <Route path='/edition/:id/:title?' Component={Edition} />
