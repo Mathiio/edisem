@@ -138,7 +138,7 @@ const SearchModal = () => {
           },
         }}>
         <ModalContent>
-          {(onClose) => (
+          {() => (
             <>
               <ModalBody className='flex justify-between p-25'>
                 <Input

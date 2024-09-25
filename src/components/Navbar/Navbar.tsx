@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 
