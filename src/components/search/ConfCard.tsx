@@ -42,7 +42,7 @@ type LgConfCardProps = {
   url?: string;
 };
 
-export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, url, universite }) => {
+export const ConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, url, universite }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
@@ -67,12 +67,10 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
       onClick={openConf}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className='cursor-pointer flex flex-col gap-10 transition-all ease-in-out duration-200 relative'>
-      <div
-        className={`absolute w-full h-full -z-10 rounded-12 transition-all ease-in-out duration-200 
-        ${isHovered ? 'bg-default-200 scale-105' : 'scale-100'}`}></div>
-      <div
-        className={`p-50 h-200 w-full rounded-12 justify-center items-center flex  ${
+      className={`cursor-pointer border-2 h-full rounded-12 flex items-center justify-start p-20 gap-20 transition-transform-colors-opacity ${
+        isHovered ? 'border-default-action' : 'border-default-300'
+      }`}>
+      <div className={`p-50 h-full w-300 rounded-12 justify-center items-center flex  ${
           thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-default-200 to-default-400'
         }`}
         style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
@@ -80,7 +78,7 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
           CONFÉRENCE
         </h3>
       </div>
-      <div className='flex flex-col gap-5'>
+      <div className='flex flex-col gap-5 w-full'>
         <div className='relative'>
           <p
             ref={textRef}
@@ -99,7 +97,7 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
   );
 };
 
-export const LgConfSkeleton: React.FC = () => {
+export const ConfSkeleton: React.FC = () => {
   return (
     <div className='flex flex-col gap-10'>
       <Skeleton className='p-50 w-full h-200 rounded-12 justify-center flex'>

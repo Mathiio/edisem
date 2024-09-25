@@ -22,35 +22,27 @@ const fadeIn: Variants = {
 export const Conferencier: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [actant, setActant] = useState<any>(null);
-  const [loadingActant, setLoadingActant] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [conf, setConf] = useState<any[]>([]);
-  const [loadingConf, setLoadingConf] = useState(true);
-  const dataFetchedRef = useRef(false);
 
-  const fetchActant = useCallback(async () => {
-    if (dataFetchedRef.current) return;
-    const actantData = await getActant(Number(id));
-    setActant(actantData as any);
-    setLoadingActant(false);
-  }, [id]);
+  const fetchActantData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [actant, confs] = await Promise.all([
+        getActant(Number(id)),
+        getConfByActant(Number(id)),
+      ]);
 
-  const fetchConf = useCallback(async () => {
-    if (dataFetchedRef.current) return;
-    const confData = await getConfByActant(Number(id));
-    setConf(confData as any);
-    setLoadingConf(false);
+      setActant(actant);
+      setConf(confs);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
   useEffect(() => {
-    if (dataFetchedRef.current) {
-      return;
-    }
-
-    fetchConf();
-    fetchActant();
-
-    dataFetchedRef.current = true;
-  }, [fetchConf, fetchActant]);
+    fetchActantData();
+  }, [id, fetchActantData]);
 
   return (
     <div className='relative h-screen overflow-hidden'>
@@ -64,7 +56,7 @@ export const Conferencier: React.FC = () => {
               <Link
                 isExternal
                 className='gap-10 text-default-600'
-                href={!loadingActant ? actant?.url : '#'}
+                href={!loading ? actant?.url : '#'}
                 showAnchorIcon
                 anchorIcon={<LinkIcon size={28} />}>
                   {actant?.picture ? 
@@ -78,7 +70,7 @@ export const Conferencier: React.FC = () => {
                     </div>
                   }
                 
-                <p className='text-32 font-semibold text-default-600'>{loadingActant ? '' : actant?.firstname + " " + actant?.lastname}</p>
+                <p className='text-32 font-semibold text-default-600'>{loading ? '' : actant?.firstname + " " + actant?.lastname}</p>
               </Link>
               <div className='flex gap-20 justify-between items-center'>
                 <div className='h-full w-full flex flex-col gap-10'>
@@ -89,7 +81,7 @@ export const Conferencier: React.FC = () => {
                     <h3 className='text-16 text-left text-default-600 font-semibold'>Université(s)</h3>
                   </div>
                   <div className='flex flex-col justify-center items-start gap-10'>
-                    {loadingActant
+                    {loading
                       ? Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
                       : actant?.universities && actant.universities.length > 0 
                         ? actant.universities.map((item: { url: string; name: string | undefined; }, index: React.Key | null | undefined) => (
@@ -107,7 +99,7 @@ export const Conferencier: React.FC = () => {
                     <h3 className='text-16 text-left text-default-600 font-semibold'>École(s) doctorale(s)</h3>
                   </div>
                   <div className='flex flex-col justify-center items-start gap-10'>
-                  {loadingActant
+                  {loading
                         ? Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
                         : actant?.doctoralSchools && actant.doctoralSchools.length > 0 
                           ? actant.doctoralSchools.map((item: { url: string; name: string | undefined; }, index: React.Key | null | undefined) => (
@@ -125,7 +117,7 @@ export const Conferencier: React.FC = () => {
                     <h3 className='text-16 text-left text-default-600 font-semibold'>Laboratoire(s)</h3>
                   </div>
                   <div className='flex flex-col justify-center items-start gap-10'>
-                  {loadingActant
+                  {loading
                         ? Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
                         : actant?.laboritories && actant.laboritories.length > 0 
                           ? actant.laboritories.map((item: { url: string; name: string | undefined; }, index: React.Key | null | undefined) => (
@@ -143,7 +135,7 @@ export const Conferencier: React.FC = () => {
                     <h3 className='text-16 text-left text-default-600 font-semibold'>Participations(s)</h3>
                   </div>
                   <div className='flex flex-col justify-center items-start gap-10'>
-                    {loadingActant ? (
+                    {loading ? (
                       Array.from({ length: 1 }).map((_, index) => <InfoSkeleton key={index} />)
                     ) : (
                       <InfoCard link={''} name={actant?.interventions} />
@@ -155,7 +147,7 @@ export const Conferencier: React.FC = () => {
             <div className='gap-25 flex flex-col'>
               <h2 className='text-24 font-bold text-default-600'>Dernière(s) conférence(s)</h2>
               <div className='grid grid-cols-4 grid-rows-2 gap-25'>
-                {loadingConf
+                {loading
                   ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
                   : conf.map((item, index) => (
                       <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id} custom={index}>

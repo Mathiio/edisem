@@ -59,12 +59,7 @@ export const Conference: React.FC = () => {
     }[]
   >([]);
   const [confMediagraphies, setConfMediagraphies] = useState<{ mediagraphy: string; author: string; date: string; type: string; url: string }[]>([]);
-  const [loadingConfDetails, setLoadingConfDetails] = useState(true);
-  const [loadingConfKeyWords, setLoadingConfKeyWords] = useState(true);
-  const [loadingConfCitations, setLoadingConfCitations] = useState(true);
-  const [loadingConfBibliographies, setLoadingConfBibliographies] = useState(true);
-  const [loadingConfMediagraphies, setLoadingConfMediagraphies] = useState(true);
-  const dataFetchedRef = useRef(false);
+  const [loading, setLoading] = useState(true);
 
   const handleTimeChange = (newTime: number) => {
     setCurrentVideoTime(newTime);
@@ -73,62 +68,31 @@ export const Conference: React.FC = () => {
   useEffect(() => {
   }, [currentVideoTime]);
 
-  const fetchConfDetails = useCallback(async () => {
-    if (dataFetchedRef.current) return;
-    const confDetails = await getConf(Number(id));
-    setConfDetails(confDetails as any);
-    setLoadingConfDetails(false);
-  }, [id]);
+  const fetchConfData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [details, keywords, citations, bibliographies, mediagraphies] = await Promise.all([
+        getConf(Number(id)),
+        getConfKeyWords(Number(id)),
+        getConfCitations(Number(id)),
+        getConfBibliographies(Number(id)),
+        getConfMediagraphies(Number(id)),
+      ]);
 
-  const fetchConfKeyWords = useCallback(async () => {
-    if (dataFetchedRef.current) return;
-    const data = await getConfKeyWords(Number(id));
-    setConfKeyWords(data);
-    setLoadingConfKeyWords(false);
-  }, [id]);
-
-  const fetchConfCitations = useCallback(async () => {
-    if (dataFetchedRef.current) return;
-    const data = await getConfCitations(Number(id));
-    setConfCitations(data);
-    setLoadingConfCitations(false);
-  }, [id]);
-
-  const fetchConfBibliographies = useCallback(async () => {
-    if (dataFetchedRef.current) return;
-
-    const data = await getConfBibliographies(Number(id));
-    setConfBibliographies(data);
-    setLoadingConfBibliographies(false);
-  }, [id]);
-
-  const fetchConfMediagraphies = useCallback(async () => {
-    if (dataFetchedRef.current) return;
-    const data = await getConfMediagraphies(Number(id));
-    setConfMediagraphies(data);
-    setLoadingConfMediagraphies(false);
+      setConfDetails(details);
+      setConfKeyWords(keywords);
+      setConfCitations(citations);
+      setConfBibliographies(bibliographies);
+      setConfMediagraphies(mediagraphies);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
   useEffect(() => {
-    if (dataFetchedRef.current) {
-      return;
-    }
-
-    fetchConfDetails();
-    fetchConfKeyWords();
-    fetchConfCitations();
-    fetchConfBibliographies();
-    fetchConfMediagraphies();
-
-    dataFetchedRef.current = true;
-  }, [
-    fetchConfDetails,
-    fetchConfKeyWords,
-    fetchConfCitations,
-    fetchConfBibliographies,
-    fetchConfMediagraphies,
-  ]);
-
+    fetchConfData();
+  }, [id, fetchConfData]);
+  
   return (
     <div className='relative h-screen overflow-hidden'>
       <Scrollbar>
@@ -145,16 +109,16 @@ export const Conference: React.FC = () => {
               perPage={3}
               perMove={1}
               autowidth={true}
-              data={loadingConfKeyWords ? Array.from({ length: 8 }) : confKeyWords}
+              data={loading ? Array.from({ length: 8 }) : confKeyWords}
               renderSlide={(item) =>
-                loadingConfKeyWords ? (
+                loading ? (
                   <KeywordsSkeleton />
                 ) : (
                   <KeywordsCard key={item.id} id={item.id} word={item.keyword} />
                 )
               }
             />
-            {loadingConfDetails ? (
+            {loading ? (
               <ConfOverviewSkeleton></ConfOverviewSkeleton>
             ) : (
               <ConfOverviewCard
@@ -167,7 +131,7 @@ export const Conference: React.FC = () => {
                 currentTime={currentVideoTime}
               />
             )}
-            {loadingConfDetails ? (
+            {loading ? (
               <ConfDetailsSkeleton></ConfDetailsSkeleton>
             ) : (
               <ConfDetailsCard
@@ -196,19 +160,19 @@ export const Conference: React.FC = () => {
                   {selected === 'Citations' && (
                     <Citations
                       citations={confCitations}
-                      loading={loadingConfCitations}
+                      loading={loading}
                       onTimeChange={handleTimeChange}
                     />
                   )}
                 </Tab>
                 <Tab key='Bibliographie' title='Bibliographie' className='px-0 py-0 flex flex-grow'>
                   {selected === 'Bibliographie' && (
-                    <Bibliographies bibliographies={confBibliographies} loading={loadingConfBibliographies} />
+                    <Bibliographies bibliographies={confBibliographies} loading={loading} />
                   )}
                 </Tab>
                 <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
                   {selected === 'Medias' && (
-                    <Mediagraphies mediagraphies={confMediagraphies} loading={loadingConfMediagraphies} />
+                    <Mediagraphies mediagraphies={confMediagraphies} loading={loading} />
                   )}
                 </Tab>
                 {/* <Tab key='Annexes' title='Aller plus loin' className='px-0 py-0 flex'>

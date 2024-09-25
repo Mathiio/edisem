@@ -56,9 +56,11 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
   }, [currentTime]);
 
   useEffect(() => {
-    const updatedUrl = new URL(videoUrl);
-    updatedUrl.searchParams.set('enablejsapi', '1');
-    setVideoUrl(updatedUrl.toString());
+    if(videoUrl){
+      const updatedUrl = new URL(videoUrl);
+      updatedUrl.searchParams.set('enablejsapi', '1');
+      setVideoUrl(updatedUrl.toString());
+    }
   }, [url, fullUrl]);
 
   const openActant = () => {

@@ -376,8 +376,8 @@ export async function getConfByActant(actantId: number) {
 
 
 
-export async function filterBySearch(searchQuery: string) {
-  const confs = await getConfs();
+export async function filterActants(searchQuery: string) {
+  try{
   const actants = await getActants();
 
   const normalizedQuery = searchQuery.toLowerCase();
@@ -392,17 +392,46 @@ export async function filterBySearch(searchQuery: string) {
     );
   });
 
-  // const filteredConferences = confs.filter((conference: { event: string; title: string; description: string; }) => {
-  //   return (
-  //     conference.event.toLowerCase().includes(normalizedQuery) ||
-  //     conference.title.toLowerCase().includes(normalizedQuery) ||
-  //     conference.description.toLowerCase().includes(normalizedQuery)
-  //   );
-  // });
+  return filteredActants;
 
-  return {
-    filteredActants,
-  };
+  } catch (error) {
+    console.error('Error fetching conferences:', error);
+    throw new Error('Failed to fetch conferences');
+  }
+}
+
+
+
+
+export async function filterConfs(searchQuery: string) {
+  try{
+    const confs = await getConfs();
+
+    const updatedConfs = await Promise.all(confs.map(async (conf: { actant: number; }) => {
+      if (conf.actant) {
+        const actantDetails = await getActant(conf.actant);
+        return { ...conf, actant: actantDetails };
+      }
+      return conf;
+    }));
+
+    const filteredConfs = updatedConfs.filter((conf: any) => {
+      const eventMatch = conf.event.toLowerCase().includes(searchQuery.toLowerCase());
+      const titleMatch = conf.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const actantMatch = conf.actant
+        ? (conf.actant.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          conf.actant.lastname.toLowerCase().includes(searchQuery.toLowerCase()))
+        : false;
+      
+      return eventMatch || titleMatch || actantMatch;
+    });
+
+    console.log(filteredConfs); 
+    return filteredConfs;
+  } catch (error) {
+    console.error('Error fetching conferences:', error);
+    throw new Error('Failed to fetch conferences');
+  }
 }
 
 
