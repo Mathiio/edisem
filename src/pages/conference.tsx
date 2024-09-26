@@ -44,9 +44,7 @@ export const Conference: React.FC = () => {
   const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
   const [confDetails, setConfDetails] = useState<any>(null);
   const [confKeyWords, setConfKeyWords] = useState<{ id: number; keyword: string }[]>([]);
-  const [confCitations, setConfCitations] = useState<
-    { citation: string; actant: string; startTime: number; endTime: number }[]
-  >([]);
+  const [confCitations, setConfCitations] = useState<any[]>([]);
   const [confBibliographies, setConfBibliographies] = useState<
     {
       author: string;
@@ -91,6 +89,7 @@ export const Conference: React.FC = () => {
 
   useEffect(() => {
     fetchConfData();
+    console.log(confCitations)
   }, [id, fetchConfData]);
   
   return (

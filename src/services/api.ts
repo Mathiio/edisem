@@ -219,14 +219,14 @@ export async function getRandomConfs(confNum: number){
 
 export async function getConfs() {
   try {
-    const storedConfs = localStorage.getItem('confs');
+    const storedConfs = sessionStorage.getItem('confs');
   
     if (storedConfs) {
       return JSON.parse(storedConfs);
     }
 
     const confs = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAllConferences&json=1');
-    localStorage.setItem('confs', JSON.stringify(confs));
+    sessionStorage.setItem('confs', JSON.stringify(confs));
 
     return confs;
   }
@@ -276,7 +276,8 @@ export async function getConf(confId: number) {
 
 export async function getActants() {
   try {
-    const storedActants = localStorage.getItem('actants');
+    const storedActants = sessionStorage.getItem('actants');
+
     if (storedActants) {
       return JSON.parse(storedActants);
     }
@@ -289,7 +290,7 @@ export async function getActants() {
       return { ...actant, interventions: interventionsCount };
     });
 
-    localStorage.setItem('actants', JSON.stringify(updatedActants));
+    sessionStorage.setItem('actants', JSON.stringify(updatedActants));
     return updatedActants;
   }
   catch (error) {
@@ -366,7 +367,6 @@ export async function getConfByActant(actantId: number) {
     }));
 
     return updatedConfs;
-
   } catch (error) {
     console.error('Error fetching conferences:', error);
     throw new Error('Failed to fetch conferences');
@@ -437,7 +437,6 @@ export async function filterConfs(searchQuery: string) {
 
 
 
-
 export async function getConfKeyWords(confId: number) {
   const fetchedDetails: { id: number, keyword: string }[] = [];
 
@@ -462,29 +461,53 @@ export async function getConfKeyWords(confId: number) {
 
 
 
-export async function getConfCitations(confId: number) {
-  const fetchedCitations: { citation: string, actant: string, startTime: number, endTime: number }[] = [];
-
+export async function getCitations() {
   try {
-    const confRep = await fetch(`${API_URL}/items/${confId}`);
-    const conf = await confRep.json() as Data;
-    
-    if(conf["schema:citation"]){
-      for(let item of conf["schema:citation"]){
-        if(item["@id"]){
-          const citationRep = await getDataByUrl(item["@id"])
-          const citation = citationRep['cito:hasCitedEntity'] ? citationRep['cito:hasCitedEntity'][0]['@value'] as string : "Non renseignée";
-          const actant = citationRep['cito:isCitedBy'] ? citationRep['cito:isCitedBy'][0]['display_title'] as string : "Non renseigné";
-          const startTime = Number(citationRep['schema:startTime'] ? citationRep['schema:startTime'][0]['@value'] : "");
-          const endTime = Number(citationRep['schema:endTime'] ? citationRep['schema:endTime'][0]['@value'] : "");
-          fetchedCitations.push({ citation, actant, startTime, endTime })
-        }
-      }
+    const storedCitations = sessionStorage.getItem('citations');
+  
+    if (storedCitations) {
+      return JSON.parse(storedCitations);
     }
-    return fetchedCitations;
-  } catch (error) {
-    console.error('Error fetching seminaires:', error);
-    throw new Error('Failed to fetch seminaires');
+
+    const citations = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCitations&json=1');
+    sessionStorage.setItem('citations', JSON.stringify(citations));
+
+    return citations;
+  }
+  catch (error) {
+    console.error('Error fetching actants:', error);
+    throw new Error('Failed to fetch actants');
+  }
+}
+
+
+
+
+export async function getConfCitations(confId: number){
+  try{
+    const confs = await getConfs();
+    const citations = await getCitations();
+    const actants = await getActants();
+
+    const conf = confs.find((conf: { id: string }) => Number(conf.id) === confId);
+
+    if (conf) {
+      const confCitations = citations
+        .filter((citation: { id: number }) => conf.citations.includes(citation.id))
+        .map((citation: { actant: string }) => {
+          const actantObj = actants.find((actant: { id: string }) => actant.id === citation.actant);
+
+          return {
+            ...citation,
+            actant: actantObj ? actantObj : citation.actant
+          };
+        });
+
+      return confCitations;
+    }
+ } catch (error) {
+    console.error('Error fetching conferences:', error);
+    throw new Error('Failed to fetch conferences');
   }
 }
 

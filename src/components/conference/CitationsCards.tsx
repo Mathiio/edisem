@@ -6,7 +6,7 @@ import { FileIcon } from '@/components/Utils/icons';
 interface CitationCardProps {
   startTime: number;
   endTime: number;
-  actant: string;
+  actant: any;
   citation: string;
   onTimeChange: (time: number) => void;
 }
@@ -25,7 +25,6 @@ export const CitationCard: React.FC<CitationCardProps> = ({ startTime, endTime, 
   };
 
   const handleClick = () => {
-    console.log('Bouton de citation cliqué, startTime:', startTime);
     onTimeChange(startTime);
   };
 
@@ -78,7 +77,7 @@ export const CitationSkeleton: React.FC = () => {
 };
 
 interface CitationsProps {
-  citations: { citation: string; actant: string; startTime: number; endTime: number }[];
+  citations: { citation: string; actant: any; startTime: number; endTime: number }[];
   loading: boolean;
   onTimeChange: (time: number) => void;
 }
@@ -89,7 +88,7 @@ export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTime
       <Scrollbar withGap>
         <div className='flex flex-col gap-20'>
           {loading ? (
-            Array.from({ length: 4 }).map((_, index) => <CitationSkeleton key={index} />)
+            Array.from({ length: 8 }).map((_) => <CitationSkeleton />)
           ) : citations.length === 0 ? (
             <UnloadedCard />
           ) : (
@@ -98,7 +97,7 @@ export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTime
                 key={index}
                 startTime={citation.startTime}
                 endTime={citation.endTime}
-                actant={citation.actant}
+                actant={citation.actant.firstname + " " + citation.actant.lastname}
                 citation={citation.citation}
                 onTimeChange={onTimeChange}
               />
