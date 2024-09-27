@@ -8,7 +8,6 @@ export interface Data {
   '@type'?: string[];
   'o:resource_class'?: { '@id': string, 'o:id': number };
   'bibo:uri'?: Array<{ '@id': string,}>;
-  'schema:citation'?: Array<{ 'display_title': string, '@id': string, 'value_resource_id': number }>;
   'dcterms:title'?: Array<{ 'display_title': string, '@value'?: string }>;
   'cito:hasCitedEntity'?: Array<{ '@value': string }>;
   'cito:isCitedBy'?: Array<{ 'display_title': string }>;
@@ -192,7 +191,7 @@ export async function getSeminaires() {
 
 export async function getRandomConfs(confNum: number){
   try{
-    const confs = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAllConferences&json=1');
+    const confs = await getConfs();
     
     if (Array.isArray(confs)) {
       const randomConfs = confs.sort(() => 0.5 - Math.random());
@@ -225,14 +224,14 @@ export async function getConfs() {
       return JSON.parse(storedConfs);
     }
 
-    const confs = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAllConferences&json=1');
+    const confs = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getConfs&json=1');
     sessionStorage.setItem('confs', JSON.stringify(confs));
 
     return confs;
   }
   catch (error) {
-    console.error('Error fetching actants:', error);
-    throw new Error('Failed to fetch actants');
+    console.error('Error fetching confs:', error);
+    throw new Error('Failed to fetch confs');
   }
 }
 
@@ -266,8 +265,8 @@ export async function getConf(confId: number) {
     } 
   }
   catch (error) {
-    console.error('Error fetching actants:', error);
-    throw new Error('Failed to fetch actants');
+    console.error('Error fetching conf:', error);
+    throw new Error('Failed to fetch conf');
   }
 }
 
@@ -282,12 +281,26 @@ export async function getActants() {
       return JSON.parse(storedActants);
     }
 
-    const actants = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAllConferencier&json=1');
+    const actants = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1');
     const confs = await getConfs();
+    const universities = await getUniversities();
+    const doctoralSchools = await getDoctoralSchools();
+    const laboratories = await getLaboratories();
 
-    const updatedActants = actants.map((actant: { id: number }) => {
+    const universityMap = new Map(universities.map((uni: { id: any; }) => [uni.id, uni]));
+    const doctoralSchoolMap = new Map(doctoralSchools.map((school: { id: any; }) => [school.id, school]));
+    const laboratoryMap = new Map(laboratories.map((lab: { id: any; }) => [lab.id, lab]));
+
+    const updatedActants = actants.map((actant: { id: number; universities: string[]; doctoralSchools: string[]; laboritories: string[]; }) => {
       const interventionsCount = confs.filter((conf: { actant: string }) => conf.actant === String(actant.id)).length;
-      return { ...actant, interventions: interventionsCount };
+
+      return {
+        ...actant,
+        interventions: interventionsCount,
+        universities: actant.universities.map(id => universityMap.get(id)),
+        doctoralSchools: actant.doctoralSchools.map(id => doctoralSchoolMap.get(id)),
+        laboritories: actant.laboritories.map(id => laboratoryMap.get(id)),
+      };
     });
 
     sessionStorage.setItem('actants', JSON.stringify(updatedActants));
@@ -296,6 +309,72 @@ export async function getActants() {
   catch (error) {
     console.error('Error fetching actants:', error);
     throw new Error('Failed to fetch actants');
+  }
+}
+
+
+
+
+export async function getUniversities() {
+  try {
+    const storedUniversities = sessionStorage.getItem('universities');
+  
+    if (storedUniversities) {
+      return JSON.parse(storedUniversities);
+    }
+
+    const universities = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getUniversities&json=1');
+    sessionStorage.setItem('universities', JSON.stringify(universities));
+
+    return universities;
+  }
+  catch (error) {
+    console.error('Error fetching universities:', error);
+    throw new Error('Failed to fetch universities');
+  }
+}
+
+
+
+
+export async function getLaboratories() {
+  try {
+    const storedLaboritories = sessionStorage.getItem('laboritories');
+  
+    if (storedLaboritories) {
+      return JSON.parse(storedLaboritories);
+    }
+
+    const laboritories = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getLaboratories&json=1');
+    sessionStorage.setItem('laboritories', JSON.stringify(laboritories));
+
+    return laboritories;
+  }
+  catch (error) {
+    console.error('Error fetching laboritories:', error);
+    throw new Error('Failed to fetch laboritories');
+  }
+}
+
+
+
+
+export async function getDoctoralSchools() {
+  try {
+    const storedDoctoralSchools = sessionStorage.getItem('doctoralSchools');
+  
+    if (storedDoctoralSchools) {
+      return JSON.parse(storedDoctoralSchools);
+    }
+
+    const doctoralSchools = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getDoctoralSchools&json=1');
+    sessionStorage.setItem('doctoralSchools', JSON.stringify(doctoralSchools));
+
+    return doctoralSchools;
+  }
+  catch (error) {
+    console.error('Error fetching doctoralSchools:', error);
+    throw new Error('Failed to fetch doctoralSchools');
   }
 }
 
@@ -342,8 +421,8 @@ export async function getConfByEdition(editionId: number) {
 
     return updatedConfs;
   } catch (error) {
-    console.error('Error fetching seminaires:', error);
-    throw new Error('Failed to fetch editions');
+    console.error('Error fetching confByEdition:', error);
+    throw new Error('Failed to fetch confByEdition');
   }
 }
 
@@ -368,8 +447,8 @@ export async function getConfByActant(actantId: number) {
 
     return updatedConfs;
   } catch (error) {
-    console.error('Error fetching conferences:', error);
-    throw new Error('Failed to fetch conferences');
+    console.error('Error fetching confByActant:', error);
+    throw new Error('Failed to fetch confByActant');
   }
 }
 
@@ -382,12 +461,12 @@ export async function filterActants(searchQuery: string) {
 
   const normalizedQuery = searchQuery.toLowerCase();
 
-  const filteredActants = actants.filter((actant: { firstname: string; lastname: string; universities: any[]; docotralSchools: any[]; laboritories: any[]; }) => {
+  const filteredActants = actants.filter((actant: { firstname: string; lastname: string; universities: any[]; doctoralSchools: any[]; laboritories: any[]; }) => {
     return (
       (actant.firstname && actant.firstname.toLowerCase().includes(normalizedQuery)) ||
       (actant.lastname && actant.lastname.toLowerCase().includes(normalizedQuery)) ||
       (actant.universities && actant.universities.some((university: { name: string; }) => university.name.toLowerCase().includes(normalizedQuery))) ||
-      (actant.docotralSchools && actant.docotralSchools.some((school: { name: string; }) => school.name.toLowerCase().includes(normalizedQuery))) ||
+      (actant.doctoralSchools && actant.doctoralSchools.some((school: { name: string; }) => school.name.toLowerCase().includes(normalizedQuery))) ||
       (actant.laboritories && actant.laboritories.some((laboratory: { name: string; }) => laboratory.name.toLowerCase().includes(normalizedQuery)))
     );
   });
@@ -514,85 +593,49 @@ export async function getConfCitations(confId: number){
 
 
 
-export async function getConfBibliographies(confId: number) {
-  const fetchedBibliographies: {author: string, date: string , bibliography_title: string, source?: string,ressource_id: number; thumbnail?: string; url?: string;   }[] = [];
-
+export async function getBibliographies() {
   try {
-    const confRep = await fetch(`${API_URL}/items/${confId}`);
-    const conf = await confRep.json() as Data;
-    
-    
-    if(conf["dcterms:references"]){
-      for(let item of conf["dcterms:references"]){
-        if(item["@id"]){
-          const bibliographyRep = await getDataByUrl(item["@id"])
-          if (bibliographyRep["o:resource_class"]) {
-            if ( bibliographyRep["o:resource_class"]["o:id"] == 40) {
-              const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "";
-              const author = bibliographyRep['dcterms:creator'] ? bibliographyRep['dcterms:creator'][0]['display_title'] as string : "";
-              const bibliography_title = bibliographyRep['dcterms:title'] ? bibliographyRep['dcterms:title'][0]['@value'] as string : "";
-              const source = bibliographyRep['dcterms:publisher'] ? bibliographyRep['dcterms:publisher'][0]['@value'] as string : "";
-              const ressource_id = bibliographyRep["o:resource_class"]["o:id"];
-              const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
-              const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
-              fetchedBibliographies.push({ bibliography_title, author, date,source,ressource_id, url,thumbnail  })
-            }
-
-            else if (bibliographyRep["o:resource_class"] && bibliographyRep["o:resource_class"]["o:id"] == 81) {
-              const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "";
-              const author = bibliographyRep['dcterms:creator'] ? bibliographyRep['dcterms:creator'][0]['display_title'] as string : "";
-              const bibliography_title = bibliographyRep['dcterms:references'] ? bibliographyRep['dcterms:references'][0]['@value'] as string : "";
-              const ressource_id = bibliographyRep["o:resource_class"]["o:id"];
-              const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
-              const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
-              fetchedBibliographies.push({ bibliography_title, author, date,ressource_id, url,thumbnail  })
-            }
-
-            else if (bibliographyRep["o:resource_class"] && bibliographyRep["o:resource_class"]["o:id"] == 36) {
-              const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "";
-              const author = bibliographyRep['dcterms:creator'] ? bibliographyRep['dcterms:creator'][0]['display_title'] as string : "";
-              const bibliography_title = bibliographyRep['dcterms:title'] ? bibliographyRep['dcterms:title'][0]['@value'] as string : "";
-              const ressource_id = bibliographyRep["o:resource_class"]["o:id"];
-              const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
-              const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
-              fetchedBibliographies.push({ bibliography_title, author, date,ressource_id, url,thumbnail  })
-            }
-            else if (bibliographyRep["o:resource_class"] && bibliographyRep["o:resource_class"]["o:id"] == 35) {
-              const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "";
-              const author = bibliographyRep['dcterms:creator'] ? bibliographyRep['dcterms:creator'][0]['display_title'] as string : "";
-              const bibliography_title = bibliographyRep['dcterms:title'] ? bibliographyRep['dcterms:title'][0]['@value'] as string : "";
-              const ressource_id = bibliographyRep["o:resource_class"] ? bibliographyRep["o:resource_class"]["o:id"] as number : 0;
-              const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
-              const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
-              //console.log(bibliographyRep)
-              fetchedBibliographies.push({ bibliography_title, author, date,ressource_id, url,thumbnail })
-
-            }
-            else {
-              const date = bibliographyRep['dcterms:date'] ? bibliographyRep['dcterms:date'][0]['@value'] as string : "";
-              const author = bibliographyRep['dcterms:creator'] ? bibliographyRep['dcterms:creator'][0]['display_title'] as string : "";
-              const bibliography_title = bibliographyRep['dcterms:title'] ? bibliographyRep['dcterms:title'][0]['@value'] as string : "";
-              const ressource_id = bibliographyRep["o:resource_class"] ? bibliographyRep["o:resource_class"]["o:id"] as number : 0;
-              const url = bibliographyRep['bibo:uri'] ? bibliographyRep['bibo:uri'][0]['@id'] as string : "";
-              const thumbnail = bibliographyRep['thumbnail_display_urls'] ? bibliographyRep['thumbnail_display_urls']['large'] as string : "";
-              //console.log(bibliographyRep)
-              fetchedBibliographies.push({ bibliography_title, author, date,ressource_id, url,thumbnail })
-
-            }
-
-             
-            
-            }
-        }
-      }
+    const storedBibliographies = sessionStorage.getItem('bibliographies');
+  
+    if (storedBibliographies) {
+      return JSON.parse(storedBibliographies);
     }
-    return fetchedBibliographies;
-  } catch (error) {
-    console.error('Error fetching seminaires:', error);
-    throw new Error('Failed to fetch seminaires');
+
+    const bibliographies = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getBibliographies&json=1');
+    sessionStorage.setItem('bibliographies', JSON.stringify(bibliographies));
+
+    return bibliographies;
+  }
+  catch (error) {
+    console.error('Error fetching bibliographies:', error);
+    throw new Error('Failed to fetch bibliographies');
   }
 }
 
+
+
+export async function getConfBibliographies(confId: number) {
+  try {
+    const confs = await getConfs();
+    const bibliographies = await getBibliographies();
+
+    const conf = confs.find((conf: { id: number }) => Number(conf.id) === confId);
+
+    if (!conf) {
+      throw new Error(`No conference found with id: ${confId}`);
+    }
+
+    const filteredBibliographies = bibliographies.filter((bib: { id: number }) => 
+      conf.bibliographies.includes(String(bib.id)) 
+    );
+
+    return filteredBibliographies;
+  }
+  catch (error) {
+    console.error('Error fetching bibliographies:', error);
+    throw new Error('Failed to fetch bibliographies');
+  }
+}
 
 
 

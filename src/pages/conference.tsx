@@ -45,17 +45,7 @@ export const Conference: React.FC = () => {
   const [confDetails, setConfDetails] = useState<any>(null);
   const [confKeyWords, setConfKeyWords] = useState<{ id: number; keyword: string }[]>([]);
   const [confCitations, setConfCitations] = useState<any[]>([]);
-  const [confBibliographies, setConfBibliographies] = useState<
-    {
-      author: string;
-      date: string;
-      bibliography_title: string;
-      source?: string;
-      ressource_id: number;
-      thumbnail?: string;
-      url?: string;
-    }[]
-  >([]);
+  const [confBibliographies, setConfBibliographies] = useState<any[]>([]);
   const [confMediagraphies, setConfMediagraphies] = useState<{ mediagraphy: string; author: string; date: string; type: string; url: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -89,7 +79,6 @@ export const Conference: React.FC = () => {
 
   useEffect(() => {
     fetchConfData();
-    console.log(confCitations)
   }, [id, fetchConfData]);
   
   return (
@@ -174,9 +163,6 @@ export const Conference: React.FC = () => {
                     <Mediagraphies mediagraphies={confMediagraphies} loading={loading} />
                   )}
                 </Tab>
-                {/* <Tab key='Annexes' title='Aller plus loin' className='px-0 py-0 flex'>
-                  {selected === 'Annexes' && ''}
-                </Tab> */}
               </Tabs>
             </div>
           </motion.div>
