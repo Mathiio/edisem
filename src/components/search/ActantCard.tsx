@@ -9,7 +9,7 @@ type ActantCardProps = {
   lastname: string;
   picture: string;
   interventions: number;
-  universities: { name: string; picture: string }[];
+  universities: { name: string; logo: string }[];
 };
 
 export const ActantCard: React.FC<ActantCardProps> = ({ id, firstname, lastname, picture, interventions, universities }) => {
@@ -50,7 +50,7 @@ export const ActantCard: React.FC<ActantCardProps> = ({ id, firstname, lastname,
           {universities.map((university, index) => (
             <div key={index} className='flex items-center justify-center gap-5'>
               <img
-                src={university.picture}
+                src={university.logo}
                 alt={(university.name).replace(/Université/g, 'U.').replace(/Vincennes-Saint-Denis/g, '')}
                 className='w-auto h-15 object-cover rounded-full mb-5'
               />

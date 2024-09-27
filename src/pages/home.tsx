@@ -99,9 +99,9 @@ export const Home: React.FC = () => {
                       lastname={item.lastname}
                       picture={item.picture}
                       interventions={item.interventions}
-                      universities={item.universities.map((uni: { name: string; picture: string; }) => ({
+                      universities={item.universities.map((uni: { name: string; logo: string; }) => ({
                         name: uni.name,
-                        picture: uni.picture,
+                        logo: uni.logo,
                       }))}
                     />
                   </motion.div>
