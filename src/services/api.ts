@@ -629,6 +629,7 @@ export async function getConfBibliographies(confId: number) {
       conf.bibliographies.includes(String(bib.id)) 
     );
 
+    console.log(filteredBibliographies)
     return filteredBibliographies;
   }
   catch (error) {
