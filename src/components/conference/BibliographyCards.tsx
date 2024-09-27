@@ -12,6 +12,7 @@ interface BibliographyCardProps {
   type: number;
   thumbnail?: string;
   url?: string;
+  editor?: string;
 }
 
 
@@ -23,6 +24,7 @@ export const BibliographyCard: React.FC<BibliographyCardProps> = ({
   type,
   thumbnail,
   url,
+  editor,
 }) => {
   const hasContent = (value: string | undefined) => value && value.trim() !== '';
 
@@ -86,6 +88,7 @@ interface BibliographiesProps {
     type: number;
     thumbnail?: string;
     url?: string;
+    editor?: string;
   }[];
   loading: boolean;
 }
@@ -107,6 +110,7 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, 
                 author={bibliography.author}
                 date={bibliography.date}
                 type={bibliography.type}
+                editor={bibliography.editor}
                 source={bibliography.source}
                 thumbnail={bibliography.thumbnail}
                 url={bibliography.url}
