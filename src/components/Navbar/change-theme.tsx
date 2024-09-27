@@ -1,12 +1,14 @@
-import { useThemeMode } from '@/hooks/use-theme-mode';
 import { Link } from '@/theme/components';
 import { SunIcon, MoonIcon } from '@/components/Utils/icons';
 
-export const ChangeThemeButton = () => {
-  const { isDark, toggleThemeMode } = useThemeMode();
+interface ChangeThemeButtonProps {
+  isDark: boolean;
+  toggleTheme: () => void;
+}
 
+export const ChangeThemeButton: React.FC<ChangeThemeButtonProps> = ({ isDark, toggleTheme }) => {
   return (
-    <Link onClick={toggleThemeMode} className='cursor-pointer'>
+    <Link onClick={toggleTheme} className='cursor-pointer'>
       {isDark ? (
         <SunIcon
           size={18}

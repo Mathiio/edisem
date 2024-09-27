@@ -7,7 +7,7 @@ import { ProfilDropdown } from '@/components/Navbar/ProfilDropdown';
 import { motion, Variants } from 'framer-motion';
 import { Link as RoutLink } from 'react-router-dom';
 import SearchModal from './SearchModal';
-import { useThemeMode } from '@/hooks/use-theme-mode';
+import { useThemeMode } from '@/hooks/use-theme-mode'; // Importer le hook
 
 const navbarVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
@@ -29,7 +29,8 @@ const containerVariants: Variants = {
 };
 
 export const Navbar: React.FC = () => {
-  const { isDark } = useThemeMode();
+  // Utilisation de useThemeMode pour gérer l'état du thème
+  const { isDark, toggleThemeMode } = useThemeMode();
 
   const logos = useMemo(
     () => [
@@ -64,7 +65,8 @@ export const Navbar: React.FC = () => {
           {logos.map((logo) => (
             <img
               key={`${logo.name}-${isDark ? 'dark' : 'light'}`}
-              className={`h-[${logo.height}] object-contain`}
+              className='object-contain'
+              style={{ height: logo.height }} // Appliquer la hauteur via `style`
               src={getLogo(logo.name)}
               alt={`${logo.name} logo`}
             />
@@ -74,7 +76,7 @@ export const Navbar: React.FC = () => {
       <motion.div className='flex items-center gap-6' variants={navbarVariants}>
         <SearchModal />
         <CreditsModal />
-        <ChangeThemeButton />
+        <ChangeThemeButton isDark={isDark} toggleTheme={toggleThemeMode} />
         <ProfilDropdown />
       </motion.div>
     </motion.nav>
