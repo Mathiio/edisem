@@ -741,6 +741,15 @@ module.exports = {
               action800: '#301050',
             },
           },
+          logo: {
+            'crilcq': 'url(/crilcq.png)',
+            'laval': 'url(/laval.png)',
+            'univmtl': 'url(/univmtl.png)',
+            'uqam': 'url(/uqam.png)',
+            'paris8': 'url(/paris8.png)',
+            'paragraphe': 'url(/paragraphe.png)',
+            'sshrc': 'url(/sshrc.png)',
+          }
         },
         dark: {
           colors: {
@@ -766,6 +775,15 @@ module.exports = {
               action800: '#301050',
             },
           },
+          logo: {
+            'crilcq': 'url(/dark_crilcq.png)',
+            'laval': 'url(/dark_laval.png)',
+            'univmtl': 'url(/dark_univmtl.png)',
+            'uqam': 'url(/dark_uqam.png)',
+            'paris8': 'url(/dark_paris8.png)',
+            'paragraphe': 'url(/dark_paragraphe.png)',
+            'sshrc': 'url(/dark_sshrc.png)',
+          }
         },
       },
     }),

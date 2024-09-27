@@ -53,8 +53,7 @@ export const Conference: React.FC = () => {
     setCurrentVideoTime(newTime);
   };
 
-  useEffect(() => {
-  }, [currentVideoTime]);
+  useEffect(() => {}, [currentVideoTime]);
 
   const fetchConfData = useCallback(async () => {
     setLoading(true);
@@ -80,7 +79,7 @@ export const Conference: React.FC = () => {
   useEffect(() => {
     fetchConfData();
   }, [id, fetchConfData]);
-  
+
   return (
     <div className='relative h-screen overflow-hidden'>
       <Scrollbar>
@@ -99,11 +98,7 @@ export const Conference: React.FC = () => {
               autowidth={true}
               data={loading ? Array.from({ length: 8 }) : confKeyWords}
               renderSlide={(item) =>
-                loading ? (
-                  <KeywordsSkeleton />
-                ) : (
-                  <KeywordsCard key={item.id} id={item.id} word={item.keyword} />
-                )
+                loading ? <KeywordsSkeleton /> : <KeywordsCard key={item.id} id={item.id} word={item.keyword} />
               }
             />
             {loading ? (
@@ -123,7 +118,7 @@ export const Conference: React.FC = () => {
               <ConfDetailsSkeleton></ConfDetailsSkeleton>
             ) : (
               <ConfDetailsCard
-                edition={"Édition " + confDetails.season + " " + confDetails.date.split('-')[0]}
+                edition={'Édition ' + confDetails.season + ' ' + confDetails.date.split('-')[0]}
                 date={confDetails.date}
                 description={confDetails.description}
               />
@@ -146,11 +141,7 @@ export const Conference: React.FC = () => {
                 onSelectionChange={(key: React.Key) => setSelected(key as string)}>
                 <Tab key='Citations' title='Citations' className='px-0 py-0 flex'>
                   {selected === 'Citations' && (
-                    <Citations
-                      citations={confCitations}
-                      loading={loading}
-                      onTimeChange={handleTimeChange}
-                    />
+                    <Citations citations={confCitations} loading={loading} onTimeChange={handleTimeChange} />
                   )}
                 </Tab>
                 <Tab key='Bibliographie' title='Bibliographie' className='px-0 py-0 flex flex-grow'>
@@ -159,9 +150,7 @@ export const Conference: React.FC = () => {
                   )}
                 </Tab>
                 <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
-                  {selected === 'Medias' && (
-                    <Mediagraphies mediagraphies={confMediagraphies} loading={loading} />
-                  )}
+                  {selected === 'Medias' && <Mediagraphies mediagraphies={confMediagraphies} loading={loading} />}
                 </Tab>
               </Tabs>
             </div>

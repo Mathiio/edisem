@@ -28,6 +28,110 @@ export const BibliographyCard: React.FC<BibliographyCardProps> = ({
 }) => {
   const hasContent = (value: string | undefined) => value && value.trim() !== '';
 
+// Templates de formatage
+const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.ReactNode } = {
+  // Article scientifique
+  40: (item) => (
+    <>
+      {hasContent(item.author) && <span>{formatAuthors(item.author)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.bibliography_title) && <span>{item.bibliography_title}. </span>}
+      {hasContent(item.source) && (
+        <span>
+          <i>{item.source}</i>,{' '}
+        </span>
+      )}
+      {hasContent(item.volume) && (
+        <span>
+          <i>{item.volume}</i>
+        </span>
+      )}
+      {hasContent(item.issue) && <span>({item.issue}), </span>}
+      {hasContent(item.pages) && <span>{item.pages}. </span>}
+      {hasContent(item.url) && <span>{item.url}</span>}
+    </>
+  ),
+  // Chapitre d'ouvrage
+  81: (item) => (
+    <>
+      {hasContent(item.author) && <span>{formatAuthors(item.author)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.bibliography_title) && <span>{item.bibliography_title}. </span>}
+      {hasContent(item.editor) && <span>Dans {item.editor} (dir.), </span>}
+      {hasContent(item.source) && (
+        <span>
+          <i>{item.source}</i>{' '}
+        </span>
+      )}
+      {hasContent(item.pages) && <span>({item.pages}). </span>}
+      {hasContent(item.publisher) && <span>{item.publisher}. </span>}
+      {hasContent(item.url) && <span>{item.url}</span>}
+    </>
+  ),
+  // Ouvrage / livre entier
+  36: (item) => (
+    <>
+      {hasContent(item.author) && <span>{formatAuthors(item.author)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.bibliography_title) && (
+        <span>
+          <i>{item.bibliography_title}</i>.{' '}
+        </span>
+      )}
+      {hasContent(item.publisher) && <span>{item.publisher}. </span>}
+      {hasContent(item.url) && <span>{item.url}</span>}
+    </>
+  ),
+  // Thèse / mémoire
+  35: (item) => (
+    <>
+      {hasContent(item.author) && <span>{formatAuthors(item.author)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.bibliography_title) && (
+        <span>
+          <i>{item.bibliography_title}</i>{' '}
+        </span>
+      )}
+      {hasContent(item.type) && hasContent(item.publisher) && (
+        <span>
+          [{item.type}, {item.publisher}].{' '}
+        </span>
+      )}
+      {hasContent(item.url) && <span>{item.url}</span>}
+    </>
+  ),
+  // Page web
+  82: (item) => (
+    <>
+      {hasContent(item.author) && <span>{formatAuthors(item.author)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.bibliography_title) && (
+        <span>
+          <i>{item.bibliography_title}</i>.{' '}
+        </span>
+      )}
+      {hasContent(item.publisher) && <span>{item.publisher}. </span>}
+      {hasContent(item.url) && <span>{item.url}</span>}
+    </>
+  ),
+  // Site web
+  83: (item) => (
+    <>
+      {hasContent(item.bibliography_title) && <span>{item.bibliography_title}. </span>}
+      {hasContent(item.url) && <span>{item.url}</span>}
+    </>
+  ),
+};
+
+// Composant BibliographyCard optimisé
+export const BibliographyCard: React.FC<BibliographyItem> = (props) => {
+  const { ressource_id, thumbnail, url } = props;
+
+  const formatBibliography = (item: BibliographyItem) => {
+    const template = bibliographyTemplates[item.ressource_id];
+    return template ? template(item) : item.bibliography_title || 'Référence non formatée';
+  };
+
   return (
     <div className='w-full flex flex-col justify-start items-start gap-10 transition-transform-colors-opacity'>
       <div className={`flex ${thumbnail ? 'flex-row' : 'flex-col'} gap-4 items-start`}>
@@ -48,9 +152,9 @@ export const BibliographyCard: React.FC<BibliographyCardProps> = ({
             <p className='text-default-600 text-16'>{title}</p>
           )}
           {url && (
-            <Link to={url} className='text-default-500 underline'>
+            <a href={url} className='text-default-500 underline'>
               Voir la source
-            </Link>
+            </a>
           )}
         </div>
       </div>
