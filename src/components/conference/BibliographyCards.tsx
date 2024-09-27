@@ -1,8 +1,4 @@
 import React from 'react';
-import { Skeleton } from '@nextui-org/react';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
-import { FileIcon } from '@/components/Utils/icons';
-import { Link } from 'react-router-dom';
 
 export interface BibliographyItem {
   creator: string[];
@@ -98,7 +94,7 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
 
 // Composant BibliographyCard optimisé
 export const BibliographyCard: React.FC<BibliographyItem> = (props) => {
-  const { id, thumbnail, url } = props;
+  const { thumbnail, url } = props;
 
   const formatBibliography = (item: BibliographyItem) => {
     console.log(item);
