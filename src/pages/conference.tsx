@@ -16,7 +16,7 @@ import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/conference/Co
 import { LongCarrousel } from '@/components/Utils/Carrousels';
 import { Tabs, Tab } from '@nextui-org/react';
 import { KeywordsCard, KeywordsSkeleton } from '@/components/conference/KeywordsCards';
-import { Bibliographies } from '@/components/conference/BibliographyCards';
+import { Bibliographies, BibliographyItem } from '@/components/conference/BibliographyCards';
 import { Mediagraphies } from '@/components/conference/MediagraphyCards';
 
 const containerVariants: Variants = {
@@ -44,9 +44,14 @@ export const Conference: React.FC = () => {
   const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
   const [confDetails, setConfDetails] = useState<any>(null);
   const [confKeyWords, setConfKeyWords] = useState<{ id: number; keyword: string }[]>([]);
-  const [confCitations, setConfCitations] = useState<any[]>([]);
-  const [confBibliographies, setConfBibliographies] = useState<any[]>([]);
-  const [confMediagraphies, setConfMediagraphies] = useState<{ mediagraphy: string; author: string; date: string; type: string; url: string }[]>([]);
+  const [confCitations, setConfCitations] = useState<
+    { citation: string; actant: string; startTime: number; endTime: number }[]
+  >([]);
+  const [confBibliographies, setConfBibliographies] = useState<BibliographyItem[]>([]);
+
+  const [confMediagraphies, setConfMediagraphies] = useState<
+    { mediagraphy: string; author: string; date: string; type: string; url: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   const handleTimeChange = (newTime: number) => {
@@ -152,6 +157,9 @@ export const Conference: React.FC = () => {
                 <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
                   {selected === 'Medias' && <Mediagraphies mediagraphies={confMediagraphies} loading={loading} />}
                 </Tab>
+                {/* <Tab key='Annexes' title='Aller plus loin' className='px-0 py-0 flex'>
+                  {selected === 'Annexes' && ''}
+                </Tab> */}
               </Tabs>
             </div>
           </motion.div>
