@@ -1,26 +1,29 @@
 import React from 'react';
+import { Scrollbar } from '../Utils/Scrollbar';
 
 export interface BibliographyItem {
   creator: string[];
   date: string;
   title: string;
   source?: string;
-  type: number;
+  type: string;
+  class: number;
   volume?: string;
   issue?: string;
   pages?: string;
   url?: string;
   publisher?: string;
   editor?: string;
+  edition?: string;
   id: number;
   thumbnail?: string;
 }
 
-const hasContent = (value: string | string[] | undefined) => {
+const hasContent = (value: string | string[] | undefined | null) => {
   if (Array.isArray(value)) {
-    return value.length > 0 && value.some((creator) => creator.trim() !== '');
+    return value.length > 0 && value.some((creator) => creator?.trim() !== '');
   }
-  return typeof value === 'string' && value.trim() !== '';
+  return typeof value === 'string' && value?.trim() !== '';
 };
 
 const formatAuthors = (creators: string[]) => {
@@ -39,6 +42,26 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
       {hasContent(item.issue) && <span>({item.issue}), </span>}
       {hasContent(item.pages) && <span>{item.pages}. </span>}
       {hasContent(item.editor) && <span>{item.editor}. </span>}
+      {hasContent(item.publisher) && <span>{item.publisher}. </span>}
+    </>
+  ),
+  41: (item) => (
+    <>
+      {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.title) && <span>{item.title}. </span>}
+
+      {hasContent(item.editor) && (
+        <span>
+          Dans {item.editor} <i>(dir.)</i>,
+        </span>
+      )}
+
+      {hasContent(item.edition) && <span> {item.edition} éd.</span>}
+      {hasContent(item.volume) && <span>, vol. {item.volume}</span>}
+      {hasContent(item.pages) && <span>, p. {item.pages}</span>}
+
+      {hasContent(item.publisher) && <span>. {item.publisher}</span>}
     </>
   ),
   81: (item) => (
@@ -50,6 +73,24 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
       {hasContent(item.source) && <i>{item.source} </i>}
       {hasContent(item.pages) && <span>({item.pages}). </span>}
       {hasContent(item.publisher) && <span>{item.publisher}. </span>}
+    </>
+  ),
+  88: (item) => (
+    <>
+      {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.title) && <span>{item.title} </span>}
+      {hasContent(item.type) && <span> [{item.type}</span>}
+      {hasContent(item.publisher) && <span>. {item.publisher + ']'}</span>}
+    </>
+  ),
+
+  49: (item) => (
+    <>
+      {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.title) && <i>{item.title}</i>}
+      {hasContent(item.publisher) && <span>. {item.publisher}</span>}
     </>
   ),
   36: (item) => (
@@ -70,6 +111,23 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
           [{item.type}, {item.publisher}].{' '}
         </span>
       )}
+      {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.title) && <i>{item.title}. </i>}
+      {hasContent(item.publisher) && (
+        <span>
+          [{item.type}, {item.publisher}]
+        </span>
+      )}
+
+      {hasContent(item.volume) && (
+        <span>
+          {' '}
+          <i>{item.volume}</i>{' '}
+        </span>
+      )}
+      {hasContent(item.issue) && <span>({item.issue})</span>}
+      {hasContent(item.pages) && <span>, {item.pages}</span>}
     </>
   ),
   82: (item) => (
@@ -80,6 +138,7 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
       {hasContent(item.publisher) && <span>{item.publisher}. </span>}
     </>
   ),
+
   83: (item) => <>{hasContent(item.title) && <span>{item.title}. </span>}</>,
   54: (item) => (
     <>
@@ -93,12 +152,12 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
 };
 
 // Composant BibliographyCard optimisé
-export const BibliographyCard: React.FC<BibliographyItem> = (props) => {
+export const BibliographyCard: React.FC<BibliographyItem & { uniqueKey?: number }> = (props) => {
   const { thumbnail, url } = props;
 
   const formatBibliography = (item: BibliographyItem) => {
-    console.log(item);
-    const template = bibliographyTemplates[item.type];
+    //console.log(item);
+    const template = bibliographyTemplates[item.class];
     return template ? template(item) : item.title || 'Référence non formatée';
   };
 
@@ -143,16 +202,20 @@ interface BibliographiesProps {
 
 export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, loading }) => {
   return (
-    <div className='w-full lg:h-[700px] xl:h-[750px] overflow-hidden flex flex-col gap-20'>
-      <div className='flex flex-col gap-50'>
-        {loading ? (
-          Array.from({ length: 4 }).map((_, index) => <BibliographySkeleton key={index} />)
-        ) : bibliographies.length === 0 ? (
-          <UnloadedCard />
-        ) : (
-          bibliographies.map((bibliography, index) => <BibliographyCard key={index} {...bibliography} />)
-        )}
-      </div>
+    <div className='w-full lg:h-[700px] xl:h-[750px]  flex flex-col gap-20'>
+      <Scrollbar withGap>
+        <div className='flex flex-col gap-50'>
+          {loading ? (
+            Array.from({ length: bibliographies.length }).map((_, index) => <BibliographySkeleton key={index} />)
+          ) : bibliographies.length === 0 ? (
+            <UnloadedCard />
+          ) : (
+            bibliographies.map((bibliography, index) => (
+              <BibliographyCard key={index} {...bibliography} uniqueKey={index} />
+            ))
+          )}
+        </div>
+      </Scrollbar>
     </div>
   );
 };

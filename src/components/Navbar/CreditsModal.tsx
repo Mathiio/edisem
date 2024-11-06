@@ -77,7 +77,13 @@ const CreditsModal = () => {
                         'Contenus (citations, bibliographies et médiagraphies)',
                       ]}
                     />
-                    <CreditCard name='Renée Bourassa' job='' />
+                    <CreditCard name='Renée Bourassa' job="Chef d'équipe" />
+
+                    <CreditCard
+                      name='Samuel Szoniecky'
+                      job=''
+                      description={['Développement Web', 'Modélisation', 'Gestion de la base de donnée Omeka S']}
+                    />
                     <CreditCard
                       name='Sandrine Bienvenu'
                       job='Assistanat de recherche'
