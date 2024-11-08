@@ -456,26 +456,25 @@ export async function getConfByActant(actantId: number) {
 
 
 export async function filterActants(searchQuery: string) {
-  try{
-  const actants = await getActants();
+  try {
+    const actants = await getActants();
+    const normalizedQuery = searchQuery.toLowerCase();
 
-  const normalizedQuery = searchQuery.toLowerCase();
+    const filteredActants = actants.filter((actant: { firstname: string; lastname: string; universities: any[] | null; doctoralSchools: any[] | null; laboritories: any[] | null; }) => {
+      return (
+        (actant.firstname && actant.firstname.toLowerCase().includes(normalizedQuery)) ||
+        (actant.lastname && actant.lastname.toLowerCase().includes(normalizedQuery)) ||
+        (actant.universities?.some((university: { name: string; }) => university && university.name.toLowerCase().includes(normalizedQuery))) ||
+        (actant.doctoralSchools?.some((school: { name: string; }) => school && school.name.toLowerCase().includes(normalizedQuery))) ||
+        (actant.laboritories?.some((laboratory: { name: string; }) => laboratory && laboratory.name.toLowerCase().includes(normalizedQuery)))
+      );
+    });
 
-  const filteredActants = actants.filter((actant: { firstname: string; lastname: string; universities: any[]; doctoralSchools: any[]; laboritories: any[]; }) => {
-    return (
-      (actant.firstname && actant.firstname.toLowerCase().includes(normalizedQuery)) ||
-      (actant.lastname && actant.lastname.toLowerCase().includes(normalizedQuery)) ||
-      (actant.universities && actant.universities.some((university: { name: string; }) => university.name.toLowerCase().includes(normalizedQuery))) ||
-      (actant.doctoralSchools && actant.doctoralSchools.some((school: { name: string; }) => school.name.toLowerCase().includes(normalizedQuery))) ||
-      (actant.laboritories && actant.laboritories.some((laboratory: { name: string; }) => laboratory.name.toLowerCase().includes(normalizedQuery)))
-    );
-  });
-
-  return filteredActants;
+    return filteredActants;
 
   } catch (error) {
-    console.error('Error fetching conferences:', error);
-    throw new Error('Failed to fetch conferences');
+    console.error('Error fetching actants:', error);
+    throw new Error('Failed to fetch actants');
   }
 }
 
@@ -620,7 +619,7 @@ export async function getConfBibliographies(confId: number) {
     const bibliographies = await getBibliographies();
 
     const conf = confs.find((conf: { id: number }) => Number(conf.id) === confId);
-
+    console.log(conf)
     if (!conf) {
       throw new Error(`No conference found with id: ${confId}`);
     }
@@ -640,29 +639,44 @@ export async function getConfBibliographies(confId: number) {
 
 
 
-export async function getConfMediagraphies(confId: number) {
-  const fetchedCitations: { mediagraphy: string, author: string, date: string, type: string, url: string }[] = [];
-
+export async function getMediagraphies() {
   try {
-    const confRep = await fetch(`${API_URL}/items/${confId}`);
-    const conf = await confRep.json() as Data;
-    
-    if(conf["schema:associatedMedia"]){
-      for(let item of conf["schema:associatedMedia"]){
-        if(item["@id"]){
-          const MediagraphyRep = await getDataByUrl(item["@id"])
-          const date = MediagraphyRep['dcterms:date'] ? MediagraphyRep['dcterms:date'][0]['@value'] as string : "Non renseignée";
-          const author = MediagraphyRep['bibo:authorList'] ? MediagraphyRep['bibo:authorList'][0]['@value'] as string : "Non renseigné";
-          const mediagraphy = MediagraphyRep['dcterms:references'] ? MediagraphyRep['dcterms:references'][0]['@value'] as string : "Non renseigné";
-          const type = MediagraphyRep['dcterms:hasFormat']? MediagraphyRep['dcterms:hasFormat'][0]['@value'] as string : "Non renseigné";
-          const url = MediagraphyRep['schema:url']? MediagraphyRep['schema:url'][0]['@id'] as string : "Non renseigné";
-          fetchedCitations.push({ mediagraphy, author, date, type, url })
-        }
-      }
+    const storedMediagraphies = sessionStorage.getItem('mediagraphies');
+
+    if (storedMediagraphies) {
+      return JSON.parse(storedMediagraphies);
     }
-    return fetchedCitations;
+
+    const mediagraphies = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMediagraphies&json=1');
+    sessionStorage.setItem('mediagraphies', JSON.stringify(mediagraphies));
+
+    return mediagraphies;
   } catch (error) {
-    console.error('Error fetching seminaires:', error);
-    throw new Error('Failed to fetch seminaires');
+    console.error('Error fetching mediagraphies:', error);
+    throw new Error('Failed to fetch mediagraphies');
+  }
+}
+
+
+export async function getConfMediagraphies(confId: number) {
+  try {
+    const confs = await getConfs();
+    const mediagraphies = await getMediagraphies();
+
+    const conf = confs.find((conf: { id: number }) => Number(conf.id) === confId);
+
+    if (!conf) {
+      throw new Error(`No conference found with id: ${confId}`);
+    }
+
+    const filteredMediagraphies = mediagraphies.filter((media: { id: number }) =>
+      conf.mediagraphies.includes(String(media.id))
+    );
+
+    console.log(filteredMediagraphies);
+    return filteredMediagraphies;
+  } catch (error) {
+    console.error('Error fetching mediagraphies:', error);
+    throw new Error('Failed to fetch mediagraphies');
   }
 }

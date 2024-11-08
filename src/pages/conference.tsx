@@ -17,7 +17,7 @@ import { LongCarrousel } from '@/components/Utils/Carrousels';
 import { Tabs, Tab } from '@nextui-org/react';
 import { KeywordsCard, KeywordsSkeleton } from '@/components/conference/KeywordsCards';
 import { Bibliographies, BibliographyItem } from '@/components/conference/BibliographyCards';
-import { Mediagraphies } from '@/components/conference/MediagraphyCards';
+import { Mediagraphies, MediagraphyItem } from '@/components/conference/MediagraphyCards';
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
@@ -49,9 +49,7 @@ export const Conference: React.FC = () => {
   >([]);
   const [confBibliographies, setConfBibliographies] = useState<BibliographyItem[]>([]);
 
-  const [confMediagraphies, setConfMediagraphies] = useState<
-    { mediagraphy: string; author: string; date: string; type: string; url: string }[]
-  >([]);
+  const [confMediagraphies, setConfMediagraphies] = useState<MediagraphyItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const handleTimeChange = (newTime: number) => {
@@ -155,7 +153,7 @@ export const Conference: React.FC = () => {
                   )}
                 </Tab>
                 <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
-                  {selected === 'Medias' && <Mediagraphies mediagraphies={confMediagraphies} loading={loading} />}
+                  {selected === 'Medias' && <Mediagraphies items={confMediagraphies} loading={loading} />}
                 </Tab>
                 {/* <Tab key='Annexes' title='Aller plus loin' className='px-0 py-0 flex'>
                   {selected === 'Annexes' && ''}
