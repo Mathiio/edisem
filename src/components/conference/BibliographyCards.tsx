@@ -2,7 +2,7 @@ import React from 'react';
 import { Scrollbar } from '../Utils/Scrollbar';
 
 export interface BibliographyItem {
-  creator: string[];
+  creator: { first_name: string; last_name: string }[];
   date: string;
   title: string;
   source?: string;
@@ -15,33 +15,56 @@ export interface BibliographyItem {
   publisher?: string;
   editor?: string;
   edition?: string;
+  ispartof?: string;
   id: number;
+  number: string;
   thumbnail?: string;
 }
 
-const hasContent = (value: string | string[] | undefined | null) => {
-  if (Array.isArray(value)) {
-    return value.length > 0 && value.some((creator) => creator?.trim() !== '');
+const hasContent = (
+  value: string | string[] | { first_name: string; last_name: string }[] | undefined | null,
+): boolean => {
+  // Si value est un tableau d'objets créateurs (avec first_name et last_name)
+  if (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    typeof value[0] === 'object' &&
+    'first_name' in value[0] &&
+    'last_name' in value[0]
+  ) {
+    return value.some(
+      (creator) => typeof creator === 'object' && (creator.first_name.trim() !== '' || creator.last_name.trim() !== ''), // Vérifie que l'un des deux est non vide
+    );
   }
-  return typeof value === 'string' && value?.trim() !== '';
+
+  // Si value est un tableau de chaînes de caractères
+  if (Array.isArray(value)) {
+    return value.some((item) => typeof item === 'string' && item.trim() !== '');
+  }
+
+  // Si value est une chaîne de caractères
+  return typeof value === 'string' && value.trim() !== '';
 };
 
-const formatAuthors = (creators: string[]) => {
-  return creators.join(', '); // Gestion du tableau d'auteurs
+const formatAuthors = (creators: { first_name: string; last_name: string }[]) => {
+  const formattedAuthors = creators
+    .filter((creator) => creator.last_name) // Filtrer les créateurs avec un nom de famille non vide
+    .map((creator) => {
+      const lastName = creator.last_name;
+      const firstInitial = creator.first_name ? `${creator.first_name[0]}.` : ''; // Utilise l'initiale s'il y a un prénom
+      return firstInitial ? `${lastName}, ${firstInitial}` : lastName; // Si pas de prénom, affiche seulement le nom
+    });
+
+  return formattedAuthors.join(', ');
 };
 
 // Modèles de formatage
 const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.ReactNode } = {
   40: (item) => (
     <>
-      {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
+      {hasContent(item.creator) && <span>{formatAuthors(item.creator)}</span>}
       {hasContent(item.date) && <span>({item.date}). </span>}
       {hasContent(item.title) && <span>{item.title}. </span>}
-      {hasContent(item.source) && <i>{item.source}, </i>}
-      {hasContent(item.volume) && <i>{item.volume}</i>}
-      {hasContent(item.issue) && <span>({item.issue}), </span>}
-      {hasContent(item.pages) && <span>{item.pages}. </span>}
-      {hasContent(item.editor) && <span>{item.editor}. </span>}
       {hasContent(item.publisher) && <span>{item.publisher}. </span>}
     </>
   ),
@@ -57,9 +80,8 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
         </span>
       )}
 
-      {hasContent(item.edition) && <span> {item.edition} éd.</span>}
-      {hasContent(item.volume) && <span>, vol. {item.volume}</span>}
-      {hasContent(item.pages) && <span>, p. {item.pages}</span>}
+      {hasContent(item.ispartof) && <span> {item.ispartof}</span>}
+      {hasContent(item.pages) && <span>, ({item.pages})</span>}
 
       {hasContent(item.publisher) && <span>. {item.publisher}</span>}
     </>
@@ -75,13 +97,57 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
       {hasContent(item.publisher) && <span>{item.publisher}. </span>}
     </>
   ),
+  // 88: (item) => (
+  //   <>
+  //     {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
+  //     {hasContent(item.date) && <span>({item.date}). </span>}
+  //     {hasContent(item.title) && <i>{item.title}</i>}
+  //     {(hasContent(item.publisher) || hasContent(item.type)) && (
+  //       <span>
+  //         &nbsp;[{item.type && `${item.type}`}
+  //         {item.type && item.publisher && ', '}
+  //         {item.publisher && `${item.publisher}`}].
+  //       </span>
+  //     )}
+
+  //     {hasContent(item.volume) && (
+  //       <span>
+  //         {' '}
+  //         <i>{item.volume}</i>{' '}
+  //       </span>
+  //     )}
+  //     {hasContent(item.issue) && <span>({item.issue})</span>}
+  //     {hasContent(item.pages) && <span>, {item.pages}</span>}
+  //   </>
+  // ),
+
   88: (item) => (
     <>
       {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
       {hasContent(item.date) && <span>({item.date}). </span>}
-      {hasContent(item.title) && <span>{item.title} </span>}
-      {hasContent(item.type) && <span> [{item.type}</span>}
-      {hasContent(item.publisher) && <span>. {item.publisher + ']'}</span>}
+      {hasContent(item.title) && <i>{item.title}</i>}
+      {(hasContent(item.publisher) || hasContent(item.type)) && (
+        <span>
+          &nbsp;[{item.type && `${item.type}`}
+          {item.type && item.publisher && ', '}
+          {item.publisher && `${item.publisher}`}].
+        </span>
+      )}
+    </>
+  ),
+
+  90: (item) => (
+    <>
+      {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.title) && <i>{item.title}</i>}
+      {(hasContent(item.publisher) || hasContent(item.type)) && (
+        <span>
+          &nbsp;[{item.type && `${item.type}`}
+          {item.type && item.publisher && ', '}
+          {item.publisher && `${item.publisher}`}].
+        </span>
+      )}
     </>
   ),
 
@@ -106,28 +172,15 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
       {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
       {hasContent(item.date) && <span>({item.date}). </span>}
       {hasContent(item.title) && <i>{item.title}</i>}
-      {hasContent(item.publisher) && (
-        <span>
-          [{item.type}, {item.publisher}].{' '}
-        </span>
-      )}
-      {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
-      {hasContent(item.date) && <span>({item.date}). </span>}
-      {hasContent(item.title) && <i>{item.title}. </i>}
-      {hasContent(item.publisher) && (
-        <span>
-          [{item.type}, {item.publisher}]
-        </span>
-      )}
-
+      {hasContent(item.publisher) && <i>&nbsp; {item.publisher}</i>}
       {hasContent(item.volume) && (
         <span>
           {' '}
           <i>{item.volume}</i>{' '}
         </span>
       )}
-      {hasContent(item.issue) && <span>({item.issue})</span>}
-      {hasContent(item.pages) && <span>, {item.pages}</span>}
+      {hasContent(item.issue) && <i>({item.issue}),</i>}
+      {hasContent(item.pages) && <i>{item.pages}.</i>}
     </>
   ),
   82: (item) => (
@@ -135,11 +188,29 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
       {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
       {hasContent(item.date) && <span>({item.date}). </span>}
       {hasContent(item.title) && <i>{item.title}</i>}
+      {hasContent(item.number) && <span>{item.number}. </span>}
+      {hasContent(item.issue) && <span>({item.issue}). </span>}
       {hasContent(item.publisher) && <span>{item.publisher}. </span>}
     </>
   ),
-
+  47: (item) => (
+    <>
+      {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.title) && <i>{item.title}</i>}
+      {hasContent(item.publisher) && <span>{item.publisher}. </span>}
+    </>
+  ),
   83: (item) => <>{hasContent(item.title) && <span>{item.title}. </span>}</>,
+  66: (item) => (
+    <>
+      {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
+      {hasContent(item.date) && <span>({item.date}). </span>}
+      {hasContent(item.title) && <span>{item.title}. </span>}
+      {hasContent(item.type) && <span> {item.type} </span>}
+      {hasContent(item.source) && <i>{item.source}, </i>}
+    </>
+  ),
   54: (item) => (
     <>
       {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
