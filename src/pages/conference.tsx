@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   getConf,
-  getConfKeyWords,
   getConfCitations,
   getConfBibliographies,
   getConfMediagraphies,
@@ -43,7 +42,6 @@ export const Conference: React.FC = () => {
   const [selected, setSelected] = useState<string>('Citations');
   const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
   const [confDetails, setConfDetails] = useState<any>(null);
-  const [confKeyWords, setConfKeyWords] = useState<{ id: number; keyword: string }[]>([]);
   const [confCitations, setConfCitations] = useState<
     { citation: string; actant: string; startTime: number; endTime: number }[]
   >([]);
@@ -61,16 +59,14 @@ export const Conference: React.FC = () => {
   const fetchConfData = useCallback(async () => {
     setLoading(true);
     try {
-      const [details, keywords, citations, bibliographies, mediagraphies] = await Promise.all([
+      const [details, citations, bibliographies, mediagraphies] = await Promise.all([
         getConf(Number(id)),
-        getConfKeyWords(Number(id)),
         getConfCitations(Number(id)),
         getConfBibliographies(Number(id)),
         getConfMediagraphies(Number(id)),
       ]);
 
       setConfDetails(details);
-      setConfKeyWords(keywords);
       setConfCitations(citations);
       setConfBibliographies(bibliographies);
       setConfMediagraphies(mediagraphies);
@@ -99,9 +95,9 @@ export const Conference: React.FC = () => {
               perPage={3}
               perMove={1}
               autowidth={true}
-              data={loading ? Array.from({ length: 8 }) : confKeyWords}
+              data={loading ? Array.from({ length: 8 }) : confDetails.motcles}
               renderSlide={(item) =>
-                loading ? <KeywordsSkeleton /> : <KeywordsCard key={item.id} id={item.id} word={item.keyword} />
+                loading ? <KeywordsSkeleton /> : <KeywordsCard key={item.id} id={item.id} word={item.title} />
               }
             />
             {loading ? (

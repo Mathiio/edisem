@@ -225,11 +225,27 @@ export async function getConfs() {
     }
 
     const confs = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getConfs&json=1');
-    sessionStorage.setItem('confs', JSON.stringify(confs));
+    const keywords = await getKeywords();
 
-    return confs;
-  }
-  catch (error) {
+    const keywordsMap = new Map(
+      keywords.map((keyword: any) => [keyword.id, keyword])
+    );
+
+    const confsFull = confs.map((conf: any) => ({
+      ...conf,
+      motcles: conf.motcles.map((keywordId: string) => {
+        const keyword = keywordsMap.get(keywordId);
+        if (!keyword) {
+          console.warn(`Keyword with ID ${keywordId} not found`);
+          return null;
+        }
+        return keyword;
+      }).filter(Boolean)
+    }));
+
+    sessionStorage.setItem('confs', JSON.stringify(confsFull));
+    return confsFull;
+  } catch (error) {
     console.error('Error fetching confs:', error);
     throw new Error('Failed to fetch confs');
   }
@@ -270,6 +286,27 @@ export async function getConf(confId: number) {
   }
 }
 
+
+
+
+export async function getKeywords() {
+  try {
+    const storedKeywords = sessionStorage.getItem('keywords');
+  
+    if (storedKeywords) {
+      return JSON.parse(storedKeywords);
+    }
+
+    const keywords = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMotCles&json=1');
+    sessionStorage.setItem('keywords', JSON.stringify(keywords));
+    console.log(keywords)
+    return keywords;
+  }
+  catch (error) {
+    console.error('Error fetching keywords:', error);
+    throw new Error('Failed to fetch keywords');
+  }
+}
 
 
 
@@ -509,30 +546,6 @@ export async function filterConfs(searchQuery: string) {
   } catch (error) {
     console.error('Error fetching conferences:', error);
     throw new Error('Failed to fetch conferences');
-  }
-}
-
-
-
-
-export async function getConfKeyWords(confId: number) {
-  const fetchedDetails: { id: number, keyword: string }[] = [];
-
-  try {
-    const confRep = await fetch(`${API_URL}/items/${confId}`);
-    const conf = await confRep.json() as Data;
-    
-    if(conf["jdc:hasConcept"]){
-      for(let word of conf["jdc:hasConcept"]){
-        const id = Number(word["value_resource_id"] ? word["value_resource_id"] as number : "");
-        const keyword = word["display_title"] ? word["display_title"] as string : "";
-        fetchedDetails.push({ id, keyword })
-      }
-    }
-    return fetchedDetails;
-  } catch (error) {
-    console.error('Error fetching seminaires:', error);
-    throw new Error('Failed to fetch seminaires');
   }
 }
 
