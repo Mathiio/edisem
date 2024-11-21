@@ -1,5 +1,5 @@
 import React from 'react';
-import { Scrollbar } from '../Utils/Scrollbar';
+import { Scrollbar } from '../utils/Scrollbar';
 
 export interface BibliographyItem {
   creator: { first_name: string; last_name: string }[];
@@ -19,6 +19,7 @@ export interface BibliographyItem {
   id: number;
   number: string;
   thumbnail?: string;
+  resource_template_id: string;
 }
 
 const hasContent = (
@@ -62,9 +63,9 @@ const formatAuthors = (creators: { first_name: string; last_name: string }[]) =>
 const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.ReactNode } = {
   40: (item) => (
     <>
-      {hasContent(item.creator) && <span>{formatAuthors(item.creator)}</span>}
+      {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
       {hasContent(item.date) && <span>({item.date}). </span>}
-      {hasContent(item.title) && <span>{item.title}. </span>}
+      {hasContent(item.title) && <i>{item.title}. </i>}
       {hasContent(item.publisher) && <span>{item.publisher}. </span>}
     </>
   ),
@@ -171,8 +172,8 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
     <>
       {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
       {hasContent(item.date) && <span>({item.date}). </span>}
-      {hasContent(item.title) && <i>{item.title}</i>}
-      {hasContent(item.publisher) && <i>&nbsp; {item.publisher}</i>}
+      {hasContent(item.title) && <span>{item.title}.</span>}
+      {hasContent(item.publisher) && <i>&nbsp; {item.publisher} &nbsp;</i>}
       {hasContent(item.volume) && (
         <span>
           {' '}
@@ -180,7 +181,7 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
         </span>
       )}
       {hasContent(item.issue) && <i>({item.issue}),</i>}
-      {hasContent(item.pages) && <i>{item.pages}.</i>}
+      {hasContent(item.pages) && <span>{item.pages}.</span>}
     </>
   ),
   82: (item) => (
@@ -243,7 +244,7 @@ export const BibliographyCard: React.FC<BibliographyItem & { uniqueKey?: number 
         <div className='w-full flex flex-col gap-10'>
           <p className='text-default-600 text-16'>{formatBibliography(props)}</p>
           {url && (
-            <a href={url} className='text-default-500 underline'>
+            <a href={url} target='_blank' className='text-default-500 underline'>
               Voir la source
             </a>
           )}
@@ -272,19 +273,46 @@ interface BibliographiesProps {
 }
 
 export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, loading }) => {
+  // Séparation des bibliographies en fonction de l'ID
+  const conferenceBibliographies = bibliographies.filter((bibliography) => bibliography.id === 81);
+  const complementaryBibliographies = bibliographies.filter((bibliography) => bibliography.id !== 81);
+
   return (
-    <div className='w-full lg:h-[700px] xl:h-[750px]  flex flex-col gap-20'>
+    <div className='w-full lg:h-[700px] xl:h-[750px] flex flex-col gap-20'>
       <Scrollbar withGap>
-        <div className='flex flex-col gap-50'>
+        <div className='flex flex-col gap-20 pt-3'>
           {loading ? (
             Array.from({ length: bibliographies.length }).map((_, index) => <BibliographySkeleton key={index} />)
-          ) : bibliographies.length === 0 ? (
-            <UnloadedCard />
           ) : (
-            bibliographies.map((bibliography, index) => (
-              <BibliographyCard key={index} {...bibliography} uniqueKey={index} />
-            ))
+            <>
+              {/* Bibliographies de conférence */}
+              {conferenceBibliographies.length > 0 && (
+                <>
+                  <h2 className='text-xl font-bold'>Bibliographies de Conférence</h2>
+                  <div className='flex flex-col gap-20'>
+                    {conferenceBibliographies.map((bibliography, index) => (
+                      <BibliographyCard key={index} {...bibliography} uniqueKey={index} />
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Bibliographies complémentaires */}
+              {complementaryBibliographies.length > 0 && (
+                <>
+                  <h2 className='text-xl font-bold'>Bibliographies Complémentaires</h2>
+                  <div className='flex flex-col gap-20'>
+                    {complementaryBibliographies.map((bibliography, index) => (
+                      <BibliographyCard key={index} {...bibliography} uniqueKey={index} />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
           )}
+
+          {/* Si aucune bibliographie n'est disponible */}
+          {bibliographies.length === 0 && !loading && <UnloadedCard />}
         </div>
       </Scrollbar>
     </div>

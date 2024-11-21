@@ -7,7 +7,7 @@ import { Database } from '@/pages/database';
 import { Edition } from '@/pages/edition';
 import LoginPage from '@/pages/login';
 import { withAuth } from '@/pages/withAuth';
-import Datavisualisation from './pages/datavisualisation';
+import Visualisation from './pages/visualisation';
 
 const ProtectedDatabase = withAuth(Database);
 
@@ -22,7 +22,7 @@ function App() {
       <Route index path='/' Component={Home} />
       <Route path='/edition/:id/:title?' Component={Edition} />
       <Route path='/login' Component={LoginPage} />
-      <Route path='/datavisualisation' Component={Datavisualisation} />
+      <Route path='/visualisation' Component={Visualisation} />
     </Routes>
   );
 }

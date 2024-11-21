@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Navbar } from '@/components/Navbar/Navbar';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
-import { FullCarrousel, MidCarrousel } from '@/components/Utils/Carrousels';
+import { Navbar } from '@/components/navbar/Navbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
+import { FullCarrousel, MidCarrousel } from '@/components/utils/Carrousels';
 import { getSeminaires, getRandomConfs, getActants } from '../services/api';
 import { EventCard, EventSkeleton } from '@/components/home/EventCards';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
@@ -91,7 +91,13 @@ export const Home: React.FC = () => {
                 loadingActants ? (
                   <ActantSkeleton />
                 ) : (
-                  <motion.div initial='hidden' animate='visible' className="h-full" variants={fadeIn} key={item.id} custom={index}>
+                  <motion.div
+                    initial='hidden'
+                    animate='visible'
+                    className='h-full'
+                    variants={fadeIn}
+                    key={item.id}
+                    custom={index}>
                     <ActantCard
                       key={item.id}
                       id={item.id}
@@ -99,7 +105,7 @@ export const Home: React.FC = () => {
                       lastname={item.lastname}
                       picture={item.picture}
                       interventions={item.interventions}
-                      universities={item.universities.map((uni: { name: string; logo: string; }) => ({
+                      universities={item.universities.map((uni: { name: string; logo: string }) => ({
                         name: uni.name,
                         logo: uni.logo,
                       }))}
@@ -122,7 +128,11 @@ export const Home: React.FC = () => {
                           actant={item.actant.firstname + ' ' + item.actant.lastname}
                           date={item.date}
                           url={item.url}
-                          universite={item.actant.universities && item.actant.universities.length > 0 ? item.actant.universities[0].name : ''}
+                          universite={
+                            item.actant.universities && item.actant.universities.length > 0
+                              ? item.actant.universities[0].name
+                              : ''
+                          }
                         />
                       </motion.div>
                     ))}

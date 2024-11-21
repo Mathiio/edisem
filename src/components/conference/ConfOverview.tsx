@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton, Link, Tooltip, Button } from '@nextui-org/react';
-import { CreditIcon, CameraIcon } from '@/components/Utils/icons';
+import { CreditIcon, CameraIcon } from '@/components/utils/icons';
 import { motion, Variants } from 'framer-motion';
 
 const itemVariants: Variants = {
@@ -56,7 +56,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
   }, [currentTime]);
 
   useEffect(() => {
-    if(videoUrl){
+    if (videoUrl) {
       const updatedUrl = new URL(videoUrl);
       updatedUrl.searchParams.set('enablejsapi', '1');
       setVideoUrl(updatedUrl.toString());

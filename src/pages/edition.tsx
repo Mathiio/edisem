@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Navbar } from '@/components/Navbar/Navbar';
+import { Navbar } from '@/components/navbar/Navbar';
 import { useParams } from 'react-router-dom';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
 import { getConfByEdition } from '../services/api';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { motion, Variants } from 'framer-motion';
@@ -50,17 +50,21 @@ export const Edition: React.FC = () => {
                 {loadingConf
                   ? Array.from({ length: 12 }).map((_, index) => <LgConfSkeleton key={index} />)
                   : conf.map((item, index) => (
-                    <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id} custom={index}>
-                      <LgConfCard
-                        key={item.id}
-                        id={item.id}
-                        title={item.title}
-                        actant={item.actant.firstname + ' ' + item.actant.lastname}
-                        date={item.date}
-                        url={item.url}
-                        universite={item.actant.universities && item.actant.universities.length > 0 ? item.actant.universities[0].name : ''}
-                      />
-                    </motion.div>
+                      <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id} custom={index}>
+                        <LgConfCard
+                          key={item.id}
+                          id={item.id}
+                          title={item.title}
+                          actant={item.actant.firstname + ' ' + item.actant.lastname}
+                          date={item.date}
+                          url={item.url}
+                          universite={
+                            item.actant.universities && item.actant.universities.length > 0
+                              ? item.actant.universities[0].name
+                              : ''
+                          }
+                        />
+                      </motion.div>
                     ))}
               </div>
             </div>

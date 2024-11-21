@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Navbar } from '@/components/Navbar/Navbar';
+import { Navbar } from '@/components/navbar/Navbar';
 
 import { motion, Variants } from 'framer-motion';
 import {
@@ -20,7 +20,7 @@ import GridComponent from '@/components/database/GridComponent';
 import { EditModal } from '@/components/database/EditModal';
 import { CreateModal } from '@/components/database/CreateModal';
 
-import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/Utils/icons';
+import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/utils/icons';
 import { usegetAllProperties } from '@/hooks/useFetchData';
 
 const containerVariants: Variants = {

@@ -15,8 +15,8 @@ import { SelectionInput } from '@/components/database/SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
 import { DatePicker, TimecodeInput } from '@/components/database/TimecodeInput';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
-import { CloseIcon } from '@/components/Utils/icons';
+import { Scrollbar } from '@/components/utils/Scrollbar';
+import { CloseIcon } from '@/components/utils/icons';
 import { inputConfigs, InputConfig } from '@/components/database/EditModal';
 import MultipleInputs from './MultipleInputs';
 

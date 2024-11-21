@@ -1,9 +1,9 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { FilterIcon, CloseIcon, CalendarIcon, UserIcon } from '@/components/Utils/icons';
+import { FilterIcon, CloseIcon, CalendarIcon, UserIcon } from '@/components/utils/icons';
 import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@nextui-org/react';
 import { DateRangePicker } from '@nextui-org/date-picker';
-import { NavConferencierFilter } from '@/components/Navbar/NavConferencierFilter';
-import { NavTypeFilter } from '@/components/Navbar/NavTypeFilter';
+import { NavConferencierFilter } from '@/components/navbar/NavConferencierFilter';
+import { NavTypeFilter } from '@/components/navbar/NavTypeFilter';
 import { Button } from '@nextui-org/button';
 import { RangeValue } from '@react-types/shared';
 import { DateValue } from '@react-types/datepicker';

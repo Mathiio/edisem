@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Skeleton } from '@nextui-org/react';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
-import { FileIcon } from '@/components/Utils/icons';
+import { Scrollbar } from '@/components/utils/Scrollbar';
+import { FileIcon } from '@/components/utils/icons';
 
 interface CitationCardProps {
   startTime: number;
@@ -97,7 +97,7 @@ export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTime
                 key={index}
                 startTime={citation.startTime}
                 endTime={citation.endTime}
-                actant={citation.actant.firstname + " " + citation.actant.lastname}
+                actant={citation.actant.firstname + ' ' + citation.actant.lastname}
                 citation={citation.citation}
                 onTimeChange={onTimeChange}
               />
