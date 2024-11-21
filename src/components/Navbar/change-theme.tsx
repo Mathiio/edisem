@@ -1,5 +1,5 @@
 import { Link } from '@/theme/components';
-import { SunIcon, MoonIcon } from '@/components/Utils/icons';
+import { SunIcon, MoonIcon } from '@/components/utils/icons';
 
 interface ChangeThemeButtonProps {
   isDark: boolean;

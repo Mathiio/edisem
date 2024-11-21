@@ -1,11 +1,10 @@
-import { SearchIcon } from '@/components/Utils/icons';
+import { SearchIcon } from '@/components/utils/icons';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure, Button } from '@nextui-org/react';
 import { ActantCard, ActantSkeleton } from '@/components/search/ActantCard';
 import { ConfCard, ConfSkeleton } from '@/components/search/ConfCard';
 import { motion, Variants } from 'framer-motion';
 import { filterActants, filterConfs } from '@/services/api';
-
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -16,8 +15,6 @@ const fadeIn: Variants = {
   },
 };
 
-
-
 const SearchModal = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredActants, setFilteredActants] = useState<any[]>([]);
@@ -25,11 +22,11 @@ const SearchModal = () => {
   const [filteredConfs, setFilteredConfs] = useState<any[]>([]);
   const [loadingConfs, setLoadingConfs] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const fetchActants = useCallback(async (query: string) => {
-    if (!query) return; 
+    if (!query) return;
     setLoadingActants(true);
     const filteredActants = await filterActants(query);
     setFilteredActants(filteredActants);
@@ -37,7 +34,7 @@ const SearchModal = () => {
   }, []);
 
   const fetchConfs = useCallback(async (query: string) => {
-    if (!query) return; 
+    if (!query) return;
     setLoadingConfs(true);
     const filteredConfs = await filterConfs(query);
     setFilteredConfs(filteredConfs as any);
@@ -46,13 +43,13 @@ const SearchModal = () => {
 
   useEffect(() => {
     if (searchQuery) {
-      fetchActants(searchQuery); 
+      fetchActants(searchQuery);
       fetchConfs(searchQuery);
     }
   }, [searchQuery, fetchActants, fetchConfs]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value); 
+    setSearchQuery(e.target.value);
   };
 
   const handleOpen = () => {
@@ -67,8 +64,8 @@ const SearchModal = () => {
 
   const handleClose = () => {
     onClose();
-    setSearchQuery(''); 
-    setFilteredActants([]); 
+    setSearchQuery('');
+    setFilteredActants([]);
     setFilteredConfs([]);
   };
 
@@ -86,7 +83,7 @@ const SearchModal = () => {
 
   const getResultText = (filteredActants: any[], filteredConfs: any[]) => {
     const totalResults = filteredActants.length + filteredConfs.length;
-  
+
     if (totalResults === 0) {
       return 'Aucun résultat trouvé';
     } else if (totalResults === 1) {
@@ -99,14 +96,14 @@ const SearchModal = () => {
   return (
     <>
       <Button
-          size='md'
-          className='cursor-pointer h-[32px] text-16 p-25 gap-10 rounded-8 text-default-500 hover:text-default-500 bg-default-200 hover:bg-default-300 transition-all ease-in-out duration-200'
-          onPress={handleOpen}>
-          <SearchIcon
-              size={16}
-              className='text-default-500 hover:text-default-action transition-all ease-in-out duration-200'
-          />
-          Recherche avancée...
+        size='md'
+        className='cursor-pointer h-[32px] text-16 p-25 gap-10 rounded-8 text-default-500 hover:text-default-500 bg-default-200 hover:bg-default-300 transition-all ease-in-out duration-200'
+        onPress={handleOpen}>
+        <SearchIcon
+          size={16}
+          className='text-default-500 hover:text-default-action transition-all ease-in-out duration-200'
+        />
+        Recherche avancée...
       </Button>
 
       <Modal
@@ -165,62 +162,82 @@ const SearchModal = () => {
                   onChange={handleSearchChange}
                 />
                 <div className='relative overflow-scroll'>
-                    <motion.main
-                      className='w-full p-25 transition-all ease-in-out duration-200'
-                      initial='hidden'
-                      animate='visible'
-                      variants={fadeIn}>
-                        <div className='w-full flex flex-col gap-50'>
-                          <h2>{getResultText(filteredActants, filteredConfs)}</h2> 
-                          {filteredActants.length > 0 && !loadingActants && (
-                            <div className='w-full flex flex-col gap-25'>
-                              <h2 className='text-24 font-semibold text-default-500'>Conférencier{filteredActants.length > 1 ? 's' : '' }</h2>
-                              <div className='w-full flex flex-col gap-15'>
-                                {loadingActants
-                                  ? Array.from({ length: 8 }).map((_, index) => <ActantSkeleton key={index} />)
-                                  : filteredActants.map((item, index) => (
-                                    <motion.div key={item.id} initial="hidden" animate="visible" variants={fadeIn} custom={index} onClick={handleClose}>
-                                      <ActantCard
-                                        key={item.id}
-                                        id={item.id}
-                                        firstname={item.firstname}
-                                        lastname={item.lastname}
-                                        picture={item.picture}
-                                        interventions={item.interventions}
-                                        universities={item.universities.map((uni: { name: string; logo: string; }) => ({
-                                          name: uni.name,
-                                          logo: uni.logo,
-                                        }))}
-                                      />
-                                    </motion.div>
-                                  ))}
-                              </div>
-                            </div>
-                          )}
-                          {filteredConfs.length > 0 && !loadingConfs && (
-                            <div className='w-full flex flex-col gap-25'>
-                              <h2 className='text-24 font-semibold text-default-500'>Conférence{filteredConfs.length > 1 ? 's' : '' }</h2>
-                              <div className='w-full flex flex-col gap-15'>
-                                {loadingConfs
-                                  ? Array.from({ length: 8 }).map((_, index) => <ConfSkeleton key={index} />)
-                                  : filteredConfs.map((item, index) => (
-                                    <motion.div key={item.id} initial="hidden" animate="visible" variants={fadeIn} custom={index} onClick={handleClose}>
-                                      <ConfCard
-                                        key={item.id}
-                                        id={item.id}
-                                        title={item.title}
-                                        actant={item.actant.firstname + ' ' + item.actant.lastname}
-                                        date={item.date}
-                                        url={item.url}
-                                        universite={item.actant.universities && item.actant.universities.length > 0 ? item.actant.universities[0].name : ''}
-                                      />
-                                    </motion.div>
-                                  ))}
-                              </div>
-                            </div>
-                          )}
+                  <motion.main
+                    className='w-full p-25 transition-all ease-in-out duration-200'
+                    initial='hidden'
+                    animate='visible'
+                    variants={fadeIn}>
+                    <div className='w-full flex flex-col gap-50'>
+                      <h2>{getResultText(filteredActants, filteredConfs)}</h2>
+                      {filteredActants.length > 0 && !loadingActants && (
+                        <div className='w-full flex flex-col gap-25'>
+                          <h2 className='text-24 font-semibold text-default-500'>
+                            Conférencier{filteredActants.length > 1 ? 's' : ''}
+                          </h2>
+                          <div className='w-full flex flex-col gap-15'>
+                            {loadingActants
+                              ? Array.from({ length: 8 }).map((_, index) => <ActantSkeleton key={index} />)
+                              : filteredActants.map((item, index) => (
+                                  <motion.div
+                                    key={item.id}
+                                    initial='hidden'
+                                    animate='visible'
+                                    variants={fadeIn}
+                                    custom={index}
+                                    onClick={handleClose}>
+                                    <ActantCard
+                                      key={item.id}
+                                      id={item.id}
+                                      firstname={item.firstname}
+                                      lastname={item.lastname}
+                                      picture={item.picture}
+                                      interventions={item.interventions}
+                                      universities={item.universities.map((uni: { name: string; logo: string }) => ({
+                                        name: uni.name,
+                                        logo: uni.logo,
+                                      }))}
+                                    />
+                                  </motion.div>
+                                ))}
+                          </div>
                         </div>
-                    </motion.main>
+                      )}
+                      {filteredConfs.length > 0 && !loadingConfs && (
+                        <div className='w-full flex flex-col gap-25'>
+                          <h2 className='text-24 font-semibold text-default-500'>
+                            Conférence{filteredConfs.length > 1 ? 's' : ''}
+                          </h2>
+                          <div className='w-full flex flex-col gap-15'>
+                            {loadingConfs
+                              ? Array.from({ length: 8 }).map((_, index) => <ConfSkeleton key={index} />)
+                              : filteredConfs.map((item, index) => (
+                                  <motion.div
+                                    key={item.id}
+                                    initial='hidden'
+                                    animate='visible'
+                                    variants={fadeIn}
+                                    custom={index}
+                                    onClick={handleClose}>
+                                    <ConfCard
+                                      key={item.id}
+                                      id={item.id}
+                                      title={item.title}
+                                      actant={item.actant.firstname + ' ' + item.actant.lastname}
+                                      date={item.date}
+                                      url={item.url}
+                                      universite={
+                                        item.actant.universities && item.actant.universities.length > 0
+                                          ? item.actant.universities[0].name
+                                          : ''
+                                      }
+                                    />
+                                  </motion.div>
+                                ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.main>
                 </div>
               </ModalBody>
             </>

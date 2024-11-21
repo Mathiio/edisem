@@ -6,19 +6,6 @@ export interface Data {
   'o:id': number;
   '@id': string;
   '@type'?: string[];
-  'o:resource_class'?: { '@id': string, 'o:id': number };
-  'bibo:uri'?: Array<{ '@id': string,}>;
-  'dcterms:title'?: Array<{ 'display_title': string, '@value'?: string }>;
-  'cito:hasCitedEntity'?: Array<{ '@value': string }>;
-  'cito:isCitedBy'?: Array<{ 'display_title': string }>;
-  'dcterms:bibliographicCitation'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
-  'bibo:authorList'?: Array<{ '@value': string }>;
-  'dcterms:references'?: Array<{ '@value': string , '@id': string}>;
-  'schema:associatedMedia'?: Array<{ '@id': string, 'display_title': string, 'value_resource_id': number }>;
-  'dcterms:hasFormat'?: Array<{ '@value': string }>;
-  'dcterms:creator'?: Array<{ '@value': string, 'display_title': string }>;
-  'bibo:editor'?: Array<{ '@value': string }>;
-  'dcterms:publisher'?: Array<{ '@value': string }>;
 }
 
 
@@ -299,13 +286,66 @@ export async function getKeywords() {
 
     const keywords = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMotCles&json=1');
     sessionStorage.setItem('keywords', JSON.stringify(keywords));
-    console.log(keywords)
     return keywords;
   }
   catch (error) {
     console.error('Error fetching keywords:', error);
     throw new Error('Failed to fetch keywords');
   }
+}
+
+
+
+
+export async function getCollections() {
+  try {
+    const storedCollections = sessionStorage.getItem('collections');
+    if (storedCollections) {
+      return JSON.parse(storedCollections);
+    }
+
+    const collections = await getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCollectionsArcanes&json=1'
+    );
+
+    const allDataSources = await getDataSources();
+
+    const updatedCollections = collections.map((collection: any) => {
+      const updatedRessources = collection.ressources.map((resource: any) => {
+        const matchingObject = allDataSources.find((item) => item.id === resource.id);
+        return matchingObject || resource;
+      });
+
+      return {
+        ...collection,
+        ressources: updatedRessources,
+      };
+    });
+
+    sessionStorage.setItem('collections', JSON.stringify(updatedCollections));
+
+    return updatedCollections;
+  } catch (error) {
+    console.error('Error fetching collections:', error);
+    throw new Error('Failed to fetch collections');
+  }
+}
+
+
+
+async function getDataSources() {
+  const [actants, keywords, conf, citations, universities, laboritories, schools, mediagraphies, bibliographies] = await Promise.all([
+    getActants(),
+    getKeywords(),
+    getConfs(),
+    getCitations(),
+    getUniversities(),
+    getLaboratories(),
+    getDoctoralSchools(),
+    getMediagraphies(),
+    getBibliographies(),
+  ]);
+  return [...actants, ...keywords, ...conf, ...citations, ...universities, ...laboritories, ...schools, ...mediagraphies, ...bibliographies];
 }
 
 

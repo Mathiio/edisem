@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem } from '@nextui-org/react';
-import { UserIcon, DataIcon, SettingsIcon, Logout } from '@/components/Utils/icons';
+import { UserIcon, DataIcon, SettingsIcon, Logout } from '@/components/utils/icons';
 import { User, Link as NextLink, Avatar } from '@nextui-org/react';
 import { Link } from 'react-router-dom';
 

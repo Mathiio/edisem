@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import {
-  getConf,
-  getConfCitations,
-  getConfBibliographies,
-  getConfMediagraphies,
-} from '../services/api';
-import { Navbar } from '@/components/Navbar/Navbar';
-import { Scrollbar } from '@/components/Utils/Scrollbar';
+import { getConf, getConfCitations, getConfBibliographies, getConfMediagraphies } from '../services/api';
+import { Navbar } from '@/components/navbar/Navbar';
+import { Scrollbar } from '@/components/utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/conference/ConfOverview';
 import { Citations } from '@/components/conference/CitationsCards';
 import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/conference/ConfDetails';
-import { LongCarrousel } from '@/components/Utils/Carrousels';
+import { LongCarrousel } from '@/components/utils/Carrousels';
 import { Tabs, Tab } from '@nextui-org/react';
 import { KeywordsCard, KeywordsSkeleton } from '@/components/conference/KeywordsCards';
 import { Bibliographies, BibliographyItem } from '@/components/conference/BibliographyCards';
@@ -101,13 +96,13 @@ export const Conference: React.FC = () => {
               }
             />
             {loading ? (
-              <ConfOverviewSkeleton></ConfOverviewSkeleton>
+              <ConfOverviewSkeleton />
             ) : (
               <ConfOverviewCard
                 title={confDetails.title}
-                actant={confDetails.actant.firstname + ' ' + confDetails.actant.lastname}
-                actantId={confDetails.actant.id}
-                university={confDetails.actant.universities[0].name}
+                actant={confDetails.actant?.firstname + ' ' + confDetails.actant?.lastname}
+                actantId={confDetails.actant?.id}
+                university={confDetails.actant?.universities?.[0]?.name || ''}
                 url={confDetails.url}
                 fullUrl={confDetails.fullUrl}
                 currentTime={currentVideoTime}

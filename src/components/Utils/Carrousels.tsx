@@ -1,5 +1,5 @@
 import { Button } from '@nextui-org/react';
-import { ArrowIcon } from '@/components/Utils/icons';
+import { ArrowIcon } from '@/components/utils/icons';
 import { Splide, SplideSlide, SplideTrack } from '@splidejs/react-splide';
 import '@splidejs/react-splide/css';
 
