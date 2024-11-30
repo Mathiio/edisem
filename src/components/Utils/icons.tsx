@@ -622,3 +622,15 @@ export const Logout: React.FC<IconSvgProps> = ({ size = 24, width, height, ...pr
     />
   </svg>
 );
+
+export const VisualisationIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+  <svg
+    width={size || width}
+    height={size || height}
+    viewBox='0 0 20 20'
+    xmlns='http://www.w3.org/2000/svg'
+    {...props}
+    fill='currentColor'>
+    <path d='M10 11.9999V19.9999H18V11.9999H10ZM0 19.9999H8V11.9999H0V19.9999ZM0 1.99994V9.99994H8V1.99994H0ZM13.66 0.689941L8 6.33994L13.66 11.9999L19.32 6.33994L13.66 0.689941Z' />
+  </svg>
+);

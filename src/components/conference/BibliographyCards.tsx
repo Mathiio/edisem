@@ -274,8 +274,10 @@ interface BibliographiesProps {
 
 export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, loading }) => {
   // Séparation des bibliographies en fonction de l'ID
-  const conferenceBibliographies = bibliographies.filter((bibliography) => bibliography.id === 81);
-  const complementaryBibliographies = bibliographies.filter((bibliography) => bibliography.id !== 81);
+  const conferenceBibliographies = bibliographies.filter((bibliography) => bibliography.resource_template_id === '81');
+  const complementaryBibliographies = bibliographies.filter(
+    (bibliography) => bibliography.resource_template_id !== '81',
+  );
 
   return (
     <div className='w-full lg:h-[700px] xl:h-[750px] flex flex-col gap-20'>

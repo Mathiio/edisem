@@ -13,7 +13,7 @@ export interface Data {
 
 export const getDataByClass = async (resourceClassId: number): Promise<Data[]> => {
   let page = 1;
-  const perPage = 100; // Adjust per your API's pagination limit
+  const perPage = 100;
   let allData: Data[] = [];
   let morePages = true;
 
@@ -297,56 +297,349 @@ export async function getKeywords() {
 
 
 
-export async function getCollections() {
+// export async function getCollections() {
+//   try {
+//     const storedCollections = sessionStorage.getItem('collections');
+//     if (storedCollections) {
+//       return JSON.parse(storedCollections);
+//     }
+
+//     const collections = await getDataByUrl(
+//       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCollectionsArcanes&json=1'
+//     );
+
+//     const allDataSources = await getDataSources();
+
+//     const updatedCollections = collections.map((collection: any) => {
+//       const updatedRessources = collection.ressources.map((resource: any) => {
+//         const matchingObject = allDataSources.find((item) => item.id === resource.id);
+//         return matchingObject || resource;
+//       });
+
+//       return {
+//         ...collection,
+//         ressources: updatedRessources,
+//       };
+//     });
+
+//     sessionStorage.setItem('collections', JSON.stringify(updatedCollections));
+
+//     return updatedCollections;
+//   } catch (error) {
+//     console.error('Error fetching collections:', error);
+//     throw new Error('Failed to fetch collections');
+//   }
+// }
+
+
+
+
+export async function getItemsDataViz(): Promise<any[]> {
+  const cachedItems = sessionStorage.getItem('allItems');
+  if (cachedItems) {
+    return JSON.parse(cachedItems);
+  }
+
   try {
-    const storedCollections = sessionStorage.getItem('collections');
-    if (storedCollections) {
-      return JSON.parse(storedCollections);
-    }
+    const [
+      confs, actants, universities, 
+      laboratories, schools, 
+      citations, bibliographies, 
+      mediagraphies, keywords
+    ] = await Promise.all([
+      getConfs(), getActants(), getUniversities(), 
+      getLaboratories(), getDoctoralSchools(), 
+      getCitations(), getBibliographies(), 
+      getMediagraphies(), getKeywords()
+    ]);
 
-    const collections = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCollectionsArcanes&json=1'
-    );
+    const transformResource = (resources: any[], type: string) => 
+      resources
+      .filter((resource: any) => resource && resource.id)
+      .map((resource: any) => {
+        const result: any = {
+          id: resource.id,
+          type,
+          title: getTitleByType(resource, type)
+        };
 
-    const allDataSources = await getDataSources();
+        switch (type) {
+          case 'conf':
+            result.links = getLinksFromConf(resource);
+            break;
+          case 'actant':
+            result.links = getLinksFromActant(resource, confs);
+            break;
+          case 'university':
+            result.links = getLinksFromUniv(resource, actants);
+            break;
+          case 'school':
+            result.links = getLinksFromSchool(resource, actants);
+            break;
+          case 'laboratory':
+            result.links = getLinksFromLab(resource, actants);
+            break;
+          case 'citation':
+            result.links = getLinksFromCitation(resource, citations, confs);
+            break;
+          case 'bibliography':
+            result.links = getLinksFromBibliographies(resource, confs);
+            break;
+          case 'mediagraphie':
+            result.links = getLinksFromMediagraphies(resource, confs);
+            break;
+          case 'keyword':
+            result.links = getLinksFromKeywords(resource, confs);
+            break;
+        }
 
-    const updatedCollections = collections.map((collection: any) => {
-      const updatedRessources = collection.ressources.map((resource: any) => {
-        const matchingObject = allDataSources.find((item) => item.id === resource.id);
-        return matchingObject || resource;
+        return result;
       });
 
-      return {
-        ...collection,
-        ressources: updatedRessources,
-      };
-    });
+    const transformedItems = [
+      ...transformResource(confs, 'conf'),
+      ...transformResource(actants, 'actant'),
+      ...transformResource(universities, 'university'),
+      ...transformResource(laboratories, 'laboratory'),
+      ...transformResource(schools, 'school'),
+      ...transformResource(citations, 'citation'),
+      ...transformResource(bibliographies, 'bibliography'),
+      ...transformResource(mediagraphies, 'mediagraphie'),
+      ...transformResource(keywords, 'keyword')
+    ];
 
-    sessionStorage.setItem('collections', JSON.stringify(updatedCollections));
+    sessionStorage.setItem('allItems', JSON.stringify(transformedItems));
 
-    return updatedCollections;
+    return transformedItems;
   } catch (error) {
-    console.error('Error fetching collections:', error);
-    throw new Error('Failed to fetch collections');
+    console.error('Erreur lors de la récupération de tous les items:', error);
+    throw new Error('Échec de la récupération des tous les items');
   }
 }
 
 
 
-async function getDataSources() {
-  const [actants, keywords, conf, citations, universities, laboritories, schools, mediagraphies, bibliographies] = await Promise.all([
-    getActants(),
-    getKeywords(),
-    getConfs(),
-    getCitations(),
-    getUniversities(),
-    getLaboratories(),
-    getDoctoralSchools(),
-    getMediagraphies(),
-    getBibliographies(),
-  ]);
-  return [...actants, ...keywords, ...conf, ...citations, ...universities, ...laboritories, ...schools, ...mediagraphies, ...bibliographies];
+
+function getTitleByType(resource: any, type: string): string {
+  if (!resource) return '';
+
+  switch (type) {
+    case 'conf':
+      return resource.title || '';
+    case 'citation':
+      return resource.citation || '';
+    case 'actant':
+      return `${resource.firstname || ''} ${resource.lastname || ''}`.trim();
+    case 'keyword':
+    case 'bibliography':
+    case 'mediagraphie':
+      return resource.title || '';
+    case 'university':
+    case 'laboratory':
+    case 'school':
+      return resource.name || '';
+    default:
+      return '';
+  }
 }
+
+
+
+
+function getLinksFromConf(conf: any): string[] {
+  if (!conf) return [];
+
+  const links: string[] = [];
+  if (conf.actant) links.push(conf.actant);
+  
+  ['bibliographies', 'citations', 'mediagraphies', 'recommendation', 'motcles']
+    .forEach(key => {
+      if (Array.isArray(conf[key])) {
+        links.push(...(key === 'motcles' 
+          ? conf[key].map((motcle: any) => motcle.id) 
+          : conf[key]
+        ));
+      }
+    });
+  return links;
+}
+
+
+
+
+
+function getLinksFromUniv(university: any, actants: any[]): string[] {
+  if (!university || !university.id) return [];
+
+  return actants
+    .filter((actant: any) => 
+      actant && 
+      Array.isArray(actant.universities) && 
+      actant.universities.some((univ: any) => univ && univ.id === university.id)
+    )
+    .map((actant: any) => actant.id);
+}
+
+
+
+
+function getLinksFromSchool(school: any, actants: any[]): string[] {
+  if (!school || !school.id) return [];
+
+  return actants
+    .filter((actant: any) => 
+      actant && 
+      Array.isArray(actant.doctoralSchools) && 
+      actant.doctoralSchools.some((docSchool: any) => docSchool && docSchool.id === school.id)
+    )
+    .map((actant: any) => actant.id);
+}
+
+
+
+
+function getLinksFromLab(laboratory: any, actants: any[]): string[] {
+  if (!laboratory || !laboratory.id) return [];
+
+  return actants
+    .filter((actant: any) => 
+      actant && 
+      Array.isArray(actant.laboritories) && 
+      actant.laboritories.some((lab: any) => lab && lab.id === laboratory.id)
+    )
+    .map((actant: any) => actant.id);
+}
+
+
+
+
+function getLinksFromCitation(identifiant: any, citations: any[], confs: any[]): string[] {
+  if (!identifiant || !identifiant.id) return [];
+
+  const links: string[] = [];
+
+  const citation = citations.find(c => c.id === identifiant.id);
+
+  if (citation && Array.isArray(citation.motcles)) {
+    links.push(...citation.motcles.filter(Boolean));
+  }
+
+  confs.forEach(conf => {
+    if (conf && Array.isArray(conf.citations) && conf.citations.includes(identifiant.id)) {
+      if (conf.actant) {
+        links.push(conf.actant);
+      }
+    }
+  });
+  return links;
+}
+
+
+
+
+function getLinksFromActant(actant: any, confs: any[]): string[] {
+  if (!actant || !actant.id) return [];
+
+  const links: string[] = [];
+
+  ['laboritories', 'universities', 'doctoralSchools']
+    .forEach(key => {
+      if (Array.isArray(actant[key])) {
+        links.push(...actant[key]
+          .filter((item: any) => item && item.id)
+          .map((item: any) => item.id)
+        );
+      }
+    });
+  confs.forEach(conf => {
+    if (conf && conf.id && conf.actant === actant.id) {
+      if (Array.isArray(conf.citations)) {
+        links.push(...conf.citations.filter(Boolean));
+      }
+      if (Array.isArray(conf.motcles)) {
+        links.push(...conf.motcles
+          .filter((motcle: any) => motcle && motcle.id)
+          .map((motcle: any) => motcle.id)
+        );
+      }
+    }
+  });
+  return links;
+}
+
+
+
+
+function getLinksFromBibliographies(bibliography: any, confs: any[]): string[] {
+  if (!bibliography || !bibliography.id) return [];
+  const links: string[] = [];
+  confs.forEach(conf => {
+    if (conf && Array.isArray(conf.bibliographies) && conf.bibliographies.includes(bibliography.id)) {
+      links.push(conf.id);  
+      if (Array.isArray(conf.motcles)) {
+        links.push(...conf.motcles
+          .filter((motcle: any) => motcle && motcle.id)
+          .map((motcle: any) => motcle.id)
+        );
+      }
+    }
+  });
+  return links;
+}
+
+
+
+
+function getLinksFromMediagraphies(mediagraphie: any, confs: any[]): string[] {
+  if (!mediagraphie || !mediagraphie.id) return [];
+
+  const links: string[] = [];
+
+  confs.forEach(conf => {
+    if (conf && Array.isArray(conf.mediagraphies) && conf.mediagraphies.includes(mediagraphie.id)) {
+      links.push(conf.id);  
+      if (Array.isArray(conf.motcles)) {
+        links.push(...conf.motcles
+          .filter((motcle: any) => motcle && motcle.id)
+          .map((motcle: any) => motcle.id)
+        );
+      }
+    }
+  });
+  return links;
+}
+
+
+
+
+function getLinksFromKeywords(keyword: any, confs: any[]): string[] {
+  if (!keyword || !keyword.id) return [];
+
+  const links: string[] = [];
+
+  confs.forEach(conf => {
+    if (conf && 
+        Array.isArray(conf.motcles) && 
+        conf.motcles.some((motcle: any) => motcle && motcle.id === keyword.id)) {
+      links.push(conf.id);
+      if (conf.actant) {
+        links.push(conf.actant);
+      }
+      if (Array.isArray(conf.citations)) {
+        links.push(...conf.citations.filter(Boolean));
+      }
+      if (Array.isArray(conf.bibliographies)) {
+        links.push(...conf.bibliographies.filter(Boolean));
+      }
+      if (Array.isArray(conf.mediagraphies)) {
+        links.push(...conf.mediagraphies.filter(Boolean));
+      }
+    }
+  });
+
+  return links;
+}
+
 
 
 

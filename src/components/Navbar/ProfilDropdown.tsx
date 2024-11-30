@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem } from '@nextui-org/react';
-import { UserIcon, DataIcon, SettingsIcon, Logout } from '@/components/utils/icons';
+import { UserIcon, DataIcon, SettingsIcon, Logout, VisualisationIcon } from '@/components/utils/icons';
 import { User, Link as NextLink, Avatar } from '@nextui-org/react';
 import { Link } from 'react-router-dom';
 
@@ -23,7 +23,7 @@ export const ProfilDropdown: React.FC = () => {
         </NextLink>
       </DropdownTrigger>
       <DropdownMenu variant='light' aria-label='Dropdown menu with description' className='p-10'>
-        {isAuthenticated ? ( // Affiche la section utilisateur seulement si authentifié
+        {isAuthenticated ? (
           <DropdownSection showDivider>
             <DropdownItem isReadOnly key='profile' className='h-14 gap-2 opacity-100'>
               <User
@@ -55,7 +55,6 @@ export const ProfilDropdown: React.FC = () => {
             </DropdownItem>
           </DropdownSection>
         )}
-
         <DropdownSection>
           <DropdownItem
             key='preferences'
@@ -70,6 +69,12 @@ export const ProfilDropdown: React.FC = () => {
             <NextLink href='https://tests.arcanes.ca/omk/login' className='w-full'>
               <p className='text-default-500 text-16 '>Omeka S</p>
             </NextLink>
+          </DropdownItem>
+          <DropdownItem key='visualisation' className='hover:bg-default-200 text-default-300 hover:text-default-400'>
+            <Link to='/visualisation' className='flex justify-between items-center w-full'>
+              <p className='text-default-500 text-16'>Datavisualisation</p>
+              <VisualisationIcon size={15} />
+            </Link>
           </DropdownItem>
 
           {isAuthenticated ? ( // Si l'utilisateur est authentifié, afficher les options de données

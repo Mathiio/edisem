@@ -134,3 +134,50 @@ export const LongCarrousel: React.FC<LongCarrouselProps> = ({ data, autowidth, p
     </Splide>
   );
 };
+
+export const LongCarrouselFilter: React.FC<LongCarrouselProps> = ({
+  data,
+  autowidth,
+  perPage,
+  perMove,
+  renderSlide,
+}) => {
+  return (
+    <Splide
+      options={{
+        perPage: perPage,
+        gap: '10px',
+        pagination: false,
+        perMove: perMove,
+        speed: 1000,
+        autoWidth: autowidth,
+      }}
+      hasTrack={false}
+      aria-label='...'
+      className='flex w-full justify-between items-center gap-10'>
+      <div className=' flex justify-between items-center'>
+        <div className='splide__arrows relative flex gap-10'>
+          <Button
+            size='sm'
+            className='p-0 min-w-[25px] min-h-[25px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
+            <ArrowIcon size={20} transform='rotate(180deg)' />
+          </Button>
+        </div>
+      </div>
+      <SplideTrack className='w-full'>
+        {data.map((item, index) => (
+          <SplideSlide key={index}>{renderSlide(item, index)}</SplideSlide>
+        ))}
+      </SplideTrack>
+      <div className=' flex justify-between items-center'>
+        <div className='splide__arrows relative flex gap-10'>
+          <Button
+            size='sm'
+            className='p-0 min-w-[25px] min-h-[25px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
+            <ArrowIcon size={20} />
+          </Button>
+        </div>
+      </div>
+    </Splide>
+  );
+};
