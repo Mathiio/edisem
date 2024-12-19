@@ -2,12 +2,7 @@ import React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { FiSearch, FiSettings, FiGrid, FiLink, FiEdit, FiUpload, FiDownload } from 'react-icons/fi';
 import SearchPopup from './SearchPopup';
-
-const SettingsPopup: React.FC = () => (
-  <div className='p-4 bg-white shadow-lg rounded-lg'>
-    <p>Réglages disponibles ici.</p>
-  </div>
-);
+import FiltragePopup from './FiltragePopup';
 
 const GridPopup: React.FC = () => (
   <div className='p-4 bg-white shadow-lg rounded-lg'>
@@ -64,7 +59,7 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
       component: <FiSearch size={22} />,
       popup: <SearchPopup itemsDataviz={itemsDataviz} onSearch={onSearch} onItemSelect={handleItemSelect} />,
     },
-    { id: 'settings', component: <FiSettings size={22} />, popup: <SettingsPopup /> },
+    { id: 'filtrage', component: <FiSettings size={22} />, popup: <FiltragePopup /> },
     { id: 'grid', component: <FiGrid size={22} />, popup: <GridPopup /> },
     { id: 'link', component: <FiLink size={22} />, popup: <LinkPopup /> },
     { id: 'edit', component: <FiEdit size={22} />, popup: <EditPopup /> },
