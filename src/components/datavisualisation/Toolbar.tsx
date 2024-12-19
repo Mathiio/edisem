@@ -99,7 +99,6 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
             style={{ left: position.left, top: '10px' }}
           />
         )}
-        {/* Popup */}
 
         {activeIcon && (
           <div className='absolute left-0 bg-default-200 bottom-[80px] w-[100%] flex flex-col p-20 gap-20 rounded-12'>
