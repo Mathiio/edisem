@@ -634,3 +634,55 @@ export const VisualisationIcon: React.FC<IconSvgProps> = ({ size = 24, width, he
     <path d='M10 11.9999V19.9999H18V11.9999H10ZM0 19.9999H8V11.9999H0V19.9999ZM0 1.99994V9.99994H8V1.99994H0ZM13.66 0.689941L8 6.33994L13.66 11.9999L19.32 6.33994L13.66 0.689941Z' />
   </svg>
 );
+
+export const ZoomInIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+  <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
+    <path
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+      d='M6 10C6 9.44771 6.44772 9 7 9H13C13.5523 9 14 9.44771 14 10C14 10.5523 13.5523 11 13 11H7C6.44772 11 6 10.5523 6 10Z'
+    />
+    <path
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+      d='M10.0239 2.97059C5.97241 2.97059 2.83333 6.18609 2.83333 9.97032C2.83333 13.7544 5.97304 16.9701 10.0247 16.9701C14.0762 16.9701 17.2152 13.7545 17.2152 9.97032C17.2152 6.18698 14.0754 2.97059 10.0239 2.97059ZM0.5 9.97032C0.5 4.65721 4.84471 0.5 10.0239 0.5C15.203 0.5 19.5486 4.65796 19.5486 9.97032C19.5486 12.1288 18.8315 14.0965 17.6327 15.6722L21.1568 19.3896C21.6132 19.8711 21.6146 20.6532 21.1598 21.1366C20.7051 21.6199 19.9664 21.6213 19.5099 21.1398L15.9498 17.3843C14.3127 18.6763 12.2454 19.4406 10.0247 19.4406C4.84563 19.4406 0.5 15.2836 0.5 9.97032Z'
+    />
+    <path
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+      d='M10 14C9.44771 14 9 13.5523 9 13V7C9 6.44772 9.44771 6 10 6C10.5523 6 11 6.44772 11 7V13C11 13.5523 10.5523 14 10 14Z'
+    />
+  </svg>
+);
+
+export const ZoomOutIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+  <svg width={sizOut || width} viewBox='0 0 22 22' height={size || height} {...props}>
+    <path
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+      d='M6 10C6 9.44771 6.44772 9 7 9H13C13.5523 9 14 9.44771 14 10C14 10.5523 13.5523 11 13 11H7C6.44772 11 6 10.5523 6 10Z'
+    />
+    <path
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+      d='M10.0239 2.97059C5.97241 2.97059 2.83333 6.18609 2.83333 9.97032C2.83333 13.7544 5.97304 16.9701 10.0247 16.9701C14.0762 16.9701 17.2152 13.7545 17.2152 9.97032C17.2152 6.18698 14.0754 2.97059 10.0239 2.97059ZM0.5 9.97032C0.5 4.65721 4.84471 0.5 10.0239 0.5C15.203 0.5 19.5486 4.65796 19.5486 9.97032C19.5486 12.1288 18.8315 14.0965 17.6327 15.6722L21.1568 19.3896C21.6132 19.8711 21.6146 20.6532 21.1598 21.1366C20.7051 21.6199 19.9664 21.6213 19.5099 21.1398L15.9498 17.3843C14.3127 18.6763 12.2454 19.4406 10.0247 19.4406C4.84563 19.4406 0.5 15.2836 0.5 9.97032Z'
+    />
+  </svg>
+);
+
+export const CenterIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+  <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
+    <path
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+      d='M11,22C-3.67,21.92-3.67.07,11,0,25.67.08,25.67,21.93,11,22ZM11,2C-.91,1.84-.91,20.16,11,20,22.91,20.16,22.91,1.84,11,2Z'
+    />
+    <path fill='currentColor' fillRule='evenodd' clipRule='evenodd' d='M11,8c4-.06,4,6.06,0,6S7,7.94,11,8Z' />
+  </svg>
+);

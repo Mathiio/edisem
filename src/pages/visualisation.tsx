@@ -7,6 +7,7 @@ import { motion, Variants } from 'framer-motion';
 import { Navbar } from '@/components/navbar/Navbar';
 import { Toolbar } from '@/components/datavisualisation/Toolbar';
 import { SearchHelper } from '@/components/datavisualisation/SearchHelper';
+import ZoomControl from '@/components/datavisualisation/ZoomControl';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -190,7 +191,9 @@ const Visualisation = () => {
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
-    const defs = svg.append('defs');
+    const zoomGroup = svg.append('g').attr('class', 'zoom-group');
+
+    const defs = zoomGroup.append('defs');
 
     filteredNodes.forEach((node) => {
       const patternId = `node-pattern-${node.type}`;
@@ -231,7 +234,7 @@ const Visualisation = () => {
       .force('center', d3.forceCenter(dimensions.width / 2, dimensions.height / 2))
       .force('collision', d3.forceCollide().radius(100));
 
-    const link = svg
+    const link = zoomGroup
       .append('g')
       .selectAll('line')
       .data(filteredLinks)
@@ -239,7 +242,7 @@ const Visualisation = () => {
       .attr('stroke', '#fff')
       .attr('stroke-width', 1);
 
-    const node = svg
+    const node = zoomGroup
       .append('g')
       .selectAll<SVGCircleElement, any>('circle')
       .data(simulationNodes)
@@ -268,7 +271,7 @@ const Visualisation = () => {
       });
     node.call(drag);
 
-    const label = svg
+    const label = zoomGroup
       .append('g')
       .selectAll('text')
       .data(simulationNodes)
@@ -375,6 +378,7 @@ const Visualisation = () => {
         </motion.div>
       </motion.main>
       <Toolbar itemsDataviz={itemsDataviz} onSearch={handleSearch} />
+      <ZoomControl svgRef={svgRef} width={dimensions.width} height={dimensions.height} />
     </div>
   );
 };
