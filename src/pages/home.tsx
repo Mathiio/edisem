@@ -59,7 +59,7 @@ export const Home: React.FC = () => {
   }, [fetchSeminaires, fetchActants, fetchRandomConf]);
 
   return (
-    <div className='relative h-screen overflow-hidden'>
+    <div className='relative bg-default-50 h-screen overflow-hidden'>
       <Scrollbar>
         <main className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200'>
           <div className='col-span-10'>
@@ -68,7 +68,7 @@ export const Home: React.FC = () => {
           <div className='col-span-10 flex flex-col gap-75'>
             <FullCarrousel
               title='Derniers séminaires Arcanes'
-              perPage={2}
+              perPage={3}
               perMove={1}
               data={loadingSeminaires ? Array.from({ length: 5 }) : seminaires}
               renderSlide={(item) =>

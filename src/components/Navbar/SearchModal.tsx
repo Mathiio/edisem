@@ -97,7 +97,7 @@ const SearchModal = () => {
     <>
       <Button
         size='md'
-        className='cursor-pointer h-[32px] text-16 p-25 gap-10 rounded-8 text-default-500 hover:text-default-500 bg-default-200 hover:bg-default-300 transition-all ease-in-out duration-200'
+        className='cursor-pointer h-[32px] text-16 p-25 gap-10 rounded-8 text-default-500 hover:text-default-500 bg-default-100 hover:bg-default-200 transition-all ease-in-out duration-200'
         onPress={handleOpen}>
         <SearchIcon
           size={16}

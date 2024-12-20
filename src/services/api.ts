@@ -874,7 +874,6 @@ export async function filterConfs(searchQuery: string) {
       return eventMatch || titleMatch || actantMatch;
     });
 
-    console.log(filteredConfs); 
     return filteredConfs;
   } catch (error) {
     console.error('Error fetching conferences:', error);
@@ -965,7 +964,6 @@ export async function getConfBibliographies(confId: number) {
     const bibliographies = await getBibliographies();
 
     const conf = confs.find((conf: { id: number }) => Number(conf.id) === confId);
-    console.log(conf)
     if (!conf) {
       throw new Error(`No conference found with id: ${confId}`);
     }
@@ -974,7 +972,6 @@ export async function getConfBibliographies(confId: number) {
       conf.bibliographies.includes(String(bib.id)) 
     );
 
-    console.log(filteredBibliographies)
     return filteredBibliographies;
   }
   catch (error) {
@@ -1019,7 +1016,6 @@ export async function getConfMediagraphies(confId: number) {
       conf.mediagraphies.includes(String(media.id))
     );
 
-    console.log(filteredMediagraphies);
     return filteredMediagraphies;
   } catch (error) {
     console.error('Error fetching mediagraphies:', error);

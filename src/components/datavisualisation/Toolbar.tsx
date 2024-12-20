@@ -1,119 +1,94 @@
 import React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { FiSearch, FiSettings, FiGrid, FiLink, FiEdit, FiUpload, FiDownload } from 'react-icons/fi';
 import SearchPopup from './SearchPopup';
 import FiltragePopup from './FiltragePopup';
-
-const GridPopup: React.FC = () => (
-  <div className='p-4 bg-white shadow-lg rounded-lg'>
-    <p>Affichage en grille.</p>
-  </div>
-);
-
-const LinkPopup: React.FC = () => (
-  <div className='p-4 bg-white shadow-lg rounded-lg'>
-    <p>Gestion des liens.</p>
-  </div>
-);
-
-const EditPopup: React.FC = () => (
-  <div className='p-4 bg-white shadow-lg rounded-lg'>
-    <p>Mode édition activé.</p>
-  </div>
-);
-
-const UploadPopup: React.FC = () => (
-  <div className='p-4 bg-white shadow-lg rounded-lg'>
-    <p>Upload de fichiers.</p>
-  </div>
-);
-
-const DownloadPopup: React.FC = () => (
-  <div className='p-4 bg-white shadow-lg rounded-lg'>
-    <p>Téléchargement en cours...</p>
-  </div>
-);
+import { Button, Divider } from '@nextui-org/react';
+import { AnotateIcon, ExportIcon, FilterIcon, ImportIcon, NewItemIcon, SearchIcon, AssociateIcon } from '../utils/icons';
+import { IconSvgProps } from '@/types/types';
 
 interface ItemsProps {
   itemsDataviz: any[];
-  onSearch: (selectedItems: any[]) => void; // Définition du type
+  onSearch: (selectedItems: any[]) => void;
 }
 
 export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
-  const [activeIcon, setActiveIcon] = useState<string | null>(null); // Départ à null
-  const [position, setPosition] = useState<{ left: number }>({ left: 0 });
+  const [activeIcon, setActiveIcon] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const iconRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const iconRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const handleItemSelect = (item: any) => {
-    console.log('Selected item in Toolbar:', item);
-    console.log(showPopup);
-    onSearch([item]); // Remonte l'élément sélectionné
-    setActiveIcon(null); // Fermer la popup
+    onSearch([item]);
+    setActiveIcon(null);
+    setShowPopup(false);
   };
-
-  const icons = [
-    {
-      id: 'search',
-      component: <FiSearch size={22} />,
-      popup: <SearchPopup itemsDataviz={itemsDataviz} onSearch={onSearch} onItemSelect={handleItemSelect} />,
-    },
-    { id: 'filtrage', component: <FiSettings size={22} />, popup: <FiltragePopup /> },
-    { id: 'grid', component: <FiGrid size={22} />, popup: <GridPopup /> },
-    { id: 'link', component: <FiLink size={22} />, popup: <LinkPopup /> },
-    { id: 'edit', component: <FiEdit size={22} />, popup: <EditPopup /> },
-    { id: 'upload', component: <FiUpload size={22} />, popup: <UploadPopup /> },
-    { id: 'download', component: <FiDownload size={22} />, popup: <DownloadPopup /> },
-  ];
 
   useEffect(() => {
     if (activeIcon && iconRefs.current[activeIcon]) {
-      const iconElement = iconRefs.current[activeIcon]!;
-      const container = containerRef.current!;
-      const iconRect = iconElement.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-
-      // Mise à jour de la position relative
-      setPosition({
-        left: iconRect.left - containerRect.left + iconRect.width / 2 - 20,
-      });
       setShowPopup(true);
     } else {
       setShowPopup(false);
     }
   }, [activeIcon]);
+  
+
+  const getActivePopup = () => {
+    switch (activeIcon) {
+      case 'search':
+        return (
+          <SearchPopup 
+            itemsDataviz={itemsDataviz}
+            onSearch={onSearch}
+            onItemSelect={handleItemSelect}
+          />
+        );
+      case 'filter':
+        return <FiltragePopup />;
+      default:
+        return null;
+    }
+  };
+
+  const renderButton = (
+    key: string,
+    IconComponent: React.FC<IconSvgProps>
+  ) => (
+    <Button
+      size="md"
+      key={key}
+      ref={(el) => (iconRefs.current[key] = el)}
+      className={`cursor-pointer group text-16 p-10 rounded-8 ${
+        activeIcon === key
+          ? 'text-default-action bg-default-200'
+          : 'text-default-500 bg-transparent hover:bg-default-200'
+      } transition-all ease-in-out duration-200`}
+      onPress={() => setActiveIcon((prev) => (prev === key ? null : key))}
+    >
+      <IconComponent size={18} />
+    </Button>
+  );
 
   return (
-    <div className='fixed bottom-0 left-0 right-0 p-20 flex justify-center items-center'>
-      <div className='relative flex items-center gap-[20px] p-10 bg-default-200 rounded-[12px]' ref={containerRef}>
-        {/* Fond mobile */}
+    <div className='fixed bottom-0 left-0 right-0 p-25 flex justify-center items-center'>
+      <div className='relative flex items-center bg-default-100 rounded-8 p-2 bg-default-100 gap-2 shadow-lg' ref={containerRef}>
         {activeIcon && (
-          <div
-            className='absolute w-[40px] h-[40px] bg-default-action rounded-[8px] transition-all duration-300'
-            style={{ left: position.left, top: '10px' }}
-          />
+          <>
+            {showPopup && (
+              <div className="absolute left-0 bg-default-100 bottom-16 w-full p-4 rounded-8 shadow-lg">
+                {getActivePopup()}
+              </div>
+            )}
+          </>
         )}
-
-        {activeIcon && (
-          <div className='absolute left-0 bg-default-200 bottom-[80px] w-[100%] flex flex-col p-20 gap-20 rounded-12'>
-            {icons.find((icon) => icon.id === activeIcon)?.popup}
-          </div>
-        )}
-        {/* Icônes */}
-        {icons.map((icon) => (
-          <div
-            key={icon.id}
-            ref={(el) => (iconRefs.current[icon.id] = el)}
-            onClick={() => setActiveIcon((prev) => (prev === icon.id ? null : icon.id))}
-            className={`relative z-10 cursor-pointer flex items-center justify-center w-[40px] h-[40px] ${
-              activeIcon === icon.id ? 'bg-opacity-50' : ''
-            }`}>
-            {React.cloneElement(icon.component, {
-              className: 'text-white text-xl',
-            })}
-          </div>
-        ))}
+        {renderButton('search', SearchIcon)}
+        {renderButton('filter', FilterIcon)}
+        <Divider orientation="vertical" className="h-4 w-0.5 bg-default-300" />
+        {renderButton('add', NewItemIcon)}
+        {renderButton('link', AssociateIcon)}
+        {renderButton('anotate', AnotateIcon)}
+        <Divider orientation="vertical" className="h-4 w-0.5 bg-default-300" />
+        {renderButton('export', ExportIcon)}
+        {renderButton('import', ImportIcon)}
       </div>
     </div>
   );

@@ -1,5 +1,8 @@
 import { FC, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import { CenterIcon, ZoomInIcon, ZoomOutIcon } from '@/components/utils/icons';
+import { Button } from '@nextui-org/react';
+
 
 interface ZoomControlProps {
   svgRef: React.RefObject<SVGSVGElement>;
@@ -13,20 +16,24 @@ const ZoomControl: FC<ZoomControlProps> = ({ svgRef, width = 600, height = 400 }
   useEffect(() => {
     if (svgRef.current) {
       const svg = d3.select<SVGSVGElement, unknown>(svgRef.current);
-
+  
       if (svg.select('.zoom-group').empty()) {
         svg.append('g').attr('class', 'zoom-group');
       }
-
+  
       svg.call(zoomBehavior.current);
-
+  
       const existingElements = svg.selectAll('g:not(.zoom-group)');
       if (!existingElements.empty()) {
         const zoomGroup = svg.select('.zoom-group');
         existingElements.each(function () {
           const element = d3.select(this);
           if (element.attr('class') !== 'zoom-group') {
-            zoomGroup.node()?.appendChild(this);
+            const node = zoomGroup.node();
+            if (node && node instanceof Element) {
+              const currentNode = this as Node;
+              node.appendChild(currentNode);
+            }
           }
         });
       }
@@ -56,48 +63,35 @@ const ZoomControl: FC<ZoomControlProps> = ({ svgRef, width = 600, height = 400 }
       .call(zoomBehavior.current.transform, d3.zoomIdentity);
   }
 
-  function center() {
-    if (!svgRef.current) return;
-    const currentWidth = svgRef.current.clientWidth || width;
-    const currentHeight = svgRef.current.clientHeight || height;
-
-    d3.select<SVGSVGElement, unknown>(svgRef.current)
-      .transition()
-      .call(zoomBehavior.current.translateTo, currentWidth * 0.5, currentHeight * 0.5);
-  }
-
-  function panLeft() {
-    if (!svgRef.current) return;
-    d3.select<SVGSVGElement, unknown>(svgRef.current).transition().call(zoomBehavior.current.translateBy, -50, 0);
-  }
-
-  function panRight() {
-    if (!svgRef.current) return;
-    d3.select<SVGSVGElement, unknown>(svgRef.current).transition().call(zoomBehavior.current.translateBy, 50, 0);
-  }
-
   return (
-    <div className='fixed bottom-20 right-0 p-4 flex flex-col gap-2 bg-gray-800 rounded-lg shadow-lg'>
-      <button onClick={zoomIn} className='px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white'>
-        Zoom In
-      </button>
-      <button onClick={zoomOut} className='px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white'>
-        Zoom Out
-      </button>
-      <button onClick={resetZoom} className='px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white'>
-        Reset
-      </button>
-      <button onClick={center} className='px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white'>
-        Center
-      </button>
-      <div className='flex gap-2'>
-        <button onClick={panLeft} className='px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white'>
-          ←
-        </button>
-        <button onClick={panRight} className='px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white'>
-          →
-        </button>
-      </div>
+    <div className='fixed bottom-1/2 transform translate-y-1/2 right-25 rounded-8 p-2 bg-default-100 flex flex-col gap-2 rounded-lg shadow-lg'>
+      <Button
+        size='md'
+        className='cursor-pointer group text-16 p-10 rounded-8 text-default-500 hover:text-default-500 bg-default-100 hover:bg-default-200 transition-all ease-in-out duration-200'
+        onPress={zoomIn}>
+        <ZoomInIcon
+          size={18}
+          className='text-default-500 group-hover:text-default-action transition-all ease-in-out duration-200'
+        />
+      </Button>
+      <Button
+        size='md'
+        className='cursor-pointer group text-16 p-10 rounded-8 text-default-500 hover:text-default-500 bg-default-100 hover:bg-default-200 transition-all ease-in-out duration-200'
+        onPress={zoomOut}>
+        <ZoomOutIcon
+          size={18}
+          className='text-default-500 group-hover:text-default-action transition-all ease-in-out duration-200'
+        />
+      </Button>
+      <Button
+        size='md'
+        className='cursor-pointer group text-16 p-10 rounded-8 text-default-500 hover:text-default-500 bg-default-100 hover:bg-default-200 transition-all ease-in-out duration-200'
+        onPress={resetZoom}>
+        <CenterIcon
+          size={18}
+          className='text-default-500 group-hover:text-default-action transition-all ease-in-out duration-200'
+        />
+      </Button>
     </div>
   );
 };

@@ -54,7 +54,7 @@ export const ConfDetailsCard: React.FC<ConfDetailsProps> = ({ edition, descripti
     <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
       <motion.div
         variants={itemVariants}
-        className='cursor-pointer flex flex-col bg-default-200 hover:bg-default-300 p-25 rounded-8 gap-10 transition-all ease-in-out duration-200'
+        className='cursor-pointer flex flex-col bg-default-100 hover:bg-default-200 p-25 rounded-8 gap-10 transition-all ease-in-out duration-200'
         onClick={toggleExpansion}>
         <h3 className='text-16 text-default-500 font-semibold'>{formatDate(date) + " - " + edition}</h3>
         <p
