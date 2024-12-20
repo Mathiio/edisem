@@ -29,7 +29,6 @@ const containerVariants: Variants = {
 };
 
 export const Navbar: React.FC = () => {
-  // Utilisation de useThemeMode pour gérer l'état du thème
   const { isDark, toggleThemeMode } = useThemeMode();
 
   const logos = useMemo(
@@ -66,7 +65,7 @@ export const Navbar: React.FC = () => {
             <img
               key={`${logo.name}-${isDark ? 'dark' : 'light'}`}
               className='object-contain'
-              style={{ height: logo.height }} // Appliquer la hauteur via `style`
+              style={{ height: logo.height }} 
               src={getLogo(logo.name)}
               alt={`${logo.name} logo`}
             />

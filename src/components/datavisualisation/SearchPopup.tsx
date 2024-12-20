@@ -100,9 +100,9 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
   };
 
   return (
-    <div className='rounded-12'>
+    <div className='rounded-8'>
       <div className='flex flex-col items-start'>
-        <div className='flex items-center bg-default-300 rounded-8 p-10 h-[40px] w-full mb-4'>
+        <div className='flex items-center bg-default-200 rounded-8 p-10 h-[40px] w-full mb-4'>
           <FiSearch className='text-gray-400' size={20} />
           <input
             type='text'
@@ -123,7 +123,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
               key={filter}
               onClick={() => toggleFilter(filter)}
               className={`text-14 px-10 py-5 rounded-8
-              ${selectedFilters.has(filter) ? 'bg-default-action text-white' : 'bg-default-100 text-black'}
+              ${selectedFilters.has(filter) ? 'bg-default-action text-white' : 'bg-default-200 text-black'}
               hover:bg-default-hover transition-all`}>
               {filterLabels[filter] || filter}
             </button>
