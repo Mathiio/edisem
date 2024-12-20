@@ -57,17 +57,17 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
       ref={(el) => (iconRefs.current[key] = el)}
       className={`cursor-pointer group text-16 p-10 rounded-8 ${
         activeIcon === key
-          ? 'text-default-900 bg-default-action'
-          : 'text-default-500 bg-transparent hover:bg-default-action hover:text-default-900'
+          ? 'text-default-selected bg-default-action'
+          : 'text-default-500 bg-transparent hover:bg-default-action hover:text-default-selected'
       } transition-all ease-in-out duration-200`}
       onPress={() => setActiveIcon((prev) => (prev === key ? null : key))}>
-      <IconComponent size={18} />
+      <IconComponent size={20} />
     </Button>
   );
 
   return (
     <div className='fixed bottom-0 left-0 right-0 p-25 flex justify-center items-center'>
-      <div className='relative flex items-center  rounded-8 p-2 bg-default-100 gap-2 shadow-lg' ref={containerRef}>
+      <div className='relative flex items-center  rounded-8 p-2 bg-default-100 gap-3 shadow-lg' ref={containerRef}>
         {activeIcon && (
           <>
             {showPopup && (
