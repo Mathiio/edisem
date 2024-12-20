@@ -118,9 +118,9 @@ export const Home: React.FC = () => {
               <h2 className='text-24 font-bold text-default-600'>Sélection de conférences</h2>
               <div className='grid grid-cols-4 grid-rows-2 gap-25'>
                 {loadingRandomConf
-                  ? Array.from({ length: 8 }).map((_) => <LgConfSkeleton />)
+                  ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
                   : randomConf.map((item, index) => (
-                      <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id} custom={index}>
+                      <motion.div key={item.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
                         <LgConfCard
                           key={item.id}
                           id={item.id}

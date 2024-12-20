@@ -69,10 +69,10 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
       onMouseLeave={() => setIsHovered(false)}
       className='cursor-pointer flex flex-col gap-10 transition-all ease-in-out duration-200 relative'>
       <div
-        className={`absolute w-full h-full -z-10 rounded-12 transition-all ease-in-out duration-200 
-        ${isHovered ? 'bg-default-200 scale-105' : 'scale-100'}`}></div>
+        className={`absolute w-full h-full rounded-12 transition-all ease-in-out duration-200 
+        ${isHovered ? 'bg-default-100 scale-105' : 'scale-100'}`}></div>
       <div
-        className={`p-50 h-200 w-full rounded-12 justify-center items-center flex  ${
+        className={`p-50 h-200 w-full rounded-12 justify-center items-center flex z-10 ${
           thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-default-200 to-default-400'
         }`}
         style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
@@ -80,7 +80,7 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
           CONFÉRENCE
         </h3>
       </div>
-      <div className='flex flex-col gap-5'>
+      <div className='flex flex-col gap-5 z-10'>
         <div className='relative'>
           <p
             ref={textRef}
