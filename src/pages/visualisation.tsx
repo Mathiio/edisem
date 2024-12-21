@@ -166,62 +166,67 @@ const Visualisation = () => {
   const processDataForAdvancedFiltering = (data: any[]) => {
     if (data.length === 0) return;
 
-    console.log('process');
-    console.log(data);
-
+    const caracter = 10;
     let nodes: any[] = [];
     let links: any[] = [];
 
-    // Traitement des nœuds principaux (sans nœud central)
+    // First pass: Add all selected items as nodes
     data.forEach((item) => {
-      if (!item.links) {
-        console.error("Liens indéfinis pour l'élément :", item);
-        return;
-      }
-
-      nodes.push({
-        id: item.id,
-        title: item.title.length > 10 ? item.title.substring(0, 10) + '...' : item.title,
-        type: item.type,
-        isMain: false,
-      });
-
-      const linkedResources = data.filter((resource) => item.links.includes(resource.id));
-
-      linkedResources.forEach((resource) => {
+      if (!nodes.some((n) => n.id === item.id)) {
         nodes.push({
-          id: resource.id,
-          title: resource.title.length > 10 ? resource.title.substring(0, 10) + '...' : resource.title,
-          type: resource.type,
+          id: item.id,
+          title: item.title.length > caracter ? item.title.substring(0, caracter) + '...' : item.title,
+          type: item.type,
           isMain: false,
         });
+      }
+    });
 
-        links.push({
-          source: item.id,
-          target: resource.id,
-        });
-      });
+    // Second pass: Process links between selected items
+    data.forEach((item) => {
+      if (!item.links || !Array.isArray(item.links)) return;
 
-      linkedResources.forEach((resource) => {
-        const innerLinks = resource.links;
-
-        if (innerLinks && Array.isArray(innerLinks)) {
-          innerLinks.forEach((linkedId) => {
-            const linkedNode = linkedResources.find((r) => r.id === linkedId);
-
-            if (linkedNode) {
-              links.push({
-                source: resource.id,
-                target: linkedNode.id,
-              });
-            }
-          });
-        } else {
-          console.warn("innerLinks est indéfini ou n'est pas un tableau :", innerLinks);
+      // Add links between current item and its connected items that are in the selection
+      item.links.forEach((linkedId: any) => {
+        const targetItem = data.find((d) => d.id === linkedId);
+        if (targetItem) {
+          // Only add the link if both source and target are in our nodes
+          if (nodes.some((n) => n.id === item.id) && nodes.some((n) => n.id === linkedId)) {
+            links.push({
+              source: item.id,
+              target: linkedId,
+            });
+          }
         }
       });
     });
 
+    // Third pass: Add immediate connections to items outside the selection
+    data.forEach((item) => {
+      if (!item.links || !Array.isArray(item.links)) return;
+
+      item.links.forEach((linkedId: any) => {
+        // Find the linked item in the full dataset (itemsDataviz)
+        const linkedItem = itemsDataviz.find((d) => d.id === linkedId);
+        if (linkedItem && !nodes.some((n) => n.id === linkedId)) {
+          // Add the external node
+          nodes.push({
+            id: linkedId,
+            title:
+              linkedItem.title.length > caracter ? linkedItem.title.substring(0, caracter) + '...' : linkedItem.title,
+            type: linkedItem.type,
+            isMain: false,
+          });
+          // Add the connection
+          links.push({
+            source: item.id,
+            target: linkedId,
+          });
+        }
+      });
+    });
+
+    // Remove duplicate nodes and links
     nodes = Array.from(new Set(nodes.map((n) => JSON.stringify(n)))).map((n) => JSON.parse(n));
     links = Array.from(new Set(links.map((l) => JSON.stringify(l)))).map((l) => JSON.parse(l));
 
@@ -229,39 +234,34 @@ const Visualisation = () => {
     setFilteredLinks(links);
   };
 
-  const handleSearch = (searchResults: string | any[], isAdvancedSearch = false) => {
-    if (!searchResults || (Array.isArray(searchResults) && searchResults.length === 0)) {
+  const handleSearch = (searchResults: any[], isAdvancedSearch: boolean) => {
+    if (!searchResults || searchResults.length === 0) {
       console.warn('Aucun résultat de recherche');
       if (!isAdvancedSearch) {
-        processDataForVisualization(itemsDataviz); // Recherche simple : affiche tout
+        processDataForVisualization(itemsDataviz);
       } else {
-        processDataForAdvancedFiltering(itemsDataviz); // Recherche avancée : affiche selon les filtres
+        processDataForAdvancedFiltering(itemsDataviz);
       }
       return;
     }
 
-    // Vérifier que searchResults est bien un tableau avant de l'utiliser
-    if (Array.isArray(searchResults)) {
-      if (!isAdvancedSearch) {
-        // Recherche simple
-        const selectedResult = searchResults[0];
-        const itemToVisualize = itemsDataviz.find(
-          (item) =>
-            item.id === selectedResult.id ||
-            (item.ressources && item.ressources.some((r: { id: any }) => r.id === selectedResult.id)),
-        );
-
-        if (itemToVisualize) {
-          processDataForVisualization(itemsDataviz); // Utilise processDataForVisualization pour recherche simple
-        } else {
-          console.error('Aucun élément trouvé pour la recherche:', selectedResult);
-        }
-      } else {
-        // Recherche avancée
-        processDataForAdvancedFiltering(searchResults); // Applique les filtres directement via processDataForAdvancedFiltering
-      }
+    if (isAdvancedSearch) {
+      // Process advanced search results
+      processDataForAdvancedFiltering(searchResults);
     } else {
-      console.error('Les résultats de recherche doivent être un tableau.');
+      // Process simple search results
+      const selectedResult = searchResults[0];
+      const itemToVisualize = itemsDataviz.find(
+        (item) =>
+          item.id === selectedResult.id ||
+          (item.ressources && item.ressources.some((r: { id: any }) => r.id === selectedResult.id)),
+      );
+
+      if (itemToVisualize) {
+        processDataForVisualization(itemsDataviz, itemToVisualize.id);
+      } else {
+        console.error('Aucun élément trouvé pour la recherche:', selectedResult);
+      }
     }
   };
 
@@ -438,7 +438,7 @@ const Visualisation = () => {
         <motion.div className='col-span-10' variants={itemVariants}>
           <Navbar />
         </motion.div>
-        <SearchHelper items={itemsDataviz} />
+        {/* <SearchHelper items={itemsDataviz} /> */}
         <motion.div
           className='relative w-full h-full'
           variants={containerVariants}
@@ -461,7 +461,7 @@ const Visualisation = () => {
             }}></svg>
         </motion.div>
       </motion.main>
-      <Toolbar itemsDataviz={itemsDataviz} onSearch={(results) => handleSearch(results, activeIcon === 'filter')} />
+      <Toolbar itemsDataviz={itemsDataviz} onSearch={handleSearch} />
       <ZoomControl svgRef={svgRef} width={dimensions.width} height={dimensions.height} />
       <Legend/>
     </div>
