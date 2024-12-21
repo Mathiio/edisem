@@ -96,7 +96,7 @@ const Visualisation = () => {
 
   const processDataForVisualization = (data: any[], selectedItemId = null) => {
     if (data.length === 0 || !selectedItemId) return;
-
+    console.log('process');
     console.log(data);
 
     const item = data.find((dataItem) => dataItem.id === selectedItemId);
@@ -162,26 +162,105 @@ const Visualisation = () => {
     setFilteredLinks(links);
   };
 
-  const handleSearch = (searchResults: string | any[]) => {
-    console.log(searchResults);
-    if (!searchResults || searchResults.length === 0) {
+  const processDataForAdvancedFiltering = (data: any[]) => {
+    if (data.length === 0) return;
+
+    console.log('process');
+    console.log(data);
+
+    let nodes: any[] = [];
+    let links: any[] = [];
+
+    // Traitement des nœuds principaux (sans nœud central)
+    data.forEach((item) => {
+      if (!item.links) {
+        console.error("Liens indéfinis pour l'élément :", item);
+        return;
+      }
+
+      nodes.push({
+        id: item.id,
+        title: item.title.length > 10 ? item.title.substring(0, 10) + '...' : item.title,
+        type: item.type,
+        isMain: false,
+      });
+
+      const linkedResources = data.filter((resource) => item.links.includes(resource.id));
+
+      linkedResources.forEach((resource) => {
+        nodes.push({
+          id: resource.id,
+          title: resource.title.length > 10 ? resource.title.substring(0, 10) + '...' : resource.title,
+          type: resource.type,
+          isMain: false,
+        });
+
+        links.push({
+          source: item.id,
+          target: resource.id,
+        });
+      });
+
+      linkedResources.forEach((resource) => {
+        const innerLinks = resource.links;
+
+        if (innerLinks && Array.isArray(innerLinks)) {
+          innerLinks.forEach((linkedId) => {
+            const linkedNode = linkedResources.find((r) => r.id === linkedId);
+
+            if (linkedNode) {
+              links.push({
+                source: resource.id,
+                target: linkedNode.id,
+              });
+            }
+          });
+        } else {
+          console.warn("innerLinks est indéfini ou n'est pas un tableau :", innerLinks);
+        }
+      });
+    });
+
+    nodes = Array.from(new Set(nodes.map((n) => JSON.stringify(n)))).map((n) => JSON.parse(n));
+    links = Array.from(new Set(links.map((l) => JSON.stringify(l)))).map((l) => JSON.parse(l));
+
+    setFilteredNodes(nodes);
+    setFilteredLinks(links);
+  };
+
+  const handleSearch = (searchResults: string | any[], isAdvancedSearch = false) => {
+    if (!searchResults || (Array.isArray(searchResults) && searchResults.length === 0)) {
       console.warn('Aucun résultat de recherche');
-      processDataForVisualization(itemsDataviz);
+      if (!isAdvancedSearch) {
+        processDataForVisualization(itemsDataviz); // Recherche simple : affiche tout
+      } else {
+        processDataForAdvancedFiltering(itemsDataviz); // Recherche avancée : affiche selon les filtres
+      }
       return;
     }
 
-    const selectedResult = searchResults[0];
+    // Vérifier que searchResults est bien un tableau avant de l'utiliser
+    if (Array.isArray(searchResults)) {
+      if (!isAdvancedSearch) {
+        // Recherche simple
+        const selectedResult = searchResults[0];
+        const itemToVisualize = itemsDataviz.find(
+          (item) =>
+            item.id === selectedResult.id ||
+            (item.ressources && item.ressources.some((r: { id: any }) => r.id === selectedResult.id)),
+        );
 
-    const itemToVisualize = itemsDataviz.find(
-      (item) =>
-        item.id === selectedResult.id ||
-        (item.ressources && item.ressources.some((r: { id: any }) => r.id === selectedResult.id)),
-    );
-
-    if (itemToVisualize) {
-      processDataForVisualization(itemsDataviz, itemToVisualize.id);
+        if (itemToVisualize) {
+          processDataForVisualization(itemsDataviz); // Utilise processDataForVisualization pour recherche simple
+        } else {
+          console.error('Aucun élément trouvé pour la recherche:', selectedResult);
+        }
+      } else {
+        // Recherche avancée
+        processDataForAdvancedFiltering(searchResults); // Applique les filtres directement via processDataForAdvancedFiltering
+      }
     } else {
-      console.error('Aucun élément trouvé pour la recherche:', selectedResult);
+      console.error('Les résultats de recherche doivent être un tableau.');
     }
   };
 
@@ -311,6 +390,7 @@ const Visualisation = () => {
       university: 'bulle4.png',
       school: 'bulle4.png',
       laboratory: 'bulle4.png',
+      collection: 'bulle8.png',
     };
     return images[type] || 'bulle1.png';
   };
@@ -326,6 +406,7 @@ const Visualisation = () => {
       university: 150,
       school: 150,
       laboratory: 150,
+      collection: 250,
     };
     return radii[type] || 250;
   };
@@ -341,6 +422,7 @@ const Visualisation = () => {
       university: '14px',
       school: '14px',
       laboratory: '14px',
+      collection: '18px',
     };
     return sizes[type] || '16px';
   };
@@ -378,7 +460,7 @@ const Visualisation = () => {
             }}></svg>
         </motion.div>
       </motion.main>
-      <Toolbar itemsDataviz={itemsDataviz} onSearch={handleSearch} />
+      <Toolbar itemsDataviz={itemsDataviz} onSearch={(results) => handleSearch(results, activeIcon === 'filter')} />
       <ZoomControl svgRef={svgRef} width={dimensions.width} height={dimensions.height} />
     </div>
   );

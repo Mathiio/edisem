@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@nextui-org/react';
-import { ArrowIcon, CloseIcon } from '@/components/utils/icons';
+import { ArrowIcon, CrossIcon } from '@/components/utils/icons';
 
 interface ButtonProps {
   onClick?: (index: number) => void;
@@ -75,7 +75,7 @@ export const NavConferencierFilter: React.FC<ButtonGeneratorProps & ButtonProps>
           ? 'bg-default-action text-default-100'
           : 'text-default-500 bg-default-200 hover:text-default-500 hover:bg-default-300'
       } transition-all ease-in-out duration-200 navfilter flex items-center`}
-      endContent={selectedButtons.includes(i) ? <CloseIcon size={18} /> : null}>
+      endContent={selectedButtons.includes(i) ? <CrossIcon size={18} /> : null}>
       Button {i + 1}
     </Button>
   ));

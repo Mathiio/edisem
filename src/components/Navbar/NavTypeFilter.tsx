@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@nextui-org/react';
-import { CloseIcon } from '@/components/utils/icons';
+import { CrossIcon } from '@/components/utils/icons';
 
 interface ButtonProps {
   onClick?: (index: number) => void;
@@ -44,7 +44,7 @@ export const NavTypeFilter: React.FC<ButtonGeneratorProps & ButtonProps> = ({
           ? 'bg-default-action text-default-100'
           : 'text-default-500 bg-default-200 hover:text-default-500 hover:bg-default-300'
       } transition-all ease-in-out duration-200 navfilter flex items-center`}
-      endContent={selectedButtons.includes(index) ? <CloseIcon size={18} /> : null}>
+      endContent={selectedButtons.includes(index) ? <CrossIcon size={18} /> : null}>
       {name}
     </Button>
   ));

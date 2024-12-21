@@ -15,8 +15,7 @@ import { SelectionInput } from '@/components/database/SelectionInput';
 import { Textarea } from '@nextui-org/input';
 
 import { TimecodeInput, DatePicker } from '@/components/database/TimecodeInput';
-import { Scrollbar } from '@/components/utils/Scrollbar';
-import { CloseIcon } from '@/components/utils/icons';
+import { CrossIcon } from '@/components/utils/icons';
 import MultipleInputs from '@/components/database/MultipleInputs';
 
 interface User {}
@@ -487,17 +486,6 @@ class Omk {
       }
     }
   };
-
-  // public formatValue = (p: any, v: any): any => {
-  //   if (p['o:id'] == 1517) return { property_id: p['o:id'], '@id': v, type: 'uri', is_public: true };
-  //   if (typeof v === 'number' && (p['o:id'] == 1417 || p['o:id'] == 735))
-  //     return { property_id: p['o:id'], '@value': v, type: 'numeric:integer', is_public: true };
-  //   else if (typeof v === 'number') return { property_id: p['o:id'], value_resource_id: v, type: 'resource' };
-  //   else if (typeof v === 'object' && v.u) return { property_id: p['o:id'], '@id': v.u, 'o:label': v.l, type: 'uri' };
-  //   else if (typeof v === 'object')
-  //     return { property_id: p['o:id'], '@value': JSON.stringify(v), type: 'literal', is_public: true };
-  //   else return { property_id: p['o:id'], '@value': v, type: 'literal', is_public: true };
-  // };
 
   public formatValue = (p: any, v: any, language: string = 'fr'): any => {
     let baseValue: any = { property_id: p['o:id'], is_public: true };
@@ -1048,49 +1036,28 @@ export const EditModal: React.FC<EditModalProps> = ({
               <ModalHeader className='flex justify-between p-25 '>
                 <h2 className='text-default-500 text-32 font-semibold'>Modification</h2>
                 <Link onPress={onClose}>
-                  <CloseIcon
+                  <CrossIcon
                     className='text-default-500 cursor-pointer hover:text-default-action transition-all ease-in-out duration-200'
                     size={24}
                   />
                 </Link>
               </ModalHeader>
               <ModalBody className='flex p-25'>
-                <Scrollbar withGap>
-                  <div className='flex flex-col gap-50 items-start'>
-                    {activeConfig && !detailsLoading ? (
-                      itemDetailsData &&
-                      inputConfigs[activeConfig]?.map((col: InputConfig) => {
-                        const value = getValueByPath(itemDetailsData, col.dataPath);
-                        if (col.type === 'input') {
-                          return (
-                            <>
-                              <Input
-                                key={col.key}
-                                size='lg'
-                                classNames={{
-                                  label: 'text-semibold',
-                                  inputWrapper: 'bg-default-50 shadow-none border-1 border-default-200',
-                                  input: 'h-[50px] ',
-                                }}
-                                className='min-h-[50px]'
-                                type='text'
-                                label={col.label}
-                                labelPlacement='outside'
-                                placeholder={`Entrez ${col.label}`}
-                                defaultValue={value}
-                                onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
-                              />
-                            </>
-                          );
-                        } else if (col.type === 'textarea') {
-                          return (
-                            <Textarea
+                <div className='flex flex-col gap-50 items-start scroll-y-auto'>
+                  {activeConfig && !detailsLoading ? (
+                    itemDetailsData &&
+                    inputConfigs[activeConfig]?.map((col: InputConfig) => {
+                      const value = getValueByPath(itemDetailsData, col.dataPath);
+                      if (col.type === 'input') {
+                        return (
+                          <>
+                            <Input
                               key={col.key}
                               size='lg'
                               classNames={{
-                                label: 'text-semibold text-default-600 text-24',
+                                label: 'text-semibold',
                                 inputWrapper: 'bg-default-50 shadow-none border-1 border-default-200',
-                                input: 'h-[50px]',
+                                input: 'h-[50px] ',
                               }}
                               className='min-h-[50px]'
                               type='text'
@@ -1100,73 +1067,77 @@ export const EditModal: React.FC<EditModalProps> = ({
                               defaultValue={value}
                               onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
                             />
-                          );
-                        } else if (col.type === 'time') {
-                          return (
-                            <>
-                              <TimecodeInput
-                                key={col.key}
-                                label={col.label}
-                                seconds={value}
-                                handleInputChange={(value) => handleInputChange(col.dataPath, value)}
-                              />
-                            </>
-                          );
-                        }
-                        // else if (col.type === 'intervalTime') {
-                        //   return (
-                        //     <>
-                        //       <DateTimeIntervalPicker
-                        //         key={col.key}
-                        //         label={col.label}
-                        //         interval={value}
-                        //         handleInputChange={(value) => handleInputChange(col.dataPath, value)}
-                        //       />
-                        //     </>
-                        //   );
-                        // }
-                        else if (col.type === 'date') {
-                          return (
-                            <>
-                              <DatePicker
-                                key={col.key}
-                                label={col.label}
-                                date={value}
-                                handleInputChange={(value) => handleInputChange(col.dataPath, value)}
-                              />
-                            </>
-                          );
-                        } else if (col.type === 'selection') {
-                          // console.log(itemDetailsData);
-                          return (
-                            <SelectionInput
+                          </>
+                        );
+                      } else if (col.type === 'textarea') {
+                        return (
+                          <Textarea
+                            key={col.key}
+                            size='lg'
+                            classNames={{
+                              label: 'text-semibold text-default-600 text-24',
+                              inputWrapper: 'bg-default-50 shadow-none border-1 border-default-200',
+                              input: 'h-[50px]',
+                            }}
+                            className='min-h-[50px]'
+                            type='text'
+                            label={col.label}
+                            labelPlacement='outside'
+                            placeholder={`Entrez ${col.label}`}
+                            defaultValue={value}
+                            onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
+                          />
+                        );
+                      } else if (col.type === 'time') {
+                        return (
+                          <>
+                            <TimecodeInput
                               key={col.key}
-                              col={col}
-                              actualData={itemDetailsData}
-                              handleInputChange={handleInputChange}
+                              label={col.label}
+                              seconds={value}
+                              handleInputChange={(value) => handleInputChange(col.dataPath, value)}
                             />
-                          );
-                        } else if (col.type === 'inputs') {
-                          // console.log(itemDetailsData);
-                          return (
-                            <MultipleInputs
+                          </>
+                        );
+                      } else if (col.type === 'date') {
+                        return (
+                          <>
+                            <DatePicker
                               key={col.key}
-                              col={col}
-                              actualData={itemDetailsData}
-                              handleInputChange={handleInputChange}
+                              label={col.label}
+                              date={value}
+                              handleInputChange={(value) => handleInputChange(col.dataPath, value)}
                             />
-                          );
-                        } else {
-                          return null; // Or handle other types accordingly
-                        }
-                      })
-                    ) : (
-                      <Spinner color='secondary' />
-                    )}
+                          </>
+                        );
+                      } else if (col.type === 'selection') {
+                        return (
+                          <SelectionInput
+                            key={col.key}
+                            col={col}
+                            actualData={itemDetailsData}
+                            handleInputChange={handleInputChange}
+                          />
+                        );
+                      } else if (col.type === 'inputs') {
+                        return (
+                          <MultipleInputs
+                            key={col.key}
+                            col={col}
+                            actualData={itemDetailsData}
+                            handleInputChange={handleInputChange}
+                          />
+                        );
+                      } else {
+                        return null;
+                      }
+                    })
+                  ) : (
+                    <Spinner color='secondary' />
+                  )}
 
-                    {saveError && <div className='error'>{saveError}</div>}
-                  </div>
-                </Scrollbar>
+                  {saveError && <div className='error'>{saveError}</div>}
+                </div>
               </ModalBody>
               <ModalFooter className='flex items-center justify-end p-25 '>
                 <div className='flex flex-row gap-25'>

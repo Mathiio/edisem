@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button, Skeleton } from '@nextui-org/react';
-import { Scrollbar } from '@/components/utils/Scrollbar';
 import { FileIcon } from '@/components/utils/icons';
 
 interface CitationCardProps {
@@ -85,26 +84,24 @@ interface CitationsProps {
 export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTimeChange }) => {
   return (
     <div className='w-full lg:h-[700px] xl:h-[750px]  overflow-hidden flex flex-col gap-20'>
-      <Scrollbar withGap>
-        <div className='flex flex-col gap-20'>
-          {loading ? (
-            Array.from({ length: 8 }).map((_) => <CitationSkeleton />)
-          ) : citations.length === 0 ? (
-            <UnloadedCard />
-          ) : (
-            citations.map((citation, index) => (
-              <CitationCard
-                key={index}
-                startTime={citation.startTime}
-                endTime={citation.endTime}
-                actant={citation.actant.firstname + ' ' + citation.actant.lastname}
-                citation={citation.citation}
-                onTimeChange={onTimeChange}
-              />
-            ))
-          )}
-        </div>
-      </Scrollbar>
+      <div className='flex flex-col gap-20 scroll-y-auto'>
+        {loading ? (
+          Array.from({ length: 8 }).map((_) => <CitationSkeleton />)
+        ) : citations.length === 0 ? (
+          <UnloadedCard />
+        ) : (
+          citations.map((citation, index) => (
+            <CitationCard
+              key={index}
+              startTime={citation.startTime}
+              endTime={citation.endTime}
+              actant={citation.actant.firstname + ' ' + citation.actant.lastname}
+              citation={citation.citation}
+              onTimeChange={onTimeChange}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { FilterIcon, CloseIcon, CalendarIcon, UserIcon } from '@/components/utils/icons';
+import { FilterIcon, CrossIcon, CalendarIcon, UserIcon } from '@/components/utils/icons';
 import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@nextui-org/react';
 import { DateRangePicker } from '@nextui-org/date-picker';
 import { NavConferencierFilter } from '@/components/navbar/NavConferencierFilter';
@@ -105,7 +105,7 @@ export const FilterModal = () => {
               <ModalHeader className='flex items-center justify-between p-25 border-b-2 border-default-300'>
                 <div className='flex flex-row gap-25 items-center text-24'>Filtres</div>
                 <Link onPress={onClose}>
-                  <CloseIcon
+                  <CrossIcon
                     className='text-default-500 cursor-pointer hover:text-default-action transition-all ease-in-out duration-200'
                     size={24}
                   />

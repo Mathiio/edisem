@@ -2,62 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--secondary) var(--primary);
-}
 
-*::-webkit-scrollbar {
-  width: 15px;
+::-webkit-scrollbar {
+  width: .8em; 
 }
-
-*::-webkit-scrollbar-track {
-  background: var(--primary);
-  border-radius: 2px;
+::-webkit-scrollbar-thumb {
+  height: 0.5em;
+  border-left: 0.5em solid rgba(0, 0, 0, 0); 
+  padding-left: 0.5em;
+  background-clip: padding-box;
+  background-color: hsl(var(--nextui-default-200));
+  -webkit-box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.025);
 }
-
-*::-webkit-scrollbar-thumb {
-  background-color: var(--secondary);
-  border-radius: 14px;
-  border: 2px solid var(--primary);
+::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+  display: none;
 }
-
+::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
 
 
 .button-transition {
   transition: background-color 200ms ease-in-out;
 }
 
-
-[role="tablist"] span {
+[role='tablist'] span {
   background-color: hsl(var(--nextui-default-action)) !important;
 }
-
-
-/* Add this to your global CSS file */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
 
 .hover\:opacity-80:hover {
   opacity: 1 !important;
 }
 
-
-:root, [data-theme] {
+:root,
+[data-theme] {
   color: hsl(var(--nextui-foreground));
-  background-color: hsl(var(--nextui-default-100));
+  background-color: hsl(var(--nextui-default-50));
 }
 
 .nav_searchbar {
@@ -84,7 +67,8 @@
   transform: scale(1.05);
 }
 
-.animate-spinner-linear-spin, .animate-spinner-ease-spin {
+.animate-spinner-linear-spin,
+.animate-spinner-ease-spin {
   border-radius: 9999px;
 }
 
@@ -92,15 +76,11 @@
   color: hsl(var(--nextui-secondary-500)) !important;
 }
 
-.row_rounded{
+.row_rounded {
   border-radius: 8px;
 }
 
-/* .max-height-40 *, .max-height-40{
-  height: 38px;
-} */
-
-.calendarbase div:nth-child(2){
+.calendarbase div:nth-child(2) {
   width: 100% !important;
 }
 
@@ -113,16 +93,20 @@
 }
 
 @keyframes marquee {
-	0% { transform: translateX(0%); }
-	100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(0%);
   }
-  
-  .marquee {
-	white-space: nowrap;
-	overflow: hidden;
-	position: relative;
+  100% {
+    transform: translateX(-100%);
   }
-  
-  .marquee-content {
-	animation: marquee 20s linear infinite;
-  }
+}
+
+.marquee {
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+}
+
+.marquee-content {
+  animation: marquee 20s linear infinite;
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiSearch } from 'react-icons/fi';
-import { Scrollbar } from '../utils/Scrollbar';
 import { LongCarrouselFilter } from '../utils/Carrousels';
+import { Button } from '@nextui-org/react';
 
 interface SearchPopupProps {
   itemsDataviz: any[];
@@ -14,7 +14,6 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<Set<string>>(new Set(['Tout']));
 
-  // Utiliser useEffect pour appliquer les filtres à chaque changement
   useEffect(() => {
     performSearch(searchTerm);
   }, [selectedFilters, searchTerm, itemsDataviz]);
@@ -44,7 +43,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
 
   const handleItemSelect = (item: any) => {
     onItemSelect(item);
-    onSearch([item]); // Envoie uniquement l'élément cliqué
+    onSearch([item]);
   };
 
   const toggleFilter = (filter: string) => {
@@ -100,9 +99,9 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
   };
 
   return (
-    <div className='rounded-8'>
+    <div className='rounded-8 h-full overflow-hidden'>
       <div className='flex flex-col items-start'>
-        <div className='flex items-center bg-default-200 rounded-8 p-10 h-[40px] w-full mb-4'>
+        <div className='flex items-center bg-default-200 rounded-8 p-10 w-full mb-4'>
           <FiSearch className='text-gray-400' size={20} />
           <input
             type='text'
@@ -119,38 +118,36 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
           autowidth={true}
           data={availableFilters}
           renderSlide={(filter) => (
-            <button
+            <Button
               key={filter}
               onClick={() => toggleFilter(filter)}
-              className={`text-14 px-10 py-5 rounded-8
+              className={`rounded-8 py-1.5 px-2
               ${selectedFilters.has(filter) ? 'bg-default-action text-white' : 'bg-default-200 text-black'}
               hover:bg-default-hover transition-all`}>
               {filterLabels[filter] || filter}
-            </button>
+            </Button>
           )}
         />
       </div>
 
-      <div className='mt-20 h-[210px] overflow-y-auto'>
-        <Scrollbar withGap>
-          {searchTerm.trim() === '' ? (
-            <p className='text-gray-400 text-center'>Tapez quelque chose pour commencer</p>
-          ) : searchResults.length > 0 ? (
-            <ul className='flex flex-col gap-5'>
-              {searchResults.map((item, index) => (
-                <li
-                  key={index}
-                  className='w-full flex justify-between gap-10 items-center rounded-8 hover:bg-default-300 cursor-pointer p-5'
-                  onClick={() => handleItemSelect(item)}>
-                  <span className='text-14'>{truncateText(item.title, 2, 40)}</span>
-                  <span className='text-[10px]'>{item.type}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className='text-gray-400 text-center'>Aucun résultat</p>
-          )}
-        </Scrollbar>
+      <div className='mt-20 h-full overflow-y-auto'>
+        {searchTerm.trim() === '' ? (
+          <p className='text-gray-400 text-start'>Tapez quelque chose pour commencer</p>
+        ) : searchResults.length > 0 ? (
+          <ul className='flex flex-col gap-5'>
+            {searchResults.map((item, index) => (
+              <li
+                key={index}
+                className='w-full flex justify-between gap-10 items-center rounded-8 hover:bg-default-300 cursor-pointer p-5'
+                onClick={() => handleItemSelect(item)}>
+                <span className='text-14'>{truncateText(item.title, 2, 40)}</span>
+                <span className='text-[10px]'>{item.type}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className='text-gray-400 text-center'>Aucun résultat</p>
+        )}
       </div>
     </div>
   );

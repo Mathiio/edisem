@@ -3,7 +3,6 @@ import * as d3 from 'd3';
 import { CenterIcon, ZoomInIcon, ZoomOutIcon } from '@/components/utils/icons';
 import { Button } from '@nextui-org/react';
 
-
 interface ZoomControlProps {
   svgRef: React.RefObject<SVGSVGElement>;
   width?: number;
@@ -11,18 +10,18 @@ interface ZoomControlProps {
 }
 
 const ZoomControl: FC<ZoomControlProps> = ({ svgRef, width = 600, height = 400 }) => {
-  const zoomBehavior = useRef(d3.zoom<SVGSVGElement, unknown>().scaleExtent([0.25, 10]).on('zoom', handleZoom));
+  const zoomBehavior = useRef(d3.zoom<SVGSVGElement, unknown>().scaleExtent([0.25, 2]).on('zoom', handleZoom));
 
   useEffect(() => {
     if (svgRef.current) {
       const svg = d3.select<SVGSVGElement, unknown>(svgRef.current);
-  
+
       if (svg.select('.zoom-group').empty()) {
         svg.append('g').attr('class', 'zoom-group');
       }
-  
+
       svg.call(zoomBehavior.current);
-  
+
       const existingElements = svg.selectAll('g:not(.zoom-group)');
       if (!existingElements.empty()) {
         const zoomGroup = svg.select('.zoom-group');
