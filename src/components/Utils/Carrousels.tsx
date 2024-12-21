@@ -146,16 +146,16 @@ export const LongCarrouselFilter: React.FC<LongCarrouselProps> = ({
     <Splide
       options={{
         perPage: perPage,
-        gap: '10px',
+        gap: '8px',
         pagination: false,
         perMove: perMove,
-        speed: 1000,
         autoWidth: autowidth,
+        rewind: true,
       }}
       hasTrack={false}
       aria-label='...'
       className='flex w-full justify-between items-center gap-10'>
-      <div className=' flex justify-between items-center'>
+      <div className='hidden justify-between items-center'>
         <div className='splide__arrows relative flex gap-10'>
           <Button
             size='sm'
@@ -171,9 +171,7 @@ export const LongCarrouselFilter: React.FC<LongCarrouselProps> = ({
       </SplideTrack>
       <div className=' flex justify-between items-center'>
         <div className='splide__arrows relative flex gap-10'>
-          <Button
-            size='sm'
-            className='p-0 min-w-[25px] min-h-[25px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
+          <Button className='py-2 px-2 h-full text-default-selected bg-default-action rounded-8 splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
             <ArrowIcon size={20} />
           </Button>
         </div>

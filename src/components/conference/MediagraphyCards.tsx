@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CameraIcon, SoundIcon, ImageIcon, FileIcon, LinkIcon } from '@/components/utils/icons';
-import { Scrollbar } from '../utils/Scrollbar';
 
 export interface MediagraphyItem {
   id: number;
@@ -274,7 +273,6 @@ export const MediagraphyCard: React.FC<MediagraphyItem> = ({
         className={`flex-shrink-0 transition-transform-colors-opacity ${
           isHovered ? 'text-default-action' : 'text-default-300'
         }`}>
-        {/* Si un thumbnail est défini, on l'affiche, sinon on affiche l'icône */}
         {thumbnail ? (
           <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' />
         ) : (
@@ -347,42 +345,40 @@ export const Mediagraphies: React.FC<{ items: MediagraphyItem[]; loading: boolea
 
   return (
     <div className='w-full lg:h-[700px] xl:h-[750px] overflow-hidden flex flex-col gap-20'>
-      <Scrollbar withGap>
-        <div className='flex flex-col gap-20'>
-          {loading ? (
-            Array.from({ length: items.length }).map((_, index) => <MediagraphySkeleton key={index} />)
-          ) : (
-            <>
-              {/* Mediagraphies de conférence */}
-              {sortedConferenceMediagraphies.length > 0 && (
-                <>
-                  <h2 className='text-xl font-bold'>Médiagraphies de Conférence</h2>
-                  <div className='flex flex-col gap-20'>
-                    {sortedConferenceMediagraphies.map((item, index) => (
-                      <MediagraphyCard key={index} {...item} />
-                    ))}
-                  </div>
-                </>
-              )}
+      <div className='flex flex-col gap-20 scroll-y-auto'>
+        {loading ? (
+          Array.from({ length: items.length }).map((_, index) => <MediagraphySkeleton key={index} />)
+        ) : (
+          <>
+            {/* Mediagraphies de conférence */}
+            {sortedConferenceMediagraphies.length > 0 && (
+              <>
+                <h2 className='text-xl font-bold'>Médiagraphies de Conférence</h2>
+                <div className='flex flex-col gap-20'>
+                  {sortedConferenceMediagraphies.map((item, index) => (
+                    <MediagraphyCard key={index} {...item} />
+                  ))}
+                </div>
+              </>
+            )}
 
-              {/* Médiagraphies complémentaires */}
-              {sortedComplementaryMediagraphies.length > 0 && (
-                <>
-                  <h2 className='text-xl font-bold'>Médiagraphies Complémentaires</h2>
-                  <div className='flex flex-col gap-20'>
-                    {sortedComplementaryMediagraphies.map((item, index) => (
-                      <MediagraphyCard key={index} {...item} />
-                    ))}
-                  </div>
-                </>
-              )}
-            </>
-          )}
+            {/* Médiagraphies complémentaires */}
+            {sortedComplementaryMediagraphies.length > 0 && (
+              <>
+                <h2 className='text-xl font-bold'>Médiagraphies Complémentaires</h2>
+                <div className='flex flex-col gap-20'>
+                  {sortedComplementaryMediagraphies.map((item, index) => (
+                    <MediagraphyCard key={index} {...item} />
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        )}
 
-          {/* Si aucune médiagraphie n'est disponible */}
-          {items.length === 0 && !loading && <UnloadedCard />}
-        </div>
-      </Scrollbar>
+        {/* Si aucune médiagraphie n'est disponible */}
+        {items.length === 0 && !loading && <UnloadedCard />}
+      </div>
     </div>
   );
 };

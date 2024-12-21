@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { InputConfig } from '@/components/database/EditModal';
 import { usegetDataByClass } from '@/hooks/useFetchData';
 import { Button, Input, Spinner } from '@nextui-org/react';
-import { CloseIcon, SearchIcon, SortIcon } from '@/components/utils/icons';
+import { CrossIcon, SearchIcon, SortIcon } from '@/components/utils/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/dropdown';
-import { Scrollbar } from '@/components/utils/Scrollbar';
 
 interface SelectionInputProps {
   col: InputConfig;
@@ -184,24 +183,22 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
               onClick={() => handleDeselect(id)}
               radius='none'
               className={`py-10 px-10 gap-10 text-14 rounded-8 bg-default-action text-default-selected transition-all ease-in-out duration-200 navfilter flex items-center`}
-              endContent={<CloseIcon size={18} />}>
+              endContent={<CrossIcon size={18} />}>
               {reducer(idToDisplayNameMap[id], 30)}
             </Button>
           ))}
         </ul>
-        <Scrollbar>
-          <ul className='flex items-center gap-20 py-10 flex-wrap max-h-[150px]'>
-            {filteredNonSelectedValues.map((id, index) => (
-              <Button
-                key={index}
-                onClick={() => handleSelect(id)}
-                radius='none'
-                className={` py-10 px-10 text-14 rounded-8 text-default-600 bg-default-50 hover:text-default-selected hover:bg-default-action transition-all ease-in-out duration-200  flex items-center`}>
-                {reducer(idToDisplayNameMap[id])}
-              </Button>
-            ))}
-          </ul>
-        </Scrollbar>
+        <ul className='flex items-center gap-20 py-10 flex-wrap max-h-[150px] scroll-y-auto'>
+          {filteredNonSelectedValues.map((id, index) => (
+            <Button
+              key={index}
+              onClick={() => handleSelect(id)}
+              radius='none'
+              className={` py-10 px-10 text-14 rounded-8 text-default-600 bg-default-50 hover:text-default-selected hover:bg-default-action transition-all ease-in-out duration-200  flex items-center`}>
+              {reducer(idToDisplayNameMap[id])}
+            </Button>
+          ))}
+        </ul>
       </div>
     </div>
   );

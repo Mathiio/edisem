@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { getConf, getConfCitations, getConfBibliographies, getConfMediagraphies } from '../services/api';
 import { Navbar } from '@/components/navbar/Navbar';
-import { Scrollbar } from '@/components/utils/Scrollbar';
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/conference/ConfOverview';
 import { Citations } from '@/components/conference/CitationsCards';
@@ -76,81 +75,76 @@ export const Conference: React.FC = () => {
 
   return (
     <div className='relative h-screen overflow-hidden bg-default-50'>
-      <Scrollbar>
-        <motion.main
-          className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200'
-          initial='hidden'
-          animate='visible'
-          variants={containerVariants}>
-          <motion.div className='col-span-10' variants={itemVariants}>
-            <Navbar />
-          </motion.div>
-          <motion.div className='col-span-10 lg:col-span-6 flex flex-col gap-20' variants={itemVariants}>
-            <LongCarrousel
-              perPage={3}
-              perMove={1}
-              autowidth={true}
-              data={loading ? Array.from({ length: 8 }) : confDetails.motcles}
-              renderSlide={(item) =>
-                loading ? <KeywordsSkeleton /> : <KeywordsCard key={item.id} id={item.id} word={item.title} />
-              }
+      <motion.main
+        className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200 scroll-y-auto'
+        initial='hidden'
+        animate='visible'
+        variants={containerVariants}>
+        <motion.div className='col-span-10' variants={itemVariants}>
+          <Navbar />
+        </motion.div>
+        <motion.div className='col-span-10 lg:col-span-6 flex flex-col gap-20' variants={itemVariants}>
+          <LongCarrousel
+            perPage={3}
+            perMove={1}
+            autowidth={true}
+            data={loading ? Array.from({ length: 8 }) : confDetails.motcles}
+            renderSlide={(item) =>
+              loading ? <KeywordsSkeleton /> : <KeywordsCard key={item.id} id={item.id} word={item.title} />
+            }
+          />
+          {loading ? (
+            <ConfOverviewSkeleton />
+          ) : (
+            <ConfOverviewCard
+              title={confDetails.title}
+              actant={confDetails.actant?.firstname + ' ' + confDetails.actant?.lastname}
+              actantId={confDetails.actant?.id}
+              university={confDetails.actant?.universities?.[0]?.name || ''}
+              url={confDetails.url}
+              fullUrl={confDetails.fullUrl}
+              currentTime={currentVideoTime}
             />
-            {loading ? (
-              <ConfOverviewSkeleton />
-            ) : (
-              <ConfOverviewCard
-                title={confDetails.title}
-                actant={confDetails.actant?.firstname + ' ' + confDetails.actant?.lastname}
-                actantId={confDetails.actant?.id}
-                university={confDetails.actant?.universities?.[0]?.name || ''}
-                url={confDetails.url}
-                fullUrl={confDetails.fullUrl}
-                currentTime={currentVideoTime}
-              />
-            )}
-            {loading ? (
-              <ConfDetailsSkeleton></ConfDetailsSkeleton>
-            ) : (
-              <ConfDetailsCard
-                edition={'Édition ' + confDetails.season + ' ' + confDetails.date.split('-')[0]}
-                date={confDetails.date}
-                description={confDetails.description}
-              />
-            )}
-          </motion.div>
-          <motion.div
-            className='col-span-10 h-full lg:col-span-4 flex flex-col gap-50 flex-grow'
-            variants={itemVariants}>
-            <div className='flex w-full flex-col gap-20 flex-grow'>
-              <Tabs
-                classNames={{
-                  tabList: 'w-full gap-10 bg-default-0 rounded-8',
-                  cursor: 'w-full',
-                  tab: 'w-full bg-default-100 data-[selected=true]:bg-default-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-default-200 transition-all ease-in-out duration-200n',
-                  tabContent:
-                    'group-data-[selected=true]:text-default-selected group-data-[selected=true]:font-semibold',
-                }}
-                aria-label='Options'
-                selectedKey={selected}
-                onSelectionChange={(key: React.Key) => setSelected(key as string)}>
-                <Tab key='Citations' title='Citations' className='px-0 py-0 flex'>
-                  {selected === 'Citations' && (
-                    <Citations citations={confCitations} loading={loading} onTimeChange={handleTimeChange} />
-                  )}
-                </Tab>
-                <Tab key='Bibliographie' title='Bibliographie' className='px-0 py-0 flex flex-grow'>
-                  {selected === 'Bibliographie' && (
-                    <Bibliographies bibliographies={confBibliographies} loading={loading} />
-                  )}
-                </Tab>
-                <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
-                  {selected === 'Medias' && <Mediagraphies items={confMediagraphies} loading={loading} />}
-                </Tab>
-              </Tabs>
-            </div>
-          </motion.div>
-        </motion.main>
-      </Scrollbar>
+          )}
+          {loading ? (
+            <ConfDetailsSkeleton></ConfDetailsSkeleton>
+          ) : (
+            <ConfDetailsCard
+              edition={'Édition ' + confDetails.season + ' ' + confDetails.date.split('-')[0]}
+              date={confDetails.date}
+              description={confDetails.description}
+            />
+          )}
+        </motion.div>
+        <motion.div className='col-span-10 h-full lg:col-span-4 flex flex-col gap-50 flex-grow' variants={itemVariants}>
+          <div className='flex w-full flex-col gap-20 flex-grow'>
+            <Tabs
+              classNames={{
+                tabList: 'w-full gap-10 bg-default-0 rounded-8',
+                cursor: 'w-full',
+                tab: 'w-full bg-default-100 data-[selected=true]:bg-default-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-default-200 transition-all ease-in-out duration-200n',
+                tabContent: 'group-data-[selected=true]:text-default-selected group-data-[selected=true]:font-semibold',
+              }}
+              aria-label='Options'
+              selectedKey={selected}
+              onSelectionChange={(key: React.Key) => setSelected(key as string)}>
+              <Tab key='Citations' title='Citations' className='px-0 py-0 flex'>
+                {selected === 'Citations' && (
+                  <Citations citations={confCitations} loading={loading} onTimeChange={handleTimeChange} />
+                )}
+              </Tab>
+              <Tab key='Bibliographie' title='Bibliographie' className='px-0 py-0 flex flex-grow'>
+                {selected === 'Bibliographie' && (
+                  <Bibliographies bibliographies={confBibliographies} loading={loading} />
+                )}
+              </Tab>
+              <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
+                {selected === 'Medias' && <Mediagraphies items={confMediagraphies} loading={loading} />}
+              </Tab>
+            </Tabs>
+          </div>
+        </motion.div>
+      </motion.main>
     </div>
   );
 };

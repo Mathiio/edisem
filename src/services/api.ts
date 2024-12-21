@@ -206,7 +206,6 @@ export async function getRandomConfs(confNum: number){
 export async function getConfs() {
   try {
     const storedConfs = sessionStorage.getItem('confs');
-  
     if (storedConfs) {
       return JSON.parse(storedConfs);
     }
@@ -220,15 +219,18 @@ export async function getConfs() {
 
     const confsFull = confs.map((conf: any) => ({
       ...conf,
-      motcles: conf.motcles.map((keywordId: string) => {
-        const keyword = keywordsMap.get(keywordId);
-        if (!keyword) {
-          console.warn(`Keyword with ID ${keywordId} not found`);
-          return null;
-        }
-        return keyword;
-      }).filter(Boolean)
+      motcles: conf.motcles
+        .map((keywordId: string) => {
+          const keyword = keywordsMap.get(keywordId);
+          if (!keyword) {
+            console.warn(`Keyword with ID ${keywordId} not found`);
+            return null;
+          }
+          return keyword;
+        })
+        .filter(Boolean),
     }));
+
 
     sessionStorage.setItem('confs', JSON.stringify(confsFull));
     return confsFull;
@@ -297,39 +299,25 @@ export async function getKeywords() {
 
 
 
-// export async function getCollections() {
-//   try {
-//     const storedCollections = sessionStorage.getItem('collections');
-//     if (storedCollections) {
-//       return JSON.parse(storedCollections);
-//     }
+export async function getCollections() {
+  try {
+    const storedCollections = sessionStorage.getItem('collections');
+    if (storedCollections) {
+      return JSON.parse(storedCollections);
+    }
 
-//     const collections = await getDataByUrl(
-//       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCollectionsArcanes&json=1'
-//     );
+    const collections = await getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCollections&json=1'
+    );
 
-//     const allDataSources = await getDataSources();
-
-//     const updatedCollections = collections.map((collection: any) => {
-//       const updatedRessources = collection.ressources.map((resource: any) => {
-//         const matchingObject = allDataSources.find((item) => item.id === resource.id);
-//         return matchingObject || resource;
-//       });
-
-//       return {
-//         ...collection,
-//         ressources: updatedRessources,
-//       };
-//     });
-
-//     sessionStorage.setItem('collections', JSON.stringify(updatedCollections));
-
-//     return updatedCollections;
-//   } catch (error) {
-//     console.error('Error fetching collections:', error);
-//     throw new Error('Failed to fetch collections');
-//   }
-// }
+    sessionStorage.setItem('collections', JSON.stringify(collections));
+    console.log(collections)
+    return collections;
+  } catch (error) {
+    console.error('Error fetching collections:', error);
+    throw new Error('Failed to fetch collections');
+  }
+ }
 
 
 
@@ -345,12 +333,12 @@ export async function getItemsDataViz(): Promise<any[]> {
       confs, actants, universities, 
       laboratories, schools, 
       citations, bibliographies, 
-      mediagraphies, keywords
+      mediagraphies, keywords, collections
     ] = await Promise.all([
       getConfs(), getActants(), getUniversities(), 
       getLaboratories(), getDoctoralSchools(), 
       getCitations(), getBibliographies(), 
-      getMediagraphies(), getKeywords()
+      getMediagraphies(), getKeywords(), getCollections(),
     ]);
 
     const transformResource = (resources: any[], type: string) => 
@@ -391,6 +379,8 @@ export async function getItemsDataViz(): Promise<any[]> {
           case 'keyword':
             result.links = getLinksFromKeywords(resource, confs);
             break;
+          case 'collection':
+            result.links = getLinksFromCollections(resources, confs);
         }
 
         return result;
@@ -405,8 +395,11 @@ export async function getItemsDataViz(): Promise<any[]> {
       ...transformResource(citations, 'citation'),
       ...transformResource(bibliographies, 'bibliography'),
       ...transformResource(mediagraphies, 'mediagraphie'),
-      ...transformResource(keywords, 'keyword')
+      ...transformResource(keywords, 'keyword'),
+      ...transformResource(collections, 'collection')
     ];
+    
+   
 
     sessionStorage.setItem('allItems', JSON.stringify(transformedItems));
 
@@ -434,6 +427,8 @@ function getTitleByType(resource: any, type: string): string {
     case 'bibliography':
     case 'mediagraphie':
       return resource.title || '';
+    case 'collection':
+      return resource.title || '';
     case 'university':
     case 'laboratory':
     case 'school':
@@ -445,25 +440,53 @@ function getTitleByType(resource: any, type: string): string {
 
 
 
-
-function getLinksFromConf(conf: any): string[] {
+function getLinksFromConf(conf: { actant?: string; collection?: string; [key: string]: any }): string[] {
   if (!conf) return [];
 
   const links: string[] = [];
+
   if (conf.actant) links.push(conf.actant);
-  
+
   ['bibliographies', 'citations', 'mediagraphies', 'recommendation', 'motcles']
     .forEach(key => {
       if (Array.isArray(conf[key])) {
         links.push(...(key === 'motcles' 
-          ? conf[key].map((motcle: any) => motcle.id) 
+          ? conf[key].map((motcle: { id: string }) => motcle.id) 
           : conf[key]
         ));
       }
     });
+
+  if (conf.collection) {
+    links.push(conf.collection);
+  }
+
   return links;
 }
 
+
+
+function getLinksFromCollections(
+  collections: { id: string }[], 
+  confs: { id: string; actant?: string; collection?: string; [key: string]: any }[]
+): { id: string; links: string[] }[] {
+  if (!Array.isArray(collections) || !Array.isArray(confs)) return [];
+
+  return collections.map(collection => {
+    const links: string[] = [];
+
+    confs
+      .filter(conf => conf.collection === collection.id)
+      .forEach(conf => {
+        links.push(conf.id);
+      });
+
+    return {
+      id: collection.id,
+      links
+    };
+  });
+}
 
 
 

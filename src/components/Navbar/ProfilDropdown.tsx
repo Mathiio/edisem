@@ -8,8 +8,8 @@ export const ProfilDropdown: React.FC = () => {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated'); // Supprime l'authentification
-    window.location.href = '/'; // Redirige vers la page de connexion
+    localStorage.removeItem('isAuthenticated');
+    window.location.href = '/';
   };
 
   return (
@@ -23,94 +23,67 @@ export const ProfilDropdown: React.FC = () => {
         </NextLink>
       </DropdownTrigger>
       <DropdownMenu variant='light' aria-label='Dropdown menu with description' className='p-10'>
-        {isAuthenticated ? (
-          <DropdownSection showDivider>
-            <DropdownItem isReadOnly key='profile' className='h-14 gap-2 opacity-100'>
-              <User
-                name='API'
-                description='Admin'
-                className='cursor-default'
-                classNames={{
-                  name: 'text-default-600',
-                  description: 'text-default-500',
-                }}
-                avatarProps={{
-                  as: Avatar,
-                  showFallback: true,
-                  src: 'https://images.unsplash.com/broken',
-                  fallback: <UserIcon className='text-default-300' size={25} />,
-                  size: 'sm',
-                  radius: 'md',
-                }}
-              />
-            </DropdownItem>
-          </DropdownSection>
-        ) : (
-          <DropdownSection>
-            <DropdownItem key='login' className='hover:bg-default-200 text-default-300 hover:text-default-400 hidden'>
-              <Link to='/login' className='flex justify-between items-center w-full'>
-                <p className='text-default-500 text-16'>Se connecter</p>
-                <Logout size={15} />
-              </Link>
-            </DropdownItem>
-          </DropdownSection>
-        )}
-        <DropdownSection>
-          <DropdownItem
-            key='preferences'
-            classNames={{
-              shortcut: 'p-[5px] rounded-8',
-            }}
-            className='rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400'
-            endContent={<SettingsIcon size={15} />}>
-            <p className='text-default-500 text-16'>Préférences</p>
+        <DropdownSection showDivider className={isAuthenticated ? 'block' : 'hidden'}>
+          <DropdownItem isReadOnly key='profile' className='h-14 gap-2 opacity-100'>
+            <User
+              name='API'
+              description='Admin'
+              className='cursor-default'
+              classNames={{
+                name: 'text-default-600',
+                description: 'text-default-500',
+              }}
+              avatarProps={{
+                as: Avatar,
+                showFallback: true,
+                src: 'https://images.unsplash.com/broken',
+                fallback: <UserIcon className='text-default-300' size={25} />,
+                size: 'sm',
+                radius: 'md',
+              }}
+            />
           </DropdownItem>
+        </DropdownSection>
+
+        <DropdownSection>
           <DropdownItem key='omeka' className='hover:bg-default-200'>
             <NextLink href='https://tests.arcanes.ca/omk/login' className='w-full'>
-              <p className='text-default-500 text-16 '>Omeka S</p>
+              <p className='text-default-500 text-16'>Omeka S</p>
             </NextLink>
           </DropdownItem>
+
           <DropdownItem key='visualisation' className='hover:bg-default-200 text-default-300 hover:text-default-400'>
             <Link to='/visualisation' className='flex justify-between items-center w-full'>
-              <p className='text-default-500 text-16'>Datavisualisation</p>
               <VisualisationIcon size={15} />
+              <p className='text-default-500 text-16'>Datavisualisation</p>
             </Link>
           </DropdownItem>
 
-          {isAuthenticated ? ( // Si l'utilisateur est authentifié, afficher les options de données
-            <DropdownItem
-              key='database'
-              className='rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400'>
-              <Link to='/database' className='flex justify-between items-center w-full'>
-                <p className='text-default-500 text-16'>Données</p>
-                <DataIcon size={15} />
-              </Link>
-            </DropdownItem>
-          ) : (
-            // Si l'utilisateur n'est pas authentifié
-            <DropdownItem key='login' className='hover:bg-default-200 text-default-300 hover:text-default-400'>
-              <Link to='/login' className='flex justify-between items-center w-full'>
-                <p className='text-default-500 text-16'>Se connecter</p>
-                <Logout size={15} />
-              </Link>
-            </DropdownItem>
-          )}
+          {isAuthenticated ? (
+            <>
+              <DropdownItem
+                key='logout'
+                className='rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400'>
+                <Link onClick={handleLogout} to='/login' className='flex justify-start gap-2 items-center w-full'>
+                  <Logout size={15} />
+                  <p className='text-default-500 text-16'>Se déconnecter</p>
+                </Link>
+              </DropdownItem>
 
-          {isAuthenticated ? ( // Si l'utilisateur est authentifié, afficher les options de données
-            <DropdownItem
-              key='logout'
-              className='rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400'>
-              <Link onClick={handleLogout} to='/login' className='flex justify-between items-center w-full'>
-                <p className='text-default-500 text-16'>Se déconnecter</p>
-                <Logout size={15} />
-              </Link>
-            </DropdownItem>
+              <DropdownItem
+                key='database'
+                className='rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400'>
+                <Link to='/database' className='flex justify-start items-center w-full'>
+                  <DataIcon size={15} />
+                  <p className='text-default-500 text-16'>Données</p>
+                </Link>
+              </DropdownItem>
+            </>
           ) : (
-            // Si l'utilisateur n'est pas authentifié
-            <DropdownItem key='sdqsdqs' className='hover:bg-default-200 text-default-300 hover:text-default-400 hidden'>
-              <Link to='/login' className='flex justify-between items-center w-full'>
-                <p className='text-default-500 text-16'>Se connecter</p>
+            <DropdownItem key='login' className='hover:bg-default-200 text-default-300 hover:text-default-400'>
+              <Link to='/login' className='flex justify-start gap-2 items-center w-full'>
                 <Logout size={15} />
+                <p className='text-default-500 text-16'>Se connecter</p>
               </Link>
             </DropdownItem>
           )}
