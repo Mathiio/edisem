@@ -8,6 +8,7 @@ import { Navbar } from '@/components/navbar/Navbar';
 import { Toolbar } from '@/components/datavisualisation/Toolbar';
 import { SearchHelper } from '@/components/datavisualisation/SearchHelper';
 import ZoomControl from '@/components/datavisualisation/ZoomControl';
+import Legend from '@/components/datavisualisation/Legend';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -462,6 +463,7 @@ const Visualisation = () => {
       </motion.main>
       <Toolbar itemsDataviz={itemsDataviz} onSearch={(results) => handleSearch(results, activeIcon === 'filter')} />
       <ZoomControl svgRef={svgRef} width={dimensions.width} height={dimensions.height} />
+      <Legend/>
     </div>
   );
 };
