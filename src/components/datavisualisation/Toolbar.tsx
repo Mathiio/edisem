@@ -16,7 +16,7 @@ import { IconSvgProps } from '@/types/types';
 
 interface ItemsProps {
   itemsDataviz: any[];
-  onSearch: (selectedItems: any[]) => void;
+  onSearch: (selectedItems: any[], isAdvancedSearch: boolean) => void;
 }
 
 export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
@@ -33,7 +33,13 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
   }, [containerRef.current]);
 
   const handleItemSelect = (item: any) => {
-    onSearch([item]);
+    onSearch([item], false); // Simple search with isAdvancedSearch = false
+    setActiveIcon(null);
+    setShowPopup(false);
+  };
+
+  const handleAdvancedSearch = (items: any[]) => {
+    onSearch(items, true); // Advanced search with isAdvancedSearch = true
     setActiveIcon(null);
     setShowPopup(false);
   };
@@ -49,9 +55,16 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
   const getActivePopup = () => {
     switch (activeIcon) {
       case 'search':
-        return <SearchPopup itemsDataviz={itemsDataviz} onSearch={onSearch} onItemSelect={handleItemSelect} />;
+        return (
+          <SearchPopup
+            itemsDataviz={itemsDataviz}
+            onSearch={(items) => onSearch(items, false)}
+            onItemSelect={handleItemSelect}
+            isAdvancedSearch={false}
+          />
+        );
       case 'filter':
-        return <FilterPopup itemsDataviz={itemsDataviz} onSearch={onSearch} />;
+        return <FilterPopup itemsDataviz={itemsDataviz} onSearch={handleAdvancedSearch} isAdvancedSearch={true} />;
       default:
         return null;
     }
@@ -59,13 +72,13 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
 
   const renderButton = (key: string, IconComponent: React.FC<IconSvgProps>) => (
     <Button
-      size='md'
+      size='lg'
       key={key}
       ref={(el) => (iconRefs.current[key] = el)}
-      className={`cursor-pointer group text-16 p-10 rounded-8 ${
+      className={`cursor-pointer group text-16 p-10 rounded-8  ${
         activeIcon === key
           ? 'text-default-selected bg-default-action'
-          : 'text-default-500 bg-transparent hover:bg-default-action hover:text-default-selected'
+          : 'text-default-500 bg-transparent hover:bg-default-300 hover:text-default-selected'
       } transition-all ease-in-out duration-200`}
       onPress={() => setActiveIcon((prev) => (prev === key ? null : key))}>
       <IconComponent size={20} />

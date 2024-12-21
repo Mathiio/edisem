@@ -19,6 +19,7 @@ interface FilterPopupProps {
   itemsDataviz: any[];
   // onSearch: (results: any[]) => void;
   // onItemSelect: (item: any) => void;
+  isAdvancedSearch: boolean; // Ajout de cette propriété
 }
 
 type DataLink = {
@@ -47,6 +48,7 @@ type FilterGroup = {
 const FilterPopup: React.FC<FilterPopupProps & { onSearch: (results: any[]) => void }> = ({
   itemsDataviz,
   onSearch,
+  isAdvancedSearch,
 }) => {
   const AVAILABLE_TYPES = ['conf', 'actant', 'bibliographies', 'médiagraphies', 'citations', 'keyword'];
   const OPERATORS = [
@@ -72,29 +74,77 @@ const FilterPopup: React.FC<FilterPopupProps & { onSearch: (results: any[]) => v
 
   const [filterGroups, setFilterGroups] = useState<FilterGroup[]>([]);
 
+  const cleanLinksByGroups = (data: any[], filterGroups: FilterGroup[]) => {
+    // Récupérer tous les types utilisés dans les filtres
+    const allowedTypes = filterGroups.flatMap((group) =>
+      group.conditions.filter((c) => c.type === 'type').map((c) => c.value),
+    );
+
+    return data.map((item) => {
+      if (item.links) {
+        // Filter links to only keep IDs of items with allowed types
+        const cleanedLinks = item.links.filter((linkedItemId: any) => {
+          const linkedItem = data.find((i) => i.id === linkedItemId);
+          return linkedItem && allowedTypes.includes(linkedItem.type);
+        });
+        return { ...item, links: cleanedLinks };
+      }
+      return item;
+    });
+  };
+
   const applyFilters = () => {
-    let filteredData = itemsDataviz;
-    console.log(filteredData);
+    // Commencer avec une copie des données
+    let filteredData: any[] = [];
+
+    // Traiter chaque groupe de filtres séparément et combiner les résultats
     filterGroups.forEach((group) => {
-      group.conditions.forEach((condition) => {
+      let groupResult = [...itemsDataviz];
+
+      // Récupérer les conditions de type pour ce groupe
+      const typeConditions = group.conditions.filter((c) => c.type === 'type');
+      const titleConditions = group.conditions.filter((c) => c.type === 'title');
+
+      // Appliquer les conditions de type
+      typeConditions.forEach((condition) => {
         switch (condition.operator) {
           case 'equals':
-            filteredData = filteredData.filter((item) => item[condition.type] === condition.value);
+            groupResult = groupResult.filter((item) => item.type === condition.value);
             break;
           case 'contains':
-            filteredData = filteredData.filter((item) => item[condition.type]?.toString().includes(condition.value));
-            break;
-          case 'notEquals':
-            filteredData = filteredData.filter((item) => item[condition.type] !== condition.value);
-            break;
-          default:
+            groupResult = groupResult.filter((item) => item.type.includes(condition.value));
             break;
         }
       });
+
+      // Appliquer les conditions de titre (avec OR entre elles)
+      if (titleConditions.length > 0) {
+        groupResult = groupResult.filter((item) =>
+          titleConditions.some((condition) => {
+            switch (condition.operator) {
+              case 'equals':
+                return item.title === condition.value;
+              case 'contains':
+                return item.title?.toLowerCase().includes(condition.value.toLowerCase());
+              default:
+                return false;
+            }
+          }),
+        );
+      }
+
+      // Ajouter les résultats de ce groupe au résultat final
+      filteredData = [...filteredData, ...groupResult];
     });
 
-    console.log('filteredData');
-    console.log(filteredData);
+    // Supprimer les doublons
+    filteredData = Array.from(new Set(filteredData.map((item) => item.id))).map((id) =>
+      filteredData.find((item) => item.id === id),
+    );
+
+    // Nettoyer les liens en fonction des types utilisés dans tous les groupes
+    filteredData = cleanLinksByGroups(filteredData, filterGroups);
+
     onSearch(filteredData);
   };
 
@@ -183,20 +233,22 @@ const FilterPopup: React.FC<FilterPopupProps & { onSearch: (results: any[]) => v
     }
   };
 
+  const resetFilters = () => {
+    setFilterGroups([]);
+  };
+
   return (
     <div className='w-full flex flex-col gap-20 h-full overflow-hidden'>
       <div className='flex flex-col gap-10'>
-        <Button onClick={applyFilters}>recherche</Button>
-
         <Button
           onClick={addGroup}
-          className='text-14 flex justify-start w-full gap-2 rounded-0 text-default-600 bg-transparent'>
+          className='text-14 flex justify-start h-[40px] w-full gap-2 rounded-0 text-default-600 bg-transparent'>
           <PlusIcon size={12} />
           Ajouter un groupe de filtres
         </Button>
         <Divider />
       </div>
-      <div className='flex flex-col gap-10 overflow-y-auto'>
+      <div className='flex flex-col flex-1 gap-10 overflow-y-auto'>
         {filterGroups.map((group, groupIndex) => (
           <div key={groupIndex} className='border rounded-lg gap-4 p-4 bg-default-200 rounded-8'>
             <div className='flex items-center justify-between  '>
@@ -368,6 +420,16 @@ const FilterPopup: React.FC<FilterPopupProps & { onSearch: (results: any[]) => v
           </ModalBody>
         </ModalContent>
       </Modal>
+
+      <div className='flex flex-row gap-10 justify-end'>
+        <Button className='px-10 py-5 rounded-8' onClick={resetFilters}>
+          Réinitialiser
+        </Button>
+
+        <Button className='px-10 py-5 rounded-8 bg-default-action text-default-selected' onClick={applyFilters}>
+          Appliquer
+        </Button>
+      </div>
     </div>
   );
 };

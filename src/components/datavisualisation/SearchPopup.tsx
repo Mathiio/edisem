@@ -5,11 +5,12 @@ import { Button } from '@nextui-org/react';
 
 interface SearchPopupProps {
   itemsDataviz: any[];
-  onSearch: (results: any[]) => void;
+  onSearch: (selectedItems: any[]) => void;
   onItemSelect: (item: any) => void;
+  isAdvancedSearch: boolean; // Ajout de cette propriété
 }
 
-const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onItemSelect }) => {
+const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onItemSelect, isAdvancedSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<Set<string>>(new Set(['Tout']));
