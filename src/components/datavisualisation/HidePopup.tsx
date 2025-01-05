@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { Button, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/react';
+import { Button, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Link } from '@nextui-org/react';
 import { ArrowIcon, CrossIcon, PlusIcon, TrashIcon } from '@/components/utils/icons';
 
-import { ITEM_TYPES } from './FilterPopup'; // Assure-toi que ITEM_TYPES est exporté correctement
+import { ITEM_TYPES } from './FilterPopup'; 
 
 type Masque = {
   itemType: string;
 };
 
 type HidePopupProps = {
-  // Représente les éléments filtrés
-  onHide: (filteredItems: any[]) => void; // Fonction pour appliquer le masquage
+  onHide: (filteredItems: any[]) => void; 
 };
 
 const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
@@ -25,27 +24,27 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
     ]);
   };
 
-  // Function to remove a mask
   const removeMasque = (index: number) => {
     setFilterGroups((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Appliquer les masques
   const applyMasques = () => {
     const hiddenTypes = filterGroups.map((group) => group.itemType);
 
-    onHide(hiddenTypes); // Passe les éléments filtrés masqués à la fonction onHide
+    onHide(hiddenTypes); 
   };
 
   return (
     <div className='w-full flex flex-col justify-between gap-20 h-full overflow-hidden'>
-      <div className='flex flex-col gap-10'>
-        <Button
+      <div className='flex flex-col gap-4'>
+        <Link
           onClick={addMasque}
-          className='text-14 flex justify-start h-[40px] w-full gap-2 rounded-0 text-default-600 bg-transparent'>
+          underline='none'
+          size={'sm'}
+          className='text-14 flex justify-start w-full gap-2 rounded-0 text-default-700 bg-transparent cursor-pointer'>
           <PlusIcon size={12} />
           Ajouter un masque
-        </Button>
+        </Link>
         <Divider />
       </div>
 
