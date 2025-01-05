@@ -15,104 +15,112 @@ import {
   useDisclosure,
 } from '@nextui-org/react';
 import { ArrowIcon, CrossIcon, PlusIcon, DotsIcon } from '@/components/utils/icons';
-import { getConfs, getUniversities, getActants, getDoctoralSchools, getLaboratories, 
-  getCitations, getBibliographies, getMediagraphies, getCollections, getKeywords, 
-  getItemByID, getLinksFromType} from '@/services/api';
+import * as Items from '@/services/Items';
 
+import { getItemByID } from '@/services/api';
+import { getLinksFromType } from '@/services/Links';
 
-
-  const ITEM_PROPERTIES: any = {
-    actant: [
-      { key: 'firstname', label: 'Prénom' },
-      { key: 'lastname', label: 'Nom' },
-      {
-        key: 'laboratories',
-        label: 'Laboratoire',
-        transform: (labs: any[]) => labs.map((lab) => lab.title).join(', '),
-      },
-      {
-        key: 'doctoralSchools',
-        label: 'Ecole doctorale',
-        transform: (schools: any[]) => schools.map((school) => school.title).join(', '),
-      },
-      {
-        key: 'universities',
-        label: 'Université',
-        transform: (universities: any[]) => universities.map((uni) => uni.title).join(', '),
-      },
-    ],
-    conference: [
-      { key: 'title', label: 'Titre' },
-      { key: 'actant', label: 'Actant', transform: async (id: any) => {
-          const item = await getItemByID(id);
-          return item?.title || 'Inconnu';
-        }},
-      { key: 'motcles', label: 'Mot clé', transform: async (ids: any) => {
-          const titles = await Promise.all(ids.map(async (id: any) => {
-            const item = await getItemByID(id);
-            return item?.title || 'Inconnu';
-          }));
-          return titles.join(', ');
-        }},
-      { key: 'date', label: 'Date' },
-    ],
-    citation: [
-      { key: 'actant', label: 'Actant', transform: async (id: any) => {
+const ITEM_PROPERTIES: any = {
+  actant: [
+    { key: 'firstname', label: 'Prénom' },
+    { key: 'lastname', label: 'Nom' },
+    {
+      key: 'laboratories',
+      label: 'Laboratoire',
+      transform: (labs: any[]) => labs.map((lab) => lab.title).join(', '),
+    },
+    {
+      key: 'doctoralSchools',
+      label: 'Ecole doctorale',
+      transform: (schools: any[]) => schools.map((school) => school.title).join(', '),
+    },
+    {
+      key: 'universities',
+      label: 'Université',
+      transform: (universities: any[]) => universities.map((uni) => uni.title).join(', '),
+    },
+  ],
+  conference: [
+    { key: 'title', label: 'Titre' },
+    {
+      key: 'actant',
+      label: 'Actant',
+      transform: async (id: any) => {
         const item = await getItemByID(id);
         return item?.title || 'Inconnu';
-      }},
-      { key: 'citation', label: 'Citation' },
-      { key: 'motcles', label: 'Mot clé', transform: async (ids: any) => {
-        const titles = await Promise.all(ids.map(async (id: any) => {
-          const item = await getItemByID(id);
-          return item?.title || 'Inconnu';
-        }));
+      },
+    },
+    {
+      key: 'motcles',
+      label: 'Mot clé',
+      transform: async (ids: any) => {
+        const titles = await Promise.all(
+          ids.map(async (id: any) => {
+            const item = await getItemByID(id);
+            return item?.title || 'Inconnu';
+          }),
+        );
         return titles.join(', ');
-      }},
-    ],
-    collection: [
-      { key: 'title', label: 'Nom' }
-    ],
-    keyword: [
-      { key: 'title', label: 'Mot Clé' },
-      { key: 'definition', label: 'Définition' }
-    ],
-    university: [
-      { key: 'title', label: 'Nom' },
-      { key: 'country', label: 'Pays' }
-    ],
-    doctoralschool: [
-      { key: 'title', label: 'Nom' }
-    ],
-    laboratory: [
-      { key: 'title', label: 'Nom' }
-    ],
-    bibliography: [
-      { key: 'title', label: 'Titre' }
-    ],
-    mediagraphie: [
-      { key: 'title', label: 'Titre' }
-    ]
-  };
+      },
+    },
+    { key: 'date', label: 'Date' },
+  ],
+  citation: [
+    {
+      key: 'actant',
+      label: 'Actant',
+      transform: async (id: any) => {
+        const item = await getItemByID(id);
+        return item?.title || 'Inconnu';
+      },
+    },
+    { key: 'citation', label: 'Citation' },
+    {
+      key: 'motcles',
+      label: 'Mot clé',
+      transform: async (ids: any) => {
+        const titles = await Promise.all(
+          ids.map(async (id: any) => {
+            const item = await getItemByID(id);
+            return item?.title || 'Inconnu';
+          }),
+        );
+        return titles.join(', ');
+      },
+    },
+  ],
+  collection: [{ key: 'title', label: 'Nom' }],
+  keyword: [
+    { key: 'title', label: 'Mot Clé' },
+    { key: 'definition', label: 'Définition' },
+  ],
+  university: [
+    { key: 'title', label: 'Nom' },
+    { key: 'country', label: 'Pays' },
+  ],
+  doctoralschool: [{ key: 'title', label: 'Nom' }],
+  laboratory: [{ key: 'title', label: 'Nom' }],
+  bibliography: [{ key: 'title', label: 'Titre' }],
+  mediagraphie: [{ key: 'title', label: 'Titre' }],
+};
 
+export const ITEM_TYPES = {
+  citations: 'citation',
+  conférences: 'conference',
+  actants: 'actant',
+  'mots clés': 'keyword',
+  bibliographies: 'bibliography',
+  médiagraphies: 'mediagraphie',
+  collections: 'collection',
+  universités: 'university',
+  laboratoires: 'laboratory',
+  'écoles doctorales': 'doctoralschool',
+};
 
-  export const ITEM_TYPES = {
-    citations: 'citation',
-    conférences: 'conference',
-    actants: 'actant',
-    'mots clés': 'keyword',
-    bibliographies: 'bibliography',
-    médiagraphies: 'mediagraphie',
-    collections: 'collection',
-    universités: 'university',
-    laboratoires: 'laboratory',
-    'écoles doctorales': 'doctoralschool',
-  };
-
-  const OPERATORS = [
-    { key: 'contains', label: 'Contient' },
-    { key: 'notEquals', label: 'Différent de' },
-  ];
+const OPERATORS = [
+  { key: 'contains', label: 'Contient' },
+  { key: 'notEquals', label: 'Différent de' },
+];
 
 interface FilterPopupProps {
   getConfs: () => any[];
@@ -162,9 +170,7 @@ const getInitialFilterGroups = (): FilterGroup[] => {
   ];
 };
 
-export default function FilterPopup({
-  onSearch,
-}: FilterPopupProps) {
+export default function FilterPopup({ onSearch }: FilterPopupProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [activeGroupIndex, setActiveGroupIndex] = useState<number | null>(null);
   const [newGroupName, setNewGroupName] = useState<string>('');
@@ -181,30 +187,29 @@ export default function FilterPopup({
   const getDataByType = async (type: string): Promise<any[]> => {
     switch (type) {
       case 'citation':
-        return await getCitations() || [];
+        return (await Items.getCitations()) || [];
       case 'conference':
-        return await getConfs() || [];
+        return (await Items.getConfs()) || [];
       case 'actant':
-        return await getActants() || [];
+        return (await Items.getActants()) || [];
       case 'keyword':
-        return await getKeywords() || [];
+        return (await Items.getKeywords()) || [];
       case 'bibliography':
-        return await getBibliographies() || [];
+        return (await Items.getBibliographies()) || [];
       case 'mediagraphie':
-        return await getMediagraphies() || [];
+        return (await Items.getMediagraphies()) || [];
       case 'collection':
-        return await getCollections() || [];
+        return (await Items.getCollections()) || [];
       case 'university':
-        return await getUniversities() || [];
+        return (await Items.getUniversities()) || [];
       case 'laboratory':
-        return await getLaboratories() || [];
+        return (await Items.getLaboratories()) || [];
       case 'doctoralschool':
-        return await getDoctoralSchools() || [];
+        return (await Items.getDoctoralSchools()) || [];
       default:
         return [];
     }
   };
-
 
   const addGroup = () => {
     setFilterGroups((prev) => [
@@ -299,14 +304,14 @@ export default function FilterPopup({
 
   const getPropertyValue = async (item: any, property: string): Promise<any> => {
     if (property in item) {
-        const value = item[property];
-        const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
-        if (propertyConfig?.transform) {
-            const transformed = await propertyConfig.transform(value);
-            return transformed;
-        }
-        
-        return value;
+      const value = item[property];
+      const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
+      if (propertyConfig?.transform) {
+        const transformed = await propertyConfig.transform(value);
+        return transformed;
+      }
+
+      return value;
     }
 
     const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
@@ -326,9 +331,9 @@ export default function FilterPopup({
     }
 
     return null;
-};
+  };
 
-const compareValues = async (itemValue: any, searchValue: any, operator: string): Promise<boolean> => {
+  const compareValues = async (itemValue: any, searchValue: any, operator: string): Promise<boolean> => {
     if (itemValue === null || itemValue === undefined || searchValue === null || searchValue === undefined) {
       return false;
     }
@@ -343,15 +348,14 @@ const compareValues = async (itemValue: any, searchValue: any, operator: string)
     const normalizedSearchValue = prepareValue(searchValue);
     const normalizedItemValue = prepareValue(itemValue);
 
-
     let result;
     switch (operator) {
       case 'contains':
-          result = normalizedItemValue.includes(normalizedSearchValue);
-          break;
+        result = normalizedItemValue.includes(normalizedSearchValue);
+        break;
       case 'notEquals':
-          result = normalizedItemValue !== normalizedSearchValue;
-          break;
+        result = normalizedItemValue !== normalizedSearchValue;
+        break;
       default:
         result = false;
     }
@@ -359,22 +363,21 @@ const compareValues = async (itemValue: any, searchValue: any, operator: string)
     return result;
   };
 
+  const applyFilters = async () => {
+    const results: any[] = [];
 
-const applyFilters = async () => {
-  const results: any[] = [];
-
-  for (const group of filterGroups) {
+    for (const group of filterGroups) {
       if (!group.itemType) continue;
 
       const items = await getDataByType(group.itemType);
-      
-      for (const item of items) {
-          let matchesAllConditions = true;
 
-          for (const condition of group.conditions) {
-              if (!condition.property || !condition.value) {
-                  continue;
-              }
+      for (const item of items) {
+        let matchesAllConditions = true;
+
+        for (const condition of group.conditions) {
+          if (!condition.property || !condition.value) {
+            continue;
+          }
 
           try {
             const itemValue = await getPropertyValue(item, condition.property);
@@ -391,27 +394,26 @@ const applyFilters = async () => {
           }
 
           if (matchesAllConditions) {
-              try {
-                  const links = await getLinksFromType(item, group.itemType);
-                  const title = item.title || await getPropertyValue(item, 'title') || '';
-                  
-                  results.push({
-                      id: item.id,
-                      type: group.itemType,
-                      title,
-                      links
-                  });
-              } catch (error) {
-                  console.error('Error adding result item:', error);
-              }
+            try {
+              const links = await getLinksFromType(item, group.itemType);
+              const title = item.title || (await getPropertyValue(item, 'title')) || '';
+
+              results.push({
+                id: item.id,
+                type: group.itemType,
+                title,
+                links,
+              });
+            } catch (error) {
+              console.error('Error adding result item:', error);
+            }
           }
+        }
       }
-  }
 
-  onSearch(results);
-};
-}
-
+      onSearch(results);
+    }
+  };
 
   const resetFilters = () => {
     setFilterGroups([
@@ -476,9 +478,9 @@ const applyFilters = async () => {
 
             {group.isExpanded && (
               <>
-              <div className='w-full flex gap-2 items-center mt-4 mb-2'>
-                <p className='text-14 text-default-600 font-semibold text-default-700'>Ou</p>
-                <Dropdown className='min-w-0 w-full p-2'>
+                <div className='w-full flex gap-2 items-center mt-4 mb-2'>
+                  <p className='text-14 text-default-600 font-semibold text-default-700'>Ou</p>
+                  <Dropdown className='min-w-0 w-full p-2'>
                     <DropdownTrigger className='min-w-0 w-full'>
                       <Button className='text-14 text-default-600 px-2 py-2 flex justify-between gap-10 border-default-300 border-2 rounded-8 w-full'>
                         {group.itemType
@@ -512,7 +514,8 @@ const applyFilters = async () => {
                           <Button className='text-14 text-default-600 px-2 py-2 flex gap-10 justify-between border-default-300 border-2 rounded-8 min-w-[118px]'>
                             {(() => {
                               const label =
-                                getPropertiesByType(group.itemType).find((prop: any) => prop.key === condition.property)?.label || 'Propriété';
+                                getPropertiesByType(group.itemType).find((prop: any) => prop.key === condition.property)
+                                  ?.label || 'Propriété';
                               return label.length > 11 ? `${label.slice(0, 9)}...` : label;
                             })()}
                             <ArrowIcon size={12} />
@@ -525,7 +528,7 @@ const applyFilters = async () => {
                             const prop = Array.from(keys)[0] as string;
                             updateCondition(groupIndex, conditionIndex, 'property', prop);
                           }}>
-                          {getPropertiesByType(group.itemType).map((prop:any) => (
+                          {getPropertiesByType(group.itemType).map((prop: any) => (
                             <DropdownItem key={prop.key}>{prop.label}</DropdownItem>
                           ))}
                         </DropdownMenu>

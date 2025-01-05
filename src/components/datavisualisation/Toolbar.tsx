@@ -4,6 +4,7 @@ import { Button, Divider } from '@nextui-org/react';
 import { AnotateIcon, ExportIcon, SearchIcon, ImportIcon, NewItemIcon, HideIcon, AssociateIcon } from '../utils/icons';
 import { IconSvgProps } from '@/types/types';
 import HidePopup from './HidePopup';
+import { getItemByID } from '@/services/api';
 
 interface ItemsProps {
   itemsDataviz: any[];
@@ -15,7 +16,8 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
-  const [filteredItems, setFilteredItems] = useState(itemsDataviz); // filteredItems state to keep track of visible items
+  const [hiddenTypes, setHiddenTypes] = useState<string[]>([]);
+  const [lastSearchResults, setLastSearchResults] = useState<any[]>([]);
   const iconRefs = useRef<Record<string, HTMLElement | null>>({});
 
   useEffect(() => {
@@ -23,37 +25,86 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
       setContainerWidth(containerRef.current.offsetWidth);
     }
   }, [containerRef.current]);
+  const checkLinkedItemTypes = async (item: any): Promise<boolean> => {
+    if (!item.links || item.links.length === 0) {
+      console.log('No links for item:', item.id);
+      return true;
+    }
 
-  const handleItemSelect = (item: any) => {
-    onSearch([item], false); // Simple search with isAdvancedSearch = false
+    console.log('Checking linked item types for item:', item.id, 'with links:', item.links);
+
+    try {
+      const linkedItemsPromises = item.links.map((id: string) => getItemByID(id));
+      const linkedItems = await Promise.all(linkedItemsPromises);
+
+      console.log('Fetched linked items for item:', item.id, 'linked items:', linkedItems);
+
+      const hasHiddenLinkedType = linkedItems.some((linkedItem) => {
+        if (!linkedItem) {
+          console.log('Linked item is null or undefined for ID:', linkedItem.id);
+          return false;
+        }
+        const isHidden = hiddenTypes.includes(linkedItem.type);
+        if (isHidden) {
+          console.log('Linked item with hidden type found:', linkedItem.type, 'for item:', item.id);
+        }
+        return isHidden;
+      });
+
+      return !hasHiddenLinkedType;
+    } catch (error) {
+      console.error('Error checking linked items for item:', item.id, 'Error:', error);
+      return true;
+    }
+  };
+
+  const applyHiddenTypesFilter = async (items: any[]): Promise<any[]> => {
+    const filteredItems = await Promise.all(
+      items.map(async (item) => {
+        // Call checkLinkedItemTypes first, regardless of item type
+        const showLinkedItems = await checkLinkedItemTypes(item);
+        if (!showLinkedItems) return null;
+
+        // Then check if the item type is hidden
+        const shouldShow = !hiddenTypes.includes(item.type);
+        if (!shouldShow) {
+          console.log('Item type hidden:', item.type);
+          return null;
+        }
+
+        // Check keywords if present
+        if (item.motcles && item.motcles.length > 0) {
+          const hasHiddenKeyword = item.motcles.some((keyword: any) => hiddenTypes.includes(keyword.type));
+          if (hasHiddenKeyword) return null;
+        }
+
+        return item;
+      }),
+    );
+
+    return filteredItems.filter((item) => item !== null);
+  };
+
+  const handleItemSelect = async (item: any) => {
+    const filteredResult = await applyHiddenTypesFilter([item]);
+    setLastSearchResults([item]);
+    onSearch(filteredResult, false);
     setActiveIcon(null);
     setShowPopup(false);
   };
 
-  const handleAdvancedSearch = (items: any[]) => {
-    onSearch(items, true); // Advanced search with isAdvancedSearch = true
+  const handleAdvancedSearch = async (searchResults: any[]) => {
+    setLastSearchResults(searchResults);
+    const filteredResult = await applyHiddenTypesFilter(searchResults);
+    onSearch(filteredResult, true);
     setActiveIcon(null);
     setShowPopup(false);
   };
 
-  // Function to handle hiding items based on the selected masks
-  const handleHide = (hiddenTypes: string[]) => {
-    // hiddenTypes contient maintenant directement les valeurs (ex: ['conference', 'citation'])
-    const newFilteredItems = itemsDataviz.filter((item) => {
-      // Vérifie si le type de l'item n'est pas dans les types à cacher
-      const shouldHide = !hiddenTypes.includes(item.type);
-
-      // Pour les objets imbriqués comme motcles qui contiennent des éléments avec leur propre type
-      if (item.motcles && item.motcles.length > 0) {
-        const hasMatchingKeyword = item.motcles.some((keyword: any) => hiddenTypes.includes(keyword.type));
-        return shouldHide && !hasMatchingKeyword;
-      }
-
-      return shouldHide;
-    });
-
-    setFilteredItems(newFilteredItems); // Update the filteredItems state
-    onSearch(newFilteredItems, true); // Update the search with filtered items
+  const handleHide = async (newHiddenTypes: string[]) => {
+    setHiddenTypes(newHiddenTypes);
+    const filteredResult = await applyHiddenTypesFilter(lastSearchResults);
+    onSearch(filteredResult, true);
   };
 
   useEffect(() => {
@@ -69,7 +120,7 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
       case 'filter':
         return <FilterPopup itemsDataviz={itemsDataviz} onSearch={handleAdvancedSearch} />;
       case 'hide':
-        return <HidePopup onHide={handleHide} />; // Pass filtered items and handleHide
+        return <HidePopup onHide={handleHide} hiddenTypes={hiddenTypes} />;
       default:
         return null;
     }

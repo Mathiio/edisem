@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 
-import { getAllItems } from '@/services/api';
+import { getAllItems } from '@/services/Items';
 
 import { motion, Variants } from 'framer-motion';
 import { Navbar } from '@/components/navbar/Navbar';
@@ -65,9 +65,7 @@ const Visualisation = () => {
     const fetchData = async () => {
       const data = await getAllItems();
       setItemsDataviz(data);
-      processDataForVisualization(data);
     };
-
     fetchData();
   }, []);
 
@@ -78,61 +76,58 @@ const Visualisation = () => {
     const nodes = new Map();
     const links = new Set();
 
-    // First pass: add all search result nodes
-    data.forEach(item => {
+    data.forEach((item) => {
       if (!nodes.has(item.id)) {
         nodes.set(item.id, {
           id: item.id,
-          title: item.title.length > CHARACTER_LIMIT ? 
-                 `${item.title.substring(0, CHARACTER_LIMIT)}...` : 
-                 item.title,
+          title: item.title.length > CHARACTER_LIMIT ? `${item.title.substring(0, CHARACTER_LIMIT)}...` : item.title,
           type: item.type,
-          isMain: false
+          isMain: false,
         });
       }
     });
 
-    // Second pass: process links for existing nodes
-    data.forEach(item => {
+    data.forEach((item) => {
       if (!Array.isArray(item.links)) return;
 
       item.links.forEach((linkedId: string) => {
-        // Add links between existing nodes
         if (nodes.has(linkedId)) {
-          links.add(JSON.stringify({
-            source: item.id,
-            target: linkedId
-          }));
-        }
-        // Add linked items from the complete dataset
-        else {
-          const linkedItem = itemsDataviz.find(d => d.id === linkedId);
+          links.add(
+            JSON.stringify({
+              source: item.id,
+              target: linkedId,
+            }),
+          );
+        } else {
+          const linkedItem = itemsDataviz.find((d) => d.id === linkedId);
           if (linkedItem) {
             nodes.set(linkedId, {
               id: linkedId,
-              title: linkedItem.title.length > CHARACTER_LIMIT ? 
-                     `${linkedItem.title.substring(0, CHARACTER_LIMIT)}...` : 
-                     linkedItem.title,
+              title:
+                linkedItem.title.length > CHARACTER_LIMIT
+                  ? `${linkedItem.title.substring(0, CHARACTER_LIMIT)}...`
+                  : linkedItem.title,
               type: linkedItem.type,
-              isMain: false
+              isMain: false,
             });
-            links.add(JSON.stringify({
-              source: item.id,
-              target: linkedId
-            }));
+            links.add(
+              JSON.stringify({
+                source: item.id,
+                target: linkedId,
+              }),
+            );
           }
         }
       });
     });
 
     setFilteredNodes(Array.from(nodes.values()));
-    setFilteredLinks(Array.from(links).map(link => JSON.parse(link as any)));
+    setFilteredLinks(Array.from(links).map((link) => JSON.parse(link as any)));
   };
 
   const handleSearch = (searchResults: any[]) => {
     if (!searchResults?.length) {
       console.warn('No search results found');
-      processDataForVisualization(itemsDataviz);
       return;
     }
     processDataForVisualization(searchResults);
@@ -335,7 +330,7 @@ const Visualisation = () => {
       </motion.main>
       <Toolbar itemsDataviz={itemsDataviz} onSearch={handleSearch} />
       <ZoomControl svgRef={svgRef} width={dimensions.width} height={dimensions.height} />
-      <Legend/>
+      <Legend />
     </div>
   );
 };

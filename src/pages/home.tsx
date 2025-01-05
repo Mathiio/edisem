@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Navbar } from '@/components/navbar/Navbar';
 import { FullCarrousel, MidCarrousel } from '@/components/utils/Carrousels';
-import { getSeminaires, getRandomConfs, getActants } from '../services/api';
+import { getSeminaires, getActants } from '../services/Items';
+import { getRandomConfs } from '../services/api';
 import { EventCard, EventSkeleton } from '@/components/home/EventCards';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { ActantCard, ActantSkeleton } from '@/components/home/ActantCards';
 import { motion, Variants } from 'framer-motion';
-
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -57,7 +57,6 @@ export const Home: React.FC = () => {
 
     dataFetchedRef.current = true;
   }, [fetchSeminaires, fetchActants, fetchRandomConf]);
-
 
   return (
     <div className='relative bg-default-50 h-screen'>
