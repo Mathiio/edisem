@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { Button, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/react';
 import { ArrowIcon, CrossIcon, PlusIcon, TrashIcon } from '@/components/utils/icons';
 
-import { ITEM_TYPES } from './FilterPopup'; 
+import { ITEM_TYPES } from './FilterPopup'; // Assure-toi que ITEM_TYPES est exporté correctement
 
 type Masque = {
   itemType: string;
-  itemValue: string;
 };
 
 type HidePopupProps = {
-  onHide: (filteredItems: any[]) => void; 
+  // Représente les éléments filtrés
+  onHide: (filteredItems: any[]) => void; // Fonction pour appliquer le masquage
 };
 
 const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
@@ -21,20 +21,20 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
       ...prev,
       {
         itemType: '',
-        itemValue: '',
       },
     ]);
   };
 
+  // Function to remove a mask
   const removeMasque = (index: number) => {
     setFilterGroups((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Appliquer les masques
   const applyMasques = () => {
-    const hiddenTypes = filterGroups.map((group) => group.itemValue).filter((value) => value !== '');
+    const hiddenTypes = filterGroups.map((group) => group.itemType);
 
-    onHide(hiddenTypes);
-    onHide(hiddenTypes);
+    onHide(hiddenTypes); // Passe les éléments filtrés masqués à la fonction onHide
   };
 
   return (
@@ -51,14 +51,11 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
 
       <div className='flex flex-col justify-start h-full gap-2 overflow-y-auto'>
         {filterGroups.map((masque, index) => (
+            <div key={index} className='flex flex-row items-center gap-2'>
+              <Dropdown className=' w-full p-2'>
+                <DropdownTrigger className=' w-full'>
+                  <Button className='text-14 text-default-600 px-2 py-2 flex bg-transparent justify-between gap-10 border-default-300 border-2 rounded-8 w-full'>
                     {masque.itemType || 'Sélectionner un type'}
-          <div key={index} className='flex p-10 rounded-8 bg-default-200'>
-            <div className='flex flex-row items-center flex-1 gap-10'>
-              <Dropdown className='w-full p-2'>
-                <DropdownTrigger className='w-full'>
-                  <Button className='text-14 text-default-600 px-2 py-2 flex justify-between gap-10 border-default-400 border-2 rounded-8 w-full'>
-                    {Object.entries(ITEM_TYPES).find(([_, value]) => value === masque.itemValue)?.[0] ||
-                      'Sélectionner un type'}
                     <ArrowIcon size={12} />
                   </Button>
                 </DropdownTrigger>
@@ -66,18 +63,16 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
                   className='w-full'
                   aria-label="Sélectionner un type d'item"
                   selectionMode='single'
-                  selectedKeys={[masque.itemValue]}
+                  selectedKeys={[masque.itemType]}
                   onSelectionChange={(keys) => {
-                    const selectedValue = Array.from(keys)[0] as string;
+                    const type = Array.from(keys)[0] as string;
                     const updatedMasques = [...filterGroups];
-                    updatedMasques[index].itemType =
-                      Object.entries(ITEM_TYPES).find(([_, value]) => value === selectedValue)?.[0] || '';
-                    updatedMasques[index].itemValue = selectedValue;
+                    updatedMasques[index].itemType = type;
                     setFilterGroups(updatedMasques);
                   }}>
-                  {Object.entries(ITEM_TYPES).map(([key, value]) => (
-                    <DropdownItem className='w-full' key={value}>
-                      {key}
+                  {Object.entries(ITEM_TYPES).map(([key, _]) => (
+                    <DropdownItem className=' w-full' key={key}>
+                      {key} 
                     </DropdownItem>
                   ))}
                 </DropdownMenu>
