@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Button, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Link } from '@nextui-org/react';
 import { ArrowIcon, CrossIcon, PlusIcon, TrashIcon } from '@/components/utils/icons';
 
-import { ITEM_TYPES } from './FilterPopup'; 
+import { ITEM_TYPES } from './FilterPopup';
 
 type Masque = {
   itemType: string;
 };
 
 type HidePopupProps = {
-  onHide: (filteredItems: any[]) => void; 
+  onHide: (filteredItems: any[]) => void;
 };
 
 const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
@@ -31,7 +31,7 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
   const applyMasques = () => {
     const hiddenTypes = filterGroups.map((group) => group.itemType);
 
-    onHide(hiddenTypes); 
+    onHide(hiddenTypes);
   };
 
   return (
@@ -50,47 +50,48 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
 
       <div className='flex flex-col justify-start h-full gap-2 overflow-y-auto'>
         {filterGroups.map((masque, index) => (
-            <div key={index} className='flex flex-row items-center gap-2'>
-              <Dropdown className=' w-full p-2'>
-                <DropdownTrigger className=' w-full'>
-                  <Button className='text-14 text-default-600 px-2 py-2 flex bg-transparent justify-between gap-10 border-default-300 border-2 rounded-8 w-full'>
-                    {masque.itemType || 'Sélectionner un type'}
-                    <ArrowIcon size={12} />
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  className='w-full'
-                  aria-label="Sélectionner un type d'item"
-                  selectionMode='single'
-                  selectedKeys={[masque.itemType]}
-                  onSelectionChange={(keys) => {
-                    const type = Array.from(keys)[0] as string;
-                    const updatedMasques = [...filterGroups];
-                    updatedMasques[index].itemType = type;
-                    setFilterGroups(updatedMasques);
-                  }}>
-                  {Object.entries(ITEM_TYPES).map(([key, _]) => (
-                    <DropdownItem className=' w-full' key={key}>
-                      {key} 
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
+          <div key={index} className='flex flex-row items-center gap-2'>
+            <Dropdown className=' w-full p-2'>
+              <DropdownTrigger className=' w-full'>
+                <Button className='text-14 text-default-600 px-2 py-2 flex bg-transparent justify-between gap-10 border-default-300 border-2 rounded-8 w-full'>
+                  {masque.itemType || 'Sélectionner un type'}
+                  <ArrowIcon size={12} />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                className='w-full'
+                aria-label="Sélectionner un type d'item"
+                selectionMode='single'
+                selectedKeys={[masque.itemType]}
+                onSelectionChange={(keys) => {
+                  const type = Array.from(keys)[0] as string;
+                  const updatedMasques = [...filterGroups];
+                  updatedMasques[index].itemType = type;
+                  setFilterGroups(updatedMasques);
+                }}>
+                {Object.entries(ITEM_TYPES).map(([key, _]) => (
+                  <DropdownItem className=' w-full' key={key}>
+                    {key}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
 
-              <Button size='sm' isIconOnly onClick={() => removeMasque(index)}>
-                <CrossIcon size={14} className='text-default-600' />
-              </Button>
-            </div>
+            <Button size='sm' isIconOnly onClick={() => removeMasque(index)}>
+              <CrossIcon size={14} className='text-default-600' />
+            </Button>
+          </div>
         ))}
       </div>
 
       <div className='flex justify-end gap-2 mt-4'>
-        <Button className='gap-5 rounded-8 font-14 p-2 text-default-500 hover:text-default-900 hover:bg-default-300 bg-default-300'>
+        <Button className='px-10 py-5 rounded-8 bg-transparent' variant='flat'>
           Réinitialiser
         </Button>
         <Button
-          onClick={applyMasques}
-          className='gap-5 rounded-8 font-14 p-2 text-default-900 hover:bg-default-action bg-default-action'>
+          className='px-10 py-5 rounded-8 bg-default-action text-default-selected'
+          color='primary'
+          onClick={applyMasques}>
           Appliquer
         </Button>
       </div>
