@@ -280,17 +280,11 @@ export default function FilterPopup({
   };
 
   const getPropertyValue = async (item: any, property: string): Promise<any> => {
-    console.log('Getting property:', property, 'from item:', item);
-    
     if (property in item) {
         const value = item[property];
-        console.log('Direct value found:', value);
-        
         const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
         if (propertyConfig?.transform) {
-            console.log('Applying transform to direct value');
             const transformed = await propertyConfig.transform(value);
-            console.log('Transformed result:', transformed);
             return transformed;
         }
         
@@ -298,17 +292,14 @@ export default function FilterPopup({
     }
 
     const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
-    console.log('Property config:', propertyConfig);
     
     if (!propertyConfig) return null;
 
     if (propertyConfig.transform) {
         try {
             const transformed = await propertyConfig.transform(item[property]);
-            console.log('Transformed value:', transformed);
             return transformed;
         } catch (error) {
-            console.error('Transform error:', error);
             return null;
         }
     }
@@ -317,15 +308,7 @@ export default function FilterPopup({
 };
 
 const compareValues = async (itemValue: any, searchValue: any, operator: string): Promise<boolean> => {
-  console.log('--- Comparing Values ---');
-  console.log('Original values:', {
-      itemValue: itemValue,
-      searchValue: searchValue,
-      type: operator
-  });
-
   if (itemValue === null || itemValue === undefined || searchValue === null || searchValue === undefined) {
-      console.log('Null/undefined values detected');
       return false;
   }
 
@@ -339,11 +322,6 @@ const compareValues = async (itemValue: any, searchValue: any, operator: string)
   const normalizedSearchValue = prepareValue(searchValue);
   const normalizedItemValue = prepareValue(itemValue);
 
-  console.log('Normalized values:', {
-      normalizedItemValue,
-      normalizedSearchValue
-  });
-
   let result;
   switch (operator) {
       case 'contains':
@@ -355,8 +333,6 @@ const compareValues = async (itemValue: any, searchValue: any, operator: string)
       default:
           result = false;
   }
-
-  console.log('Comparison result:', result);
   return result;
 };
 
@@ -366,7 +342,6 @@ const applyFilters = async () => {
 
   for (const group of filterGroups) {
       if (!group.itemType) continue;
-      console.log('Processing group type:', group.itemType);
 
       const items = await getDataByType(group.itemType);
       
@@ -378,16 +353,8 @@ const applyFilters = async () => {
                   continue;
               }
 
-              console.log('Checking condition:', {
-                  property: condition.property,
-                  value: condition.value,
-                  operator: condition.operator
-              });
-
               try {
                   const itemValue = await getPropertyValue(item, condition.property);
-                  console.log('Retrieved item value:', itemValue);
-
                   const matches = await compareValues(itemValue, condition.value, condition.operator);
                   
                   if (!matches) {
