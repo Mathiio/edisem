@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import { Button, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Link } from '@nextui-org/react';
-import { ArrowIcon, CrossIcon, PlusIcon, TrashIcon } from '@/components/utils/icons';
-
+import { ArrowIcon, CrossIcon, PlusIcon } from '@/components/utils/icons';
 import { ITEM_TYPES } from './FilterPopup';
 
 type Masque = {
   itemType: string;
 };
 
-type HidePopupProps = {
-  onHide: (filteredItems: any[]) => void;
-};
+interface HidePopupProps {
+  onHide: (hiddenTypes: string[]) => void;
+  hiddenTypes: string[]; // Ajout de cette prop
+}
 
-const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
+const HidePopup: React.FC<HidePopupProps> = ({ onHide, hiddenTypes }) => {
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(hiddenTypes);
   const [filterGroups, setFilterGroups] = useState<Masque[]>([]);
 
   const addMasque = () => {
@@ -29,9 +30,15 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
   };
 
   const applyMasques = () => {
-    const hiddenTypes = filterGroups.map((group) => group.itemType);
+    const hiddenTypes = filterGroups
+      .map((group) => ITEM_TYPES[group.itemType as keyof typeof ITEM_TYPES])
+      .filter(Boolean); // Remove any undefined values
 
     onHide(hiddenTypes);
+  };
+
+  const resetMasques = () => {
+    setFilterGroups([]);
   };
 
   return (
@@ -40,7 +47,7 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
         <Link
           onClick={addMasque}
           underline='none'
-          size={'sm'}
+          size='sm'
           className='text-14 flex justify-start w-full gap-2 rounded-0 text-default-700 bg-transparent cursor-pointer'>
           <PlusIcon size={12} />
           Ajouter un masque
@@ -51,8 +58,8 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
       <div className='flex flex-col justify-start h-full gap-2 overflow-y-auto'>
         {filterGroups.map((masque, index) => (
           <div key={index} className='flex flex-row items-center gap-2'>
-            <Dropdown className=' w-full p-2'>
-              <DropdownTrigger className=' w-full'>
+            <Dropdown className='w-full p-2'>
+              <DropdownTrigger className='w-full'>
                 <Button className='text-14 text-default-600 px-2 py-2 flex bg-transparent justify-between gap-10 border-default-300 border-2 rounded-8 w-full'>
                   {masque.itemType || 'Sélectionner un type'}
                   <ArrowIcon size={12} />
@@ -70,7 +77,7 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
                   setFilterGroups(updatedMasques);
                 }}>
                 {Object.entries(ITEM_TYPES).map(([key, _]) => (
-                  <DropdownItem className=' w-full' key={key}>
+                  <DropdownItem className='w-full' key={key}>
                     {key}
                   </DropdownItem>
                 ))}
@@ -85,7 +92,7 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
       </div>
 
       <div className='flex justify-end gap-2 mt-4'>
-        <Button className='px-10 py-5 rounded-8 bg-transparent' variant='flat'>
+        <Button className='px-10 py-5 rounded-8 bg-transparent' variant='flat' onClick={resetMasques}>
           Réinitialiser
         </Button>
         <Button
