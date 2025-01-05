@@ -96,7 +96,7 @@ import { getConfs, getUniversities, getActants, getDoctoralSchools, getLaborator
   };
 
 
-  const ITEM_TYPES = {
+  export const ITEM_TYPES = {
     citations: 'citation',
     conférences: 'conference',
     actants: 'actant',
