@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Button,
+  Link,
   Divider,
   Dropdown,
   DropdownTrigger,
@@ -281,12 +282,10 @@ export default function FilterPopup({
   const getPropertyValue = async (item: any, property: string): Promise<any> => {
     console.log('Getting property:', property, 'from item:', item);
     
-    // Vérifie d'abord si la propriété existe directement
     if (property in item) {
         const value = item[property];
         console.log('Direct value found:', value);
         
-        // Recherche la configuration pour voir s'il y a une transformation à appliquer
         const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
         if (propertyConfig?.transform) {
             console.log('Applying transform to direct value');
@@ -298,7 +297,6 @@ export default function FilterPopup({
         return value;
     }
 
-    // Si la propriété n'existe pas directement, cherche une config
     const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
     console.log('Property config:', propertyConfig);
     
@@ -326,13 +324,11 @@ const compareValues = async (itemValue: any, searchValue: any, operator: string)
       type: operator
   });
 
-  // Protection contre les valeurs null/undefined
   if (itemValue === null || itemValue === undefined || searchValue === null || searchValue === undefined) {
       console.log('Null/undefined values detected');
       return false;
   }
 
-  // Préparation des valeurs pour la comparaison
   const prepareValue = (value: any): string => {
       if (typeof value === 'string') {
           return value.toLowerCase().trim();
@@ -439,39 +435,42 @@ const applyFilters = async () => {
   };
 
   return (
-    <div className='w-full flex flex-col gap-20 h-full overflow-hidden'>
-      <div className='flex flex-col gap-10'>
-        <Button
+    <div className='w-full flex flex-col gap-4 h-full overflow-hidden'>
+      <div className='flex flex-col gap-4'>
+        <Link
           onClick={addGroup}
-          className='text-14 flex justify-start h-[40px] w-full gap-2 rounded-0 text-default-600 bg-transparent'>
+          underline="none"
+          size={'sm'}
+          className='text-14 flex justify-start w-full gap-2 rounded-0 text-default-700 bg-transparent cursor-pointer'>
           <PlusIcon size={12} />
           Ajouter un groupe de filtres
-        </Button>
+        </Link>
         <Divider />
       </div>
 
-      <div className='flex flex-col flex-1 gap-10 overflow-y-auto'>
+      <div className='flex flex-col flex-1 gap-3 overflow-y-auto'>
         {filterGroups.map((group, groupIndex) => (
           <div key={groupIndex} className='border rounded-lg gap-4 p-4 bg-default-200 rounded-8'>
-            <div className='flex items-center justify-between mb-4'>
+            <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
-                <Button className='text-default-600' onClick={() => toggleGroupExpansion(groupIndex)}>
+                <Button className='text-default-700' onClick={() => toggleGroupExpansion(groupIndex)}>
                   <ArrowIcon
                     size={14}
                     className={`transition-all duration-200 ${group.isExpanded ? 'rotate-90' : ''}`}
                   />
                 </Button>
-                <span className='font-medium'>{group.name}</span>
+                <span className='text-14 font-semibold text-default-700'>{group.name}</span>
               </div>
 
-              <Dropdown>
+              <Dropdown className='min-w-0 w-fit p-2'>
                 <DropdownTrigger>
                   <Button size='sm'>
-                    <DotsIcon size={14} className='text-default-600' />
+                    <DotsIcon size={14} className='text-default-700' />
                   </Button>
                 </DropdownTrigger>
-                <DropdownMenu>
+                <DropdownMenu className='w-32'>
                   <DropdownItem
+                    className='flex gap-1.5 w-32'
                     onClick={() => {
                       setActiveGroupIndex(groupIndex);
                       setNewGroupName(group.name);
@@ -487,34 +486,38 @@ const applyFilters = async () => {
 
             {group.isExpanded && (
               <>
-                <Dropdown>
-                  <DropdownTrigger>
-                    <Button className='mb-4 w-full justify-between'>
-                      {group.itemType
-                        ? Object.entries(ITEM_TYPES).find(([, value]) => value === group.itemType)?.[0]
-                        : "Sélectionner un type d'item"}
-                      <ArrowIcon size={12} />
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu
-                    selectionMode='single'
-                    selectedKeys={group.itemType ? [group.itemType] : []}
-                    onSelectionChange={(keys) => {
-                      const type = Array.from(keys)[0] as string;
-                      updateGroupType(groupIndex, type);
-                    }}>
-                    {Object.entries(ITEM_TYPES).map(([label, value]) => (
-                      <DropdownItem key={value}>{label}</DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </Dropdown>
+              <div className='w-full flex gap-2 items-center mt-4 mb-2'>
+                <p className='text-14 text-default-600'>Where</p>
+                <Dropdown className='min-w-0 w-full p-2'>
+                    <DropdownTrigger className='min-w-0 w-full'>
+                      <Button className='text-14 text-default-600 px-2 py-2 flex justify-between gap-10 border-default-300 border-2 rounded-8 w-full'>
+                        {group.itemType
+                          ? Object.entries(ITEM_TYPES).find(([, value]) => value === group.itemType)?.[0]
+                          : "Sélectionner un type d'item"}
+                        <ArrowIcon size={12} />
+                      </Button>
+                    </DropdownTrigger>
+                    <DropdownMenu
+                      className='w-full'
+                      selectionMode='single'
+                      selectedKeys={group.itemType ? [group.itemType] : []}
+                      onSelectionChange={(keys) => {
+                        const type = Array.from(keys)[0] as string;
+                        updateGroupType(groupIndex, type);
+                      }}>
+                      {Object.entries(ITEM_TYPES).map(([label, value]) => (
+                        <DropdownItem className='min-w-0 w-full' key={value}>{label}</DropdownItem>
+                      ))}
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
 
-                <div className='space-y-2 mb-4'>
+                <div className={`flex flex-col gap-2 ${group.conditions.length > 0 ? 'mb-4' : ''}`}>
                   {group.conditions.map((condition, conditionIndex) => (
                     <div key={conditionIndex} className='flex items-center gap-2'>
-                      <Dropdown>
+                      <Dropdown className='min-w-0 w-fit p-2'>
                         <DropdownTrigger>
-                          <Button className='flex-1'>
+                          <Button className='text-14 text-default-600 px-2 py-2 flex gap-10 justify-between border-default-300 border-2 rounded-8 min-w-[120px]'>
                               {getPropertiesByType(group.itemType).find((prop: any) => prop.key === condition.property)?.label || 'Propriété'}
                             <ArrowIcon size={12} />
                           </Button>
@@ -532,9 +535,9 @@ const applyFilters = async () => {
                         </DropdownMenu>
                       </Dropdown>
 
-                      <Dropdown>
+                      <Dropdown className='min-w-0 w-fit p-2'>
                         <DropdownTrigger>
-                          <Button className='flex-1'>
+                          <Button className='text-14 text-default-600 px-2 py-2 flex justify-between gap-10 border-default-300 border-2 rounded-8 min-w-[105px]'>
                             {OPERATORS.find((op) => op.key === condition.operator)?.label || 'Opérateur'}
                             <ArrowIcon size={12} />
                           </Button>
@@ -556,7 +559,12 @@ const applyFilters = async () => {
                         value={condition.value}
                         onChange={(e) => updateCondition(groupIndex, conditionIndex, 'value', e.target.value)}
                         placeholder='Valeur...'
-                        className='flex-1'
+                        classNames={{
+                          mainWrapper: 'h-full',
+                          input: 'text-default-400 ',
+                          inputWrapper:
+                            'shadow-none bg-default-100 border-1 border-default-100 group-data-[focus=true]:bg-default-100 rounded-8 font-normal text-default-500 bg-default-100 dark:bg-default-100 h-full',
+                        }}
                       />
 
                       <Button size='sm' isIconOnly onClick={() => removeCondition(groupIndex, conditionIndex)}>
@@ -567,12 +575,14 @@ const applyFilters = async () => {
                 </div>
 
                 {group.itemType && (
-                  <Button
-                    onClick={() => addCondition(groupIndex)}
-                    className='text-14 flex justify-start w-full gap-2 bg-transparent text-default-600'>
+                  <Link
+                  onClick={() => addCondition(groupIndex)}
+                    underline="none"
+                    size={'sm'}
+                    className='text-14 flex justify-start w-full gap-2 rounded-0 text-default-700 bg-transparent cursor-pointer'>
                     <PlusIcon size={12} />
                     Ajouter une condition
-                  </Button>
+                  </Link>
                 )}
               </>
             )}
@@ -585,16 +595,23 @@ const applyFilters = async () => {
           <ModalHeader>Renommer le groupe</ModalHeader>
           <ModalBody className='gap-4'>
             <Input
+              classNames={{
+                mainWrapper: 'h-full',
+                input: 'text-default-400 ',
+                inputWrapper:
+                  'shadow-none bg-default-100 border-1 border-default-100 group-data-[focus=true]:bg-default-100 rounded-8 font-normal text-default-500 bg-default-100 dark:bg-default-100 h-full',
+              }}
               value={newGroupName}
               onChange={(e) => setNewGroupName(e.target.value)}
               placeholder='Nouveau nom...'
               autoFocus
             />
             <div className='flex justify-end gap-2'>
-              <Button variant='flat' onClick={onClose}>
+              <Button className='px-10 py-5 rounded-8 bg-transparent' variant='flat' onClick={onClose}>
                 Annuler
               </Button>
               <Button
+                className='px-10 py-5 rounded-8 bg-default-action text-default-selected'
                 color='primary'
                 onClick={() => {
                   if (activeGroupIndex !== null && newGroupName.trim()) {
@@ -614,10 +631,10 @@ const applyFilters = async () => {
       </Modal>
 
       <div className='flex justify-end gap-2 mt-4'>
-        <Button variant='flat' onClick={resetFilters}>
+        <Button className='px-10 py-5 rounded-8 bg-transparent' variant='flat' onClick={resetFilters}>
           Réinitialiser
         </Button>
-        <Button color='primary' onClick={applyFilters}>
+        <Button className='px-10 py-5 rounded-8 bg-default-action text-default-selected' color='primary' onClick={applyFilters}>
           Appliquer
         </Button>
       </div>
