@@ -298,6 +298,7 @@ export default function FilterPopup({
   };
 
   const getPropertyValue = async (item: any, property: string): Promise<any> => {
+<<<<<<< Updated upstream
     if (property in item) {
         const value = item[property];
         const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
@@ -307,22 +308,43 @@ export default function FilterPopup({
         }
         
         return value;
+=======
+    console.log('Getting property:', property, 'from item:', item);
+
+    if (property in item) {
+      const value = item[property];
+      console.log('Direct value found:', value);
+
+      const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
+      if (propertyConfig?.transform) {
+        console.log('Applying transform to direct value');
+        const transformed = await propertyConfig.transform(value);
+        console.log('Transformed result:', transformed);
+        return transformed;
+      }
+
+      return value;
+>>>>>>> Stashed changes
     }
 
     const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
-    
+    console.log('Property config:', propertyConfig);
+
     if (!propertyConfig) return null;
 
     if (propertyConfig.transform) {
-        try {
-            const transformed = await propertyConfig.transform(item[property]);
-            return transformed;
-        } catch (error) {
-            return null;
-        }
+      try {
+        const transformed = await propertyConfig.transform(item[property]);
+        console.log('Transformed value:', transformed);
+        return transformed;
+      } catch (error) {
+        console.error('Transform error:', error);
+        return null;
+      }
     }
 
     return null;
+<<<<<<< Updated upstream
 };
 
 const compareValues = async (itemValue: any, searchValue: any, operator: string): Promise<boolean> => {
@@ -335,13 +357,35 @@ const compareValues = async (itemValue: any, searchValue: any, operator: string)
           return value.toLowerCase().trim();
       }
       return String(value).toLowerCase().trim();
+=======
+>>>>>>> Stashed changes
   };
 
   const normalizedSearchValue = prepareValue(searchValue);
   const normalizedItemValue = prepareValue(itemValue);
 
-  let result;
-  switch (operator) {
+    if (itemValue === null || itemValue === undefined || searchValue === null || searchValue === undefined) {
+      console.log('Null/undefined values detected');
+      return false;
+    }
+
+    const prepareValue = (value: any): string => {
+      if (typeof value === 'string') {
+        return value.toLowerCase().trim();
+      }
+      return String(value).toLowerCase().trim();
+    };
+
+    const normalizedSearchValue = prepareValue(searchValue);
+    const normalizedItemValue = prepareValue(itemValue);
+
+    console.log('Normalized values:', {
+      normalizedItemValue,
+      normalizedSearchValue,
+    });
+
+    let result;
+    switch (operator) {
       case 'contains':
           result = normalizedItemValue.includes(normalizedSearchValue);
           break;
@@ -349,10 +393,12 @@ const compareValues = async (itemValue: any, searchValue: any, operator: string)
           result = normalizedItemValue !== normalizedSearchValue;
           break;
       default:
-          result = false;
-  }
-  return result;
-};
+        result = false;
+    }
+
+    console.log('Comparison result:', result);
+    return result;
+  };
 
 
 const applyFilters = async () => {
@@ -360,6 +406,7 @@ const applyFilters = async () => {
 
   for (const group of filterGroups) {
       if (!group.itemType) continue;
+      console.log('Processing group type:', group.itemType);
 
       const items = await getDataByType(group.itemType);
       
@@ -371,19 +418,26 @@ const applyFilters = async () => {
                   continue;
               }
 
-              try {
-                  const itemValue = await getPropertyValue(item, condition.property);
-                  const matches = await compareValues(itemValue, condition.value, condition.operator);
-                  
-                  if (!matches) {
-                      matchesAllConditions = false;
-                      break;
-                  }
-              } catch (error) {
-                  console.error('Error processing condition:', error);
-                  matchesAllConditions = false;
-                  break;
-              }
+          console.log('Checking condition:', {
+            property: condition.property,
+            value: condition.value,
+            operator: condition.operator,
+          });
+
+          try {
+            const itemValue = await getPropertyValue(item, condition.property);
+            console.log('Retrieved item value:', itemValue);
+
+            const matches = await compareValues(itemValue, condition.value, condition.operator);
+
+            if (!matches) {
+              matchesAllConditions = false;
+              break;
+            }
+          } catch (error) {
+            console.error('Error processing condition:', error);
+            matchesAllConditions = false;
+            break;
           }
 
           if (matchesAllConditions) {
@@ -424,7 +478,7 @@ const applyFilters = async () => {
       <div className='flex flex-col gap-4'>
         <Link
           onClick={addGroup}
-          underline="none"
+          underline='none'
           size={'sm'}
           className='text-14 flex justify-start w-full gap-2 rounded-0 text-default-700 bg-transparent cursor-pointer'>
           <PlusIcon size={12} />
@@ -471,9 +525,9 @@ const applyFilters = async () => {
 
             {group.isExpanded && (
               <>
-              <div className='w-full flex gap-2 items-center mt-4 mb-2'>
-                <p className='text-14 text-default-600'>Where</p>
-                <Dropdown className='min-w-0 w-full p-2'>
+                <div className='w-full flex gap-2 items-center mt-4 mb-2'>
+                  <p className='text-14 text-default-600'>Where</p>
+                  <Dropdown className='min-w-0 w-full p-2'>
                     <DropdownTrigger className='min-w-0 w-full'>
                       <Button className='text-14 text-default-600 px-2 py-2 flex justify-between gap-10 border-default-300 border-2 rounded-8 w-full'>
                         {group.itemType
@@ -491,7 +545,9 @@ const applyFilters = async () => {
                         updateGroupType(groupIndex, type);
                       }}>
                       {Object.entries(ITEM_TYPES).map(([label, value]) => (
-                        <DropdownItem className='min-w-0 w-full' key={value}>{label}</DropdownItem>
+                        <DropdownItem className='min-w-0 w-full' key={value}>
+                          {label}
+                        </DropdownItem>
                       ))}
                     </DropdownMenu>
                   </Dropdown>
@@ -502,12 +558,18 @@ const applyFilters = async () => {
                     <div key={conditionIndex} className='flex items-center gap-2'>
                       <Dropdown className='min-w-0 w-fit p-2'>
                         <DropdownTrigger>
+<<<<<<< Updated upstream
                           <Button className='text-14 text-default-600 px-2 py-2 flex gap-10 justify-between border-default-300 border-2 rounded-8 min-w-[118px]'>
                             {(() => {
                               const label =
                                 getPropertiesByType(group.itemType).find((prop: any) => prop.key === condition.property)?.label || 'Propriété';
                               return label.length > 11 ? `${label.slice(0, 9)}...` : label;
                             })()}
+=======
+                          <Button className='text-14 text-default-600 px-2 py-2 flex gap-10 justify-between border-default-300 border-2 rounded-8 min-w-[120px]'>
+                            {getPropertiesByType(group.itemType).find((prop: any) => prop.key === condition.property)
+                              ?.label || 'Propriété'}
+>>>>>>> Stashed changes
                             <ArrowIcon size={12} />
                           </Button>
                         </DropdownTrigger>
@@ -568,8 +630,8 @@ const applyFilters = async () => {
 
                 {group.itemType && (
                   <Link
-                  onClick={() => addCondition(groupIndex)}
-                    underline="none"
+                    onClick={() => addCondition(groupIndex)}
+                    underline='none'
                     size={'sm'}
                     className='text-14 flex justify-start w-full gap-2 rounded-0 text-default-700 bg-transparent cursor-pointer'>
                     <PlusIcon size={12} />
@@ -626,7 +688,10 @@ const applyFilters = async () => {
         <Button className='px-10 py-5 rounded-8 bg-transparent' variant='flat' onClick={resetFilters}>
           Réinitialiser
         </Button>
-        <Button className='px-10 py-5 rounded-8 bg-default-action text-default-selected' color='primary' onClick={applyFilters}>
+        <Button
+          className='px-10 py-5 rounded-8 bg-default-action text-default-selected'
+          color='primary'
+          onClick={applyFilters}>
           Appliquer
         </Button>
       </div>

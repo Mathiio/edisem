@@ -37,11 +37,21 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
   };
 
   // Function to handle hiding items based on the selected masks
-  const handleHide = (masques: any[]) => {
-    // Filter out the items based on the selected masks
-    const hiddenTypes = masques.map((masque) => masque.itemType);
-    console.log(hiddenTypes);
-    const newFilteredItems = itemsDataviz.filter((item) => !hiddenTypes.includes(item.type));
+  const handleHide = (hiddenTypes: string[]) => {
+    // hiddenTypes contient maintenant directement les valeurs (ex: ['conference', 'citation'])
+    const newFilteredItems = itemsDataviz.filter((item) => {
+      // Vérifie si le type de l'item n'est pas dans les types à cacher
+      const shouldHide = !hiddenTypes.includes(item.type);
+
+      // Pour les objets imbriqués comme motcles qui contiennent des éléments avec leur propre type
+      if (item.motcles && item.motcles.length > 0) {
+        const hasMatchingKeyword = item.motcles.some((keyword: any) => hiddenTypes.includes(keyword.type));
+        return shouldHide && !hasMatchingKeyword;
+      }
+
+      return shouldHide;
+    });
+
     setFilteredItems(newFilteredItems); // Update the filteredItems state
     onSearch(newFilteredItems, true); // Update the search with filtered items
   };
