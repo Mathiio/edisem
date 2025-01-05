@@ -310,38 +310,42 @@ export default function FilterPopup({
     }
 
     const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
-    
+    console.log('Property config:', propertyConfig);
+
     if (!propertyConfig) return null;
 
     if (propertyConfig.transform) {
-        try {
-            const transformed = await propertyConfig.transform(item[property]);
-            return transformed;
-        } catch (error) {
-            return null;
-        }
+      try {
+        const transformed = await propertyConfig.transform(item[property]);
+        console.log('Transformed value:', transformed);
+        return transformed;
+      } catch (error) {
+        console.error('Transform error:', error);
+        return null;
+      }
     }
 
     return null;
 };
 
 const compareValues = async (itemValue: any, searchValue: any, operator: string): Promise<boolean> => {
-  if (itemValue === null || itemValue === undefined || searchValue === null || searchValue === undefined) {
+    if (itemValue === null || itemValue === undefined || searchValue === null || searchValue === undefined) {
       return false;
-  }
+    }
 
-  const prepareValue = (value: any): string => {
+    const prepareValue = (value: any): string => {
       if (typeof value === 'string') {
-          return value.toLowerCase().trim();
+        return value.toLowerCase().trim();
       }
       return String(value).toLowerCase().trim();
-  };
+    };
 
-  const normalizedSearchValue = prepareValue(searchValue);
-  const normalizedItemValue = prepareValue(itemValue);
+    const normalizedSearchValue = prepareValue(searchValue);
+    const normalizedItemValue = prepareValue(itemValue);
 
-  let result;
-  switch (operator) {
+
+    let result;
+    switch (operator) {
       case 'contains':
           result = normalizedItemValue.includes(normalizedSearchValue);
           break;
@@ -349,10 +353,11 @@ const compareValues = async (itemValue: any, searchValue: any, operator: string)
           result = normalizedItemValue !== normalizedSearchValue;
           break;
       default:
-          result = false;
-  }
-  return result;
-};
+        result = false;
+    }
+
+    return result;
+  };
 
 
 const applyFilters = async () => {
@@ -371,19 +376,18 @@ const applyFilters = async () => {
                   continue;
               }
 
-              try {
-                  const itemValue = await getPropertyValue(item, condition.property);
-                  const matches = await compareValues(itemValue, condition.value, condition.operator);
-                  
-                  if (!matches) {
-                      matchesAllConditions = false;
-                      break;
-                  }
-              } catch (error) {
-                  console.error('Error processing condition:', error);
-                  matchesAllConditions = false;
-                  break;
-              }
+          try {
+            const itemValue = await getPropertyValue(item, condition.property);
+            const matches = await compareValues(itemValue, condition.value, condition.operator);
+
+            if (!matches) {
+              matchesAllConditions = false;
+              break;
+            }
+          } catch (error) {
+            console.error('Error processing condition:', error);
+            matchesAllConditions = false;
+            break;
           }
 
           if (matchesAllConditions) {
@@ -406,6 +410,7 @@ const applyFilters = async () => {
 
   onSearch(results);
 };
+}
 
 
   const resetFilters = () => {
@@ -424,7 +429,7 @@ const applyFilters = async () => {
       <div className='flex flex-col gap-4'>
         <Link
           onClick={addGroup}
-          underline="none"
+          underline='none'
           size={'sm'}
           className='text-14 flex justify-start w-full gap-2 rounded-0 text-default-700 bg-transparent cursor-pointer'>
           <PlusIcon size={12} />
@@ -491,7 +496,9 @@ const applyFilters = async () => {
                         updateGroupType(groupIndex, type);
                       }}>
                       {Object.entries(ITEM_TYPES).map(([label, value]) => (
-                        <DropdownItem className='min-w-0 w-full' key={value}>{label}</DropdownItem>
+                        <DropdownItem className='min-w-0 w-full' key={value}>
+                          {label}
+                        </DropdownItem>
                       ))}
                     </DropdownMenu>
                   </Dropdown>
@@ -568,8 +575,8 @@ const applyFilters = async () => {
 
                 {group.itemType && (
                   <Link
-                  onClick={() => addCondition(groupIndex)}
-                    underline="none"
+                    onClick={() => addCondition(groupIndex)}
+                    underline='none'
                     size={'sm'}
                     className='text-14 flex justify-start w-full gap-2 rounded-0 text-default-700 bg-transparent cursor-pointer'>
                     <PlusIcon size={12} />
@@ -626,7 +633,10 @@ const applyFilters = async () => {
         <Button className='px-10 py-5 rounded-8 bg-transparent' variant='flat' onClick={resetFilters}>
           Réinitialiser
         </Button>
-        <Button className='px-10 py-5 rounded-8 bg-default-action text-default-selected' color='primary' onClick={applyFilters}>
+        <Button
+          className='px-10 py-5 rounded-8 bg-default-action text-default-selected'
+          color='primary'
+          onClick={applyFilters}>
           Appliquer
         </Button>
       </div>
