@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import { Button, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/react';
 import { ArrowIcon, CrossIcon, PlusIcon, TrashIcon } from '@/components/utils/icons';
 
-import { ITEM_TYPES } from './FilterPopup'; // Assure-toi que ITEM_TYPES est exporté correctement
+import { ITEM_TYPES } from './FilterPopup'; 
 
 type Masque = {
   itemType: string;
 };
 
 type HidePopupProps = {
-  // Représente les éléments filtrés
-  onHide: (filteredItems: any[]) => void; // Fonction pour appliquer le masquage
+  onHide: (filteredItems: any[]) => void; 
 };
 
 const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
@@ -25,16 +24,14 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
     ]);
   };
 
-  // Function to remove a mask
   const removeMasque = (index: number) => {
     setFilterGroups((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Appliquer les masques
   const applyMasques = () => {
     const hiddenTypes = filterGroups.map((group) => group.itemType);
 
-    onHide(hiddenTypes); // Passe les éléments filtrés masqués à la fonction onHide
+    onHide(hiddenTypes);
   };
 
   return (

@@ -472,7 +472,7 @@ const applyFilters = async () => {
             {group.isExpanded && (
               <>
               <div className='w-full flex gap-2 items-center mt-4 mb-2'>
-                <p className='text-14 text-default-600'>Where</p>
+                <p className='text-14 text-default-600 font-semibold text-default-700'>Ou</p>
                 <Dropdown className='min-w-0 w-full p-2'>
                     <DropdownTrigger className='min-w-0 w-full'>
                       <Button className='text-14 text-default-600 px-2 py-2 flex justify-between gap-10 border-default-300 border-2 rounded-8 w-full'>
