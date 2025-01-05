@@ -14,7 +14,7 @@ import {
   ModalBody,
   useDisclosure,
 } from '@nextui-org/react';
-import { ArrowIcon, CrossIcon, PlusIcon, DotsIcon, TrashIcon, CopyIcon } from '@/components/utils/icons';
+import { ArrowIcon, CrossIcon, PlusIcon, DotsIcon } from '@/components/utils/icons';
 import { getConfs, getUniversities, getActants, getDoctoralSchools, getLaboratories, 
   getCitations, getBibliographies, getMediagraphies, getCollections, getKeywords, 
   getItemByID, getLinksFromType} from '@/services/api';
@@ -141,20 +141,38 @@ type FilterGroup = {
   conditions: FilterCondition[];
 };
 
-export default function FilterPopup({
-  onSearch,
-}: FilterPopupProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [activeGroupIndex, setActiveGroupIndex] = useState<number | null>(null);
-  const [newGroupName, setNewGroupName] = useState<string>('');
-  const [filterGroups, setFilterGroups] = useState<FilterGroup[]>([
+const STORAGE_KEY = 'filterGroups';
+
+const getInitialFilterGroups = (): FilterGroup[] => {
+  const savedFilters = localStorage.getItem(STORAGE_KEY);
+  if (savedFilters) {
+    try {
+      return JSON.parse(savedFilters);
+    } catch (e) {
+      console.error('Error parsing saved filters:', e);
+    }
+  }
+  return [
     {
       name: 'Groupe 1',
       isExpanded: true,
       itemType: '',
       conditions: [],
     },
-  ]);
+  ];
+};
+
+export default function FilterPopup({
+  onSearch,
+}: FilterPopupProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [activeGroupIndex, setActiveGroupIndex] = useState<number | null>(null);
+  const [newGroupName, setNewGroupName] = useState<string>('');
+  const [filterGroups, setFilterGroups] = useState<FilterGroup[]>(getInitialFilterGroups());
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filterGroups));
+  }, [filterGroups]);
 
   const getPropertiesByType = (type: any): any => {
     return ITEM_PROPERTIES[type] || [];
@@ -484,8 +502,12 @@ const applyFilters = async () => {
                     <div key={conditionIndex} className='flex items-center gap-2'>
                       <Dropdown className='min-w-0 w-fit p-2'>
                         <DropdownTrigger>
-                          <Button className='text-14 text-default-600 px-2 py-2 flex gap-10 justify-between border-default-300 border-2 rounded-8 min-w-[120px]'>
-                              {getPropertiesByType(group.itemType).find((prop: any) => prop.key === condition.property)?.label || 'Propriété'}
+                          <Button className='text-14 text-default-600 px-2 py-2 flex gap-10 justify-between border-default-300 border-2 rounded-8 min-w-[118px]'>
+                            {(() => {
+                              const label =
+                                getPropertiesByType(group.itemType).find((prop: any) => prop.key === condition.property)?.label || 'Propriété';
+                              return label.length > 11 ? `${label.slice(0, 9)}...` : label;
+                            })()}
                             <ArrowIcon size={12} />
                           </Button>
                         </DropdownTrigger>
@@ -504,8 +526,11 @@ const applyFilters = async () => {
 
                       <Dropdown className='min-w-0 w-fit p-2'>
                         <DropdownTrigger>
-                          <Button className='text-14 text-default-600 px-2 py-2 flex justify-between gap-10 border-default-300 border-2 rounded-8 min-w-[105px]'>
-                            {OPERATORS.find((op) => op.key === condition.operator)?.label || 'Opérateur'}
+                          <Button className='text-14 text-default-600 px-2 py-2 flex justify-between gap-10 border-default-300 border-2 rounded-8 min-w-[110px]'>
+                            {(() => {
+                              const label = OPERATORS.find((op) => op.key === condition.operator)?.label || 'Opérateur';
+                              return label.length > 10 ? `${label.slice(0, 8)}...` : label;
+                            })()}
                             <ArrowIcon size={12} />
                           </Button>
                         </DropdownTrigger>
