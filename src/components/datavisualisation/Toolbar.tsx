@@ -1,18 +1,18 @@
 import React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import SearchPopup from './SearchPopup';
 import FilterPopup from './FilterPopup';
 import { Button, Divider } from '@nextui-org/react';
 import {
   AnotateIcon,
   ExportIcon,
-  FilterIcon,
+  SearchIcon,
   ImportIcon,
   NewItemIcon,
-  SearchIcon,
+  HideIcon,
   AssociateIcon,
 } from '../utils/icons';
 import { IconSvgProps } from '@/types/types';
+import HidePopup from './HidePopup';
 
 interface ItemsProps {
   itemsDataviz: any[];
@@ -54,17 +54,10 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
 
   const getActivePopup = () => {
     switch (activeIcon) {
-      case 'search':
-        return (
-          <SearchPopup
-            itemsDataviz={itemsDataviz}
-            onSearch={(items) => onSearch(items, false)}
-            onItemSelect={handleItemSelect}
-            isAdvancedSearch={false}
-          />
-        );
       case 'filter':
-        return <FilterPopup itemsDataviz={itemsDataviz} onSearch={handleAdvancedSearch} isAdvancedSearch={true} />;
+        return <FilterPopup itemsDataviz={itemsDataviz} onSearch={handleAdvancedSearch}/>;
+      case 'hide':
+        return <HidePopup />;
       default:
         return null;
     }
@@ -95,8 +88,8 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
       <div
         className='relative w-auto flex items-center rounded-8 p-2 bg-default-100 gap-4 shadow-lg'
         ref={containerRef}>
-        {renderButton('search', SearchIcon)}
-        {renderButton('filter', FilterIcon)}
+        {renderButton('filter', SearchIcon)}
+        {renderButton('hide', HideIcon)}
         <Divider orientation='vertical' className='h-4 w-0.5 bg-default-300 mx-4' />
         {renderButton('add', NewItemIcon)}
         {renderButton('link', AssociateIcon)}

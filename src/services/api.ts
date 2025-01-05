@@ -219,11 +219,11 @@ export async function getConfs() {
 
     const confsFull = confs.map((conf: any) => ({
       ...conf,
+      type: 'conference',
       motcles: conf.motcles
         .map((keywordId: string) => {
           const keyword = keywordsMap.get(keywordId);
           if (!keyword) {
-            console.warn(`Keyword with ID ${keywordId} not found`);
             return null;
           }
           return keyword;
@@ -287,8 +287,13 @@ export async function getKeywords() {
     }
 
     const keywords = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMotCles&json=1');
-    sessionStorage.setItem('keywords', JSON.stringify(keywords));
-    return keywords;
+    const keywordsFull = keywords.map((keyword: any) => ({
+      ...keyword,
+      type: 'keyword'
+    }));
+
+    sessionStorage.setItem('keywords', JSON.stringify(keywordsFull));
+    return keywordsFull;
   }
   catch (error) {
     console.error('Error fetching keywords:', error);
@@ -310,8 +315,8 @@ export async function getCollections() {
       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCollections&json=1'
     );
 
+    
     sessionStorage.setItem('collections', JSON.stringify(collections));
-    console.log(collections)
     return collections;
   } catch (error) {
     console.error('Error fetching collections:', error);
@@ -322,13 +327,13 @@ export async function getCollections() {
 
 
 
-export async function getItemsDataViz(): Promise<any[]> {
-  const cachedItems = sessionStorage.getItem('allItems');
-  if (cachedItems) {
-    return JSON.parse(cachedItems);
-  }
-
+export async function getAllItems(): Promise<any[]> {
   try {
+    const cachedItems = sessionStorage.getItem('allItems');
+    if (cachedItems) {
+      return JSON.parse(cachedItems);
+    }
+
     const [
       confs, actants, universities, 
       laboratories, schools, 
@@ -338,115 +343,90 @@ export async function getItemsDataViz(): Promise<any[]> {
       getConfs(), getActants(), getUniversities(), 
       getLaboratories(), getDoctoralSchools(), 
       getCitations(), getBibliographies(), 
-      getMediagraphies(), getKeywords(), getCollections(),
+      getMediagraphies(), getKeywords(), getCollections()
     ]);
 
-    const transformResource = (resources: any[], type: string) => 
-      resources
-      .filter((resource: any) => resource && resource.id)
-      .map((resource: any) => {
-        const result: any = {
-          id: resource.id,
-          type,
-          title: getTitleByType(resource, type)
-        };
-
-        switch (type) {
-          case 'conf':
-            result.links = getLinksFromConf(resource);
-            break;
-          case 'actant':
-            result.links = getLinksFromActant(resource, confs);
-            break;
-          case 'university':
-            result.links = getLinksFromUniv(resource, actants);
-            break;
-          case 'school':
-            result.links = getLinksFromSchool(resource, actants);
-            break;
-          case 'laboratory':
-            result.links = getLinksFromLab(resource, actants);
-            break;
-          case 'citation':
-            result.links = getLinksFromCitation(resource, citations, confs);
-            break;
-          case 'bibliography':
-            result.links = getLinksFromBibliographies(resource, confs);
-            break;
-          case 'mediagraphie':
-            result.links = getLinksFromMediagraphies(resource, confs);
-            break;
-          case 'keyword':
-            result.links = getLinksFromKeywords(resource, confs);
-            break;
-          case 'collection':
-            result.links = getLinksFromCollections(resources, confs);
-        }
-
-        return result;
-      });
-
-    const transformedItems = [
-      ...transformResource(confs, 'conf'),
-      ...transformResource(actants, 'actant'),
-      ...transformResource(universities, 'university'),
-      ...transformResource(laboratories, 'laboratory'),
-      ...transformResource(schools, 'school'),
-      ...transformResource(citations, 'citation'),
-      ...transformResource(bibliographies, 'bibliography'),
-      ...transformResource(mediagraphies, 'mediagraphie'),
-      ...transformResource(keywords, 'keyword'),
-      ...transformResource(collections, 'collection')
+    const allItems = [
+      ...confs,
+      ...actants,
+      ...universities,
+      ...laboratories,
+      ...schools,
+      ...citations,
+      ...bibliographies,
+      ...mediagraphies,
+      ...keywords,
+      ...collections
     ];
-    
-   
 
-    sessionStorage.setItem('allItems', JSON.stringify(transformedItems));
+    sessionStorage.setItem('allItems', JSON.stringify(allItems));
 
-    return transformedItems;
+    return allItems;
   } catch (error) {
-    console.error('Erreur lors de la récupération de tous les items:', error);
-    throw new Error('Échec de la récupération des tous les items');
+    console.error('Erreur lors de la récupération des éléments:', error);
+    throw new Error('Échec de la récupération des éléments');
   }
 }
 
 
 
 
-function getTitleByType(resource: any, type: string): string {
-  if (!resource) return '';
+
+export async function getItemByID(id: string): Promise<any | null> {
+  try {
+    const allItems = await getAllItems();
+    const foundItem = allItems.find((item: any) => item.id === id);
+    return foundItem || null;
+  } catch (error) {
+    console.error('Erreur lors de la recherche de l’élément par ID:', error);
+    throw new Error('Échec de la recherche de l’élément par ID');
+  }
+}
+
+
+
+
+export const getLinksFromType = async (item: any, type: string): Promise<string[]> => {
+  if (!item) return [];
 
   switch (type) {
-    case 'conf':
-      return resource.title || '';
+    case 'conference':
+      return await getLinksFromConf(item);
     case 'citation':
-      return resource.citation || '';
+      return await getLinksFromCitation(item);
     case 'actant':
-      return `${resource.firstname || ''} ${resource.lastname || ''}`.trim();
+      return await getLinksFromActant(item);
     case 'keyword':
+      return await getLinksFromKeywords(item);
     case 'bibliography':
+      return await getLinksFromBibliographies(item);
     case 'mediagraphie':
-      return resource.title || '';
-    case 'collection':
-      return resource.title || '';
+      return await getLinksFromMediagraphies(item);
+    case 'collection': {
+      const result = await getLinksFromCollections([item]);
+      return result[0]?.links || [];
+    }
     case 'university':
+      return await getLinksFromUniv(item);
     case 'laboratory':
-    case 'school':
-      return resource.name || '';
+      return await getLinksFromLab(item);
+    case 'doctoralschool':
+      return await getLinksFromSchool(item);
     default:
-      return '';
+      return [];
   }
-}
+};
 
 
 
-function getLinksFromConf(conf: { actant?: string; collection?: string; [key: string]: any }): string[] {
+
+export async function getLinksFromConf(conf: { actant?: string; collection?: string; [key: string]: any }): Promise<string[]> {
   if (!conf) return [];
-
+  
   const links: string[] = [];
-
+  
   if (conf.actant) links.push(conf.actant);
-
+  
   ['bibliographies', 'citations', 'mediagraphies', 'recommendation', 'motcles']
     .forEach(key => {
       if (Array.isArray(conf[key])) {
@@ -456,31 +436,31 @@ function getLinksFromConf(conf: { actant?: string; collection?: string; [key: st
         ));
       }
     });
-
+  
   if (conf.collection) {
     links.push(conf.collection);
   }
-
+  
   return links;
 }
 
 
 
-function getLinksFromCollections(
-  collections: { id: string }[], 
-  confs: { id: string; actant?: string; collection?: string; [key: string]: any }[]
-): { id: string; links: string[] }[] {
-  if (!Array.isArray(collections) || !Array.isArray(confs)) return [];
 
+export async function getLinksFromCollections( collections: { id: string }[]): Promise<{ id: string; links: string[] }[]> {
+  if (!Array.isArray(collections)) return [];
+
+  const confs = await getConfs();
+  
   return collections.map(collection => {
     const links: string[] = [];
-
+    
     confs
-      .filter(conf => conf.collection === collection.id)
-      .forEach(conf => {
+      .filter((conf :any) => conf.collection === collection.id)
+      .forEach((conf :any) => {
         links.push(conf.id);
       });
-
+    
     return {
       id: collection.id,
       links
@@ -491,9 +471,11 @@ function getLinksFromCollections(
 
 
 
-function getLinksFromUniv(university: any, actants: any[]): string[] {
+export async function getLinksFromUniv(university: any): Promise<string[]> {
   if (!university || !university.id) return [];
 
+  const actants = await getActants();
+  
   return actants
     .filter((actant: any) => 
       actant && 
@@ -506,9 +488,11 @@ function getLinksFromUniv(university: any, actants: any[]): string[] {
 
 
 
-function getLinksFromSchool(school: any, actants: any[]): string[] {
+export async function getLinksFromSchool(school: any): Promise<string[]> {
   if (!school || !school.id) return [];
 
+  const actants = await getActants();
+  
   return actants
     .filter((actant: any) => 
       actant && 
@@ -521,9 +505,11 @@ function getLinksFromSchool(school: any, actants: any[]): string[] {
 
 
 
-function getLinksFromLab(laboratory: any, actants: any[]): string[] {
+export async function getLinksFromLab(laboratory: any): Promise<string[]> {
   if (!laboratory || !laboratory.id) return [];
 
+  const actants = await getActants();
+  
   return actants
     .filter((actant: any) => 
       actant && 
@@ -536,67 +522,72 @@ function getLinksFromLab(laboratory: any, actants: any[]): string[] {
 
 
 
-function getLinksFromCitation(identifiant: any, citations: any[], confs: any[]): string[] {
+export async function getLinksFromCitation(identifiant: any): Promise<string[]> {
   if (!identifiant || !identifiant.id) return [];
-
+  
   const links: string[] = [];
-
-  const citation = citations.find(c => c.id === identifiant.id);
-
+  const confs = await getConfs();
+  const citations = await getCitations();
+  
+  const citation = citations.find((c :any) => c.id === identifiant.id);
+  
   if (citation && Array.isArray(citation.motcles)) {
     links.push(...citation.motcles.filter(Boolean));
   }
-
-  confs.forEach(conf => {
+  
+  confs.forEach((conf: any) => {
     if (conf && Array.isArray(conf.citations) && conf.citations.includes(identifiant.id)) {
       if (conf.actant) {
         links.push(conf.actant);
       }
     }
   });
+  
   return links;
 }
 
 
 
 
-function getLinksFromActant(actant: any, confs: any[]): string[] {
+export async function getLinksFromActant(actant: any): Promise<string[]> {
   if (!actant || !actant.id) return [];
 
   const links: string[] = [];
 
-  ['laboritories', 'universities', 'doctoralSchools']
-    .forEach(key => {
-      if (Array.isArray(actant[key])) {
-        links.push(...actant[key]
+  ['laboritories', 'universities', 'doctoralSchools'].forEach(key => {
+    if (Array.isArray(actant[key])) {
+      links.push(
+        ...actant[key]
           .filter((item: any) => item && item.id)
           .map((item: any) => item.id)
-        );
-      }
-    });
-  confs.forEach(conf => {
+      );
+    }
+  });
+
+  const confs = await getConfs();
+  confs.forEach((conf: any) => {
     if (conf && conf.id && conf.actant === actant.id) {
       if (Array.isArray(conf.citations)) {
         links.push(...conf.citations.filter(Boolean));
       }
       if (Array.isArray(conf.motcles)) {
-        links.push(...conf.motcles
-          .filter((motcle: any) => motcle && motcle.id)
-          .map((motcle: any) => motcle.id)
+        links.push(
+          ...conf.motcles
+            .filter((motcle: any) => motcle && motcle.id)
+            .map((motcle: any) => motcle.id)
         );
       }
     }
   });
+  console.log(links);
   return links;
 }
 
-
-
-
-function getLinksFromBibliographies(bibliography: any, confs: any[]): string[] {
+export async function getLinksFromBibliographies(bibliography: any): Promise<string[]> {
   if (!bibliography || !bibliography.id) return [];
   const links: string[] = [];
-  confs.forEach(conf => {
+  const confs = await getConfs();
+  confs.forEach((conf: any) => {
     if (conf && Array.isArray(conf.bibliographies) && conf.bibliographies.includes(bibliography.id)) {
       links.push(conf.id);  
       if (Array.isArray(conf.motcles)) {
@@ -607,18 +598,16 @@ function getLinksFromBibliographies(bibliography: any, confs: any[]): string[] {
       }
     }
   });
+  
   return links;
 }
 
-
-
-
-function getLinksFromMediagraphies(mediagraphie: any, confs: any[]): string[] {
+export async function getLinksFromMediagraphies(mediagraphie: any, ): Promise<string[]> {
   if (!mediagraphie || !mediagraphie.id) return [];
-
+  
   const links: string[] = [];
-
-  confs.forEach(conf => {
+  const confs = await getConfs();
+  confs.forEach((conf : any) => {
     if (conf && Array.isArray(conf.mediagraphies) && conf.mediagraphies.includes(mediagraphie.id)) {
       links.push(conf.id);  
       if (Array.isArray(conf.motcles)) {
@@ -629,18 +618,16 @@ function getLinksFromMediagraphies(mediagraphie: any, confs: any[]): string[] {
       }
     }
   });
+  
   return links;
 }
 
-
-
-
-function getLinksFromKeywords(keyword: any, confs: any[]): string[] {
+export async function getLinksFromKeywords(keyword: any): Promise<string[]> {
   if (!keyword || !keyword.id) return [];
-
+  
   const links: string[] = [];
-
-  confs.forEach(conf => {
+  const confs = await getConfs();
+  confs.forEach((conf:any) => {
     if (conf && 
         Array.isArray(conf.motcles) && 
         conf.motcles.some((motcle: any) => motcle && motcle.id === keyword.id)) {
@@ -659,7 +646,7 @@ function getLinksFromKeywords(keyword: any, confs: any[]): string[] {
       }
     }
   });
-
+  
   return links;
 }
 
@@ -684,11 +671,16 @@ export async function getActants() {
     const doctoralSchoolMap = new Map(doctoralSchools.map((school: { id: any; }) => [school.id, school]));
     const laboratoryMap = new Map(laboratories.map((lab: { id: any; }) => [lab.id, lab]));
 
-    const updatedActants = actants.map((actant: { id: number; universities: string[]; doctoralSchools: string[]; laboritories: string[]; }) => {
+    const updatedActants = actants.map((actant: {
+      firstname: string;
+      lastname: string; id: number; universities: string[]; doctoralSchools: string[]; laboritories: string[]; 
+      }) => {
       const interventionsCount = confs.filter((conf: { actant: string }) => conf.actant === String(actant.id)).length;
 
       return {
         ...actant,
+        title: actant.firstname + ' ' + actant.lastname,
+        type: 'actant',
         interventions: interventionsCount,
         universities: actant.universities.map(id => universityMap.get(id)),
         doctoralSchools: actant.doctoralSchools.map(id => doctoralSchoolMap.get(id)),
@@ -696,6 +688,7 @@ export async function getActants() {
       };
     });
 
+    console.log(updatedActants);
     sessionStorage.setItem('actants', JSON.stringify(updatedActants));
     return updatedActants;
   }
@@ -717,9 +710,15 @@ export async function getUniversities() {
     }
 
     const universities = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getUniversities&json=1');
-    sessionStorage.setItem('universities', JSON.stringify(universities));
 
-    return universities;
+    const universitiesFull = universities.map((university: any) => ({
+      ...university,
+      title: university.name,
+      type: 'university'
+    }));
+
+    sessionStorage.setItem('universities', JSON.stringify(universitiesFull));
+    return universitiesFull;
   }
   catch (error) {
     console.error('Error fetching universities:', error);
@@ -739,9 +738,14 @@ export async function getLaboratories() {
     }
 
     const laboritories = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getLaboratories&json=1');
-    sessionStorage.setItem('laboritories', JSON.stringify(laboritories));
+    const laboritoriesFull = laboritories.map((laboritory: any) => ({
+      ...laboritory,
+      title: laboritory.name,
+      type: 'laboritory'
+    }));
 
-    return laboritories;
+    sessionStorage.setItem('laboritories', JSON.stringify(laboritoriesFull));
+    return laboritoriesFull;
   }
   catch (error) {
     console.error('Error fetching laboritories:', error);
@@ -761,9 +765,14 @@ export async function getDoctoralSchools() {
     }
 
     const doctoralSchools = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getDoctoralSchools&json=1');
-    sessionStorage.setItem('doctoralSchools', JSON.stringify(doctoralSchools));
+    const doctoralSchoolsFull = doctoralSchools.map((doctoralSchool: any) => ({
+      ...doctoralSchool,
+      title: doctoralSchool.name,
+      type: 'doctoralchool'
+    }));
 
-    return doctoralSchools;
+    sessionStorage.setItem('doctoralSchools', JSON.stringify(doctoralSchoolsFull));
+    return doctoralSchoolsFull;
   }
   catch (error) {
     console.error('Error fetching doctoralSchools:', error);
@@ -916,9 +925,14 @@ export async function getCitations() {
     }
 
     const citations = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCitations&json=1');
-    sessionStorage.setItem('citations', JSON.stringify(citations));
+    const citationsFull = citations.map((citation: any) => ({
+      ...citation,
+      title: citation.citation,
+      type: 'citation'
+    }));
 
-    return citations;
+    sessionStorage.setItem('citations', JSON.stringify(citationsFull));
+    return citationsFull;
   }
   catch (error) {
     console.error('Error fetching actants:', error);
@@ -969,9 +983,13 @@ export async function getBibliographies() {
     }
 
     const bibliographies = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getBibliographies&json=1');
-    sessionStorage.setItem('bibliographies', JSON.stringify(bibliographies));
+    const bibliographiesFull = bibliographies.map((bibliographie: any) => ({
+      ...bibliographie,
+      type: 'bibliography'
+    }));
 
-    return bibliographies;
+    sessionStorage.setItem('bibliographies', JSON.stringify(bibliographiesFull));
+    return bibliographiesFull;
   }
   catch (error) {
     console.error('Error fetching bibliographies:', error);
@@ -1014,9 +1032,13 @@ export async function getMediagraphies() {
     }
 
     const mediagraphies = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMediagraphies&json=1');
-    sessionStorage.setItem('mediagraphies', JSON.stringify(mediagraphies));
+    const mediagraphiesFull = mediagraphies.map((mediagraphie: any) => ({
+      ...mediagraphie,
+      type: 'mediagraphie'
+    }));
 
-    return mediagraphies;
+    sessionStorage.setItem('mediagraphies', JSON.stringify(mediagraphiesFull));
+    return mediagraphiesFull;
   } catch (error) {
     console.error('Error fetching mediagraphies:', error);
     throw new Error('Failed to fetch mediagraphies');

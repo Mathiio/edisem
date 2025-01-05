@@ -7,6 +7,7 @@ import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { ActantCard, ActantSkeleton } from '@/components/home/ActantCards';
 import { motion, Variants } from 'framer-motion';
 
+
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
   visible: (index: number) => ({
@@ -56,6 +57,7 @@ export const Home: React.FC = () => {
 
     dataFetchedRef.current = true;
   }, [fetchSeminaires, fetchActants, fetchRandomConf]);
+
 
   return (
     <div className='relative bg-default-50 h-screen'>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Divider,
@@ -13,228 +13,429 @@ import {
   ModalBody,
   useDisclosure,
 } from '@nextui-org/react';
-import { ArrowIcon, AddIcon, CrossIcon, PlusIcon, DotsIcon, TrashIcon, CopyIcon } from '@/components/utils/icons';
+import { ArrowIcon, CrossIcon, PlusIcon, DotsIcon, TrashIcon, CopyIcon } from '@/components/utils/icons';
+import { getConfs, getUniversities, getActants, getDoctoralSchools, getLaboratories, 
+  getCitations, getBibliographies, getMediagraphies, getCollections, getKeywords, 
+  getItemByID, getLinksFromType} from '@/services/api';
+
+
+
+  const ITEM_PROPERTIES: any = {
+    actant: [
+      { key: 'firstname', label: 'Prénom' },
+      { key: 'lastname', label: 'Nom' },
+      {
+        key: 'laboratories',
+        label: 'Laboratoire',
+        transform: (labs: any[]) => labs.map((lab) => lab.title).join(', '),
+      },
+      {
+        key: 'doctoralSchools',
+        label: 'Ecole doctorale',
+        transform: (schools: any[]) => schools.map((school) => school.title).join(', '),
+      },
+      {
+        key: 'universities',
+        label: 'Université',
+        transform: (universities: any[]) => universities.map((uni) => uni.title).join(', '),
+      },
+    ],
+    conference: [
+      { key: 'title', label: 'Titre' },
+      { key: 'actant', label: 'Actant', transform: async (id: any) => {
+          const item = await getItemByID(id);
+          return item?.title || 'Inconnu';
+        }},
+      { key: 'motcles', label: 'Mot clé', transform: async (ids: any) => {
+          const titles = await Promise.all(ids.map(async (id: any) => {
+            const item = await getItemByID(id);
+            return item?.title || 'Inconnu';
+          }));
+          return titles.join(', ');
+        }},
+      { key: 'date', label: 'Date' },
+    ],
+    citation: [
+      { key: 'actant', label: 'Actant', transform: async (id: any) => {
+        const item = await getItemByID(id);
+        return item?.title || 'Inconnu';
+      }},
+      { key: 'citation', label: 'Citation' },
+      { key: 'motcles', label: 'Mot clé', transform: async (ids: any) => {
+        const titles = await Promise.all(ids.map(async (id: any) => {
+          const item = await getItemByID(id);
+          return item?.title || 'Inconnu';
+        }));
+        return titles.join(', ');
+      }},
+    ],
+    collection: [
+      { key: 'title', label: 'Nom' }
+    ],
+    keyword: [
+      { key: 'title', label: 'Mot Clé' },
+      { key: 'definition', label: 'Définition' }
+    ],
+    university: [
+      { key: 'title', label: 'Nom' },
+      { key: 'country', label: 'Pays' }
+    ],
+    doctoralschool: [
+      { key: 'title', label: 'Nom' }
+    ],
+    laboratory: [
+      { key: 'title', label: 'Nom' }
+    ],
+    bibliography: [
+      { key: 'title', label: 'Titre' }
+    ],
+    mediagraphie: [
+      { key: 'title', label: 'Titre' }
+    ]
+  };
+
+
+  const ITEM_TYPES = {
+    citations: 'citation',
+    conférences: 'conference',
+    actants: 'actant',
+    'mots clés': 'keyword',
+    bibliographies: 'bibliography',
+    médiagraphies: 'mediagraphie',
+    collections: 'collection',
+    universités: 'university',
+    laboratoires: 'laboratory',
+    'écoles doctorales': 'doctoralschool',
+  };
+
+  const OPERATORS = [
+    { key: 'contains', label: 'Contient' },
+    { key: 'notEquals', label: 'Différent de' },
+  ];
 
 interface FilterPopupProps {
-  itemsDataviz: any[];
-  // onSearch: (results: any[]) => void;
-  // onItemSelect: (item: any) => void;
-  isAdvancedSearch: boolean; // Ajout de cette propriété
+  getConfs: () => any[];
+  getUniversities: () => any[];
+  getActants: () => any[];
+  getDoctoralSchools: () => any[];
+  getLaboratories: () => any[];
+  getCitations: () => any[];
+  getBibliographies: () => any[];
+  getMediagraphies: () => any[];
+  getCollections: () => any[];
+  getKeywords: () => any[];
+  onSearch: (results: any[]) => void;
 }
 
-type DataLink = {
-  id: string;
-  type: string;
-  title: string;
-  links: string[];
-};
-
-type DataLinks = {
-  [key: string]: DataLink;
-};
-
 type FilterCondition = {
-  type: string;
-  value: string;
+  property: string;
   operator: string;
+  value: string;
 };
 
 type FilterGroup = {
   name: string;
   isExpanded: boolean;
+  itemType: string;
   conditions: FilterCondition[];
 };
 
-const FilterPopup: React.FC<FilterPopupProps & { onSearch: (results: any[]) => void }> = ({
-  itemsDataviz,
+export default function FilterPopup({
   onSearch,
-  isAdvancedSearch,
-}) => {
-  const AVAILABLE_TYPES = ['conf', 'actant', 'bibliographies', 'médiagraphies', 'citations', 'keyword'];
-  const OPERATORS = [
-    { key: 'equals', label: 'Égal à' },
-    { key: 'contains', label: 'Contient' },
-    { key: 'notEquals', label: 'Autre que' },
-  ];
-  const FIELD_TYPES = [
-    { key: 'type', label: 'Type' },
-    { key: 'title', label: 'Titre' },
-    { key: 'links', label: 'Liens' },
-  ];
-
+}: FilterPopupProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [activeGroupIndex, setActiveGroupIndex] = useState<number | null>(null);
   const [newGroupName, setNewGroupName] = useState<string>('');
+  const [filterGroups, setFilterGroups] = useState<FilterGroup[]>([
+    {
+      name: 'Groupe 1',
+      isExpanded: true,
+      itemType: '',
+      conditions: [],
+    },
+  ]);
 
-  const openModal = (groupIndex: number, currentName: string) => {
-    setActiveGroupIndex(groupIndex);
-    setNewGroupName(currentName);
-    onOpen();
+  const getPropertiesByType = (type: any): any => {
+    return ITEM_PROPERTIES[type] || [];
   };
 
-  const [filterGroups, setFilterGroups] = useState<FilterGroup[]>([]);
-
-  const cleanLinksByGroups = (data: any[], filterGroups: FilterGroup[]) => {
-    // Récupérer tous les types utilisés dans les filtres
-    const allowedTypes = filterGroups.flatMap((group) =>
-      group.conditions.filter((c) => c.type === 'type').map((c) => c.value),
-    );
-
-    return data.map((item) => {
-      if (item.links) {
-        // Filter links to only keep IDs of items with allowed types
-        const cleanedLinks = item.links.filter((linkedItemId: any) => {
-          const linkedItem = data.find((i) => i.id === linkedItemId);
-          return linkedItem && allowedTypes.includes(linkedItem.type);
-        });
-        return { ...item, links: cleanedLinks };
-      }
-      return item;
-    });
+  const getDataByType = async (type: string): Promise<any[]> => {
+    switch (type) {
+      case 'citation':
+        return await getCitations() || [];
+      case 'conference':
+        return await getConfs() || [];
+      case 'actant':
+        return await getActants() || [];
+      case 'keyword':
+        return await getKeywords() || [];
+      case 'bibliography':
+        return await getBibliographies() || [];
+      case 'mediagraphie':
+        return await getMediagraphies() || [];
+      case 'collection':
+        return await getCollections() || [];
+      case 'university':
+        return await getUniversities() || [];
+      case 'laboratory':
+        return await getLaboratories() || [];
+      case 'doctoralschool':
+        return await getDoctoralSchools() || [];
+      default:
+        return [];
+    }
   };
 
-  const applyFilters = () => {
-    // Commencer avec une copie des données
-    let filteredData: any[] = [];
-
-    // Traiter chaque groupe de filtres séparément et combiner les résultats
-    filterGroups.forEach((group) => {
-      let groupResult = [...itemsDataviz];
-
-      // Récupérer les conditions de type pour ce groupe
-      const typeConditions = group.conditions.filter((c) => c.type === 'type');
-      const titleConditions = group.conditions.filter((c) => c.type === 'title');
-
-      // Appliquer les conditions de type
-      typeConditions.forEach((condition) => {
-        switch (condition.operator) {
-          case 'equals':
-            groupResult = groupResult.filter((item) => item.type === condition.value);
-            break;
-          case 'contains':
-            groupResult = groupResult.filter((item) => item.type.includes(condition.value));
-            break;
-        }
-      });
-
-      // Appliquer les conditions de titre (avec OR entre elles)
-      if (titleConditions.length > 0) {
-        groupResult = groupResult.filter((item) =>
-          titleConditions.some((condition) => {
-            switch (condition.operator) {
-              case 'equals':
-                return item.title === condition.value;
-              case 'contains':
-                return item.title?.toLowerCase().includes(condition.value.toLowerCase());
-              default:
-                return false;
-            }
-          }),
-        );
-      }
-
-      // Ajouter les résultats de ce groupe au résultat final
-      filteredData = [...filteredData, ...groupResult];
-    });
-
-    // Supprimer les doublons
-    filteredData = Array.from(new Set(filteredData.map((item) => item.id))).map((id) =>
-      filteredData.find((item) => item.id === id),
-    );
-
-    // Nettoyer les liens en fonction des types utilisés dans tous les groupes
-    filteredData = cleanLinksByGroups(filteredData, filterGroups);
-
-    onSearch(filteredData);
-  };
 
   const addGroup = () => {
-    const newGroupNumber = filterGroups.length + 1;
-    setFilterGroups([
-      ...filterGroups,
+    setFilterGroups((prev) => [
+      ...prev,
       {
-        name: `Groupe ${newGroupNumber}`,
+        name: `Groupe ${prev.length + 1}`,
         isExpanded: true,
+        itemType: '',
         conditions: [],
       },
     ]);
   };
 
   const removeGroup = (groupIndex: number) => {
-    setFilterGroups(filterGroups.filter((_, i) => i !== groupIndex));
+    setFilterGroups((prev) => prev.filter((_, i) => i !== groupIndex));
   };
 
   const duplicateGroup = (groupIndex: number) => {
-    const groupToDuplicate = filterGroups[groupIndex];
-    const newGroupNumber = filterGroups.length + 1;
-    setFilterGroups([
-      ...filterGroups,
+    setFilterGroups((prev) => [
+      ...prev,
       {
-        ...groupToDuplicate,
-        name: `${groupToDuplicate.name} (copie)`,
-        conditions: [...groupToDuplicate.conditions],
+        ...prev[groupIndex],
+        name: `${prev[groupIndex].name} (copie)`,
       },
     ]);
   };
 
-  const renameGroup = (groupIndex: number, newName: string) => {
-    const updatedGroups = [...filterGroups];
-    updatedGroups[groupIndex].name = newName;
-    setFilterGroups(updatedGroups);
-    onClose();
-  };
-
   const toggleGroupExpansion = (groupIndex: number) => {
-    const newGroups = [...filterGroups];
-    newGroups[groupIndex].isExpanded = !newGroups[groupIndex].isExpanded;
-    setFilterGroups(newGroups);
+    setFilterGroups((prev) =>
+      prev.map((group, i) => (i === groupIndex ? { ...group, isExpanded: !group.isExpanded } : group)),
+    );
   };
 
   const addCondition = (groupIndex: number) => {
-    const newGroups = [...filterGroups];
-    newGroups[groupIndex].conditions.push({
-      type: 'type',
-      value: AVAILABLE_TYPES[0],
-      operator: 'equals',
-    });
-    setFilterGroups(newGroups);
+    setFilterGroups((prev) =>
+      prev.map((group, i) => {
+        if (i !== groupIndex) return group;
+        return {
+          ...group,
+          conditions: [
+            ...group.conditions,
+            {
+              property: '',
+              operator: 'contains',
+              value: '',
+            },
+          ],
+        };
+      }),
+    );
   };
 
   const removeCondition = (groupIndex: number, conditionIndex: number) => {
-    const newGroups = [...filterGroups];
-    newGroups[groupIndex].conditions.splice(conditionIndex, 1);
-    setFilterGroups(newGroups);
+    setFilterGroups((prev) =>
+      prev.map((group, i) => {
+        if (i !== groupIndex) return group;
+        return {
+          ...group,
+          conditions: group.conditions.filter((_, j) => j !== conditionIndex),
+        };
+      }),
+    );
   };
 
-  const updateCondition = (
-    groupIndex: number,
-    conditionIndex: number,
-    field: keyof (typeof filterGroups)[0]['conditions'][0],
-    value: string,
-  ) => {
-    const updatedGroups = [...filterGroups];
-    updatedGroups[groupIndex].conditions[conditionIndex][field] = value;
-    setFilterGroups(updatedGroups);
+  const updateCondition = (groupIndex: number, conditionIndex: number, field: keyof FilterCondition, value: string) => {
+    setFilterGroups((prev) =>
+      prev.map((group, i) => {
+        if (i !== groupIndex) return group;
+        return {
+          ...group,
+          conditions: group.conditions.map((condition, j) => {
+            if (j !== conditionIndex) return condition;
+            return { ...condition, [field]: value };
+          }),
+        };
+      }),
+    );
   };
 
-  const getDropdownLabel = (field: string, condition: FilterCondition) => {
-    switch (field) {
-      case 'type':
-        return FIELD_TYPES.find((f) => f.key === condition.type)?.label || 'Type';
-      case 'operator':
-        return OPERATORS.find((op) => op.key === condition.operator)?.label || 'Égal à';
-      case 'value':
-        if (condition.type === 'type') {
-          return condition.value || AVAILABLE_TYPES[0];
+  const updateGroupType = (groupIndex: number, itemType: string) => {
+    setFilterGroups((prev) =>
+      prev.map((group, i) => {
+        if (i !== groupIndex) return group;
+        return {
+          ...group,
+          itemType,
+          conditions: [],
+        };
+      }),
+    );
+  };
+
+  const getPropertyValue = async (item: any, property: string): Promise<any> => {
+    console.log('Getting property:', property, 'from item:', item);
+    
+    // Vérifie d'abord si la propriété existe directement
+    if (property in item) {
+        const value = item[property];
+        console.log('Direct value found:', value);
+        
+        // Recherche la configuration pour voir s'il y a une transformation à appliquer
+        const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
+        if (propertyConfig?.transform) {
+            console.log('Applying transform to direct value');
+            const transformed = await propertyConfig.transform(value);
+            console.log('Transformed result:', transformed);
+            return transformed;
         }
-        return condition.value || 'Sélectionner...';
-      default:
-        return 'Sélectionner...';
+        
+        return value;
     }
+
+    // Si la propriété n'existe pas directement, cherche une config
+    const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
+    console.log('Property config:', propertyConfig);
+    
+    if (!propertyConfig) return null;
+
+    if (propertyConfig.transform) {
+        try {
+            const transformed = await propertyConfig.transform(item[property]);
+            console.log('Transformed value:', transformed);
+            return transformed;
+        } catch (error) {
+            console.error('Transform error:', error);
+            return null;
+        }
+    }
+
+    return null;
+};
+
+const compareValues = async (itemValue: any, searchValue: any, operator: string): Promise<boolean> => {
+  console.log('--- Comparing Values ---');
+  console.log('Original values:', {
+      itemValue: itemValue,
+      searchValue: searchValue,
+      type: operator
+  });
+
+  // Protection contre les valeurs null/undefined
+  if (itemValue === null || itemValue === undefined || searchValue === null || searchValue === undefined) {
+      console.log('Null/undefined values detected');
+      return false;
+  }
+
+  // Préparation des valeurs pour la comparaison
+  const prepareValue = (value: any): string => {
+      if (typeof value === 'string') {
+          return value.toLowerCase().trim();
+      }
+      return String(value).toLowerCase().trim();
   };
+
+  const normalizedSearchValue = prepareValue(searchValue);
+  const normalizedItemValue = prepareValue(itemValue);
+
+  console.log('Normalized values:', {
+      normalizedItemValue,
+      normalizedSearchValue
+  });
+
+  let result;
+  switch (operator) {
+      case 'contains':
+          result = normalizedItemValue.includes(normalizedSearchValue);
+          break;
+      case 'notEquals':
+          result = normalizedItemValue !== normalizedSearchValue;
+          break;
+      default:
+          result = false;
+  }
+
+  console.log('Comparison result:', result);
+  return result;
+};
+
+
+const applyFilters = async () => {
+  const results: any[] = [];
+
+  for (const group of filterGroups) {
+      if (!group.itemType) continue;
+      console.log('Processing group type:', group.itemType);
+
+      const items = await getDataByType(group.itemType);
+      
+      for (const item of items) {
+          let matchesAllConditions = true;
+
+          for (const condition of group.conditions) {
+              if (!condition.property || !condition.value) {
+                  continue;
+              }
+
+              console.log('Checking condition:', {
+                  property: condition.property,
+                  value: condition.value,
+                  operator: condition.operator
+              });
+
+              try {
+                  const itemValue = await getPropertyValue(item, condition.property);
+                  console.log('Retrieved item value:', itemValue);
+
+                  const matches = await compareValues(itemValue, condition.value, condition.operator);
+                  
+                  if (!matches) {
+                      matchesAllConditions = false;
+                      break;
+                  }
+              } catch (error) {
+                  console.error('Error processing condition:', error);
+                  matchesAllConditions = false;
+                  break;
+              }
+          }
+
+          if (matchesAllConditions) {
+              try {
+                  const links = await getLinksFromType(item, group.itemType);
+                  const title = item.title || await getPropertyValue(item, 'title') || '';
+                  
+                  results.push({
+                      id: item.id,
+                      type: group.itemType,
+                      title,
+                      links
+                  });
+              } catch (error) {
+                  console.error('Error adding result item:', error);
+              }
+          }
+      }
+  }
+
+  onSearch(results);
+};
+
 
   const resetFilters = () => {
-    setFilterGroups([]);
+    setFilterGroups([
+      {
+        name: 'Groupe 1',
+        isExpanded: true,
+        itemType: '',
+        conditions: [],
+      },
+    ]);
   };
 
   return (
@@ -248,91 +449,102 @@ const FilterPopup: React.FC<FilterPopupProps & { onSearch: (results: any[]) => v
         </Button>
         <Divider />
       </div>
+
       <div className='flex flex-col flex-1 gap-10 overflow-y-auto'>
         {filterGroups.map((group, groupIndex) => (
           <div key={groupIndex} className='border rounded-lg gap-4 p-4 bg-default-200 rounded-8'>
-            <div className='flex items-center justify-between  '>
+            <div className='flex items-center justify-between mb-4'>
               <div className='flex items-center gap-2'>
                 <Button className='text-default-600' onClick={() => toggleGroupExpansion(groupIndex)}>
                   <ArrowIcon
                     size={14}
-                    className={`transition-all ease-in-out duration-200 ${group.isExpanded ? 'rotate-90' : 'rotate-0'}`}
+                    className={`transition-all duration-200 ${group.isExpanded ? 'rotate-90' : ''}`}
                   />
                 </Button>
                 <span className='font-medium'>{group.name}</span>
               </div>
-              <Dropdown className='min-w-0 w-fit p-2'>
+
+              <Dropdown>
                 <DropdownTrigger>
-                  <Button size='md'>
+                  <Button size='sm'>
                     <DotsIcon size={14} className='text-default-600' />
                   </Button>
                 </DropdownTrigger>
-                <DropdownMenu className='w-32'>
-                  <DropdownItem key='rename' className='w-32' onClick={() => openModal(groupIndex, group.name)}>
+                <DropdownMenu>
+                  <DropdownItem
+                    onClick={() => {
+                      setActiveGroupIndex(groupIndex);
+                      setNewGroupName(group.name);
+                      onOpen();
+                    }}>
                     Renommer
                   </DropdownItem>
-                  <DropdownItem
-                    key='duplicate'
-                    className='w-32'
-                    startContent={<CopyIcon size={12} />}
-                    onClick={() => duplicateGroup(groupIndex)}>
-                    Dupliquer
-                  </DropdownItem>
-                  <DropdownItem
-                    key='delete'
-                    className='flex gap-1.5 w-32'
-                    startContent={<TrashIcon size={12} />}
-                    onClick={() => removeGroup(groupIndex)}>
-                    <p className='text-default-600 text-16'>Supprimer</p>
-                  </DropdownItem>
+                  <DropdownItem onClick={() => duplicateGroup(groupIndex)}>Dupliquer</DropdownItem>
+                  <DropdownItem onClick={() => removeGroup(groupIndex)}>Supprimer</DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             </div>
 
             {group.isExpanded && (
               <>
-                <div className='space-y-2 flex flex-col gap-1 py-4'>
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button className='mb-4 w-full justify-between'>
+                      {group.itemType
+                        ? Object.entries(ITEM_TYPES).find(([, value]) => value === group.itemType)?.[0]
+                        : "Sélectionner un type d'item"}
+                      <ArrowIcon size={12} />
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    selectionMode='single'
+                    selectedKeys={group.itemType ? [group.itemType] : []}
+                    onSelectionChange={(keys) => {
+                      const type = Array.from(keys)[0] as string;
+                      updateGroupType(groupIndex, type);
+                    }}>
+                    {Object.entries(ITEM_TYPES).map(([label, value]) => (
+                      <DropdownItem key={value}>{label}</DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+
+                <div className='space-y-2 mb-4'>
                   {group.conditions.map((condition, conditionIndex) => (
                     <div key={conditionIndex} className='flex items-center gap-2'>
-                      <Dropdown className='min-w-0 w-fit p-2'>
+                      <Dropdown>
                         <DropdownTrigger>
-                          <Button
-                            endContent={<ArrowIcon size={12} className='text-default-600' />}
-                            className='px-2 py-2 flex gap-10 border-default-400 border-2 rounded-8 min-w-[80px]'>
-                            {getDropdownLabel('type', condition)}
+                          <Button className='flex-1'>
+                              {getPropertiesByType(group.itemType).find((prop: any) => prop.key === condition.property)?.label || 'Propriété'}
+                            <ArrowIcon size={12} />
                           </Button>
                         </DropdownTrigger>
                         <DropdownMenu
-                          variant='flat'
-                          disallowEmptySelection
                           selectionMode='single'
-                          selectedKeys={new Set([condition.type])}
-                          onSelectionChange={(selectedKey) => {
-                            const value = Array.from(selectedKey)[0];
-                            updateCondition(groupIndex, conditionIndex, 'type', value as string);
+                          selectedKeys={condition.property ? [condition.property] : []}
+                          onSelectionChange={(keys) => {
+                            const prop = Array.from(keys)[0] as string;
+                            updateCondition(groupIndex, conditionIndex, 'property', prop);
                           }}>
-                          {FIELD_TYPES.map((type) => (
-                            <DropdownItem key={type.key}>{type.label}</DropdownItem>
+                          {getPropertiesByType(group.itemType).map((prop:any) => (
+                            <DropdownItem key={prop.key}>{prop.label}</DropdownItem>
                           ))}
                         </DropdownMenu>
                       </Dropdown>
 
-                      <Dropdown className='min-w-0 w-fit p-2'>
+                      <Dropdown>
                         <DropdownTrigger>
-                          <Button
-                            endContent={<ArrowIcon size={12} className='text-default-600' />}
-                            className='px-2 py-2 flex justify-between gap-10 border-default-400 border-2 rounded-8 min-w-[105px]'>
-                            {getDropdownLabel('operator', condition)}
+                          <Button className='flex-1'>
+                            {OPERATORS.find((op) => op.key === condition.operator)?.label || 'Opérateur'}
+                            <ArrowIcon size={12} />
                           </Button>
                         </DropdownTrigger>
                         <DropdownMenu
-                          variant='flat'
-                          disallowEmptySelection
                           selectionMode='single'
-                          selectedKeys={new Set([condition.operator])}
-                          onSelectionChange={(selectedKey) => {
-                            const value = Array.from(selectedKey)[0];
-                            updateCondition(groupIndex, conditionIndex, 'operator', value as string);
+                          selectedKeys={[condition.operator]}
+                          onSelectionChange={(keys) => {
+                            const op = Array.from(keys)[0] as string;
+                            updateCondition(groupIndex, conditionIndex, 'operator', op);
                           }}>
                           {OPERATORS.map((op) => (
                             <DropdownItem key={op.key}>{op.label}</DropdownItem>
@@ -340,98 +552,75 @@ const FilterPopup: React.FC<FilterPopupProps & { onSearch: (results: any[]) => v
                         </DropdownMenu>
                       </Dropdown>
 
-                      {condition.type === 'type' ? (
-                        <Dropdown className='flex flex-start min-w-0 w-fit p-2'>
-                          <DropdownTrigger className='w-full flex flex-start'>
-                            <Button
-                              endContent={<ArrowIcon size={12} className='text-default-600' />}
-                              className='justify-between px-2 py-2 flex gap-10 border-default-400 border-2 rounded-8 w-[120px] '>
-                              {getDropdownLabel('value', condition)}
-                            </Button>
-                          </DropdownTrigger>
-                          <DropdownMenu
-                            variant='flat'
-                            disallowEmptySelection
-                            selectionMode='single'
-                            selectedKeys={new Set([condition.value])} // Ajoutez ceci
-                            onSelectionChange={(selectedKey) => {
-                              const value = Array.from(selectedKey)[0];
-                              updateCondition(groupIndex, conditionIndex, 'value', value as string);
-                            }}>
-                            {AVAILABLE_TYPES.map((type) => (
-                              <DropdownItem key={type}>{type}</DropdownItem>
-                            ))}
-                          </DropdownMenu>
-                        </Dropdown>
-                      ) : (
-                        <Input
-                          classNames={{
-                            mainWrapper: 'h-full',
-                            input: 'text-default-400 ',
-                            inputWrapper:
-                              'shadow-none bg-default-100 border-1 border-default-100 group-data-[focus=true]:bg-default-100 rounded-8 font-normal text-default-600 bg-default-100 dark:bg-default-100 h-full',
-                          }}
-                          placeholder='Nom ...'
-                          onChange={(e) => updateCondition(groupIndex, conditionIndex, 'value', e.target.value)}
-                          type='search'
-                          fullWidth
-                        />
-                      )}
+                      <Input
+                        value={condition.value}
+                        onChange={(e) => updateCondition(groupIndex, conditionIndex, 'value', e.target.value)}
+                        placeholder='Valeur...'
+                        className='flex-1'
+                      />
 
-                      <Button variant='ghost' size='sm' onClick={() => removeCondition(groupIndex, conditionIndex)}>
+                      <Button size='sm' isIconOnly onClick={() => removeCondition(groupIndex, conditionIndex)}>
                         <CrossIcon size={14} className='text-default-600' />
                       </Button>
                     </div>
                   ))}
                 </div>
 
-                <Button
-                  onClick={() => addCondition(groupIndex)}
-                  className='text-14 flex justify-start w-full gap-2 rounded-0 bg-default-transparent text-default-600'>
-                  <PlusIcon size={12} className='text-default-600' />
-                  Ajouter une condition
-                </Button>
+                {group.itemType && (
+                  <Button
+                    onClick={() => addCondition(groupIndex)}
+                    className='text-14 flex justify-start w-full gap-2 bg-transparent text-default-600'>
+                    <PlusIcon size={12} />
+                    Ajouter une condition
+                  </Button>
+                )}
               </>
             )}
           </div>
         ))}
       </div>
-      <Modal closeButton aria-labelledby='modal-title' isOpen={isOpen} onClose={onClose}>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
-          <ModalHeader>
-            <span>Renommer le groupe</span>
-          </ModalHeader>
-          <ModalBody>
+          <ModalHeader>Renommer le groupe</ModalHeader>
+          <ModalBody className='gap-4'>
             <Input
-              fullWidth
               value={newGroupName}
               onChange={(e) => setNewGroupName(e.target.value)}
-              placeholder='Entrez un nouveau nom'
+              placeholder='Nouveau nom...'
+              autoFocus
             />
-            <Button
-              onClick={() => {
-                if (newGroupName.trim() !== '') {
-                  renameGroup(activeGroupIndex!, newGroupName);
-                }
-              }}>
-              Renommer
-            </Button>
-            <Button onClick={onClose}>Annuler</Button>
+            <div className='flex justify-end gap-2'>
+              <Button variant='flat' onClick={onClose}>
+                Annuler
+              </Button>
+              <Button
+                color='primary'
+                onClick={() => {
+                  if (activeGroupIndex !== null && newGroupName.trim()) {
+                    setFilterGroups((prev) =>
+                      prev.map((group, i) =>
+                        i === activeGroupIndex ? { ...group, name: newGroupName.trim() } : group,
+                      ),
+                    );
+                    onClose();
+                  }
+                }}>
+                Renommer
+              </Button>
+            </div>
           </ModalBody>
         </ModalContent>
       </Modal>
 
-      <div className='flex flex-row gap-10 justify-end'>
-        <Button className='px-10 py-5 rounded-8' onClick={resetFilters}>
+      <div className='flex justify-end gap-2 mt-4'>
+        <Button variant='flat' onClick={resetFilters}>
           Réinitialiser
         </Button>
-
-        <Button className='px-10 py-5 rounded-8 bg-default-action text-default-selected' onClick={applyFilters}>
+        <Button color='primary' onClick={applyFilters}>
           Appliquer
         </Button>
       </div>
     </div>
   );
-};
-
-export default FilterPopup;
+}
