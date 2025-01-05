@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Link } from '@nextui-org/react';
 import { ArrowIcon, CrossIcon, PlusIcon } from '@/components/utils/icons';
 import { ITEM_TYPES } from './FilterPopup';
@@ -9,12 +9,42 @@ type Masque = {
 
 interface HidePopupProps {
   onHide: (hiddenTypes: string[]) => void;
-  hiddenTypes: string[]; // Ajout de cette prop
+  hiddenTypes: string[];
 }
+
+const STORAGE_KEY = 'hideGroups';
+
+const getInitialMasques = (): Masque[] => {
+  const savedMasques = localStorage.getItem(STORAGE_KEY);
+  if (savedMasques) {
+    try {
+      return JSON.parse(savedMasques);
+    } catch (e) {
+      console.error('Error parsing saved masques:', e);
+    }
+  }
+  return [];
+};
+
 
 const HidePopup: React.FC<HidePopupProps> = ({ onHide, hiddenTypes }) => {
   const [selectedTypes, setSelectedTypes] = useState<string[]>(hiddenTypes);
-  const [filterGroups, setFilterGroups] = useState<Masque[]>([]);
+  const [filterGroups, setFilterGroups] = useState<Masque[]>(getInitialMasques());
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filterGroups));
+  }, [filterGroups]);
+
+  useEffect(() => {
+    const savedMasques = getInitialMasques();
+    if (savedMasques.length > 0) {
+      setFilterGroups(savedMasques);
+      const hiddenTypes = savedMasques
+        .map((group) => ITEM_TYPES[group.itemType as keyof typeof ITEM_TYPES])
+        .filter(Boolean);
+      onHide(hiddenTypes);
+    }
+  }, []);
 
   const addMasque = () => {
     setFilterGroups((prev) => [
@@ -32,13 +62,19 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide, hiddenTypes }) => {
   const applyMasques = () => {
     const hiddenTypes = filterGroups
       .map((group) => ITEM_TYPES[group.itemType as keyof typeof ITEM_TYPES])
-      .filter(Boolean); // Remove any undefined values
+      .filter(Boolean);
 
     onHide(hiddenTypes);
   };
 
+  useEffect(() => {
+    applyMasques();
+  }, [filterGroups]);
+
   const resetMasques = () => {
     setFilterGroups([]);
+    onHide([]);
+    localStorage.removeItem(STORAGE_KEY); 
   };
 
   return (
