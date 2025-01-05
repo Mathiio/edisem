@@ -1,19 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '@nextui-org/react';
+import React, { useState } from 'react';
+import { Button, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/react';
+import { ArrowIcon, PlusIcon, TrashIcon } from '@/components/utils/icons';
 
-interface SearchPopupProps {
-}
+import { ITEM_TYPES } from './FilterPopup'; // Assure-toi que ITEM_TYPES est exporté correctement
 
-const HidePopup: React.FC<SearchPopupProps> = () => {
+type Masque = {
+  itemType: string;
+};
 
+type HidePopupProps = {
+  // Représente les éléments filtrés
+  onHide: (filteredItems: any[]) => void; // Fonction pour appliquer le masquage
+};
 
+const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
+  const [filterGroups, setFilterGroups] = useState<Masque[]>([]);
+
+  const addMasque = () => {
+    setFilterGroups((prev) => [
+      ...prev,
+      {
+        itemType: '',
+      },
+    ]);
+  };
+
+  // Function to remove a mask
+  const removeMasque = (index: number) => {
+    setFilterGroups((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Appliquer les masques
+  const applyMasques = () => {
+    const hiddenTypes = filterGroups.map((group) => group.itemType);
+
+    onHide(hiddenTypes); // Passe les éléments filtrés masqués à la fonction onHide
+  };
 
   return (
-    <div className='rounded-8 h-full overflow-hidden'>
+    <div className='w-full flex flex-col gap-20 h-full overflow-hidden'>
+      <div className='flex flex-col gap-10'>
+        <Button
+          onClick={addMasque}
+          className='text-14 flex justify-start h-[40px] w-full gap-2 rounded-0 text-default-600 bg-transparent'>
+          <PlusIcon size={12} />
+          Ajouter un masque
+        </Button>
+        <Divider />
+      </div>
 
+      <div className='flex flex-col flex-1 gap-10 overflow-y-auto'>
+        {filterGroups.map((masque, index) => (
+          <div key={index} className='flex p-10 rounded-8 bg-default-200'>
+            <div className='flex flex-row items-center flex-1 gap-10'>
+              <Dropdown className=' w-full p-2'>
+                <DropdownTrigger className=' w-full'>
+                  <Button className='text-14 text-default-600 px-2 py-2 flex justify-between gap-10 border-default-400 border-2 rounded-8 w-full'>
+                    {masque.itemType || 'Sélectionner un type'}
+                    <ArrowIcon size={12} />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  className='w-full'
+                  aria-label="Sélectionner un type d'item"
+                  selectionMode='single'
+                  selectedKeys={[masque.itemType]}
+                  onSelectionChange={(keys) => {
+                    const type = Array.from(keys)[0] as string;
+                    const updatedMasques = [...filterGroups];
+                    updatedMasques[index].itemType = type;
+                    setFilterGroups(updatedMasques);
+                  }}>
+                  {Object.entries(ITEM_TYPES).map(([key, _]) => (
+                    <DropdownItem className=' w-full' key={key}>
+                      {key} {/* Affiche la key ici */}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+
+              <TrashIcon size={20} onClick={() => removeMasque(index)} className='cursor-pointer' />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className='flex justify-end gap-2 mt-4'>
+        <Button className='gap-5 rounded-8 font-14 p-2 text-default-500 hover:text-default-900 hover:bg-default-300 bg-default-300'>
+          Réinitialiser
+        </Button>
+        <Button
+          onClick={applyMasques}
+          className='gap-5 rounded-8 font-14 p-2 text-default-900 hover:bg-default-action bg-default-action'>
+          Appliquer
+        </Button>
+      </div>
     </div>
   );
 };
-
 
 export default HidePopup;

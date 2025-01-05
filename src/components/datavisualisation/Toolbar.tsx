@@ -1,16 +1,7 @@
-import React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import FilterPopup from './FilterPopup';
 import { Button, Divider } from '@nextui-org/react';
-import {
-  AnotateIcon,
-  ExportIcon,
-  SearchIcon,
-  ImportIcon,
-  NewItemIcon,
-  HideIcon,
-  AssociateIcon,
-} from '../utils/icons';
+import { AnotateIcon, ExportIcon, SearchIcon, ImportIcon, NewItemIcon, HideIcon, AssociateIcon } from '../utils/icons';
 import { IconSvgProps } from '@/types/types';
 import HidePopup from './HidePopup';
 
@@ -24,6 +15,7 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [filteredItems, setFilteredItems] = useState(itemsDataviz); // filteredItems state to keep track of visible items
   const iconRefs = useRef<Record<string, HTMLElement | null>>({});
 
   useEffect(() => {
@@ -44,6 +36,16 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
     setShowPopup(false);
   };
 
+  // Function to handle hiding items based on the selected masks
+  const handleHide = (masques: any[]) => {
+    // Filter out the items based on the selected masks
+    const hiddenTypes = masques.map((masque) => masque.itemType);
+    console.log(hiddenTypes);
+    const newFilteredItems = itemsDataviz.filter((item) => !hiddenTypes.includes(item.type));
+    setFilteredItems(newFilteredItems); // Update the filteredItems state
+    onSearch(newFilteredItems, true); // Update the search with filtered items
+  };
+
   useEffect(() => {
     if (activeIcon && iconRefs.current[activeIcon]) {
       setShowPopup(true);
@@ -55,9 +57,9 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
   const getActivePopup = () => {
     switch (activeIcon) {
       case 'filter':
-        return <FilterPopup itemsDataviz={itemsDataviz} onSearch={handleAdvancedSearch}/>;
+        return <FilterPopup itemsDataviz={itemsDataviz} onSearch={handleAdvancedSearch} />;
       case 'hide':
-        return <HidePopup />;
+        return <HidePopup onHide={handleHide} />; // Pass filtered items and handleHide
       default:
         return null;
     }
