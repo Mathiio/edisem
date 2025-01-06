@@ -11,12 +11,12 @@ interface ItemsProps {
   onSearch: (selectedItems: any[], isAdvancedSearch: boolean) => void;
 }
 
+
 export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
-  const [hiddenTypes, setHiddenTypes] = useState<string[]>([]);
   const [currentResults, setCurrentResults] = useState<any[]>([]);
   const iconRefs = useRef<Record<string, HTMLElement | null>>({});
 
@@ -27,38 +27,56 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
   }, [containerRef.current]);
 
   const applyHiddenTypesFilter = async (items: any[]): Promise<any[]> => {
-    if (!items || items.length === 0) return [];
-    
-    const filteredItems = await Promise.all(
-      items.map(async (item) => {
-        if (!item) return null;
-        
-        const newItem = { ...item };
-        
-        if (!newItem.links || !Array.isArray(newItem.links)) {
-          newItem.links = [];
-          return newItem;
-        }
-        
-        const filteredLinks = await Promise.all(
-          newItem.links.map(async (linkId: string) => {
-            try {
-              const linkedItem = await getItemByID(linkId);
-              return !hiddenTypes.includes(linkedItem.type) ? linkId : null;
-            } catch (error) {
-              console.error('Error fetching linked item:', error);
-              return null;
-            }
-          })
-        );
-        
-        newItem.links = filteredLinks.filter((link): link is string => link !== null);
-        
-        return newItem;
-      })
-    );
+    if (!items?.length) return [];
 
-    return filteredItems.filter((item): item is any => item !== null);
+    const hiddenTypes = localStorage.getItem('hideGroups');
+  
+    try {
+      const filteredItems = await Promise.all(
+        items.map(async (item) => {
+          if (!item) return null;
+  
+          const { links = [], ...rest } = item;
+  
+          if (!links.length) {
+            return rest;
+          }
+  
+          const linkedItems = await Promise.all(
+            links.map(async (linkId: string) => {
+              try {
+                const linkedItem = await getItemByID(linkId);
+                
+                if (linkedItem && hiddenTypes?.includes(linkedItem.type)) {
+                  return null;
+                }
+                
+                return linkId;
+              } catch (error) {
+                console.error(`Error fetching linked item ${linkId}:`, error);
+                return null;
+              }
+            })
+          );
+  
+          const filteredLinks = linkedItems.filter(
+            (link): link is string => link !== null && link !== undefined
+          );
+  
+          return {
+            ...rest,
+            links: filteredLinks
+          };
+        })
+      );
+  
+      return filteredItems.filter(
+        (item): item is any => item !== null && item !== undefined
+      );
+    } catch (error) {
+      console.error('Error in applyHiddenTypesFilter:', error);
+      throw error;
+    }
   };
 
   const handleAdvancedSearch = async (searchResults: any[]) => {
@@ -67,8 +85,7 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
     onSearch(filteredResult, true);
   };
 
-  const handleHide = async (newHiddenTypes: string[]) => {
-    setHiddenTypes(newHiddenTypes);
+  const handleHide = async () => {
     const filteredResult = await applyHiddenTypesFilter(currentResults);
     onSearch(filteredResult, true);
   };
@@ -94,7 +111,6 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
         return (
           <HidePopup 
             onHide={handleHide} 
-            hiddenTypes={hiddenTypes}
           />
         );
       default:

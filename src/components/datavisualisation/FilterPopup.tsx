@@ -315,17 +315,14 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
     }
 
     const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
-    console.log('Property config:', propertyConfig);
 
     if (!propertyConfig) return null;
 
     if (propertyConfig.transform) {
       try {
         const transformed = await propertyConfig.transform(item[property]);
-        console.log('Transformed value:', transformed);
         return transformed;
       } catch (error) {
-        console.error('Transform error:', error);
         return null;
       }
     }
@@ -640,7 +637,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
           className='px-10 py-5 rounded-8 bg-default-action text-default-selected'
           color='primary'
           onClick={applyFilters}>
-          Appliquer
+          Rechercher
         </Button>
       </div>
     </div>

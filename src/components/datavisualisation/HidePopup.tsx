@@ -5,20 +5,26 @@ import { ITEM_TYPES } from './FilterPopup';
 
 type Masque = {
   itemType: string;
+  displayType: string;
 };
 
 interface HidePopupProps {
-  onHide: (hiddenTypes: string[]) => void;
-  hiddenTypes: string[];
+  onHide: () => void;
 }
 
-const STORAGE_KEY = 'hideGroups';
+const getDisplayKeyByValue = (value: string): string => {
+  return Object.entries(ITEM_TYPES).find(([_, val]) => val === value)?.[0] || value;
+};
 
 const getInitialMasques = (): Masque[] => {
-  const savedMasques = localStorage.getItem(STORAGE_KEY);
+  const savedMasques = localStorage.getItem('hideGroups');
   if (savedMasques) {
     try {
-      return JSON.parse(savedMasques);
+      const parsedMasques = JSON.parse(savedMasques);
+      return parsedMasques.map((masque: any) => ({
+        itemType: masque.itemType,
+        displayType: getDisplayKeyByValue(masque.itemType)
+      }));
     } catch (e) {
       console.error('Error parsing saved masques:', e);
     }
@@ -26,55 +32,64 @@ const getInitialMasques = (): Masque[] => {
   return [];
 };
 
+const updateLocalStorage = (masques: Masque[]) => {
+  console.log('Updating local storage');
+  const masquesToSave = masques.map(({ itemType }) => ({ itemType }));
+  localStorage.setItem('hideGroups', JSON.stringify(masquesToSave));
+};
 
-const HidePopup: React.FC<HidePopupProps> = ({ onHide, hiddenTypes }) => {
-  const [selectedTypes, setSelectedTypes] = useState<string[]>(hiddenTypes);
+const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
   const [filterGroups, setFilterGroups] = useState<Masque[]>(getInitialMasques());
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filterGroups));
+    updateLocalStorage(filterGroups);
   }, [filterGroups]);
 
   useEffect(() => {
     const savedMasques = getInitialMasques();
     if (savedMasques.length > 0) {
       setFilterGroups(savedMasques);
-      const hiddenTypes = savedMasques
-        .map((group) => ITEM_TYPES[group.itemType as keyof typeof ITEM_TYPES])
-        .filter(Boolean);
-      onHide(hiddenTypes);
     }
   }, []);
 
   const addMasque = () => {
-    setFilterGroups((prev) => [
-      ...prev,
+    const newMasques = [
+      ...filterGroups,
       {
         itemType: '',
+        displayType: ''
       },
-    ]);
+    ];
+    setFilterGroups(newMasques);
+    updateLocalStorage(newMasques);
   };
 
   const removeMasque = (index: number) => {
-    setFilterGroups((prev) => prev.filter((_, i) => i !== index));
+    const newMasques = filterGroups.filter((_, i) => i !== index);
+    setFilterGroups(newMasques);
+    updateLocalStorage(newMasques);
   };
 
   const applyMasques = () => {
-    const hiddenTypes = filterGroups
-      .map((group) => ITEM_TYPES[group.itemType as keyof typeof ITEM_TYPES])
-      .filter(Boolean);
-
-    onHide(hiddenTypes);
+    updateLocalStorage(filterGroups);
+    onHide();
   };
-
-  useEffect(() => {
-    applyMasques();
-  }, [filterGroups]);
 
   const resetMasques = () => {
     setFilterGroups([]);
-    onHide([]);
-    localStorage.removeItem(STORAGE_KEY); 
+    localStorage.removeItem('hideGroups');
+    onHide();
+  };
+
+  const handleSelectionChange = (index: number, displayType: string) => {
+    const itemType = ITEM_TYPES[displayType as keyof typeof ITEM_TYPES];
+    const updatedMasques = [...filterGroups];
+    updatedMasques[index] = {
+      itemType,
+      displayType
+    };
+    setFilterGroups(updatedMasques);
+    updateLocalStorage(updatedMasques);
   };
 
   return (
@@ -97,7 +112,7 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide, hiddenTypes }) => {
             <Dropdown className='w-full p-2'>
               <DropdownTrigger className='w-full'>
                 <Button className='text-14 text-default-600 px-2 py-2 flex bg-transparent justify-between gap-10 border-default-300 border-2 rounded-8 w-full'>
-                  {masque.itemType || 'Sélectionner un type'}
+                  {masque.displayType || 'Sélectionner un type'}
                   <ArrowIcon size={12} />
                 </Button>
               </DropdownTrigger>
@@ -105,12 +120,10 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide, hiddenTypes }) => {
                 className='w-full'
                 aria-label="Sélectionner un type d'item"
                 selectionMode='single'
-                selectedKeys={[masque.itemType]}
+                selectedKeys={[masque.displayType]}
                 onSelectionChange={(keys) => {
-                  const type = Array.from(keys)[0] as string;
-                  const updatedMasques = [...filterGroups];
-                  updatedMasques[index].itemType = type;
-                  setFilterGroups(updatedMasques);
+                  const displayType = Array.from(keys)[0] as string;
+                  handleSelectionChange(index, displayType);
                 }}>
                 {Object.entries(ITEM_TYPES).map(([key, _]) => (
                   <DropdownItem className='w-full' key={key}>

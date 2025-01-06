@@ -194,7 +194,6 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
         }
       }
     });
-    console.log(links);
     return links;
   }
   
