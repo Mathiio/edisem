@@ -19,44 +19,150 @@ const containerVariants: Variants = {
 };
 
 interface SearchHelperProps {
-  items: any[];
+  onSearchItemClick: (filterConfig?: any) => void;
 }
 
-export const SearchHelper: React.FC<SearchHelperProps> = ({ items }) => {
-  console.log(items);
-  return (
-    <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
-      <motion.div
-        variants={itemVariants}
-        className='cursor-pointer flex flex-col bg-default-200 hover:bg-default-300 p-25 rounded-8 gap-10 transition-all ease-in-out duration-200'></motion.div>
+const SEARCH_CONFIGURATIONS = [
+  {
+    title: 'Rechercher tous les actants liés au mot clés "trucage"',
+    config: [
+      {
+        name: 'Groupe 1',
+        isExpanded: true,
+        itemType: 'actant',
+        conditions: [
+          {
+            property: 'firstname',
+            operator: 'contains',
+            value: 're',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Rechercher toutes les conférences liés au "art trompeur"',
+    config: [
+      {
+        name: 'Groupe 1',
+        isExpanded: true,
+        itemType: 'conference',
+        conditions: [
+          {
+            property: 'title',
+            operator: 'contains',
+            value: 'art trompeur',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Rechercher tous les mots clés liés à "Renée Bourassa"',
+    config: [
+      {
+        name: 'Groupe 1',
+        isExpanded: true,
+        itemType: 'keyword',
+        conditions: [
+          {
+            property: 'title',
+            operator: 'contains',
+            value: 'Renée Bourassa',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Rechercher tous les items liés à "Jean Marc Larrue"',
+    config: [
+      {
+        name: 'Groupe 1',
+        isExpanded: true,
+        itemType: 'actant',
+        conditions: [
+          {
+            property: 'firstname',
+            operator: 'contains',
+            value: 'Jean Marc Larrue',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Rechercher toutes les bibliographies liées au mot clés "tromperie"',
+    config: [
+      {
+        name: 'Groupe 1',
+        isExpanded: true,
+        itemType: 'bibliography',
+        conditions: [
+          {
+            property: 'title',
+            operator: 'contains',
+            value: 'tromperie',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Rechercher toutes les citations liées à l'intelligence artificielle",
+    config: [
+      {
+        name: 'Groupe 1',
+        isExpanded: true,
+        itemType: 'citation',
+        conditions: [
+          {
+            property: 'citation',
+            operator: 'contains',
+            value: 'intelligence artificielle',
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export const SearchHelper: React.FC<SearchHelperProps> = ({ onSearchItemClick }) => {
+  const handleConfigClick = (config: any) => {
+    onSearchItemClick(config);
+  };
+
+  const renderSearchItem = (item: (typeof SEARCH_CONFIGURATIONS)[0], index: number) => (
+    <motion.div
+      key={index}
+      variants={itemVariants}
+      onClick={() => handleConfigClick(item.config)}
+      className='cursor-pointer flex-1 flex flex-col border-default-200 border-2 hover:bg-default-200 p-25 rounded-8 gap-10 transition-all ease-in-out duration-200'>
+      {item.title}
     </motion.div>
   );
-};
 
-export const SearchHelperSkeleton: React.FC = () => {
   return (
-    <div className='flex w-full p-20 bg-default-200 rounded-14'>
-      <div className='flex w-full flex-col gap-10'>
-        <Skeleton className='w-[35%] rounded-8'>
-          <p className='font-semibold text-14'>_</p>
-        </Skeleton>
-        <div className='flex flex-col gap-5'>
-          <Skeleton className='w-[100%] rounded-8'>
-            <p className='font-semibold text-14'>_</p>
-          </Skeleton>
-          <Skeleton className='w-[100%] rounded-8'>
-            <p className='font-semibold text-14'>_</p>
-          </Skeleton>
-          <Skeleton className='w-[100%] rounded-8'>
-            <p className='font-semibold text-14'>_</p>
-          </Skeleton>
-          <Skeleton className='w-[100%] rounded-8'>
-            <p className='font-semibold text-14'>_</p>
-          </Skeleton>
-        </div>
-        <Skeleton className='w-[20%] rounded-8'>
-          <p className='font-semibold text-14'>_</p>
-        </Skeleton>
+    <div className='flex  justify-center flex-col items-center gap-50'>
+      <div className='flex flex-col items-center gap-5'>
+        <div className='text-14'>Edisem - Datavisualisation</div>
+        <div className='text-32 font-medium'>Que recherchez vous ?</div>
+      </div>
+      <div className='flex flex-col gap-25 items-center'>
+        <motion.div
+          className='w-[80%] flex flex-row gap-25'
+          initial='hidden'
+          animate='visible'
+          variants={containerVariants}>
+          {SEARCH_CONFIGURATIONS.slice(0, 3).map(renderSearchItem)}
+        </motion.div>
+        <motion.div
+          className='w-[80%] flex flex-row gap-25'
+          initial='hidden'
+          animate='visible'
+          variants={containerVariants}>
+          {SEARCH_CONFIGURATIONS.slice(3, 6).map(renderSearchItem)}
+        </motion.div>
       </div>
     </div>
   );

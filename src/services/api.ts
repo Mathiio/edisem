@@ -237,6 +237,7 @@ export async function getActant(actantId: number) {
 
 
 
+
 export async function getConfByEdition(editionId: number) {
   try {
     const confs = await Items.getConfs();
