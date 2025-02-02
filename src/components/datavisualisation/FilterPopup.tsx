@@ -20,7 +20,7 @@ import * as Items from '@/services/Items';
 import { getItemByID } from '@/services/api';
 import { getLinksFromType } from '@/services/Links';
 
-const ITEM_PROPERTIES: any = {
+export const ITEM_PROPERTIES: any = {
   actant: [
     { key: 'firstname', label: 'Prénom' },
     { key: 'lastname', label: 'Nom' },
@@ -122,7 +122,7 @@ const OPERATORS = [
   { key: 'notEquals', label: 'Différent de' },
 ];
 
-interface FilterPopupProps {
+export interface FilterPopupProps {
   getConfs: () => any[];
   getUniversities: () => any[];
   getActants: () => any[];
@@ -142,7 +142,7 @@ type FilterCondition = {
   value: string;
 };
 
-type FilterGroup = {
+export type FilterGroup = {
   name: string;
   isExpanded: boolean;
   itemType: string;

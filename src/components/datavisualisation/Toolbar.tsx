@@ -1,18 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import FilterPopup from './FilterPopup';
 import { Button, Divider } from '@nextui-org/react';
-import { AnotateIcon, ExportIcon, SearchIcon, ImportIcon, NewItemIcon, HideIcon, AssociateIcon } from '../utils/icons';
+import { AnotateIcon, SearchIcon, ImportIcon, NewItemIcon, HideIcon, AssociateIcon, ExportIcon } from '../utils/icons';
 import { IconSvgProps } from '@/types/types';
 import HidePopup from './HidePopup';
 import { getItemByID } from '@/services/api';
+import ImportPopup from './ImportPopup';
+import { ExportPopup } from './ExportPopup';
+import { GeneratedImage } from '@/pages/visualisation';
 
 interface ItemsProps {
   itemsDataviz: any[];
   onSearch: (selectedItems: any[], isAdvancedSearch: boolean) => void;
+  handleExportClick: () => void;
+  generatedImage: GeneratedImage | null;
 }
 
-
-export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
+export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch, handleExportClick, generatedImage }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
@@ -30,49 +34,45 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
     if (!items?.length) return [];
 
     const hiddenTypes = localStorage.getItem('hideGroups');
-  
+
     try {
       const filteredItems = await Promise.all(
         items.map(async (item) => {
           if (!item) return null;
-  
+
           const { links = [], ...rest } = item;
-  
+
           if (!links.length) {
             return rest;
           }
-  
+
           const linkedItems = await Promise.all(
             links.map(async (linkId: string) => {
               try {
                 const linkedItem = await getItemByID(linkId);
-                
+
                 if (linkedItem && hiddenTypes?.includes(linkedItem.type)) {
                   return null;
                 }
-                
+
                 return linkId;
               } catch (error) {
                 console.error(`Error fetching linked item ${linkId}:`, error);
                 return null;
               }
-            })
+            }),
           );
-  
-          const filteredLinks = linkedItems.filter(
-            (link): link is string => link !== null && link !== undefined
-          );
-  
+
+          const filteredLinks = linkedItems.filter((link): link is string => link !== null && link !== undefined);
+
           return {
             ...rest,
-            links: filteredLinks
+            links: filteredLinks,
           };
-        })
+        }),
       );
-  
-      return filteredItems.filter(
-        (item): item is any => item !== null && item !== undefined
-      );
+
+      return filteredItems.filter((item): item is any => item !== null && item !== undefined);
     } catch (error) {
       console.error('Error in applyHiddenTypesFilter:', error);
       throw error;
@@ -101,18 +101,13 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
   const getActivePopup = () => {
     switch (activeIcon) {
       case 'filter':
-        return (
-          <FilterPopup 
-            itemsDataviz={itemsDataviz} 
-            onSearch={handleAdvancedSearch}
-          />
-        );
+        return <FilterPopup itemsDataviz={itemsDataviz} onSearch={handleAdvancedSearch} />;
       case 'hide':
-        return (
-          <HidePopup 
-            onHide={handleHide} 
-          />
-        );
+        return <HidePopup onHide={handleHide} />;
+      case 'import':
+        return <ImportPopup itemsDataviz={itemsDataviz} onSearch={handleAdvancedSearch} />;
+      case 'export':
+        return <ExportPopup generatedImage={generatedImage} handleExportClick={handleExportClick} />;
       default:
         return null;
     }

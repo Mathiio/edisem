@@ -9,6 +9,8 @@ import { Toolbar } from '@/components/datavisualisation/Toolbar';
 import ZoomControl from '@/components/datavisualisation/ZoomControl';
 import Legend from '@/components/datavisualisation/Legend';
 
+import { images } from '@/components/utils/images';
+
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
   visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 80, damping: 10 } },
@@ -25,10 +27,17 @@ const containerVariants: Variants = {
   },
 };
 
+export interface GeneratedImage {
+  dataUrl: string;
+  width: number;
+  height: number;
+}
+
 const Visualisation = () => {
   const [itemsDataviz, setItemsDataviz] = useState<any[]>([]);
   const [filteredNodes, setFilteredNodes] = useState<any[]>([]);
   const [filteredLinks, setFilteredLinks] = useState<any[]>([]);
+  const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
 
   const [dimensions, setDimensions] = useState({
     width: 1450,
@@ -69,6 +78,17 @@ const Visualisation = () => {
     fetchData();
   }, []);
 
+  const handleExportClick = async () => {
+    try {
+      const image = await generateVisualizationImage();
+      setGeneratedImage(image);
+      return image; // Retourne l'image pour indiquer qu'elle est prête
+    } catch (error) {
+      console.error('Error generating visualization image:', error);
+      throw error;
+    }
+  };
+
   const processDataForVisualization = (data: any[]) => {
     if (!data?.length) return;
 
@@ -78,6 +98,13 @@ const Visualisation = () => {
 
     data.forEach((item) => {
       if (!nodes.has(item.id)) {
+        let title = item.title;
+        if (item.type === 'actant' && title.includes(' ')) {
+          const [firstName, ...lastName] = title.split(' ');
+          title = `${firstName.charAt(0)}. ${lastName.join(' ')}`;
+          item.title = title;
+        }
+
         nodes.set(item.id, {
           id: item.id,
           title: item.title.length > CHARACTER_LIMIT ? `${item.title.substring(0, CHARACTER_LIMIT)}...` : item.title,
@@ -101,12 +128,16 @@ const Visualisation = () => {
         } else {
           const linkedItem = itemsDataviz.find((d) => d.id === linkedId);
           if (linkedItem) {
+            let linkedTitle = linkedItem.title;
+            if (linkedItem.type === 'actant' && linkedTitle.includes(' ')) {
+              const [firstName, ...lastName] = linkedTitle.split(' ');
+              linkedTitle = `${firstName.charAt(0)}. ${lastName.join(' ')}`;
+            }
+
             nodes.set(linkedId, {
               id: linkedId,
               title:
-                linkedItem.title.length > CHARACTER_LIMIT
-                  ? `${linkedItem.title.substring(0, CHARACTER_LIMIT)}...`
-                  : linkedItem.title,
+                linkedTitle.length > CHARACTER_LIMIT ? `${linkedTitle.substring(0, CHARACTER_LIMIT)}...` : linkedTitle,
               type: linkedItem.type,
               isMain: false,
             });
@@ -249,19 +280,7 @@ const Visualisation = () => {
   }, [filteredNodes, filteredLinks, dimensions]);
 
   const getImageForType = (type: string) => {
-    const images: { [key: string]: string } = {
-      conf: 'bulle1.png',
-      bibliography: 'bulle2.png',
-      actant: 'bulle7.png',
-      mediagraphie: 'bulle3.png',
-      citation: 'bulle6.png',
-      keyword: 'bulle5.png',
-      university: 'bulle4.png',
-      school: 'bulle4.png',
-      laboratory: 'bulle4.png',
-      collection: 'bulle8.png',
-    };
-    return images[type] || 'bulle1.png';
+    return images[type] || images['conf'];
   };
 
   const getRadiusForType = (type: string) => {
@@ -296,6 +315,81 @@ const Visualisation = () => {
     return sizes[type] || '16px';
   };
 
+  // Function to generate the image
+  const generateVisualizationImage = async (): Promise<GeneratedImage> => {
+    if (!svgRef.current) {
+      throw new Error('SVG reference not found');
+    }
+
+    const svg = svgRef.current;
+    const viewBox = svg.getAttribute('viewBox')?.split(' ').map(Number) || [];
+    const width = viewBox[2] || svg.getBoundingClientRect().width;
+    const height = viewBox[3] || svg.getBoundingClientRect().height;
+
+    // Create a deep clone of the SVG
+    const clonedSvg = svg.cloneNode(true) as SVGSVGElement;
+
+    // Add white background
+    const backgroundRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    backgroundRect.setAttribute('width', '100%');
+    backgroundRect.setAttribute('height', '100%');
+
+    clonedSvg.insertBefore(backgroundRect, clonedSvg.firstChild);
+
+    // Set explicit dimensions
+    clonedSvg.setAttribute('width', width.toString());
+    clonedSvg.setAttribute('height', height.toString());
+
+    // Wait for all images to load
+    const images = Array.from(clonedSvg.querySelectorAll('image'));
+    await Promise.all(
+      images.map((img) => {
+        return new Promise<void>((resolve, reject) => {
+          const imageElement = img as SVGImageElement;
+          if (imageElement.complete) {
+            resolve();
+          } else {
+            imageElement.onload = () => resolve();
+            imageElement.onerror = () => reject(new Error('Failed to load image'));
+          }
+        });
+      }),
+    );
+
+    const svgString = new XMLSerializer().serializeToString(clonedSvg);
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    try {
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = url;
+      });
+
+      const canvas = document.createElement('canvas');
+      const scale = 2; // For better quality
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Could not get canvas context');
+      }
+
+      ctx.scale(scale, scale);
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+
+      const dataUrl = canvas.toDataURL('image/png');
+      return { dataUrl, width, height };
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+
   return (
     <div className='relative h-screen bg-default-50 overflow-y-hidden'>
       <motion.main
@@ -319,16 +413,23 @@ const Visualisation = () => {
           animate='visible'>
           <svg
             ref={svgRef}
+            xmlns='http://www.w3.org/2000/svg'
             width={dimensions.width}
             height={dimensions.height}
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
-            }}></svg>
+            }}
+            viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}></svg>
         </motion.div>
       </motion.main>
-      <Toolbar itemsDataviz={itemsDataviz} onSearch={handleSearch} />
+      <Toolbar
+        itemsDataviz={itemsDataviz}
+        onSearch={handleSearch}
+        handleExportClick={handleExportClick}
+        generatedImage={generatedImage}
+      />
       <ZoomControl svgRef={svgRef} width={dimensions.width} height={dimensions.height} />
       <Legend />
     </div>

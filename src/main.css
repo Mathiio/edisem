@@ -110,3 +110,7 @@
 .marquee-content {
   animation: marquee 20s linear infinite;
 }
+
+pre {
+  font-family: Inter;
+}
