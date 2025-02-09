@@ -430,7 +430,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
           onClick={addGroup}
           underline='none'
           size={'sm'}
-          className='text-14 flex justify-start w-full gap-2 rounded-0 text-default-700 bg-transparent cursor-pointer'>
+          className='text-14 flex justify-start w-full gap-2 rounded-0 text-700 bg-transparent cursor-pointer'>
           <PlusIcon size={12} />
           Ajouter un groupe de filtres
         </Link>
@@ -439,22 +439,22 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
 
       <div className='flex flex-col flex-1 gap-3 overflow-y-auto'>
         {filterGroups.map((group, groupIndex) => (
-          <div key={groupIndex} className='border rounded-lg gap-4 p-4 bg-default-200 rounded-8'>
+          <div key={groupIndex} className='border rounded-lg gap-4 p-4 bg-200 rounded-8'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
-                <Button className='text-default-700' onClick={() => toggleGroupExpansion(groupIndex)}>
+                <Button className='text-700' onClick={() => toggleGroupExpansion(groupIndex)}>
                   <ArrowIcon
                     size={14}
                     className={`transition-all duration-200 ${group.isExpanded ? 'rotate-90' : ''}`}
                   />
                 </Button>
-                <span className='text-14 font-semibold text-default-700'>{group.name}</span>
+                <span className='text-14 font-semibold text-700'>{group.name}</span>
               </div>
 
               <Dropdown className='min-w-0 w-fit p-2'>
                 <DropdownTrigger>
                   <Button size='sm'>
-                    <DotsIcon size={14} className='text-default-700' />
+                    <DotsIcon size={14} className='text-700' />
                   </Button>
                 </DropdownTrigger>
                 <DropdownMenu className='w-32'>
@@ -476,10 +476,10 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
             {group.isExpanded && (
               <>
                 <div className='w-full flex gap-2 items-center mt-4 mb-2'>
-                  <p className='text-14 text-default-600 font-semibold text-default-700'>Ou</p>
+                  <p className='text-14 text-600 font-semibold text-700'>Ou</p>
                   <Dropdown className='min-w-0 w-full p-2'>
                     <DropdownTrigger className='min-w-0 w-full'>
-                      <Button className='text-14 text-default-600 px-2 py-2 flex justify-between gap-10 border-default-300 border-2 rounded-8 w-full'>
+                      <Button className='text-14 text-600 px-2 py-2 flex justify-between gap-10 border-300 border-2 rounded-8 w-full'>
                         {group.itemType
                           ? Object.entries(ITEM_TYPES).find(([, value]) => value === group.itemType)?.[0]
                           : "Sélectionner un type d'item"}
@@ -508,7 +508,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                     <div key={conditionIndex} className='flex items-center gap-2'>
                       <Dropdown className='min-w-0 w-fit p-2'>
                         <DropdownTrigger>
-                          <Button className='text-14 text-default-600 px-2 py-2 flex gap-10 justify-between border-default-300 border-2 rounded-8 min-w-[118px]'>
+                          <Button className='text-14 text-600 px-2 py-2 flex gap-10 justify-between border-300 border-2 rounded-8 min-w-[118px]'>
                             {(() => {
                               const label =
                                 getPropertiesByType(group.itemType).find((prop: any) => prop.key === condition.property)
@@ -533,7 +533,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
 
                       <Dropdown className='min-w-0 w-fit p-2'>
                         <DropdownTrigger>
-                          <Button className='text-14 text-default-600 px-2 py-2 flex justify-between gap-10 border-default-300 border-2 rounded-8 min-w-[110px]'>
+                          <Button className='text-14 text-600 px-2 py-2 flex justify-between gap-10 border-300 border-2 rounded-8 min-w-[110px]'>
                             {(() => {
                               const label = OPERATORS.find((op) => op.key === condition.operator)?.label || 'Opérateur';
                               return label.length > 10 ? `${label.slice(0, 8)}...` : label;
@@ -560,14 +560,14 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                         placeholder='Valeur...'
                         classNames={{
                           mainWrapper: 'h-full',
-                          input: 'text-default-400 ',
+                          input: 'text-400 ',
                           inputWrapper:
-                            'shadow-none bg-default-100 border-1 border-default-100 group-data-[focus=true]:bg-default-100 rounded-8 font-normal text-default-500 bg-default-100 dark:bg-default-100 h-full',
+                            'shadow-none bg-100 border-1 border-100 group-data-[focus=true]:bg-100 rounded-8 font-normal text-500 bg-100 dark:bg-100 h-full',
                         }}
                       />
 
                       <Button size='sm' isIconOnly onClick={() => removeCondition(groupIndex, conditionIndex)}>
-                        <CrossIcon size={14} className='text-default-600' />
+                        <CrossIcon size={14} className='text-600' />
                       </Button>
                     </div>
                   ))}
@@ -578,7 +578,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                     onClick={() => addCondition(groupIndex)}
                     underline='none'
                     size={'sm'}
-                    className='text-14 flex justify-start w-full gap-2 rounded-0 text-default-700 bg-transparent cursor-pointer'>
+                    className='text-14 flex justify-start w-full gap-2 rounded-0 text-700 bg-transparent cursor-pointer'>
                     <PlusIcon size={12} />
                     Ajouter une condition
                   </Link>
@@ -596,9 +596,9 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
             <Input
               classNames={{
                 mainWrapper: 'h-full',
-                input: 'text-default-400 ',
+                input: 'text-400 ',
                 inputWrapper:
-                  'shadow-none bg-default-100 border-1 border-default-100 group-data-[focus=true]:bg-default-100 rounded-8 font-normal text-default-500 bg-default-100 dark:bg-default-100 h-full',
+                  'shadow-none bg-100 border-1 border-100 group-data-[focus=true]:bg-100 rounded-8 font-normal text-500 bg-100 dark:bg-100 h-full',
               }}
               value={newGroupName}
               onChange={(e) => setNewGroupName(e.target.value)}
@@ -610,7 +610,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                 Annuler
               </Button>
               <Button
-                className='px-10 py-5 rounded-8 bg-default-action text-default-selected'
+                className='px-10 py-5 rounded-8 bg-action text-selected'
                 color='primary'
                 onClick={() => {
                   if (activeGroupIndex !== null && newGroupName.trim()) {
@@ -634,7 +634,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
           Réinitialiser
         </Button>
         <Button
-          className='px-10 py-5 rounded-8 bg-default-action text-default-selected'
+          className='px-10 py-5 rounded-8 bg-action text-selected'
           color='primary'
           onClick={applyFilters}>
           Rechercher

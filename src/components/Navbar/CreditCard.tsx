@@ -14,20 +14,20 @@ export const CreditCard: React.FC<CreditCardProps> = ({ name, job, description }
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 pt-25 pb-25 transition-transform-colors-opacity ${
-        isHovered ? 'border-default-action' : 'border-default-300'
+        isHovered ? 'border-300' : 'border-200'
       }`}>
       <div
         className={`transition-transform-colors-opacity ${
-          isHovered ? 'text-default-action' : 'text-default-300'
+          isHovered ? 'text-action' : 'text-300'
         }`}></div>
 
       <div className='w-full flex flex-col'>
         <div className='flex-col gap-5 flex'>
-          <div className='text-default-500 text-16 font-semibold'>{name}</div>
-          <div className='text-default-400 text-16'>{job}</div>
+          <div className='text-500 text-16 font-medium'>{name}</div>
+          <div className='text-400 text-16'>{job}</div>
           {/* Liste des descriptions avec puces */}
           {description && description.length > 0 && (
-            <ul className='list-disc list-inside text-default-400 text-16'>
+            <ul className='list-disc list-inside text-400 text-16'>
               {description.map((descItem, index) => (
                 <li key={index}>{descItem}</li>
               ))}
@@ -39,8 +39,8 @@ export const CreditCard: React.FC<CreditCardProps> = ({ name, job, description }
       {/* Optionnel : Code pour l'icône Link */}
       {/* <div
         className={`flex min-w-[40px] min-h-[40px] border-2 rounded-12 justify-center items-center transition-transform-colors-opacity 
-        ${isHovered ? 'border-default-action' : 'border-default-300'} 
-        ${isHovered ? 'text-default-action' : 'text-default-300'}`}
+        ${isHovered ? 'border-action' : 'border-300'} 
+        ${isHovered ? 'text-action' : 'text-300'}`}
       >
         <LinkIcon size={22} />
       </div> */}

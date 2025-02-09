@@ -12,7 +12,7 @@
   border-left: 0.5em solid rgba(0, 0, 0, 0); 
   padding-left: 0.5em;
   background-clip: padding-box;
-  background-color: hsl(var(--nextui-default-200));
+  background-color: hsl(var(--nextui-200));
   -webkit-box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.025);
 }
 ::-webkit-scrollbar-button {
@@ -30,7 +30,7 @@
 }
 
 [role='tablist'] span {
-  background-color: hsl(var(--nextui-default-action)) !important;
+  background-color: hsl(var(--nextui-action)) !important;
 }
 
 .hover\:opacity-80:hover {
@@ -40,7 +40,7 @@
 :root,
 [data-theme] {
   color: hsl(var(--nextui-foreground));
-  background-color: hsl(var(--nextui-default-50));
+  background-color: hsl(var(--nextui-50));
 }
 
 .nav_searchbar {

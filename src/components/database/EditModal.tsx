@@ -1000,7 +1000,7 @@ export const EditModal: React.FC<EditModalProps> = ({
     <>
       <Modal
         backdrop='blur'
-        className='bg-default-100'
+        className='bg-100'
         size='2xl'
         isOpen={isOpen}
         onClose={() => {
@@ -1034,10 +1034,10 @@ export const EditModal: React.FC<EditModalProps> = ({
           {(onClose) => (
             <>
               <ModalHeader className='flex justify-between p-25 '>
-                <h2 className='text-default-500 text-32 font-semibold'>Modification</h2>
+                <h2 className='text-500 text-32 font-semibold'>Modification</h2>
                 <Link onPress={onClose}>
                   <CrossIcon
-                    className='text-default-500 cursor-pointer hover:text-default-action transition-all ease-in-out duration-200'
+                    className='text-500 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
                     size={24}
                   />
                 </Link>
@@ -1056,7 +1056,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                               size='lg'
                               classNames={{
                                 label: 'text-semibold',
-                                inputWrapper: 'bg-default-50 shadow-none border-1 border-default-200',
+                                inputWrapper: 'bg-50 shadow-none border-1 border-200',
                                 input: 'h-[50px] ',
                               }}
                               className='min-h-[50px]'
@@ -1075,8 +1075,8 @@ export const EditModal: React.FC<EditModalProps> = ({
                             key={col.key}
                             size='lg'
                             classNames={{
-                              label: 'text-semibold text-default-600 text-24',
-                              inputWrapper: 'bg-default-50 shadow-none border-1 border-default-200',
+                              label: 'text-semibold text-600 text-24',
+                              inputWrapper: 'bg-50 shadow-none border-1 border-200',
                               input: 'h-[50px]',
                             }}
                             className='min-h-[50px]'
@@ -1146,7 +1146,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                     onClick={handleSave}
                     disabled={saving}
                     radius='none'
-                    className={`h-[32px] px-10 text-16 rounded-8 text-default-selected bg-default-action transition-all ease-in-out duration-200 navfilter flex items-center`}>
+                    className={`h-[32px] px-10 text-16 rounded-8 text-selected bg-action transition-all ease-in-out duration-200 navfilter flex items-center`}>
                     Modifier
                   </Button>
                 </div>

@@ -61,11 +61,11 @@ export const FilterModal = () => {
       <div className='relative'>
         <Button
           onPress={handleOpen}
-          className='bg-default-200 hover:bg-default-300 data-[hover=true]:opacity-100 items-center gap-25 p-25 h-[50px] hidden sm:flex relative'>
-          <FilterIcon className='text-default-600' size={22} />
+          className='bg-200 hover:bg-300 data-[hover=true]:opacity-100 items-center gap-25 p-25 h-[50px] hidden sm:flex relative'>
+          <FilterIcon className='text-600' size={22} />
         </Button>
         {selectedFiltersCount() > 0 && (
-          <span className='absolute top-[-6px] right-[-6px] text-12 text-default-100  bg-default-action rounded-[99px] w-[20px] h-[20px] flex items-center justify-center '>
+          <span className='absolute top-[-6px] right-[-6px] text-12 text-100  bg-action rounded-[99px] w-[20px] h-[20px] flex items-center justify-center '>
             {selectedFiltersCount()}
           </span>
         )}
@@ -73,7 +73,7 @@ export const FilterModal = () => {
 
       <Modal
         backdrop='blur'
-        className='bg-default-100'
+        className='bg-100'
         size='2xl'
         isOpen={isOpen}
         onClose={onClose}
@@ -102,11 +102,11 @@ export const FilterModal = () => {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex items-center justify-between p-25 border-b-2 border-default-300'>
+              <ModalHeader className='flex items-center justify-between p-25 border-b-2 border-300'>
                 <div className='flex flex-row gap-25 items-center text-24'>Filtres</div>
                 <Link onPress={onClose}>
                   <CrossIcon
-                    className='text-default-500 cursor-pointer hover:text-default-action transition-all ease-in-out duration-200'
+                    className='text-500 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
                     size={24}
                   />
                 </Link>
@@ -115,8 +115,8 @@ export const FilterModal = () => {
                 <div className='flex flex-col gap-25'>
                   <div className='flex flex-col gap-10'>
                     <div className='flex flex-row items-center gap-10'>
-                      <CalendarIcon className='text-default-600' size={20} />
-                      <div className='text-default-600 font-semibold'>Date de publication</div>
+                      <CalendarIcon className='text-600' size={20} />
+                      <div className='text-600 font-semibold'>Date de publication</div>
                     </div>
                     <div className='sm:max-w-[350px]'>
                       <DateRangePicker
@@ -140,8 +140,8 @@ export const FilterModal = () => {
                   </div>
                   <div className='flex flex-col gap-10'>
                     <div className='flex flex-row items-center gap-10'>
-                      <UserIcon className='text-default-600' size={20} />
-                      <div className='text-default-600 font-semibold'>Conférenciers</div>
+                      <UserIcon className='text-600' size={20} />
+                      <div className='text-600 font-semibold'>Conférenciers</div>
                     </div>
                     <div>
                       <NavConferencierFilter
@@ -154,8 +154,8 @@ export const FilterModal = () => {
                   </div>
                   <div className='flex flex-col gap-10'>
                     <div className='flex flex-row items-center gap-10'>
-                      <CalendarIcon className='text-default-600' size={20} />
-                      <div className='text-default-600 font-semibold'>Type de contenus</div>
+                      <CalendarIcon className='text-600' size={20} />
+                      <div className='text-600 font-semibold'>Type de contenus</div>
                     </div>
                     <div>
                       <NavTypeFilter
@@ -174,13 +174,13 @@ export const FilterModal = () => {
                   <Button
                     radius='none'
                     onClick={handleReset}
-                    className={`h-[32px] text-16 rounded-8 text-default-500 bg-default-200 hover:text-default-500 hover:bg-default-300 transition-all ease-in-out duration-200 navfilter flex items-center`}>
+                    className={`h-[32px] text-16 rounded-8 text-500 bg-200 hover:text-500 hover:bg-300 transition-all ease-in-out duration-200 navfilter flex items-center`}>
                     Réinitialiser
                   </Button>
                   <Button
                     onPress={onClose}
                     radius='none'
-                    className={`h-[32px] text-16 rounded-8 text-default-100 bg-default-action transition-all ease-in-out duration-200 navfilter flex items-center`}>
+                    className={`h-[32px] text-16 rounded-8 text-100 bg-action transition-all ease-in-out duration-200 navfilter flex items-center`}>
                     Appliquer
                   </Button>
                 </div>

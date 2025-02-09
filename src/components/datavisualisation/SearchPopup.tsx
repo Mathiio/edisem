@@ -102,7 +102,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
   return (
     <div className='rounded-8 h-full overflow-hidden'>
       <div className='flex flex-col items-start'>
-        <div className='flex items-center bg-default-200 rounded-8 p-10 w-full mb-4'>
+        <div className='flex items-center bg-200 rounded-8 p-10 w-full mb-4'>
           <FiSearch className='text-gray-400' size={20} />
           <input
             type='text'
@@ -123,8 +123,8 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
               key={filter}
               onClick={() => toggleFilter(filter)}
               className={`rounded-8 py-1.5 px-2
-              ${selectedFilters.has(filter) ? 'bg-default-action text-white' : 'bg-default-200 text-black'}
-              hover:bg-default-hover transition-all`}>
+              ${selectedFilters.has(filter) ? 'bg-action text-white' : 'bg-200 text-black'}
+              hover:bg-hover transition-all`}>
               {filterLabels[filter] || filter}
             </Button>
           )}
@@ -139,7 +139,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
             {searchResults.map((item, index) => (
               <li
                 key={index}
-                className='w-full flex justify-between gap-10 items-center rounded-8 hover:bg-default-300 cursor-pointer p-5'
+                className='w-full flex justify-between gap-10 items-center rounded-8 hover:bg-300 cursor-pointer p-5'
                 onClick={() => handleItemSelect(item)}>
                 <span className='text-14'>{truncateText(item.title, 2, 40)}</span>
                 <span className='text-[10px]'>{item.type}</span>

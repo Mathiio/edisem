@@ -204,7 +204,7 @@ export default function ImportPopup({ onSearch }: FilterPopupProps) {
   return (
     <div className='w-full flex flex-col gap-4 h-full overflow-hidden justify-between'>
       <div className='flex flex-col gap-4'>
-        <div className='text-14 flex justify-start leading-[150%] w-full gap-2 rounded-0 text-default-700 bg-transparent'>
+        <div className='text-14 flex justify-start leading-[150%] w-full gap-2 rounded-0 text-700 bg-transparent'>
           Importer une recherche
         </div>
         <Divider />
@@ -213,17 +213,17 @@ export default function ImportPopup({ onSearch }: FilterPopupProps) {
           minRows={14}
           size='lg'
           placeholder='Coller votre recherche ici...'
-          className='focus:bg-default-200 bg-default-200 h-full'
+          className='focus:bg-200 bg-200 h-full'
           classNames={{
-            inputWrapper: 'bg-default-200 !bg-default-200 h-full',
+            inputWrapper: 'bg-200 !bg-200 h-full',
             base: 'rounded-8 h-full',
-            innerWrapper: 'focus:bg-default-200 bg-default-200 h-full',
+            innerWrapper: 'focus:bg-200 bg-200 h-full',
           }}
         />
       </div>
       <div className='flex justify-end gap-2 mt-4'>
         <Button
-          className='px-10 py-5 rounded-8 bg-default-action text-default-selected'
+          className='px-10 py-5 rounded-8 bg-action text-selected'
           onClick={handleSearch} // Lancer la recherche
         >
           Lancer la recherche

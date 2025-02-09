@@ -32,19 +32,19 @@ export const CitationCard: React.FC<CitationCardProps> = ({ startTime, endTime, 
       <div className='w-full flex justify-start items-center gap-10'>
         <Button
           onClick={handleClick}
-          className='p-5 text-16 rounded-6 text-default-500 hover:text-default-500 bg-default-200 hover:bg-default-300 transition-all ease-in-out duration-200'>
+          className='px-10 py-5 text-16 rounded-6 text-500 hover:text-500 bg-100 hover:bg-200 transition-all ease-in-out duration-200'>
           {formatTime(startTime) + ' - ' + formatTime(endTime)}
         </Button>
-        <h3 className='text-default-500 text-16 font-semibold'>{actant}</h3>
+        <h3 className='text-500 text-16 font-medium'>{actant}</h3>
       </div>
-      <p className='text-default-400 text-16'>{citation}</p>
+      <p className='text-16 text-300 font-extralight'>{citation}</p>
     </div>
   );
 };
 
 export const CitationSkeleton: React.FC = () => {
   return (
-    <div className='w-full flex flex-col justify-start rounded-12 bg-default-200 items-start p-10 gap-5 transition-transform-colors-opacity'>
+    <div className='w-full flex flex-col justify-start rounded-12 bg-200 items-start p-10 gap-5 transition-transform-colors-opacity'>
       <div className='w-full flex justify-start items-center gap-10'>
         <Skeleton className='w-[55%] rounded-6'>
           <p className='text-16'>_</p>
@@ -109,10 +109,10 @@ export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTime
 export const UnloadedCard: React.FC = () => {
   return (
     <div className='w-full lg:h-[400px] xl:h-[450px] sm:h-[450px] flex flex-col justify-center items-center gap-20'>
-      <FileIcon size={42} className='text-default-200' />
+      <FileIcon size={42} className='text-200' />
       <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
-        <h2 className='text-default-400 text-32 font-semibold'>Oups !</h2>
-        <p className='text-default-400 text-16 text-regular text-center'>
+        <h2 className='text-400 text-32 font-semibold'>Oups !</h2>
+        <p className='text-400 text-16 text-regular text-center'>
           Aucune citation n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres
           sections de notre site.
         </p>

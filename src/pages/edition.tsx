@@ -43,7 +43,7 @@ export const Edition: React.FC = () => {
         </div>
         <div className='col-span-10 flex flex-col gap-100'>
           <div className='gap-25 flex flex-col'>
-            <h2 className='text-24 font-bold text-default-600'>Conférences de {title}</h2>
+            <h2 className='text-24 font-bold text-600'>Conférences de {title}</h2>
             <div className='grid grid-cols-4 grid-rows-3 gap-25'>
               {loadingConf
                 ? Array.from({ length: 12 }).map((_, index) => <LgConfSkeleton key={index} />)

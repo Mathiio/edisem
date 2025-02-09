@@ -41,8 +41,8 @@ export const NavTypeFilter: React.FC<ButtonGeneratorProps & ButtonProps> = ({
       radius='none'
       className={`h-[32px] text-16 rounded-8 ${
         selectedButtons.includes(index)
-          ? 'bg-default-action text-default-100'
-          : 'text-default-500 bg-default-200 hover:text-default-500 hover:bg-default-300'
+          ? 'bg-action text-100'
+          : 'text-500 bg-200 hover:text-500 hover:bg-300'
       } transition-all ease-in-out duration-200 navfilter flex items-center`}
       endContent={selectedButtons.includes(index) ? <CrossIcon size={18} /> : null}>
       {name}

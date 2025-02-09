@@ -6,8 +6,8 @@ import CreditsModal from '@/components/navbar/CreditsModal';
 import { ProfilDropdown } from '@/components/navbar/ProfilDropdown';
 import { motion, Variants } from 'framer-motion';
 import { Link as RoutLink } from 'react-router-dom';
-import SearchModal from './SearchModal';
-import { useThemeMode } from '@/hooks/use-theme-mode'; // Importer le hook
+import SearchModal from '@/components/navbar/SearchModal';
+import { useThemeMode } from '@/hooks/use-theme-mode'; 
 
 const navbarVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
@@ -56,10 +56,10 @@ export const Navbar: React.FC = () => {
       variants={containerVariants}>
       <motion.div className='flex items-center gap-20' variants={navbarVariants}>
         <RoutLink to='/' className='flex items-center gap-5'>
-          <Image width={40} src={Logo} alt='Logo' />
-          <div className='text-24 text-default-600 font-bold'>Arcanes</div>
+          <Image width={34} src={Logo} alt='Logo' />
+          <div className='text-24 text-600 font-medium'>Arcanes</div>
         </RoutLink>
-        <div className='h-20 border-1 border-default-400'></div>
+        <div className='h-20 border-1 border-400'></div>
         <div className='flex flex-wrap justify-between items-center gap-15'>
           {logos.map((logo) => (
             <img

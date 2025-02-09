@@ -6,12 +6,12 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@
 const Legend: FC = () => {
   return (
     <div className='fixed bottom-25 left-25'>
-        <Dropdown className='min-w-[160px] w-fit p-1.5 rounded-8 shadow-lg flex flex-col gap-3 bg-default-100'>
-            <DropdownTrigger className='bg-default-100'>
+        <Dropdown className='min-w-[160px] w-fit p-1.5 rounded-8 shadow-lg flex flex-col gap-3 bg-100'>
+            <DropdownTrigger className='bg-100'>
                 <Button 
                 size={"lg"}
-                    endContent={<ArrowIcon size={14} className='text-default-600 rotate-90' />}
-                    className='px-4 py-4 flex justify-between gap-2 text-default-500 rounded-8 w-[160px]'>
+                    endContent={<ArrowIcon size={14} className='text-600 rotate-90' />}
+                    className='px-4 py-4 flex justify-between gap-2 text-500 rounded-8 w-[160px]'>
                         Légende
                 </Button>
                 </DropdownTrigger>
@@ -19,49 +19,49 @@ const Legend: FC = () => {
                     <DropdownItem className="pr-0">
                         <div className='flex items-center justify-start gap-0.5'>
                             <img src="/bulle5.png" alt="" className='w-7'/>
-                            <p className="text-default-500 text-14">Mot clé</p>
+                            <p className="text-500 text-14">Mot clé</p>
                         </div>
                     </DropdownItem>
                     <DropdownItem className="pr-0">
                         <div className='flex items-center justify-start gap-0.5'>
                             <img src="/bulle6.png" alt="" className='w-7'/>
-                            <p className="text-default-500 text-14">Citation</p>
+                            <p className="text-500 text-14">Citation</p>
                         </div>
                     </DropdownItem>
                     <DropdownItem className="pr-0">
                         <div className='flex items-center justify-start  gap-0.5'>
                             <img src="/bulle7.png" alt="" className='w-7'/>
-                            <p className="text-default-500 text-14">Actant</p>
+                            <p className="text-500 text-14">Actant</p>
                         </div>
                     </DropdownItem>
                     <DropdownItem className="pr-0">
                         <div className='flex items-center justify-start gap-0.5'>
                             <img src="/bulle2.png" alt="" className='w-7'/>
-                            <p className="text-default-500 text-14">Bibliographie</p>
+                            <p className="text-500 text-14">Bibliographie</p>
                         </div>
                     </DropdownItem>
                     <DropdownItem className="pr-0">
                         <div className='flex items-center justify-start gap-0.5'>
                             <img src="/bulle3.png" alt="" className='w-7'/>
-                            <p className="text-default-500 text-14">Médiagraphie</p>
+                            <p className="text-500 text-14">Médiagraphie</p>
                         </div>
                     </DropdownItem>
                     <DropdownItem className="pr-0">
                         <div className='flex items-center justify-start gap-0.5'>
                             <img src="/bulle1.png" alt="" className='w-7'/>
-                            <p className="text-default-500 text-14">Conférence</p>
+                            <p className="text-500 text-14">Conférence</p>
                         </div>
                     </DropdownItem>
                     <DropdownItem className="pr-0">
                         <div className='flex items-center justify-start gap-0.5'>
                             <img src="/bulle4.png" alt="" className='w-7'/>
-                            <p className="text-default-500 text-14">Établissement</p>
+                            <p className="text-500 text-14">Établissement</p>
                         </div>
                     </DropdownItem>
                     <DropdownItem className="pr-0">
                         <div className='flex items-center justify-start gap-0.5'>
                             <img src="/bulle8.png" alt="" className='w-7'/>
-                            <p className="text-default-500 text-14">Collection</p>
+                            <p className="text-500 text-14">Collection</p>
                         </div>
                     </DropdownItem>
             </DropdownMenu>

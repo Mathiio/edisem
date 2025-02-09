@@ -223,12 +223,12 @@ export const Database: React.FC = () => {
                         <>
                           <button
                             onClick={handleReturn}
-                            className=' min-w-fit border-2 border-default-300 hover:border-default-action transition-colors duration-300 text-default-600 font-semibold px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '>
+                            className=' min-w-fit border-2 border-300 hover:border-action transition-colors duration-300 text-600 font-semibold px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '>
                             <BackIcon
-                              className='text-default-600 flex flex-col items-center justify-center'
+                              className='text-600 flex flex-col items-center justify-center'
                               size={14}
                             />
-                            <div className='text-default-600'>Retour</div>
+                            <div className='text-600'>Retour</div>
                           </button>
                         </>
                       )}
@@ -237,11 +237,11 @@ export const Database: React.FC = () => {
                       <Input
                         classNames={{
                           base: '',
-                          clearButton: 'bg-default-600',
+                          clearButton: 'bg-600',
                           mainWrapper: ' h-[48px] ',
-                          input: 'text-default-400  Inter  text-16 nav_searchbar h-[48px] px-[10px]',
+                          input: 'text-400  Inter  text-16 nav_searchbar h-[48px] px-[10px]',
                           inputWrapper:
-                            ' shadow-none border-1 border-default-200 group-data-[focus=true]:bg-default-200 rounded-8 font-normal text-default-600  bg-default-pur opacity-1 dark:bg-default-200 px-[15px] py-[10px] h-full ',
+                            ' shadow-none border-1 border-200 group-data-[focus=true]:bg-200 rounded-8 font-normal text-600  bg-pur opacity-1 dark:bg-200 px-[15px] py-[10px] h-full ',
                         }}
                         placeholder='Recherche avancée...'
                         startContent={<SearchIcon size={16} />}
@@ -251,16 +251,16 @@ export const Database: React.FC = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
                       <button
-                        className=' min-w-fit bg-default-action text-default-100 px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '
+                        className=' min-w-fit bg-action text-100 px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '
                         onClick={() => handleCreateClick()}>
-                        <div className='text-default-selected'>Créer un item</div>
-                        <PlusIcon size={14} className='text-default-selected ' />
+                        <div className='text-selected'>Créer un item</div>
+                        <PlusIcon size={14} className='text-selected ' />
                       </button>
                     </div>
                   </div>
                   <div className='flex flex-col gap-20'>
                     <div>
-                      <h2 className='text-24 font-bold text-default-600'>{selectedCard}</h2>
+                      <h2 className='text-24 font-bold text-600'>{selectedCard}</h2>
                     </div>
                     <Table
                       aria-label='Speakers Table'
@@ -285,10 +285,10 @@ export const Database: React.FC = () => {
                         </div>
                       }
                       classNames={{
-                        wrapper: 'shadow-none shadow-none border-1 border-default-200 min-h-[400px] bg-default-pur', // Ensure wrapper has a fixed height
+                        wrapper: 'shadow-none shadow-none border-1 border-200 min-h-[400px] bg-pur', // Ensure wrapper has a fixed height
                         table: 'rounded-8 shadow-none min-h-[400px]', // Ensure table has a fixed height
                         thead: 'rounded-8 ',
-                        th: ['bg-transparent', 'text-default-500', 'border-b', 'border-divider'],
+                        th: ['bg-transparent', 'text-500', 'border-b', 'border-divider'],
                         tr: ['rounded-8'],
                       }}>
                       <TableHeader className='min-h-[40px]'>
@@ -305,7 +305,7 @@ export const Database: React.FC = () => {
                         items={(!speakersLoading && items) || []}
                         emptyContent={<Spinner label='Chargement des données Omeka S' color='secondary' size='md' />}>
                         {(item) => (
-                          <TableRow key={item['o:id']} className='hover:bg-default-100 max-height-40'>
+                          <TableRow key={item['o:id']} className='hover:bg-100 max-height-40'>
                             {columns.map((col, colIndex) => (
                               <TableCell
                                 key={col.key}
@@ -319,7 +319,7 @@ export const Database: React.FC = () => {
                                     <button onClick={() => handleCellClick(item)} className='pl-[10px]'>
                                       <EditIcon
                                         size={22}
-                                        className='mr-[10px] text-default-400 hover:text-default-action transition-all ease-in-out duration-200'
+                                        className='mr-[10px] text-400 hover:text-action transition-all ease-in-out duration-200'
                                       />
                                     </button>
                                   </div>

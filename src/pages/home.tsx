@@ -59,7 +59,7 @@ export const Home: React.FC = () => {
   }, [fetchSeminaires, fetchActants, fetchRandomConf]);
 
   return (
-    <div className='relative bg-default-50 h-screen'>
+    <div className='relative bg-50 h-screen'>
       <main className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200 scroll-y-auto'>
         <div className='col-span-10'>
           <Navbar />
@@ -114,7 +114,7 @@ export const Home: React.FC = () => {
             }
           />
           <div className='gap-25 flex flex-col'>
-            <h2 className='text-24 font-bold text-default-600'>Sélection de conférences</h2>
+            <h2 className='text-24 font-medium text-500'>Sélection de conférences</h2>
             <div className='grid grid-cols-4 grid-rows-2 gap-25'>
               {loadingRandomConf
                 ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)

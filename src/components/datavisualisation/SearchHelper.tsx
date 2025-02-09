@@ -137,7 +137,7 @@ export const SearchHelper: React.FC<SearchHelperProps> = ({ onSearchItemClick })
       key={index}
       variants={itemVariants}
       onClick={() => handleConfigClick(item.config)}
-      className='cursor-pointer flex-1 flex flex-col border-default-200 border-2 hover:bg-default-200 p-25 rounded-8 gap-10 transition-all ease-in-out duration-200'>
+      className='cursor-pointer flex-1 flex flex-col border-200 border-2 hover:bg-200 p-25 rounded-8 gap-10 transition-all ease-in-out duration-200'>
       {item.title}
     </motion.div>
   );

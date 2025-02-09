@@ -72,8 +72,8 @@ export const NavConferencierFilter: React.FC<ButtonGeneratorProps & ButtonProps>
       radius='none'
       className={`h-[32px]  text-16 rounded-8 ${
         selectedButtons.includes(i)
-          ? 'bg-default-action text-default-100'
-          : 'text-default-500 bg-default-200 hover:text-default-500 hover:bg-default-300'
+          ? 'bg-action text-100'
+          : 'text-500 bg-200 hover:text-500 hover:bg-300'
       } transition-all ease-in-out duration-200 navfilter flex items-center`}
       endContent={selectedButtons.includes(i) ? <CrossIcon size={18} /> : null}>
       Button {i + 1}
@@ -86,7 +86,7 @@ export const NavConferencierFilter: React.FC<ButtonGeneratorProps & ButtonProps>
         <Button
           onClick={handleLeftClick}
           size='sm'
-          className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action'>
+          className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action'>
           <ArrowIcon size={20} transform='rotate(180deg)' />
         </Button>
       )}
@@ -95,7 +95,7 @@ export const NavConferencierFilter: React.FC<ButtonGeneratorProps & ButtonProps>
         <Button
           onClick={handleRightClick}
           size='sm'
-          className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action'>
+          className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action'>
           <ArrowIcon size={20} />
         </Button>
       )}

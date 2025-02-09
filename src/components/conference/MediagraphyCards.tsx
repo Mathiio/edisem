@@ -265,13 +265,13 @@ export const MediagraphyCard: React.FC<MediagraphyItem> = ({
       to={uri ?? '#'}
       target='_blank'
       className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 p-25 transition-transform-colors-opacity ${
-        isHovered ? 'border-default-action' : 'border-default-300'
+        isHovered ? 'border-300' : 'border-200'
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
       <div
         className={`flex-shrink-0 transition-transform-colors-opacity ${
-          isHovered ? 'text-default-action' : 'text-default-300'
+          isHovered ? 'text-300' : 'text-200'
         }`}>
         {thumbnail ? (
           <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' />
@@ -280,7 +280,7 @@ export const MediagraphyCard: React.FC<MediagraphyItem> = ({
         )}
       </div>
 
-      <div className='w-full'>
+      <div className='w-full text-16 text-300 font-extralight'>
         {ensureEndsWithPeriod(
           template({
             id,
@@ -303,7 +303,7 @@ export const MediagraphyCard: React.FC<MediagraphyItem> = ({
 
       <div
         className={`flex min-w-[40px] min-h-[40px] border-2 rounded-12 justify-center items-center transition-transform-colors-opacity ${
-          isHovered ? 'border-default-action text-default-action' : 'border-default-300 text-default-300'
+          isHovered ? 'border-300 text-300' : 'border-200 text-200'
         }`}>
         <LinkIcon size={22} />
       </div>
@@ -353,7 +353,7 @@ export const Mediagraphies: React.FC<{ items: MediagraphyItem[]; loading: boolea
             {/* Mediagraphies de conférence */}
             {sortedConferenceMediagraphies.length > 0 && (
               <>
-                <h2 className='text-xl font-bold'>Médiagraphies de Conférence</h2>
+                <h2 className='text-16 text-400 font-medium'>Médiagraphies de Conférence</h2>
                 <div className='flex flex-col gap-20'>
                   {sortedConferenceMediagraphies.map((item, index) => (
                     <MediagraphyCard key={index} {...item} />
@@ -365,7 +365,7 @@ export const Mediagraphies: React.FC<{ items: MediagraphyItem[]; loading: boolea
             {/* Médiagraphies complémentaires */}
             {sortedComplementaryMediagraphies.length > 0 && (
               <>
-                <h2 className='text-xl font-bold'>Médiagraphies Complémentaires</h2>
+                <h2 className='text-16 text-400 font-medium'>Médiagraphies Complémentaires</h2>
                 <div className='flex flex-col gap-20'>
                   {sortedComplementaryMediagraphies.map((item, index) => (
                     <MediagraphyCard key={index} {...item} />
@@ -385,10 +385,10 @@ export const Mediagraphies: React.FC<{ items: MediagraphyItem[]; loading: boolea
 
 export const UnloadedCard: React.FC = () => (
   <div className='w-full lg:h-[400px] xl:h-[450px] sm:h-[450px] flex flex-col justify-center items-center gap-20'>
-    <FileIcon size={42} className='text-default-200' />
+    <FileIcon size={42} className='text-200' />
     <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
-      <h2 className='text-default-400 text-32 font-semibold'>Oups !</h2>
-      <p className='text-default-400 text-16 text-center'>
+      <h2 className='text-400 text-32 font-semibold'>Oups !</h2>
+      <p className='text-400 text-16 text-center'>
         Aucune médiagraphie n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres
         sections de notre site.
       </p>
@@ -397,7 +397,7 @@ export const UnloadedCard: React.FC = () => (
 );
 
 export const MediagraphySkeleton: React.FC = () => (
-  <div className='w-full flex justify-between rounded-12 items-center bg-default-200 gap-25 p-25'>
+  <div className='w-full flex justify-between rounded-12 items-center bg-200 gap-25 p-25'>
     <div className='w-[30px] h-[24px] bg-gray-300 rounded-6'></div>
     <div className='w-full flex flex-col gap-10'>
       <div className='flex flex-col gap-5'>

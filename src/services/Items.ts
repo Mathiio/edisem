@@ -315,7 +315,6 @@ export async function getActants() {
       },
     );
 
-    console.log(updatedActants);
     sessionStorage.setItem('actants', JSON.stringify(updatedActants));
     return updatedActants;
   } catch (error) {
@@ -378,6 +377,7 @@ export async function getAllItems() {
       mediagraphies,
       keywords,
       collections,
+      students,
     ] = await Promise.all([
       getConfs(),
       getActants(),
@@ -389,6 +389,7 @@ export async function getAllItems() {
       getMediagraphies(),
       getKeywords(),
       getCollections(),
+      getStudents(),
     ]);
 
     const allItems = [
@@ -402,6 +403,7 @@ export async function getAllItems() {
       ...mediagraphies,
       ...keywords,
       ...collections,
+      ...students,
     ];
 
     sessionStorage.setItem('allItems', JSON.stringify(allItems));
@@ -491,5 +493,41 @@ export async function getSeminaires() {
   } catch (error) {
     console.error('Error fetching seminars:', error);
     throw new Error('Failed to fetch seminars');
+  }
+}
+
+
+export async function getStudents() {
+  try {
+    const storedStudents = sessionStorage.getItem('student');
+
+    if (storedStudents) {
+      return JSON.parse(storedStudents);
+    }
+
+    const students = await getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudents&json=1',
+    );
+
+    const updatedStudents = students.map(
+      (student: {
+        firstname: string;
+        lastname: string;
+        id: number;
+      }) => {
+
+        return {
+          ...student,
+          title: student.firstname + ' ' + student.lastname,
+          type: 'student',
+        };
+      },
+    );
+
+    sessionStorage.setItem('students', JSON.stringify(updatedStudents));
+    return updatedStudents;
+  } catch (error) {
+    console.error('Error fetching students:', error);
+    throw new Error('Failed to fetch students');
   }
 }
