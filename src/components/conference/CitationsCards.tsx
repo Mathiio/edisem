@@ -83,8 +83,8 @@ interface CitationsProps {
 
 export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTimeChange }) => {
   return (
-    <div className='w-full lg:h-[700px] xl:h-[750px]  overflow-hidden flex flex-col gap-20'>
-      <div className='flex flex-col gap-20 scroll-y-auto'>
+    <div className='w-full lg:h-[700px] xl:h-[750px] overflow-hidden flex flex-col gap-20'>
+      <div className='flex flex-col gap-20 h-full overflow-y-auto'>
         {loading ? (
           Array.from({ length: 8 }).map((_) => <CitationSkeleton />)
         ) : citations.length === 0 ? (
