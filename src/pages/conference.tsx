@@ -74,7 +74,7 @@ export const Conference: React.FC = () => {
   }, [id, fetchConfData]);
 
   return (
-    <div className='relative h-screen overflow-hidden bg-50'>
+    <div className='relative h-screen overflow-y-auto bg-50'>
       <motion.main
         className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200 scroll-y-auto'
         initial='hidden'

@@ -345,7 +345,7 @@ export const Mediagraphies: React.FC<{ items: MediagraphyItem[]; loading: boolea
 
   return (
     <div className='w-full lg:h-[700px] xl:h-[750px] overflow-hidden flex flex-col gap-20'>
-      <div className='flex flex-col gap-20 scroll-y-auto'>
+      <div className='flex flex-col gap-20 overflow-y-auto'>
         {loading ? (
           Array.from({ length: items.length }).map((_, index) => <MediagraphySkeleton key={index} />)
         ) : (
