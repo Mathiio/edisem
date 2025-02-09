@@ -391,7 +391,7 @@ const Visualisation = () => {
   };
 
   return (
-    <div className='relative h-screen bg-default-50 overflow-y-hidden'>
+    <div className='relative h-screen bg-50 overflow-y-hidden'>
       <motion.main
         className='mx-auto h-full max-w-screen-2xl w-full max-w-xl xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200'
         initial='hidden'

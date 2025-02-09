@@ -97,18 +97,18 @@ const SearchModal = () => {
     <>
       <Button
         size='md'
-        className='cursor-pointer h-[32px] text-16 p-25 gap-10 rounded-8 text-default-500 hover:text-default-500 bg-default-100 hover:bg-default-200 transition-all ease-in-out duration-200'
+        className='cursor-pointer h-[32px] text-16 p-25 gap-10 rounded-8 text-500 hover:text-600 bg-100 hover:bg-200 transition-all ease-in-out duration-200'
         onPress={handleOpen}>
         <SearchIcon
           size={16}
-          className='text-default-500 hover:text-default-action transition-all ease-in-out duration-200'
+          className='text-500 hover:text-action transition-all ease-in-out duration-200'
         />
         Recherche avancée...
       </Button>
 
       <Modal
         backdrop='blur'
-        className='bg-default-100'
+        className='bg-50'
         size='3xl'
         isOpen={isOpen}
         onClose={handleClose}
@@ -142,17 +142,17 @@ const SearchModal = () => {
                   ref={inputRef}
                   classNames={{
                     base: 'w-full',
-                    clearButton: 'bg-default-600',
+                    clearButton: 'bg-100',
                     mainWrapper: 'h-full',
-                    input: 'text-default-600 Inter font-semibold text-16 nav_searchbar',
+                    input: 'text-100 Inter font-semibold text-16 nav_searchbar',
                     inputWrapper:
-                      'group-data-[focus=true]:bg-default-200 rounded-12 font-normal text-default-600 bg-default-200 dark:bg-default-200 p-25 h-[50px]',
+                      'group-data-[focus=true]:bg-100 rounded-12 font-normal text-600 bg-100 dark:bg-100 p-25 h-[50px]',
                   }}
                   placeholder='Recherche avancée...'
                   size='sm'
                   startContent={<SearchIcon size={18} />}
                   endContent={
-                    <Kbd className='flex sm:flex font-semibold text-default-600 text-12 px-[8px] py-5 bg-default-200 gap-5'>
+                    <Kbd className='flex sm:flex font-semibold text-600 text-12 px-[8px] py-5 bg-200 gap-5'>
                       ESC
                     </Kbd>
                   }
@@ -168,10 +168,10 @@ const SearchModal = () => {
                     animate='visible'
                     variants={fadeIn}>
                     <div className='w-full flex flex-col gap-50'>
-                      <h2>{getResultText(filteredActants, filteredConfs)}</h2>
+                      <h2 className='text-16 text-500 font-medium'>{getResultText(filteredActants, filteredConfs)}</h2>
                       {filteredActants.length > 0 && !loadingActants && (
                         <div className='w-full flex flex-col gap-25'>
-                          <h2 className='text-24 font-semibold text-default-500'>
+                          <h2 className='text-24 font-medium text-500'>
                             Conférencier{filteredActants.length > 1 ? 's' : ''}
                           </h2>
                           <div className='w-full flex flex-col gap-15'>
@@ -204,7 +204,7 @@ const SearchModal = () => {
                       )}
                       {filteredConfs.length > 0 && !loadingConfs && (
                         <div className='w-full flex flex-col gap-25'>
-                          <h2 className='text-24 font-semibold text-default-500'>
+                          <h2 className='text-24 font-medium text-500'>
                             Conférence{filteredConfs.length > 1 ? 's' : ''}
                           </h2>
                           <div className='w-full flex flex-col gap-15'>

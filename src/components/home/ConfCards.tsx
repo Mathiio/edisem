@@ -70,13 +70,13 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
       className='cursor-pointer flex flex-col gap-10 transition-all ease-in-out duration-200 relative'>
       <div
         className={`absolute w-full h-full rounded-12 transition-all ease-in-out duration-200 
-        ${isHovered ? 'bg-default-100 scale-105' : 'scale-100'}`}></div>
+        ${isHovered ? 'bg-100 scale-105' : 'scale-100'}`}></div>
       <div
         className={`p-50 h-200 w-full rounded-12 justify-center items-center flex z-10 ${
-          thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-default-200 to-default-400'
+          thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-200 to-400'
         }`}
         style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
-        <h3 className={`text-16 text-default-100 font-semibold text-default-selected ${thumbnailUrl ? 'invisible' : ''}`}>
+        <h3 className={`text-16 text-100 font-semibold text-selected ${thumbnailUrl ? 'invisible' : ''}`}>
           CONFÉRENCE
         </h3>
       </div>
@@ -84,16 +84,16 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
         <div className='relative'>
           <p
             ref={textRef}
-            className='text-16 text-default-600 font-bold overflow-hidden max-h-[4.5rem] line-clamp-3'>
+            className='text-16 text-500 font-medium overflow-hidden max-h-[4.5rem] line-clamp-3'>
             {title}
           </p>
-          {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-default-600'></span>}
+          {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-600'></span>}
         </div>
-        <p className='text-16 text-default-500 font-regular'>
+        <p className='text-16 text-400 font-extralight'>
           {actant}
           <span className='text-14'> - {universite}</span>
         </p>
-        <p className='text-14 text-default-500 font-regular'>{formatDate(date)}</p>
+        <p className='text-14 text-400 font-extralight'>{formatDate(date)}</p>
       </div>
     </div>
   );
@@ -107,14 +107,14 @@ export const LgConfSkeleton: React.FC = () => {
       </Skeleton>
       <div className='flex flex-col gap-5'>
         <Skeleton className='w-[90%] rounded-8'>
-          <p className='text-16 text-default-600 font-semibold'>_</p>
-          <p className='text-16 text-default-600 font-semibold'>_</p>
+          <p className='text-16 text-600 font-semibold'>_</p>
+          <p className='text-16 text-600 font-semibold'>_</p>
         </Skeleton>
         <Skeleton className='w-[60%] rounded-8'>
-          <p className='text-16 text-default-500 font-regular'>_</p>
+          <p className='text-16 text-500 font-regular'>_</p>
         </Skeleton>
         <Skeleton className='w-[40%] rounded-8'>
-          <p className='text-14 text-default-500 font-regular'>_</p>
+          <p className='text-14 text-500 font-regular'>_</p>
         </Skeleton>
       </div>
     </div>

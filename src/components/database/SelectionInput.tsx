@@ -140,11 +140,11 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
         <Input
           classNames={{
             base: '',
-            clearButton: 'bg-default-600',
+            clearButton: 'bg-600',
             mainWrapper: ' h-[40px] ',
-            input: 'text-default-400  Inter  text-16 nav_searchbar h-[40px] px-[10px]',
+            input: 'text-400  Inter  text-16 nav_searchbar h-[40px] px-[10px]',
             inputWrapper:
-              ' shadow-none border-1 border-default-200 group-data-[focus=true]:bg-default-200 rounded-8 font-normal text-default-600 bg-default-50 dark:bg-default-200 px-[15px] py-[10px] h-[40px] ',
+              ' shadow-none border-1 border-200 group-data-[focus=true]:bg-200 rounded-8 font-normal text-600 bg-50 dark:bg-200 px-[15px] py-[10px] h-[40px] ',
           }}
           placeholder='Recherche avancée...'
           startContent={<SearchIcon size={16} />}
@@ -157,8 +157,8 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
         <Dropdown>
           <DropdownTrigger>
             <Button
-              startContent={<SortIcon size={16} className='text-default-600' />}
-              className='px-[15px] py-10 flex gap-10 bg-default-200 border-none rounded-8'>
+              startContent={<SortIcon size={16} className='text-600' />}
+              className='px-[15px] py-10 flex gap-10 bg-200 border-none rounded-8'>
               Trier
             </Button>
           </DropdownTrigger>
@@ -176,25 +176,25 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
       </div>
       <div className='flex flex-col w-full'>
         <ul className='flex items-center gap-10 pt-10 pb-20 flex-wrap'>
-          <p className='text-default-400'>Selection :</p>
+          <p className='text-400'>Selection :</p>
           {selectedValues.map((id, index) => (
             <Button
               key={index}
               onClick={() => handleDeselect(id)}
               radius='none'
-              className={`py-10 px-10 gap-10 text-14 rounded-8 bg-default-action text-default-selected transition-all ease-in-out duration-200 navfilter flex items-center`}
+              className={`py-10 px-10 gap-10 text-14 rounded-8 bg-action text-selected transition-all ease-in-out duration-200 navfilter flex items-center`}
               endContent={<CrossIcon size={18} />}>
               {reducer(idToDisplayNameMap[id], 30)}
             </Button>
           ))}
         </ul>
-        <ul className='flex items-center gap-20 py-10 flex-wrap max-h-[150px] scroll-y-auto'>
+        <ul className='flex items-center gap-20 py-10 flex-wrap max-h-[150px] overflow-y-auto'>
           {filteredNonSelectedValues.map((id, index) => (
             <Button
               key={index}
               onClick={() => handleSelect(id)}
               radius='none'
-              className={` py-10 px-10 text-14 rounded-8 text-default-600 bg-default-50 hover:text-default-selected hover:bg-default-action transition-all ease-in-out duration-200  flex items-center`}>
+              className={` py-10 px-10 text-14 rounded-8 text-600 bg-50 hover:text-selected hover:bg-action transition-all ease-in-out duration-200  flex items-center`}>
               {reducer(idToDisplayNameMap[id])}
             </Button>
           ))}

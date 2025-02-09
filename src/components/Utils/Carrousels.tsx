@@ -19,16 +19,16 @@ export const FullCarrousel: React.FC<FullCarrouselProps> = ({ data, title, perPa
       aria-label='...'
       className='flex flex-col w-full justify-center gap-25'>
       <div className='w-full flex justify-between items-center'>
-        <h2 className='text-24 font-bold text-default-600'>{title}</h2>
+        <h2 className='text-24 font-medium text-500'>{title}</h2>
         <div className='splide__arrows relative flex gap-10'>
           <Button
             size='sm'
-            className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
+            className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
             <ArrowIcon size={20} transform='rotate(180deg)' />
           </Button>
           <Button
             size='sm'
-            className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
+            className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
             <ArrowIcon size={20} />
           </Button>
         </div>
@@ -66,17 +66,17 @@ export const MidCarrousel: React.FC<MidCarrouselProps> = ({
       aria-label='...'
       className='flex w-full items-center justify-center gap-20'>
       <div className='w-[40%] flex flex-col justify-center gap-10 items-start'>
-        <h2 className='text-24 font-bold text-default-600'>{title}</h2>
-        <p className='text-16 font-regular text-default-500'>{description}</p>
+        <h2 className='text-24 font-medium text-500'>{title}</h2>
+        <p className='text-16 font-extralight text-400'>{description}</p>
         <div className='splide__arrows relative flex gap-10'>
           <Button
             size='sm'
-            className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
+            className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
             <ArrowIcon size={20} transform='rotate(180deg)' />
           </Button>
           <Button
             size='sm'
-            className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
+            className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
             <ArrowIcon size={20} />
           </Button>
         </div>
@@ -121,12 +121,12 @@ export const LongCarrousel: React.FC<LongCarrouselProps> = ({ data, autowidth, p
         <div className='splide__arrows relative flex gap-10'>
           <Button
             size='sm'
-            className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
+            className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
             <ArrowIcon size={20} transform='rotate(180deg)' />
           </Button>
           <Button
             size='sm'
-            className='p-0 min-w-[32px] min-h-[32px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
+            className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
             <ArrowIcon size={20} />
           </Button>
         </div>
@@ -159,7 +159,7 @@ export const LongCarrouselFilter: React.FC<LongCarrouselProps> = ({
         <div className='splide__arrows relative flex gap-10'>
           <Button
             size='sm'
-            className='p-0 min-w-[25px] min-h-[25px] text-default-selected bg-default-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
+            className='p-0 min-w-[25px] min-h-[25px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
             <ArrowIcon size={20} transform='rotate(180deg)' />
           </Button>
         </div>
@@ -171,7 +171,7 @@ export const LongCarrouselFilter: React.FC<LongCarrouselProps> = ({
       </SplideTrack>
       <div className=' flex justify-between items-center'>
         <div className='splide__arrows relative flex gap-10'>
-          <Button className='py-2 px-2 h-full text-default-selected bg-default-action rounded-8 splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
+          <Button className='py-2 px-2 h-full text-selected bg-action rounded-8 splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
             <ArrowIcon size={20} />
           </Button>
         </div>

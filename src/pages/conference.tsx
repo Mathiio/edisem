@@ -74,7 +74,7 @@ export const Conference: React.FC = () => {
   }, [id, fetchConfData]);
 
   return (
-    <div className='relative h-screen overflow-hidden bg-default-50'>
+    <div className='relative h-screen overflow-hidden bg-50'>
       <motion.main
         className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200 scroll-y-auto'
         initial='hidden'
@@ -120,10 +120,10 @@ export const Conference: React.FC = () => {
           <div className='flex w-full flex-col gap-20 flex-grow'>
             <Tabs
               classNames={{
-                tabList: 'w-full gap-10 bg-default-0 rounded-8',
+                tabList: 'w-full gap-10 bg-0 rounded-8',
                 cursor: 'w-full',
-                tab: 'w-full bg-default-100 data-[selected=true]:bg-default-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-default-200 transition-all ease-in-out duration-200n',
-                tabContent: 'group-data-[selected=true]:text-default-selected group-data-[selected=true]:font-semibold',
+                tab: 'w-full bg-100 data-[selected=true]:bg-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-200 transition-all ease-in-out duration-200',
+                tabContent: 'group-data-[selected=true]:text-500 group-data-[selected=true]:font-medium text-500',
               }}
               aria-label='Options'
               selectedKey={selected}

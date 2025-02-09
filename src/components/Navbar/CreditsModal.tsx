@@ -16,7 +16,7 @@ const CreditsModal = () => {
           <Link onPress={handleOpen} className='cursor-pointer'>
             <CreditIcon
               size={18}
-              className='text-default-500 hover:text-default-action transition-all ease-in-out duration-200'
+              className='text-500 hover:text-action transition-all ease-in-out duration-200'
             />
           </Link>
         </Tooltip>
@@ -24,7 +24,7 @@ const CreditsModal = () => {
 
       <Modal
         backdrop='blur'
-        className='bg-default-100'
+        className='bg-50'
         size='2xl'
         isOpen={isOpen}
         onClose={onClose}
@@ -53,18 +53,18 @@ const CreditsModal = () => {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex justify-between p-25 border-b-2 border-default-300'>
-                <h2 className='text-default-500 text-32 font-semibold'>Crédits</h2>
+              <ModalHeader className='flex justify-between p-25 border-b-2 border-300'>
+                <h2 className='text-500 text-32 font-medium'>Crédits</h2>
                 <Link onPress={onClose}>
                   <CrossIcon
-                    className='text-default-500 cursor-pointer hover:text-default-action transition-all ease-in-out duration-200'
+                    className='text-500 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
                     size={24}
                   />
                 </Link>
               </ModalHeader>
               <ModalBody className='flex p-25'>
                 <div className='flex flex-col gap-25 scroll-y-auto'>
-                  <div className='text-default-400'>Equipe Arcanes</div>
+                  <h3 className='text-500 font-medium text-16'>Equipe Arcanes</h3>
                   <CreditCard
                     name='Gabrielle Godin'
                     job=''

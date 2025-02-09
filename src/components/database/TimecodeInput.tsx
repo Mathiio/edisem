@@ -47,8 +47,8 @@ export const TimecodeInput: React.FC<TimecodeInputProps> = ({ seconds = 0, label
       hourCycle={24}
       granularity='second'
       classNames={{
-        label: 'text-semibold text-default-600 text-24',
-        inputWrapper: 'bg-default-50 shadow-none border-1 border-default-200 h-[50px]',
+        label: 'text-semibold text-600 text-24',
+        inputWrapper: 'bg-50 shadow-none border-1 border-200 h-[50px]',
         input: 'h-[50px]',
       }}
       className='min-h-[50px]'

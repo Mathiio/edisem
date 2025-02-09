@@ -17,8 +17,8 @@ type KeywordsCardProps = {
 
 export const KeywordsCard: React.FC<KeywordsCardProps> = ({ word }) => {
   return (
-    <motion.div variants={itemVariants} className='border-2 border-default-300 h-full rounded-8 flex items-center justify-start p-10'>
-        <p className='font-regular text-default-500 text-14'>{word}</p>
+    <motion.div variants={itemVariants} className='border-2 border-200 h-full rounded-8 flex items-center justify-start p-10'>
+        <p className='text-14 text-300 font-extralight'>{word}</p>
     </motion.div>
   );
 };

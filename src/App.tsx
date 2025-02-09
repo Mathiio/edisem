@@ -9,20 +9,25 @@ import LoginPage from '@/pages/login';
 import { withAuth } from '@/pages/withAuth';
 import Visualisation from './pages/visualisation';
 
-const ProtectedDatabase = withAuth(Database);
+// Protection des routes avec les droits appropriés
+const ProtectedDatabase = withAuth(Database, { requiredRole: 'Actant' });
+const ProtectedEdition = withAuth(Edition, { requiredRole: 'Actant' });
+const ProtectedVisualisation = withAuth(Visualisation, { requiredRole: 'any' });
+const ProtectedConference = withAuth(Conference, { requiredRole: 'any' });
+const ProtectedConferencier = withAuth(Conferencier, { requiredRole: 'any' });
 
 function App() {
   useThemeMode();
 
   return (
     <Routes>
-      <Route path='/conference/:id' Component={Conference} />
-      <Route path='/conferencier/:id' Component={Conferencier} />
+      <Route path='/conference/:id' Component={ProtectedConference} />
+      <Route path='/conferencier/:id' Component={ProtectedConferencier} />
       <Route path='/database' Component={ProtectedDatabase} />
       <Route index path='/' Component={Home} />
-      <Route path='/edition/:id/:title?' Component={Edition} />
+      <Route path='/edition/:id/:title?' Component={ProtectedEdition} />
       <Route path='/login' Component={LoginPage} />
-      <Route path='/visualisation' Component={Visualisation} />
+      <Route path='/visualisation' Component={ProtectedVisualisation} />
     </Routes>
   );
 }
