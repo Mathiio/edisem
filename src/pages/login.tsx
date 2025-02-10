@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs, Tab, Input, Link, Button, Card, CardBody } from '@nextui-org/react';
 import { getActants, getStudents } from '@/services/Items';
 import { Navbar } from '@/components/navbar/Navbar';
+import { Layouts } from '@/components/utils/Layouts';
 
 export const LoginPage: React.FC = () => {
   const [actants, setActants] = useState<any>(null);

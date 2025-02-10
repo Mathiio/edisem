@@ -103,7 +103,7 @@ const SearchModal = () => {
           size={16}
           className='text-500 hover:text-action transition-all ease-in-out duration-200'
         />
-        Recherche avancée...
+        Rechercher...
       </Button>
 
       <Modal
