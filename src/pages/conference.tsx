@@ -11,6 +11,7 @@ import { Tabs, Tab } from '@nextui-org/react';
 import { KeywordsCard, KeywordsSkeleton } from '@/components/conference/KeywordsCards';
 import { Bibliographies, BibliographyItem } from '@/components/conference/BibliographyCards';
 import { Mediagraphies, MediagraphyItem } from '@/components/conference/MediagraphyCards';
+import { Layouts } from '@/components/utils/Layouts';
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
@@ -74,15 +75,7 @@ export const Conference: React.FC = () => {
   }, [id, fetchConfData]);
 
   return (
-    <div className='relative h-screen overflow-y-auto bg-50'>
-      <motion.main
-        className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200 scroll-y-auto'
-        initial='hidden'
-        animate='visible'
-        variants={containerVariants}>
-        <motion.div className='col-span-10' variants={itemVariants}>
-          <Navbar />
-        </motion.div>
+      <Layouts className='grid grid-cols-10 col-span-10 gap-50'>
         <motion.div className='col-span-10 lg:col-span-6 flex flex-col gap-20' variants={itemVariants}>
           <LongCarrousel
             perPage={3}
@@ -144,7 +137,6 @@ export const Conference: React.FC = () => {
             </Tabs>
           </div>
         </motion.div>
-      </motion.main>
-    </div>
+      </Layouts>
   );
 };

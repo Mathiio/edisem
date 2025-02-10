@@ -12,14 +12,9 @@ const CreditsModal = () => {
   return (
     <>
       <div className='flex flex-wrap'>
-        <Tooltip content='voir les crédits'>
-          <Link onPress={handleOpen} className='cursor-pointer'>
-            <CreditIcon
-              size={18}
-              className='text-500 hover:text-action transition-all ease-in-out duration-200'
-            />
-          </Link>
-        </Tooltip>
+        <Link onPress={handleOpen} className='cursor-pointer'>
+          <p className='text-14 text-400 font-extralight'>Crédits</p>
+        </Link>
       </div>
 
       <Modal
