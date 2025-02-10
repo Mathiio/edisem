@@ -22,6 +22,7 @@ import { CreateModal } from '@/components/database/CreateModal';
 
 import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/utils/icons';
 import { usegetAllProperties } from '@/hooks/useFetchData';
+import { Layouts } from '@/components/utils/Layouts';
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
@@ -197,177 +198,166 @@ export const Database: React.FC = () => {
   }, [speakersData]);
 
   return (
-    <div className='relative h-screen overflow-hidden'>
-      <motion.main
-        className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200'
-        initial='hidden'
-        animate='visible'
-        variants={containerVariants}>
-        <motion.div className='col-span-10' variants={itemVariants}>
-          <Navbar />
-        </motion.div>
-        <motion.div className='col-span-10 flex flex-col gap-50' variants={itemVariants}>
-          <div>
-            {currentView === 'grid' && (
-              <GridComponent
-                handleCardClick={handleCardClick}
-                initializePropertiesLoading={initializePropertiesLoading}
-              />
-            )}
-            {currentView === 'table' && (
-              <>
-                <div className='flex flex-col gap-50'>
-                  <div className='flex flex-row justify-between'>
-                    <div>
-                      {selectedCard && (
-                        <>
-                          <button
-                            onClick={handleReturn}
-                            className=' min-w-fit border-2 border-300 hover:border-action transition-colors duration-300 text-600 font-semibold px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '>
-                            <BackIcon
-                              className='text-600 flex flex-col items-center justify-center'
-                              size={14}
-                            />
-                            <div className='text-600'>Retour</div>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                    <div className='flex flex-row gap-20'>
-                      <Input
-                        classNames={{
-                          base: '',
-                          clearButton: 'bg-600',
-                          mainWrapper: ' h-[48px] ',
-                          input: 'text-400  Inter  text-16 nav_searchbar h-[48px] px-[10px]',
-                          inputWrapper:
-                            ' shadow-none border-1 border-200 group-data-[focus=true]:bg-200 rounded-8 font-normal text-600  bg-pur opacity-1 dark:bg-200 px-[15px] py-[10px] h-full ',
-                        }}
-                        placeholder='Recherche avancée...'
-                        startContent={<SearchIcon size={16} />}
-                        type='search'
-                        fullWidth
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
+    <Layouts className='col-span-10 flex flex-col gap-50'>
+      <div>
+        {currentView === 'grid' && (
+          <GridComponent
+            handleCardClick={handleCardClick}
+            initializePropertiesLoading={initializePropertiesLoading}
+          />
+        )}
+        {currentView === 'table' && (
+          <>
+            <div className='flex flex-col gap-50'>
+              <div className='flex flex-row justify-between'>
+                <div>
+                  {selectedCard && (
+                    <>
                       <button
-                        className=' min-w-fit bg-action text-100 px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '
-                        onClick={() => handleCreateClick()}>
-                        <div className='text-selected'>Créer un item</div>
-                        <PlusIcon size={14} className='text-selected ' />
+                        onClick={handleReturn}
+                        className=' min-w-fit border-2 border-300 hover:border-action transition-colors duration-300 text-600 font-semibold px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '>
+                        <BackIcon
+                          className='text-600 flex flex-col items-center justify-center'
+                          size={14}
+                        />
+                        <div className='text-600'>Retour</div>
                       </button>
-                    </div>
-                  </div>
-                  <div className='flex flex-col gap-20'>
-                    <div>
-                      <h2 className='text-24 font-bold text-600'>{selectedCard}</h2>
-                    </div>
-                    <Table
-                      aria-label='Speakers Table'
-                      sortDescriptor={sortDescriptor}
-                      onSortChange={handleSortChange}
-                      bottomContent={
-                        <div className='flex w-full justify-start'>
-                          <Pagination
-                            classNames={{
-                              item: 'rounded-none border-0',
-                              prev: 'rounded-none rounded-l-[8px] ',
-                              next: 'rounded-none rounded-r-[8px]',
-                            }}
-                            isCompact
-                            showControls
-                            color='secondary'
-                            page={page}
-                            total={pages}
-                            initialPage={1}
-                            onChange={(page) => setPage(page)}
-                          />
-                        </div>
-                      }
-                      classNames={{
-                        wrapper: 'shadow-none shadow-none border-1 border-200 min-h-[400px] bg-pur', // Ensure wrapper has a fixed height
-                        table: 'rounded-8 shadow-none min-h-[400px]', // Ensure table has a fixed height
-                        thead: 'rounded-8 ',
-                        th: ['bg-transparent', 'text-500', 'border-b', 'border-divider'],
-                        tr: ['rounded-8'],
-                      }}>
-                      <TableHeader className='min-h-[40px]'>
-                        {columns.map((col) => (
-                          <TableColumn
-                            allowsSorting
-                            key={col.key}
-                            className={`${col.isAction ? 'flex justify-end' : ''}`}>
-                            {col.label}
-                          </TableColumn>
-                        ))}
-                      </TableHeader>
-                      <TableBody
-                        items={(!speakersLoading && items) || []}
-                        emptyContent={<Spinner label='Chargement des données Omeka S' color='secondary' size='md' />}>
-                        {(item) => (
-                          <TableRow key={item['o:id']} className='hover:bg-100 max-height-40'>
-                            {columns.map((col, colIndex) => (
-                              <TableCell
-                                key={col.key}
-                                className={`
-                                  ${colIndex === 0 ? 'rounded-tl-8 rounded-bl-8' : ''} 
-                                  ${colIndex === columns.length - 1 ? 'rounded-tr-8 rounded-br-8' : ''}
-                                  
-                                `}>
-                                {col.isAction ? (
-                                  <div className='flex justify-end'>
-                                    <button onClick={() => handleCellClick(item)} className='pl-[10px]'>
-                                      <EditIcon
-                                        size={22}
-                                        className='mr-[10px] text-400 hover:text-action transition-all ease-in-out duration-200'
-                                      />
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div>
-                                    {col.multiple
-                                      ? reducer(getValuesByPath(item, col.dataPath))
-                                      : reducer(getValueByPath(item, col.dataPath))}
-                                  </div>
-                                )}
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                  {currentItemUrl && (
-                    <EditModal
-                      isOpen={isOpenEdit}
-                      onClose={handleModalClose}
-                      itemUrl={currentItemUrl}
-                      activeConfig={selectedConfigKey}
-                      itemPropertiesData={itemPropertiesData}
-                      propertiesLoading={propertiesLoading}
-                    />
-                  )}
-                  {selectedRTId && (
-                    <CreateModal
-                      isOpen={isOpenCreate}
-                      onClose={handleModalClose}
-                      itemId={selectedRTId}
-                      activeConfig={selectedConfigKey}
-                      itemPropertiesData={itemPropertiesData}
-                      propertiesLoading={propertiesLoading}
-                    />
+                    </>
                   )}
                 </div>
-              </>
-            )}
-          </div>
-        </motion.div>
-      </motion.main>
-    </div>
+                <div className='flex flex-row gap-20'>
+                  <Input
+                    classNames={{
+                      base: '',
+                      clearButton: 'bg-600',
+                      mainWrapper: ' h-[48px] ',
+                      input: 'text-400  Inter  text-16 nav_searchbar h-[48px] px-[10px]',
+                      inputWrapper:
+                        ' shadow-none border-1 border-200 group-data-[focus=true]:bg-200 rounded-8 font-normal text-600  bg-pur opacity-1 dark:bg-200 px-[15px] py-[10px] h-full ',
+                    }}
+                    placeholder='Recherche avancée...'
+                    startContent={<SearchIcon size={16} />}
+                    type='search'
+                    fullWidth
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <button
+                    className=' min-w-fit bg-action text-100 px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '
+                    onClick={() => handleCreateClick()}>
+                    <div className='text-selected'>Créer un item</div>
+                    <PlusIcon size={14} className='text-selected ' />
+                  </button>
+                </div>
+              </div>
+              <div className='flex flex-col gap-20'>
+                <div>
+                  <h2 className='text-24 font-bold text-600'>{selectedCard}</h2>
+                </div>
+                <Table
+                  aria-label='Speakers Table'
+                  sortDescriptor={sortDescriptor}
+                  onSortChange={handleSortChange}
+                  bottomContent={
+                    <div className='flex w-full justify-start'>
+                      <Pagination
+                        classNames={{
+                          item: 'rounded-none border-0',
+                          prev: 'rounded-none rounded-l-[8px] ',
+                          next: 'rounded-none rounded-r-[8px]',
+                        }}
+                        isCompact
+                        showControls
+                        color='secondary'
+                        page={page}
+                        total={pages}
+                        initialPage={1}
+                        onChange={(page) => setPage(page)}
+                      />
+                    </div>
+                  }
+                  classNames={{
+                    wrapper: 'shadow-none shadow-none border-1 border-200 min-h-[400px] bg-pur', // Ensure wrapper has a fixed height
+                    table: 'rounded-8 shadow-none min-h-[400px]', // Ensure table has a fixed height
+                    thead: 'rounded-8 ',
+                    th: ['bg-transparent', 'text-500', 'border-b', 'border-divider'],
+                    tr: ['rounded-8'],
+                  }}>
+                  <TableHeader className='min-h-[40px]'>
+                    {columns.map((col) => (
+                      <TableColumn
+                        allowsSorting
+                        key={col.key}
+                        className={`${col.isAction ? 'flex justify-end' : ''}`}>
+                        {col.label}
+                      </TableColumn>
+                    ))}
+                  </TableHeader>
+                  <TableBody
+                    items={(!speakersLoading && items) || []}
+                    emptyContent={<Spinner label='Chargement des données Omeka S' color='secondary' size='md' />}>
+                    {(item) => (
+                      <TableRow key={item['o:id']} className='hover:bg-100 max-height-40'>
+                        {columns.map((col, colIndex) => (
+                          <TableCell
+                            key={col.key}
+                            className={`
+                              ${colIndex === 0 ? 'rounded-tl-8 rounded-bl-8' : ''} 
+                              ${colIndex === columns.length - 1 ? 'rounded-tr-8 rounded-br-8' : ''}
+                              
+                            `}>
+                            {col.isAction ? (
+                              <div className='flex justify-end'>
+                                <button onClick={() => handleCellClick(item)} className='pl-[10px]'>
+                                  <EditIcon
+                                    size={22}
+                                    className='mr-[10px] text-400 hover:text-action transition-all ease-in-out duration-200'
+                                  />
+                                </button>
+                              </div>
+                            ) : (
+                              <div>
+                                {col.multiple
+                                  ? reducer(getValuesByPath(item, col.dataPath))
+                                  : reducer(getValueByPath(item, col.dataPath))}
+                              </div>
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              {currentItemUrl && (
+                <EditModal
+                  isOpen={isOpenEdit}
+                  onClose={handleModalClose}
+                  itemUrl={currentItemUrl}
+                  activeConfig={selectedConfigKey}
+                  itemPropertiesData={itemPropertiesData}
+                  propertiesLoading={propertiesLoading}
+                />
+              )}
+              {selectedRTId && (
+                <CreateModal
+                  isOpen={isOpenCreate}
+                  onClose={handleModalClose}
+                  itemId={selectedRTId}
+                  activeConfig={selectedConfigKey}
+                  itemPropertiesData={itemPropertiesData}
+                  propertiesLoading={propertiesLoading}
+                />
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </Layouts>
   );
 };
 
-// Configuration des colonnes pour chaque catégorie
+
 export const columnConfigs = {
   conferences: [
     { key: 'o:title', label: 'Titre', dataPath: 'o:title' },
