@@ -3,11 +3,11 @@ import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { ChangeThemeButton } from '@/components/navbar/change-theme';
 import CreditsModal from '@/components/navbar/CreditsModal';
-import { ProfilDropdown } from '@/components/navbar/ProfilDropdown';
+import { AuthDropdown } from '@/components/navbar/ProfilDropdown';
 import { motion, Variants } from 'framer-motion';
 import { Link as RoutLink } from 'react-router-dom';
 import SearchModal from '@/components/navbar/SearchModal';
-import { useThemeMode } from '@/hooks/use-theme-mode'; 
+import { useThemeMode } from '@/hooks/use-theme-mode';
 
 const navbarVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
@@ -65,7 +65,7 @@ export const Navbar: React.FC = () => {
             <img
               key={`${logo.name}-${isDark ? 'dark' : 'light'}`}
               className='object-contain'
-              style={{ height: logo.height }} 
+              style={{ height: logo.height }}
               src={getLogo(logo.name)}
               alt={`${logo.name} logo`}
             />
@@ -74,9 +74,9 @@ export const Navbar: React.FC = () => {
       </motion.div>
       <motion.div className='flex items-center gap-6' variants={navbarVariants}>
         <SearchModal />
-        <CreditsModal />
+
+        <AuthDropdown />
         <ChangeThemeButton isDark={isDark} toggleTheme={toggleThemeMode} />
-        <ProfilDropdown />
       </motion.div>
     </motion.nav>
   );

@@ -1,71 +1,99 @@
-import React from 'react';
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem } from '@nextui-org/react';
-import { UserIcon, DataIcon, Logout, VisualisationIcon } from '@/components/utils/icons';
-import { User, Link as NextLink, Avatar } from '@nextui-org/react';
-import { Link } from 'react-router-dom';
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownSection,
+  DropdownItem,
+  User,
+  Avatar,
+} from '@nextui-org/react';
+import { Link, useNavigate } from 'react-router-dom';
+import { UserIcon, VisualisationIcon, DataIcon, Logout } from '@/components/utils/icons';
+import { useEffect, useState } from 'react';
 
-export const ProfilDropdown: React.FC = () => {
-  const userId = localStorage.getItem('userId');
-  const userType = localStorage.getItem('userType');
-  const isAuthenticated = !!userId && !!userType;
+export const AuthDropdown = () => {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
 
-  console.log(userId)
-  console.log(userType)
-  console.log(isAuthenticated)
+  useEffect(() => {
+    const checkAuth = () => {
+      const user = localStorage.getItem('user');
+      console.log(user);
+      const userId = localStorage.getItem('userId');
+      setIsAuthenticated(!!user || !!userId);
+
+      if (user) {
+        setUserData(JSON.parse(user));
+      }
+    };
+
+    checkAuth();
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
+  }, []);
 
   const handleLogout = () => {
+    localStorage.removeItem('user');
     localStorage.removeItem('userId');
     localStorage.removeItem('userType');
-    window.location.href = '/';
+    setIsAuthenticated(false);
+    navigate('/login');
   };
 
-  const getUserDisplayInfo = () => {
-    const name = localStorage.getItem('userType') || 'Utilisateur';
-    if (userType === 'Actant') {
-      return {
-        name: name,
-        description: 'Actant'
-      };
-    } else if (userType === 'Student') {
-      return {
-        name: name,
-        description: 'Étudiant'
-      };
-    }
-    return {
-      name: 'Invité',
-      description: 'Non connecté'
-    };
-  };
-
-  const userInfo = getUserDisplayInfo();
+  if (!isAuthenticated) {
+    return (
+      <button
+        onClick={() => navigate('/login')}
+        className='px-3 h-[40px] rounded-8 border-2 border-[#2C2C2F] text-500 hover:text-600 hover:bg-200 transition-all ease-in-out duration-200'>
+        Se connecter
+      </button>
+    );
+  }
 
   return (
     <Dropdown>
-      <DropdownTrigger>
-        <NextLink className='cursor-pointer flex flex-col items-center'>
-          <UserIcon
-            size={22}
-            className='text-500 hover:text-action transition-all ease-in-out duration-200'
-          />
-        </NextLink>
+      <DropdownTrigger className='p-3'>
+        <div className='cursor-pointer flex flex-row rounded-8 border-2 border-[#2C2C2F] items-center justify-center h-[40px] gap-10 text-500 hover:text-600 bg-0 hover:bg-200 transition-all ease-in-out duration-200'>
+          {userData?.picture ? (
+            <img src={userData.picture} alt='Avatar' className='w-6 h-6 rounded-[7px] object-cover' />
+          ) : (
+            <UserIcon
+              size={22}
+              className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200'
+            />
+          )}
+          <span className='text-14 font-normal text-default-900'>
+            {userData?.firstname && userData?.lastname
+              ? `${userData.firstname} ${userData.lastname.charAt(0)}.`
+              : userData?.firstname || userData?.lastname || 'Utilisateur'}
+          </span>
+        </div>
       </DropdownTrigger>
-      <DropdownMenu variant='light' aria-label='Dropdown menu with description' className='p-10' closeOnSelect={false}>
-        <DropdownSection showDivider className={isAuthenticated ? 'block' : 'hidden'}>
+
+      <DropdownMenu aria-label='User menu' className='p-15'>
+        <DropdownSection showDivider>
           <DropdownItem isReadOnly key='profile' className='h-14 gap-2 opacity-100'>
             <User
-              name={userInfo.name}
-              description={userInfo.description}
-              className='cursor-default'
+              name={
+                userData?.firstname && userData?.lastname
+                  ? `${userData.firstname} ${userData.lastname}`
+                  : userData?.firstname || userData?.lastname || 'Utilisateur'
+              }
+              description={
+                userData?.type === 'actant'
+                  ? 'Actant'
+                  : userData?.type === 'Student'
+                  ? 'Étudiant'
+                  : userData?.type || 'Type non spécifié'
+              }
               classNames={{
-                name: 'text-600',
-                description: 'text-500',
+                name: 'text-default-600',
+                description: 'text-default-500',
               }}
               avatarProps={{
-                as: Avatar,
-                showFallback: true,
-                src: 'https://images.unsplash.com/broken',
-                fallback: <UserIcon className='text-300' size={25} />,
+                src: userData?.picture || undefined,
+                fallback: <UserIcon className='text-default-800' size={20} />,
                 size: 'sm',
                 radius: 'md',
               }}
@@ -74,47 +102,28 @@ export const ProfilDropdown: React.FC = () => {
         </DropdownSection>
 
         <DropdownSection>
-          <DropdownItem key='omeka' className='hover:bg-200'>
-            <NextLink href='https://tests.arcanes.ca/omk/login' className='w-full'>
-              <p className='text-500 text-16'>Omeka S</p>
-            </NextLink>
-          </DropdownItem>
-
-          <DropdownItem key='visualisation' className='hover:bg-200 text-300 hover:text-400'>
-            <Link to='/visualisation' className='flex justify-start items-center w-full gap-2'>
+          <DropdownItem key='visualisation' className='hover:bg-default-200 text-default-300 hover:text-default-400'>
+            <Link to='/visualisation' className='flex justify-start gap-2 items-center w-full'>
               <VisualisationIcon size={15} />
-              <p className='text-500 text-16'>Datavisualisation</p>
+              <p className='text-default-500 text-16'>Datavisualisation</p>
             </Link>
           </DropdownItem>
 
-          {isAuthenticated ? (
-            <>
-              <DropdownItem
-                key='logout'
-                className='rounded-8 hover:bg-200 text-300 hover:text-400'>
-                <Link onClick={handleLogout} to='/login' className='flex justify-start items-center w-full gap-2'>
-                  <Logout size={15} />
-                  <p className='text-500 text-16'>Se déconnecter</p>
-                </Link>
-              </DropdownItem>
+          <DropdownItem
+            key='database'
+            className='rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400'>
+            <Link to='/database' className='flex justify-start gap-2 items-center w-full'>
+              <DataIcon size={15} />
+              <p className='text-default-500 text-16'>Données</p>
+            </Link>
+          </DropdownItem>
 
-              <DropdownItem
-                key='database'
-                className='rounded-8 hover:bg-200 text-300 hover:text-400'>
-                <Link to='/database' className='flex justify-start items-center w-full'>
-                  <DataIcon size={15} />
-                  <p className='text-500 text-16'>Données</p>
-                </Link>
-              </DropdownItem>
-            </>
-          ) : (
-            <DropdownItem key='login' className='hover:bg-200 text-300 hover:text-400'>
-              <Link to='/login' className='flex justify-start gap-2 items-center w-full'>
-                <Logout size={15} />
-                <p className='text-500 text-16'>Se connecter</p>
-              </Link>              
-            </DropdownItem>
-          )}
+          <DropdownItem key='logout' className='rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400'>
+            <Link onClick={handleLogout} to='/login' className='flex justify-start gap-2 items-center w-full'>
+              <Logout size={15} />
+              <p className='text-default-500 text-16'>Se déconnecter</p>
+            </Link>
+          </DropdownItem>
         </DropdownSection>
       </DropdownMenu>
     </Dropdown>

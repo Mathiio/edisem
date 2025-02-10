@@ -5,7 +5,7 @@ import { Conferencier } from '@/pages/conferencier';
 import { Home } from '@/pages/home';
 import { Database } from '@/pages/database';
 import { Edition } from '@/pages/edition';
-import LoginPage from '@/pages/login';
+import { LoginPage } from '@/pages/login';
 import { withAuth } from '@/pages/withAuth';
 import Visualisation from './pages/visualisation';
 
