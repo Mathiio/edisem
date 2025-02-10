@@ -45,7 +45,7 @@ export const AuthDropdown = () => {
     return (
       <button
         onClick={() => navigate('/login')}
-        className='px-3 h-[40px] rounded-8 border-2 border-[#2C2C2F] text-500 hover:text-600 hover:bg-200 transition-all ease-in-out duration-200'>
+        className='px-3 h-[40px] text-14 rounded-8 border-2 border-[#2C2C2F] text-500 hover:text-600 hover:bg-200 transition-all ease-in-out duration-200'>
         Se connecter
       </button>
     );
