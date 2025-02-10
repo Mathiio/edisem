@@ -9,9 +9,6 @@ export const ProfilDropdown: React.FC = () => {
   const userType = localStorage.getItem('userType');
   const isAuthenticated = !!userId && !!userType;
 
-  console.log(userId)
-  console.log(userType)
-  console.log(isAuthenticated)
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
@@ -23,12 +20,12 @@ export const ProfilDropdown: React.FC = () => {
     const name = localStorage.getItem('userType') || 'Utilisateur';
     if (userType === 'Actant') {
       return {
-        name: name,
+        name: userId,
         description: 'Actant'
       };
     } else if (userType === 'Student') {
       return {
-        name: name,
+        name: userId,
         description: 'Étudiant'
       };
     }

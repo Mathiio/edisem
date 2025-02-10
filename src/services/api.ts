@@ -328,15 +328,24 @@ export async function filterConfs(searchQuery: string) {
       return conf;
     }));
 
+
     const filteredConfs = updatedConfs.filter((conf: any) => {
-      const eventMatch = conf.event.toLowerCase().includes(searchQuery.toLowerCase());
-      const titleMatch = conf.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const lowerSearchQuery = searchQuery.toLowerCase();
+
+      const eventMatch = conf.event.toLowerCase().includes(lowerSearchQuery);
+      const titleMatch = conf.title.toLowerCase().includes(lowerSearchQuery);
       const actantMatch = conf.actant
-        ? (conf.actant.firstname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          conf.actant.lastname.toLowerCase().includes(searchQuery.toLowerCase()))
+        ? conf.actant.firstname.toLowerCase().includes(lowerSearchQuery) ||
+          conf.actant.lastname.toLowerCase().includes(lowerSearchQuery)
         : false;
-      
-      return eventMatch || titleMatch || actantMatch;
+      const keywordsMatch = conf.motcles
+      ? conf.motcles.some((keyword: any) =>
+          [keyword.title, ...keyword.english_terms, ...keyword.orthographic_variants]
+            .some((term) => term.toLowerCase().includes(lowerSearchQuery))
+        )
+      : false;
+
+      return eventMatch || titleMatch || actantMatch || keywordsMatch;
     });
 
     return filteredConfs;
