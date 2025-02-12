@@ -39,10 +39,9 @@ export const LoginPage: React.FC = () => {
 
     if (selected === 'Actant') {
       const foundActant = actants?.find((actant: { mail: string }) => actant.mail === email);
-      console.log(foundActant);
       if (foundActant && password === apiKey) {
         localStorage.setItem('user', JSON.stringify(foundActant));
-        navigate('/database');
+        navigate('/');
       } else {
         if (!foundActant) {
           alert('Email non reconnu');
@@ -51,11 +50,9 @@ export const LoginPage: React.FC = () => {
         }
       }
     } else {
-      // Cas Etudiant
       const foundStudent = students?.find((student: { mail: string }) => student.mail === email);
 
       if (foundStudent) {
-        console.log(`ID: ${foundStudent.id}, Type: Student`);
         localStorage.setItem('user', JSON.stringify(foundStudent));
         navigate('/');
       } else {

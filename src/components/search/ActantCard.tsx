@@ -27,7 +27,7 @@ export const ActantCard: React.FC<ActantCardProps> = ({ id, firstname, lastname,
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`cursor-pointer border-2 h-full rounded-12 flex items-center justify-start p-20 gap-20 transition-transform-colors-opacity ${
-        isHovered ? 'bg-c4' : 'border-200'
+        isHovered ? 'border-c4' : 'border-c3'
       }`}>
       {picture ? (
         <img src={picture} alt={`${firstname} ${lastname}`} className="w-75 h-75 object-cover rounded-12" />
