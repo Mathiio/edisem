@@ -111,7 +111,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
                 <Link className='cursor-pointer' onClick={openActant}>
                   <CreditIcon
                     size={14}
-                    className='relative text-c6 hover:text-action transition-all ease-in-out duration-200'
+                    className='relative text-c4 hover:text-c6 transition-all ease-in-out duration-200'
                   />
                 </Link>
               </Tooltip>

@@ -14,7 +14,7 @@ export const CreditCard: React.FC<CreditCardProps> = ({ name, job, description }
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 pt-25 pb-25 transition-transform-colors-opacity ${
-        isHovered ? 'bg-c4' : 'border-200'
+        isHovered ? 'border-c4' : 'border-c3'
       }`}>
       <div
         className={`transition-transform-colors-opacity ${
