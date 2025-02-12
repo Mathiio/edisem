@@ -277,7 +277,7 @@ export const Database: React.FC = () => {
                     </div>
                   }
                   classNames={{
-                    wrapper: 'shadow-none shadow-none border-1 border-200 min-h-[400px] bg-pur', // Ensure wrapper has a fixed height
+                    wrapper: 'shadow-none shadow-none border-1 border-200 min-h-[400px] bg-c2', // Ensure wrapper has a fixed height
                     table: 'rounded-8 shadow-none min-h-[400px]', // Ensure table has a fixed height
                     thead: 'rounded-8 ',
                     th: ['bg-transparent', 'text-c6', 'border-b', 'border-divider'],
