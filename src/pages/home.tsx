@@ -110,7 +110,7 @@ export const Home: React.FC = () => {
         }
       />
       <div className='gap-25 flex flex-col'>
-        <h2 className='text-24 font-medium text-500'>Sélection de conférences</h2>
+        <h2 className='text-24 font-medium text-c6'>Sélection de conférences</h2>
         <div className='grid grid-cols-4 grid-rows-2 gap-25'>
           {loadingRandomConf
             ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)

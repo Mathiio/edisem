@@ -57,9 +57,9 @@ export const Navbar: React.FC = () => {
       <motion.div className='flex items-center gap-20' variants={navbarVariants}>
         <RoutLink to='/' className='flex items-center gap-2'>
           <Image width={34} src={Logo} alt='Logo' />
-          <div className='text-24 text-500 font-medium'>Arcanes</div>
+          <div className='text-24 text-c6 font-medium'>Arcanes</div>
         </RoutLink>
-        <div className='h-20 border-1 border-400'></div>
+        <div className='h-20 border-1 bg-c4'></div>
         <div className='flex flex-wrap justify-between items-center gap-15'>
           {logos.map((logo) => (
             <img

@@ -45,7 +45,7 @@ export const AuthDropdown = () => {
     return (
       <button
         onClick={() => navigate('/login')}
-        className='px-3 h-[40px] text-14 rounded-8 border-2 border-[#2C2C2F] text-500 hover:text-600 hover:bg-200 transition-all ease-in-out duration-200'>
+        className='px-3 h-[40px] text-14 rounded-8 border-2 border-c3 hover:border-c4 text-c6 transition-all ease-in-out duration-200'>
         Se connecter
       </button>
     );
@@ -54,7 +54,7 @@ export const AuthDropdown = () => {
   return (
     <Dropdown>
       <DropdownTrigger className='p-3'>
-        <div className='cursor-pointer flex flex-row rounded-8 border-2 border-[#2C2C2F] items-center justify-center h-[40px] gap-10 text-500 hover:text-600 bg-0 hover:bg-200 transition-all ease-in-out duration-200'>
+        <div className='cursor-pointer flex flex-row rounded-8 border-2 border-c3 hover:border-c4 items-center justify-center h-[40px] gap-10 text-c6 transition-all ease-in-out duration-200'>
           {userData?.picture ? (
             <img src={userData.picture} alt='Avatar' className='w-6 h-6 rounded-[7px] object-cover' />
           ) : (
@@ -63,7 +63,7 @@ export const AuthDropdown = () => {
               className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200'
             />
           )}
-          <span className='text-14 font-normal text-default-900'>
+          <span className='text-14 font-normal text-c6'>
             {userData?.firstname && userData?.lastname
               ? `${userData.firstname} ${userData.lastname.charAt(0)}.`
               : userData?.firstname || userData?.lastname || 'Utilisateur'}

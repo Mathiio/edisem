@@ -63,32 +63,32 @@ const ZoomControl: FC<ZoomControlProps> = ({ svgRef, width = 600, height = 400 }
   }
 
   return (
-    <div className='fixed bottom-25 right-25 rounded-8 p-2 bg-100 flex flex-col gap-3 shadow-lg'>
+    <div className='fixed bottom-25 right-25 rounded-8 p-2 bg-c2 flex flex-col gap-3 shadow-lg'>
       <Button
         size='md'
-        className='cursor-pointer group text-16 p-10 rounded-8 text-500 bg-100 hover:bg-action transition-all ease-in-out duration-200'
+        className='cursor-pointer group text-16 p-10 rounded-8 text-c6 bg-c2 hover:bg-action transition-all ease-in-out duration-200'
         onPress={zoomIn}>
         <ZoomInIcon
           size={20}
-          className='text-500 group-hover:text-selected transition-all ease-in-out duration-200'
+          className='text-c6 group-hover:text-selected transition-all ease-in-out duration-200'
         />
       </Button>
       <Button
         size='md'
-        className='cursor-pointer group text-16 p-10 rounded-8 text-500 bg-100 hover:bg-action transition-all ease-in-out duration-200'
+        className='cursor-pointer group text-16 p-10 rounded-8 text-c6 bg-c2 hover:bg-action transition-all ease-in-out duration-200'
         onPress={zoomOut}>
         <ZoomOutIcon
           size={20}
-          className='text-500 group-hover:text-selected transition-all ease-in-out duration-200'
+          className='text-c6 group-hover:text-selected transition-all ease-in-out duration-200'
         />
       </Button>
       <Button
         size='md'
-        className='cursor-pointer group text-16 p-10 rounded-8 text-500 bg-100 hover:bg-action transition-all ease-in-out duration-200'
+        className='cursor-pointer group text-16 p-10 rounded-8 text-c6 bg-c2 hover:bg-action transition-all ease-in-out duration-200'
         onPress={resetZoom}>
         <CenterIcon
           size={20}
-          className='text-500 group-hover:text-selected transition-all ease-in-out duration-200'
+          className='text-c6 group-hover:text-selected transition-all ease-in-out duration-200'
         />
       </Button>
     </div>

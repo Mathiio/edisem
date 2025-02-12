@@ -718,13 +718,14 @@ module.exports = {
       themes: {
         light: {
           colors: {
-            0: 'transparent',
-            50: '#ffffff',
-            100: '#fafafa',
-            200: '#e4e4e7',
-            300: '#d4d4d8',
-            400: '#71717a',
-            500: '#52525b',
+            c0: 'transparent',
+            c1: '#FFFFFF',
+            c2: '#F2F2F2',
+            c3: '#E0E0E0',
+            c4: '#525252',
+            c5: '#303030',
+            c6: '#0D0D0D',
+
             action: '#7828c8',
             pur: '#ffffff',
             selected: '#fafafa',
@@ -750,13 +751,14 @@ module.exports = {
         },
         dark: {
           colors: {
-            0: 'transparent',
-            50: '#0F0F0F',
-            100: '#212124',
-            200: '#2C2C2F',
-            300: '#ADADAD',
-            400: '#CECECE',
-            500: '#F1F1F1',
+            c0: 'transparent',
+            c1: '#0F0F0F',
+            c2: '#212124',
+            c3: '#2C2C2F',
+            c4: '#ADADAD',
+            c5: '#CECECE',
+            c6: '#F1F1F1',
+
             action: '#7828c8',
             selected: '#fafafa',
             pur: '#18181b',

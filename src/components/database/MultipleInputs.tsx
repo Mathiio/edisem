@@ -71,7 +71,7 @@ const MultipleInputs: React.FC<SelectionInputProps> = ({ col, actualData, handle
           <Input
             classNames={{
               label: 'text-semibold',
-              inputWrapper: 'bg-50 shadow-none border-1 border-200 w-full min-h-[50px]',
+              inputWrapper: 'bg-c1 shadow-none border-1 border-200 w-full min-h-[50px]',
               input: 'h-[50px] min-h-[50px] w-full',
             }}
             className='min-h-[50px] w-full '
@@ -86,8 +86,8 @@ const MultipleInputs: React.FC<SelectionInputProps> = ({ col, actualData, handle
               <Dropdown classNames={{ content: 'w-fit min-w-[10px]', base: 'w-[fit]', backdrop: 'w-fit' }}>
                 <DropdownTrigger>
                   <Button
-                    startContent={<SortIcon size={16} className='text-600' />}
-                    className='px-[15px] py-10 flex gap-10 bg-200 border-none rounded-8'>
+                    startContent={<SortIcon size={16} className='text-c6' />}
+                    className='px-[15px] py-10 flex gap-10 bg-c3 border-none rounded-8'>
                     {value.language === 'fr' ? 'Fr' : 'En'}
                   </Button>
                 </DropdownTrigger>
@@ -120,7 +120,7 @@ const MultipleInputs: React.FC<SelectionInputProps> = ({ col, actualData, handle
       {canAddMoreInputs && (
         <Button
           startContent={<AddIcon size={16} />}
-          className='px-[15px] py-10 flex gap-10 bg-200 border-none rounded-8 w-full hover:text-action text-600 font-semibold'
+          className='px-[15px] py-10 flex gap-10 bg-c3 border-none rounded-8 w-full hover:text-action text-c6 font-semibold'
           onClick={handleAddInput}>
           Ajouter {col.label}
         </Button>

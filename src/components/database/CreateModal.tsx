@@ -766,7 +766,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
     <>
       <Modal
         backdrop='blur'
-        className='bg-100'
+        className='bg-c2'
         size='2xl'
         isOpen={isOpen}
         onClose={() => {
@@ -800,10 +800,10 @@ export const CreateModal: React.FC<NewModalProps> = ({
           {(onClose) => (
             <>
               <ModalHeader className='flex justify-between p-25 '>
-                <h2 className='text-500 text-32 font-semibold'>Nouvel item</h2>
+                <h2 className='text-c6 text-32 font-semibold'>Nouvel item</h2>
                 <Link onPress={onClose}>
                   <CrossIcon
-                    className='text-500 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
+                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
                     size={24}
                   />
                 </Link>
@@ -821,7 +821,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
                               size='lg'
                               classNames={{
                                 label: 'text-semibold',
-                                inputWrapper: 'bg-50',
+                                inputWrapper: 'bg-c1',
                                 input: 'h-[50px]',
                               }}
                               className='min-h-[50px]'
@@ -840,8 +840,8 @@ export const CreateModal: React.FC<NewModalProps> = ({
                             key={col.key}
                             size='lg'
                             classNames={{
-                              label: 'text-semibold text-600 text-24',
-                              inputWrapper: 'bg-50 shadow-none border-1 border-200 rounded-8',
+                              label: 'text-semibold text-c6 text-24',
+                              inputWrapper: 'bg-c1 shadow-none border-1 border-200 rounded-8',
                               input: 'h-[50px]',
                             }}
                             className='min-h-[50px]'

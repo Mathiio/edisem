@@ -67,7 +67,7 @@ export const LoginPage: React.FC = () => {
   return (
     <Layouts className='flex flex-col col-span-10 justify-center gap-25 items-center '>
       <div className='flex flex-col justify-center w-full items-center gap-8 h-96'>
-        <h1 className='text-500 font-medium text-24'>Connexion</h1>
+        <h1 className='text-c6 font-medium text-24'>Connexion</h1>
 
         <Tabs
           fullWidth
@@ -75,10 +75,10 @@ export const LoginPage: React.FC = () => {
           onSelectionChange={setSelected}
           className='max-w-lg'
           classNames={{
-            tabList: 'w-full gap-10 bg-0 rounded-8',
+            tabList: 'w-full gap-10 bg-c0 rounded-8',
             panel: 'max-w-lg',
             cursor: 'w-full',
-            tab: 'w-full bg-100 data-[selected=true]:bg-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-200 transition-all ease-in-out duration-200n',
+            tab: 'w-full bg-c2 data-[selected=true]:bg-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-c3 transition-all ease-in-out duration-200n',
             tabContent: 'group-data-[selected=true]:text-selected group-data-[selected=true]:font-semibold',
           }}>
           <Tab key='Etudiant' className='w-full' title='Etudiant'>
@@ -87,7 +87,7 @@ export const LoginPage: React.FC = () => {
                 size='lg'
                 classNames={{
                   label: 'text-semibold',
-                  inputWrapper: 'bg-100 shadow-none border-1 border-200',
+                  inputWrapper: 'bg-c2 shadow-none border-1 border-200',
                   input: 'h-[50px]',
                   mainWrapper: 'w-full',
                 }}
@@ -113,7 +113,7 @@ export const LoginPage: React.FC = () => {
                 size='lg'
                 classNames={{
                   label: 'text-semibold',
-                  inputWrapper: 'bg-100 shadow-none border-1 border-200',
+                  inputWrapper: 'bg-c2 shadow-none border-1 border-200',
                   input: 'h-[50px]',
                   mainWrapper: 'w-full',
                 }}
@@ -129,7 +129,7 @@ export const LoginPage: React.FC = () => {
                 size='lg'
                 classNames={{
                   label: 'text-semibold',
-                  inputWrapper: 'w-full bg-100 shadow-none border-1 border-200',
+                  inputWrapper: 'w-full bg-c2 shadow-none border-1 border-200',
                   input: ' h-[50px]',
                   mainWrapper: 'w-full',
                 }}

@@ -1000,7 +1000,7 @@ export const EditModal: React.FC<EditModalProps> = ({
     <>
       <Modal
         backdrop='blur'
-        className='bg-100'
+        className='bg-c2'
         size='2xl'
         isOpen={isOpen}
         onClose={() => {
@@ -1034,10 +1034,10 @@ export const EditModal: React.FC<EditModalProps> = ({
           {(onClose) => (
             <>
               <ModalHeader className='flex justify-between p-25 '>
-                <h2 className='text-500 text-32 font-semibold'>Modification</h2>
+                <h2 className='text-c6 text-32 font-semibold'>Modification</h2>
                 <Link onPress={onClose}>
                   <CrossIcon
-                    className='text-500 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
+                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
                     size={24}
                   />
                 </Link>
@@ -1056,7 +1056,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                               size='lg'
                               classNames={{
                                 label: 'text-semibold',
-                                inputWrapper: 'bg-50 shadow-none border-1 border-200',
+                                inputWrapper: 'bg-c1 shadow-none border-1 border-200',
                                 input: 'h-[50px] ',
                               }}
                               className='min-h-[50px]'
@@ -1075,8 +1075,8 @@ export const EditModal: React.FC<EditModalProps> = ({
                             key={col.key}
                             size='lg'
                             classNames={{
-                              label: 'text-semibold text-600 text-24',
-                              inputWrapper: 'bg-50 shadow-none border-1 border-200',
+                              label: 'text-semibold text-c6 text-24',
+                              inputWrapper: 'bg-c1 shadow-none border-1 border-200',
                               input: 'h-[50px]',
                             }}
                             className='min-h-[50px]'

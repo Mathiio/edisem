@@ -45,14 +45,14 @@ export const Conferencier: React.FC = () => {
         <div className='flex flex-col gap-50'>
           <Link
             isExternal
-            className='gap-10 text-600'
+            className='gap-10 text-c6'
             href={!loading ? actant?.url : '#'}
             showAnchorIcon
             anchorIcon={<LinkIcon size={28} />}>
             {actant?.picture ? (
               <img className='w-75 h-75 object-cover rounded-12' src={actant.picture} alt='' />
             ) : (
-              <div className='w-75 h-75 rounded-12 object-cover flex items-center justify-center bg-200'>
+              <div className='w-75 h-75 rounded-12 object-cover flex items-center justify-center bg-c3'>
                 <svg width='26' height='38' viewBox='0 0 32 44' fill='none' xmlns='http://www.w3.org/2000/svg'>
                   <path
                     d='M15.999 0C10.397 0 5.8427 4.6862 5.8427 10.4504C5.8427 16.1047 10.1404 20.6809 15.7424 20.8789C15.9135 20.8569 16.0845 20.8569 16.2128 20.8789C16.2556 20.8789 16.2769 20.8789 16.3197 20.8789C16.3411 20.8789 16.3411 20.8789 16.3625 20.8789C21.8362 20.6809 26.1339 16.1047 26.1553 10.4504C26.1553 4.6862 21.601 0 15.999 0Z'
@@ -66,7 +66,7 @@ export const Conferencier: React.FC = () => {
               </div>
             )}
 
-            <p className='text-32 font-medium text-500'>
+            <p className='text-32 font-medium text-c6'>
               {loading ? '' : actant?.firstname + ' ' + actant?.lastname}
             </p>
           </Link>
@@ -76,7 +76,7 @@ export const Conferencier: React.FC = () => {
                 <div className='w-[22px]'>
                   <UniversityIcon className='transition-transform-colors-opacity' size={22} />
                 </div>
-                <h3 className='text-16 text-left text-500 font-medium'>Université(s)</h3>
+                <h3 className='text-16 text-left text-c6 font-medium'>Université(s)</h3>
               </div>
               <div className='flex flex-col justify-center items-start gap-10'>
                 {loading ? (
@@ -97,7 +97,7 @@ export const Conferencier: React.FC = () => {
                 <div className='w-[22px]'>
                   <SchoolIcon className='transition-transform-colors-opacity' size={22} />
                 </div>
-                <h3 className='text-16 text-left text-500 font-medium'>École(s) doctorale(s)</h3>
+                <h3 className='text-16 text-left text-c6 font-medium'>École(s) doctorale(s)</h3>
               </div>
               <div className='flex flex-col justify-center items-start gap-10'>
                 {loading ? (
@@ -118,7 +118,7 @@ export const Conferencier: React.FC = () => {
                 <div className='w-[22px]'>
                   <LaboritoryIcon className='transition-transform-colors-opacity' size={22} />
                 </div>
-                <h3 className='text-16 text-left text-500 font-medium'>Laboratoire(s)</h3>
+                <h3 className='text-16 text-left text-c6 font-medium'>Laboratoire(s)</h3>
               </div>
               <div className='flex flex-col justify-center items-start gap-10'>
                 {loading ? (
@@ -139,7 +139,7 @@ export const Conferencier: React.FC = () => {
                 <div className='w-[22px]'>
                   <ConferenceIcon className='transition-transform-colors-opacity' size={22} />
                 </div>
-                <h3 className='text-16 text-left text-500 font-medium'>Participations(s)</h3>
+                <h3 className='text-16 text-left text-c6 font-medium'>Participations(s)</h3>
               </div>
               <div className='flex flex-col justify-center items-start gap-10'>
                 {loading ? (
@@ -152,7 +152,7 @@ export const Conferencier: React.FC = () => {
           </div>
         </div>
         <div className='gap-25 flex flex-col'>
-          <h2 className='text-24 font-medium text-500'>Dernière(s) conférence(s)</h2>
+          <h2 className='text-24 font-medium text-c6'>Dernière(s) conférence(s)</h2>
           <div className='grid grid-cols-4 grid-rows-2 gap-25'>
             {loading
               ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)

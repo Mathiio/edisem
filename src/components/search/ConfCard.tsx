@@ -68,7 +68,7 @@ export const ConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, u
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`cursor-pointer border-2 h-full rounded-12 flex items-center justify-start p-20 gap-20 transition-transform-colors-opacity ${
-        isHovered ? 'border-300' : 'border-200'
+        isHovered ? 'bg-c4' : 'border-200'
       }`}>
       <div className={`p-50 h-full w-300 rounded-12 justify-center items-center flex  ${
           thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-200 to-400'
@@ -82,16 +82,16 @@ export const ConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, u
         <div className='relative'>
           <p
             ref={textRef}
-            className='text-16 text-500 font-medium overflow-hidden max-h-[4.5rem] line-clamp-3'>
+            className='text-16 text-c6 font-medium overflow-hidden max-h-[4.5rem] line-clamp-3'>
             {title}
           </p>
-          {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-600'></span>}
+          {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-c6'></span>}
         </div>
-        <p className='text-16 text-400 font-extralight'>
+        <p className='text-16 text-c5 font-extralight'>
           {actant}
           <span className='text-14'> - {universite}</span>
         </p>
-        <p className='text-14 text-400 font-extralight'>{formatDate(date)}</p>
+        <p className='text-14 text-c5 font-extralight'>{formatDate(date)}</p>
       </div>
     </div>
   );
@@ -105,14 +105,14 @@ export const ConfSkeleton: React.FC = () => {
       </Skeleton>
       <div className='flex flex-col gap-5'>
         <Skeleton className='w-[90%] rounded-8'>
-          <p className='text-16 text-600 font-semibold'>_</p>
-          <p className='text-16 text-600 font-semibold'>_</p>
+          <p className='text-16 text-c6 font-semibold'>_</p>
+          <p className='text-16 text-c6 font-semibold'>_</p>
         </Skeleton>
         <Skeleton className='w-[60%] rounded-8'>
-          <p className='text-16 text-500 font-regular'>_</p>
+          <p className='text-16 text-c6 font-regular'>_</p>
         </Skeleton>
         <Skeleton className='w-[40%] rounded-8'>
-          <p className='text-14 text-500 font-regular'>_</p>
+          <p className='text-14 text-c6 font-regular'>_</p>
         </Skeleton>
       </div>
     </div>

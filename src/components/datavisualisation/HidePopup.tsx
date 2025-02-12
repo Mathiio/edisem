@@ -99,7 +99,7 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
           onClick={addMasque}
           underline='none'
           size='sm'
-          className='text-14 flex justify-start w-full gap-2 rounded-0 text-700 bg-transparent cursor-pointer'>
+          className='text-14 flex justify-start w-full gap-2 rounded-0 text-c6 bg-transparent cursor-pointer'>
           <PlusIcon size={12} />
           Ajouter un masque
         </Link>
@@ -111,7 +111,7 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
           <div key={index} className='flex flex-row items-center gap-2'>
             <Dropdown className='w-full p-2'>
               <DropdownTrigger className='w-full'>
-                <Button className='text-14 text-600 px-2 py-2 flex bg-transparent justify-between gap-10 border-300 border-2 rounded-8 w-full'>
+                <Button className='text-14 text-c6 px-2 py-2 flex bg-transparent justify-between gap-10 bg-c4 border-2 rounded-8 w-full'>
                   {masque.displayType || 'Sélectionner un type'}
                   <ArrowIcon size={12} />
                 </Button>
@@ -134,7 +134,7 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
             </Dropdown>
 
             <Button size='sm' isIconOnly onClick={() => removeMasque(index)}>
-              <CrossIcon size={14} className='text-600' />
+              <CrossIcon size={14} className='text-c6' />
             </Button>
           </div>
         ))}
