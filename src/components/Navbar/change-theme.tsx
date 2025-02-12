@@ -12,12 +12,12 @@ export const ChangeThemeButton: React.FC<ChangeThemeButtonProps> = ({ isDark, to
       {isDark ? (
         <SunIcon
           size={18}
-          className='text-500 hover:text-action hover:opacity-100 transition-all ease-in-out duration-200'
+          className='text-c6 hover:text-action hover:opacity-100 transition-all ease-in-out duration-200'
         />
       ) : (
         <MoonIcon
           size={18}
-          className='text-500 hover:text-action hover:opacity-100 transition-all ease-in-out duration-200'
+          className='text-c6 hover:text-action hover:opacity-100 transition-all ease-in-out duration-200'
         />
       )}
     </Link>

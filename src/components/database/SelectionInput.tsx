@@ -142,9 +142,9 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
             base: '',
             clearButton: 'bg-600',
             mainWrapper: ' h-[40px] ',
-            input: 'text-400  Inter  text-16 nav_searchbar h-[40px] px-[10px]',
+            input: 'text-c5  Inter  text-16 nav_searchbar h-[40px] px-[10px]',
             inputWrapper:
-              ' shadow-none border-1 border-200 group-data-[focus=true]:bg-200 rounded-8 font-normal text-600 bg-50 dark:bg-200 px-[15px] py-[10px] h-[40px] ',
+              ' shadow-none border-1 border-200 group-data-[focus=true]:bg-c3 rounded-8 font-normal text-c6 bg-c1 dark:bg-c3 px-[15px] py-[10px] h-[40px] ',
           }}
           placeholder='Recherche avancée...'
           startContent={<SearchIcon size={16} />}
@@ -157,8 +157,8 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
         <Dropdown>
           <DropdownTrigger>
             <Button
-              startContent={<SortIcon size={16} className='text-600' />}
-              className='px-[15px] py-10 flex gap-10 bg-200 border-none rounded-8'>
+              startContent={<SortIcon size={16} className='text-c6' />}
+              className='px-[15px] py-10 flex gap-10 bg-c3 border-none rounded-8'>
               Trier
             </Button>
           </DropdownTrigger>
@@ -176,7 +176,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
       </div>
       <div className='flex flex-col w-full'>
         <ul className='flex items-center gap-10 pt-10 pb-20 flex-wrap'>
-          <p className='text-400'>Selection :</p>
+          <p className='text-c5'>Selection :</p>
           {selectedValues.map((id, index) => (
             <Button
               key={index}
@@ -194,7 +194,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
               key={index}
               onClick={() => handleSelect(id)}
               radius='none'
-              className={` py-10 px-10 text-14 rounded-8 text-600 bg-50 hover:text-selected hover:bg-action transition-all ease-in-out duration-200  flex items-center`}>
+              className={` py-10 px-10 text-14 rounded-8 text-c6 bg-c1 hover:text-selected hover:bg-action transition-all ease-in-out duration-200  flex items-center`}>
               {reducer(idToDisplayNameMap[id])}
             </Button>
           ))}

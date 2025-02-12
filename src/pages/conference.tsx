@@ -113,10 +113,10 @@ export const Conference: React.FC = () => {
           <div className='flex w-full flex-col gap-20 flex-grow'>
             <Tabs
               classNames={{
-                tabList: 'w-full gap-10 bg-0 rounded-8',
+                tabList: 'w-full gap-10 bg-c0 rounded-8',
                 cursor: 'w-full',
-                tab: 'w-full bg-100 data-[selected=true]:bg-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-200 transition-all ease-in-out duration-200',
-                tabContent: 'group-data-[selected=true]:text-500 group-data-[selected=true]:font-medium text-500',
+                tab: 'w-full bg-c2 data-[selected=true]:bg-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-c3 transition-all ease-in-out duration-200',
+                tabContent: 'group-data-[selected=true]:text-c6 group-data-[selected=true]:font-medium text-c6',
               }}
               aria-label='Options'
               selectedKey={selected}

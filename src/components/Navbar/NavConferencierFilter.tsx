@@ -73,7 +73,7 @@ export const NavConferencierFilter: React.FC<ButtonGeneratorProps & ButtonProps>
       className={`h-[32px]  text-16 rounded-8 ${
         selectedButtons.includes(i)
           ? 'bg-action text-100'
-          : 'text-500 bg-200 hover:text-500 hover:bg-300'
+          : 'text-c6 bg-c3 hover:text-c6 hover:bg-c4'
       } transition-all ease-in-out duration-200 navfilter flex items-center`}
       endContent={selectedButtons.includes(i) ? <CrossIcon size={18} /> : null}>
       Button {i + 1}

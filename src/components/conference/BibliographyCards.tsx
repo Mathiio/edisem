@@ -241,9 +241,9 @@ export const BibliographyCard: React.FC<BibliographyItem & { uniqueKey?: number 
           </div>
         )}
         <div className='w-full flex flex-col gap-10'>
-          <p className='text-600 text-16'>{formatBibliography(props)}</p>
+          <p className='text-c6 text-16'>{formatBibliography(props)}</p>
           {url && (
-            <a href={url} target='_blank' className='text-500 underline'>
+            <a href={url} target='_blank' className='text-c6 underline'>
               Voir la source
             </a>
           )}
@@ -255,7 +255,7 @@ export const BibliographyCard: React.FC<BibliographyItem & { uniqueKey?: number 
 
 export const BibliographySkeleton: React.FC = () => {
   return (
-    <div className='w-full flex flex-col justify-start rounded-12 items-start bg-200 p-10 gap-10'>
+    <div className='w-full flex flex-col justify-start rounded-12 items-start bg-c3 p-10 gap-10'>
       <div className='w-full flex flex-col justify-start items-start gap-5'>
         <div className='w-[30%] rounded-6 bg-gray-300 h-6'></div>
         <div className='w-full rounded-6 bg-gray-300 h-4'></div>
@@ -323,8 +323,8 @@ export const UnloadedCard: React.FC = () => {
     <div className='w-full lg:h-[400px] xl:h-[450px] flex flex-col justify-center items-center gap-20'>
       <div className='text-200 text-6xl'>📄</div>
       <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
-        <h2 className='text-400 text-32 font-semibold'>Oups !</h2>
-        <p className='text-400 text-16 text-center'>
+        <h2 className='text-c5 text-32 font-semibold'>Oups !</h2>
+        <p className='text-c5 text-16 text-center'>
           Aucune bibliographie n'est liée à cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections.
         </p>
       </div>

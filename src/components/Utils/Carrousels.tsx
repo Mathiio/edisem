@@ -19,7 +19,7 @@ export const FullCarrousel: React.FC<FullCarrouselProps> = ({ data, title, perPa
       aria-label='...'
       className='flex flex-col w-full justify-center gap-25'>
       <div className='w-full flex justify-between items-center'>
-        <h2 className='text-24 font-medium text-500'>{title}</h2>
+        <h2 className='text-24 font-medium text-c6'>{title}</h2>
         <div className='splide__arrows relative flex gap-10'>
           <Button
             size='sm'
@@ -66,8 +66,8 @@ export const MidCarrousel: React.FC<MidCarrouselProps> = ({
       aria-label='...'
       className='flex w-full items-center justify-center gap-20'>
       <div className='w-[40%] flex flex-col justify-center gap-10 items-start'>
-        <h2 className='text-24 font-medium text-500'>{title}</h2>
-        <p className='text-16 font-extralight text-400'>{description}</p>
+        <h2 className='text-24 font-medium text-c6'>{title}</h2>
+        <p className='text-16 font-extralight text-c5'>{description}</p>
         <div className='splide__arrows relative flex gap-10'>
           <Button
             size='sm'

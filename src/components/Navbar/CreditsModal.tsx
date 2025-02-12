@@ -13,13 +13,13 @@ const CreditsModal = () => {
     <>
       <div className='flex flex-wrap'>
         <Link onPress={handleOpen} className='cursor-pointer'>
-          <p className='text-14 text-400 font-extralight'>Crédits</p>
+          <p className='text-14 text-c5 font-extralight'>Crédits</p>
         </Link>
       </div>
 
       <Modal
         backdrop='blur'
-        className='bg-50'
+        className='bg-c1'
         size='2xl'
         isOpen={isOpen}
         onClose={onClose}
@@ -48,18 +48,18 @@ const CreditsModal = () => {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex justify-between p-25 border-b-2 border-300'>
-                <h2 className='text-500 text-32 font-medium'>Crédits</h2>
+              <ModalHeader className='flex justify-between p-25 border-b-2 bg-c4'>
+                <h2 className='text-c6 text-32 font-medium'>Crédits</h2>
                 <Link onPress={onClose}>
                   <CrossIcon
-                    className='text-500 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
+                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
                     size={24}
                   />
                 </Link>
               </ModalHeader>
               <ModalBody className='flex p-25'>
                 <div className='flex flex-col gap-25 scroll-y-auto'>
-                  <h3 className='text-500 font-medium text-16'>Equipe Arcanes</h3>
+                  <h3 className='text-c6 font-medium text-16'>Equipe Arcanes</h3>
                   <CreditCard
                     name='Gabrielle Godin'
                     job=''

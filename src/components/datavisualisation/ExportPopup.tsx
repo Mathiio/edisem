@@ -103,7 +103,7 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
   return (
     <div className='w-full flex flex-col gap-4 h-full justify-between'>
       <div className='flex flex-col gap-4'>
-        <div className='text-14 flex justify-start leading-[150%] w-full gap-2 rounded-0 text-700 bg-transparent'>
+        <div className='text-14 flex justify-start leading-[150%] w-full gap-2 rounded-0 text-c6 bg-transparent'>
           Exporter une recherche
         </div>
         <Divider />
@@ -112,11 +112,11 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
           ref={inputTitle}
           size='lg'
           placeholder='Titre de la recherche...'
-          className='focus:bg-200 bg-200 h-full'
+          className='focus:bg-c3 bg-c3 h-full'
           classNames={{
-            inputWrapper: 'bg-200 !bg-200 h-full',
+            inputWrapper: 'bg-c3 !bg-c3 h-full',
             base: 'rounded-8 h-full',
-            innerWrapper: 'focus:bg-200 bg-200 h-full',
+            innerWrapper: 'focus:bg-c3 bg-c3 h-full',
           }}
         />
 
@@ -132,7 +132,7 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
       </div>
       {generatedImage && (
         <div className='flex-1 flex flex-col aspect-video overflow-hidden rounded-b-8'>
-          <div className='text-500 text-12'>Prévisualisation :</div>
+          <div className='text-c6 text-12'>Prévisualisation :</div>
           <img
             src={generatedImage.dataUrl}
             alt='Aperçu de la visualisation'
@@ -153,7 +153,7 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
             }}
             onCopy={handleCopyConfig}
             classNames={{ content: '!font-Inter' }}
-            className='text-14 font-Inter p-0 bg-100'
+            className='text-14 font-Inter p-0 bg-c2'
             symbol=''>
             Copier la configuration
           </Snippet>

@@ -61,8 +61,8 @@ export const FilterModal = () => {
       <div className='relative'>
         <Button
           onPress={handleOpen}
-          className='bg-200 hover:bg-300 data-[hover=true]:opacity-100 items-center gap-25 p-25 h-[50px] hidden sm:flex relative'>
-          <FilterIcon className='text-600' size={22} />
+          className='bg-c3 hover:bg-c4 data-[hover=true]:opacity-100 items-center gap-25 p-25 h-[50px] hidden sm:flex relative'>
+          <FilterIcon className='text-c6' size={22} />
         </Button>
         {selectedFiltersCount() > 0 && (
           <span className='absolute top-[-6px] right-[-6px] text-12 text-100  bg-action rounded-[99px] w-[20px] h-[20px] flex items-center justify-center '>
@@ -73,7 +73,7 @@ export const FilterModal = () => {
 
       <Modal
         backdrop='blur'
-        className='bg-100'
+        className='bg-c2'
         size='2xl'
         isOpen={isOpen}
         onClose={onClose}
@@ -102,11 +102,11 @@ export const FilterModal = () => {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex items-center justify-between p-25 border-b-2 border-300'>
+              <ModalHeader className='flex items-center justify-between p-25 border-b-2 bg-c4'>
                 <div className='flex flex-row gap-25 items-center text-24'>Filtres</div>
                 <Link onPress={onClose}>
                   <CrossIcon
-                    className='text-500 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
+                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
                     size={24}
                   />
                 </Link>
@@ -115,8 +115,8 @@ export const FilterModal = () => {
                 <div className='flex flex-col gap-25'>
                   <div className='flex flex-col gap-10'>
                     <div className='flex flex-row items-center gap-10'>
-                      <CalendarIcon className='text-600' size={20} />
-                      <div className='text-600 font-semibold'>Date de publication</div>
+                      <CalendarIcon className='text-c6' size={20} />
+                      <div className='text-c6 font-semibold'>Date de publication</div>
                     </div>
                     <div className='sm:max-w-[350px]'>
                       <DateRangePicker
@@ -140,8 +140,8 @@ export const FilterModal = () => {
                   </div>
                   <div className='flex flex-col gap-10'>
                     <div className='flex flex-row items-center gap-10'>
-                      <UserIcon className='text-600' size={20} />
-                      <div className='text-600 font-semibold'>Conférenciers</div>
+                      <UserIcon className='text-c6' size={20} />
+                      <div className='text-c6 font-semibold'>Conférenciers</div>
                     </div>
                     <div>
                       <NavConferencierFilter
@@ -154,8 +154,8 @@ export const FilterModal = () => {
                   </div>
                   <div className='flex flex-col gap-10'>
                     <div className='flex flex-row items-center gap-10'>
-                      <CalendarIcon className='text-600' size={20} />
-                      <div className='text-600 font-semibold'>Type de contenus</div>
+                      <CalendarIcon className='text-c6' size={20} />
+                      <div className='text-c6 font-semibold'>Type de contenus</div>
                     </div>
                     <div>
                       <NavTypeFilter
@@ -174,7 +174,7 @@ export const FilterModal = () => {
                   <Button
                     radius='none'
                     onClick={handleReset}
-                    className={`h-[32px] text-16 rounded-8 text-500 bg-200 hover:text-500 hover:bg-300 transition-all ease-in-out duration-200 navfilter flex items-center`}>
+                    className={`h-[32px] text-16 rounded-8 text-c6 bg-c3 hover:text-c6 hover:bg-c4 transition-all ease-in-out duration-200 navfilter flex items-center`}>
                     Réinitialiser
                   </Button>
                   <Button
