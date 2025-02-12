@@ -48,11 +48,11 @@ const CreditsModal = () => {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex justify-between p-25 border-b-2 bg-c4'>
+              <ModalHeader className='flex justify-between p-25 border-b-2 border-c3'>
                 <h2 className='text-c6 text-32 font-medium'>Crédits</h2>
                 <Link onPress={onClose}>
                   <CrossIcon
-                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
+                    className='text-c4 cursor-pointer hover:text-c6 transition-all ease-in-out duration-200'
                     size={24}
                   />
                 </Link>
