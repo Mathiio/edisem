@@ -68,7 +68,7 @@ export const ConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, u
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`cursor-pointer border-2 h-full rounded-12 flex items-center justify-start p-20 gap-20 transition-transform-colors-opacity ${
-        isHovered ? 'bg-c4' : 'border-200'
+        isHovered ? 'border-c4' : 'border-c3'
       }`}>
       <div className={`p-50 h-full w-300 rounded-12 justify-center items-center flex  ${
           thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-200 to-400'

@@ -45,7 +45,7 @@ export const Conferencier: React.FC = () => {
         <div className='flex flex-col gap-50'>
           <Link
             isExternal
-            className='gap-10 text-c6'
+            className='gap-10 text-c6 w-fit'
             href={!loading ? actant?.url : '#'}
             showAnchorIcon
             anchorIcon={<LinkIcon size={28} />}>
