@@ -74,7 +74,7 @@ export const Conferencier: React.FC = () => {
             <div className='h-full w-full flex flex-col gap-10'>
               <div className='flex gap-10'>
                 <div className='w-[22px]'>
-                  <UniversityIcon className='transition-transform-colors-opacity' size={22} />
+                  <UniversityIcon className='transition-transform-colors-opacity text-c6' size={22} />
                 </div>
                 <h3 className='text-16 text-left text-c6 font-medium'>Université(s)</h3>
               </div>
@@ -95,7 +95,7 @@ export const Conferencier: React.FC = () => {
             <div className='h-full w-full flex flex-col gap-10'>
               <div className='flex gap-10'>
                 <div className='w-[22px]'>
-                  <SchoolIcon className='transition-transform-colors-opacity' size={22} />
+                  <SchoolIcon className='transition-transform-colors-opacity text-c6' size={22} />
                 </div>
                 <h3 className='text-16 text-left text-c6 font-medium'>École(s) doctorale(s)</h3>
               </div>
@@ -116,7 +116,7 @@ export const Conferencier: React.FC = () => {
             <div className='h-full w-full flex flex-col gap-10'>
               <div className='flex gap-10'>
                 <div className='w-[22px]'>
-                  <LaboritoryIcon className='transition-transform-colors-opacity' size={22} />
+                  <LaboritoryIcon className='transition-transform-colors-opacity text-c6' size={22} />
                 </div>
                 <h3 className='text-16 text-left text-c6 font-medium'>Laboratoire(s)</h3>
               </div>
@@ -137,7 +137,7 @@ export const Conferencier: React.FC = () => {
             <div className='h-full w-full flex flex-col gap-10'>
               <div className='flex gap-10'>
                 <div className='w-[22px]'>
-                  <ConferenceIcon className='transition-transform-colors-opacity' size={22} />
+                  <ConferenceIcon className='transition-transform-colors-opacity text-c6' size={22} />
                 </div>
                 <h3 className='text-16 text-left text-c6 font-medium'>Participations(s)</h3>
               </div>
