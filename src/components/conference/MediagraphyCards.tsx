@@ -216,18 +216,6 @@ const mediagraphyTemplates: { [key: string]: (item: MediagraphyItem) => React.Re
 };
 
 import ReactDOMServer from 'react-dom/server';
-import {
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownSection,
-  DropdownTrigger,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  useDisclosure,
-} from '@nextui-org/react';
 import { AnnotationDropdown } from './AnnotationDropdown';
 
 const ensureEndsWithPeriod = (content: React.ReactNode): React.ReactNode => {
@@ -314,7 +302,28 @@ export const MediagraphyCard: React.FC<MediagraphyItem> = ({
         </div>
       </Link>
       <div className='flex flex-col h-full py-25 pr-25'>
-        <AnnotationDropdown />
+        <AnnotationDropdown
+          content={ensureEndsWithPeriod(
+            template({
+              id,
+              title,
+              creator,
+              format,
+              director,
+              date,
+              publisher,
+              uri,
+              class: mediaType,
+              medium,
+              isPartOf,
+              resource_template_id,
+              location,
+              place,
+            }),
+          )}
+          image={thumbnail ? thumbnail : getIcon(mediaType)}
+          type='Medias'
+        />
       </div>
     </div>
   );
