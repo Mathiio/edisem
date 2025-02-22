@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { InputConfig } from '@/components/database/EditModal';
 import { usegetDataByClass } from '@/hooks/useFetchData';
-import { Button, Input, Spinner } from '@nextui-org/react';
+import { Button, Input, Spinner } from "@heroui/react";
 import { CrossIcon, SearchIcon, SortIcon } from '@/components/utils/icons';
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/dropdown';
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 
 interface SelectionInputProps {
   col: InputConfig;

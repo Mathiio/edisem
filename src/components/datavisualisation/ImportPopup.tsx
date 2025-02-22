@@ -1,5 +1,5 @@
-import { Button, Divider } from '@nextui-org/react';
-import { Textarea } from '@nextui-org/input';
+import { Button, Divider } from "@heroui/react";
+import { Textarea } from "@heroui/input";
 import { useEffect, useRef, useState } from 'react';
 import { FilterGroup, FilterPopupProps, ITEM_PROPERTIES } from './FilterPopup';
 import * as Items from '@/services/Items';

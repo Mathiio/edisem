@@ -1,4 +1,4 @@
-import { Kbd as OKbd, extendVariants } from '@nextui-org/react';
+import { Kbd as OKbd, extendVariants } from "@heroui/react";
 
 export const Kbd = extendVariants(OKbd, {
   defaultVariants: {},

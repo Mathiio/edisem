@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Skeleton } from '@nextui-org/react';
+import { Skeleton } from "@heroui/react";
 
 function formatDate(dateString: string) {
   const mois = [

@@ -14,7 +14,7 @@ import {
   useDisclosure,
   Input,
   SortDescriptor,
-} from '@nextui-org/react';
+} from "@heroui/react";
 import { usegetDataByClass } from '../hooks/useFetchData';
 import GridComponent from '@/components/database/GridComponent';
 import { EditModal } from '@/components/database/EditModal';

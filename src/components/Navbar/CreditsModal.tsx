@@ -1,5 +1,5 @@
 import { CreditIcon, CrossIcon } from '@/components/utils/icons';
-import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure, Tooltip } from '@nextui-org/react';
+import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure, Tooltip } from "@heroui/react";
 import { CreditCard } from '@/components/navbar/CreditCard';
 
 const CreditsModal = () => {

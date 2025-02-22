@@ -3,7 +3,7 @@ import {
   AvatarGroup as OAvatarGroup,
   AvatarIcon as OAvatarIcon,
   extendVariants,
-} from '@nextui-org/react';
+} from "@heroui/react";
 
 export const Avatar = extendVariants(OAvatar, {
   defaultVariants: {},

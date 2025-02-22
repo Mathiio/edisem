@@ -4,7 +4,7 @@ import {
   CardBody as OCardBody,
   CardFooter as OCardFooter,
   extendVariants,
-} from '@nextui-org/react';
+} from "@heroui/react";
 
 export const Card = extendVariants(OCard, {
   defaultVariants: {},

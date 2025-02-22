@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Skeleton, Link, Tooltip, Button } from '@nextui-org/react';
-import { CreditIcon, CameraIcon } from '@/components/utils/icons';
+import { CameraIcon, UserIcon, ShareIcon, MovieIcon } from '@/components/utils/icons';
 import { motion, Variants } from 'framer-motion';
+import { addToast, Skeleton, Link, Button, cn } from "@heroui/react";
+
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -25,6 +26,7 @@ type ConfOverviewProps = {
   actant: string;
   actantId: number;
   university: string;
+  picture: string;
   url: string;
   fullUrl: string;
   currentTime: number;
@@ -35,6 +37,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
   actant,
   actantId,
   university,
+  picture,
   url,
   fullUrl,
   currentTime,
@@ -74,7 +77,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
     return title;
   };
 
-  const handleButtonClick = () => {
+  const changeLink = () => {
     if (videoUrl === url) {
       setVideoUrl(fullUrl);
       setButtonText('conférence');
@@ -83,6 +86,12 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
       setButtonText('séance complète');
     }
   };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(videoUrl).then(() => {
+    });
+  };
+
 
   return (
     <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
@@ -100,30 +109,57 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
         )}
       </motion.div>
       <motion.div variants={itemVariants} className='w-full flex flex-col gap-25'>
-        <h1 className='font-medium text-24'>{title}</h1>
+        <h1 className='font-medium text-c6 text-24'>{title}</h1>
         <div className='w-full flex flex-col gap-10'>
           <div className='w-full flex justify-between gap-10 items-center'>
-            <div className='w-full flex justify-start gap-10 items-center'>
-              <h3 className='text-c5 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>
-                {actant + ', ' + truncateTitle(university, 48)}
-              </h3>
-              <Tooltip content='voir le profil'>
-                <Link className='cursor-pointer' onClick={openActant}>
-                  <CreditIcon
-                    size={14}
-                    className='relative text-c4 hover:text-c6 transition-all ease-in-out duration-200'
-                  />
-                </Link>
-              </Tooltip>
-            </div>
-            {url !== fullUrl && fullUrl !== '' && (
+            <Link className='w-fit flex justify-start gap-10 items-center cursor-pointer' onClick={openActant}>
+              {picture ? (
+                <img src={picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+              ) : (
+                <UserIcon
+                  size={22}
+                  className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200'
+                />
+              )}
+              <div className='flex flex-col items-start gap-0.5'>
+                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>
+                  {actant}
+                </h3>
+                <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>
+                  {truncateTitle(university, 48)}
+                </p>
+              </div>
+            </Link>
+            <div className='w-fit flex justify-between gap-10 items-center'>
               <Button
                 size='md'
-                className='text-16 px-10 py-5 rounded-8 text-c6 hover:text-c6 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
-                onClick={handleButtonClick}>
-                {buttonText}
+                className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                onClick={copyToClipboard}
+                onPress={() => {
+                  addToast({
+                    title: "Lien copié",
+                    classNames: {
+                      base: cn([
+                        "text-c6",
+                        "mb-4"
+                      ]),
+                      icon: "w-6 h-6 fill-current text-c6",
+                    },
+                  });
+                }}>
+                  <ShareIcon size={12}/>
+                  Partager
               </Button>
-            )}
+              {url !== fullUrl && fullUrl !== '' && (
+                <Button
+                  size='md'
+                  className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                  onClick={changeLink}>
+                  <MovieIcon size={12}/>
+                  {buttonText}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </motion.div>

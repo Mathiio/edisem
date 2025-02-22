@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-import { Button, Checkbox, Divider, Snippet } from '@nextui-org/react';
-import { Input } from '@nextui-org/input';
+import { Button, Checkbox, Divider, Snippet } from "@heroui/react";
+import { Input } from "@heroui/input";
 import { useState } from 'react';
 import { GeneratedImage } from '@/pages/visualisation';
 import { FilterGroup } from './FilterPopup';

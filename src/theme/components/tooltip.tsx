@@ -1,4 +1,4 @@
-import { Tooltip as OTooltip, extendVariants } from '@nextui-org/react';
+import { Tooltip as OTooltip, extendVariants } from "@heroui/react";
 
 export const Tooltip = extendVariants(OTooltip, {
   defaultVariants: {

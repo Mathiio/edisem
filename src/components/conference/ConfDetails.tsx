@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Skeleton } from "@nextui-org/react";
+import { Skeleton } from "@heroui/react";
 import { motion, Variants } from 'framer-motion';
 
 
@@ -62,7 +62,7 @@ export const ConfDetailsCard: React.FC<ConfDetailsProps> = ({ edition, descripti
           style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
           {description}
         </p>
-        <p className='text-16 text-c6 font-medium transition-all ease-in-out duration-200'>
+        <p className='text-16 text-c5 font-semibold transition-all ease-in-out duration-200'>
           {expanded ? 'affichez moins' : '...affichez plus'}
         </p>
       </motion.div>

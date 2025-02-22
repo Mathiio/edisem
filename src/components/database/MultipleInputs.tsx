@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input } from '@nextui-org/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input } from "@heroui/react";
 import { InputConfig } from '@/components/database/EditModal';
 import { AddIcon, SortIcon } from '@/components/utils/icons';
 

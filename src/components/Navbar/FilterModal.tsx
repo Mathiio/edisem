@@ -1,10 +1,10 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { FilterIcon, CrossIcon, CalendarIcon, UserIcon } from '@/components/utils/icons';
-import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@nextui-org/react';
-import { DateRangePicker } from '@nextui-org/date-picker';
+import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from "@heroui/react";
+import { DateRangePicker } from "@heroui/date-picker";
 import { NavConferencierFilter } from '@/components/navbar/NavConferencierFilter';
 import { NavTypeFilter } from '@/components/navbar/NavTypeFilter';
-import { Button } from '@nextui-org/button';
+import { Button } from "@heroui/button";
 import { RangeValue } from '@react-types/shared';
 import { DateValue } from '@react-types/datepicker';
 

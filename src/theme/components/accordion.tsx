@@ -1,4 +1,4 @@
-import { Accordion as OAccordion, AccordionItem as OAccordionItem, extendVariants } from '@nextui-org/react';
+import { Accordion as OAccordion, AccordionItem as OAccordionItem, extendVariants } from "@heroui/react";
 
 export const Accordion = extendVariants(OAccordion, {
   defaultVariants: {},

@@ -1,4 +1,4 @@
-const { nextui } = require('@nextui-org/react');
+const {heroui} = require("@heroui/react");
 
 
 /** @type {import('tailwindcss').Config} */
@@ -712,9 +712,7 @@ module.exports = {
 
 
   plugins: [
-    nextui({
-      layout: {
-      },
+    heroui({
       themes: {
         light: {
           colors: {
