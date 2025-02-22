@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CameraIcon, UserIcon, ShareIcon, MovieIcon } from '@/components/utils/icons';
 import { motion, Variants } from 'framer-motion';
-import { addToast, Skeleton, Link, Button, cn } from "@heroui/react";
-
+import { addToast, Skeleton, Link, Button, cn } from '@heroui/react';
+import { AnnotationDropdown } from './AnnotationDropdown';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -52,14 +52,13 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
     if (url) {
       const updatedUrl = new URL(url);
       updatedUrl.searchParams.set('enablejsapi', '1');
-      updatedUrl.searchParams.set('rel', '0'); 
-      updatedUrl.searchParams.set('version', Date.now().toString()); 
+      updatedUrl.searchParams.set('rel', '0');
+      updatedUrl.searchParams.set('version', Date.now().toString());
       setVideoUrl(updatedUrl.toString());
       setButtonText('séance complète');
-      setKey(prev => prev + 1); 
+      setKey((prev) => prev + 1);
     }
   }, [url]);
-
 
   useEffect(() => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
@@ -100,15 +99,13 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
       updatedUrl.searchParams.set('version', Date.now().toString());
       setVideoUrl(updatedUrl.toString());
       setButtonText(videoUrl === url ? 'conférence' : 'séance complète');
-      setKey(prev => prev + 1); 
+      setKey((prev) => prev + 1);
     }
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(videoUrl).then(() => {
-    });
+    navigator.clipboard.writeText(videoUrl).then(() => {});
   };
-
 
   return (
     <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
@@ -140,9 +137,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
                 />
               )}
               <div className='flex flex-col items-start gap-0.5'>
-                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>
-                  {actant}
-                </h3>
+                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{actant}</h3>
                 <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>
                   {truncateTitle(university, 48)}
                 </p>
@@ -155,28 +150,31 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
                 onClick={copyToClipboard}
                 onPress={() => {
                   addToast({
-                    title: "Lien copié",
+                    title: 'Lien copié',
                     classNames: {
-                      base: cn([
-                        "text-c6",
-                        "mb-4"
-                      ]),
-                      icon: "w-6 h-6 fill-current text-c6",
+                      base: cn(['text-c6', 'mb-4']),
+                      icon: 'w-6 h-6 fill-current text-c6',
                     },
                   });
                 }}>
-                  <ShareIcon size={12}/>
-                  Partager
+                <ShareIcon size={12} />
+                Partager
               </Button>
               {url !== fullUrl && fullUrl !== '' && (
                 <Button
                   size='md'
                   className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
                   onClick={changeLink}>
-                  <MovieIcon size={12}/>
+                  <MovieIcon size={12} />
                   {buttonText}
                 </Button>
               )}
+              <AnnotationDropdown
+                content='Exemple de contenu obligatoire'
+                image='https://example.com/image.jpg'
+                actant='Jean Dupont'
+                type='Conférence'
+              />
             </div>
           </div>
         </div>
