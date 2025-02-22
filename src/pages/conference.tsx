@@ -132,14 +132,14 @@ export const Conference: React.FC = () => {
         )}
       </motion.div>
       <motion.div style={{ height: equalHeight || 'auto' }} className='col-span-10 lg:col-span-4 flex flex-col gap-50 overflow-hidden' variants={fadeIn}>
-        <div className='flex w-full flex-col gap-20 flex-grow h-full overflow-auto'>
+        <div className='flex w-full flex-col gap-20 flex-grow min-h-0 overflow-hidden'>
           <Tabs
             classNames={{
-              tabList: 'w-full gap-10 bg-c0 rounded-8',
+              tabList: 'w-full h-fit gap-10 bg-c0 rounded-8',
               cursor: 'w-full',
               tab: 'w-full bg-c2 data-[selected=true]:bg-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-c3 transition-all ease-in-out duration-200',
               tabContent: 'group-data-[selected=true]:text-selected group-data-[selected=true]:font-medium text-c6',
-              panel: 'h-max',
+              panel: 'flex-grow min-h-0 overflow-auto',
             }}
             aria-label='Options'
             selectedKey={selected}
