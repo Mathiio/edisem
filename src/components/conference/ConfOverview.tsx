@@ -42,24 +42,11 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
   fullUrl,
   currentTime,
 }) => {
-  const [videoUrl, setVideoUrl] = useState<string>('');
+  const [videoUrl, setVideoUrl] = useState<string>(url);
   const [buttonText, setButtonText] = useState<string>('séance complète');
   const navigate = useNavigate();
-  const [key, setKey] = useState(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  useEffect(() => {
-    if (url) {
-      const updatedUrl = new URL(url);
-      updatedUrl.searchParams.set('enablejsapi', '1');
-      updatedUrl.searchParams.set('rel', '0'); 
-      updatedUrl.searchParams.set('version', Date.now().toString()); 
-      setVideoUrl(updatedUrl.toString());
-      setButtonText('séance complète');
-      setKey(prev => prev + 1); 
-    }
-  }, [url]);
-
+  
 
   useEffect(() => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
@@ -92,15 +79,12 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
   };
 
   const changeLink = () => {
-    const newUrl = videoUrl === url ? fullUrl : url;
-    if (newUrl) {
-      const updatedUrl = new URL(newUrl);
-      updatedUrl.searchParams.set('enablejsapi', '1');
-      updatedUrl.searchParams.set('rel', '0');
-      updatedUrl.searchParams.set('version', Date.now().toString());
-      setVideoUrl(updatedUrl.toString());
-      setButtonText(videoUrl === url ? 'conférence' : 'séance complète');
-      setKey(prev => prev + 1); 
+    if (videoUrl === url) {
+      setVideoUrl(fullUrl);
+      setButtonText('conférence');
+    } else {
+      setVideoUrl(url);
+      setButtonText('séance complète');
     }
   };
 
@@ -115,7 +99,6 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
       <motion.div variants={itemVariants} className='rounded-14 lg:w-full overflow-hidden'>
         {videoUrl ? (
           <iframe
-            key={`${key}-${videoUrl}`}
             ref={iframeRef}
             className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'
             title='YouTube Video'
