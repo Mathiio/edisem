@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { AnnotationDropdown } from './AnnotationDropdown';
 
 export interface BibliographyItem {
   creator: { first_name: string; last_name: string }[];
@@ -225,6 +227,7 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
 // Composant BibliographyCard optimisé
 export const BibliographyCard: React.FC<BibliographyItem & { uniqueKey?: number }> = (props) => {
   const { thumbnail, url } = props;
+  const [isHovered, setIsHovered] = useState(false);
 
   const formatBibliography = (item: BibliographyItem) => {
     //console.log(item);
@@ -233,21 +236,26 @@ export const BibliographyCard: React.FC<BibliographyItem & { uniqueKey?: number 
   };
 
   return (
-    <div className='w-full flex flex-col justify-start items-start gap-10'>
-      <div className={`flex ${thumbnail ? 'flex-row' : 'flex-col'} gap-4 items-start`}>
-        {thumbnail && (
-          <div className='flex-shrink-0'>
-            <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' />
-          </div>
-        )}
-        <div className='w-full flex flex-col gap-10'>
-          <p className='text-c6 text-16'>{formatBibliography(props)}</p>
-          {url && (
-            <a href={url} target='_blank' className='text-c6 underline'>
-              Voir la source
-            </a>
+    <div
+      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${
+        isHovered ? 'border-c6' : 'border-c3'
+      }`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}>
+      <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={url ?? '#'} target='_blank'>
+        <div className={`flex  ${thumbnail ? 'flex-row' : 'flex-col'} gap-4 items-start`}>
+          {thumbnail && (
+            <div className='flex-shrink-0'>
+              <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' />
+            </div>
           )}
+          <div className='w-full flex flex-col gap-10'>
+            <p className='text-c6 text-16'>{formatBibliography(props)}</p>
+          </div>
         </div>
+      </Link>
+      <div className='flex flex-col h-full py-25 pr-25'>
+        <AnnotationDropdown />
       </div>
     </div>
   );
@@ -280,7 +288,7 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, 
 
   return (
     <div className='w-full lg:h-[700px] xl:h-[750px] overflow-hidden flex flex-col gap-20'>
-      <div className='flex flex-col gap-20 pt-3 overflow-y-auto'>
+      <div className='flex flex-col gap-20 overflow-y-auto'>
         {loading ? (
           Array.from({ length: bibliographies.length }).map((_, index) => <BibliographySkeleton key={index} />)
         ) : (
@@ -288,8 +296,8 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, 
             {/* Bibliographies de conférence */}
             {conferenceBibliographies.length > 0 && (
               <>
-                <h2 className='text-xl font-bold'>Bibliographies de Conférence</h2>
-                <div className='flex flex-col gap-20'>
+                <h2 className='text-16 text-c5 font-medium'>Bibliographies de Conférence</h2>
+                <div className='flex flex-col gap-10'>
                   {conferenceBibliographies.map((bibliography, index) => (
                     <BibliographyCard key={index} {...bibliography} uniqueKey={index} />
                   ))}
@@ -300,8 +308,8 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, 
             {/* Bibliographies complémentaires */}
             {complementaryBibliographies.length > 0 && (
               <>
-                <h2 className='text-xl font-bold'>Bibliographies Complémentaires</h2>
-                <div className='flex flex-col gap-20'>
+                <h2 className='text-16 text-c5 font-medium'>Bibliographies Complémentaires</h2>
+                <div className='flex flex-col gap-10'>
                   {complementaryBibliographies.map((bibliography, index) => (
                     <BibliographyCard key={index} {...bibliography} uniqueKey={index} />
                   ))}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CameraIcon, SoundIcon, ImageIcon, FileIcon, LinkIcon } from '@/components/utils/icons';
+import { CameraIcon, SoundIcon, ImageIcon, FileIcon, LinkIcon, DotsIcon } from '@/components/utils/icons';
 
 export interface MediagraphyItem {
   id: number;
@@ -216,6 +216,19 @@ const mediagraphyTemplates: { [key: string]: (item: MediagraphyItem) => React.Re
 };
 
 import ReactDOMServer from 'react-dom/server';
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownSection,
+  DropdownTrigger,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  useDisclosure,
+} from '@nextui-org/react';
+import { AnnotationDropdown } from './AnnotationDropdown';
 
 const ensureEndsWithPeriod = (content: React.ReactNode): React.ReactNode => {
   if (React.isValidElement(content)) {
@@ -261,53 +274,49 @@ export const MediagraphyCard: React.FC<MediagraphyItem> = ({
   const template = mediagraphyTemplates[mediaType] || mediagraphyTemplates['default'];
 
   return (
-    <Link
-      to={uri ?? '#'}
-      target='_blank'
-      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 p-25 transition-transform-colors-opacity ${
+    <div
+      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${
         isHovered ? 'border-c6' : 'border-c3'
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
-      <div
-        className={`flex-shrink-0 transition-transform-colors-opacity ${
-          isHovered ? 'text-c4' : 'text-c3'
-        }`}>
-        {thumbnail ? (
-          <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' />
-        ) : (
-          getIcon(mediaType)
-        )}
-      </div>
+      <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={uri ?? '#'} target='_blank'>
+        <div
+          className={`flex flex-col justify-center transition-transform-colors-opacity ${
+            isHovered ? 'text-c4' : 'text-c3'
+          }`}>
+          {thumbnail ? (
+            <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' />
+          ) : (
+            getIcon(mediaType)
+          )}
+        </div>
 
-      <div className='w-full text-16 text-c4 font-extralight'>
-        {ensureEndsWithPeriod(
-          template({
-            id,
-            title,
-            creator,
-            format,
-            director,
-            date,
-            publisher,
-            uri,
-            class: mediaType,
-            medium,
-            isPartOf,
-            resource_template_id,
-            location,
-            place,
-          }),
-        )}
+        <div className='w-full text-16 text-c4 font-extralight'>
+          {ensureEndsWithPeriod(
+            template({
+              id,
+              title,
+              creator,
+              format,
+              director,
+              date,
+              publisher,
+              uri,
+              class: mediaType,
+              medium,
+              isPartOf,
+              resource_template_id,
+              location,
+              place,
+            }),
+          )}
+        </div>
+      </Link>
+      <div className='flex flex-col h-full py-25 pr-25'>
+        <AnnotationDropdown />
       </div>
-
-      <div
-        className={`flex min-w-[40px] min-h-[40px] border-2 rounded-12 justify-center items-center transition-transform-colors-opacity ${
-          isHovered ? 'border-c4 text-c4' : 'border-c3 text-c3'
-        }`}>
-        <LinkIcon size={22} />
-      </div>
-    </Link>
+    </div>
   );
 };
 
@@ -354,7 +363,7 @@ export const Mediagraphies: React.FC<{ items: MediagraphyItem[]; loading: boolea
             {sortedConferenceMediagraphies.length > 0 && (
               <>
                 <h2 className='text-16 text-c5 font-medium'>Médiagraphies de Conférence</h2>
-                <div className='flex flex-col gap-20'>
+                <div className='flex flex-col gap-10'>
                   {sortedConferenceMediagraphies.map((item, index) => (
                     <MediagraphyCard key={index} {...item} />
                   ))}
@@ -366,7 +375,7 @@ export const Mediagraphies: React.FC<{ items: MediagraphyItem[]; loading: boolea
             {sortedComplementaryMediagraphies.length > 0 && (
               <>
                 <h2 className='text-16 text-c5 font-medium'>Médiagraphies Complémentaires</h2>
-                <div className='flex flex-col gap-20'>
+                <div className='flex flex-col gap-10'>
                   {sortedComplementaryMediagraphies.map((item, index) => (
                     <MediagraphyCard key={index} {...item} />
                   ))}
