@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnnotationDropdown } from './AnnotationDropdown';
+import { FileIcon } from '@/components/utils/icons';
 
 export interface BibliographyItem {
   creator: { first_name: string; last_name: string }[];
@@ -287,7 +288,7 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, 
   );
 
   return (
-    <div className='w-full lg:h-[700px] xl:h-[750px] overflow-hidden flex flex-col gap-20'>
+    <div className='w-full h-full overflow-hidden flex flex-col gap-20'>
       <div className='flex flex-col gap-20 overflow-y-auto'>
         {loading ? (
           Array.from({ length: bibliographies.length }).map((_, index) => <BibliographySkeleton key={index} />)
@@ -328,10 +329,10 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, 
 
 export const UnloadedCard: React.FC = () => {
   return (
-    <div className='w-full lg:h-[400px] xl:h-[450px] flex flex-col justify-center items-center gap-20'>
-      <div className='text-200 text-6xl'>📄</div>
+    <div className='w-full h-full flex flex-col justify-center items-center gap-20'>
+      <FileIcon size={42} className='text-c6' />
       <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
-        <h2 className='text-c5 text-32 font-semibold'>Oups !</h2>
+        <h2 className='text-c6 text-32 font-semibold'>Oups !</h2>
         <p className='text-c5 text-16 text-center'>
           Aucune bibliographie n'est liée à cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections.
         </p>

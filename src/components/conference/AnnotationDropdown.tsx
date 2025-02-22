@@ -12,7 +12,7 @@ import {
   ModalFooter,
   ModalHeader,
   Textarea,
-} from '@nextui-org/react';
+} from "@heroui/react";
 import React, { useState } from 'react';
 import { CrossIcon, DotsIcon } from '../utils/icons';
 
@@ -42,7 +42,7 @@ export const AnnotationDropdown = () => {
           <DropdownItem key='Annoter' onClick={handleOpen} className='gap-2'>
             Annoter
           </DropdownItem>
-          <DropdownItem key='VoirAnnoter' className='gap-2'>
+          <DropdownItem key='VoirAnnoter' className='gap-2 '>
             Voir les annotations
           </DropdownItem>
         </DropdownMenu>
