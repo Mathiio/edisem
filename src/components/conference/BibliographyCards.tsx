@@ -289,7 +289,7 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, 
 
   return (
     <div className='w-full h-full overflow-hidden flex flex-col gap-20'>
-      <div className='flex flex-col gap-20 overflow-y-auto'>
+      <div className='flex flex-col gap-20 overflow-y-auto scroll-container'>
         {loading ? (
           Array.from({ length: bibliographies.length }).map((_, index) => <BibliographySkeleton key={index} />)
         ) : (
