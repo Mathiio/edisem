@@ -725,9 +725,9 @@ module.exports = {
             c4: '#525252',
             c5: '#303030',
             c6: '#0D0D0D',
-
+            
             action: '#7828c8',
-            selected: '#fafafa',
+            selected: '#FFFFFF',
             action100: '#e4d4f4',
             action200: '#c9a9e9',
             action300: '#ae7ede',
@@ -753,10 +753,10 @@ module.exports = {
             c3: '#2C2C2F',
             c4: '#ADADAD',
             c5: '#CECECE',
-            c6: '#F1F1F1',
+            c6: '#FFFFFF',
 
             action: '#7828c8',
-            selected: '#fafafa',
+            selected: '#FFFFFF',
             action100: '#e4d4f4',
             action200: '#c9a9e9',
             action300: '#ae7ede',
