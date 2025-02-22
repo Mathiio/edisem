@@ -120,3 +120,57 @@ export const LgConfSkeleton: React.FC = () => {
     </div>
   );
 };
+
+
+
+type SmConfCardProps = {
+  id: number;
+  title: string;
+  actant: string;
+  url?: string;
+};
+
+export const SmConfCard: React.FC<SmConfCardProps> = ({ id, title, actant, url }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const thumbnailUrl = url ? getYouTubeThumbnailUrl(url) : '';
+
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  const openConf = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.location.href = `/conference/${id}`;
+  };
+
+  return (
+    <div
+      onClick={openConf}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className='cursor-pointer flex flex-col gap-10 transition-all ease-in-out duration-200 relative'>
+      <div
+        className={`absolute w-full h-full rounded-12 transition-all ease-in-out duration-200 
+        ${isHovered ? 'bg-c2 scale-105' : 'scale-100'}`}></div>
+      <div
+        className={`p-50 h-200 w-full rounded-12 justify-center items-center flex z-10 ${
+          thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-200 to-400'
+        }`}
+        style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
+        <h3 className={`text-16 text-100 font-semibold text-selected ${thumbnailUrl ? 'invisible' : ''}`}>
+          CONFÉRENCE
+        </h3>
+      </div>
+      <div className='flex flex-col gap-5 z-10'>
+        <div className='relative'>
+          <p
+            ref={textRef}
+            className='text-16 text-c6 font-medium overflow-hidden line-clamp-3'>
+            {title}
+          </p>
+        </div>
+        <p className='text-16 text-c5 font-extralight'>
+          {actant}
+        </p>
+      </div>
+    </div>
+  );
+};

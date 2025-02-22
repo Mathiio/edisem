@@ -60,7 +60,7 @@ export const AuthDropdown = () => {
           ) : (
             <UserIcon
               size={22}
-              className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200'
+              className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200'
             />
           )}
           <span className='text-14 font-normal text-c6'>
@@ -71,7 +71,7 @@ export const AuthDropdown = () => {
         </div>
       </DropdownTrigger>
 
-      <DropdownMenu aria-label='User menu' className='p-15'>
+      <DropdownMenu aria-label='User menu' className='p-15 bg-c2 rounded-8'>
         <DropdownSection showDivider>
           <DropdownItem isReadOnly key='profile' className='h-14 gap-2 opacity-100'>
             <User
@@ -88,12 +88,12 @@ export const AuthDropdown = () => {
                   : userData?.type || 'Type non spécifié'
               }
               classNames={{
-                name: 'text-default-600',
-                description: 'text-default-500',
+                name: 'text-c6',
+                description: 'text-c4',
               }}
               avatarProps={{
                 src: userData?.picture || undefined,
-                fallback: <UserIcon className='text-default-800' size={20} />,
+                fallback: <UserIcon className='text-c6' size={20} />,
                 size: 'sm',
                 radius: 'md',
               }}
@@ -102,26 +102,26 @@ export const AuthDropdown = () => {
         </DropdownSection>
 
         <DropdownSection>
-          <DropdownItem key='visualisation' className='hover:bg-default-200 text-default-300 hover:text-default-400'>
+          <DropdownItem key='visualisation' className='hover:bg-c3 text-c4 hover:text-c6'>
             <Link to='/visualisation' className='flex justify-start gap-2 items-center w-full'>
               <VisualisationIcon size={15} />
-              <p className='text-default-500 text-16'>Datavisualisation</p>
+              <p className='text-c5 text-16 text-extralight'>Datavisualisation</p>
             </Link>
           </DropdownItem>
 
           <DropdownItem
             key='database'
-            className='rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400'>
+            className='hover:bg-c3 text-c4 hover:text-c6'>
             <Link to='/database' className='flex justify-start gap-2 items-center w-full'>
               <DataIcon size={15} />
-              <p className='text-default-500 text-16'>Données</p>
+              <p className='text-c5 text-16 text-extralight'>Données</p>
             </Link>
           </DropdownItem>
 
-          <DropdownItem key='logout' className='rounded-8 hover:bg-default-200 text-default-300 hover:text-default-400'>
+          <DropdownItem key='logout' className='hover:bg-c3 text-c4 hover:text-c6'>
             <Link onClick={handleLogout} to='/login' className='flex justify-start gap-2 items-center w-full'>
               <Logout size={15} />
-              <p className='text-default-500 text-16'>Se déconnecter</p>
+              <p className='text-c5 text-16 text-extralight'>Se déconnecter</p>
             </Link>
           </DropdownItem>
         </DropdownSection>
