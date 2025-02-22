@@ -353,7 +353,7 @@ export const Mediagraphies: React.FC<{ items: MediagraphyItem[]; loading: boolea
   const sortedComplementaryMediagraphies = complementaryMediagraphies.sort(sortByLastName);
 
   return (
-    <div className='w-full lg:h-[700px] xl:h-[750px] overflow-hidden flex flex-col gap-20'>
+    <div className='w-full h-full overflow-hidden flex flex-col gap-20'>
       <div className='flex flex-col gap-20 overflow-y-auto'>
         {loading ? (
           Array.from({ length: items.length }).map((_, index) => <MediagraphySkeleton key={index} />)
@@ -393,10 +393,10 @@ export const Mediagraphies: React.FC<{ items: MediagraphyItem[]; loading: boolea
 };
 
 export const UnloadedCard: React.FC = () => (
-  <div className='w-full lg:h-[400px] xl:h-[450px] sm:h-[450px] flex flex-col justify-center items-center gap-20'>
-    <FileIcon size={42} className='text-200' />
+  <div className='w-full h-full flex flex-col justify-center items-center gap-20'>
+    <FileIcon size={42} className='text-c6' />
     <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
-      <h2 className='text-c5 text-32 font-semibold'>Oups !</h2>
+      <h2 className='text-c6 text-32 font-semibold'>Oups !</h2>
       <p className='text-c5 text-16 text-center'>
         Aucune médiagraphie n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres
         sections de notre site.

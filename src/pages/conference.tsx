@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getConf, getConfCitations, getConfBibliographies, getConfMediagraphies } from '../services/api';
 import { motion, Variants } from 'framer-motion';
@@ -38,7 +38,14 @@ export const Conference: React.FC = () => {
   const [confMediagraphies, setConfMediagraphies] = useState<MediagraphyItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingRecommendations, setLoadingRecommendations] = useState(true);
+  const firstDivRef = useRef<HTMLDivElement>(null);
+  const [equalHeight, setEqualHeight] = useState<number | null>(null);
 
+  useEffect(() => {
+    if (firstDivRef.current) {
+      setEqualHeight(firstDivRef.current.clientHeight);
+    }
+  }, [loading]);
 
   const handleTimeChange = (newTime: number) => {
     setCurrentVideoTime(newTime);
@@ -90,7 +97,7 @@ export const Conference: React.FC = () => {
 
   return (
     <Layouts className='grid grid-cols-10 col-span-10 gap-50'>
-      <motion.div className='col-span-10 lg:col-span-6 flex flex-col gap-20' variants={fadeIn}>
+      <motion.div ref={firstDivRef} className='col-span-10 lg:col-span-6 flex flex-col gap-25 h-fit' variants={fadeIn}>
         <LongCarrousel
           perPage={3}
           perMove={1}
@@ -124,14 +131,15 @@ export const Conference: React.FC = () => {
           />
         )}
       </motion.div>
-      <motion.div className='col-span-10 h-full lg:col-span-4 flex flex-col gap-50 flex-grow' variants={fadeIn}>
-        <div className='flex w-full flex-col gap-20 flex-grow'>
+      <motion.div style={{ height: equalHeight || 'auto' }} className='col-span-10 lg:col-span-4 flex flex-col gap-50 overflow-hidden' variants={fadeIn}>
+        <div className='flex w-full flex-col gap-20 flex-grow h-full overflow-auto'>
           <Tabs
             classNames={{
               tabList: 'w-full gap-10 bg-c0 rounded-8',
               cursor: 'w-full',
               tab: 'w-full bg-c2 data-[selected=true]:bg-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-c3 transition-all ease-in-out duration-200',
               tabContent: 'group-data-[selected=true]:text-selected group-data-[selected=true]:font-medium text-c6',
+              panel: 'h-max',
             }}
             aria-label='Options'
             selectedKey={selected}
@@ -149,28 +157,28 @@ export const Conference: React.FC = () => {
             </Tab>
           </Tabs>
         </div>
-        <FullCarrousel
+      </motion.div>
+      {!loadingRecommendations && recommendedConfs.length > 0 && (
+        <motion.div className='col-span-10 h-full lg:col-span-4 flex flex-col gap-50 flex-grow' variants={fadeIn}>
+          <FullCarrousel
             title='Conférences associées'
             perPage={2}
             perMove={1}
-            data={loadingRecommendations ? Array.from({ length: 3 }) : recommendedConfs}
-            renderSlide={(item) =>
-              loadingRecommendations ? (
-                <LgConfSkeleton />
-              ) : (
-                <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
-                  <SmConfCard
-                    key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    actant={item.actant.firstname + ' ' + item.actant.lastname}
-                    url={item.url}
-                  />
-                </motion.div>
-              )
-            }
+            data={recommendedConfs}
+            renderSlide={(item) => (
+              <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
+                <SmConfCard
+                  key={item.id}
+                  id={item.id}
+                  title={item.title}
+                  actant={item.actant.firstname + ' ' + item.actant.lastname}
+                  url={item.url}
+                />
+              </motion.div>
+            )}
           />
-      </motion.div>
+        </motion.div>
+      )}
     </Layouts>
   );
 };

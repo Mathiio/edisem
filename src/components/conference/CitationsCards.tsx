@@ -11,9 +11,11 @@ interface CitationCardProps {
 }
 
 export const CitationCard: React.FC<CitationCardProps> = ({ startTime, endTime, actant, citation, onTimeChange }) => {
-  const [expanded, setExpanded] = useState<boolean>(false);
+  const [expanded, setExpanded] = useState(false);
+  const CHARACTER_LIMIT = 350;
+  const shouldTruncate = citation.length > CHARACTER_LIMIT;
 
-  const formatTime = (seconds: number): string => {
+  const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
@@ -33,26 +35,32 @@ export const CitationCard: React.FC<CitationCardProps> = ({ startTime, endTime, 
     setExpanded(!expanded);
   };
 
+  const displayText = expanded ? citation : citation.slice(0, CHARACTER_LIMIT);
+
   return (
-    <div className='w-full flex flex-col justify-start border-2 p-25 border-c3 rounded-12 items-start gap-10 transition-transform-colors-opacity'>
-      <div className='w-full flex justify-start items-center gap-10'>
-        <Button
+    <div className="w-full flex flex-col justify-start border-2 p-25 border-c3 rounded-12 items-start gap-10 transition-transform-colors-opacity">
+      <div className="w-full flex justify-start items-center gap-10">
+      <Button
           onClick={handleClick}
           className='px-10 py-5 h-auto text-16 rounded-6 text-c6 hover:text-c6 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'>
           {formatTime(startTime) + ' - ' + formatTime(endTime)}
         </Button>
         <h3 className='text-c6 text-16 font-medium'>{actant}</h3>
       </div>
-      <p
-        className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200'
-        style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
-        {citation}
-      </p>
-      <p
-        className='text-16 text-c5 font-semibold cursor-pointer transition-all ease-in-out duration-200'
-        onClick={toggleExpansion}>
-        {expanded ? 'affichez moins' : '...affichez plus'}
-      </p>
+      
+      <div className="text-16 text-c4 font-extralight transition-all ease-in-out duration-200">
+        {displayText}
+        {shouldTruncate && (
+          <div className='mt-2 w-full flex justify-start'>
+            <button 
+              onClick={toggleExpansion}
+              className="text-16 text-c6 font-semibold cursor-pointer transition-all ease-in-out duration-200"
+            >
+              {expanded ? 'afficher moins' : '...afficher plus'}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -98,8 +106,8 @@ interface CitationsProps {
 
 export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTimeChange }) => {
   return (
-    <div className='w-full lg:h-[550px] xl:h-[600px] overflow-hidden flex flex-col gap-20'>
-      <div className='flex flex-col gap-20 h-full overflow-y-auto'>
+    <div className='w-full h-max flex flex-col gap-20'>
+      <div className='flex flex-col gap-20 h-full overflow-y-auto scroll-container'>
         {loading ? (
           Array.from({ length: 8 }).map((_) => <CitationSkeleton />)
         ) : citations.length === 0 ? (
@@ -123,10 +131,10 @@ export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTime
 
 export const UnloadedCard: React.FC = () => {
   return (
-    <div className='w-full lg:h-[400px] xl:h-[450px] sm:h-[450px] flex flex-col justify-center items-center gap-20'>
-      <FileIcon size={42} className='text-200' />
+    <div className='w-full h-full flex flex-col justify-center items-center gap-20'>
+      <FileIcon size={42} className='text-c6' />
       <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
-        <h2 className='text-c5 text-32 font-semibold'>Oups !</h2>
+        <h2 className='text-c6 text-32 font-semibold'>Oups !</h2>
         <p className='text-c5 text-16 text-regular text-center'>
           Aucune citation n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres
           sections de notre site.
