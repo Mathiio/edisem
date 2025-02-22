@@ -3,7 +3,7 @@ import {
   AutocompleteSection as OAutocompleteSection,
   AutocompleteItem as OAutocompleteItem,
   extendVariants,
-} from '@nextui-org/react';
+} from "@heroui/react";
 
 export const Autocomplete = extendVariants(OAutocomplete, {
   defaultVariants: {

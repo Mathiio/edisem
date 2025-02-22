@@ -1,4 +1,4 @@
-import { Button as OButton, extendVariants } from '@nextui-org/react';
+import { Button as OButton, extendVariants } from "@heroui/react";
 
 export const Button = extendVariants(OButton, {
   defaultVariants: {

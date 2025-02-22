@@ -6,7 +6,7 @@ import {
   DropdownItem,
   User,
   Avatar,
-} from '@nextui-org/react';
+} from "@heroui/react";
 import { Link, useNavigate } from 'react-router-dom';
 import { UserIcon, VisualisationIcon, DataIcon, Logout } from '@/components/utils/icons';
 import { useEffect, useState } from 'react';

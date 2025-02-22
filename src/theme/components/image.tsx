@@ -1,4 +1,4 @@
-import { Image as OImage, extendVariants } from '@nextui-org/react';
+import { Image as OImage, extendVariants } from "@heroui/react";
 
 export const Image = extendVariants(OImage, {
   defaultVariants: {},

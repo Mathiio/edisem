@@ -1,6 +1,6 @@
 import { SearchIcon } from '@/components/utils/icons';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure, Button } from '@nextui-org/react';
+import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure, Button } from "@heroui/react";
 import { ActantCard, ActantSkeleton } from '@/components/search/ActantCard';
 import { ConfCard, ConfSkeleton } from '@/components/search/ConfCard';
 import { motion, Variants } from 'framer-motion';
