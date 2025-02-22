@@ -3,7 +3,7 @@ import {
   PaginationItem as OPaginationItem,
   PaginationCursor as OPaginationCursor,
   extendVariants,
-} from '@nextui-org/react';
+} from "@heroui/react";
 
 export const Pagination = extendVariants(OPagination, {});
 

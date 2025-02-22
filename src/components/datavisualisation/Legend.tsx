@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { ArrowIcon } from '@/components/utils/icons';
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@nextui-org/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
 
 
 const Legend: FC = () => {

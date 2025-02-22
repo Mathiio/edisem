@@ -8,6 +8,8 @@ import { Edition } from '@/pages/edition';
 import { LoginPage } from '@/pages/login';
 import { withAuth } from '@/pages/withAuth';
 import Visualisation from './pages/visualisation';
+import { ToastProvider } from '@heroui/react';
+import {HeroUIProvider} from '@heroui/react'
 
 // Protection des routes avec les droits appropriés
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'Actant' });
@@ -20,15 +22,19 @@ function App() {
   useThemeMode();
 
   return (
-    <Routes>
-      <Route path='/conference/:id' Component={ProtectedConference} />
-      <Route path='/conferencier/:id' Component={ProtectedConferencier} />
-      <Route path='/database' Component={ProtectedDatabase} />
-      <Route index path='/' Component={Home} />
-      <Route path='/edition/:id/:title?' Component={ProtectedEdition} />
-      <Route path='/login' Component={LoginPage} />
-      <Route path='/visualisation' Component={ProtectedVisualisation} />
-    </Routes>
+    <HeroUIProvider>
+      <ToastProvider />
+      <Routes>
+        <Route path='/conference/:id' Component={ProtectedConference} />
+        <Route path='/conferencier/:id' Component={ProtectedConferencier} />
+        <Route path='/database' Component={ProtectedDatabase} />
+        <Route index path='/' Component={Home} />
+        <Route path='/edition/:id/:title?' Component={ProtectedEdition} />
+        <Route path='/login' Component={LoginPage} />
+        <Route path='/visualisation' Component={ProtectedVisualisation} />
+      </Routes>
+    </HeroUIProvider>
+
   );
 }
 

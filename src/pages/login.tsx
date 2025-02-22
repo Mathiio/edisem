@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, Tab, Input, Button } from '@nextui-org/react';
+import { Tabs, Tab, Input, Button } from "@heroui/react";
 import { getActants, getStudents } from '@/services/Items';
 
 import { Layouts } from '@/components/utils/Layouts';

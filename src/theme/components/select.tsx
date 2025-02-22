@@ -1,4 +1,4 @@
-import { Select as OSelect, SelectItem as OSelectItem, extendVariants } from '@nextui-org/react';
+import { Select as OSelect, SelectItem as OSelectItem, extendVariants } from "@heroui/react";
 
 export const SelectItem = OSelectItem;
 

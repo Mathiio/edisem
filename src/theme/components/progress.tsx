@@ -1,4 +1,4 @@
-import { Progress as OProgress, extendVariants } from '@nextui-org/react';
+import { Progress as OProgress, extendVariants } from "@heroui/react";
 
 export const Progress = extendVariants(OProgress, {
   defaultVariants: {},

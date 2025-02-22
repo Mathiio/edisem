@@ -4,7 +4,7 @@ import CreditsModal from '@/components/navbar/CreditsModal';
 import { motion, Variants } from 'framer-motion';
 import { Link as RoutLink } from 'react-router-dom';
 import Logo from '@/assets/svg/logo.svg';
-import { Link } from '@nextui-org/react';
+import { Link } from "@heroui/react";
 import { LocationIcon, MailIcon, YoutubeIcon } from '@/components/utils/icons';
 
 
@@ -88,7 +88,7 @@ export const Footer: React.FC = () => {
             </Link>
         </div>
       </motion.div>
-      <motion.div className='flex col-span-12 justify-center border-t-1 bg-c4' variants={navbarVariants}>
+      <motion.div className='flex col-span-12 justify-center border-t-1 border-c3' variants={navbarVariants}>
       </motion.div>
       <p className='w-full col-span-12 text-center text-14 text-c5 font-extralight'>Copyright © 2025 Arcanes. Tous droits réservés.</p>
     </motion.div>

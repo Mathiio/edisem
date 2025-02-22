@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import FilterPopup from './FilterPopup';
-import { Button, Divider } from '@nextui-org/react';
+import { Button, Divider } from "@heroui/react";
 import { AnotateIcon, SearchIcon, ImportIcon, NewItemIcon, HideIcon, AssociateIcon, ExportIcon } from '../utils/icons';
 import { IconSvgProps } from '@/types/types';
 import HidePopup from './HidePopup';

@@ -6,7 +6,7 @@ import {
   TableRow as OTableRow,
   TableCell as OTableCell,
   extendVariants,
-} from '@nextui-org/react';
+} from "@heroui/react";
 
 export const Table = extendVariants(OTable, {
   defaultVariants: {},

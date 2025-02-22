@@ -1,4 +1,4 @@
-import { Radio as ORadio, RadioGroup as ORadioGroup, extendVariants } from '@nextui-org/react';
+import { Radio as ORadio, RadioGroup as ORadioGroup, extendVariants } from "@heroui/react";
 
 export const Radio = extendVariants(ORadio, {
   defaultVariants: {},

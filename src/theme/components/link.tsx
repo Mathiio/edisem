@@ -1,4 +1,4 @@
-import { Link as OLink, extendVariants } from '@nextui-org/react';
+import { Link as OLink, extendVariants } from "@heroui/react";
 
 export const Link = extendVariants(OLink, {
   defaultVariants: {
