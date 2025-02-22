@@ -5,7 +5,7 @@ import {
   DropdownSection as ODropdownSection,
   DropdownItem as ODropdownItem,
   extendVariants,
-} from '@nextui-org/react';
+} from "@heroui/react";
 
 export const Dropdown = extendVariants(ODropdown, {
   defaultVariants: {},

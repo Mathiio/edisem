@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Skeleton } from '@nextui-org/react';
-import { Link } from '@nextui-org/react';
+import { Skeleton } from "@heroui/react";
+import { Link } from "@heroui/react";
 
 
 type ActantCardProps = {
@@ -23,7 +23,7 @@ export const ActantCard: React.FC<ActantCardProps> = ({ id, firstname, lastname,
 
 
   return (
-    <div
+    (<div
       onClick={openConf}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -58,7 +58,7 @@ export const ActantCard: React.FC<ActantCardProps> = ({ id, firstname, lastname,
           </div>
         ))}
       </div>
-    </div>
+    </div>)
   );
 };
 

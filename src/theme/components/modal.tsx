@@ -5,7 +5,7 @@ import {
   ModalBody as OModalBody,
   ModalFooter as OModalFooter,
   extendVariants,
-} from '@nextui-org/react';
+} from "@heroui/react";
 
 export const Modal = extendVariants(OModal, {});
 

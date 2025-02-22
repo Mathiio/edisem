@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { getActant, getConfByActant } from '../services/api';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon, ConferenceIcon } from '@/components/utils/icons';
 import { InfoCard, InfoSkeleton } from '@/components/home/ActantCards';
-import { Link } from '@nextui-org/react';
+import { Link } from "@heroui/react";
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/utils/Layouts';

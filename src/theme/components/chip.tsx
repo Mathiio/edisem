@@ -1,4 +1,4 @@
-import { Chip as OChip, extendVariants } from '@nextui-org/react';
+import { Chip as OChip, extendVariants } from "@heroui/react";
 
 export const Chip = extendVariants(OChip, {
   defaultVariants: {},

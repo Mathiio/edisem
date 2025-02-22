@@ -3,7 +3,7 @@ import {
   PopoverTrigger as OPopoverTrigger,
   PopoverContent as OPopoverContent,
   extendVariants,
-} from '@nextui-org/react';
+} from "@heroui/react";
 
 export const Popover = extendVariants(OPopover, {
   defaultVariants: {},

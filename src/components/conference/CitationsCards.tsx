@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Skeleton } from '@nextui-org/react';
+import React, { useState } from 'react';
+import { Button, Skeleton } from "@heroui/react";
 import { FileIcon } from '@/components/utils/icons';
 
 interface CitationCardProps {
@@ -11,6 +11,8 @@ interface CitationCardProps {
 }
 
 export const CitationCard: React.FC<CitationCardProps> = ({ startTime, endTime, actant, citation, onTimeChange }) => {
+  const [expanded, setExpanded] = useState<boolean>(false);
+
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -27,17 +29,30 @@ export const CitationCard: React.FC<CitationCardProps> = ({ startTime, endTime, 
     onTimeChange(startTime);
   };
 
+  const toggleExpansion = () => {
+    setExpanded(!expanded);
+  };
+
   return (
-    <div className='w-full flex flex-col justify-start rounded-12 items-start gap-5 transition-transform-colors-opacity'>
+    <div className='w-full flex flex-col justify-start border-2 p-25 border-c3 rounded-12 items-start gap-10 transition-transform-colors-opacity'>
       <div className='w-full flex justify-start items-center gap-10'>
         <Button
           onClick={handleClick}
-          className='px-10 py-5 text-16 rounded-6 text-c6 hover:text-c6 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'>
+          className='px-10 py-5 h-auto text-16 rounded-6 text-c6 hover:text-c6 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'>
           {formatTime(startTime) + ' - ' + formatTime(endTime)}
         </Button>
         <h3 className='text-c6 text-16 font-medium'>{actant}</h3>
       </div>
-      <p className='text-16 text-c4 font-extralight'>{citation}</p>
+      <p
+        className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200'
+        style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
+        {citation}
+      </p>
+      <p
+        className='text-16 text-c5 font-semibold cursor-pointer transition-all ease-in-out duration-200'
+        onClick={toggleExpansion}>
+        {expanded ? 'affichez moins' : '...affichez plus'}
+      </p>
     </div>
   );
 };

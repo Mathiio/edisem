@@ -1,4 +1,4 @@
-import { Input as OInput, extendVariants } from '@nextui-org/react';
+import { Input as OInput, extendVariants } from "@heroui/react";
 
 export const Input = extendVariants(OInput, {
   defaultVariants: {

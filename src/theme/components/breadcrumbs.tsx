@@ -1,4 +1,4 @@
-import { Breadcrumbs as OBreadcrumbs, BreadcrumbItem as OBreadcrumbItem, extendVariants } from '@nextui-org/react';
+import { Breadcrumbs as OBreadcrumbs, BreadcrumbItem as OBreadcrumbItem, extendVariants } from "@heroui/react";
 
 export const Breadcrumbs = extendVariants(OBreadcrumbs, {
   defaultVariants: {},

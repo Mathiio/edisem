@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Skeleton} from "@nextui-org/react";
+import { Skeleton} from "@heroui/react";
 
 type EventCardProps = {
   id: number;

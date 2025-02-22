@@ -9,10 +9,10 @@ import {
   Modal,
   Link,
   ModalHeader,
-} from '@nextui-org/react';
+} from "@heroui/react";
 import { useFetchRT } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/database/SelectionInput';
-import { Textarea } from '@nextui-org/input';
+import { Textarea } from "@heroui/input";
 
 import { DatePicker, TimecodeInput } from '@/components/database/TimecodeInput';
 import { CrossIcon } from '@/components/utils/icons';

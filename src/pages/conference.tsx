@@ -1,27 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { getConf, getConfCitations, getConfBibliographies, getConfMediagraphies } from '../services/api';
-import { Navbar } from '@/components/navbar/Navbar';
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/conference/ConfOverview';
 import { Citations } from '@/components/conference/CitationsCards';
 import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/conference/ConfDetails';
 import { LongCarrousel } from '@/components/utils/Carrousels';
-import { Tabs, Tab } from '@nextui-org/react';
+import { Tabs, Tab } from "@heroui/react";
 import { KeywordsCard, KeywordsSkeleton } from '@/components/conference/KeywordsCards';
 import { Bibliographies, BibliographyItem } from '@/components/conference/BibliographyCards';
 import { Mediagraphies, MediagraphyItem } from '@/components/conference/MediagraphyCards';
 import { Layouts } from '@/components/utils/Layouts';
 
-const containerVariants: Variants = {
-  hidden: { opacity: 1 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-    },
-  },
-};
+
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -94,6 +85,7 @@ export const Conference: React.FC = () => {
               actant={confDetails.actant?.firstname + ' ' + confDetails.actant?.lastname}
               actantId={confDetails.actant?.id}
               university={confDetails.actant?.universities?.[0]?.name || ''}
+              picture={confDetails.actant?.picture || ''}
               url={confDetails.url}
               fullUrl={confDetails.fullUrl}
               currentTime={currentVideoTime}

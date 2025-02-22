@@ -1,4 +1,4 @@
-import { Spacer as OSpacer, extendVariants } from '@nextui-org/react';
+import { Spacer as OSpacer, extendVariants } from "@heroui/react";
 
 export const Spacer = extendVariants(OSpacer, {
   defaultVariants: {},
