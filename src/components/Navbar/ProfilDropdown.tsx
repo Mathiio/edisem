@@ -71,7 +71,7 @@ export const AuthDropdown = () => {
         </div>
       </DropdownTrigger>
 
-      <DropdownMenu aria-label='User menu' className='p-15 bg-c2 rounded-8'>
+      <DropdownMenu aria-label='User menu' className='p-15 bg-c2 rounded-12'>
         <DropdownSection showDivider>
           <DropdownItem isReadOnly key='profile' className='h-14 gap-2 opacity-100'>
             <User
