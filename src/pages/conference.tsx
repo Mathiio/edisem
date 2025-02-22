@@ -116,7 +116,7 @@ export const Conference: React.FC = () => {
                 tabList: 'w-full gap-10 bg-c0 rounded-8',
                 cursor: 'w-full',
                 tab: 'w-full bg-c2 data-[selected=true]:bg-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-c3 transition-all ease-in-out duration-200',
-                tabContent: 'group-data-[selected=true]:text-c6 group-data-[selected=true]:font-medium text-c6',
+                tabContent: 'group-data-[selected=true]:text-selected group-data-[selected=true]:font-medium text-c6',
               }}
               aria-label='Options'
               selectedKey={selected}
