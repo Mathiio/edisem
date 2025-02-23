@@ -11,7 +11,7 @@ export const LoginPage: React.FC = () => {
   const [students, setStudents] = useState<any>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const fetchData = useCallback(async () => {
@@ -69,7 +69,7 @@ export const LoginPage: React.FC = () => {
         <Tabs
           fullWidth
           selectedKey={selected}
-          onSelectionChange={setSelected}
+          onSelectionChange={key => setSelected(key.toString())}
           className='max-w-lg'
           classNames={{
             tabList: 'w-full gap-10 bg-c0 rounded-8',

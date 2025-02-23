@@ -7,11 +7,12 @@ interface CitationCardProps {
   startTime: number;
   endTime: number;
   actant: any;
+  id: number;
   citation: string;
   onTimeChange: (time: number) => void;
 }
 
-export const CitationCard: React.FC<CitationCardProps> = ({ startTime, endTime, actant, citation, onTimeChange }) => {
+export const CitationCard: React.FC<CitationCardProps> = ({ id, startTime, endTime, actant, citation, onTimeChange }) => {
   const [expanded, setExpanded] = useState(false);
   const CHARACTER_LIMIT = 350;
   const shouldTruncate = citation.length > CHARACTER_LIMIT;
@@ -67,6 +68,9 @@ export const CitationCard: React.FC<CitationCardProps> = ({ startTime, endTime, 
           )}
         </div>
       </div>
+      <div className='flex flex-col h-full py-25 pr-25'>
+        <AnnotationDropdown id={id} content={citation} actant={actant} type='Citation' />
+      </div>
     </div>
   );
 };
@@ -105,7 +109,7 @@ export const CitationSkeleton: React.FC = () => {
 };
 
 interface CitationsProps {
-  citations: { citation: string; actant: any; startTime: number; endTime: number }[];
+  citations: { id:number, citation: string; actant: any; startTime: number; endTime: number }[];
   loading: boolean;
   onTimeChange: (time: number) => void;
 }
@@ -122,6 +126,7 @@ export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTime
           citations.map((citation, index) => (
             <CitationCard
               key={index}
+              id={citation.id}
               startTime={citation.startTime}
               endTime={citation.endTime}
               actant={citation.actant.firstname + ' ' + citation.actant.lastname}

@@ -22,6 +22,7 @@ const containerVariants: Variants = {
 };
 
 type ConfOverviewProps = {
+  id: number;
   title: string;
   actant: string;
   actantId: number;
@@ -33,6 +34,7 @@ type ConfOverviewProps = {
 };
 
 export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
+  id,
   title,
   actant,
   actantId,
@@ -154,6 +156,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
                 </Button>
               )}
               <AnnotationDropdown
+                id={id}
                 content='Exemple de contenu obligatoire'
                 image='https://example.com/image.jpg'
                 actant='Jean Dupont'

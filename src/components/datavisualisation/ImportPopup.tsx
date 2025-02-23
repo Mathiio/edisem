@@ -34,9 +34,9 @@ export default function ImportPopup({ onSearch }: FilterPopupProps) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filterGroups));
   }, [filterGroups]);
 
-  const getPropertiesByType = (type: any): any => {
-    return ITEM_PROPERTIES[type] || [];
-  };
+  // const getPropertiesByType = (type: any): any => {
+  //   return ITEM_PROPERTIES[type] || [];
+  // };
 
   const getDataByType = async (type: string): Promise<any[]> => {
     switch (type) {
