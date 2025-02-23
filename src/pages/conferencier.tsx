@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Navbar } from '@/components/navbar/Navbar';
+
 import { useParams } from 'react-router-dom';
 import { getActant, getConfByActant } from '../services/api';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon, ConferenceIcon } from '@/components/utils/icons';

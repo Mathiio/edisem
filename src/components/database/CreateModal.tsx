@@ -28,8 +28,8 @@ class Omk {
   private vocabs: string[];
   private user: User | false;
   public props: any[] | undefined;
-  private class: any[]; // Adapter le type si possible
-  public rts: any[]; // Adapter le type si possible
+  private class: any[];
+  public rts: any[];
   private perPage: number = 1000;
 
   constructor(params: { key?: string; ident?: string; mail?: string; api?: string; vocabs?: string[] }) {
@@ -73,7 +73,6 @@ class Omk {
 
   public getPropId = (t: string): string | undefined => {
     if (!this.props) {
-      console.error('Props are undefined');
       return undefined;
     }
     const prop = this.props.find((prp) => prp['o:term'] === t);
@@ -82,7 +81,6 @@ class Omk {
 
   public getPropByTerm = (t: string): any | undefined => {
     if (!this.props) {
-      console.error('Props are undefined');
       return undefined;
     }
     return this.props.find((prp) => prp['o:term'] === t);
@@ -91,10 +89,8 @@ class Omk {
   public getClass = async (prefix: string, cb: ((data: any[]) => void) | false = false): Promise<void> => {
     try {
       const data = await this.syncRequest(this.api + 'resource_classes?per_page=1000&vocabulary_prefix=' + prefix);
-      //console.log('Fetched data:', data); // Log des données reçues
 
       if (data && Array.isArray(data)) {
-        // Vérifiez que les données sont un tableau
         data.forEach((c: any) => this.class.push(c));
         if (cb) cb(data);
       } else {
@@ -126,7 +122,7 @@ class Omk {
       }
     } catch (error) {
       console.error(error);
-      return null; // Exit early or handle the error case
+      return null;
     }
 
     if (url) {
@@ -138,15 +134,15 @@ class Omk {
           return r;
         } else {
           console.error('Received data is not an array or is invalid');
-          return null; // Exit early or handle the error case
+          return null;
         }
       } catch (error) {
         console.error('Failed to fetch items:', error);
-        return null; // Exit early or handle the error case
+        return null;
       }
     } else {
       console.error('URL is undefined or invalid');
-      return null; // Exit early or handle the error case
+      return null;
     }
   };
 
@@ -235,7 +231,7 @@ class Omk {
         }
       } catch (error) {
         console.error('Failed to fetch data for page', page, error);
-        fin = true; // Stop the loop on error
+        fin = true; 
       }
     }
 
@@ -260,7 +256,7 @@ class Omk {
         }
       } catch (error) {
         console.error('Failed to fetch data for page', page, error);
-        fin = true; // Stop the loop on error
+        fin = true; 
       }
     }
 
@@ -298,21 +294,15 @@ class Omk {
   };
 
   public createItem = async (data: any = null, cb: ((rs: any) => void) | false = false): Promise<any> => {
-    console.log('-----------', data);
-
     let url = this.api + 'items?key_identity=' + this.ident + '&key_credential=' + this.key;
     return await this.postData({ u: url, m: 'POST' }, data).then((rs: any) => {
-      console.log('Result:', rs);
       if (cb) cb(rs);
       return rs;
     });
   };
 
   public buildObject = (resourceTemplate: any, formValues: any): any => {
-    console.log(formValues);
     let RT = resourceTemplate[0]['o:resource_template_property'];
-    console.log(resourceTemplate);
-    console.log(RT[0]);
     let result: any = {
       '@type': ['o:Item', resourceTemplate[0]['o:resource_class']['@id']],
       'o:resource_class': {
@@ -322,34 +312,24 @@ class Omk {
       'o:resource_template': { '@id': resourceTemplate[0]['@id'], 'o:id': resourceTemplate[0]['o:id'] },
     };
 
-    // Iterate over each property in the resource template
     for (let property of RT) {
-      // Find the term in this.props matching the current property
       let term = this.props?.find((prp: any) => prp['o:id'] === property['o:property']['o:id']);
       if (!term) {
-        continue; // If term is not found, skip to the next property
+        continue; 
       }
 
-      console.log('Term:', term['o:term']);
-
-      // Find the form value that matches the term
       let formValueKey = Object.keys(formValues).find((key) => key.split('.')[0] === term['o:term']);
       if (!formValueKey) {
-        continue; // If form value key is not found, skip to the next property
+        continue;
       }
 
       let formattedValue;
-      console.log('Form Value Key:', formValueKey);
       let formValue = formValues[formValueKey];
-      console.log(formValue);
 
       if (isArray(formValue)) {
-        console.log('It is an array!', formValue);
         if (formValue.length > 1) {
           for (let index = 0; index < formValue.length; index++) {
-            console.log(formValue[index]);
             if (term['o:id'] === 1716) {
-              console.log('ici1');
               formattedValue = this.formatValue(term, formValue[index].values, formValue[index].language);
             } else {
               formattedValue = this.formatValue(term, formValue[index]);
@@ -360,17 +340,11 @@ class Omk {
             result[term['o:term']].push(formattedValue);
           }
         } else {
-          console.log('solo value', formValue[0][0]);
-          console.log('solo term', term);
           if (term['o:id'] === 1716) {
-            console.log('ici1');
             formattedValue = this.formatValue(term, formValue[0].values, formValue[0].language);
           } else if (term['o:id'] === 1720 || term['o:id'] === 1721) {
-            console.log('term[o:id]', term['o:id']);
-            console.log('ici2', term, formValue[0]);
             formattedValue = this.formatValue(term, formValue[0]);
           } else {
-            console.log('ici3');
             formattedValue = this.formatValue(term, formValue[0][0]);
           }
 
@@ -387,11 +361,7 @@ class Omk {
         }
         result[term['o:term']].push(formattedValue);
       }
-      // Format the value using the formatValue function
     }
-
-    console.log(result);
-
     return result;
   };
 
@@ -428,7 +398,6 @@ class Omk {
     if (p['o:id'] == 1716 && language) {
       baseValue['@language'] = language;
     }
-    console.log('baseValue', baseValue);
     return baseValue;
   };
 
@@ -446,18 +415,9 @@ class Omk {
       )}&key_credential=${encodeURIComponent(this.key)}`;
 
       if (data) {
-        // Récupérer les données actuelles de l'élément
         this.getItem(id).then((oriData: any) => {
-          console.log('Original Data:', JSON.stringify(oriData));
-          console.log('Update Data:', JSON.stringify(data));
-
-          // Mettre à jour oriData avec les nouvelles valeurs de data
           this.updateOriDataWithNewValues(oriData, data);
-          console.log('Final Data:', JSON.stringify(oriData));
-
-          // Envoyer les données mises à jour à l'API
           this.postData({ u: url, m: m }, fd ? fd : oriData).then((rs: any) => {
-            console.log('Result:', rs);
             if (cb) cb(rs);
           });
         });
@@ -471,11 +431,7 @@ class Omk {
 
   private updateOriDataWithNewValues = (oriData: any, data: any): void => {
     const updateValue = (obj: any, path: string[], value: any): void => {
-      console.log(`Current path: ${path.join('.')}`);
-      console.log(`Current object state:`, JSON.stringify(obj));
-
       if (path.length === 1) {
-        console.log(`Updating path: ${path[0]} with value:`, value);
         obj[path[0]] = value;
       } else {
         if (obj.hasOwnProperty(path[0])) {
@@ -488,13 +444,10 @@ class Omk {
 
     for (let key in data) {
       if (data.hasOwnProperty(key)) {
-        console.log('Processing key:', key);
         const path = key.split('.');
         const value = data[key];
 
-        // Check if the key is "schema:agent"
         if (key === 'schema:agent') {
-          // Assuming value is an array of IDs
           const resourceObjects = value.map((id: number) => ({
             type: 'resource',
             property_id: 386,
@@ -504,12 +457,8 @@ class Omk {
             value_resource_id: id,
             value_resource_name: 'items',
           }));
-
-          console.log('formated schema:agent', this.formatValue(key, resourceObjects));
-
           updateValue(oriData, path, resourceObjects);
         } else if (key === 'schema:addressCountry') {
-          // Assuming value is an array of IDs
           const resourceObjects = value.map((id: number) => ({
             type: 'customvocab:27',
             property_id: 377,
@@ -531,7 +480,6 @@ class Omk {
   public formatData = (data: any, type: string = 'o:Item'): any => {
     let fd: any = { '@type': type },
       p: any;
-
     for (let [k, v] of Object.entries(data)) {
       switch (k) {
         case 'o:item_set':
@@ -551,7 +499,7 @@ class Omk {
             fd[k] = this.formatValue(p, v);
           } else {
             console.warn(`Property "${k}" not found in props. Adding it directly.`);
-            fd[k] = { type: 'literal', '@value': v }; // Fallback if property metadata not found
+            fd[k] = { type: 'literal', '@value': v }; 
           }
           break;
         case 'o:resource_template':
@@ -588,7 +536,7 @@ class Omk {
             if (Array.isArray(v)) {
               fd[k] = v.map((val: any) => this.formatValue(p, val));
             } else {
-              fd[k] = this.formatValue(p, v); // Assign directly without array encapsulation
+              fd[k] = this.formatValue(p, v);
             }
           } else {
             console.warn(`Property "${k}" not found in props. Adding it directly.`);
@@ -597,7 +545,6 @@ class Omk {
           break;
       }
     }
-
     return fd;
   };
 
@@ -617,9 +564,7 @@ class Omk {
         bodyData.append('data', JSON.stringify(data));
         bodyData.append('file[1]', file);
       } else {
-        console.log('bodydata', data);
         bodyData = JSON.stringify(data);
-        console.log('bodydata', bodyData);
         options.headers = {
           'Content-Type': 'application/json',
         };
@@ -650,12 +595,14 @@ function isArray(variable: any): variable is any[] {
   return variable instanceof Array;
 }
 
+export default Omk;
+
 interface NewModalProps {
   isOpen: boolean;
   onClose: () => void;
   itemId: number;
-  activeConfig: string | null; // Modifiez ce type en fonction de votre besoin
-  itemPropertiesData: any; // Ajoutez le type approprié
+  activeConfig: string | null; 
+  itemPropertiesData: any; 
   propertiesLoading: boolean;
 }
 
@@ -732,14 +679,12 @@ export const CreateModal: React.FC<NewModalProps> = ({
       }
 
       omks.props = itemPropertiesData;
-      console.log(itemData);
       let object = omks.buildObject(itemDetailsData, itemData);
-      console.log(object);
       await omks.createItem(object);
 
       setSaving(false);
       refetchItemDetails();
-      onClose(); // Close the modal after successful save
+      onClose(); 
     } catch (error) {
       if (error instanceof Error) {
         setSaveError(error.message);
@@ -750,7 +695,6 @@ export const CreateModal: React.FC<NewModalProps> = ({
     }
   };
 
-  // Spinner et message de chargement
   if (propertiesLoading) {
     return (
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -770,9 +714,9 @@ export const CreateModal: React.FC<NewModalProps> = ({
         size='2xl'
         isOpen={isOpen}
         onClose={() => {
-          clearState(); // Clear state when modal closes
+          clearState(); 
           clearDetailsState();
-          onClose(); // Close the modal
+          onClose();
         }}
         hideCloseButton={true}
         scrollBehavior='inside'

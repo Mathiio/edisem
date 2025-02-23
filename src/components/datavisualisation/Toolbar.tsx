@@ -6,7 +6,7 @@ import { IconSvgProps } from '@/types/types';
 import HidePopup from './HidePopup';
 import { getItemByID } from '@/services/api';
 import ImportPopup from './ImportPopup';
-import { ExportPopup } from './ExportPopup';
+//import { ExportPopup } from './ExportPopup';
 import { GeneratedImage } from '@/pages/visualisation';
 
 interface ItemsProps {
@@ -16,7 +16,8 @@ interface ItemsProps {
   generatedImage: GeneratedImage | null;
 }
 
-export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch, handleExportClick, generatedImage }) => {
+export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
+  console.log(itemsDataviz);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
@@ -101,13 +102,13 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch, handleEx
   const getActivePopup = () => {
     switch (activeIcon) {
       case 'filter':
-        return <FilterPopup itemsDataviz={itemsDataviz} onSearch={handleAdvancedSearch} />;
+        return <FilterPopup onSearch={handleAdvancedSearch} />;
       case 'hide':
         return <HidePopup onHide={handleHide} />;
       case 'import':
-        return <ImportPopup itemsDataviz={itemsDataviz} onSearch={handleAdvancedSearch} />;
+        return <ImportPopup onSearch={handleAdvancedSearch} />;
       case 'export':
-        return <ExportPopup generatedImage={generatedImage} handleExportClick={handleExportClick} />;
+       // return <ExportPopup generatedImage={generatedImage} handleExportClick={handleExportClick} />;
       default:
         return null;
     }

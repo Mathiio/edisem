@@ -256,7 +256,7 @@ export const BibliographyCard: React.FC<BibliographyItem & { uniqueKey?: number 
         </div>
       </Link>
       <div className='flex flex-col h-full py-25 pr-25'>
-        <AnnotationDropdown content={formatBibliography(props)} image={thumbnail} type='Bibliographie' />
+        <AnnotationDropdown id={props.id} content={formatBibliography(props)} image={thumbnail} type='Bibliographie' />
       </div>
     </div>
   );

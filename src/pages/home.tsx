@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Navbar } from '@/components/navbar/Navbar';
 import { FullCarrousel, MidCarrousel } from '@/components/utils/Carrousels';
 import { getSeminaires, getActants } from '../services/Items';
 import { getRandomConfs } from '../services/api';

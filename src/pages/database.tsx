@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Navbar } from '@/components/navbar/Navbar';
 
-import { motion, Variants } from 'framer-motion';
+
 import {
   Table,
   TableHeader,
@@ -24,24 +23,7 @@ import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/utils/ico
 import { usegetAllProperties } from '@/hooks/useFetchData';
 import { Layouts } from '@/components/utils/Layouts';
 
-const containerVariants: Variants = {
-  hidden: { opacity: 1 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-    },
-  },
-};
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 80, damping: 15 },
-  },
-};
 
 // Reducer function to slice the result and append '...'
 const reducer = (text: any, maxLength = 100) => {

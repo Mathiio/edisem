@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { Navbar } from '@/components/navbar/Navbar';
 import { Footer } from '@/components/utils/Footer';
 import { motion, Variants } from 'framer-motion';
-import clsx from 'clsx';
+
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
