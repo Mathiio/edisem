@@ -1,5 +1,4 @@
 import React from 'react';
-import { Skeleton } from "@heroui/react";
 import { motion, Variants } from 'framer-motion';
 
 const itemVariants: Variants = {

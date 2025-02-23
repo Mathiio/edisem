@@ -5,11 +5,9 @@ import { Button } from "@heroui/react";
 
 interface ZoomControlProps {
   svgRef: React.RefObject<SVGSVGElement>;
-  width?: number;
-  height?: number;
 }
 
-const ZoomControl: FC<ZoomControlProps> = ({ svgRef, width = 600, height = 400 }) => {
+const ZoomControl: FC<ZoomControlProps> = ({ svgRef}) => {
   const zoomBehavior = useRef(d3.zoom<SVGSVGElement, unknown>().scaleExtent([0.25, 2]).on('zoom', handleZoom));
 
   useEffect(() => {
