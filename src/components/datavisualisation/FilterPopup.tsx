@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Button,
   Link,
@@ -123,16 +123,6 @@ const OPERATORS = [
 ];
 
 export interface FilterPopupProps {
-  getConfs: () => any[];
-  getUniversities: () => any[];
-  getActants: () => any[];
-  getDoctoralSchools: () => any[];
-  getLaboratories: () => any[];
-  getCitations: () => any[];
-  getBibliographies: () => any[];
-  getMediagraphies: () => any[];
-  getCollections: () => any[];
-  getKeywords: () => any[];
   onSearch: (results: any[]) => void;
 }
 
@@ -464,11 +454,11 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                       setActiveGroupIndex(groupIndex);
                       setNewGroupName(group.name);
                       onOpen();
-                    }}>
+                    } } key={''}>
                     Renommer
                   </DropdownItem>
-                  <DropdownItem onClick={() => duplicateGroup(groupIndex)}>Dupliquer</DropdownItem>
-                  <DropdownItem onClick={() => removeGroup(groupIndex)}>Supprimer</DropdownItem>
+                  <DropdownItem onClick={() => duplicateGroup(groupIndex)} key={''}>Dupliquer</DropdownItem>
+                  <DropdownItem onClick={() => removeGroup(groupIndex)} key={''}>Supprimer</DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             </div>

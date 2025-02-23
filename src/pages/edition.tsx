@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Navbar } from '@/components/navbar/Navbar';
+
 import { useParams } from 'react-router-dom';
 import { getConfByEdition } from '../services/api';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CameraIcon, SoundIcon, ImageIcon, FileIcon, LinkIcon, DotsIcon } from '@/components/utils/icons';
+import { CameraIcon, SoundIcon, ImageIcon, FileIcon } from '@/components/utils/icons';
 
 export interface MediagraphyItem {
   id: number;
@@ -303,6 +303,7 @@ export const MediagraphyCard: React.FC<MediagraphyItem> = ({
       </Link>
       <div className='flex flex-col h-full py-25 pr-25'>
         <AnnotationDropdown
+          id={id}
           content={ensureEndsWithPeriod(
             template({
               id,

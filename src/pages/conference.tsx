@@ -11,7 +11,7 @@ import { KeywordsCard, KeywordsSkeleton } from '@/components/conference/Keywords
 import { Bibliographies, BibliographyItem } from '@/components/conference/BibliographyCards';
 import { Mediagraphies, MediagraphyItem } from '@/components/conference/MediagraphyCards';
 import { Layouts } from '@/components/utils/Layouts';
-import { LgConfCard, LgConfSkeleton, SmConfCard } from '@/components/home/ConfCards';
+import { SmConfCard } from '@/components/home/ConfCards';
 
 
 
@@ -32,7 +32,7 @@ export const Conference: React.FC = () => {
   const [confDetails, setConfDetails] = useState<any>(null);
   const [recommendedConfs, setRecommendedConfs] = useState<any[]>([]);
   const [confCitations, setConfCitations] = useState<
-    { citation: string; actant: string; startTime: number; endTime: number }[]
+    { id: number, citation: string; actant: string; startTime: number; endTime: number }[]
   >([]);
   const [confBibliographies, setConfBibliographies] = useState<BibliographyItem[]>([]);
   const [confMediagraphies, setConfMediagraphies] = useState<MediagraphyItem[]>([]);
@@ -111,6 +111,7 @@ export const Conference: React.FC = () => {
           <ConfOverviewSkeleton />
         ) : (
           <ConfOverviewCard
+            id={confDetails.id}
             title={confDetails.title}
             actant={confDetails.actant?.firstname + ' ' + confDetails.actant?.lastname}
             actantId={confDetails.actant?.id}

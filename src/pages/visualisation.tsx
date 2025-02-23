@@ -44,8 +44,8 @@ const Visualisation = () => {
     height: 1080,
   });
 
-  const containerRef = useRef(null);
-  const svgRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -82,7 +82,7 @@ const Visualisation = () => {
     try {
       const image = await generateVisualizationImage();
       setGeneratedImage(image);
-      return image; // Retourne l'image pour indiquer qu'elle est prête
+      return image;
     } catch (error) {
       console.error('Error generating visualization image:', error);
       throw error;
@@ -153,7 +153,7 @@ const Visualisation = () => {
     });
 
     setFilteredNodes(Array.from(nodes.values()));
-    setFilteredLinks(Array.from(links).map((link) => JSON.parse(link as any)));
+    setFilteredLinks(Array.from(links).map((link) => JSON.parse(link as string)));
   };
 
   const handleSearch = (searchResults: any[]) => {
@@ -315,43 +315,41 @@ const Visualisation = () => {
     return sizes[type] || '16px';
   };
 
-  // Function to generate the image
   const generateVisualizationImage = async (): Promise<GeneratedImage> => {
-    if (!svgRef.current) {
+    const svg = svgRef.current;
+    if (!svg) {
       throw new Error('SVG reference not found');
     }
 
-    const svg = svgRef.current;
     const viewBox = svg.getAttribute('viewBox')?.split(' ').map(Number) || [];
     const width = viewBox[2] || svg.getBoundingClientRect().width;
     const height = viewBox[3] || svg.getBoundingClientRect().height;
 
-    // Create a deep clone of the SVG
     const clonedSvg = svg.cloneNode(true) as SVGSVGElement;
 
-    // Add white background
     const backgroundRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     backgroundRect.setAttribute('width', '100%');
     backgroundRect.setAttribute('height', '100%');
+    backgroundRect.setAttribute('fill', 'white');
 
     clonedSvg.insertBefore(backgroundRect, clonedSvg.firstChild);
-
-    // Set explicit dimensions
     clonedSvg.setAttribute('width', width.toString());
     clonedSvg.setAttribute('height', height.toString());
 
-    // Wait for all images to load
     const images = Array.from(clonedSvg.querySelectorAll('image'));
     await Promise.all(
       images.map((img) => {
         return new Promise<void>((resolve, reject) => {
-          const imageElement = img as SVGImageElement;
-          if (imageElement.complete) {
-            resolve();
-          } else {
-            imageElement.onload = () => resolve();
-            imageElement.onerror = () => reject(new Error('Failed to load image'));
+          const href = img.getAttribute('href');
+          if (!href) {
+            reject(new Error('Image href not found'));
+            return;
           }
+
+          const imageElement = new Image();
+          imageElement.onload = () => resolve();
+          imageElement.onerror = () => reject(new Error('Failed to load image'));
+          imageElement.src = href;
         });
       }),
     );
@@ -369,7 +367,7 @@ const Visualisation = () => {
       });
 
       const canvas = document.createElement('canvas');
-      const scale = 2; // For better quality
+      const scale = 2;
       canvas.width = width * scale;
       canvas.height = height * scale;
 
@@ -430,7 +428,7 @@ const Visualisation = () => {
         handleExportClick={handleExportClick}
         generatedImage={generatedImage}
       />
-      <ZoomControl svgRef={svgRef} width={dimensions.width} height={dimensions.height} />
+      <ZoomControl svgRef={svgRef} />
       <Legend />
     </div>
   );

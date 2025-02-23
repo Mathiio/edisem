@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Image } from '@/theme/components';
 import CreditsModal from '@/components/navbar/CreditsModal';
 import { motion, Variants } from 'framer-motion';

@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { ChangeThemeButton } from '@/components/navbar/change-theme';
-import CreditsModal from '@/components/navbar/CreditsModal';
 import { AuthDropdown } from '@/components/navbar/ProfilDropdown';
 import { motion, Variants } from 'framer-motion';
 import { Link as RoutLink } from 'react-router-dom';
