@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Input,
-  Spinner,
-  Button,
-  ModalBody,
-  ModalFooter,
-  ModalContent,
-  Modal,
-  Link,
-  ModalHeader,
-} from "@heroui/react";
+import { Input, Spinner, Button, ModalBody, ModalFooter, ModalContent, Modal, Link, ModalHeader } from '@heroui/react';
 import { useFetchRT } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/database/SelectionInput';
-import { Textarea } from "@heroui/input";
+import { Textarea } from '@heroui/input';
 
 import { DatePicker, TimecodeInput } from '@/components/database/TimecodeInput';
 import { CrossIcon } from '@/components/utils/icons';
@@ -231,7 +221,7 @@ class Omk {
         }
       } catch (error) {
         console.error('Failed to fetch data for page', page, error);
-        fin = true; 
+        fin = true;
       }
     }
 
@@ -256,7 +246,7 @@ class Omk {
         }
       } catch (error) {
         console.error('Failed to fetch data for page', page, error);
-        fin = true; 
+        fin = true;
       }
     }
 
@@ -315,7 +305,7 @@ class Omk {
     for (let property of RT) {
       let term = this.props?.find((prp: any) => prp['o:id'] === property['o:property']['o:id']);
       if (!term) {
-        continue; 
+        continue;
       }
 
       let formValueKey = Object.keys(formValues).find((key) => key.split('.')[0] === term['o:term']);
@@ -499,7 +489,7 @@ class Omk {
             fd[k] = this.formatValue(p, v);
           } else {
             console.warn(`Property "${k}" not found in props. Adding it directly.`);
-            fd[k] = { type: 'literal', '@value': v }; 
+            fd[k] = { type: 'literal', '@value': v };
           }
           break;
         case 'o:resource_template':
@@ -601,8 +591,8 @@ interface NewModalProps {
   isOpen: boolean;
   onClose: () => void;
   itemId: number;
-  activeConfig: string | null; 
-  itemPropertiesData: any; 
+  activeConfig: string | null;
+  itemPropertiesData: any;
   propertiesLoading: boolean;
 }
 
@@ -684,7 +674,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
 
       setSaving(false);
       refetchItemDetails();
-      onClose(); 
+      onClose();
     } catch (error) {
       if (error instanceof Error) {
         setSaveError(error.message);
@@ -714,7 +704,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
         size='2xl'
         isOpen={isOpen}
         onClose={() => {
-          clearState(); 
+          clearState();
           clearDetailsState();
           onClose();
         }}

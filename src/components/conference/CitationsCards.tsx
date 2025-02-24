@@ -12,7 +12,14 @@ interface CitationCardProps {
   onTimeChange: (time: number) => void;
 }
 
-export const CitationCard: React.FC<CitationCardProps> = ({ id, startTime, endTime, actant, citation, onTimeChange }) => {
+export const CitationCard: React.FC<CitationCardProps> = ({
+  id,
+  startTime,
+  endTime,
+  actant,
+  citation,
+  onTimeChange,
+}) => {
   const [expanded, setExpanded] = useState(false);
   const CHARACTER_LIMIT = 350;
   const shouldTruncate = citation.length > CHARACTER_LIMIT;
@@ -106,7 +113,7 @@ export const CitationSkeleton: React.FC = () => {
 };
 
 interface CitationsProps {
-  citations: { id:number, citation: string; actant: any; startTime: number; endTime: number }[];
+  citations: { id: number; citation: string; actant: any; startTime: number; endTime: number }[];
   loading: boolean;
   onTimeChange: (time: number) => void;
 }

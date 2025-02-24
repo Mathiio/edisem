@@ -9,7 +9,6 @@ import {
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   Textarea,
 } from '@heroui/react';
@@ -18,7 +17,7 @@ import { CrossIcon, DotsIcon } from '../utils/icons';
 import { IconSvgProps } from '@/types/types';
 import Omk from '@/components/database/CreateModal';
 
-const API_URL = 'https://tests.arcanes.ca/omk/'; 
+const API_URL = 'https://edisem.arcanes.ca/omk/api/';
 const API_KEY = import.meta.env.VITE_API_KEY;
 const IDENT = 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj';
 
@@ -26,24 +25,27 @@ export const omkInstance = new Omk({
   api: API_URL,
   key: API_KEY,
   ident: IDENT,
-  vocabs: ['dcterms', 'oa']
+  vocabs: ['dcterms', 'oa'],
 });
 
 omkInstance.init();
 
 interface AnnotationDropdownProps {
-  id:Number;
+  id: Number;
   content: string | React.ReactNode;
   image?: string | React.ReactElement<IconSvgProps>;
   actant?: string;
   type: string;
 }
 
-
 export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, content, image, actant, type }) => {
+  console.log(id);
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [expanded, setExpanded] = useState<boolean>(false);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onClose = () => setIsOpen(false);
   const onOpen = () => setIsOpen(true);
@@ -57,23 +59,8 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
     setExpanded(!expanded);
   };
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-
-
   useEffect(() => {
-    // Charger les dépendances nécessaires
-    if (!omkInstance.props) {
-      omkInstance.init();
-    }
-  }, []);
-
-
-
-  useEffect(() => {
-    // Charger les dépendances nécessaires
+    // Initialize if necessary
     if (!omkInstance.props) {
       omkInstance.init();
     }
@@ -84,37 +71,82 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
     setIsSubmitting(true);
 
     try {
+      console.log('Construction des données brutes');
+
       // Construction des données brutes
       const rawData = {
-        '@type': 'oa:Annotation',
-        'o:resource_class': { 'o:id': 106 },
-        'o:resource_template': { 'o:id': 101 },
-        'dcterms:title': title,
-        'rdfs:comment': description,
-        'oa:hasTarget': {
-          '@id': `#${id}`,
-          'o:label': 'Cible spécifique'
-        }
+        '@type': ['o:Item', 'oa:Annotation'], // Assurez-vous que le premier type est o:Item
+        'o:resource_class': {
+          '@id': 'https://tests.arcanes.ca/omk/api/resource_classes/106',
+          'o:id': 106,
+        },
+        'o:resource_template': {
+          '@id': 'https://tests.arcanes.ca/omk/api/resource_templates/102',
+          'o:id': 101,
+        },
+        'dcterms:title': [
+          {
+            type: 'literal',
+            property_id: 1,
+            property_label: 'Title',
+            is_public: true,
+            '@value': title,
+          },
+        ],
+        'dcterms:description': [
+          {
+            type: 'literal',
+            property_id: 4,
+            property_label: 'Description',
+            is_public: true,
+            '@value': description,
+          },
+        ],
+        'schema:collection': [
+          {
+            type: 'resource',
+            property_id: 555,
+            property_label: 'collection',
+            is_public: true,
+            value_resource_id: 15193,
+            value_resource_name: 'item_sets',
+          },
+        ],
+        'ma:hasRelatedResource': [
+          {
+            type: 'resource',
+            property_id: 1794,
+            property_label: 'hasRelatedResource',
+            is_public: true,
+
+            value_resource_id: id,
+            value_resource_name: 'items',
+          },
+        ],
+        'schema:contributor': [
+          {
+            type: 'resource',
+            property_id: 581,
+            property_label: 'contributor',
+            is_public: true,
+            value_resource_id: 17108,
+            value_resource_name: 'items',
+          },
+        ],
       };
 
-      // Formatage avec la méthode de la classe
-      const formattedData = omkInstance.formatData(rawData);
-
-      // Appel de la méthode publique createItem
-      const response = await omkInstance.createItem(formattedData);
-      
+      const response = await omkInstance.createItem(rawData);
       console.log('Annotation créée:', response);
+
       onClose();
       setTitle('');
       setDescription('');
-
     } catch (error) {
       console.error('Erreur lors de la création:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
-
 
   return (
     <div>
@@ -169,8 +201,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                       <div className='flex flex-row items-center text-c4'>
                         {typeof image === 'string' ? (
                           <img src={image} alt='thumbnail' className='w-100 h-full object-cover rounded-6' />
-                        ) : 
-                        React.isValidElement(image) ? (
+                        ) : React.isValidElement(image) ? (
                           image
                         ) : null}
                       </div>
@@ -200,6 +231,8 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                 <form onSubmit={handleSubmit} className='flex flex-col w-full max-w-lg gap-25'>
                   <Input
                     size='lg'
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     classNames={{
                       label: 'text-semibold',
                       inputWrapper: 'bg-c2 shadow-none border-1 border-200',
@@ -207,13 +240,14 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                       mainWrapper: 'w-full',
                     }}
                     className='min-h-[50px]'
-                    type='email'
-                    label='Titre de l’annotation *'
+                    label='Titre de lannotation *'
                     labelPlacement='outside'
                     placeholder='Entrez un titre..'
                   />
                   <Textarea
                     size='lg'
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                     classNames={{
                       label: 'text-semibold',
                       inputWrapper: 'w-full bg-c2 shadow-none border-1 border-200',
@@ -221,19 +255,23 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                       mainWrapper: 'w-full',
                     }}
                     className='min-h-[50px]'
-                    type='password'
                     label='Description *'
                     labelPlacement='outside'
                     placeholder='Entrez votre description..'
                   />
+                  <div className='flex w-full flex-row justify-end items-center gap-3 mt-4'>
+                    <Button onClick={onClose} className='w-fit px-3 h-[40px] bg-c2 text-c6 rounded-8'>
+                      Annuler
+                    </Button>
+                    <Button
+                      type='submit'
+                      className='w-fit px-3 h-[40px] bg-action text-selected rounded-8 '
+                      disabled={isSubmitting}>
+                      {isSubmitting ? 'Création...' : 'Annoter'}
+                    </Button>
+                  </div>
                 </form>
               </ModalBody>
-              <ModalFooter className='flex w-full flex-row p-[25px] justify-end items-center'>
-                <Button className='w-fit px-3 h-[40px] bg-c2 text-c6 rounded-8'>Annuler</Button>
-                <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected rounded-8 ' disabled={isSubmitting}>
-                {isSubmitting ? 'Création...' : 'Annoter'}
-                </Button>
-              </ModalFooter>
             </>
           )}
         </ModalContent>
