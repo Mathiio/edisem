@@ -101,7 +101,7 @@ const SearchModal = () => {
         onPress={handleOpen}>
         <SearchIcon
           size={16}
-          className='text-c6 hover:text-action transition-all ease-in-out duration-200'
+          className='text-c6 transition-all ease-in-out duration-200'
         />
         Rechercher...
       </Button>

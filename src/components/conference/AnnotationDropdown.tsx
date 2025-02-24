@@ -44,7 +44,6 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [expanded, setExpanded] = useState<boolean>(false);
-  console.log(id)
 
   const onClose = () => setIsOpen(false);
   const onOpen = () => setIsOpen(true);
@@ -164,13 +163,13 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
               </ModalHeader>
               <ModalBody className='flex p-[25px] gap-25'>
                 <div className='flex flex-col gap-10'>
-                  <div>{type}</div>
+                  <p className='text-16 text-c6'>{type}</p>
                   <div className='p-25 flex flex-row border-1 w-full gap-25 border-c3 rounded-12'>
                     {image && (
-                      <div className='flex flex-row items-center'>
+                      <div className='flex flex-row items-center text-c4'>
                         {typeof image === 'string' ? (
                           <img src={image} alt='thumbnail' className='w-100 h-full object-cover rounded-6' />
-                        ) : // Si c'est un composant React, l'afficher
+                        ) : 
                         React.isValidElement(image) ? (
                           image
                         ) : null}
