@@ -19,7 +19,6 @@ export const AuthDropdown = () => {
   useEffect(() => {
     const checkAuth = () => {
       const user = localStorage.getItem('user');
-      console.log(user);
       const userId = localStorage.getItem('userId');
       setIsAuthenticated(!!user || !!userId);
 
@@ -38,7 +37,7 @@ export const AuthDropdown = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('userType');
     setIsAuthenticated(false);
-    navigate('/login');
+    navigate('/');
   };
 
   if (!isAuthenticated) {
@@ -59,7 +58,7 @@ export const AuthDropdown = () => {
             <img src={userData.picture} alt='Avatar' className='w-6 h-6 rounded-[7px] object-cover' />
           ) : (
             <UserIcon
-              size={22}
+              size={16}
               className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200'
             />
           )}
@@ -83,7 +82,7 @@ export const AuthDropdown = () => {
               description={
                 userData?.type === 'actant'
                   ? 'Actant'
-                  : userData?.type === 'Student'
+                  : userData?.type === 'etudiant'
                   ? 'Étudiant'
                   : userData?.type || 'Type non spécifié'
               }

@@ -52,7 +52,7 @@ export const CitationCard: React.FC<CitationCardProps> = ({ id, startTime, endTi
             <h3 className='text-c6 text-16 font-medium'>{actant}</h3>
           </div>
 
-          <AnnotationDropdown content={citation} actant={actant} type='Citation' />
+          <AnnotationDropdown id={id} content={citation} actant={actant} type='Citation' />
         </div>
 
         <div className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200'>
@@ -67,9 +67,6 @@ export const CitationCard: React.FC<CitationCardProps> = ({ id, startTime, endTi
             </div>
           )}
         </div>
-      </div>
-      <div className='flex flex-col h-full py-25 pr-25'>
-        <AnnotationDropdown id={id} content={citation} actant={actant} type='Citation' />
       </div>
     </div>
   );
@@ -142,7 +139,7 @@ export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTime
 
 export const UnloadedCard: React.FC = () => {
   return (
-    <div className='w-full h-full flex flex-col justify-center items-center gap-20'>
+    <div className='w-full h-full flex flex-col justify-center items-center gap-20 mt-50'>
       <FileIcon size={42} className='text-c6' />
       <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
         <h2 className='text-c6 text-32 font-semibold'>Oups !</h2>

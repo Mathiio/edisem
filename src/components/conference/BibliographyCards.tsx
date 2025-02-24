@@ -329,7 +329,7 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, 
 
 export const UnloadedCard: React.FC = () => {
   return (
-    <div className='w-full h-full flex flex-col justify-center items-center gap-20'>
+    <div className='w-full h-full flex flex-col justify-center items-center gap-20 mt-50'>
       <FileIcon size={42} className='text-c6' />
       <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
         <h2 className='text-c6 text-32 font-semibold'>Oups !</h2>

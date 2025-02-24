@@ -58,7 +58,7 @@ const getIcon = (mediaType: string) => {
     case '85':
     case '56':
     case '977':
-      return <CameraIcon size={22} />;
+      return <CameraIcon  size={22} />;
     case '38':
     case '37':
       return <SoundIcon size={22} />;
@@ -271,7 +271,7 @@ export const MediagraphyCard: React.FC<MediagraphyItem> = ({
       <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={uri ?? '#'} target='_blank'>
         <div
           className={`flex flex-col justify-center transition-transform-colors-opacity ${
-            isHovered ? 'text-c4' : 'text-c3'
+            isHovered ? 'text-c6' : 'text-c4'
           }`}>
           {thumbnail ? (
             <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' />
@@ -280,7 +280,7 @@ export const MediagraphyCard: React.FC<MediagraphyItem> = ({
           )}
         </div>
 
-        <div className='w-full text-16 text-c4 font-extralight'>
+        <div className='w-full text-16 text-c6 font-extralight'>
           {ensureEndsWithPeriod(
             template({
               id,
@@ -403,7 +403,7 @@ export const Mediagraphies: React.FC<{ items: MediagraphyItem[]; loading: boolea
 };
 
 export const UnloadedCard: React.FC = () => (
-  <div className='w-full h-full flex flex-col justify-center items-center gap-20'>
+  <div className='w-full h-full flex flex-col justify-center items-center gap-20 mt-50'>
     <FileIcon size={42} className='text-c6' />
     <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
       <h2 className='text-c6 text-32 font-semibold'>Oups !</h2>
