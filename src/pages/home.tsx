@@ -7,6 +7,8 @@ import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { ActantCard, ActantSkeleton } from '@/components/home/ActantCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/utils/Layouts';
+import { HomeBaner } from '@/components/home/HomeBaner';
+import { KeywordHighlight } from '@/components/home/KeywordHighlight';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -60,6 +62,7 @@ export const Home: React.FC = () => {
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-75'>
+      <HomeBaner/>
       <FullCarrousel
         title='Derniers séminaires Arcanes'
         perPage={3}
@@ -108,7 +111,8 @@ export const Home: React.FC = () => {
           )
         }
       />
-      <div className='gap-25 flex flex-col'>
+      <KeywordHighlight/>
+      {/* <div className='gap-25 flex flex-col'>
         <h2 className='text-24 font-medium text-c6'>Sélection de conférences</h2>
         <div className='grid grid-cols-4 grid-rows-2 gap-25'>
           {loadingRandomConf
@@ -131,7 +135,7 @@ export const Home: React.FC = () => {
                 </motion.div>
               ))}
         </div>
-      </div>
+      </div> */}
     </Layouts>
   );
 };
