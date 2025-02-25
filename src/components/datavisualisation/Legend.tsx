@@ -6,7 +6,7 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@
 const Legend: FC = () => {
   return (
     <div className='fixed bottom-25 left-25'>
-        <Dropdown className='min-w-[160px] w-fit p-1.5 rounded-8 shadow-lg flex flex-col gap-3 bg-c2'>
+        <Dropdown className='min-w-[160px] w-fit p-1.5 rounded-12 shadow-lg flex flex-col gap-3 bg-c2'>
             <DropdownTrigger className='bg-c2'>
                 <Button 
                 size={"lg"}

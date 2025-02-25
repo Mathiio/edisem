@@ -61,7 +61,7 @@ const ZoomControl: FC<ZoomControlProps> = ({ svgRef}) => {
   }
 
   return (
-    <div className='fixed bottom-25 right-25 rounded-8 p-2 bg-c2 flex flex-col gap-3 shadow-lg'>
+    <div className='fixed bottom-25 right-25 rounded-12 p-2 bg-c2 flex flex-col gap-3 shadow-lg gap-4'>
       <Button
         size='md'
         className='cursor-pointer group text-16 p-10 rounded-8 text-c6 bg-c2 hover:bg-action transition-all ease-in-out duration-200'

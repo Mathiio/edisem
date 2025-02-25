@@ -429,12 +429,12 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
 
       <div className='flex flex-col flex-1 gap-3 overflow-y-auto'>
         {filterGroups.map((group, groupIndex) => (
-          <div key={groupIndex} className='border rounded-lg gap-4 p-4 bg-c3 rounded-8'>
+          <div key={groupIndex} className='border rounded-lg gap-4 p-4 bg-c3 rounded-12'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
-                <Button className='text-c6' onClick={() => toggleGroupExpansion(groupIndex)}>
+                <Button className='text-c6 bg-transparent px-0.5 py-0.5 h-auto' onClick={() => toggleGroupExpansion(groupIndex)}>
                   <ArrowIcon
-                    size={14}
+                    size={12}
                     className={`transition-all duration-200 ${group.isExpanded ? 'rotate-90' : ''}`}
                   />
                 </Button>
@@ -443,7 +443,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
 
               <Dropdown className='min-w-0 w-fit p-2'>
                 <DropdownTrigger>
-                  <Button size='sm'>
+                  <Button className='text-c6 bg-transparent px-0.5 py-0.5 h-auto'>
                     <DotsIcon size={14} className='text-c6' />
                   </Button>
                 </DropdownTrigger>
@@ -466,10 +466,10 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
             {group.isExpanded && (
               <>
                 <div className='w-full flex gap-2 items-center mt-4 mb-2'>
-                  <p className='text-14 text-c6 font-semibold text-c6'>Ou</p>
+                  <p className='text-14 text-c6 font-medium text-c6'>Ou</p>
                   <Dropdown className='min-w-0 w-full p-2'>
                     <DropdownTrigger className='min-w-0 w-full'>
-                      <Button className='text-14 text-c6 px-2 py-2 flex justify-between gap-10 bg-c4 border-2 rounded-8 w-full'>
+                      <Button className='h-auto text-14 text-extralight text-c6 px-2 py-1.5 flex justify-between gap-10 bg-transparent border-1.5 border-c4 rounded-8 w-full'>
                         {group.itemType
                           ? Object.entries(ITEM_TYPES).find(([, value]) => value === group.itemType)?.[0]
                           : "Sélectionner un type d'item"}
@@ -485,7 +485,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                         updateGroupType(groupIndex, type);
                       }}>
                       {Object.entries(ITEM_TYPES).map(([label, value]) => (
-                        <DropdownItem className='min-w-0 w-full' key={value}>
+                        <DropdownItem className='min-w-0 w-full text-c4' key={value}>
                           {label}
                         </DropdownItem>
                       ))}
@@ -498,7 +498,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                     <div key={conditionIndex} className='flex items-center gap-2'>
                       <Dropdown className='min-w-0 w-fit p-2'>
                         <DropdownTrigger>
-                          <Button className='text-14 text-c6 px-2 py-2 flex gap-10 justify-between bg-c4 border-2 rounded-8 min-w-[118px]'>
+                          <Button className='h-auto text-14 text-extralight text-c6 px-2 py-1.5 flex gap-10 justify-between bg-transparent border-1.5 border-c4 rounded-8 min-w-[118px]'>
                             {(() => {
                               const label =
                                 getPropertiesByType(group.itemType).find((prop: any) => prop.key === condition.property)
@@ -516,14 +516,14 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                             updateCondition(groupIndex, conditionIndex, 'property', prop);
                           }}>
                           {getPropertiesByType(group.itemType).map((prop: any) => (
-                            <DropdownItem key={prop.key}>{prop.label}</DropdownItem>
+                            <DropdownItem className="text-c4" key={prop.key}>{prop.label}</DropdownItem>
                           ))}
                         </DropdownMenu>
                       </Dropdown>
 
                       <Dropdown className='min-w-0 w-fit p-2'>
                         <DropdownTrigger>
-                          <Button className='text-14 text-c6 px-2 py-2 flex justify-between gap-10 bg-c4 border-2 rounded-8 min-w-[110px]'>
+                          <Button className='h-auto text-14 text-extralight text-c6 px-2 py-1.5 flex justify-between gap-10 bg-transparent border-1.5 border-c4 rounded-8 min-w-[110px]'>
                             {(() => {
                               const label = OPERATORS.find((op) => op.key === condition.operator)?.label || 'Opérateur';
                               return label.length > 10 ? `${label.slice(0, 8)}...` : label;
@@ -539,7 +539,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                             updateCondition(groupIndex, conditionIndex, 'operator', op);
                           }}>
                           {OPERATORS.map((op) => (
-                            <DropdownItem key={op.key}>{op.label}</DropdownItem>
+                            <DropdownItem className="text-c4" key={op.key}>{op.label}</DropdownItem>
                           ))}
                         </DropdownMenu>
                       </Dropdown>
@@ -552,11 +552,11 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                           mainWrapper: 'h-full',
                           input: 'text-c5 ',
                           inputWrapper:
-                            'shadow-none bg-c2 border-1 border-100 group-data-[focus=true]:bg-c2 rounded-8 font-normal text-c6 bg-c2 dark:bg-c2 h-full',
+                            'text-14 shadow-none border-1.5 border-c2 px-2 py-1.5 group-data-[focus=true]:bg-c2 hover:bg-c2 rounded-8 font-normal text-c6 bg-c2 h-full',
                         }}
                       />
 
-                      <Button size='sm' isIconOnly onClick={() => removeCondition(groupIndex, conditionIndex)}>
+                      <Button className='text-c6 bg-transparent h-auto w-12' isIconOnly onClick={() => removeCondition(groupIndex, conditionIndex)}>
                         <CrossIcon size={14} className='text-c6' />
                       </Button>
                     </div>
@@ -620,11 +620,11 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
       </Modal>
 
       <div className='flex justify-end gap-2 mt-4'>
-        <Button className='px-10 py-5 rounded-8 bg-transparent' variant='flat' onClick={resetFilters}>
+        <Button className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200' variant='flat' onClick={resetFilters}>
           Réinitialiser
         </Button>
         <Button
-          className='px-10 py-5 rounded-8 bg-action text-selected'
+          className='text-16 h-auto px-10 py-5 rounded-8 text-selected gap-2 bg-action transition-all ease-in-out duration-200'
           color='primary'
           onClick={applyFilters}>
           Rechercher
