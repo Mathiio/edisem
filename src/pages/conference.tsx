@@ -31,9 +31,7 @@ export const Conference: React.FC = () => {
   const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
   const [confDetails, setConfDetails] = useState<any>(null);
   const [recommendedConfs, setRecommendedConfs] = useState<any[]>([]);
-  const [confCitations, setConfCitations] = useState<
-    { id: number, citation: string; actant: string; startTime: number; endTime: number }[]
-  >([]);
+  const [confCitations, setConfCitations] = useState<any>([]);
   const [confBibliographies, setConfBibliographies] = useState<BibliographyItem[]>([]);
   const [confMediagraphies, setConfMediagraphies] = useState<MediagraphyItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,15 +96,15 @@ export const Conference: React.FC = () => {
   return (
     <Layouts className='grid grid-cols-10 col-span-10 gap-50'>
       <motion.div ref={firstDivRef} className='col-span-10 lg:col-span-6 flex flex-col gap-25 h-fit' variants={fadeIn}>
-        <LongCarrousel
-          perPage={3}
-          perMove={1}
-          autowidth={true}
-          data={loading ? Array.from({ length: 8 }) : confDetails.motcles}
-          renderSlide={(item) =>
-            loading ? <KeywordsSkeleton /> : <KeywordsCard key={item.id} id={item.id} word={item.title} />
-          }
-        />
+        {!loading && confDetails.motcles.length > 0 && (
+          <LongCarrousel
+            perPage={3}
+            perMove={1}
+            autowidth={true}
+            data={confDetails.motcles}
+            renderSlide={(item) => <KeywordsCard key={item.id} id={item.id} word={item.title} />}
+          />
+        )}
         {loading ? (
           <ConfOverviewSkeleton />
         ) : (

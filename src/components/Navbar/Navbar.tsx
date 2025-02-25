@@ -71,9 +71,8 @@ export const Navbar: React.FC = () => {
           ))}
         </div>
       </motion.div>
-      <motion.div className='flex items-center gap-6' variants={navbarVariants}>
+      <motion.div className='flex items-center gap-10' variants={navbarVariants}>
         <SearchModal />
-
         <AuthDropdown />
         <ChangeThemeButton isDark={isDark} toggleTheme={toggleThemeMode} />
       </motion.div>
