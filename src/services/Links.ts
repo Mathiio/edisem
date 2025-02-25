@@ -61,7 +61,6 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
   
   
   
-  
   export async function getLinksFromCollections( collections: { id: string }[]): Promise<{ id: string; links: string[] }[]> {
     if (!Array.isArray(collections)) return [];
   
@@ -85,7 +84,6 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
   
   
   
-  
   export async function getLinksFromUniv(university: any): Promise<string[]> {
     if (!university || !university.id) return [];
   
@@ -99,7 +97,6 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
       )
       .map((actant: any) => actant.id);
   }
-  
   
   
   
@@ -119,7 +116,6 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
   
   
   
-  
   export async function getLinksFromLab(laboratory: any): Promise<string[]> {
     if (!laboratory || !laboratory.id) return [];
   
@@ -133,7 +129,6 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
       )
       .map((actant: any) => actant.id);
   }
-  
   
   
   
@@ -160,7 +155,6 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
     
     return links;
   }
-  
   
   
   
@@ -197,6 +191,8 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
     return links;
   }
   
+
+
   export async function getLinksFromBibliographies(bibliography: any): Promise<string[]> {
     if (!bibliography || !bibliography.id) return [];
     const links: string[] = [];
@@ -216,6 +212,8 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
     return links;
   }
   
+
+
   export async function getLinksFromMediagraphies(mediagraphie: any, ): Promise<string[]> {
     if (!mediagraphie || !mediagraphie.id) return [];
     
@@ -235,6 +233,8 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
     
     return links;
   }
+  
+
   
   export async function getLinksFromKeywords(keyword: any): Promise<string[]> {
     if (!keyword || !keyword.id) return [];

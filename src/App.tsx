@@ -12,7 +12,6 @@ import { ToastProvider } from '@heroui/react';
 import {HeroUIProvider} from '@heroui/react'
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
-const ProtectedVisualisation = withAuth(Visualisation, { requiredRole: 'any' });
 
 function App() {
   useThemeMode();
@@ -27,7 +26,7 @@ function App() {
         <Route index path='/' Component={Home} />
         <Route path='/edition/:id/:title?' Component={Edition} />
         <Route path='/login' Component={LoginPage} />
-        <Route path='/visualisation' Component={ProtectedVisualisation} />
+        <Route path='/visualisation' Component={Visualisation} />
       </Routes>
     </HeroUIProvider>
 

@@ -73,7 +73,7 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
         ${isHovered ? 'bg-c2 scale-105' : 'scale-100'}`}></div>
       <div
         className={`p-50 h-200 w-full rounded-12 justify-center items-center flex z-10 ${
-          thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-200 to-400'
+          thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-c3 to-c4'
         }`}
         style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
         <h3 className={`text-16 text-100 font-semibold text-selected ${thumbnailUrl ? 'invisible' : ''}`}>
@@ -152,7 +152,7 @@ export const SmConfCard: React.FC<SmConfCardProps> = ({ id, title, actant, url }
         ${isHovered ? 'bg-c2 scale-105' : 'scale-100'}`}></div>
       <div
         className={`p-50 h-200 w-full rounded-12 justify-center items-center flex z-10 ${
-          thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-200 to-400'
+          thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-c3 to-c4'
         }`}
         style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
         <h3 className={`text-16 text-100 font-semibold text-selected ${thumbnailUrl ? 'invisible' : ''}`}>

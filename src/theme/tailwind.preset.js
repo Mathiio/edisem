@@ -290,6 +290,7 @@ module.exports = {
       serif: ['ui-serif', 'serif'],
     },
     fontSize: {
+      64: ['3.5rem', { lineHeight: '120%' }],
       32: ['2rem', { lineHeight: '100%' }],
       24: ['1.5rem', { lineHeight: '100%' }],
       16: '1rem',
@@ -724,14 +725,9 @@ module.exports = {
             c5: '#303030',
             c6: '#0D0D0D',
             
-            action: '#7828c8',
+            action: '#970FE4',
+            action2: '#0093FF',
             selected: '#FFFFFF',
-            action100: '#e4d4f4',
-            action200: '#c9a9e9',
-            action300: '#ae7ede',
-            action400: '#9353d3',
-            action500: '#7828c8',
-            action700: '#481878',
           },
           logo: {
             'crilcq': 'url(/crilcq.png)',
@@ -753,14 +749,9 @@ module.exports = {
             c5: '#CECECE',
             c6: '#FFFFFF',
 
-            action: '#7828c8',
+            action: '#970FE4',
+            action2: '#0093FF',
             selected: '#FFFFFF',
-            action100: '#e4d4f4',
-            action200: '#c9a9e9',
-            action300: '#ae7ede',
-            action400: '#9353d3',
-            action500: '#7828c8',
-            action700: '#481878',
           },
           logo: {
             'crilcq': 'url(/dark_crilcq.png)',
