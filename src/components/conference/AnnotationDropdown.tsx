@@ -17,6 +17,7 @@ import { CrossIcon, DotsIcon } from '../utils/icons';
 import { IconSvgProps } from '@/types/types';
 import Omk from '@/components/database/CreateModal';
 import { getAnnotations } from '@/services/Items';
+import { getActant } from '@/services/api';
 
 const API_URL = 'https://edisem.arcanes.ca/omk/api/';
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -71,8 +72,14 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
 
     try {
       const fetchedAnnotations = await getAnnotations();
+
+      console.log(id);
       // Filter annotations related to this item if needed
-      const relatedAnnotations = fetchedAnnotations.filter((annotation: any) => annotation.relatedResourceId === id);
+      const relatedAnnotations = fetchedAnnotations.filter((annotation: any) => annotation.related === id.toString());
+
+      const fetchedActant = await getActant(Number(relatedAnnotations[0].contributor));
+      relatedAnnotations.contributor = fetchedActant;
+      console.log(fetchedActant);
       setAnnotations(relatedAnnotations);
     } catch (error) {
       console.error('Error loading annotations:', error);
@@ -347,23 +354,49 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                   />
                 </Link>
               </ModalHeader>
-              <ModalBody className='flex flex-col p-[25px] gap-25'>
+              <ModalBody className='flex flex-col p-6 gap-6'>
                 {isLoading ? (
-                  <div className='flex justify-center items-center p-25'>
+                  <div className='flex justify-center items-center p-6'>
                     <p className='text-c6'>Chargement des annotations...</p>
                   </div>
                 ) : annotations.length > 0 ? (
-                  annotations.map((annotation, index) => (
-                    <div key={index} className='p-25 flex flex-col border-1 w-full gap-15 border-c3 rounded-12'>
-                      <h3 className='text-20 text-c6 font-semibold'>{annotation.title}</h3>
-                      <p className='text-16 text-c4'>{annotation.description}</p>
-                      <div className='text-14 text-c5'>
-                        {annotation.contributor && <span>Par: {annotation.contributor}</span>}
+                  <div className='flex flex-col w-full'>
+                    <div className='flex flex-row items-center gap-[10px]'>
+                      <h1 className='text-16'>Annotations</h1>
+                      <div className='rounded-[7px] text-[12px] border-2 p-5 leading-[60%] border-c3'>
+                        {annotations.length}
                       </div>
                     </div>
-                  ))
+
+                    {/* {annotations.map((annotation, index) => (
+                      <div key={index} className='p-6 flex flex-col border border-c3 w-full gap-4 rounded-lg'>
+                        <div className='cursor-pointer flex flex-row rounded-8 border-2 border-c3 hover:border-c4 items-center justify-center h-[40px] gap-10 text-c6 transition-all ease-in-out duration-200'>
+                          {userData?.picture ? (
+                            <img src={userData.picture} alt='Avatar' className='w-6 h-6 rounded-[7px] object-cover' />
+                          ) : (
+                            <UserIcon
+                              size={16}
+                              className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200'
+                            />
+                          )}
+                          <span className='text-14 font-normal text-c6'>
+                            {userData?.firstname && userData?.lastname
+                              ? `${userData.firstname} ${userData.lastname.charAt(0)}.`
+                              : userData?.firstname || userData?.lastname || 'Utilisateur'}
+                          </span>
+                        </div>
+                        <h3 className='text-xl text-c6 font-semibold'>{annotation.title}</h3>
+                        <p className='text-base text-c4'>{annotation.description}</p>
+                        {annotation.contributor && (
+                          <div className='text-sm text-c5'>
+                            <span>Par: {annotation.contributor}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))} */}
+                  </div>
                 ) : (
-                  <div className='flex justify-center items-center p-25'>
+                  <div className='flex justify-center items-center p-6'>
                     <p className='text-c6'>Aucune annotation trouvée pour cet élément.</p>
                   </div>
                 )}
