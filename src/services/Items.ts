@@ -148,6 +148,31 @@ export async function getCitations() {
   }
 }
 
+export async function getAnnotations() {
+  try {
+    const storedCitations = sessionStorage.getItem('annotations');
+
+    if (storedCitations) {
+      return JSON.parse(storedCitations);
+    }
+
+    const annotations = await getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAnnotations&json=1',
+    );
+    const annotationsFull = annotations.map((annotation: any) => ({
+      ...annotation,
+      type: 'annotation',
+    }));
+
+    sessionStorage.setItem('annotation', JSON.stringify(annotationsFull));
+    return annotationsFull;
+  } catch (error) {
+    console.error('Error fetching actants:', error);
+    throw new Error('Failed to fetch actants');
+  }
+}
+
+
 export async function getBibliographies() {
   try {
     const storedBibliographies = sessionStorage.getItem('bibliographies');
