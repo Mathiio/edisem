@@ -16,6 +16,8 @@ import React, { useEffect, useState } from 'react';
 import { CrossIcon, DotsIcon } from '../utils/icons';
 import { IconSvgProps } from '@/types/types';
 import Omk from '@/components/database/CreateModal';
+import { getAnnotations } from '@/services/Items';
+import { getActant } from '@/services/api';
 
 const API_URL = 'https://edisem.arcanes.ca/omk/api/';
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -39,7 +41,7 @@ interface AnnotationDropdownProps {
 }
 
 export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, content, image, actant, type }) => {
-  console.log(id);
+  // Keep your existing state variables
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [expanded, setExpanded] = useState<boolean>(false);
@@ -47,12 +49,43 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Add new state variables for viewing annotations
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [annotations, setAnnotations] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   const onClose = () => setIsOpen(false);
   const onOpen = () => setIsOpen(true);
+
+  const onViewClose = () => setIsViewOpen(false);
+  const onViewOpen = () => setIsViewOpen(true);
 
   const handleOpen = () => {
     onOpen();
     setIsDropdownOpen(false);
+  };
+
+  const handleViewOpen = async () => {
+    setIsViewOpen(true);
+    setIsDropdownOpen(false);
+    setIsLoading(true);
+
+    try {
+      const fetchedAnnotations = await getAnnotations();
+
+      console.log(id);
+      // Filter annotations related to this item if needed
+      const relatedAnnotations = fetchedAnnotations.filter((annotation: any) => annotation.related === id.toString());
+
+      const fetchedActant = await getActant(Number(relatedAnnotations[0].contributor));
+      relatedAnnotations.contributor = fetchedActant;
+      console.log(fetchedActant);
+      setAnnotations(relatedAnnotations);
+    } catch (error) {
+      console.error('Error loading annotations:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleExpansion = () => {
@@ -161,7 +194,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
           <DropdownItem key='Annoter' onClick={handleOpen} className='gap-2'>
             Annoter
           </DropdownItem>
-          <DropdownItem key='VoirAnnoter' className='gap-2 '>
+          <DropdownItem key='VoirAnnoter' onClick={handleViewOpen} className='gap-2'>
             Voir les annotations
           </DropdownItem>
         </DropdownMenu>
@@ -271,6 +304,102 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     </Button>
                   </div>
                 </form>
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      <Modal
+        backdrop='blur'
+        className='bg-c1'
+        size='lg'
+        isOpen={isOpen}
+        onClose={onClose}
+        hideCloseButton={true}
+        scrollBehavior='inside'
+        motionProps={{
+          variants: {
+            enter: { y: 0, opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } },
+            exit: { y: -20, opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } },
+          },
+        }}>
+        {/* Your existing modal content... */}
+      </Modal>
+
+      {/* New modal for viewing annotations */}
+      <Modal
+        backdrop='blur'
+        className='bg-c1'
+        size='lg'
+        isOpen={isViewOpen}
+        onClose={onViewClose}
+        hideCloseButton={true}
+        scrollBehavior='inside'
+        motionProps={{
+          variants: {
+            enter: { y: 0, opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } },
+            exit: { y: -20, opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } },
+          },
+        }}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
+                <h1 className='text-32 text-c6 font-semibold'>Annotations</h1>
+                <Link onPress={onViewClose}>
+                  <CrossIcon
+                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
+                    size={24}
+                  />
+                </Link>
+              </ModalHeader>
+              <ModalBody className='flex flex-col p-6 gap-6'>
+                {isLoading ? (
+                  <div className='flex justify-center items-center p-6'>
+                    <p className='text-c6'>Chargement des annotations...</p>
+                  </div>
+                ) : annotations.length > 0 ? (
+                  <div className='flex flex-col w-full'>
+                    <div className='flex flex-row items-center gap-[10px]'>
+                      <h1 className='text-16'>Annotations</h1>
+                      <div className='rounded-[7px] text-[12px] border-2 p-5 leading-[60%] border-c3'>
+                        {annotations.length}
+                      </div>
+                    </div>
+
+                    {/* {annotations.map((annotation, index) => (
+                      <div key={index} className='p-6 flex flex-col border border-c3 w-full gap-4 rounded-lg'>
+                        <div className='cursor-pointer flex flex-row rounded-8 border-2 border-c3 hover:border-c4 items-center justify-center h-[40px] gap-10 text-c6 transition-all ease-in-out duration-200'>
+                          {userData?.picture ? (
+                            <img src={userData.picture} alt='Avatar' className='w-6 h-6 rounded-[7px] object-cover' />
+                          ) : (
+                            <UserIcon
+                              size={16}
+                              className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200'
+                            />
+                          )}
+                          <span className='text-14 font-normal text-c6'>
+                            {userData?.firstname && userData?.lastname
+                              ? `${userData.firstname} ${userData.lastname.charAt(0)}.`
+                              : userData?.firstname || userData?.lastname || 'Utilisateur'}
+                          </span>
+                        </div>
+                        <h3 className='text-xl text-c6 font-semibold'>{annotation.title}</h3>
+                        <p className='text-base text-c4'>{annotation.description}</p>
+                        {annotation.contributor && (
+                          <div className='text-sm text-c5'>
+                            <span>Par: {annotation.contributor}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))} */}
+                  </div>
+                ) : (
+                  <div className='flex justify-center items-center p-6'>
+                    <p className='text-c6'>Aucune annotation trouvée pour cet élément.</p>
+                  </div>
+                )}
               </ModalBody>
             </>
           )}
