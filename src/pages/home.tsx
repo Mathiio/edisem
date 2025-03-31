@@ -22,10 +22,8 @@ const fadeIn: Variants = {
 export const Home: React.FC = () => {
   const [seminaires, setSeminaires] = useState<any[]>([]);
   const [actants, setActants] = useState<any[]>([]);
-  const [randomConf, setRandomConf] = useState<any[]>([]);
   const [loadingSeminaires, setLoadingSeminaires] = useState(true);
   const [loadingActants, setLoadingActants] = useState(true);
-  const [loadingRandomConf, setLoadingRandomConf] = useState(true);
 
   const dataFetchedRef = useRef(false);
 
@@ -43,22 +41,14 @@ export const Home: React.FC = () => {
     setLoadingActants(false);
   }, []);
 
-  const fetchRandomConf = useCallback(async () => {
-    if (dataFetchedRef.current) return;
-    const randomConf = await getRandomConfs(8);
-    setRandomConf(randomConf as any);
-    setLoadingRandomConf(false);
-  }, []);
-
   useEffect(() => {
     if (dataFetchedRef.current) return;
 
     fetchSeminaires();
     fetchActants();
-    fetchRandomConf();
 
     dataFetchedRef.current = true;
-  }, [fetchSeminaires, fetchActants, fetchRandomConf]);
+  }, [fetchSeminaires, fetchActants]);
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-75'>
@@ -112,30 +102,6 @@ export const Home: React.FC = () => {
         }
       />
       <KeywordHighlight/>
-      {/* <div className='gap-25 flex flex-col'>
-        <h2 className='text-24 font-medium text-c6'>Sélection de conférences</h2>
-        <div className='grid grid-cols-4 grid-rows-2 gap-25'>
-          {loadingRandomConf
-            ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
-            : randomConf.map((item, index) => (
-                <motion.div key={item.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                  <LgConfCard
-                    key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    actant={item.actant.firstname + ' ' + item.actant.lastname}
-                    date={item.date}
-                    url={item.url}
-                    universite={
-                      item.actant.universities && item.actant.universities.length > 0
-                        ? item.actant.universities[0].name
-                        : ''
-                    }
-                  />
-                </motion.div>
-              ))}
-        </div>
-      </div> */}
     </Layouts>
   );
 };
