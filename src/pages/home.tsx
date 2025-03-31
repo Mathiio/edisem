@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FullCarrousel, MidCarrousel } from '@/components/utils/Carrousels';
 import { getSeminaires, getActants } from '../services/Items';
-import { getRandomConfs } from '../services/api';
 import { EventCard, EventSkeleton } from '@/components/home/EventCards';
-import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { ActantCard, ActantSkeleton } from '@/components/home/ActantCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/utils/Layouts';
