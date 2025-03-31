@@ -7,7 +7,7 @@ import { Citations } from '@/components/conference/CitationsCards';
 import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/conference/ConfDetails';
 import { FullCarrousel, LongCarrousel } from '@/components/utils/Carrousels';
 import { Tabs, Tab } from "@heroui/react";
-import { KeywordsCard, KeywordsSkeleton } from '@/components/conference/KeywordsCards';
+import { KeywordsCard } from '@/components/conference/KeywordsCards';
 import { Bibliographies, BibliographyItem } from '@/components/conference/BibliographyCards';
 import { Mediagraphies, MediagraphyItem } from '@/components/conference/MediagraphyCards';
 import { Layouts } from '@/components/utils/Layouts';

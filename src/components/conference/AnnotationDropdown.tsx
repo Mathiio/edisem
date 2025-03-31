@@ -58,7 +58,6 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
   const onOpen = () => setIsOpen(true);
 
   const onViewClose = () => setIsViewOpen(false);
-  const onViewOpen = () => setIsViewOpen(true);
 
   const handleOpen = () => {
     onOpen();
@@ -310,7 +309,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
         </ModalContent>
       </Modal>
 
-      <Modal
+      {/* <Modal
         backdrop='blur'
         className='bg-c1'
         size='lg'
@@ -324,8 +323,9 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
             exit: { y: -20, opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } },
           },
         }}>
-        {/* Your existing modal content... */}
-      </Modal>
+        // Content
+      </Modal> 
+      */}
 
       {/* New modal for viewing annotations */}
       <Modal
@@ -343,7 +343,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
           },
         }}>
         <ModalContent>
-          {(onClose) => (
+          {() => (
             <>
               <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
                 <h1 className='text-32 text-c6 font-semibold'>Annotations</h1>
