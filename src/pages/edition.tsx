@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { getConfByEdition } from '../services/api';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { motion, Variants } from 'framer-motion';
-import { Layouts } from '@/components/utils/Layouts';
+import { Layouts } from '@/components/Utils/Layouts';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -37,7 +37,7 @@ export const Edition: React.FC = () => {
   }, [fetchConf]);
 
   return (
-    <Layouts className="col-span-10 flex flex-col gap-100">
+    <Layouts className='col-span-10 flex flex-col gap-100'>
       <div className='gap-25 flex flex-col'>
         <h2 className='text-24 font-medium text-c6'>Conférences de {title}</h2>
         <div className='grid grid-cols-4 grid-rows-3 gap-25'>

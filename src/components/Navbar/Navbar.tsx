@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
-import { ChangeThemeButton } from '@/components/navbar/change-theme';
-import { AuthDropdown } from '@/components/navbar/ProfilDropdown';
+import { ChangeThemeButton } from '@/components/Navbar/change-theme';
+import { AuthDropdown } from '@/components/Navbar/ProfilDropdown';
 import { motion, Variants } from 'framer-motion';
 import { Link as RoutLink } from 'react-router-dom';
-import SearchModal from '@/components/navbar/SearchModal';
+import SearchModal from '@/components/Navbar/SearchModal';
 import { useThemeMode } from '@/hooks/use-theme-mode';
 
 const navbarVariants: Variants = {

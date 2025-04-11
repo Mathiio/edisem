@@ -13,11 +13,10 @@ import {
   Textarea,
 } from '@heroui/react';
 import React, { useEffect, useState } from 'react';
-import { CrossIcon, DotsIcon } from '../utils/icons';
+import { CrossIcon, DotsIcon, UserIcon } from '@/components/Utils/icons';
 import { IconSvgProps } from '@/types/types';
 import Omk from '@/components/database/CreateModal';
-import { getAnnotations } from '@/services/Items';
-import { getActant } from '@/services/api';
+import { getActants, getAnnotations, getStudents } from '@/services/Items';
 
 const API_URL = 'https://edisem.arcanes.ca/omk/api/';
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -41,6 +40,12 @@ interface AnnotationDropdownProps {
 }
 
 export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, content, image, actant, type }) => {
+  const userString = localStorage.getItem('user');
+  const user: any | null = userString ? JSON.parse(userString) : null;
+
+  if (!user) {
+    return null; // Empêche le rendu du composant proprement
+  }
   // Keep your existing state variables
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -70,16 +75,37 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
     setIsLoading(true);
 
     try {
-      const fetchedAnnotations = await getAnnotations();
+      // Récupérer les annotations, les actants et les étudiants en parallèle
+      const [fetchedAnnotations, actants, students] = await Promise.all([
+        getAnnotations(),
+        getActants(),
+        getStudents(),
+      ]);
+
+      console.log(actants);
+      console.log(students);
 
       console.log(id);
-      // Filter annotations related to this item if needed
+
+      // Filtrer les annotations liées à cet élément
       const relatedAnnotations = fetchedAnnotations.filter((annotation: any) => annotation.related === id.toString());
 
-      const fetchedActant = await getActant(Number(relatedAnnotations[0].contributor));
-      relatedAnnotations.contributor = fetchedActant;
-      console.log(fetchedActant);
-      setAnnotations(relatedAnnotations);
+      // Pour chaque annotation, remplacer l'ID du contributeur par l'objet correspondant
+      const annotationsWithContributors = relatedAnnotations.map((annotation: any) => {
+        // Trouver le contributeur dans actants ou students
+        const contributor =
+          actants.find((actant: any) => actant.id.toString() === annotation.contributor.toString()) ||
+          students.find((student: any) => student.id.toString() === annotation.contributor.toString());
+
+        // Retourner une nouvelle annotation avec le contributeur remplacé par l'objet trouvé ou l'ID original
+        return {
+          ...annotation,
+          contributor: contributor,
+        };
+      });
+
+      console.log(annotationsWithContributors);
+      setAnnotations(annotationsWithContributors);
     } catch (error) {
       console.error('Error loading annotations:', error);
     } finally {
@@ -161,7 +187,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
             property_id: 581,
             property_label: 'contributor',
             is_public: true,
-            value_resource_id: 17108,
+            value_resource_id: user.id,
             value_resource_name: 'items',
           },
         ],
@@ -272,7 +298,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                       mainWrapper: 'w-full',
                     }}
                     className='min-h-[50px]'
-                    label='Titre de lannotation *'
+                    label="Titre de l'annotation *"
                     labelPlacement='outside'
                     placeholder='Entrez un titre..'
                   />
@@ -287,9 +313,9 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                       mainWrapper: 'w-full',
                     }}
                     className='min-h-[50px]'
-                    label='Description *'
+                    label='Commentaire *'
                     labelPlacement='outside'
-                    placeholder='Entrez votre description..'
+                    placeholder='Entrez votre commentaire..'
                   />
                   <div className='flex w-full flex-row justify-end items-center gap-3 mt-4'>
                     <Button onClick={onClose} className='w-fit px-3 h-[40px] bg-c2 text-c6 rounded-8'>
@@ -308,24 +334,6 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
           )}
         </ModalContent>
       </Modal>
-
-      {/* <Modal
-        backdrop='blur'
-        className='bg-c1'
-        size='lg'
-        isOpen={isOpen}
-        onClose={onClose}
-        hideCloseButton={true}
-        scrollBehavior='inside'
-        motionProps={{
-          variants: {
-            enter: { y: 0, opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } },
-            exit: { y: -20, opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } },
-          },
-        }}>
-        // Content
-      </Modal> 
-      */}
 
       {/* New modal for viewing annotations */}
       <Modal
@@ -360,40 +368,48 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     <p className='text-c6'>Chargement des annotations...</p>
                   </div>
                 ) : annotations.length > 0 ? (
-                  <div className='flex flex-col w-full'>
-                    <div className='flex flex-row items-center gap-[10px]'>
-                      <h1 className='text-16'>Annotations</h1>
-                      <div className='rounded-[7px] text-[12px] border-2 p-5 leading-[60%] border-c3'>
+                  <div className='flex flex-col gap-[30px] w-full'>
+                    <div className='flex flex-row items-center gap-10'>
+                      <h1 className='text-16 text-c6'>Annotations</h1>
+                      <div className='rounded-[7px] text-[12px] border-2 p-5 leading-[60%] text-c6 border-c3'>
                         {annotations.length}
                       </div>
                     </div>
-
-                    {/* {annotations.map((annotation, index) => (
-                      <div key={index} className='p-6 flex flex-col border border-c3 w-full gap-4 rounded-lg'>
-                        <div className='cursor-pointer flex flex-row rounded-8 border-2 border-c3 hover:border-c4 items-center justify-center h-[40px] gap-10 text-c6 transition-all ease-in-out duration-200'>
-                          {userData?.picture ? (
-                            <img src={userData.picture} alt='Avatar' className='w-6 h-6 rounded-[7px] object-cover' />
-                          ) : (
-                            <UserIcon
-                              size={16}
-                              className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200'
-                            />
-                          )}
-                          <span className='text-14 font-normal text-c6'>
-                            {userData?.firstname && userData?.lastname
-                              ? `${userData.firstname} ${userData.lastname.charAt(0)}.`
-                              : userData?.firstname || userData?.lastname || 'Utilisateur'}
-                          </span>
-                        </div>
-                        <h3 className='text-xl text-c6 font-semibold'>{annotation.title}</h3>
-                        <p className='text-base text-c4'>{annotation.description}</p>
-                        {annotation.contributor && (
-                          <div className='text-sm text-c5'>
-                            <span>Par: {annotation.contributor}</span>
+                    <div className='flex flex-col gap-[30px] max-h-[350px] overflow-y-scroll'>
+                      {annotations.map((annotation: any, index) => (
+                        <div
+                          key={index}
+                          className=' flex flex-col border-2 px-[15px] py-[15px] border-c3 w-fit gap-[15px] rounded-12'>
+                          <div className='flex flex-row rounded-8 items-center h-[40px] gap-10 text-c6 transition-all ease-in-out duration-200'>
+                            {annotation.contributor?.picture ? (
+                              <img
+                                src={annotation.contributor.picture}
+                                alt='Avatar'
+                                className='w-[30px] h-[30px] rounded-[6px] object-cover'
+                              />
+                            ) : (
+                              <UserIcon
+                                size={16}
+                                className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200'
+                              />
+                            )}
+                            <span className='text-14 font-normal text-c6'>
+                              {annotation.contributor?.firstname && annotation.contributor?.lastname
+                                ? `${annotation.contributor.firstname} ${annotation.contributor.lastname.charAt(0)}.`
+                                : annotation.contributor?.firstname ||
+                                  annotation.contributor?.lastname ||
+                                  'Utilisateur'}
+                            </span>
+                            <div className='w-[5px] h-[5px]'></div>
+                            <span className='text-14 font-normal text-c6'>
+                              {new Date(annotation.created).toLocaleDateString('ca-CA')}
+                            </span>
                           </div>
-                        )}
-                      </div>
-                    ))} */}
+                          <h3 className='text-xl text-c6 font-semibold'>{annotation.title}</h3>
+                          <p className='text-base text-c4'>{annotation.description}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div className='flex justify-center items-center p-6'>

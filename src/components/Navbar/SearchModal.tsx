@@ -1,6 +1,6 @@
-import { SearchIcon } from '@/components/utils/icons';
+import { SearchIcon } from '@/components/Utils/icons';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure, Button } from "@heroui/react";
+import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure, Button } from '@heroui/react';
 import { ActantCard, ActantSkeleton } from '@/components/search/ActantCard';
 import { ConfCard, ConfSkeleton } from '@/components/search/ConfCard';
 import { motion, Variants } from 'framer-motion';
@@ -99,10 +99,7 @@ const SearchModal = () => {
         size='md'
         className='cursor-pointer h-[32px] text-16 p-25 gap-10 rounded-8 text-c6 hover:text-c6 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
         onPress={handleOpen}>
-        <SearchIcon
-          size={16}
-          className='text-c6 transition-all ease-in-out duration-200'
-        />
+        <SearchIcon size={16} className='text-c6 transition-all ease-in-out duration-200' />
         Rechercher...
       </Button>
 
@@ -152,9 +149,7 @@ const SearchModal = () => {
                   size='sm'
                   startContent={<SearchIcon size={18} />}
                   endContent={
-                    <Kbd className='flex sm:flex font-semibold text-c6 text-12 px-[8px] py-5 bg-c3 gap-5'>
-                      ESC
-                    </Kbd>
+                    <Kbd className='flex sm:flex font-semibold text-c6 text-12 px-[8px] py-5 bg-c3 gap-5'>ESC</Kbd>
                   }
                   type='search'
                   fullWidth

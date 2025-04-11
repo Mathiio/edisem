@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input } from "@heroui/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input } from '@heroui/react';
 import { InputConfig } from '@/components/database/EditModal';
-import { AddIcon, SortIcon } from '@/components/utils/icons';
+import { AddIcon, SortIcon } from '@/components/Utils/icons';
 
 interface SelectionInputProps {
   col: InputConfig;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiSearch } from 'react-icons/fi';
-import { LongCarrouselFilter } from '../utils/Carrousels';
-import { Button } from "@heroui/react";
+import { LongCarrouselFilter } from '@/components/Utils/Carrousels';
+import { Button } from '@heroui/react';
 
 interface SearchPopupProps {
   itemsDataviz: any[];

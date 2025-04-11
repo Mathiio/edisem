@@ -1,8 +1,7 @@
 import React, { ReactNode } from 'react';
-import { Navbar } from '@/components/navbar/Navbar';
-import { Footer } from '@/components/utils/Footer';
+import { Navbar } from '@/components/Navbar/Navbar';
+import { Footer } from '@/components/Utils/Footer';
 import { motion, Variants } from 'framer-motion';
-
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
@@ -35,8 +34,7 @@ export const Layouts: React.FC<LayoutsProps> = ({ children, className }) => {
         className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200'
         initial='hidden'
         animate='visible'
-        variants={containerVariants}
-      >
+        variants={containerVariants}>
         <motion.div className='col-span-10' variants={itemVariants}>
           <Navbar />
         </motion.div>

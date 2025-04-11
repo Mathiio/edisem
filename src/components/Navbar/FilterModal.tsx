@@ -1,10 +1,10 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { FilterIcon, CrossIcon, CalendarIcon, UserIcon } from '@/components/utils/icons';
-import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from "@heroui/react";
-import { DateRangePicker } from "@heroui/date-picker";
-import { NavConferencierFilter } from '@/components/navbar/NavConferencierFilter';
-import { NavTypeFilter } from '@/components/navbar/NavTypeFilter';
-import { Button } from "@heroui/button";
+import { FilterIcon, CrossIcon, CalendarIcon, UserIcon } from '@/components/Utils/icons';
+import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@heroui/react';
+import { DateRangePicker } from '@heroui/date-picker';
+import { NavConferencierFilter } from '@/components/Navbar/NavConferencierFilter';
+import { NavTypeFilter } from '@/components/Navbar/NavTypeFilter';
+import { Button } from '@heroui/button';
 import { RangeValue } from '@react-types/shared';
 import { DateValue } from '@react-types/datepicker';
 

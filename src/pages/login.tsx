@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, Tab, Input, Button } from "@heroui/react";
+import { Tabs, Tab, Input, Button } from '@heroui/react';
 import { getActants, getStudents } from '@/services/Items';
 
-import { Layouts } from '@/components/utils/Layouts';
+import { Layouts } from '@/components/Utils/Layouts';
 
 export const LoginPage: React.FC = () => {
   const [actants, setActants] = useState<any>(null);
@@ -51,7 +51,7 @@ export const LoginPage: React.FC = () => {
       }
     } else {
       const foundStudent = students?.find((student: { mail: string }) => student.mail === email);
-
+      console.log(foundStudent);
       if (foundStudent) {
         localStorage.setItem('user', JSON.stringify(foundStudent));
         navigate('/');
@@ -69,7 +69,7 @@ export const LoginPage: React.FC = () => {
         <Tabs
           fullWidth
           selectedKey={selected}
-          onSelectionChange={key => setSelected(key.toString())}
+          onSelectionChange={(key) => setSelected(key.toString())}
           className='max-w-lg'
           classNames={{
             tabList: 'w-full gap-10 bg-c0 rounded-8',

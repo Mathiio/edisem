@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Input,
-  Spinner,
-  Button,
-  ModalBody,
-  ModalFooter,
-  ModalContent,
-  Modal,
-  Link,
-  ModalHeader,
-} from "@heroui/react";
+import { Input, Spinner, Button, ModalBody, ModalFooter, ModalContent, Modal, Link, ModalHeader } from '@heroui/react';
 import { usegetDataByClassDetails } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/database/SelectionInput';
-import { Textarea } from "@heroui/input";
+import { Textarea } from '@heroui/input';
 
 import { TimecodeInput, DatePicker } from '@/components/database/TimecodeInput';
-import { CrossIcon } from '@/components/utils/icons';
+import { CrossIcon } from '@/components/Utils/icons';
 import MultipleInputs from '@/components/database/MultipleInputs';
 
 interface User {}

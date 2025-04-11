@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CameraIcon, SoundIcon, ImageIcon, FileIcon } from '@/components/utils/icons';
+import { CameraIcon, SoundIcon, ImageIcon, FileIcon } from '@/components/Utils/icons';
 
 export interface MediagraphyItem {
   id: number;
@@ -58,7 +58,7 @@ const getIcon = (mediaType: string) => {
     case '85':
     case '56':
     case '977':
-      return <CameraIcon  size={22} />;
+      return <CameraIcon size={22} />;
     case '38':
     case '37':
       return <SoundIcon size={22} />;
