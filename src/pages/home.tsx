@@ -23,8 +23,6 @@ export const Home: React.FC = () => {
   const [loadingSeminaires, setLoadingSeminaires] = useState(true);
   const [loadingActants, setLoadingActants] = useState(true);
 
-  console.log(randomConf, loadingRandomConf);
-
   const dataFetchedRef = useRef(false);
 
   const fetchSeminaires = useCallback(async () => {
@@ -101,7 +99,7 @@ export const Home: React.FC = () => {
           )
         }
       />
-      <KeywordHighlight/>
+      <KeywordHighlight />
     </Layouts>
   );
 };
