@@ -13,8 +13,8 @@ import {
   ModalHeader,
   ModalBody,
   useDisclosure,
-} from "@heroui/react";
-import { ArrowIcon, CrossIcon, PlusIcon, DotsIcon } from '@/components/utils/icons';
+} from '@heroui/react';
+import { ArrowIcon, CrossIcon, PlusIcon, DotsIcon } from '@/components/Utils/icons';
 import * as Items from '@/services/Items';
 
 import { getItemByID } from '@/services/api';
@@ -432,7 +432,9 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
           <div key={groupIndex} className='border rounded-lg gap-4 p-4 bg-c3 rounded-12'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
-                <Button className='text-c6 bg-transparent px-0.5 py-0.5 h-auto' onClick={() => toggleGroupExpansion(groupIndex)}>
+                <Button
+                  className='text-c6 bg-transparent px-0.5 py-0.5 h-auto'
+                  onClick={() => toggleGroupExpansion(groupIndex)}>
                   <ArrowIcon
                     size={12}
                     className={`transition-all duration-200 ${group.isExpanded ? 'rotate-90' : ''}`}
@@ -454,11 +456,16 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                       setActiveGroupIndex(groupIndex);
                       setNewGroupName(group.name);
                       onOpen();
-                    } } key={''}>
+                    }}
+                    key={''}>
                     Renommer
                   </DropdownItem>
-                  <DropdownItem onClick={() => duplicateGroup(groupIndex)} key={''}>Dupliquer</DropdownItem>
-                  <DropdownItem onClick={() => removeGroup(groupIndex)} key={''}>Supprimer</DropdownItem>
+                  <DropdownItem onClick={() => duplicateGroup(groupIndex)} key={''}>
+                    Dupliquer
+                  </DropdownItem>
+                  <DropdownItem onClick={() => removeGroup(groupIndex)} key={''}>
+                    Supprimer
+                  </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             </div>
@@ -466,7 +473,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
             {group.isExpanded && (
               <>
                 <div className='w-full flex gap-2 items-center mt-4 mb-2'>
-                  <p className='text-14 text-c6 font-medium text-c6'>Ou</p>
+                  <p className='text-14 font-medium text-c6'>Ou</p>
                   <Dropdown className='min-w-0 w-full p-2'>
                     <DropdownTrigger className='min-w-0 w-full'>
                       <Button className='h-auto text-14 text-extralight text-c6 px-2 py-1.5 flex justify-between gap-10 bg-transparent border-1.5 border-c4 rounded-8 w-full'>
@@ -516,7 +523,9 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                             updateCondition(groupIndex, conditionIndex, 'property', prop);
                           }}>
                           {getPropertiesByType(group.itemType).map((prop: any) => (
-                            <DropdownItem className="text-c4" key={prop.key}>{prop.label}</DropdownItem>
+                            <DropdownItem className='text-c4' key={prop.key}>
+                              {prop.label}
+                            </DropdownItem>
                           ))}
                         </DropdownMenu>
                       </Dropdown>
@@ -539,7 +548,9 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                             updateCondition(groupIndex, conditionIndex, 'operator', op);
                           }}>
                           {OPERATORS.map((op) => (
-                            <DropdownItem className="text-c4" key={op.key}>{op.label}</DropdownItem>
+                            <DropdownItem className='text-c4' key={op.key}>
+                              {op.label}
+                            </DropdownItem>
                           ))}
                         </DropdownMenu>
                       </Dropdown>
@@ -556,7 +567,10 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                         }}
                       />
 
-                      <Button className='text-c6 bg-transparent h-auto w-12' isIconOnly onClick={() => removeCondition(groupIndex, conditionIndex)}>
+                      <Button
+                        className='text-c6 bg-transparent h-auto w-12'
+                        isIconOnly
+                        onClick={() => removeCondition(groupIndex, conditionIndex)}>
                         <CrossIcon size={14} className='text-c6' />
                       </Button>
                     </div>
@@ -620,7 +634,10 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
       </Modal>
 
       <div className='flex justify-end gap-2 mt-4'>
-        <Button className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200' variant='flat' onClick={resetFilters}>
+        <Button
+          className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+          variant='flat'
+          onClick={resetFilters}>
           Réinitialiser
         </Button>
         <Button

@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
-
 import {
   Table,
   TableHeader,
@@ -13,17 +12,15 @@ import {
   useDisclosure,
   Input,
   SortDescriptor,
-} from "@heroui/react";
+} from '@heroui/react';
 import { usegetDataByClass } from '../hooks/useFetchData';
 import GridComponent from '@/components/database/GridComponent';
 import { EditModal } from '@/components/database/EditModal';
 import { CreateModal } from '@/components/database/CreateModal';
 
-import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/utils/icons';
+import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/Utils/icons';
 import { usegetAllProperties } from '@/hooks/useFetchData';
-import { Layouts } from '@/components/utils/Layouts';
-
-
+import { Layouts } from '@/components/Utils/Layouts';
 
 // Reducer function to slice the result and append '...'
 const reducer = (text: any, maxLength = 100) => {
@@ -183,10 +180,7 @@ export const Database: React.FC = () => {
     <Layouts className='col-span-10 flex flex-col gap-50'>
       <div>
         {currentView === 'grid' && (
-          <GridComponent
-            handleCardClick={handleCardClick}
-            initializePropertiesLoading={initializePropertiesLoading}
-          />
+          <GridComponent handleCardClick={handleCardClick} initializePropertiesLoading={initializePropertiesLoading} />
         )}
         {currentView === 'table' && (
           <>
@@ -198,10 +192,7 @@ export const Database: React.FC = () => {
                       <button
                         onClick={handleReturn}
                         className=' min-w-fit border-2 border-c3 hover:border-c4 transition-colors duration-300 text-c6 font-semibold px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '>
-                        <BackIcon
-                          className='text-c6 flex flex-col items-center justify-center'
-                          size={14}
-                        />
+                        <BackIcon className='text-c6 flex flex-col items-center justify-center' size={14} />
                         <div className='text-c6'>Retour</div>
                       </button>
                     </>
@@ -267,10 +258,7 @@ export const Database: React.FC = () => {
                   }}>
                   <TableHeader className='min-h-[40px]'>
                     {columns.map((col) => (
-                      <TableColumn
-                        allowsSorting
-                        key={col.key}
-                        className={`${col.isAction ? 'flex justify-end' : ''}`}>
+                      <TableColumn allowsSorting key={col.key} className={`${col.isAction ? 'flex justify-end' : ''}`}>
                         {col.label}
                       </TableColumn>
                     ))}
@@ -338,7 +326,6 @@ export const Database: React.FC = () => {
     </Layouts>
   );
 };
-
 
 export const columnConfigs = {
   conferences: [

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Link } from "@heroui/react";
-import { ArrowIcon, CrossIcon, PlusIcon } from '@/components/utils/icons';
+import { Button, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Link } from '@heroui/react';
+import { ArrowIcon, CrossIcon, PlusIcon } from '@/components/Utils/icons';
 import { ITEM_TYPES } from './FilterPopup';
 
 type Masque = {
@@ -23,7 +23,7 @@ const getInitialMasques = (): Masque[] => {
       const parsedMasques = JSON.parse(savedMasques);
       return parsedMasques.map((masque: any) => ({
         itemType: masque.itemType,
-        displayType: getDisplayKeyByValue(masque.itemType)
+        displayType: getDisplayKeyByValue(masque.itemType),
       }));
     } catch (e) {
       console.error('Error parsing saved masques:', e);
@@ -57,7 +57,7 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
       ...filterGroups,
       {
         itemType: '',
-        displayType: ''
+        displayType: '',
       },
     ];
     setFilterGroups(newMasques);
@@ -86,7 +86,7 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
     const updatedMasques = [...filterGroups];
     updatedMasques[index] = {
       itemType,
-      displayType
+      displayType,
     };
     setFilterGroups(updatedMasques);
     updateLocalStorage(updatedMasques);
@@ -144,10 +144,7 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
         <Button className='px-10 py-5 rounded-8 bg-transparent' variant='flat' onClick={resetMasques}>
           Réinitialiser
         </Button>
-        <Button
-          className='px-10 py-5 rounded-8 bg-action text-selected'
-          color='primary'
-          onClick={applyMasques}>
+        <Button className='px-10 py-5 rounded-8 bg-action text-selected' color='primary' onClick={applyMasques}>
           Appliquer
         </Button>
       </div>

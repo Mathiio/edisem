@@ -1,7 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import FilterPopup from './FilterPopup';
-import { Button, Divider } from "@heroui/react";
-import { AnotateIcon, SearchIcon, ImportIcon, NewItemIcon, HideIcon, AssociateIcon, ExportIcon } from '../utils/icons';
+import { Button, Divider } from '@heroui/react';
+import {
+  AnotateIcon,
+  SearchIcon,
+  ImportIcon,
+  NewItemIcon,
+  HideIcon,
+  AssociateIcon,
+  ExportIcon,
+} from '@/components/Utils/icons';
 import { IconSvgProps } from '@/types/types';
 import HidePopup from './HidePopup';
 import { getItemByID } from '@/services/api';
@@ -108,7 +116,7 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
       case 'import':
         return <ImportPopup onSearch={handleAdvancedSearch} />;
       case 'export':
-       // return <ExportPopup generatedImage={generatedImage} handleExportClick={handleExportClick} />;
+      // return <ExportPopup generatedImage={generatedImage} handleExportClick={handleExportClick} />;
       default:
         return null;
     }
@@ -119,16 +127,15 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
       key={key}
       ref={(el) => (iconRefs.current[key] = el)}
       className={`cursor-pointer group text-16 p-10 rounded-8 h-11 w-11 ${
-        activeIcon === key
-          ? 'text-selected bg-action'
-          : 'text-c6 bg-transparent hover:bg-c3 hover:text-selected'
+        activeIcon === key ? 'text-selected bg-action' : 'text-c6 bg-transparent hover:bg-c3 hover:text-selected'
       } transition-all ease-in-out duration-200`}
       onPress={() => setActiveIcon((prev) => (prev === key ? null : key))}>
-      <IconComponent className={` ${
-        activeIcon === key
-          ? 'text-selected'
-          : 'text-c6 hover:text-c6'
-      } transition-all ease-in-out duration-200`} size={18} />
+      <IconComponent
+        className={` ${
+          activeIcon === key ? 'text-selected' : 'text-c6 hover:text-c6'
+        } transition-all ease-in-out duration-200`}
+        size={18}
+      />
     </Button>
   );
 
@@ -139,9 +146,7 @@ export const Toolbar: React.FC<ItemsProps> = ({ itemsDataviz, onSearch }) => {
           {getActivePopup()}
         </div>
       )}
-      <div
-        className='relative w-auto flex items-center rounded-12 p-2 bg-c2 gap-4 shadow-lg'
-        ref={containerRef}>
+      <div className='relative w-auto flex items-center rounded-12 p-2 bg-c2 gap-4 shadow-lg' ref={containerRef}>
         {renderButton('filter', SearchIcon)}
         {renderButton('hide', HideIcon)}
         <Divider orientation='vertical' className='h-4 w-0.5 bg-c4 mx-4' />

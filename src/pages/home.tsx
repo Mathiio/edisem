@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FullCarrousel, MidCarrousel } from '@/components/utils/Carrousels';
+import { FullCarrousel, MidCarrousel } from '@/components/Utils/Carrousels';
 import { getSeminaires, getActants } from '../services/Items';
 import { EventCard, EventSkeleton } from '@/components/home/EventCards';
 import { ActantCard, ActantSkeleton } from '@/components/home/ActantCards';
 import { motion, Variants } from 'framer-motion';
-import { Layouts } from '@/components/utils/Layouts';
+import { Layouts } from '@/components/Utils/Layouts';
 import { HomeBaner } from '@/components/home/HomeBaner';
 import { KeywordHighlight } from '@/components/home/KeywordHighlight';
 
@@ -22,6 +22,8 @@ export const Home: React.FC = () => {
   const [actants, setActants] = useState<any[]>([]);
   const [loadingSeminaires, setLoadingSeminaires] = useState(true);
   const [loadingActants, setLoadingActants] = useState(true);
+
+  console.log(randomConf, loadingRandomConf);
 
   const dataFetchedRef = useRef(false);
 
@@ -50,7 +52,7 @@ export const Home: React.FC = () => {
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-75'>
-      <HomeBaner/>
+      <HomeBaner />
       <FullCarrousel
         title='Derniers séminaires Arcanes'
         perPage={3}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { LinkIcon, ImageIcon, SoundIcon, CameraIcon, FileIcon, UserIcon } from '@/components/utils/icons';
+import { LinkIcon, ImageIcon, SoundIcon, CameraIcon, FileIcon, UserIcon } from '@/components/Utils/icons';
 import { Link } from 'react-router-dom';
-import { Button } from "@heroui/button";
+import { Button } from '@heroui/button';
 
 interface MediaCardProps {
   title: string;
@@ -32,8 +32,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({ title, author, year, type 
       className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 p-25 transition-transform-colors-opacity ${
         isHovered ? 'border-action' : 'bg-c4'
       }`}>
-      <div
-        className={`   transition-transform-colors-opacity ${isHovered ? 'text-action' : 'text-c4'}`}>
+      <div className={`   transition-transform-colors-opacity ${isHovered ? 'text-action' : 'text-c4'}`}>
         {getIcon()}
       </div>
 
@@ -124,8 +123,7 @@ export const MiniCardCoferencier: React.FC<MiniCardCoferencierProps> = ({ Name }
       className={`w-fit flex flex-row justify-between border-2 rounded-8 items-center gap-10 p-10  transition-transform-colors-opacity ${
         isHovered ? 'border-action' : 'bg-c4'
       }`}>
-      <div
-        className={`   transition-transform-colors-opacity ${isHovered ? 'text-action' : 'text-c4'}`}>
+      <div className={`   transition-transform-colors-opacity ${isHovered ? 'text-action' : 'text-c4'}`}>
         {<UserIcon size={16} />}
       </div>
 

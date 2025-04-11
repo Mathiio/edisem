@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CameraIcon, UserIcon, ShareIcon, MovieIcon } from '@/components/utils/icons';
+import { CameraIcon, UserIcon, ShareIcon, MovieIcon } from '@/components/Utils/icons';
 import { motion, Variants } from 'framer-motion';
 import { addToast, Skeleton, Link, Button, cn } from '@heroui/react';
 import { AnnotationDropdown } from './AnnotationDropdown';
@@ -48,7 +48,6 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({
   const [buttonText, setButtonText] = useState<string>('séance complète');
   const navigate = useNavigate();
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  
 
   useEffect(() => {
     if (iframeRef.current && iframeRef.current.contentWindow) {

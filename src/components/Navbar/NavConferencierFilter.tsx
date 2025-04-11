@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from "@heroui/react";
-import { ArrowIcon, CrossIcon } from '@/components/utils/icons';
+import { Button } from '@heroui/react';
+import { ArrowIcon, CrossIcon } from '@/components/Utils/icons';
 
 interface ButtonProps {
   onClick?: (index: number) => void;
@@ -71,9 +71,7 @@ export const NavConferencierFilter: React.FC<ButtonGeneratorProps & ButtonProps>
       onClick={() => handleButtonClick(i)}
       radius='none'
       className={`h-[32px]  text-16 rounded-8 ${
-        selectedButtons.includes(i)
-          ? 'bg-action text-100'
-          : 'text-c6 bg-c3 hover:text-c6 hover:bg-c4'
+        selectedButtons.includes(i) ? 'bg-action text-100' : 'text-c6 bg-c3 hover:text-c6 hover:bg-c4'
       } transition-all ease-in-out duration-200 navfilter flex items-center`}
       endContent={selectedButtons.includes(i) ? <CrossIcon size={18} /> : null}>
       Button {i + 1}
@@ -83,19 +81,13 @@ export const NavConferencierFilter: React.FC<ButtonGeneratorProps & ButtonProps>
   return (
     <div className='w-full flex flex-row gap-10'>
       {isLeftVisible && (
-        <Button
-          onClick={handleLeftClick}
-          size='sm'
-          className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action'>
+        <Button onClick={handleLeftClick} size='sm' className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action'>
           <ArrowIcon size={20} transform='rotate(180deg)' />
         </Button>
       )}
       <div className='button-container flex gap-10 overflow-x-auto scrollbar-hide'>{buttons}</div>
       {isRightVisible && (
-        <Button
-          onClick={handleRightClick}
-          size='sm'
-          className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action'>
+        <Button onClick={handleRightClick} size='sm' className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action'>
           <ArrowIcon size={20} />
         </Button>
       )}

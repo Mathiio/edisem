@@ -4,12 +4,12 @@ import * as d3 from 'd3';
 import { getAllItems } from '@/services/Items';
 
 import { motion, Variants } from 'framer-motion';
-import { Navbar } from '@/components/navbar/Navbar';
+import { Navbar } from '@/components/Navbar/Navbar';
 import { Toolbar } from '@/components/datavisualisation/Toolbar';
 import ZoomControl from '@/components/datavisualisation/ZoomControl';
 import Legend from '@/components/datavisualisation/Legend';
 
-import { images } from '@/components/utils/images';
+import { images } from '@/components/Utils/images';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },

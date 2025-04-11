@@ -1,14 +1,6 @@
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownSection,
-  DropdownItem,
-  User,
-
-} from "@heroui/react";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem, User } from '@heroui/react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserIcon, VisualisationIcon, DataIcon, Logout } from '@/components/utils/icons';
+import { UserIcon, VisualisationIcon, DataIcon, Logout } from '@/components/Utils/icons';
 import { useEffect, useState } from 'react';
 
 export const AuthDropdown = () => {
@@ -57,10 +49,7 @@ export const AuthDropdown = () => {
           {userData?.picture ? (
             <img src={userData.picture} alt='Avatar' className='w-6 h-6 rounded-[7px] object-cover' />
           ) : (
-            <UserIcon
-              size={16}
-              className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200'
-            />
+            <UserIcon size={16} className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200' />
           )}
           <span className='text-14 font-normal text-c6'>
             {userData?.firstname && userData?.lastname
@@ -83,8 +72,8 @@ export const AuthDropdown = () => {
                 userData?.type === 'actant'
                   ? 'Actant'
                   : userData?.type === 'etudiant'
-                  ? 'Étudiant'
-                  : userData?.type || 'Type non spécifié'
+                    ? 'Étudiant'
+                    : userData?.type || 'Type non spécifié'
               }
               classNames={{
                 name: 'text-c6',
@@ -108,9 +97,7 @@ export const AuthDropdown = () => {
             </Link>
           </DropdownItem>
 
-          <DropdownItem
-            key='database'
-            className='hover:bg-c3 text-c4 hover:text-c6'>
+          <DropdownItem key='database' className='hover:bg-c3 text-c4 hover:text-c6'>
             <Link to='/database' className='flex justify-start gap-2 items-center w-full'>
               <DataIcon size={15} />
               <p className='text-c5 text-16 text-extralight'>Données</p>
