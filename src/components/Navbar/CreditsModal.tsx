@@ -13,7 +13,7 @@ const CreditsModal = () => {
     <>
       <div className='flex flex-wrap'>
         <Link onPress={handleOpen} className='cursor-pointer'>
-          <p className='text-14 text-c5 font-extralight'>Crédits</p>
+          <p className='text-16 text-c5 font-extralight'>Crédits</p>
         </Link>
       </div>
 

@@ -29,7 +29,7 @@ const reducer = (text: any, maxLength = 100) => {
   return str.slice(0, maxLength) + '...';
 };
 
-const useLocalStorageProperties = () => {
+export const useLocalStorageProperties = () => {
   // Changez le type ici pour accepter null ou un tableau
   const [itemPropertiesData, setItemPropertiesData] = useState<any[] | null>(null);
   const [propertiesLoading, setPropertiesLoading] = useState(true);
@@ -267,7 +267,7 @@ export const Database: React.FC = () => {
                     items={(!speakersLoading && items) || []}
                     emptyContent={<Spinner label='Chargement des données Omeka S' color='secondary' size='md' />}>
                     {(item) => (
-                      <TableRow key={item['o:id']} className='hover:bg-c2 max-height-40'>
+                      <TableRow key={item['o:id']} className='hover:bg-c2 max-height-40 text-c6'>
                         {columns.map((col, colIndex) => (
                           <TableCell
                             key={col.key}

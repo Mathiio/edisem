@@ -30,15 +30,12 @@ interface LayoutsProps {
 export const Layouts: React.FC<LayoutsProps> = ({ children, className }) => {
   return (
     <div className='relative bg-c1'>
+      <Navbar />
       <motion.main
         className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200'
         initial='hidden'
         animate='visible'
         variants={containerVariants}>
-        <motion.div className='col-span-10' variants={itemVariants}>
-          <Navbar />
-        </motion.div>
-
         <motion.div className={className} variants={itemVariants}>
           {children}
         </motion.div>
@@ -50,8 +47,3 @@ export const Layouts: React.FC<LayoutsProps> = ({ children, className }) => {
     </div>
   );
 };
-
-/*
-    <div className='relative bg-c1 h-screen'>
-      <main className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200 scroll-y-auto'></main>
-      */

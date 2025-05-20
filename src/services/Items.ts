@@ -403,6 +403,7 @@ export async function getAllItems() {
       keywords,
       collections,
       students,
+      recherches
     ] = await Promise.all([
       getConfs(),
       getActants(),
@@ -415,6 +416,7 @@ export async function getAllItems() {
       getKeywords(),
       getCollections(),
       getStudents(),
+      getRecherches(),
     ]);
 
     const allItems = [
@@ -429,6 +431,7 @@ export async function getAllItems() {
       ...keywords,
       ...collections,
       ...students,
+      ...recherches
     ];
 
     sessionStorage.setItem('allItems', JSON.stringify(allItems));
@@ -483,11 +486,32 @@ export async function getCollections() {
   }
 }
 
+export async function getRecherches() {
+  try {
+    const storedRecherches = sessionStorage.getItem('recherches');
+    if (storedRecherches) {
+      return JSON.parse(storedRecherches);
+    }
+
+    const recherches = await getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecherches&json=1',
+    );
+
+    sessionStorage.setItem('recherches', JSON.stringify(recherches));
+    return recherches;
+  } catch (error) {
+    console.error('Error fetching recherches:', error);
+    throw new Error('Failed to fetch recherches');
+  }
+}
+
 export async function getSeminaires() {
   try {
     const confs = await getConfs();
     const filteredConfs = confs.filter((conf: { event: string }) => conf.event === 'Séminaire Arcanes');
     const editionMap: { [key: string]: { confNum: number; date: string; season: string } } = {};
+
+    
 
     filteredConfs.forEach((conf: { edition: any; date: string; season: string }) => {
       const editionId = conf.edition;
@@ -498,6 +522,8 @@ export async function getSeminaires() {
       }
       editionMap[editionId].confNum++;
     });
+
+    
 
     const editions = Object.entries(editionMap)
       .map(([id, { confNum, date, season }]) => ({
@@ -514,6 +540,7 @@ export async function getSeminaires() {
         const seasonOrder = ['printemps', 'été', 'automne', 'hiver'];
         return seasonOrder.indexOf(b.season) - seasonOrder.indexOf(a.season);
       });
+      console.log(editions);
     return editions;
   } catch (error) {
     console.error('Error fetching seminars:', error);

@@ -5,7 +5,7 @@ import { motion, Variants } from 'framer-motion';
 import { Link as RoutLink } from 'react-router-dom';
 import Logo from '@/assets/svg/logo.svg';
 import { Link } from '@heroui/react';
-import { LocationIcon, MailIcon, YoutubeIcon } from '@/components/Utils/icons';
+import { LocationIcon, MailIcon } from '@/components/Utils/icons';
 
 const navbarVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
@@ -42,56 +42,46 @@ export const Footer: React.FC = () => {
           Une plateforme d’éditorialisation des séminaires. Une autre manière d’explorer les conférences et les
           conférenciers des séminaires Arcanes.
         </p>
-        <Link
-          href='https://www.youtube.com/channel/UCZT71fTyQaxqf13sNCPZSIA/featured'
-          className='flex items-center gap-2'>
-          <YoutubeIcon width={18} className='text-c5' />
-          <p className='text-16 text-c5 font-medium'>Arcanes</p>
-        </Link>
       </motion.div>
       <motion.div className='flex col-span-3 flex-col items-start gap-8' variants={navbarVariants}>
-        <h3 className='text-16 text-c6 font-medium'>Arcanes</h3>
+        <h3 className='text-16 text-c6 font-semibold'>Liens</h3>
         <div className='flex flex-col gap-6'>
           <Link href='https://crilcq.arcanes.ca/' className='text-14 text-c5 font-extralight'>
             <div>Arcanes</div>
           </Link>
-          <Link href='mailto:contact@arcanes.ca' className='text-14 text-c5 font-extralight'>
-            <div>Nous contacter</div>
-          </Link>
           <CreditsModal />
-        </div>
-      </motion.div>
-      <motion.div className='flex col-span-3 flex-col items-start gap-8' variants={navbarVariants}>
-        <h3 className='text-16 text-c6 font-medium'>Support</h3>
-        <div className='flex flex-col gap-6'>
-          <Link href='https://crilcq.arcanes.ca/' className='text-14 text-c5 font-extralight'>
-            <div>Utiliser Edisem</div>
-          </Link>
-          <Link href='https://crilcq.arcanes.ca/' className='text-14 text-c5 font-extralight'>
-            <div>Centre d'aide</div>
-          </Link>
-          <Link href='mailto:contact@arcanes.ca' className='text-14 text-c5 font-extralight'>
-            <div>Signaler un bug</div>
+          <Link
+            href='https://www.youtube.com/channel/UCZT71fTyQaxqf13sNCPZSIA/featured'
+            className='flex items-center gap-2'>
+            <p className='text-16 text-c5 font-medium'>Youtube</p>
           </Link>
         </div>
       </motion.div>
       <motion.div className='flex col-span-3 flex-col items-start gap-8' variants={navbarVariants}>
-        <h3 className='text-16 text-c6 font-medium'>Support</h3>
+        <h3 className='text-16 text-c6 font-semibold'>Support</h3>
         <div className='flex flex-col gap-6'>
           <Link
             href='https://www.youtube.com/channel/UCZT71fTyQaxqf13sNCPZSIA/featured'
             className='flex items-center gap-2'>
             <MailIcon width={12} className='text-c5' />
-            <p className='text-14 text-c5 font-medium'>contact@arcanes.ca</p>
+            <p className='text-16 text-c5 font-medium'>contact@arcanes.ca</p>
           </Link>
           <Link
             href='https://www.youtube.com/channel/UCZT71fTyQaxqf13sNCPZSIA/featured'
             className='flex items-center gap-2'>
             <LocationIcon width={14} className='text-c5' />
-            <p className='text-14 text-c5 font-medium'>
+            <p className='text-16 text-c5 font-medium'>
               295 Boul. Charest <br />
               Laval QC, G1K 3G8
             </p>
+          </Link>
+        </div>
+      </motion.div>
+      <motion.div className='flex col-span-3 flex-col items-start gap-8' variants={navbarVariants}>
+        <h3 className='text-16 text-c6 font-semibold'>Nous contacter</h3>
+        <div className='flex flex-col gap-6'>
+          <Link href='mailto:contact@arcanes.ca' className='text-14 text-c5 font-extralight'>
+            <div>Signaler un bug</div>
           </Link>
         </div>
       </motion.div>

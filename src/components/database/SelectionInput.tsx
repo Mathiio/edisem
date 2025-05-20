@@ -158,7 +158,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
           <DropdownTrigger>
             <Button
               startContent={<SortIcon size={16} className='text-c6' />}
-              className='px-[15px] py-10 flex gap-10 bg-c3 border-none rounded-8'>
+              className='px-[15px] py-10 h-full flex gap-10 bg-c3 border-none rounded-8'>
               Trier
             </Button>
           </DropdownTrigger>
@@ -169,8 +169,12 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
             selectedKeys={new Set([sortOrder])}
             onSelectionChange={handleSortOrderChange}
             selectionMode='single'>
-            <DropdownItem key='asc'>A - Z</DropdownItem>
-            <DropdownItem key='desc'>Z - A</DropdownItem>
+            <DropdownItem key='asc' className='text-c6'>
+              A - Z
+            </DropdownItem>
+            <DropdownItem key='desc' className='text-c6'>
+              Z - A
+            </DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </div>
@@ -182,7 +186,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
               key={index}
               onClick={() => handleDeselect(id)}
               radius='none'
-              className={`py-10 px-10 gap-10 text-14 rounded-8 bg-action text-selected transition-all ease-in-out duration-200 navfilter flex items-center`}
+              className={`py-10 h-full px-10 gap-10 text-14 rounded-8 bg-action text-selected transition-all ease-in-out duration-200 navfilter flex items-center`}
               endContent={<CrossIcon size={18} />}>
               {reducer(idToDisplayNameMap[id], 30)}
             </Button>
@@ -194,7 +198,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
               key={index}
               onClick={() => handleSelect(id)}
               radius='none'
-              className={` py-10 px-10 text-14 rounded-8 text-c6 bg-c1 hover:text-selected hover:bg-action transition-all ease-in-out duration-200  flex items-center`}>
+              className={` py-10 h-full px-10 text-14 rounded-8 text-c6 bg-c1 hover:text-selected hover:bg-action transition-all ease-in-out duration-200  flex items-center`}>
               {reducer(idToDisplayNameMap[id])}
             </Button>
           ))}

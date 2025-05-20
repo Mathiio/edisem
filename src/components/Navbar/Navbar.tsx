@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { ChangeThemeButton } from '@/components/Navbar/change-theme';
@@ -29,6 +29,17 @@ const containerVariants: Variants = {
 
 export const Navbar: React.FC = () => {
   const { isDark, toggleThemeMode } = useThemeMode();
+  const [hasScrolled, setHasScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 100;
+      setHasScrolled(isScrolled);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const logos = useMemo(
     () => [
@@ -49,33 +60,41 @@ export const Navbar: React.FC = () => {
 
   return (
     <motion.nav
-      className='w-full flex justify-between items-center'
+      className={`flex flex-row w-full transition-all ease-in-out duration-200 sticky top-0 z-50 ${
+        hasScrolled ? 'bg-c1/90 backdrop-blur-lg' : 'bg-transparent backdrop-blur-none'
+      }`}
       initial='hidden'
       animate='visible'
-      variants={containerVariants}>
-      <motion.div className='flex items-center gap-20' variants={navbarVariants}>
-        <RoutLink to='/' className='flex items-center gap-2'>
-          <Image width={34} src={Logo} alt='Logo' />
-          <div className='text-24 text-c6 font-medium'>Arcanes</div>
-        </RoutLink>
-        <div className='h-20 border-1 bg-c4'></div>
-        <div className='flex flex-wrap justify-between items-center gap-15'>
-          {logos.map((logo) => (
-            <img
-              key={`${logo.name}-${isDark ? 'dark' : 'light'}`}
-              className='object-contain'
-              style={{ height: logo.height }}
-              src={getLogo(logo.name)}
-              alt={`${logo.name} logo`}
-            />
-          ))}
-        </div>
-      </motion.div>
-      <motion.div className='flex items-center gap-10' variants={navbarVariants}>
-        <SearchModal />
-        <AuthDropdown />
-        <ChangeThemeButton isDark={isDark} toggleTheme={toggleThemeMode} />
-      </motion.div>
+      variants={containerVariants}
+      style={{
+        backdropFilter: `brightness(${hasScrolled ? 150 : 100}%)  blur(${hasScrolled ? 20 : 0}px)`,
+        WebkitBackdropFilter: `brightness(${hasScrolled ? 150 : 100}%)  blur(${hasScrolled ? 20 : 0}px)`,
+      }}>
+      <div className='flex flex-row max-w-screen-2xl w-full justify-between col-span-10 p-25   mx-auto'>
+        <motion.div className='flex items-center gap-20' variants={navbarVariants}>
+          <RoutLink to='/' className='flex items-center gap-2'>
+            <Image width={26} src={Logo} alt='Logo' />
+            <div className='text-24 text-c6 font-medium'>Arcanes</div>
+          </RoutLink>
+          <div className='h-20 border-1 border-c6'></div>
+          <div className='flex flex-wrap justify-between items-center gap-15'>
+            {logos.map((logo) => (
+              <img
+                key={`${logo.name}-${isDark ? 'dark' : 'light'}`}
+                className='object-contain'
+                style={{ height: logo.height }}
+                src={getLogo(logo.name)}
+                alt={`${logo.name} logo`}
+              />
+            ))}
+          </div>
+        </motion.div>
+        <motion.div className='flex items-center gap-10' variants={navbarVariants}>
+          <SearchModal />
+          <AuthDropdown />
+          <ChangeThemeButton isDark={isDark} toggleTheme={toggleThemeMode} />
+        </motion.div>
+      </div>
     </motion.nav>
   );
 };

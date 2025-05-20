@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 
 import { getAllItems } from '@/services/Items';
@@ -7,9 +7,24 @@ import { motion, Variants } from 'framer-motion';
 import { Navbar } from '@/components/Navbar/Navbar';
 import { Toolbar } from '@/components/datavisualisation/Toolbar';
 import ZoomControl from '@/components/datavisualisation/ZoomControl';
-import Legend from '@/components/datavisualisation/Legend';
 
 import { images } from '@/components/Utils/images';
+import {
+  compareValues,
+  FilterGroup,
+  getDataByType,
+  getPropertyValue,
+  ITEM_TYPES,
+  storeSearchHistory,
+} from '@/components/datavisualisation/FilterPopup';
+import OverlaySelector, { PredefinedFilter } from '@/components/datavisualisation/OverlaySelector';
+import { getLinksFromType } from '@/services/Links';
+import { Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, useDisclosure } from '@heroui/react';
+import { FileIcon, SearchIcon, Sidebar } from '@/components/Utils/icons';
+import SearchHistory from '@/components/datavisualisation/SearchHistory';
+import { useSearchParams } from 'react-router-dom';
+import { EditModal } from '@/components/database/EditModal';
+import { useLocalStorageProperties } from './database';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -33,11 +48,177 @@ export interface GeneratedImage {
   height: number;
 }
 
+// Fonction de mapping des types de nœud aux configurations
+const getConfigKey = (nodeType: string): string | null => {
+  const typeMap: Record<string, string> = {
+    conf: 'conferences',
+    citation: 'citations',
+    actant: 'conferenciers',
+    bibliography: 'bibliography',
+    mediagraphie: 'mediagraphie',
+    pays: 'pays',
+    laboratory: 'laboratoire',
+    school: 'ecolesdoctorales',
+    university: 'universites',
+    keyword: 'motcles',
+    collection: 'collection',
+  };
+  return typeMap[nodeType] || null;
+};
+
+const predefinedFilters: PredefinedFilter[] = [
+  {
+    label: 'Rechercher tous les actants liés au mot clés “trucage”',
+    groups: [
+      {
+        // Changé de group à groups (tableau)
+        name: 'Mots clés liés à "trucage"',
+        isExpanded: true,
+        itemType: 'keyword',
+        conditions: [
+          {
+            property: 'title',
+            operator: 'contains',
+            value: 'trucage',
+          },
+        ],
+        visibleTypes: Object.values(ITEM_TYPES),
+      },
+    ],
+  },
+  {
+    label: 'Rechercher toutes les conférences liés au “art trompeur” ',
+    groups: [
+      {
+        name: 'Conférences liées à "art trompeur"',
+        isExpanded: false,
+        itemType: 'conference',
+        conditions: [
+          {
+            property: 'mot-clé',
+            operator: 'contains',
+            value: 'art trompeur',
+          },
+        ],
+        visibleTypes: Object.values(ITEM_TYPES),
+      },
+    ],
+  },
+  {
+    label: 'Rechercher tous les mots clés liés à “Renée Bourassa”',
+    groups: [
+      {
+        name: 'Mots-clés liés à "Renée Bourassa"',
+        isExpanded: false,
+        itemType: 'mot-clé',
+        conditions: [
+          {
+            property: 'lié à',
+            operator: 'contains',
+            value: 'Renée Bourassa',
+          },
+        ],
+        visibleTypes: Object.values(ITEM_TYPES),
+      },
+    ],
+  },
+  {
+    label: 'Rechercher tous les items liés à “Jean Marc Larrue”',
+    groups: [
+      {
+        name: 'Items liés à "Jean Marc Larrue"',
+        isExpanded: false,
+        itemType: 'item',
+        conditions: [
+          {
+            property: 'lié à',
+            operator: 'contains',
+            value: 'Jean Marc Larrue',
+          },
+        ],
+        visibleTypes: Object.values(ITEM_TYPES),
+      },
+    ],
+  },
+  {
+    label: 'Rechercher toutes les bibliographies liées au mot clés “tromperie” ',
+    groups: [
+      {
+        name: 'Bibliographies liées à "tromperie"',
+        isExpanded: false,
+        itemType: 'bibliographie',
+        conditions: [
+          {
+            property: 'mot-clé',
+            operator: 'contains',
+            value: 'tromperie',
+          },
+        ],
+        visibleTypes: Object.values(ITEM_TYPES),
+      },
+    ],
+  },
+  {
+    label: "Rechercher toutes les citations lié à l'intelligence artificiel",
+    groups: [
+      {
+        name: "Citations liées à l'intelligence artificielle",
+        isExpanded: false,
+        itemType: 'citation',
+        conditions: [
+          {
+            property: 'mot-clé',
+            operator: 'contains',
+            value: 'intelligence artificielle',
+          },
+        ],
+        visibleTypes: Object.values(ITEM_TYPES),
+      },
+    ],
+  },
+];
+
 const Visualisation = () => {
   const [itemsDataviz, setItemsDataviz] = useState<any[]>([]);
   const [filteredNodes, setFilteredNodes] = useState<any[]>([]);
   const [filteredLinks, setFilteredLinks] = useState<any[]>([]);
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
+  //const [visibleTypes, setVisibleTypes] = useState<string[]>(Object.values(ITEM_TYPES));
+  const [, setCurrentSearchResults] = useState<any[]>(itemsDataviz); // par défaut tout
+  //const [availableTypes, setAvailableTypes] = useState<string[]>([]);
+  const [showOverlay, setShowOverlay] = useState(true);
+
+  const resetActiveIconFunc = useRef<(() => void) | null>(null);
+  const [exportEnabled, setExportEnabled] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  const [currentItemUrl, setCurrentItemUrl] = useState('');
+  const [selectedConfigKey, setSelectedConfigKey] = useState<string | null>(null);
+  const [, setSelectedConfig] = useState<string | null>(null);
+  const { itemPropertiesData, propertiesLoading } = useLocalStorageProperties();
+
+  const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
+  const { isOpen: isOpenDrawer, onOpen: onOpenDrawer, onOpenChange: onOpenChangeDrawer } = useDisclosure();
+
+  // Gestionnaire de clic sur un nœud
+  const handleNodeClick = (d: any) => {
+    const apiBase = 'https://tests.arcanes.ca/omk/api/';
+    const itemUrl = `${apiBase}items/${d.id}`;
+    console.log('Nœud cliqué:', d);
+    setCurrentItemUrl(itemUrl);
+    setSelectedConfigKey(getConfigKey(d.type));
+    setSelectedConfig(d.type);
+    onOpenEdit();
+  };
+
+  // Fonction pour enregistrer la référence à setActiveIcon(null)
+  const setResetActiveIconRef = useCallback((resetFunc: () => void) => {
+    resetActiveIconFunc.current = resetFunc;
+  }, []);
+
+  // const toggleTypeVisibility = (type: string) => {
+  //   setVisibleTypes((prev) => (prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]));
+  // };
 
   const [dimensions, setDimensions] = useState({
     width: 1450,
@@ -89,14 +270,17 @@ const Visualisation = () => {
     }
   };
 
-  const processDataForVisualization = (data: any[]) => {
-    if (!data?.length) return;
+  const processDataForVisualization = (data: any[], typeFilter: string[]) => {
+    if (!data?.length) return { typesInUse: [] };
 
     const CHARACTER_LIMIT = 10;
     const nodes = new Map();
     const links = new Set();
+    const typesInUse = new Set<string>();
 
     data.forEach((item) => {
+      if (!typeFilter.includes(item.type)) return;
+
       if (!nodes.has(item.id)) {
         let title = item.title;
         if (item.type === 'actant' && title.includes(' ')) {
@@ -107,27 +291,24 @@ const Visualisation = () => {
 
         nodes.set(item.id, {
           id: item.id,
-          title: item.title.length > CHARACTER_LIMIT ? `${item.title.substring(0, CHARACTER_LIMIT)}...` : item.title,
+          title: title.length > CHARACTER_LIMIT ? `${title.substring(0, CHARACTER_LIMIT)}...` : title,
+          fullTitle: title,
           type: item.type,
           isMain: false,
         });
+
+        typesInUse.add(item.type);
       }
     });
 
     data.forEach((item) => {
-      if (!Array.isArray(item.links)) return;
+      if (!Array.isArray(item.links) || !typeFilter.includes(item.type)) return;
 
       item.links.forEach((linkedId: string) => {
-        if (nodes.has(linkedId)) {
-          links.add(
-            JSON.stringify({
-              source: item.id,
-              target: linkedId,
-            }),
-          );
-        } else {
-          const linkedItem = itemsDataviz.find((d) => d.id === linkedId);
-          if (linkedItem) {
+        const linkedItem = itemsDataviz.find((d) => d.id === linkedId);
+
+        if (linkedItem && typeFilter.includes(linkedItem.type)) {
+          if (!nodes.has(linkedId)) {
             let linkedTitle = linkedItem.title;
             if (linkedItem.type === 'actant' && linkedTitle.includes(' ')) {
               const [firstName, ...lastName] = linkedTitle.split(' ');
@@ -136,44 +317,91 @@ const Visualisation = () => {
 
             nodes.set(linkedId, {
               id: linkedId,
+              fullTitle: linkedTitle,
               title:
                 linkedTitle.length > CHARACTER_LIMIT ? `${linkedTitle.substring(0, CHARACTER_LIMIT)}...` : linkedTitle,
               type: linkedItem.type,
               isMain: false,
             });
-            links.add(
-              JSON.stringify({
-                source: item.id,
-                target: linkedId,
-              }),
-            );
+
+            typesInUse.add(linkedItem.type);
           }
+
+          links.add(JSON.stringify({ source: item.id, target: linkedId }));
         }
       });
     });
 
     setFilteredNodes(Array.from(nodes.values()));
     setFilteredLinks(Array.from(links).map((link) => JSON.parse(link as string)));
+    setExportEnabled(true);
+
+    return { typesInUse: Array.from(typesInUse) };
   };
 
-  const handleSearch = (searchResults: any[]) => {
+  // function extractAllTypes(results: any[], filterGroups: any[], itemsDataviz: any[]) {
+  //   filterGroups.forEach((group) => {
+  //     if (!group.itemType) return;
+
+  //     const typesFound = new Set<string>();
+
+  //     // Parcourir les résultats correspondant au type du groupe
+  //     results
+  //       .filter((result) => result.type === group.itemType)
+  //       .forEach((result) => {
+  //         // Ajouter le type du résultat
+  //         typesFound.add(result.type);
+
+  //         // Ajouter les types des éléments liés
+  //         result.links?.forEach((linkedId: string) => {
+  //           const linkedItem = itemsDataviz.find((item) => item.id === linkedId);
+  //           if (linkedItem) typesFound.add(linkedItem.type);
+  //         });
+  //       });
+
+  //     // Mettre à jour les types visibles (types existants - types trouvés)
+  //     // En excluant le type de l'élément du groupe lui-même
+  //     group.visibleTypes = Object.values(ITEM_TYPES).filter((type) => typesFound.has(type) && type !== group.itemType);
+  //   });
+  // }
+
+  const handleSearch = (searchResults: any[], groups: FilterGroup[]) => {
     if (!searchResults?.length) {
       console.warn('No search results found');
       return;
     }
-    processDataForVisualization(searchResults);
+    setCurrentSearchResults(searchResults);
+
+    processDataForVisualization(searchResults, [
+      'citation',
+      'conference',
+      'actant',
+      'keyword',
+      'bibliography',
+      'mediagraphie',
+      'collection',
+      'university',
+      'laboratory',
+      'doctoralschool',
+    ]);
+    console.log(groups);
+    setShowOverlay(false);
   };
+
+  // // Lors d'un changement de types visibles
+  // useEffect(() => {
+  //   processDataForVisualization(currentSearchResults, visibleTypes);
+  // }, [visibleTypes]);
 
   useEffect(() => {
     if (!filteredNodes.length) return;
-
+    clearSvg();
     const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove();
-
     const zoomGroup = svg.append('g').attr('class', 'zoom-group');
 
     const defs = zoomGroup.append('defs');
 
+    // Définitions des patterns pour les nœuds
     filteredNodes.forEach((node) => {
       const patternId = `node-pattern-${node.type}`;
 
@@ -192,20 +420,28 @@ const Visualisation = () => {
       }
     });
 
+    // Créer des copies fraîches des nœuds pour la simulation
     const simulationNodes = filteredNodes.map((node: any) => ({
       ...node,
-      x: undefined,
-      y: undefined,
-      fx: undefined,
-      fy: undefined,
+      x: node.x || dimensions.width / 2 + (Math.random() - 0.5) * 100,
+      y: node.y || dimensions.height / 2 + (Math.random() - 0.5) * 100,
+      fx: node.fx,
+      fy: node.fy,
     }));
+
+    // Créer des copies fraîches des liens avec référence directe aux objets nœuds
+    const simulationLinks = filteredLinks.map((link: any) => {
+      const sourceNode = simulationNodes.find((node: any) => node.id === link.source);
+      const targetNode = simulationNodes.find((node: any) => node.id === link.target);
+      return { source: sourceNode, target: targetNode };
+    });
 
     const simulation = d3
       .forceSimulation(simulationNodes as any)
       .force(
         'link',
         d3
-          .forceLink(filteredLinks)
+          .forceLink(simulationLinks)
           .id((d: any) => d.id)
           .distance(300),
       )
@@ -216,24 +452,103 @@ const Visualisation = () => {
     const link = zoomGroup
       .append('g')
       .selectAll('line')
-      .data(filteredLinks)
+      .data(simulationLinks)
       .join('line')
-      .attr('stroke', '#fff')
+      .attr('stroke', 'hsl(var(--heroui-c6))')
       .attr('stroke-width', 1);
 
-    const node = zoomGroup
-      .append('g')
-      .selectAll<SVGCircleElement, any>('circle')
-      .data(simulationNodes)
-      .join('circle')
+    // Créer des groupes de nœuds
+    const nodeGroup = zoomGroup.append('g').selectAll('g').data(simulationNodes).join('g');
+
+    // Ajouter le cercle principal à chaque groupe
+    nodeGroup
+      .append('circle')
+      .attr('class', 'node-circle')
       .attr('r', (d: any) => getRadiusForType(d.type) / 2)
       .attr('fill', (d: any) => {
         const patternId = `node-pattern-${d.type}`;
         return `url(#${patternId})`;
       });
 
+    // Ajouter le texte à l'intérieur du même groupe
+    nodeGroup
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '0.35em')
+      .text((d: any) => d.title)
+      .attr('class', 'node-text')
+      .attr('font-size', (d: any) => getSizeForType(d.type))
+      .attr('fill', 'hsl(var(--heroui-c6))')
+      .attr('font-family', 'Inter, sans-serif')
+      .style('user-select', 'none')
+      .style('pointer-events', 'none');
+
+    // Gestion du hover sur les groupes
+    nodeGroup
+      .on('mouseover', function (_event, d) {
+        if (
+          d.type === 'keyword' ||
+          d.type === 'university' ||
+          d.type === 'school' ||
+          d.type === 'laboratory' ||
+          d.type === 'conference' ||
+          d.type === 'citation' ||
+          d.type === 'actant'
+        ) {
+          const currentRadius = getRadiusForType(d.type) / 2;
+          let offset = -2;
+
+          // Calcul proportionnel: réduction d'environ 13-15% du rayon
+          let innerStrokeRadius;
+          console.log(d.type);
+
+          if (d.type === 'keyword' || d.type === 'university' || d.type === 'school' || d.type === 'laboratory') {
+            // Pour les petites bulles
+            innerStrokeRadius = currentRadius * 0.72;
+            offset = -2;
+          } else if (d.type === 'bibliography' || d.type === 'mediagraphie' || d.type === 'citation') {
+            // Pour les bulles moyennes
+            innerStrokeRadius = currentRadius * 0.72;
+            offset = -3;
+          } else {
+            // Pour les bulles plus grandes
+            innerStrokeRadius = currentRadius * 0.7;
+            offset = -4;
+          }
+
+          // Ajouter un cercle pour l'effet de stroke intérieur
+          d3.select(this)
+            .append('circle')
+            .attr('class', 'inner-stroke')
+            .attr('r', innerStrokeRadius)
+            .attr('fill', 'none')
+            .attr('stroke', 'hsl(var(--heroui-c6))')
+            .attr('stroke-width', 2)
+            .attr('cy', offset);
+        }
+      })
+      .on('mouseout', function () {
+        // Supprimer le cercle de contour intérieur
+        d3.select(this).selectAll('.inner-stroke').remove();
+      })
+      .on('click', function (_event, d) {
+        console.log(d);
+        if (
+          d.type === 'keyword' ||
+          d.type === 'university' ||
+          d.type === 'school' ||
+          d.type === 'laboratory' ||
+          d.type === 'conference' ||
+          d.type === 'citation' ||
+          d.type === 'actant'
+        ) {
+          handleNodeClick(d);
+        }
+      });
+
+    // Configurer le drag sur les groupes
     const drag = d3
-      .drag<SVGCircleElement, any>()
+      .drag<SVGGElement, any>()
       .on('start', (event: any, d: any) => {
         if (!event.active && simulation) simulation.alphaTarget(0.3).restart();
         d.fx = d.x;
@@ -243,36 +558,36 @@ const Visualisation = () => {
         d.fx = event.x;
         d.fy = event.y;
       })
-      .on('end', (event: any, d: any) => {
+      .on('end', (event: any) => {
         if (!event.active && simulation) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
+        // Conserver les positions fixes après le drag pour maintenir la stabilité
+        // C'est un choix de conception, vous pouvez aussi les remettre à null
+        // pour permettre aux nœuds de continuer à bouger
       });
-    node.call(drag);
 
-    const label = zoomGroup
-      .append('g')
-      .selectAll('text')
-      .data(simulationNodes)
-      .join('text')
-      .attr('text-anchor', 'middle')
-      .attr('dy', '0.35em')
-      .text((d: any) => d.title)
-      .attr('font-size', (d: any) => getSizeForType(d.type))
-      .attr('fill', '#fff')
-      .attr('font-family', 'Inter, sans-serif')
-      .style('user-select', 'none');
+    nodeGroup.call(drag as any);
 
     simulation.on('tick', () => {
+      // Mettre à jour les positions des liens basées directement sur les objets
+      // simulationNodes qui sont mis à jour par la simulation
       link
         .attr('x1', (d: any) => d.source.x ?? 0)
         .attr('y1', (d: any) => d.source.y ?? 0)
         .attr('x2', (d: any) => d.target.x ?? 0)
         .attr('y2', (d: any) => d.target.y ?? 0);
 
-      node.attr('cx', (d: any) => d.x ?? 0).attr('cy', (d: any) => d.y ?? 0);
-      label.attr('x', (d: any) => d.x ?? 0).attr('y', (d: any) => d.y ?? 0);
+      // Positionner les groupes de nœuds
+      nodeGroup.attr('transform', (d: any) => `translate(${d.x ?? 0},${d.y ?? 0})`);
     });
+
+    // Fonction pour réajuster la simulation lors de redimensionnements
+    const handleResize = () => {
+      simulation.force('center', d3.forceCenter(dimensions.width / 2, dimensions.height / 2));
+      simulation.alpha(0.3).restart(); // Redémarrer avec une force alpha modérée
+    };
+
+    // Appliquer immédiatement et quand les dimensions changent
+    handleResize();
 
     return () => {
       if (simulation) simulation.stop();
@@ -388,6 +703,89 @@ const Visualisation = () => {
     }
   };
 
+  const handleOverlaySelect = (group: FilterGroup[]) => {
+    applyPredefinedFilter(group);
+    setShowOverlay(false);
+  };
+
+  const applyPredefinedFilter = async (groups: FilterGroup[]) => {
+    const results: any[] = [];
+
+    for (const group of groups) {
+      if (!group.itemType) continue;
+
+      const items = await getDataByType(group.itemType);
+
+      for (const item of items) {
+        let matchesAllConditions = true;
+
+        for (const condition of group.conditions) {
+          if (!condition.property || !condition.value) {
+            continue;
+          }
+
+          try {
+            const itemValue = await getPropertyValue(item, condition.property);
+            const matches = await compareValues(itemValue, condition.value, condition.operator);
+
+            if (!matches) {
+              matchesAllConditions = false;
+              break;
+            }
+          } catch (error) {
+            console.error('Error in condition:', error);
+            matchesAllConditions = false;
+            break;
+          }
+        }
+
+        if (matchesAllConditions) {
+          try {
+            const links = await getLinksFromType(item, group.itemType);
+            const title = item.title || (await getPropertyValue(item, 'title')) || '';
+
+            results.push({
+              id: item.id,
+              type: group.itemType,
+              title,
+              links,
+            });
+          } catch (error) {
+            console.error('Error adding result item:', error);
+          }
+        }
+      }
+
+      handleSearch(results, groups);
+    }
+
+    // Si vous voulez aussi stocker l'historique de recherche comme dans applyFilters
+    storeSearchHistory(groups);
+  };
+
+  const clearSvg = () => {
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove();
+  };
+
+  useEffect(() => {
+    const configParam = searchParams.get('config');
+    if (configParam) {
+      try {
+        const decoded = decodeURIComponent(configParam);
+        const maybeStringifiedArray = JSON.parse(decoded);
+
+        // Si le résultat est une string (encodée deux fois), on parse encore
+        const parsed =
+          typeof maybeStringifiedArray === 'string' ? JSON.parse(maybeStringifiedArray) : maybeStringifiedArray;
+
+        handleOverlaySelect(parsed);
+      } catch (e) {
+        console.error('Erreur de parsing double :', e);
+      }
+    }
+  }, [searchParams]);
+
   return (
     <div className='relative h-screen bg-c1 overflow-y-hidden'>
       <motion.main
@@ -395,9 +793,17 @@ const Visualisation = () => {
         initial='hidden'
         animate='visible'
         variants={containerVariants}>
-        <motion.div className='col-span-10' variants={itemVariants}>
+        <motion.div className='col-span-10 ' variants={itemVariants}>
           <Navbar />
         </motion.div>
+        <div className='mt-20 z-100'>
+          <Button
+            onPress={onOpenDrawer}
+            size='lg'
+            className='absolute px-4 py-4 flex justify-between bg-c2 gap-2 hover:bg-c3 hover:opacity-100 text-c6 rounded-8 z-50'>
+            <Sidebar size={26} />
+          </Button>
+        </div>
         <motion.div
           className='relative w-full h-full'
           variants={containerVariants}
@@ -409,6 +815,7 @@ const Visualisation = () => {
           }}
           initial='hidden'
           animate='visible'>
+          {showOverlay && <OverlaySelector filters={predefinedFilters} onSelect={handleOverlaySelect} />}
           <svg
             ref={svgRef}
             xmlns='http://www.w3.org/2000/svg'
@@ -420,16 +827,76 @@ const Visualisation = () => {
               left: 0,
             }}
             viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}></svg>
+          <div className='absolute bottom-[60px] right-0 z-[50]'>
+            <ZoomControl availableControl={!showOverlay} svgRef={svgRef} />
+          </div>
         </motion.div>
       </motion.main>
+      {/* Drawer à gauche */}
+      <Drawer isOpen={isOpenDrawer} hideCloseButton placement='left' onOpenChange={onOpenChangeDrawer}>
+        <DrawerContent className='bg-c1 z-[52] flex flex-col gap-4'>
+          {(onClose) => (
+            <>
+              <DrawerHeader className='flex flex-row items-center justify-between text-c6'>
+                <Button
+                  onPress={onClose}
+                  size='lg'
+                  className='px-4 py-4 flex justify-between  bg-c2 text-c6 rounded-8 hover:bg-c3 '>
+                  <Sidebar size={28} />
+                </Button>
+                <Button
+                  onPress={() => {
+                    onClose?.();
+                    setShowOverlay(true);
+                    setExportEnabled(false);
+                    clearSvg();
+                    // Appeler la fonction si elle existe
+                    if (resetActiveIconFunc.current) {
+                      resetActiveIconFunc.current();
+                    }
+                  }}
+                  size='lg'
+                  className='px-4 py-4 flex justify-between  bg-c2 text-c6 rounded-8 hover:bg-c3 '>
+                  Nouvelle recherche
+                  <SearchIcon size={18} />
+                </Button>
+              </DrawerHeader>
+              <DrawerBody className='text-c6 flex flex-col gap-8'>
+                <a
+                  href='/recherche'
+                  className='text-c6 flex flex-row gap-4 border-2 border-c3  hover:border-c4 rounded-12 transition w-fit p-3'>
+                  <FileIcon size={20} />
+                  <div>Cahier de recherche</div>
+                </a>
+                <SearchHistory
+                  onSelectSearch={(filters) => {
+                    handleOverlaySelect(filters);
+                  }}
+                  onClose={onClose}
+                />
+              </DrawerBody>
+            </>
+          )}
+        </DrawerContent>
+      </Drawer>
+      <EditModal
+        isOpen={isOpenEdit}
+        onClose={onCloseEdit}
+        itemUrl={currentItemUrl}
+        activeConfig={selectedConfigKey}
+        itemPropertiesData={itemPropertiesData}
+        propertiesLoading={propertiesLoading}
+      />
+
       <Toolbar
         itemsDataviz={itemsDataviz}
         onSearch={handleSearch}
         handleExportClick={handleExportClick}
         generatedImage={generatedImage}
+        resetActiveIconRef={setResetActiveIconRef}
+        onSelect={handleOverlaySelect}
+        exportEnabled={exportEnabled}
       />
-      <ZoomControl svgRef={svgRef} />
-      <Legend />
     </div>
   );
 };

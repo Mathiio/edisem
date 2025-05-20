@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Spinner, Button, ModalBody, ModalFooter, ModalContent, Modal, Link, ModalHeader } from '@heroui/react';
+import {
+  Input,
+  Spinner,
+  Button,
+  ModalBody,
+  ModalFooter,
+  ModalContent,
+  Modal,
+  Link,
+  ModalHeader,
+  LinkIcon,
+} from '@heroui/react';
 import { usegetDataByClassDetails } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/database/SelectionInput';
 import { Textarea } from '@heroui/input';
@@ -650,7 +661,7 @@ export interface InputConfig {
   key: string;
   label: string;
   dataPath: string;
-  type: 'input' | 'selection' | 'textarea' | 'time' | 'inputs' | 'intervalTime' | 'date';
+  type: 'input' | 'selection' | 'textarea' | 'time' | 'inputs' | 'intervalTime' | 'date' | 'lien';
   options?: (string | number)[];
   selectionId?: number[];
 }
@@ -740,6 +751,7 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       dataPath: 'schema:endTime.0.@value',
       type: 'time',
     },
+    { key: 'Conférence', label: 'Conférence associé', dataPath: '@reverse.schema:citation.0.@id', type: 'lien' },
   ],
   conferenciers: [
     { key: 'nom', label: 'Nom', dataPath: 'foaf:lastName.0.@value', type: 'input' },
@@ -1033,7 +1045,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                 </Link>
               </ModalHeader>
               <ModalBody className='flex p-25'>
-                <div className='flex flex-col gap-50 items-start scroll-y-auto'>
+                <div className='flex flex-col gap-50 items-start scroll-y-auto text-c6'>
                   {activeConfig && !detailsLoading ? (
                     itemDetailsData &&
                     inputConfigs[activeConfig]?.map((col: InputConfig) => {
@@ -1129,14 +1141,42 @@ export const EditModal: React.FC<EditModalProps> = ({
                   {saveError && <div className='error'>{saveError}</div>}
                 </div>
               </ModalBody>
-              <ModalFooter className='flex items-center justify-end p-25 '>
+              <ModalFooter className='flex items-center justify-end p-25'>
                 <div className='flex flex-row gap-25'>
+                  {activeConfig && !detailsLoading && itemDetailsData && (
+                    <>
+                      {inputConfigs[activeConfig]?.map((col: InputConfig) => {
+                        const value = getValueByPath(itemDetailsData, col.dataPath);
+                        if (col.type === 'lien') {
+                          return (
+                            <Button
+                              key={col.dataPath}
+                              onClick={() => {
+                                // Extraction de l'ID de la ressource à partir de l'URL
+                                const resourceId = value.split('/').pop();
+                                // Formation du nouveau lien pour la conférence
+                                const conferenceUrl = `https://edisem.arcanes.ca/conference/${resourceId}`;
+                                // Ouverture dans un nouvel onglet
+                                window.open(conferenceUrl, '_blank', 'noopener,noreferrer');
+                              }}
+                              endContent={<LinkIcon />}
+                              radius='none'
+                              className='h-[32px] px-10 text-16 rounded-8 text-selected bg-c3 transition-all ease-in-out duration-200 navfilter flex items-center'>
+                              Voir dans la conférence
+                            </Button>
+                          );
+                        }
+                        return null;
+                      })}
+                    </>
+                  )}
+
                   <Button
                     onPress={onClose}
                     onClick={handleSave}
                     disabled={saving}
                     radius='none'
-                    className={`h-[32px] px-10 text-16 rounded-8 text-selected bg-action transition-all ease-in-out duration-200 navfilter flex items-center`}>
+                    className='h-[32px] px-10 text-16 rounded-8 text-selected bg-action transition-all ease-in-out duration-200 navfilter flex items-center'>
                     Modifier
                   </Button>
                 </div>

@@ -1,10 +1,14 @@
+import React from 'react';
 import { getKeywords, getConfs, getCitations } from '@/services/Items';
 import { getLinksFromKeywords } from '@/services/Links';
 import { useEffect, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
-import { FullCarrousel } from '@/components/Utils/Carrousels';
-import { getActant } from '@/services/api';
+import { CitationCarrousel } from '@/components/Utils/Carrousels';
+import { getActant, getConfByCitation } from '@/services/api';
+import { Button, Card } from '@heroui/react';
+import { LinkIcon, UserIcon } from '../Utils/icons';
+import { Link } from 'react-router-dom';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -13,6 +17,76 @@ const fadeIn: Variants = {
     y: 0,
     transition: { duration: 0.6, delay: index * 0.15 },
   }),
+};
+
+const CitationSlide = ({ item }: { item: any }) => {
+  const [confId, setConfId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchConfId = async () => {
+      const id = await getConfByCitation(item.id);
+      setConfId(id);
+    };
+    fetchConfId();
+  }, [item.id]);
+
+  return (
+    <motion.div
+      initial='hidden'
+      animate='visible'
+      variants={fadeIn}
+      key={item.id}
+      className='py-4 px-2 bg-c1 rounded-14 flex flex-col overflow-visible'>
+      <Card className='p-25 flex flex-col gap-15' shadow='sm'>
+        <p
+          className='text-14 text-c4 italic leading-[150%] flex-grow overflow-hidden'
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 10,
+            WebkitBoxOrient: 'vertical',
+            textOverflow: 'ellipsis',
+          }}>
+          {item.citation}
+        </p>
+        <div className='flex flex-row gap-15 items-center'>
+          {item.actant.picture ? (
+            <img
+              src={item.actant.picture}
+              alt={`${item.actant.firstname} ${item.actant.lastname}`}
+              className='w-[30px] h-[30px] object-cover rounded-12'
+            />
+          ) : (
+            <div className='min-w-[30px] h-[30px] rounded-12 object-cover flex items-center justify-center bg-c3'>
+              <UserIcon size={16} className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200' />
+            </div>
+          )}
+          <div className='flex flex-row w-full justify-between'>
+            <p className='text-18 text-c6 flex flex-row items-center leading-[70%]'>{`${item.actant.firstname} ${item.actant.lastname}`}</p>
+            {confId ? (
+              <Link to={`/conference/${confId}`}>
+                <Button
+                  key={item.id}
+                  endContent={<LinkIcon size={16} />}
+                  radius='none'
+                  className='h-[32px] px-10 text-14 rounded-8 text-selected bg-action transition-all ease-in-out duration-200 navfilter flex items-center'>
+                  Voir plus
+                </Button>
+              </Link>
+            ) : (
+              <Button
+                key={item.id}
+                endContent={<LinkIcon size={16} />}
+                radius='none'
+                disabled
+                className='h-[32px] px-10 text-14 rounded-8 opacity-50 bg-action transition-all ease-in-out duration-200 navfilter flex items-center'>
+                Chargement...
+              </Button>
+            )}
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  );
 };
 
 export const KeywordHighlight: React.FC = () => {
@@ -69,7 +143,7 @@ export const KeywordHighlight: React.FC = () => {
               return citation;
             }),
           );
-
+          console.log(updatedCitations);
           setFilteredCitations(updatedCitations);
         }
       } catch (error) {
@@ -83,17 +157,17 @@ export const KeywordHighlight: React.FC = () => {
   }, []);
 
   return (
-    <div className='py-50 w-full justify-center flex items-center flex-col gap-50'>
+    <div className='py-[70px] w-full justify-center flex items-center flex-col gap-25 overflow-visible'>
       <div className='py-50 gap-20 justify-between flex items-center flex-col'>
-        <h1 className='text-64 font-medium flex flex-col items-center transition-all ease-in-out duration-200'>
+        <h1 className='text-64 font-medium flex flex-col items-center transition-all ease-in-out duration-200 font-[600]'>
           <span className='text-c5'>Découvrez les sujets autour de</span>
           <span className='text-center bg-gradient-to-r from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-left'>
-            “{selectedKeyword?.title || 'intelligence artificielle'}”
+            "{selectedKeyword?.title || 'intelligence artificielle'}"
           </span>
         </h1>
         <p className='text-c4 text-16'>Une exploration plus immersive par thématique.</p>
       </div>
-      <div className='grid grid-cols-4 gap-25'>
+      <div className='grid grid-cols-4 w-full gap-25'>
         {loading
           ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
           : filteredConfs.map((item, index) => (
@@ -113,23 +187,13 @@ export const KeywordHighlight: React.FC = () => {
               </motion.div>
             ))}
       </div>
-      <div className='mt-50 w-full flex bg-c2 rounded-12 p-50 h-auto'>
-        <FullCarrousel
-          title='Citations sur le sujet'
-          perPage={1}
+      <div className='mt-50 w-full flex rounded-12 overflow-visible h-auto'>
+        <CitationCarrousel
+          perPage={3}
           perMove={1}
           data={filteredCitations}
-          renderSlide={(item) => (
-            <motion.div
-              initial='hidden'
-              animate='visible'
-              variants={fadeIn}
-              key={item.id}
-              className='p-4 bg-gray-100 rounded-lg'>
-              <p className='text-18 text-c6 mt-2'>{`${item.actant.firstname} ${item.actant.lastname}`}</p>
-              <p className='text-16 text-c4 italic'>{item.citation}</p>
-            </motion.div>
-          )}
+          renderSlide={(item, index) => <CitationSlide item={item} key={index} />}
+          title={'Citations sur ce sujet'}
         />
       </div>
     </div>
