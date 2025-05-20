@@ -158,38 +158,50 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
   
   
   
-  export async function getLinksFromActant(actant: any): Promise<string[]> {
-    if (!actant || !actant.id) return [];
-  
-    const links: string[] = [];
-  
-    ['laboritories', 'universities', 'doctoralSchools'].forEach(key => {
-      if (Array.isArray(actant[key])) {
-        links.push(
-          ...actant[key]
-            .filter((item: any) => item && item.id)
-            .map((item: any) => item.id)
-        );
-      }
-    });
-  
-    const confs = await Items.getConfs();
-    confs.forEach((conf: any) => {
-      if (conf && conf.id && conf.actant === actant.id) {
-        if (Array.isArray(conf.citations)) {
-          links.push(...conf.citations.filter(Boolean));
+  export async function getLinksFromActant(actant:any) {
+  if (!actant || !actant.id) return [];
+
+  const links = new Set();
+
+  // Liens directs depuis l'actant
+  if (Array.isArray(actant.laboritories)) actant.laboritories.forEach((id: any) => id && links.add(id));
+  if (Array.isArray(actant.universities)) actant.universities.forEach((id: any) => id && links.add(id));
+  if (Array.isArray(actant.doctoralSchools)) actant.doctoralSchools.forEach((id: any) => id && links.add(id));
+
+  // Conférences
+  const confs = await Items.getConfs();
+  confs.forEach((conf:any) => {
+    if (conf.actant === actant.id) {
+      // Ajoute la conférence elle-même
+      conf.id && links.add(conf.id);
+
+      // Liens citation, mot-clé, biblio, etc.
+      [
+        'citations', 
+        'motcles', 
+        'bibliographies', 
+        'mediagraphies', 
+        'collection', 
+        'recommendation'
+      ].forEach(attr => {
+        const val = conf[attr];
+        if (Array.isArray(val)) {
+          val.forEach(x => {
+            // Si item est objets { id }, sinon direct string
+            if (x && typeof x === 'object' && x.id) links.add(x.id);
+            else if (typeof x === 'string') links.add(x);
+          });
+        } else if (val) {
+          if (typeof val === 'object' && val.id) links.add(val.id);
+          else if (typeof val === 'string') links.add(val);
         }
-        if (Array.isArray(conf.motcles)) {
-          links.push(
-            ...conf.motcles
-              .filter((motcle: any) => motcle && motcle.id)
-              .map((motcle: any) => motcle.id)
-          );
-        }
-      }
-    });
-    return links;
-  }
+      });
+    }
+  });
+
+  return Array.from(links) as string[];
+}
+
   
 
 

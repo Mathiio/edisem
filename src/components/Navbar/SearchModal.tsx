@@ -17,10 +17,11 @@ const fadeIn: Variants = {
 
 const SearchModal = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [hasSearched, setHasSearched] = useState(false);
   const [filteredActants, setFilteredActants] = useState<any[]>([]);
-  const [loadingActants, setLoadingActants] = useState(true);
+  const [loadingActants, setLoadingActants] = useState(false);
   const [filteredConfs, setFilteredConfs] = useState<any[]>([]);
-  const [loadingConfs, setLoadingConfs] = useState(true);
+  const [loadingConfs, setLoadingConfs] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -43,6 +44,7 @@ const SearchModal = () => {
 
   useEffect(() => {
     if (searchQuery) {
+      setHasSearched(true);
       fetchActants(searchQuery);
       fetchConfs(searchQuery);
     }
@@ -67,6 +69,7 @@ const SearchModal = () => {
     setSearchQuery('');
     setFilteredActants([]);
     setFilteredConfs([]);
+    setHasSearched(false);
   };
 
   useEffect(() => {
@@ -84,7 +87,9 @@ const SearchModal = () => {
   const getResultText = (filteredActants: any[], filteredConfs: any[]) => {
     const totalResults = filteredActants.length + filteredConfs.length;
 
-    if (totalResults === 0) {
+    if (!hasSearched) {
+      return '';
+    } else if (totalResults === 0) {
       return 'Aucun résultat trouvé';
     } else if (totalResults === 1) {
       return '1 Résultat trouvé';
@@ -135,6 +140,8 @@ const SearchModal = () => {
           {() => (
             <>
               <ModalBody className='flex justify-between p-25'>
+                <h1 className='font-semibold text-32 text-c6 flex flex-row justify-center py-20'>Rechercher</h1>
+
                 <Input
                   ref={inputRef}
                   classNames={{
@@ -145,7 +152,7 @@ const SearchModal = () => {
                     inputWrapper:
                       'group-data-[focus=true]:bg-c2 rounded-12 font-normal text-c6 bg-c2 dark:bg-c2 p-25 h-[50px]',
                   }}
-                  placeholder='Recherche avancée...'
+                  placeholder='Conférences, actant, mots clés...'
                   size='sm'
                   startContent={<SearchIcon size={18} />}
                   endContent={
@@ -156,47 +163,17 @@ const SearchModal = () => {
                   value={searchQuery}
                   onChange={handleSearchChange}
                 />
-                <div className='relative overflow-scroll'>
+                <div className={`relative ${hasSearched ? 'overflow-scroll' : 'hidden'}`}>
                   <motion.main
                     className='w-full p-25 transition-all ease-in-out duration-200'
                     initial='hidden'
                     animate='visible'
                     variants={fadeIn}>
                     <div className='w-full flex flex-col gap-50'>
-                      <h2 className='text-16 text-c6 font-medium'>{getResultText(filteredActants, filteredConfs)}</h2>
-                      {filteredActants.length > 0 && !loadingActants && (
-                        <div className='w-full flex flex-col gap-25'>
-                          <h2 className='text-24 font-medium text-c6'>
-                            Conférencier{filteredActants.length > 1 ? 's' : ''}
-                          </h2>
-                          <div className='w-full flex flex-col gap-15'>
-                            {loadingActants
-                              ? Array.from({ length: 8 }).map((_, index) => <ActantSkeleton key={index} />)
-                              : filteredActants.map((item, index) => (
-                                  <motion.div
-                                    key={item.id}
-                                    initial='hidden'
-                                    animate='visible'
-                                    variants={fadeIn}
-                                    custom={index}
-                                    onClick={handleClose}>
-                                    <ActantCard
-                                      key={item.id}
-                                      id={item.id}
-                                      firstname={item.firstname}
-                                      lastname={item.lastname}
-                                      picture={item.picture}
-                                      interventions={item.interventions}
-                                      universities={item.universities.map((uni: { name: string; logo: string }) => ({
-                                        name: uni.name,
-                                        logo: uni.logo,
-                                      }))}
-                                    />
-                                  </motion.div>
-                                ))}
-                          </div>
-                        </div>
+                      {hasSearched && (
+                        <h2 className='text-16 text-c6 font-medium'>{getResultText(filteredActants, filteredConfs)}</h2>
                       )}
+
                       {filteredConfs.length > 0 && !loadingConfs && (
                         <div className='w-full flex flex-col gap-25'>
                           <h2 className='text-24 font-medium text-c6'>
@@ -231,6 +208,48 @@ const SearchModal = () => {
                           </div>
                         </div>
                       )}
+                      {filteredActants.length > 0 && !loadingActants && (
+                        <div className='w-full flex flex-col gap-25'>
+                          <h2 className='text-24 font-medium text-c6'>
+                            Conférencier{filteredActants.length > 1 ? 's' : ''}
+                          </h2>
+                          <div className='w-full flex flex-col gap-15'>
+                            {loadingActants
+                              ? Array.from({ length: 8 }).map((_, index) => <ActantSkeleton key={index} />)
+                              : filteredActants.map((item, index) => (
+                                  <motion.div
+                                    key={item.id}
+                                    initial='hidden'
+                                    animate='visible'
+                                    variants={fadeIn}
+                                    custom={index}
+                                    onClick={handleClose}>
+                                    <ActantCard
+                                      key={item.id}
+                                      id={item.id}
+                                      firstname={item.firstname}
+                                      lastname={item.lastname}
+                                      picture={item.picture}
+                                      interventions={item.interventions}
+                                      universities={item.universities.map((uni: { name: string; logo: string }) => ({
+                                        name: uni.name,
+                                        logo: uni.logo,
+                                      }))}
+                                    />
+                                  </motion.div>
+                                ))}
+                          </div>
+                        </div>
+                      )}
+                      {hasSearched &&
+                        filteredActants.length === 0 &&
+                        filteredConfs.length === 0 &&
+                        !loadingActants &&
+                        !loadingConfs && (
+                          <div className='w-full flex justify-center p-50'>
+                            <p className='text-c6 text-16'>Aucun résultat trouvé</p>
+                          </div>
+                        )}
                     </div>
                   </motion.main>
                 </div>

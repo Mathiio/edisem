@@ -42,6 +42,37 @@ export const FullCarrousel: React.FC<FullCarrouselProps> = ({ data, title, perPa
   );
 };
 
+export const CitationCarrousel: React.FC<FullCarrouselProps> = ({ data, title, perPage, perMove, renderSlide }) => {
+  return (
+    <Splide
+      options={{ perPage: perPage, gap: '1rem', pagination: false, perMove: perMove, speed: 1000 }}
+      hasTrack={false}
+      aria-label='...'
+      className='flex flex-col w-full justify-center gap-25'>
+      <div className='w-full flex justify-between items-center'>
+        <h2 className='text-24 font-medium text-c6'>{title}</h2>
+        <div className='splide__arrows relative flex gap-10'>
+          <Button
+            size='sm'
+            className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
+            <ArrowIcon size={20} transform='rotate(180deg)' />
+          </Button>
+          <Button
+            size='sm'
+            className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
+            <ArrowIcon size={20} />
+          </Button>
+        </div>
+      </div>
+      <SplideTrack className='w-full'>
+        {data.map((item, index) => (
+          <SplideSlide key={index}>{renderSlide(item, index)}</SplideSlide>
+        ))}
+      </SplideTrack>
+    </Splide>
+  );
+};
+
 type MidCarrouselProps = {
   data: any[];
   title: string;

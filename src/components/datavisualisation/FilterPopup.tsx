@@ -19,6 +19,95 @@ import * as Items from '@/services/Items';
 
 import { getItemByID } from '@/services/api';
 import { getLinksFromType } from '@/services/Links';
+import Masques from './Masques';
+
+/**
+ * Génère un titre descriptif pour la recherche basé sur les filtres
+ * @param filterGroups - Les groupes de filtres utilisés
+ * @returns Un titre descriptif pour la recherche
+ */
+const generateSearchTitle = (filterGroups: any[]): string => {
+  // Si aucun groupe de filtres, retourner un titre par défaut
+  if (!filterGroups || filterGroups.length === 0) {
+    return 'Recherche sans filtre';
+  }
+
+  const titles: string[] = [];
+
+  // Parcourir chaque groupe de filtres
+  for (const group of filterGroups) {
+    if (!group.itemType) continue;
+
+    // Récupérer le type d'élément en français
+    const itemTypeLabel =
+      Object.entries(ITEM_TYPES).find(([_, value]) => value === group.itemType)?.[0] || group.itemType;
+
+    // Créer une description des conditions
+    if (group.conditions && group.conditions.length > 0) {
+      const validConditions = group.conditions.filter((c: any) => c.property && c.value);
+
+      if (validConditions.length > 0) {
+        const firstCondition = validConditions[0];
+
+        // Créer un titre basé sur la première condition
+        const conditionText = `${itemTypeLabel} - ${firstCondition.property}: ${firstCondition.value}`;
+
+        // Ajouter une indication s'il y a plus de conditions
+        const title = validConditions.length > 1 ? `${conditionText} (+${validConditions.length - 1})` : conditionText;
+
+        titles.push(title);
+      } else {
+        titles.push(`Tous les ${itemTypeLabel}`);
+      }
+    } else {
+      titles.push(`Tous les ${itemTypeLabel}`);
+    }
+  }
+
+  // Si nous avons plusieurs groupes, créer un titre combiné
+  if (titles.length > 1) {
+    return `${titles[0]} et plus`;
+  } else if (titles.length === 1) {
+    return titles[0];
+  } else {
+    return 'Recherche personnalisée';
+  }
+};
+
+export const storeSearchHistory = (filterGroups: any[]) => {
+  try {
+    // Récupérer l'historique existant ou initialiser un nouveau tableau
+    const existingHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+
+    // Limiter l'historique aux 10 dernières recherches
+    if (existingHistory.length >= 10) {
+      existingHistory.pop(); // Supprimer la plus ancienne recherche
+    }
+
+    // Générer un titre pour la recherche
+    const searchTitle = generateSearchTitle(filterGroups);
+
+    // Créer un nouvel enregistrement d'historique
+    const newHistoryItem = {
+      id: Date.now(), // Identifiant unique basé sur le timestamp
+      title: searchTitle,
+      timestamp: new Date().toISOString(),
+      filters: filterGroups, // Stocker les filtres pour pouvoir les réutiliser
+    };
+
+    // Ajouter la nouvelle recherche au début de l'historique
+    existingHistory.unshift(newHistoryItem);
+
+    // Mettre à jour le localStorage
+    localStorage.setItem('searchHistory', JSON.stringify(existingHistory));
+
+    console.log("Recherche sauvegardée dans l'historique:", newHistoryItem);
+    return newHistoryItem;
+  } catch (error) {
+    console.error("Erreur lors de la sauvegarde de l'historique de recherche:", error);
+    return null;
+  }
+};
 
 export const ITEM_PROPERTIES: any = {
   actant: [
@@ -41,7 +130,7 @@ export const ITEM_PROPERTIES: any = {
     },
   ],
   conference: [
-    { key: 'title', label: 'Titre' },
+    { key: 'title', label: 'Nom' },
     {
       key: 'actant',
       label: 'Actant',
@@ -66,6 +155,7 @@ export const ITEM_PROPERTIES: any = {
     { key: 'date', label: 'Date' },
   ],
   citation: [
+    { key: 'citation', label: 'Citation' },
     {
       key: 'actant',
       label: 'Actant',
@@ -74,7 +164,6 @@ export const ITEM_PROPERTIES: any = {
         return item?.title || 'Inconnu';
       },
     },
-    { key: 'citation', label: 'Citation' },
     {
       key: 'motcles',
       label: 'Mot clé',
@@ -123,10 +212,20 @@ const OPERATORS = [
 ];
 
 export interface FilterPopupProps {
-  onSearch: (results: any[]) => void;
+  onSearch: (results: any[], typesearch: FilterGroup[]) => void;
+  availableTypes?: string[]; // Liste des types disponibles
+  groupsVisibility?: GroupVisibility[]; // État des visibilités par groupe
+  updateGroupTypeVisibility?: (groupId: string, type: string, isVisible: boolean) => void; // Fonction de mise à jour
 }
 
-type FilterCondition = {
+export type GroupVisibility = {
+  groupId: string;
+  groupName: string;
+  baseType: string;
+  visibleTypes: string[];
+};
+
+export type FilterCondition = {
   property: string;
   operator: string;
   value: string;
@@ -137,34 +236,121 @@ export type FilterGroup = {
   isExpanded: boolean;
   itemType: string;
   conditions: FilterCondition[];
+  visibleTypes: string[];
 };
 
 const STORAGE_KEY = 'filterGroups';
 
 const getInitialFilterGroups = (): FilterGroup[] => {
-  const savedFilters = localStorage.getItem(STORAGE_KEY);
-  if (savedFilters) {
-    try {
-      return JSON.parse(savedFilters);
-    } catch (e) {
-      console.error('Error parsing saved filters:', e);
-    }
-  }
+  // Initialisation par défaut
   return [
     {
       name: 'Groupe 1',
       isExpanded: true,
       itemType: '',
       conditions: [],
+      visibleTypes: Object.values(ITEM_TYPES),
     },
   ];
 };
 
-export default function FilterPopup({ onSearch }: FilterPopupProps) {
+export const compareValues = async (itemValue: any, searchValue: any, operator: string): Promise<boolean> => {
+  if (itemValue === null || itemValue === undefined || searchValue === null || searchValue === undefined) {
+    return false;
+  }
+
+  const prepareValue = (value: any): string => {
+    if (typeof value === 'string') {
+      return value.toLowerCase().trim();
+    }
+    return String(value).toLowerCase().trim();
+  };
+
+  const normalizedSearchValue = prepareValue(searchValue);
+  const normalizedItemValue = prepareValue(itemValue);
+
+  let result;
+  switch (operator) {
+    case 'contains':
+      result = normalizedItemValue.includes(normalizedSearchValue);
+      break;
+    case 'notEquals':
+      result = normalizedItemValue !== normalizedSearchValue;
+      break;
+    default:
+      result = false;
+  }
+
+  return result;
+};
+
+export const getDataByType = async (type: string): Promise<any[]> => {
+  switch (type) {
+    case 'citation':
+      return (await Items.getCitations()) || [];
+    case 'conference':
+      return (await Items.getConfs()) || [];
+    case 'actant':
+      return (await Items.getActants()) || [];
+    case 'keyword':
+      return (await Items.getKeywords()) || [];
+    case 'bibliography':
+      return (await Items.getBibliographies()) || [];
+    case 'mediagraphie':
+      return (await Items.getMediagraphies()) || [];
+    case 'collection':
+      return (await Items.getCollections()) || [];
+    case 'university':
+      return (await Items.getUniversities()) || [];
+    case 'laboratory':
+      return (await Items.getLaboratories()) || [];
+    case 'doctoralschool':
+      return (await Items.getDoctoralSchools()) || [];
+    default:
+      return [];
+  }
+};
+
+export const getPropertyValue = async (item: any, property: string): Promise<any> => {
+  if (property in item) {
+    const value = item[property];
+    const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
+    if (propertyConfig?.transform) {
+      const transformed = await propertyConfig.transform(value);
+      return transformed;
+    }
+
+    return value;
+  }
+
+  const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
+
+  if (!propertyConfig) return null;
+
+  if (propertyConfig.transform) {
+    try {
+      const transformed = await propertyConfig.transform(item[property]);
+      return transformed;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  return null;
+};
+
+export default function FilterPopup({
+  onSearch,
+  availableTypes = [],
+  groupsVisibility = [],
+  updateGroupTypeVisibility,
+}: FilterPopupProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [activeGroupIndex, setActiveGroupIndex] = useState<number | null>(null);
   const [newGroupName, setNewGroupName] = useState<string>('');
   const [filterGroups, setFilterGroups] = useState<FilterGroup[]>(getInitialFilterGroups());
+  console.log(groupsVisibility);
+  console.log(updateGroupTypeVisibility);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filterGroups));
@@ -172,33 +358,6 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
 
   const getPropertiesByType = (type: any): any => {
     return ITEM_PROPERTIES[type] || [];
-  };
-
-  const getDataByType = async (type: string): Promise<any[]> => {
-    switch (type) {
-      case 'citation':
-        return (await Items.getCitations()) || [];
-      case 'conference':
-        return (await Items.getConfs()) || [];
-      case 'actant':
-        return (await Items.getActants()) || [];
-      case 'keyword':
-        return (await Items.getKeywords()) || [];
-      case 'bibliography':
-        return (await Items.getBibliographies()) || [];
-      case 'mediagraphie':
-        return (await Items.getMediagraphies()) || [];
-      case 'collection':
-        return (await Items.getCollections()) || [];
-      case 'university':
-        return (await Items.getUniversities()) || [];
-      case 'laboratory':
-        return (await Items.getLaboratories()) || [];
-      case 'doctoralschool':
-        return (await Items.getDoctoralSchools()) || [];
-      default:
-        return [];
-    }
   };
 
   const addGroup = () => {
@@ -209,6 +368,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
         isExpanded: true,
         itemType: '',
         conditions: [],
+        visibleTypes: Object.values(ITEM_TYPES), // Initialiser avec tous les types visibles
       },
     ]);
   };
@@ -217,14 +377,18 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
     setFilterGroups((prev) => prev.filter((_, i) => i !== groupIndex));
   };
 
-  const duplicateGroup = (groupIndex: number) => {
-    setFilterGroups((prev) => [
-      ...prev,
-      {
-        ...prev[groupIndex],
-        name: `${prev[groupIndex].name} (copie)`,
-      },
-    ]);
+  const duplicateGroup = (index: number) => {
+    setFilterGroups((prev) => {
+      const groupToDuplicate = prev[index];
+      return [
+        ...prev,
+        {
+          ...groupToDuplicate,
+          name: `${groupToDuplicate.name} (copie)`,
+          visibleTypes: Object.values(ITEM_TYPES), // Copie des types visibles
+        },
+      ];
+    });
   };
 
   const toggleGroupExpansion = (groupIndex: number) => {
@@ -286,68 +450,16 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
         return {
           ...group,
           itemType,
-          conditions: [],
+          conditions: [
+            {
+              property: getPropertiesByType(itemType)[0]?.key || '', // Prend la première propriété par défaut
+              operator: 'contains', // Opérateur par défaut
+              value: '', // Valeur vide
+            },
+          ],
         };
       }),
     );
-  };
-
-  const getPropertyValue = async (item: any, property: string): Promise<any> => {
-    if (property in item) {
-      const value = item[property];
-      const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
-      if (propertyConfig?.transform) {
-        const transformed = await propertyConfig.transform(value);
-        return transformed;
-      }
-
-      return value;
-    }
-
-    const propertyConfig = ITEM_PROPERTIES[item.type]?.find((p: any) => p.key === property);
-
-    if (!propertyConfig) return null;
-
-    if (propertyConfig.transform) {
-      try {
-        const transformed = await propertyConfig.transform(item[property]);
-        return transformed;
-      } catch (error) {
-        return null;
-      }
-    }
-
-    return null;
-  };
-
-  const compareValues = async (itemValue: any, searchValue: any, operator: string): Promise<boolean> => {
-    if (itemValue === null || itemValue === undefined || searchValue === null || searchValue === undefined) {
-      return false;
-    }
-
-    const prepareValue = (value: any): string => {
-      if (typeof value === 'string') {
-        return value.toLowerCase().trim();
-      }
-      return String(value).toLowerCase().trim();
-    };
-
-    const normalizedSearchValue = prepareValue(searchValue);
-    const normalizedItemValue = prepareValue(itemValue);
-
-    let result;
-    switch (operator) {
-      case 'contains':
-        result = normalizedItemValue.includes(normalizedSearchValue);
-        break;
-      case 'notEquals':
-        result = normalizedItemValue !== normalizedSearchValue;
-        break;
-      default:
-        result = false;
-    }
-
-    return result;
   };
 
   const applyFilters = async () => {
@@ -379,36 +491,47 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
             matchesAllConditions = false;
             break;
           }
+        }
 
-          if (matchesAllConditions) {
-            try {
-              const links = await getLinksFromType(item, group.itemType);
-              const title = item.title || (await getPropertyValue(item, 'title')) || '';
+        if (matchesAllConditions) {
+          try {
+            const links = await getLinksFromType(item, group.itemType);
+            const title = item.title || (await getPropertyValue(item, 'title')) || '';
 
-              results.push({
-                id: item.id,
-                type: group.itemType,
-                title,
-                links,
-              });
-            } catch (error) {
-              console.error('Error adding result item:', error);
-            }
+            results.push({
+              id: item.id,
+              type: group.itemType,
+              title,
+              links,
+            });
+          } catch (error) {
+            console.error('Error adding result item:', error);
           }
         }
       }
-
-      onSearch(results);
     }
+    console.log('filterGroups');
+
+    console.log(filterGroups);
+
+    onSearch(results, filterGroups);
+    storeSearchHistory(filterGroups);
   };
 
   const resetFilters = () => {
     setFilterGroups([
       {
-        name: 'Groupe 1',
+        name: 'Recherche 1',
         isExpanded: true,
         itemType: '',
-        conditions: [],
+        conditions: [
+          {
+            property: '',
+            operator: 'contains',
+            value: '',
+          },
+        ],
+        visibleTypes: Object.values(ITEM_TYPES), // Initialiser avec tous les types visibles
       },
     ]);
   };
@@ -449,7 +572,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                     <DotsIcon size={14} className='text-c6' />
                   </Button>
                 </DropdownTrigger>
-                <DropdownMenu className='w-32'>
+                <DropdownMenu className='w-32 text-c6'>
                   <DropdownItem
                     className='flex gap-1.5 w-32'
                     onClick={() => {
@@ -500,6 +623,13 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                   </Dropdown>
                 </div>
 
+                <Masques
+                  groupId={`group-${groupIndex}`}
+                  visibleTypes={group.visibleTypes || []}
+                  availableTypes={availableTypes}
+                  availableControl={!!group.itemType} // Activer uniquement si un type d'item est sélectionné
+                />
+
                 <div className={`flex flex-col gap-2 ${group.conditions.length > 0 ? 'mb-4' : ''}`}>
                   {group.conditions.map((condition, conditionIndex) => (
                     <div key={conditionIndex} className='flex items-center gap-2'>
@@ -507,9 +637,10 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                         <DropdownTrigger>
                           <Button className='h-auto text-14 text-extralight text-c6 px-2 py-1.5 flex gap-10 justify-between bg-transparent border-1.5 border-c4 rounded-8 min-w-[118px]'>
                             {(() => {
-                              const label =
-                                getPropertiesByType(group.itemType).find((prop: any) => prop.key === condition.property)
-                                  ?.label || 'Propriété';
+                              const props = getPropertiesByType(group.itemType);
+                              const selectedKey = condition.property || props[0]?.key;
+
+                              const label = props.find((prop: any) => prop.key === selectedKey)?.label || 'Propriété';
                               return label.length > 11 ? `${label.slice(0, 9)}...` : label;
                             })()}
                             <ArrowIcon size={12} />
@@ -517,7 +648,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                         </DropdownTrigger>
                         <DropdownMenu
                           selectionMode='single'
-                          selectedKeys={condition.property ? [condition.property] : []}
+                          selectedKeys={[condition.property || getPropertiesByType(group.itemType)[0]?.key]}
                           onSelectionChange={(keys) => {
                             const prop = Array.from(keys)[0] as string;
                             updateCondition(groupIndex, conditionIndex, 'property', prop);
@@ -578,14 +709,18 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                 </div>
 
                 {group.itemType && (
-                  <Link
-                    onClick={() => addCondition(groupIndex)}
-                    underline='none'
-                    size={'sm'}
-                    className='text-14 flex justify-start w-full gap-2 rounded-0 text-c6 bg-transparent cursor-pointer'>
-                    <PlusIcon size={12} />
-                    Ajouter une condition
-                  </Link>
+                  <>
+                    {group.conditions.length > 0 && (
+                      <Link
+                        onClick={() => addCondition(groupIndex)}
+                        underline='none'
+                        size={'sm'}
+                        className='text-14 flex justify-start w-full gap-2 rounded-0 text-c6 bg-transparent cursor-pointer'>
+                        <PlusIcon size={12} />
+                        Ajouter une condition
+                      </Link>
+                    )}
+                  </>
                 )}
               </>
             )}

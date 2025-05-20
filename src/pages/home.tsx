@@ -28,6 +28,7 @@ export const Home: React.FC = () => {
   const fetchSeminaires = useCallback(async () => {
     if (dataFetchedRef.current) return;
     const seminaires = await getSeminaires();
+
     setSeminaires(seminaires);
     setLoadingSeminaires(false);
   }, []);
@@ -49,8 +50,9 @@ export const Home: React.FC = () => {
   }, [fetchSeminaires, fetchActants]);
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-75'>
+    <Layouts className='col-span-10 flex flex-col gap-75 z-0 overflow-visible'>
       <HomeBaner />
+
       <FullCarrousel
         title='Derniers séminaires Arcanes'
         perPage={3}
@@ -66,6 +68,7 @@ export const Home: React.FC = () => {
           )
         }
       />
+
       <MidCarrousel
         title='Découvrez nos conférenciers'
         description='Rencontrez les experts de nos conférences, explorez leurs contributions aux séminaires et découvrez les institutions qui les accompagnent.'

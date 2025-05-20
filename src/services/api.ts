@@ -288,6 +288,24 @@ export async function getConfByActant(actantId: number) {
 }
 
 
+export async function getResearchByActant(actantId: string) {
+  try {
+    const recherches = await Items.getRecherches();
+    
+
+    // Filtrer les recherches en fonction du champ creator
+    const recherchesFiltrees = recherches.filter((recherche: { creator: string }) => 
+      recherche.creator === actantId
+    );
+
+    return recherchesFiltrees;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des recherches par actant :', error);
+    throw new Error('Impossible de récupérer les recherches');
+  }
+}
+
+
 
 
 export async function filterActants(searchQuery: string) {
@@ -317,33 +335,42 @@ export async function filterActants(searchQuery: string) {
 
 
 export async function filterConfs(searchQuery: string) {
-  try{
+  try {
     const confs = await Items.getConfs();
 
-    const updatedConfs = await Promise.all(confs.map(async (conf: { actant: number; }) => {
-      if (conf.actant) {
-        const actantDetails = await getActant(conf.actant);
-        return { ...conf, actant: actantDetails };
-      }
-      return conf;
-    }));
-
+    const updatedConfs = await Promise.all(
+      confs.map(async (conf: { actant: number }) => {
+        if (conf.actant) {
+          try {
+            const actantDetails = await getActant(conf.actant);
+            return { 
+              ...conf, 
+              actant: actantDetails || { firstname: "", lastname: "" } // Fallback sécurisé
+            };
+          } catch (error) {
+            console.error(`Error fetching actant ${conf.actant}:`, error);
+            return { 
+              ...conf, 
+              actant: { firstname: "", lastname: "" } // Objet vide sécurisé
+            };
+          }
+        }
+        return conf;
+      })
+    );
 
     const filteredConfs = updatedConfs.filter((conf: any) => {
       const lowerSearchQuery = searchQuery.toLowerCase();
 
-      const eventMatch = conf.event.toLowerCase().includes(lowerSearchQuery);
-      const titleMatch = conf.title.toLowerCase().includes(lowerSearchQuery);
-      const actantMatch = conf.actant
-        ? conf.actant.firstname.toLowerCase().includes(lowerSearchQuery) ||
-          conf.actant.lastname.toLowerCase().includes(lowerSearchQuery)
-        : false;
-      const keywordsMatch = conf.motcles
-      ? conf.motcles.some((keyword: any) =>
-          [keyword.title, ...keyword.english_terms, ...keyword.orthographic_variants]
-            .some((term) => term.toLowerCase().includes(lowerSearchQuery))
-        )
-      : false;
+      // Vérifications avec gestion des valeurs manquantes
+      const eventMatch = conf.event?.toLowerCase().includes(lowerSearchQuery);
+      const titleMatch = conf.title?.toLowerCase().includes(lowerSearchQuery);
+      const actantMatch = conf.actant?.firstname?.toLowerCase().includes(lowerSearchQuery) 
+                       || conf.actant?.lastname?.toLowerCase().includes(lowerSearchQuery);
+      const keywordsMatch = conf.motcles?.some((keyword: any) =>
+        [keyword.title, ...keyword.english_terms, ...keyword.orthographic_variants]
+          .some(term => term?.toLowerCase().includes(lowerSearchQuery))
+      );
 
       return eventMatch || titleMatch || actantMatch || keywordsMatch;
     });
@@ -387,6 +414,32 @@ export async function getConfCitations(confId: number){
     throw new Error('Failed to fetch conferences');
   }
 }
+
+
+export async function getConfByCitation(citationId: number) {
+  try {
+    const confs = await Items.getConfs();
+    const citations = await Items.getCitations();
+    
+    // Vérifie si la citation existe
+    const citation = citations.find((citation: { id: number }) => citation.id === citationId);
+    
+    if (!citation) {
+      return null; // Retourne null si la citation n'existe pas
+    }
+    
+    // Recherche la conférence qui contient cet ID de citation
+    const conf = confs.find((conf: { citations: number[] }) => 
+      conf.citations.includes(citationId)
+    );
+    
+    return conf ? Number(conf.id) : null; // Retourne l'ID de la conférence en tant que nombre
+  } catch (error) {
+    console.error('Error fetching conference by citation:', error);
+    throw new Error('Failed to fetch conference by citation');
+  }
+}
+
 
 
 
@@ -438,3 +491,5 @@ export async function getConfMediagraphies(confId: number) {
     throw new Error('Failed to fetch mediagraphies');
   }
 }
+
+

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Skeleton } from "@heroui/react";
+import { Skeleton } from '@heroui/react';
 
 function formatDate(dateString: string) {
   const mois = [
@@ -82,9 +82,7 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
       </div>
       <div className='flex flex-col gap-5 z-10'>
         <div className='relative'>
-          <p
-            ref={textRef}
-            className='text-16 text-c6 font-medium overflow-hidden max-h-[4.5rem] line-clamp-3'>
+          <p ref={textRef} className='text-16 text-c6 font-medium overflow-hidden max-h-[4.5rem] line-clamp-3'>
             {title}
           </p>
           {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-c6'></span>}
@@ -120,8 +118,6 @@ export const LgConfSkeleton: React.FC = () => {
     </div>
   );
 };
-
-
 
 type SmConfCardProps = {
   id: number;
@@ -161,15 +157,11 @@ export const SmConfCard: React.FC<SmConfCardProps> = ({ id, title, actant, url }
       </div>
       <div className='flex flex-col gap-5 z-10'>
         <div className='relative'>
-          <p
-            ref={textRef}
-            className='text-16 text-c6 font-medium overflow-hidden line-clamp-3'>
+          <p ref={textRef} className='text-16 text-c6 font-medium overflow-hidden line-clamp-3'>
             {title}
           </p>
         </div>
-        <p className='text-16 text-c5 font-extralight'>
-          {actant}
-        </p>
+        <p className='text-16 text-c5 font-extralight'>{actant}</p>
       </div>
     </div>
   );
