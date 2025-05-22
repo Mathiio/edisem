@@ -14,13 +14,8 @@ export const useThemeMode = (defaultThemeMode?: ThemeMode) => {
     return storedTheme || (defaultThemeMode ?? Theme.light);
   });
 
-  const isDark = useMemo(() => {
-    return currentMode === Theme.dark;
-  }, [currentMode]);
-
-  const isLight = useMemo(() => {
-    return currentMode === Theme.light;
-  }, [currentMode]);
+  const isDark = useMemo(() => currentMode === Theme.dark, [currentMode]);
+  const isLight = useMemo(() => currentMode === Theme.light, [currentMode]);
 
   const setThemeMode = (themeMode: ThemeMode) => {
     localStorage.setItem(Theme.key, themeMode);
@@ -29,17 +24,17 @@ export const useThemeMode = (defaultThemeMode?: ThemeMode) => {
     setCurrentMode(themeMode);
   };
 
-  const setDefaultThemeMode = (): void => {
-    setThemeMode(currentMode);
-  };
-
   useEffect(() => {
-    setDefaultThemeMode();
-  }, []);
+    // Apply the initial theme without saving to localStorage
+    const storedTheme = localStorage.getItem(Theme.key) as ThemeMode | null;
+    const initialTheme = storedTheme || (defaultThemeMode ?? Theme.light);
+    document.documentElement.classList.remove(Theme.light, Theme.dark);
+    document.documentElement.classList.add(initialTheme);
+  }, [defaultThemeMode]);
 
   const setLightMode = () => setThemeMode(Theme.light);
   const setDarkMode = () => setThemeMode(Theme.dark);
-  const toggleThemeMode = () => (currentMode === Theme.dark ? setLightMode() : setDarkMode());
+  const toggleThemeMode = () => setThemeMode(currentMode === Theme.dark ? Theme.light : Theme.dark);
 
   return { currentMode, isDark, isLight, setLightMode, setDarkMode, toggleThemeMode };
 };

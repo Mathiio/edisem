@@ -112,7 +112,7 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
             property_id: 551,
             property_label: 'codeRepository',
             is_public: true,
-            '@value': configObject.config,
+            '@value': JSON.stringify(configObject.config),
           },
         ],
       };

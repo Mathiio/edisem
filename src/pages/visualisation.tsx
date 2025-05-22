@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-
 import { getAllItems } from '@/services/Items';
 
 import { motion, Variants } from 'framer-motion';
@@ -183,11 +182,7 @@ const Visualisation = () => {
   const [filteredNodes, setFilteredNodes] = useState<any[]>([]);
   const [filteredLinks, setFilteredLinks] = useState<any[]>([]);
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
-  //const [visibleTypes, setVisibleTypes] = useState<string[]>(Object.values(ITEM_TYPES));
-  const [, setCurrentSearchResults] = useState<any[]>(itemsDataviz); // par défaut tout
-  //const [availableTypes, setAvailableTypes] = useState<string[]>([]);
   const [showOverlay, setShowOverlay] = useState(true);
-
   const resetActiveIconFunc = useRef<(() => void) | null>(null);
   const [exportEnabled, setExportEnabled] = useState(false);
   const [searchParams] = useSearchParams();
@@ -270,23 +265,131 @@ const Visualisation = () => {
     }
   };
 
-  const processDataForVisualization = (data: any[], typeFilter: string[]) => {
-    if (!data?.length) return { typesInUse: [] };
+  const applyFiltersAndPrepareVisualization = async (groups: FilterGroup[]) => {
+    console.log('Début de filtrage avec groupes:', groups);
+
+    if (!groups || groups.length === 0) {
+      console.warn('Aucun groupe de filtres fourni');
+      return {
+        allFilteredItems: [],
+        groupResults: new Map(),
+        typesInUse: [],
+        visualizationData: { nodes: [], links: [] },
+      };
+    }
+
+    const allFilteredItems: any[] = [];
+    const groupResults: Map<string, any[]> = new Map();
+
+    // Phase 1: Filtrer les éléments par groupe
+    for (const group of groups) {
+      if (!group.itemType) {
+        console.warn("Groupe sans type d'item spécifié:", group);
+        continue;
+      }
+
+      console.log(`Traitement du groupe: ${group.name}, type: ${group.itemType}`);
+
+      try {
+        const items = await getDataByType(group.itemType);
+        console.log(`${items.length} items récupérés pour le type ${group.itemType}`);
+
+        const groupFilteredItems = [];
+
+        for (const item of items) {
+          let matchesAllConditions = true;
+
+          for (const condition of group.conditions) {
+            if (!condition.property || condition.value === undefined || condition.value === null) {
+              console.log('Condition incomplète ignorée:', condition);
+              continue;
+            }
+
+            try {
+              const itemValue = await getPropertyValue(item, condition.property);
+              console.log(`Comparaison: ${itemValue} ${condition.operator} ${condition.value}`);
+              const matches = await compareValues(itemValue, condition.value, condition.operator);
+
+              if (!matches) {
+                matchesAllConditions = false;
+                break;
+              }
+            } catch (error) {
+              console.error('Erreur lors du traitement de la condition:', error);
+              matchesAllConditions = false;
+              break;
+            }
+          }
+
+          if (matchesAllConditions) {
+            try {
+              const links = await getLinksFromType(item, group.itemType);
+              const title = item.title || (await getPropertyValue(item, 'title')) || 'Sans titre';
+
+              console.log(`Item correspondant trouvé: ${title} (${item.id})`);
+
+              const resultItem = {
+                id: item.id,
+                type: group.itemType,
+                title,
+                links,
+                groupId: group.name,
+              };
+
+              groupFilteredItems.push(resultItem);
+              allFilteredItems.push(resultItem);
+            } catch (error) {
+              console.error("Erreur lors de l'ajout de l'item au résultat:", error);
+            }
+          }
+        }
+
+        console.log(`${groupFilteredItems.length} items filtrés pour le groupe ${group.name}`);
+
+        // Stocker les résultats de ce groupe spécifique
+        const groupId = group.name;
+        groupResults.set(groupId, groupFilteredItems);
+      } catch (error) {
+        console.error(`Erreur lors du traitement du groupe ${group.name}:`, error);
+      }
+    }
+
+    console.log(`Total d'items filtrés: ${allFilteredItems.length}`);
+
+    if (allFilteredItems.length === 0) {
+      console.warn('Aucun item ne correspond aux critères de filtrage');
+      return {
+        allFilteredItems: [],
+        groupResults,
+        typesInUse: [],
+        visualizationData: { nodes: [], links: [] },
+      };
+    }
+
+    // Phase 2: Construire la visualisation à partir des éléments filtrés
+    console.log('Début de la construction de la visualisation');
 
     const CHARACTER_LIMIT = 10;
     const nodes = new Map();
     const links = new Set();
     const typesInUse = new Set<string>();
 
-    data.forEach((item) => {
-      if (!typeFilter.includes(item.type)) return;
+    // Créer une map des groupes pour un accès facile
+    const groupsMap = new Map<string, FilterGroup>();
+    groups.forEach((group) => groupsMap.set(group.name, group));
+
+    // Ajouter d'abord tous les nœuds principaux (résultats directs de la recherche)
+    allFilteredItems.forEach((item) => {
+      const group = groupsMap.get(item.groupId);
+      if (!group || !group.visibleTypes?.includes(item.type)) {
+        return;
+      }
 
       if (!nodes.has(item.id)) {
-        let title = item.title;
+        let title = item.title || 'Sans titre';
         if (item.type === 'actant' && title.includes(' ')) {
           const [firstName, ...lastName] = title.split(' ');
           title = `${firstName.charAt(0)}. ${lastName.join(' ')}`;
-          item.title = title;
         }
 
         nodes.set(item.id, {
@@ -294,104 +397,137 @@ const Visualisation = () => {
           title: title.length > CHARACTER_LIMIT ? `${title.substring(0, CHARACTER_LIMIT)}...` : title,
           fullTitle: title,
           type: item.type,
-          isMain: false,
+          isMain: true,
+          groupId: item.groupId,
         });
 
         typesInUse.add(item.type);
+        console.log(`Nœud principal ajouté: ${title} (${item.id})`);
       }
     });
 
-    data.forEach((item) => {
-      if (!Array.isArray(item.links) || !typeFilter.includes(item.type)) return;
+    console.log(`${nodes.size} nœuds principaux ajoutés`);
+
+    // Pour chaque item filtré, ajouter ses liens selon les types visibles de son groupe
+    allFilteredItems.forEach((item) => {
+      if (!item.links || !Array.isArray(item.links)) {
+        return;
+      }
+
+      const group = groupsMap.get(item.groupId);
+      if (!group) {
+        return;
+      }
+
+      console.log(`Traitement des liens pour ${item.id}, ${item.links.length} liens trouvés`);
 
       item.links.forEach((linkedId: string) => {
-        const linkedItem = itemsDataviz.find((d) => d.id === linkedId);
+        if (!linkedId) {
+          console.warn('ID de lien invalide détecté');
+          return;
+        }
 
-        if (linkedItem && typeFilter.includes(linkedItem.type)) {
-          if (!nodes.has(linkedId)) {
-            let linkedTitle = linkedItem.title;
-            if (linkedItem.type === 'actant' && linkedTitle.includes(' ')) {
-              const [firstName, ...lastName] = linkedTitle.split(' ');
-              linkedTitle = `${firstName.charAt(0)}. ${lastName.join(' ')}`;
-            }
+        let linkedItem;
 
-            nodes.set(linkedId, {
-              id: linkedId,
-              fullTitle: linkedTitle,
-              title:
-                linkedTitle.length > CHARACTER_LIMIT ? `${linkedTitle.substring(0, CHARACTER_LIMIT)}...` : linkedTitle,
-              type: linkedItem.type,
-              isMain: false,
-            });
+        // Essayer de trouver l'item lié dans itemsDataviz
+        if (itemsDataviz && Array.isArray(itemsDataviz)) {
+          linkedItem = itemsDataviz.find((d) => d.id === linkedId);
+        }
 
-            typesInUse.add(linkedItem.type);
+        // Si pas trouvé et que l'ID est dans nos résultats filtrés, utiliser celui-ci
+        if (!linkedItem) {
+          linkedItem = allFilteredItems.find((d) => d.id === linkedId);
+        }
+
+        if (!linkedItem) {
+          console.warn(`Item lié non trouvé: ${linkedId}`);
+          return;
+        }
+
+        // Vérifier si le type de l'élément lié est visible dans le groupe de l'item principal
+        if (!linkedItem.type || !group.visibleTypes.includes(linkedItem.type)) {
+          console.log(
+            `Lien ignoré car type non visible dans le groupe ${item.groupId}: ${linkedId} (${linkedItem.type})`,
+          );
+          return;
+        }
+
+        // Ici, nous ne filtrons plus en fonction de l'appartenance au groupe,
+        // seulement en fonction du type visible
+        if (!nodes.has(linkedId)) {
+          let linkedTitle = linkedItem.title || 'Sans titre';
+          if (linkedItem.type === 'actant' && linkedTitle.includes(' ')) {
+            const [firstName, ...lastName] = linkedTitle.split(' ');
+            linkedTitle = `${firstName.charAt(0)}. ${lastName.join(' ')}`;
           }
 
-          links.add(JSON.stringify({ source: item.id, target: linkedId }));
+          nodes.set(linkedId, {
+            id: linkedId,
+            fullTitle: linkedTitle,
+            title:
+              linkedTitle.length > CHARACTER_LIMIT ? `${linkedTitle.substring(0, CHARACTER_LIMIT)}...` : linkedTitle,
+            type: linkedItem.type,
+            // Si l'élément lié est un résultat principal d'un autre groupe, marquer comme principal
+            isMain: allFilteredItems.some((fi) => fi.id === linkedId),
+            parentNodeId: item.id,
+            // Conserver le groupe d'origine s'il existe, sinon utiliser le groupe parent
+            groupId: linkedItem.groupId || item.groupId,
+          });
+
+          typesInUse.add(linkedItem.type);
+          console.log(`Nœud lié ajouté: ${linkedTitle} (${linkedId})`);
         }
+
+        const linkObject = JSON.stringify({
+          source: item.id,
+          target: linkedId,
+          groupId: item.groupId,
+        });
+
+        links.add(linkObject);
+        console.log(`Lien ajouté: ${item.id} -> ${linkedId}`);
       });
     });
 
-    setFilteredNodes(Array.from(nodes.values()));
-    setFilteredLinks(Array.from(links).map((link) => JSON.parse(link as string)));
-    setExportEnabled(true);
+    const nodesArray = Array.from(nodes.values());
+    const linksArray = Array.from(links).map((link) => JSON.parse(link as string));
 
-    return { typesInUse: Array.from(typesInUse) };
+    console.log(`Visualisation construite: ${nodesArray.length} nœuds, ${linksArray.length} liens`);
+    // Mettre à jour l'état si nécessaire
+    if (typeof setFilteredNodes === 'function') {
+      setFilteredNodes(nodesArray);
+    }
+    if (typeof setFilteredLinks === 'function') {
+      setFilteredLinks(linksArray);
+    }
+    if (typeof setExportEnabled === 'function') {
+      setExportEnabled(true);
+    }
+
+    // Stocker l'historique de recherche si la fonction existe
+    if (typeof storeSearchHistory === 'function') {
+      storeSearchHistory(groups);
+    }
+
+    const result = {
+      allFilteredItems,
+      groupResults,
+      typesInUse: Array.from(typesInUse),
+      visualizationData: {
+        nodes: nodesArray,
+        links: linksArray,
+      },
+    };
+
+    console.log('Résultat final:', result);
+    return result;
   };
 
-  // function extractAllTypes(results: any[], filterGroups: any[], itemsDataviz: any[]) {
-  //   filterGroups.forEach((group) => {
-  //     if (!group.itemType) return;
-
-  //     const typesFound = new Set<string>();
-
-  //     // Parcourir les résultats correspondant au type du groupe
-  //     results
-  //       .filter((result) => result.type === group.itemType)
-  //       .forEach((result) => {
-  //         // Ajouter le type du résultat
-  //         typesFound.add(result.type);
-
-  //         // Ajouter les types des éléments liés
-  //         result.links?.forEach((linkedId: string) => {
-  //           const linkedItem = itemsDataviz.find((item) => item.id === linkedId);
-  //           if (linkedItem) typesFound.add(linkedItem.type);
-  //         });
-  //       });
-
-  //     // Mettre à jour les types visibles (types existants - types trouvés)
-  //     // En excluant le type de l'élément du groupe lui-même
-  //     group.visibleTypes = Object.values(ITEM_TYPES).filter((type) => typesFound.has(type) && type !== group.itemType);
-  //   });
-  // }
-
-  const handleSearch = (searchResults: any[], groups: FilterGroup[]) => {
-    if (!searchResults?.length) {
-      console.warn('No search results found');
-      return;
-    }
-    setCurrentSearchResults(searchResults);
-
-    processDataForVisualization(searchResults, [
-      'citation',
-      'conference',
-      'actant',
-      'keyword',
-      'bibliography',
-      'mediagraphie',
-      'collection',
-      'university',
-      'laboratory',
-      'doctoralschool',
-    ]);
-    console.log(groups);
+  const handleSearch = (groups: FilterGroup[]) => {
+    const res = applyFiltersAndPrepareVisualization(groups);
+    console.log(res);
     setShowOverlay(false);
   };
-
-  // // Lors d'un changement de types visibles
-  // useEffect(() => {
-  //   processDataForVisualization(currentSearchResults, visibleTypes);
-  // }, [visibleTypes]);
 
   useEffect(() => {
     if (!filteredNodes.length) return;
@@ -500,7 +636,6 @@ const Visualisation = () => {
 
           // Calcul proportionnel: réduction d'environ 13-15% du rayon
           let innerStrokeRadius;
-          console.log(d.type);
 
           if (d.type === 'keyword' || d.type === 'university' || d.type === 'school' || d.type === 'laboratory') {
             // Pour les petites bulles
@@ -632,6 +767,7 @@ const Visualisation = () => {
 
   const generateVisualizationImage = async (): Promise<GeneratedImage> => {
     const svg = svgRef.current;
+    console.log(svg);
     if (!svg) {
       throw new Error('SVG reference not found');
     }
@@ -645,7 +781,8 @@ const Visualisation = () => {
     const backgroundRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     backgroundRect.setAttribute('width', '100%');
     backgroundRect.setAttribute('height', '100%');
-    backgroundRect.setAttribute('fill', 'white');
+
+    backgroundRect.setAttribute('fill', '#000');
 
     clonedSvg.insertBefore(backgroundRect, clonedSvg.firstChild);
     clonedSvg.setAttribute('width', width.toString());
@@ -692,7 +829,7 @@ const Visualisation = () => {
       }
 
       ctx.scale(scale, scale);
-      ctx.fillStyle = 'white';
+
       ctx.fillRect(0, 0, width, height);
       ctx.drawImage(img, 0, 0, width, height);
 
@@ -756,7 +893,7 @@ const Visualisation = () => {
         }
       }
 
-      handleSearch(results, groups);
+      handleSearch(groups);
     }
 
     // Si vous voulez aussi stocker l'historique de recherche comme dans applyFilters
