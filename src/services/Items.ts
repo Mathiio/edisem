@@ -540,7 +540,7 @@ export async function getSeminaires() {
         const seasonOrder = ['printemps', 'été', 'automne', 'hiver'];
         return seasonOrder.indexOf(b.season) - seasonOrder.indexOf(a.season);
       });
-      console.log(editions);
+      
     return editions;
   } catch (error) {
     console.error('Error fetching seminars:', error);

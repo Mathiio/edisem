@@ -143,7 +143,7 @@ export const KeywordHighlight: React.FC = () => {
               return citation;
             }),
           );
-          console.log(updatedCitations);
+
           setFilteredCitations(updatedCitations);
         }
       } catch (error) {

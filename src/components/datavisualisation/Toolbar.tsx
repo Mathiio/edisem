@@ -4,9 +4,6 @@ import FilterPopup, { FilterGroup } from './FilterPopup';
 import { Button, Divider } from '@heroui/react';
 import { AnotateIcon, SearchIcon, ImportIcon, NewItemIcon, AssociateIcon, ExportIcon } from '@/components/Utils/icons';
 import { IconSvgProps } from '@/types/types';
-
-import { getItemByID } from '@/services/api';
-
 import { GeneratedImage } from '@/pages/visualisation';
 import { ExportPopup } from './ExportPopup';
 import ImportPopup from './ImportPopup';
@@ -21,7 +18,7 @@ interface GroupVisibility {
 
 interface ItemsProps {
   itemsDataviz: any[];
-  onSearch: (selectedItems: any[], typesearch: FilterGroup[], isAdvancedSearch: boolean) => void;
+  onSearch: (typesearch: FilterGroup[], isAdvancedSearch: boolean) => void;
   handleExportClick: () => Promise<GeneratedImage>;
   generatedImage: GeneratedImage | null;
   resetActiveIconRef?: (resetFunc: () => void) => void;
@@ -40,17 +37,12 @@ export const Toolbar: React.FC<ItemsProps> = ({
   handleExportClick,
   onSelect,
   exportEnabled,
-  // Ajouter des valeurs par défaut pour les nouvelles props
-  groupsVisibility = [],
-  availableTypes = [],
-  updateGroupTypeVisibility = () => {}, // No-op par défaut
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [activeIcon, setActiveIcon] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
-  const [, setCurrentResults] = useState<any[]>([]);
   const iconRefs = useRef<Record<string, HTMLElement | null>>({});
   const [, setDirection] = useState(1);
 
@@ -89,58 +81,10 @@ export const Toolbar: React.FC<ItemsProps> = ({
     }
   }, [containerRef.current]);
 
-  const applyHiddenTypesFilter = async (items: any[]): Promise<any[]> => {
-    if (!items?.length) return [];
-
-    const hiddenTypes = localStorage.getItem('hideGroups');
-
-    try {
-      const filteredItems = await Promise.all(
-        items.map(async (item) => {
-          if (!item) return null;
-
-          const { links = [], ...rest } = item;
-
-          if (!links.length) {
-            return rest;
-          }
-
-          const linkedItems = await Promise.all(
-            links.map(async (linkId: string) => {
-              try {
-                const linkedItem = await getItemByID(linkId);
-
-                if (linkedItem && hiddenTypes?.includes(linkedItem.type)) {
-                  return null;
-                }
-
-                return linkId;
-              } catch (error) {
-                console.error(`Error fetching linked item ${linkId}:`, error);
-                return null;
-              }
-            }),
-          );
-
-          const filteredLinks = linkedItems.filter((link): link is string => link !== null && link !== undefined);
-
-          return {
-            ...rest,
-            links: filteredLinks,
-          };
-        }),
-      );
-
-      return filteredItems.filter((item): item is any => item !== null && item !== undefined);
-    } catch (error) {
-      console.error('Error in applyHiddenTypesFilter:', error);
-      throw error;
-    }
-  };
-  const handleAdvancedSearch = async (searchResults: any[], typesearch: FilterGroup[]) => {
-    setCurrentResults(searchResults);
-    const filteredResult = await applyHiddenTypesFilter(searchResults);
-    onSearch(filteredResult, typesearch, true);
+  const handleAdvancedSearch = async (typesearch: FilterGroup[]) => {
+    //setCurrentResults(searchResults);
+    //const filteredResult = await applyHiddenTypesFilter(searchResults);
+    onSearch(typesearch, true);
   };
 
   useEffect(() => {
@@ -154,14 +98,7 @@ export const Toolbar: React.FC<ItemsProps> = ({
   const getActivePopup = () => {
     switch (activeIcon) {
       case 'filter':
-        return (
-          <FilterPopup
-            onSearch={handleAdvancedSearch}
-            groupsVisibility={groupsVisibility}
-            availableTypes={availableTypes}
-            updateGroupTypeVisibility={updateGroupTypeVisibility}
-          />
-        );
+        return <FilterPopup onSearch={handleAdvancedSearch} />;
 
       case 'import':
         return <ImportPopup onSelect={onSelect} />;
@@ -240,8 +177,8 @@ export const Toolbar: React.FC<ItemsProps> = ({
         {renderButton('link', AssociateIcon)}
         {renderButton('anotate', AnotateIcon)}
         <Divider orientation='vertical' className='h-4 w-0.5 bg-c4 mx-4' />
-        {renderButton('export', ExportIcon)}
         {renderButton('import', ImportIcon)}
+        {renderButton('export', ExportIcon)}
       </div>
     </div>
   );

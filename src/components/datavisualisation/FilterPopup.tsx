@@ -13,19 +13,13 @@ import {
   ModalHeader,
   ModalBody,
   useDisclosure,
+  Select,
+  SelectItem,
 } from '@heroui/react';
 import { ArrowIcon, CrossIcon, PlusIcon, DotsIcon } from '@/components/Utils/icons';
 import * as Items from '@/services/Items';
-
 import { getItemByID } from '@/services/api';
-import { getLinksFromType } from '@/services/Links';
-import Masques from './Masques';
 
-/**
- * Génère un titre descriptif pour la recherche basé sur les filtres
- * @param filterGroups - Les groupes de filtres utilisés
- * @returns Un titre descriptif pour la recherche
- */
 const generateSearchTitle = (filterGroups: any[]): string => {
   // Si aucun groupe de filtres, retourner un titre par défaut
   if (!filterGroups || filterGroups.length === 0) {
@@ -101,7 +95,7 @@ export const storeSearchHistory = (filterGroups: any[]) => {
     // Mettre à jour le localStorage
     localStorage.setItem('searchHistory', JSON.stringify(existingHistory));
 
-    console.log("Recherche sauvegardée dans l'historique:", newHistoryItem);
+    //console.log("Recherche sauvegardée dans l'historique:", newHistoryItem);
     return newHistoryItem;
   } catch (error) {
     console.error("Erreur lors de la sauvegarde de l'historique de recherche:", error);
@@ -212,10 +206,7 @@ const OPERATORS = [
 ];
 
 export interface FilterPopupProps {
-  onSearch: (results: any[], typesearch: FilterGroup[]) => void;
-  availableTypes?: string[]; // Liste des types disponibles
-  groupsVisibility?: GroupVisibility[]; // État des visibilités par groupe
-  updateGroupTypeVisibility?: (groupId: string, type: string, isVisible: boolean) => void; // Fonction de mise à jour
+  onSearch: (typesearch: FilterGroup[]) => void;
 }
 
 export type GroupVisibility = {
@@ -242,16 +233,39 @@ export type FilterGroup = {
 const STORAGE_KEY = 'filterGroups';
 
 const getInitialFilterGroups = (): FilterGroup[] => {
-  // Initialisation par défaut
+  const savedFilters = localStorage.getItem(STORAGE_KEY);
+  if (savedFilters) {
+    try {
+      return JSON.parse(savedFilters);
+    } catch (e) {
+      console.error('Error parsing saved filters:', e);
+    }
+  }
   return [
     {
       name: 'Groupe 1',
       isExpanded: true,
       itemType: '',
       conditions: [],
-      visibleTypes: Object.values(ITEM_TYPES),
+      visibleTypes: [],
     },
   ];
+};
+
+const saveFilterGroups = (filterGroups: FilterGroup[]): boolean => {
+  try {
+    // Convertir les groupes de filtres en chaîne JSON
+    const filterGroupsJson = JSON.stringify(filterGroups);
+
+    // Sauvegarder dans le localStorage
+    localStorage.setItem(STORAGE_KEY, filterGroupsJson);
+
+    return true;
+  } catch (error) {
+    // Gérer les erreurs possibles (quota dépassé, mode privé, etc.)
+    console.error('Erreur lors de la sauvegarde des filtres:', error);
+    return false;
+  }
 };
 
 export const compareValues = async (itemValue: any, searchValue: any, operator: string): Promise<boolean> => {
@@ -339,18 +353,14 @@ export const getPropertyValue = async (item: any, property: string): Promise<any
   return null;
 };
 
-export default function FilterPopup({
-  onSearch,
-  availableTypes = [],
-  groupsVisibility = [],
-  updateGroupTypeVisibility,
-}: FilterPopupProps) {
+export default function FilterPopup({ onSearch }: FilterPopupProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [activeGroupIndex, setActiveGroupIndex] = useState<number | null>(null);
   const [newGroupName, setNewGroupName] = useState<string>('');
   const [filterGroups, setFilterGroups] = useState<FilterGroup[]>(getInitialFilterGroups());
-  console.log(groupsVisibility);
-  console.log(updateGroupTypeVisibility);
+
+  // console.log(groupsVisibility);
+  // console.log(updateGroupTypeVisibility);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filterGroups));
@@ -368,7 +378,7 @@ export default function FilterPopup({
         isExpanded: true,
         itemType: '',
         conditions: [],
-        visibleTypes: Object.values(ITEM_TYPES), // Initialiser avec tous les types visibles
+        visibleTypes: [], // Initialiser avec tous les types visibles
       },
     ]);
   };
@@ -463,58 +473,8 @@ export default function FilterPopup({
   };
 
   const applyFilters = async () => {
-    const results: any[] = [];
-
-    for (const group of filterGroups) {
-      if (!group.itemType) continue;
-
-      const items = await getDataByType(group.itemType);
-
-      for (const item of items) {
-        let matchesAllConditions = true;
-
-        for (const condition of group.conditions) {
-          if (!condition.property || !condition.value) {
-            continue;
-          }
-
-          try {
-            const itemValue = await getPropertyValue(item, condition.property);
-            const matches = await compareValues(itemValue, condition.value, condition.operator);
-
-            if (!matches) {
-              matchesAllConditions = false;
-              break;
-            }
-          } catch (error) {
-            console.error('Error processing condition:', error);
-            matchesAllConditions = false;
-            break;
-          }
-        }
-
-        if (matchesAllConditions) {
-          try {
-            const links = await getLinksFromType(item, group.itemType);
-            const title = item.title || (await getPropertyValue(item, 'title')) || '';
-
-            results.push({
-              id: item.id,
-              type: group.itemType,
-              title,
-              links,
-            });
-          } catch (error) {
-            console.error('Error adding result item:', error);
-          }
-        }
-      }
-    }
-    console.log('filterGroups');
-
-    console.log(filterGroups);
-
-    onSearch(results, filterGroups);
+    onSearch(filterGroups);
+    saveFilterGroups(filterGroups);
     storeSearchHistory(filterGroups);
   };
 
@@ -531,7 +491,7 @@ export default function FilterPopup({
             value: '',
           },
         ],
-        visibleTypes: Object.values(ITEM_TYPES), // Initialiser avec tous les types visibles
+        visibleTypes: [], // Initialiser avec tous les types visibles
       },
     ]);
   };
@@ -623,12 +583,30 @@ export default function FilterPopup({
                   </Dropdown>
                 </div>
 
-                <Masques
-                  groupId={`group-${groupIndex}`}
-                  visibleTypes={group.visibleTypes || []}
-                  availableTypes={availableTypes}
-                  availableControl={!!group.itemType} // Activer uniquement si un type d'item est sélectionné
-                />
+                <div className='p-4 rounded-xl w-full max-w-xs flex flex-col gap-2'>
+                  <Select
+                    selectionMode='multiple'
+                    label='Visibilité'
+                    placeholder='Sélectionnez les types visibles'
+                    selectedKeys={new Set([...group.visibleTypes].filter((type) => type))}
+                    onSelectionChange={(selection) => {
+                      const visibleTypes = Array.from(selection).map((key) => String(key));
+                      setFilterGroups((prev) =>
+                        prev.map((group, i) => (i === groupIndex ? { ...group, visibleTypes } : group)),
+                      );
+                    }}
+                    variant='bordered'
+                    className='max-w-xs'>
+                    {Object.entries(ITEM_TYPES).map(([label, type]) => (
+                      <SelectItem key={type} textValue={type}>
+                        <div className='flex items-center gap-2'>
+                          <img src={`/bulle-${type}.png`} alt={label} className='w-6 h-6' />
+                          <span className='text-c6'>{label.charAt(0).toUpperCase() + label.slice(1)}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
 
                 <div className={`flex flex-col gap-2 ${group.conditions.length > 0 ? 'mb-4' : ''}`}>
                   {group.conditions.map((condition, conditionIndex) => (
