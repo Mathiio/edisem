@@ -5,10 +5,13 @@ import { Button, Input, Spinner } from '@heroui/react';
 import { CrossIcon, SearchIcon, SortIcon } from '@/components/Utils/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/dropdown';
 
+import AutoResizingField from './AutoResizingTextarea';
+
 interface SelectionInputProps {
   col: InputConfig;
   actualData?: any;
   handleInputChange: (dataPath: string, value: string[]) => void;
+  justView?: boolean;
 }
 
 // Reducer function to slice the result and append '...'
@@ -18,7 +21,7 @@ const reducer = (text: any, maxLength = 70) => {
   return str.slice(0, maxLength) + '...';
 };
 
-export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData, handleInputChange }) => {
+export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData, handleInputChange, justView }) => {
   if (col.dataPath === 'cito:AuthorSelfCitation') {
     col.dataPath = 'cito:hasCitedEntity';
   }
@@ -28,12 +31,11 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   const [selectedValues, setSelectedValues] = useState<string[]>(
     initialValues.map((item: any) => item.value_resource_id),
   );
-  //console.log('selectedValues', selectedValues);
 
   const [idToDisplayNameMap, setIdToDisplayNameMap] = useState<{ [key: string]: string }>({});
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // State for sorting order
-  const [nonSelectedValues, setNonSelectedValues] = useState<string[]>([]); // State for non-selected values
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [nonSelectedValues, setNonSelectedValues] = useState<string[]>([]);
 
   const selectionId = col.selectionId?.[0] ?? null;
 
@@ -64,15 +66,16 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
         });
       }
 
-      //console.log('map', map);
       setIdToDisplayNameMap(map);
 
-      const allValues = filteredData.map((item: any) => item['o:id']);
-      const nonSelectedValues = allValues.filter((value) => !selectedValues.includes(value));
-      setNonSelectedValues(nonSelectedValues);
-      //console.log('nonSelectedValues', nonSelectedValues);
+      // En mode justView, on ne calcule pas les valeurs non sélectionnées
+      if (!justView) {
+        const allValues = filteredData.map((item: any) => item['o:id']);
+        const nonSelectedValues = allValues.filter((value) => !selectedValues.includes(value));
+        setNonSelectedValues(nonSelectedValues);
+      }
     }
-  }, [speakersData, selectionId, selectedValues]);
+  }, [speakersData, selectionId, selectedValues, justView]);
 
   if (loading) {
     return (
@@ -86,6 +89,40 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
     return <div>Données non disponibles pour {col.label}</div>;
   }
 
+  // Si justView est true, afficher seulement les valeurs sélectionnées
+  if (justView) {
+    return selectedValues.length > 0 ? (
+      <div className='flex flex-col gap-10 w-full' key={col.key}>
+        <label className='text-c6'>{col.label}</label>
+        <div className='flex flex-col w-full'>
+          <ul className='flex items-center gap-10 pt-10 pb-20 flex-wrap'>
+            {selectedValues.map((id) => (
+              <AutoResizingField
+                value={idToDisplayNameMap[id]}
+                textareaProps={{
+                  radius: 'lg',
+                  size: 'lg',
+                  classNames: {
+                    label: 'text-semibold',
+                    inputWrapper: 'bg-c1 shadow-none border-1 border-200',
+                  },
+                }}
+                inputProps={{
+                  radius: 'lg',
+                  size: 'lg',
+                  classNames: {
+                    label: 'text-semibold',
+                    inputWrapper: 'bg-c1 shadow-none border-1 border-200',
+                    input: 'h-[50px]',
+                  },
+                }}
+              />
+            ))}
+          </ul>
+        </div>
+      </div>
+    ) : null;
+  }
   // Function to handle sorting based on sortOrder
   const sortedValues = [...nonSelectedValues].sort((id1, id2) => {
     const displayName1 = idToDisplayNameMap[id1] || '';
@@ -133,9 +170,10 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
     return displayName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
+  // Mode édition (justView = false)
   return (
     <div className='flex flex-col gap-10 w-full' key={col.key}>
-      <label>{col.label}</label>
+      <label className='text-c6'>{col.label}</label>
       <div className='flex flex-row gap-10 items-center'>
         <Input
           classNames={{

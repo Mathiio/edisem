@@ -673,6 +673,7 @@ interface EditModalProps {
   activeConfig: string | null; // Modifiez ce type en fonction de votre besoin
   itemPropertiesData: any; // Ajoutez le type approprié
   propertiesLoading: boolean;
+  justView?: boolean;
 }
 
 export const inputConfigs: { [key: string]: InputConfig[] } = {
@@ -884,6 +885,7 @@ export const EditModal: React.FC<EditModalProps> = ({
   activeConfig,
   itemPropertiesData,
   propertiesLoading,
+  justView = false,
 }) => {
   const {
     data: itemDetailsData,
@@ -1036,7 +1038,8 @@ export const EditModal: React.FC<EditModalProps> = ({
           {(onClose) => (
             <>
               <ModalHeader className='flex justify-between p-25 '>
-                <h2 className='text-c6 text-32 font-semibold'>Modification</h2>
+                <h2 className='text-c6 text-32 font-semibold'>{justView ? 'Details' : 'Modification'}</h2>
+
                 <Link onPress={onClose}>
                   <CrossIcon
                     className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
@@ -1050,6 +1053,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                     itemDetailsData &&
                     inputConfigs[activeConfig]?.map((col: InputConfig) => {
                       const value = getValueByPath(itemDetailsData, col.dataPath);
+
                       if (col.type === 'input') {
                         return (
                           <>
@@ -1061,6 +1065,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                                 inputWrapper: 'bg-c1 shadow-none border-1 border-200',
                                 input: 'h-[50px] ',
                               }}
+                              isReadOnly={justView}
                               className='min-h-[50px]'
                               type='text'
                               label={col.label}
@@ -1081,6 +1086,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                               inputWrapper: 'bg-c1 shadow-none border-1 border-200',
                               input: 'h-[50px]',
                             }}
+                            isReadOnly={justView}
                             className='min-h-[50px]'
                             type='text'
                             label={col.label}
@@ -1115,6 +1121,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                       } else if (col.type === 'selection') {
                         return (
                           <SelectionInput
+                            justView={justView}
                             key={col.key}
                             col={col}
                             actualData={itemDetailsData}
@@ -1171,14 +1178,23 @@ export const EditModal: React.FC<EditModalProps> = ({
                     </>
                   )}
 
-                  <Button
-                    onPress={onClose}
-                    onClick={handleSave}
-                    disabled={saving}
-                    radius='none'
-                    className='h-[32px] px-10 text-16 rounded-8 text-selected bg-action transition-all ease-in-out duration-200 navfilter flex items-center'>
-                    Modifier
-                  </Button>
+                  {!justView ? (
+                    <Button
+                      onPress={onClose}
+                      onClick={handleSave}
+                      disabled={saving}
+                      radius='none'
+                      className='h-[32px] px-10 text-16 rounded-8 text-selected bg-action transition-all ease-in-out duration-200 navfilter flex items-center'>
+                      Modifier
+                    </Button>
+                  ) : (
+                    <Button
+                      onPress={onClose}
+                      radius='none'
+                      className='h-[32px] px-10 text-16 rounded-8 text-selected bg-action transition-all ease-in-out duration-200 navfilter flex items-center'>
+                      Fermer
+                    </Button>
+                  )}
                 </div>
               </ModalFooter>
             </>
