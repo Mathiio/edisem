@@ -739,6 +739,11 @@ module.exports = {
             action: '#970FE4',
             action2: '#0093FF',
             selected: '#FFFFFF',
+
+            datavisOrange: "#c2410c",
+            datavisBlue: "#0284c7",
+            datavisGreen: "#84cc16",
+            datavisYellow: "#eab308"
           },
           logo: {
             'crilcq': 'url(/crilcq.png)',
@@ -763,6 +768,11 @@ module.exports = {
             action: '#970FE4',
             action2: '#0093FF',
             selected: '#FFFFFF',
+
+            datavisOrange: "#c2410c",
+            datavisBlue: "#0284c7",
+            datavisGreen: "#84cc16",
+            datavisYellow: "#eab308"
           },
           logo: {
             'crilcq': 'url(/dark_crilcq.png)',

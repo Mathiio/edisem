@@ -24,6 +24,8 @@ import SearchHistory from '@/components/datavisualisation/SearchHistory';
 import { useSearchParams } from 'react-router-dom';
 import { EditModal } from '@/components/database/EditModal';
 import { useLocalStorageProperties } from './database';
+import { AnnotationDropdown } from '@/components/conference/AnnotationDropdown';
+import { CreateModal } from '@/components/database/CreateModal';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -50,7 +52,7 @@ export interface GeneratedImage {
 // Fonction de mapping des types de nœud aux configurations
 const getConfigKey = (nodeType: string): string | null => {
   const typeMap: Record<string, string> = {
-    conf: 'conferences',
+    conference: 'conferences',
     citation: 'citations',
     actant: 'conferenciers',
     bibliography: 'bibliography',
@@ -81,7 +83,7 @@ const predefinedFilters: PredefinedFilter[] = [
             value: 'trucage',
           },
         ],
-        visibleTypes: Object.values(ITEM_TYPES),
+        visibleTypes: ['keyword'],
       },
     ],
   },
@@ -194,6 +196,60 @@ const Visualisation = () => {
 
   const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
   const { isOpen: isOpenDrawer, onOpen: onOpenDrawer, onOpenChange: onOpenChangeDrawer } = useDisclosure();
+  const { isOpen: isOpenAnnote, onOpen: onOpenAnnote, onClose: onCloseAnnote } = useDisclosure();
+  const { isOpen: isOpenCreate, onOpen: onOpenCreate, onClose: onCloseCreate } = useDisclosure();
+
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isLinkMode, setIsLinkMode] = useState(false);
+  const [isAddMode, setIsAddMode] = useState(false);
+  const [isAnnoteMode, setisAnnoteMode] = useState(false);
+
+  const [viewAnnotationMode, setviewAnnotationMode] = useState(false);
+
+  const [firstSelectedNode, setFirstSelectedNode] = useState<any>(null);
+  const [secondSelectedNode, setSecondSelectedNode] = useState<any>(null);
+
+  const [createItemId, setCreateItemId] = useState<number | null>(null);
+
+  const [annoteObject, setAnnoteObject] = useState({
+    id: '',
+    content: '',
+    type: '',
+  });
+
+  const linkModeRef = useRef({
+    isSelecting: false,
+    firstNode: null as any,
+    secondNode: null as any,
+    firstNodeCoords: null as any,
+    secondNodeCoords: null as any,
+  });
+
+  const handleEditModeChange = useCallback((isActive: boolean) => {
+    setIsEditMode(isActive);
+  }, []);
+
+  const handleLinkModeChange = useCallback((isActive: boolean) => {
+    setIsLinkMode(isActive);
+  }, []);
+
+  const handleAddModeChange = useCallback((isActive: boolean) => {
+    setIsAddMode(isActive);
+  }, []);
+
+  const handleAnnoteModeChange = useCallback((isActive: boolean) => {
+    setisAnnoteMode(isActive);
+  }, []);
+
+  const handleCreateItem = useCallback(
+    (num: number, config: string) => {
+      setCreateItemId(num);
+      setSelectedConfigKey(config);
+      setSelectedConfig(config);
+      onOpenCreate();
+    },
+    [onOpenCreate],
+  );
 
   // Gestionnaire de clic sur un nœud
   const handleNodeClick = (d: any) => {
@@ -204,16 +260,142 @@ const Visualisation = () => {
     setSelectedConfigKey(getConfigKey(d.type));
     setSelectedConfig(d.type);
     onOpenEdit();
+
+    // Gestion du mode liaison
+    if (isLinkMode) {
+      if (!linkModeRef.current.isSelecting) {
+        // Premier nœud sélectionné
+        console.log('Sélection du premier nœud:', d);
+        linkModeRef.current.firstNode = d;
+        linkModeRef.current.isSelecting = true;
+
+        // Nettoyer tous les éléments de sélection précédents
+        d3.select(svgRef.current).selectAll('.node-animated-circle').remove();
+        d3.select(svgRef.current).selectAll('.temp-link').remove();
+
+        // Ajouter le cercle animé au premier nœud
+        addAnimatedCircleToNode(d);
+        setFirstSelectedNode(d);
+      } else {
+        // Vérification que c'est bien un nœud différent
+        const firstId = linkModeRef.current.firstNode?.id;
+        const currentId = d?.id;
+
+        if (firstId && currentId && firstId !== currentId) {
+          console.log('Sélection du deuxième nœud:', d);
+          linkModeRef.current.secondNode = d;
+          setSecondSelectedNode(d);
+
+          // IMPORTANT: Supprimer TOUS les cercles animés existants avant d'ajouter les nouveaux
+          d3.select(svgRef.current).selectAll('.node-animated-circle').remove();
+
+          // Re-ajouter le cercle au premier nœud
+          addAnimatedCircleToNode(linkModeRef.current.firstNode);
+
+          // Ajouter le cercle au deuxième nœud
+          addAnimatedCircleToNode(d);
+
+          // Supprimer la ligne temporaire
+          d3.select(svgRef.current).select('.temp-link').remove();
+        } else {
+          console.log('Même nœud sélectionné ou données invalides, opération ignorée');
+          // Annuler la sélection si on reclique sur le même nœud
+          d3.select(svgRef.current).selectAll('.temp-link').remove();
+          d3.select(svgRef.current).selectAll('.node-animated-circle').remove();
+          d3.select(svgRef.current).on('mousemove', null);
+
+          linkModeRef.current.isSelecting = false;
+          linkModeRef.current.firstNode = null;
+          linkModeRef.current.secondNode = null;
+          setFirstSelectedNode(null);
+          setSecondSelectedNode(null);
+        }
+      }
+    }
+    if (isAnnoteMode) {
+      setAnnoteObject({
+        id: d.id,
+        content: d.fullTitle, // Assurez-vous que cela correspond à ce que vous voulez
+        type: d.type,
+      });
+
+      onOpenAnnote();
+    }
   };
+
+  // Fonction helper pour ajouter un cercle animé à un nœud
+  const addAnimatedCircleToNode = (node: any) => {
+    const validTypes = ['keyword', 'university', 'school', 'laboratory', 'conference', 'citation', 'actant'];
+
+    if (!validTypes.includes(node.type)) return;
+
+    d3.select(svgRef.current)
+      .selectAll('.node-circle')
+      .filter((n: any) => n && n.id === node.id)
+      .each(function () {
+        const circle = d3.select(this as SVGCircleElement);
+        const parent = d3.select((this as SVGCircleElement).parentNode as SVGGElement);
+
+        const r = parseFloat(circle.attr('r')) || 10;
+        const cx = parseFloat(circle.attr('cx')) || 0;
+        const cy = parseFloat(circle.attr('cy')) || 0;
+
+        parent
+          .append('circle')
+          .attr('class', 'node-animated-circle')
+          .attr('r', r)
+          .attr('cx', cx)
+          .attr('cy', cy)
+          .attr('fill', 'none')
+          .attr('stroke', 'white')
+          .attr('stroke-width', 3)
+          .attr('stroke-dasharray', '32 24')
+          .style('pointer-events', 'none')
+          .style('animation', 'spin 10s linear infinite');
+      });
+  };
+
+  function CancelLink() {
+    // Nettoyer tous les éléments visuels de la liaison
+    d3.select(svgRef.current).selectAll('.node-animated-circle').remove();
+    d3.select(svgRef.current).selectAll('.temp-link').remove();
+
+    // Supprimer les event listeners de suivi de la souris
+    d3.select(svgRef.current).on('mousemove', null);
+
+    // Réinitialiser les états du mode liaison
+    linkModeRef.current.isSelecting = false;
+    linkModeRef.current.firstNode = null;
+    linkModeRef.current.secondNode = null;
+
+    // Réinitialiser les états React
+    setFirstSelectedNode(null);
+    setSecondSelectedNode(null);
+
+    // Optionnel : réinitialiser le style des nœuds
+    d3.select(svgRef.current).selectAll('.node-circle').attr('stroke', null).attr('stroke-width', null);
+
+    console.log('Mode liaison annulé');
+  }
+
+  // Réinitialiser les états quand le mode lien est désactivé
+  useEffect(() => {
+    if (!isLinkMode) {
+      linkModeRef.current.isSelecting = false;
+      linkModeRef.current.firstNode = null;
+      linkModeRef.current.secondNode = null;
+      setFirstSelectedNode(null);
+      setSecondSelectedNode(null);
+
+      // Réinitialiser les effets visuels
+      d3.select(svgRef.current).selectAll('.node-circle').attr('stroke', null).attr('stroke-width', null);
+    }
+  }, [isLinkMode]);
 
   // Fonction pour enregistrer la référence à setActiveIcon(null)
   const setResetActiveIconRef = useCallback((resetFunc: () => void) => {
     resetActiveIconFunc.current = resetFunc;
   }, []);
-
-  // const toggleTypeVisibility = (type: string) => {
-  //   setVisibleTypes((prev) => (prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]));
-  // };
 
   const [dimensions, setDimensions] = useState({
     width: 1450,
@@ -622,60 +804,54 @@ const Visualisation = () => {
     // Gestion du hover sur les groupes
     nodeGroup
       .on('mouseover', function (_event, d) {
+        const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'conference', 'citation', 'actant'];
+
+        // Si le mode annotation est activé, filtrer les types autorisés
         if (
-          d.type === 'keyword' ||
-          d.type === 'university' ||
-          d.type === 'school' ||
-          d.type === 'laboratory' ||
-          d.type === 'conference' ||
-          d.type === 'citation' ||
-          d.type === 'actant'
+          (!isAnnoteMode && allowedTypes.includes(d.type)) ||
+          (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'conference'].includes(d.type))
         ) {
           const currentRadius = getRadiusForType(d.type) / 2;
           let offset = -2;
 
-          // Calcul proportionnel: réduction d'environ 13-15% du rayon
           let innerStrokeRadius;
-
-          if (d.type === 'keyword' || d.type === 'university' || d.type === 'school' || d.type === 'laboratory') {
-            // Pour les petites bulles
+          if (['keyword', 'university', 'school', 'laboratory'].includes(d.type)) {
             innerStrokeRadius = currentRadius * 0.72;
             offset = -2;
-          } else if (d.type === 'bibliography' || d.type === 'mediagraphie' || d.type === 'citation') {
-            // Pour les bulles moyennes
+          } else if (['bibliography', 'mediagraphie', 'citation'].includes(d.type)) {
             innerStrokeRadius = currentRadius * 0.72;
             offset = -3;
           } else {
-            // Pour les bulles plus grandes
             innerStrokeRadius = currentRadius * 0.7;
             offset = -4;
           }
 
-          // Ajouter un cercle pour l'effet de stroke intérieur
+          let colorStroke = 'hsl(var(--heroui-c6))';
+          if (isEditMode) colorStroke = 'hsl(var(--heroui-datavisOrange))';
+          if (isLinkMode) colorStroke = 'hsl(var(--heroui-datavisBlue))';
+          if (isAnnoteMode) colorStroke = 'hsl(var(--heroui-datavisYellow))';
+
+          d3.select(this).attr('class', 'pointer-cursor');
           d3.select(this)
             .append('circle')
             .attr('class', 'inner-stroke')
             .attr('r', innerStrokeRadius)
             .attr('fill', 'none')
-            .attr('stroke', 'hsl(var(--heroui-c6))')
+            .attr('stroke', colorStroke)
             .attr('stroke-width', 2)
-            .attr('cy', offset);
+            .attr('cy', offset)
+            .attr('cursor', 'pointer');
         }
       })
       .on('mouseout', function () {
-        // Supprimer le cercle de contour intérieur
         d3.select(this).selectAll('.inner-stroke').remove();
       })
       .on('click', function (_event, d) {
-        console.log(d);
+        const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'conference', 'citation', 'actant'];
+
         if (
-          d.type === 'keyword' ||
-          d.type === 'university' ||
-          d.type === 'school' ||
-          d.type === 'laboratory' ||
-          d.type === 'conference' ||
-          d.type === 'citation' ||
-          d.type === 'actant'
+          (!isAnnoteMode && allowedTypes.includes(d.type)) ||
+          (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'conference'].includes(d.type))
         ) {
           handleNodeClick(d);
         }
@@ -727,7 +903,7 @@ const Visualisation = () => {
     return () => {
       if (simulation) simulation.stop();
     };
-  }, [filteredNodes, filteredLinks, dimensions]);
+  }, [filteredNodes, filteredLinks, dimensions, isEditMode, isLinkMode, isAnnoteMode]);
 
   const getImageForType = (type: string) => {
     return images[type] || images['conf'];
@@ -840,64 +1016,32 @@ const Visualisation = () => {
     }
   };
 
-  const handleOverlaySelect = (group: FilterGroup[]) => {
-    applyPredefinedFilter(group);
-    setShowOverlay(false);
+  // Fonction pour gérer la connexion entre deux nœuds
+  const handleConnect = () => {
+    console.log(`Connexion entre tototoototot`);
+
+    // Réinitialiser les nœuds sélectionnés après connexion
+    setFirstSelectedNode('');
+    setSecondSelectedNode('');
+
+    // Désactiver le mode lien après connexion
+    setIsLinkMode(false);
   };
 
-  const applyPredefinedFilter = async (groups: FilterGroup[]) => {
-    const results: any[] = [];
-
-    for (const group of groups) {
-      if (!group.itemType) continue;
-
-      const items = await getDataByType(group.itemType);
-
-      for (const item of items) {
-        let matchesAllConditions = true;
-
-        for (const condition of group.conditions) {
-          if (!condition.property || !condition.value) {
-            continue;
-          }
-
-          try {
-            const itemValue = await getPropertyValue(item, condition.property);
-            const matches = await compareValues(itemValue, condition.value, condition.operator);
-
-            if (!matches) {
-              matchesAllConditions = false;
-              break;
-            }
-          } catch (error) {
-            console.error('Error in condition:', error);
-            matchesAllConditions = false;
-            break;
-          }
-        }
-
-        if (matchesAllConditions) {
-          try {
-            const links = await getLinksFromType(item, group.itemType);
-            const title = item.title || (await getPropertyValue(item, 'title')) || '';
-
-            results.push({
-              id: item.id,
-              type: group.itemType,
-              title,
-              links,
-            });
-          } catch (error) {
-            console.error('Error adding result item:', error);
-          }
-        }
-      }
-
-      handleSearch(groups);
+  const saveFilterGroups = (filterGroups: FilterGroup[]): void => {
+    try {
+      const serializedData = JSON.stringify(filterGroups);
+      localStorage.setItem('filterGroups', serializedData);
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde des filtres:', error);
     }
+  };
 
-    // Si vous voulez aussi stocker l'historique de recherche comme dans applyFilters
+  const handleOverlaySelect = (groups: FilterGroup[]) => {
+    handleSearch(groups);
+    saveFilterGroups(groups);
     storeSearchHistory(groups);
+    setShowOverlay(false);
   };
 
   const clearSvg = () => {
@@ -1023,16 +1167,48 @@ const Visualisation = () => {
         activeConfig={selectedConfigKey}
         itemPropertiesData={itemPropertiesData}
         propertiesLoading={propertiesLoading}
+        justView={!isEditMode}
       />
-
+      {createItemId && (
+        <CreateModal
+          isOpen={isOpenCreate}
+          onClose={onCloseCreate}
+          activeConfig={selectedConfigKey}
+          itemPropertiesData={itemPropertiesData}
+          propertiesLoading={propertiesLoading}
+          itemId={createItemId}
+        />
+      )}
+      <AnnotationDropdown
+        id={Number(annoteObject.id)}
+        content={annoteObject.content}
+        type={annoteObject.type}
+        mode={viewAnnotationMode ? 'annotate' : 'view'}
+        isOpen={isOpenAnnote}
+        onClose={() => onCloseAnnote()}
+      />
+      ;
       <Toolbar
-        itemsDataviz={itemsDataviz}
         onSearch={handleSearch}
         handleExportClick={handleExportClick}
         generatedImage={generatedImage}
         resetActiveIconRef={setResetActiveIconRef}
         onSelect={handleOverlaySelect}
         exportEnabled={exportEnabled}
+        isEditMode={isEditMode}
+        isLinkMode={isLinkMode}
+        isAddMode={isAddMode}
+        isAnnoteMode={isAnnoteMode}
+        onViewToggle={setviewAnnotationMode}
+        firstSelectedNode={firstSelectedNode}
+        secondSelectedNode={secondSelectedNode}
+        onConnect={handleConnect}
+        onCancel={CancelLink}
+        onEditToggle={handleEditModeChange}
+        onLinkToggle={handleLinkModeChange}
+        onAddToggle={handleAddModeChange}
+        onAnnoteToggle={handleAnnoteModeChange}
+        onCreateItem={handleCreateItem}
       />
     </div>
   );

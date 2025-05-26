@@ -133,3 +133,40 @@ pre {
 }
 .slide-in { transform-origin: bottom; }
 .slide-out { transform-origin: top; }
+.pointer-cursor {
+  cursor: pointer !important;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+    transform-origin: center;
+  }
+  to {
+    transform: rotate(360deg);
+    transform-origin: center;
+  }
+}
+
+.node-animated-circle {
+  transform-box: fill-box; /* nécessaire pour SVG */
+  transform-origin: center;
+}
+@keyframes dash {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+.loader {
+  width: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  animation: l5 1s infinite linear alternate;
+}
+@keyframes l5 {
+    0%  {box-shadow: 16px 0 #fff, -16px 0 #fff2;background: #fff }
+    33% {box-shadow: 16px 0 #fff, -16px 0 #fff2;background: #fff2}
+    66% {box-shadow: 16px 0 #fff2,-16px 0 #fff; background: #fff2}
+    100%{box-shadow: 16px 0 #fff2,-16px 0 #fff; background: #fff }
+}

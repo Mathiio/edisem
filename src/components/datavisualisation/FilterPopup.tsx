@@ -554,8 +554,8 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
             </div>
 
             {group.isExpanded && (
-              <>
-                <div className='w-full flex gap-2 items-center mt-4 mb-2'>
+              <div className='flex flex-col gap-4 mt-4'>
+                <div className='w-full flex gap-2 items-center'>
                   <p className='text-14 font-medium text-c6'>Ou</p>
                   <Dropdown className='min-w-0 w-full p-2'>
                     <DropdownTrigger className='min-w-0 w-full'>
@@ -583,9 +583,10 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                   </Dropdown>
                 </div>
 
-                <div className='p-4 rounded-xl w-full max-w-xs flex flex-col gap-2'>
+                <div className=' flex flex-col gap-4'>
                   <Select
                     selectionMode='multiple'
+                    labelPlacement='outside-left'
                     label='Visibilité'
                     placeholder='Sélectionnez les types visibles'
                     selectedKeys={new Set([...group.visibleTypes].filter((type) => type))}
@@ -596,15 +597,18 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                       );
                     }}
                     variant='bordered'
-                    className='max-w-xs'>
-                    {Object.entries(ITEM_TYPES).map(([label, type]) => (
-                      <SelectItem key={type} textValue={type}>
-                        <div className='flex items-center gap-2'>
-                          <img src={`/bulle-${type}.png`} alt={label} className='w-6 h-6' />
-                          <span className='text-c6'>{label.charAt(0).toUpperCase() + label.slice(1)}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    className='w-full'
+                    classNames={{ trigger: 'rounded-8 h-[34px] border-1 border-c4', selectorIcon: 'text-c6' }}>
+                    {Object.entries(ITEM_TYPES)
+                      .filter(([, type]) => type !== group.itemType) // Filtrer le type sélectionné dans le dropdown
+                      .map(([label, type]) => (
+                        <SelectItem classNames={{ selectedIcon: 'text-c6' }} key={type} textValue={type}>
+                          <div className='flex items-center gap-2'>
+                            <img src={`/bulle-${type}.png`} alt={label} className='w-6 h-6' />
+                            <span className='text-c6'>{label.charAt(0).toUpperCase() + label.slice(1)}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
                   </Select>
                 </div>
 
@@ -639,7 +643,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                         </DropdownMenu>
                       </Dropdown>
 
-                      <Dropdown className='min-w-0 w-fit p-2'>
+                      <Dropdown className='min-w-0 w-fit'>
                         <DropdownTrigger>
                           <Button className='h-auto text-14 text-extralight text-c6 px-2 py-1.5 flex justify-between gap-10 bg-transparent border-1.5 border-c4 rounded-8 min-w-[110px]'>
                             {(() => {
@@ -700,7 +704,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                     )}
                   </>
                 )}
-              </>
+              </div>
             )}
           </div>
         ))}
