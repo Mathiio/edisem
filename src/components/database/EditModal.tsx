@@ -10,6 +10,7 @@ import {
   Link,
   ModalHeader,
   LinkIcon,
+  addToast,
 } from '@heroui/react';
 import { usegetDataByClassDetails } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/database/SelectionInput';
@@ -913,7 +914,7 @@ export const EditModal: React.FC<EditModalProps> = ({
 
   const pa = {
     mail: 'erwan.tbd@gmail.com',
-    api: 'https://tests.arcanes.ca/omk/api/',
+    api: 'https://edisem.arcanes.ca/omk/api/',
     ident: 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj',
     key: import.meta.env.VITE_API_KEY,
   };
@@ -970,20 +971,50 @@ export const EditModal: React.FC<EditModalProps> = ({
       if (itemDetailsData) {
         let object = omks.buildObject2(itemDetailsData[0], itemData);
         console.log('obj', object);
-        await omks.updateItem(itemId, object);
-      }
 
-      //await omks.updateRessource(itemId, itemData);
+        // Créer une promesse pour le toast
+        const updatePromise = new Promise((resolve, reject) => {
+          omks.updateItem(itemId, object, 'items', null, 'PUT', (rs) => {
+            if (rs && rs.error) {
+              reject(new Error(rs.error));
+            } else {
+              resolve(rs);
+            }
+          });
+        });
+
+        // Ajouter le toast avec la promesse
+        addToast({
+          title: "Mise à jour de l'item",
+          description: 'Mise à jour en cours...',
+          promise: updatePromise,
+        });
+
+        // Attendre la résolution de la promesse
+        await updatePromise;
+
+        // Toast de succès
+        addToast({
+          title: 'Succès',
+          description: "L'item a été mis à jour avec succès",
+          color: 'success',
+        });
+      }
 
       setSaving(false);
       refetchItemDetails(); // Trigger data refresh
       onClose(); // Close the modal after successful save
     } catch (error) {
-      if (error instanceof Error) {
-        setSaveError(error.message);
-      } else {
-        setSaveError('An unknown error occurred');
-      }
+      // Toast d'erreur
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+
+      addToast({
+        title: 'Erreur',
+        description: `Échec de la mise à jour : ${errorMessage}`,
+        color: 'danger',
+      });
+
+      setSaveError(errorMessage);
       setSaving(false);
     }
   };

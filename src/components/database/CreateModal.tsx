@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Spinner, Button, ModalBody, ModalFooter, ModalContent, Modal, Link, ModalHeader } from '@heroui/react';
+import {
+  Input,
+  Spinner,
+  Button,
+  ModalBody,
+  ModalFooter,
+  ModalContent,
+  Modal,
+  Link,
+  ModalHeader,
+  addToast,
+} from '@heroui/react';
 import { useFetchRT } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/database/SelectionInput';
 import { Textarea } from '@heroui/input';
@@ -625,7 +636,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
 
   const pa = {
     mail: 'erwan.tbd@gmail.com',
-    api: 'https://tests.arcanes.ca/omk/api/',
+    api: 'https://edisem.arcanes.ca/omk/api/',
     ident: 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj',
     key: import.meta.env.VITE_API_KEY,
   };
@@ -659,6 +670,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
     });
   };
 
+  // Version avec toast de promisse + résultat
   const handleSave = async () => {
     setSaving(true);
     setSaveError(null);
@@ -670,17 +682,39 @@ export const CreateModal: React.FC<NewModalProps> = ({
 
       omks.props = itemPropertiesData;
       let object = omks.buildObject(itemDetailsData, itemData);
-      await omks.createItem(object);
+
+      // Toast avec promesse pour montrer le loading
+      const savePromise = omks.createItem(object);
+
+      addToast({
+        title: "Création de l'item",
+        description: 'Création en cours...',
+        promise: savePromise,
+      });
+
+      await savePromise;
+
+      // Toast de succès
+      addToast({
+        title: 'Succès',
+        description: "L'item a été créé avec succès",
+        color: 'success',
+      });
 
       setSaving(false);
       refetchItemDetails();
       onClose();
     } catch (error) {
-      if (error instanceof Error) {
-        setSaveError(error.message);
-      } else {
-        setSaveError('An unknown error occurred');
-      }
+      // Toast d'erreur
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+
+      addToast({
+        title: 'Erreur',
+        description: `Échec de la création : ${errorMessage}`,
+        color: 'danger',
+      });
+
+      setSaveError(errorMessage);
       setSaving(false);
     }
   };

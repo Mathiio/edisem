@@ -12,6 +12,7 @@ import { Bibliographies, BibliographyItem } from '@/components/conference/Biblio
 import { Mediagraphies, MediagraphyItem } from '@/components/conference/MediagraphyCards';
 import { Layouts } from '@/components/Utils/Layouts';
 import { SmConfCard } from '@/components/home/ConfCards';
+import SearchModal, { SearchModalRef } from '@/components/Navbar/SearchModal';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -35,6 +36,7 @@ export const Conference: React.FC = () => {
   const [loadingRecommendations, setLoadingRecommendations] = useState(true);
   const firstDivRef = useRef<HTMLDivElement>(null);
   const [equalHeight, setEqualHeight] = useState<number | null>(null);
+  const searchModalRef = useRef<SearchModalRef>(null);
 
   useEffect(() => {
     if (firstDivRef.current) {
@@ -89,6 +91,11 @@ export const Conference: React.FC = () => {
     fetchConfData();
   }, [id, fetchConfData]);
 
+  const handleKeywordClick = (searchTerm: string) => {
+    // Ouvrir la modal de recherche avec le terme pré-rempli
+    searchModalRef.current?.openWithSearch(searchTerm);
+  };
+
   return (
     <Layouts className='grid grid-cols-10 col-span-10 gap-50'>
       <motion.div ref={firstDivRef} className='col-span-10 lg:col-span-6 flex flex-col gap-25 h-fit' variants={fadeIn}>
@@ -98,7 +105,9 @@ export const Conference: React.FC = () => {
             perMove={1}
             autowidth={true}
             data={confDetails.motcles}
-            renderSlide={(item) => <KeywordsCard key={item.id} id={item.id} word={item.title} />}
+            renderSlide={(item) => (
+              <KeywordsCard key={item.id} onSearchClick={handleKeywordClick} id={item.id} word={item.title} />
+            )}
           />
         )}
         {loading ? (
@@ -177,6 +186,7 @@ export const Conference: React.FC = () => {
           />
         </motion.div>
       )}
+      <SearchModal ref={searchModalRef} />
     </Layouts>
   );
 };

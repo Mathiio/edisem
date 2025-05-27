@@ -190,7 +190,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
           },
         }}>
         <ModalContent>
-          {(onClose) => (
+          {() => (
             <>
               <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
                 <h1 className='text-32 text-c6 font-semibold'>Annotation</h1>
@@ -412,7 +412,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
           },
         }}>
         <ModalContent>
-          {(onClose) => (
+          {() => (
             <>
               <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
                 <h1 className='text-32 text-c6 font-semibold'>Annotation</h1>

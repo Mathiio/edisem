@@ -1,5 +1,5 @@
 import { SearchIcon } from '@/components/Utils/icons';
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, forwardRef, useRef, useImperativeHandle } from 'react';
 import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure, Button } from '@heroui/react';
 import { ActantCard, ActantSkeleton } from '@/components/search/ActantCard';
 import { ConfCard, ConfSkeleton } from '@/components/search/ConfCard';
@@ -15,7 +15,11 @@ const fadeIn: Variants = {
   },
 };
 
-const SearchModal = () => {
+export interface SearchModalRef {
+  openWithSearch: (searchTerm: string) => void;
+}
+
+const SearchModal = forwardRef<SearchModalRef>((props, ref) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
   const [filteredActants, setFilteredActants] = useState<any[]>([]);
@@ -23,6 +27,14 @@ const SearchModal = () => {
   const [filteredConfs, setFilteredConfs] = useState<any[]>([]);
   const [loadingConfs, setLoadingConfs] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Exposer la méthode pour ouvrir avec une recherche
+  useImperativeHandle(ref, () => ({
+    openWithSearch: (searchTerm: string) => {
+      setSearchQuery(searchTerm);
+      onOpen();
+    },
+  }));
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -260,6 +272,6 @@ const SearchModal = () => {
       </Modal>
     </>
   );
-};
+});
 
 export default SearchModal;

@@ -403,7 +403,7 @@ export async function getAllItems() {
       keywords,
       collections,
       students,
-      recherches
+   
     ] = await Promise.all([
       getConfs(),
       getActants(),
@@ -431,7 +431,7 @@ export async function getAllItems() {
       ...keywords,
       ...collections,
       ...students,
-      ...recherches
+   
     ];
 
     sessionStorage.setItem('allItems', JSON.stringify(allItems));
@@ -488,16 +488,12 @@ export async function getCollections() {
 
 export async function getRecherches() {
   try {
-    const storedRecherches = sessionStorage.getItem('recherches');
-    if (storedRecherches) {
-      return JSON.parse(storedRecherches);
-    }
-
+    
     const recherches = await getDataByUrl(
       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecherches&json=1',
     );
 
-    sessionStorage.setItem('recherches', JSON.stringify(recherches));
+   
     return recherches;
   } catch (error) {
     console.error('Error fetching recherches:', error);

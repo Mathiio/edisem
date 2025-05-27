@@ -457,9 +457,14 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
     setFilterGroups((prev) =>
       prev.map((group, i) => {
         if (i !== groupIndex) return group;
+
+        // S'assurer que le nouveau itemType est inclus dans visibleTypes
+        const updatedVisibleTypes = [...new Set([...group.visibleTypes, itemType])];
+
         return {
           ...group,
           itemType,
+          visibleTypes: updatedVisibleTypes,
           conditions: [
             {
               property: getPropertiesByType(itemType)[0]?.key || '', // Prend la première propriété par défaut
@@ -589,9 +594,19 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                     labelPlacement='outside-left'
                     label='Visibilité'
                     placeholder='Sélectionnez les types visibles'
-                    selectedKeys={new Set([...group.visibleTypes].filter((type) => type))}
+                    selectedKeys={
+                      new Set([
+                        ...group.visibleTypes.filter((type) => type !== group.itemType), // Exclure itemType de l'affichage
+                        ...(group.itemType ? [group.itemType] : []), // Mais toujours l'inclure dans la sélection
+                      ])
+                    }
                     onSelectionChange={(selection) => {
-                      const visibleTypes = Array.from(selection).map((key) => String(key));
+                      const selectedTypes = Array.from(selection).map((key) => String(key));
+                      // S'assurer que itemType est toujours inclus dans visibleTypes
+                      const visibleTypes = group.itemType
+                        ? [...new Set([...selectedTypes, group.itemType])]
+                        : selectedTypes;
+
                       setFilterGroups((prev) =>
                         prev.map((group, i) => (i === groupIndex ? { ...group, visibleTypes } : group)),
                       );
