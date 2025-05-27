@@ -1,7 +1,7 @@
-import { Button, Divider, Select, SelectItem, Spinner } from '@heroui/react';
+import { Button, Divider, Select, SelectItem } from '@heroui/react';
 import React from 'react';
 import { useEffect } from 'react';
-import { ExhangeIcon, FileIcon } from '../Utils/icons';
+import { ExhangeIcon } from '../Utils/icons';
 
 interface Node {
   id: string;

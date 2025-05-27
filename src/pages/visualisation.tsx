@@ -470,11 +470,11 @@ const Visualisation = () => {
         continue;
       }
 
-      console.log(`Traitement du groupe: ${group.name}, type: ${group.itemType}`);
+      //console.log(`Traitement du groupe: ${group.name}, type: ${group.itemType}`);
 
       try {
         const items = await getDataByType(group.itemType);
-        console.log(`${items.length} items récupérés pour le type ${group.itemType}`);
+        //console.log(`${items.length} items récupérés pour le type ${group.itemType}`);
 
         const groupFilteredItems = [];
 
@@ -489,7 +489,7 @@ const Visualisation = () => {
 
             try {
               const itemValue = await getPropertyValue(item, condition.property);
-              console.log(`Comparaison: ${itemValue} ${condition.operator} ${condition.value}`);
+              //console.log(`Comparaison: ${itemValue} ${condition.operator} ${condition.value}`);
               const matches = await compareValues(itemValue, condition.value, condition.operator);
 
               if (!matches) {
@@ -508,7 +508,7 @@ const Visualisation = () => {
               const links = await getLinksFromType(item, group.itemType);
               const title = item.title || (await getPropertyValue(item, 'title')) || 'Sans titre';
 
-              console.log(`Item correspondant trouvé: ${title} (${item.id})`);
+              //console.log(`Item correspondant trouvé: ${title} (${item.id})`);
 
               const resultItem = {
                 id: item.id,
@@ -526,7 +526,7 @@ const Visualisation = () => {
           }
         }
 
-        console.log(`${groupFilteredItems.length} items filtrés pour le groupe ${group.name}`);
+        //console.log(`${groupFilteredItems.length} items filtrés pour le groupe ${group.name}`);
 
         // Stocker les résultats de ce groupe spécifique
         const groupId = group.name;
@@ -536,7 +536,7 @@ const Visualisation = () => {
       }
     }
 
-    console.log(`Total d'items filtrés: ${allFilteredItems.length}`);
+    //console.log(`Total d'items filtrés: ${allFilteredItems.length}`);
 
     if (allFilteredItems.length === 0) {
       console.warn('Aucun item ne correspond aux critères de filtrage');
@@ -549,7 +549,7 @@ const Visualisation = () => {
     }
 
     // Phase 2: Construire la visualisation à partir des éléments filtrés
-    console.log('Début de la construction de la visualisation');
+    //console.log('Début de la construction de la visualisation');
 
     const CHARACTER_LIMIT = 10;
     const nodes = new Map();
@@ -584,11 +584,11 @@ const Visualisation = () => {
         });
 
         typesInUse.add(item.type);
-        console.log(`Nœud principal ajouté: ${title} (${item.id})`);
+        //console.log(`Nœud principal ajouté: ${title} (${item.id})`);
       }
     });
 
-    console.log(`${nodes.size} nœuds principaux ajoutés`);
+    //console.log(`${nodes.size} nœuds principaux ajoutés`);
 
     // Pour chaque item filtré, ajouter ses liens selon les types visibles de son groupe
     allFilteredItems.forEach((item) => {
@@ -601,7 +601,7 @@ const Visualisation = () => {
         return;
       }
 
-      console.log(`Traitement des liens pour ${item.id}, ${item.links.length} liens trouvés`);
+      //console.log(`Traitement des liens pour ${item.id}, ${item.links.length} liens trouvés`);
 
       item.links.forEach((linkedId: string) => {
         if (!linkedId) {
@@ -657,7 +657,7 @@ const Visualisation = () => {
           });
 
           typesInUse.add(linkedItem.type);
-          console.log(`Nœud lié ajouté: ${linkedTitle} (${linkedId})`);
+          //console.log(`Nœud lié ajouté: ${linkedTitle} (${linkedId})`);
         }
 
         const linkObject = JSON.stringify({
@@ -667,14 +667,14 @@ const Visualisation = () => {
         });
 
         links.add(linkObject);
-        console.log(`Lien ajouté: ${item.id} -> ${linkedId}`);
+        //console.log(`Lien ajouté: ${item.id} -> ${linkedId}`);
       });
     });
 
     const nodesArray = Array.from(nodes.values());
     const linksArray = Array.from(links).map((link) => JSON.parse(link as string));
 
-    console.log(`Visualisation construite: ${nodesArray.length} nœuds, ${linksArray.length} liens`);
+    //console.log(`Visualisation construite: ${nodesArray.length} nœuds, ${linksArray.length} liens`);
     // Mettre à jour l'état si nécessaire
     if (typeof setFilteredNodes === 'function') {
       setFilteredNodes(nodesArray);
@@ -701,7 +701,7 @@ const Visualisation = () => {
       },
     };
 
-    console.log('Résultat final:', result);
+    //console.log('Résultat final:', result);
     return result;
   };
 
@@ -1098,6 +1098,7 @@ const Visualisation = () => {
           animate='visible'>
           {showOverlay && <OverlaySelector filters={predefinedFilters} onSelect={handleOverlaySelect} />}
           <svg
+            className='rounded-12'
             ref={svgRef}
             xmlns='http://www.w3.org/2000/svg'
             width={dimensions.width}
@@ -1108,7 +1109,7 @@ const Visualisation = () => {
               left: 0,
             }}
             viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}></svg>
-          <div className='absolute bottom-[60px] right-0 z-[50]'>
+          <div className='absolute bottom-[100px] right-0 z-[50]'>
             <ZoomControl availableControl={!showOverlay} svgRef={svgRef} />
           </div>
         </motion.div>
