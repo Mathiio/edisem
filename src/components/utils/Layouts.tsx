@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
-import { Navbar } from '@/components/Navbar/Navbar';
-import { Footer } from '@/components/Utils/Footer';
+import { Navbar } from '@/components/navbar/Navbar';
+import { Footer } from '@/components/utils/Footer';
 import { motion, Variants } from 'framer-motion';
 
 const containerVariants: Variants = {

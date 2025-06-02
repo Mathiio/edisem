@@ -1,5 +1,5 @@
 import { FC } from 'react';
-// import { ArrowIcon } from '@/components/Utils/icons';
+// import { ArrowIcon } from '@/components/utils/icons';
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/react';
 import { ITEM_TYPES } from './FilterPopup';
 

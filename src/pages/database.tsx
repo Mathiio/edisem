@@ -18,9 +18,9 @@ import GridComponent from '@/components/database/GridComponent';
 import { EditModal } from '@/components/database/EditModal';
 import { CreateModal } from '@/components/database/CreateModal';
 
-import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/Utils/icons';
+import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/utils/icons';
 import { usegetAllProperties } from '@/hooks/useFetchData';
-import { Layouts } from '@/components/Utils/Layouts';
+import { Layouts } from '@/components/utils/Layouts';
 
 // Reducer function to slice the result and append '...'
 const reducer = (text: any, maxLength = 100) => {

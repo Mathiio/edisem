@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { getConfByEdition } from '../services/api';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
 import { motion, Variants } from 'framer-motion';
-import { Layouts } from '@/components/Utils/Layouts';
+import { Layouts } from '@/components/utils/Layouts';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },

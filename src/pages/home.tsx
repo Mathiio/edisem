@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FullCarrousel, MidCarrousel } from '@/components/Utils/Carrousels';
+import { FullCarrousel, MidCarrousel } from '@/components/utils/Carrousels';
 import { getSeminaires, getActants } from '../services/Items';
 import { EventCard, EventSkeleton } from '@/components/home/EventCards';
 import { ActantCard, ActantSkeleton } from '@/components/home/ActantCards';
 import { motion, Variants } from 'framer-motion';
-import { Layouts } from '@/components/Utils/Layouts';
+import { Layouts } from '@/components/utils/Layouts';
 import { HomeBaner } from '@/components/home/HomeBaner';
 import { KeywordHighlight } from '@/components/home/KeywordHighlight';
 

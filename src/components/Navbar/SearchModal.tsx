@@ -1,4 +1,4 @@
-import { SearchIcon } from '@/components/Utils/icons';
+import { SearchIcon } from '@/components/utils/icons';
 import React, { useState, useEffect, useCallback, forwardRef, useRef, useImperativeHandle } from 'react';
 import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure, Button } from '@heroui/react';
 import { ActantCard, ActantSkeleton } from '@/components/search/ActantCard';
@@ -19,7 +19,7 @@ export interface SearchModalRef {
   openWithSearch: (searchTerm: string) => void;
 }
 
-const SearchModal = forwardRef<SearchModalRef>((props, ref) => {
+const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
   const [filteredActants, setFilteredActants] = useState<any[]>([]);

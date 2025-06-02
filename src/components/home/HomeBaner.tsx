@@ -1,4 +1,4 @@
-import { MagicIcon } from '@/components/Utils/icons';
+import { MagicIcon } from '@/components/utils/icons';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -15,7 +15,7 @@ export const HomeBaner: React.FC = () => {
         <p className='text-c4 text-16 z-[12]'>Explorer, Connecter, Découvrir et plus.</p>
 
         <motion.svg
-          className='top-[-80px] absolute z-[10] hidden dark:block'
+          className='top-[-80px] absolute hidden dark:block z-[-1]'
           xmlns='http://www.w3.org/2000/svg'
           width='1722'
           height='855'
