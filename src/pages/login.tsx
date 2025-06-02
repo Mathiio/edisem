@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs, Tab, Input, Button } from '@heroui/react';
 import { getActants, getStudents } from '@/services/Items';
 
-import { Layouts } from '@/components/Utils/Layouts';
+import { Layouts } from '@/components/utils/Layouts';
 
 export const LoginPage: React.FC = () => {
   const [actants, setActants] = useState<any>(null);

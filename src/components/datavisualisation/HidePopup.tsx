@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Link } from '@heroui/react';
-import { ArrowIcon, CrossIcon, PlusIcon } from '@/components/Utils/icons';
+import { ArrowIcon, CrossIcon, PlusIcon } from '@/components/utils/icons';
 import { ITEM_TYPES } from './FilterPopup';
 
 type Masque = {

@@ -5,14 +5,14 @@ import { motion, Variants } from 'framer-motion';
 import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/conference/ConfOverview';
 import { Citations } from '@/components/conference/CitationsCards';
 import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/conference/ConfDetails';
-import { FullCarrousel, LongCarrousel } from '@/components/Utils/Carrousels';
+import { FullCarrousel, LongCarrousel } from '@/components/utils/Carrousels';
 import { Tabs, Tab } from '@heroui/react';
 import { KeywordsCard } from '@/components/conference/KeywordsCards';
 import { Bibliographies, BibliographyItem } from '@/components/conference/BibliographyCards';
 import { Mediagraphies, MediagraphyItem } from '@/components/conference/MediagraphyCards';
-import { Layouts } from '@/components/Utils/Layouts';
+import { Layouts } from '@/components/utils/Layouts';
 import { SmConfCard } from '@/components/home/ConfCards';
-import SearchModal, { SearchModalRef } from '@/components/Navbar/SearchModal';
+import SearchModal, { SearchModalRef } from '@/components/navbar/SearchModal';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },

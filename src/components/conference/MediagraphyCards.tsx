@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CameraIcon, SoundIcon, ImageIcon, FileIcon } from '@/components/Utils/icons';
+import { CameraIcon, SoundIcon, ImageIcon, FileIcon } from '@/components/utils/icons';
 
 export interface MediagraphyItem {
   id: number;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LinkIcon, ImageIcon, SoundIcon, CameraIcon, FileIcon, UserIcon } from '@/components/Utils/icons';
+import { LinkIcon, ImageIcon, SoundIcon, CameraIcon, FileIcon, UserIcon } from '@/components/utils/icons';
 import { Link } from 'react-router-dom';
 import { Button } from '@heroui/button';
 

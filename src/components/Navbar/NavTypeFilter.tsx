@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@heroui/react';
-import { CrossIcon } from '@/components/Utils/icons';
+import { CrossIcon } from '@/components/utils/icons';
 
 interface ButtonProps {
   onClick?: (index: number) => void;

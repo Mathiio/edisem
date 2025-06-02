@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SunIcon } from '@/components/Utils/icons';
+import { SunIcon } from '@/components/utils/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DrawerDataviz() {

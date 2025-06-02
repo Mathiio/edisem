@@ -10,7 +10,7 @@ import {
   ExportIcon,
   EditItemIcon,
   AnnotateIcon,
-} from '@/components/Utils/icons';
+} from '@/components/utils/icons';
 import { IconSvgProps } from '@/types/types';
 import { GeneratedImage } from '@/pages/visualisation';
 import { ExportPopup } from './ExportPopup';

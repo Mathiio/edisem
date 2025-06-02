@@ -3,11 +3,11 @@ import * as d3 from 'd3';
 import { getAllItems } from '@/services/Items';
 
 import { motion, Variants } from 'framer-motion';
-import { Navbar } from '@/components/Navbar/Navbar';
+import { Navbar } from '@/components/navbar/Navbar';
 import { Toolbar } from '@/components/datavisualisation/Toolbar';
 import ZoomControl from '@/components/datavisualisation/ZoomControl';
 
-import { images } from '@/components/Utils/images';
+import { images } from '@/components/utils/images';
 import {
   compareValues,
   FilterGroup,
@@ -19,7 +19,7 @@ import {
 import OverlaySelector, { PredefinedFilter } from '@/components/datavisualisation/OverlaySelector';
 import { getLinksFromType } from '@/services/Links';
 import { Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, useDisclosure } from '@heroui/react';
-import { FileIcon, SearchIcon, Sidebar } from '@/components/Utils/icons';
+import { FileIcon, SearchIcon, Sidebar } from '@/components/utils/icons';
 import SearchHistory from '@/components/datavisualisation/SearchHistory';
 import { useSearchParams } from 'react-router-dom';
 import { EditModal } from '@/components/database/EditModal';

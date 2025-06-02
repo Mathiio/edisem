@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnnotationDropdown } from './AnnotationDropdown';
-import { FileIcon } from '@/components/Utils/icons';
+import { FileIcon } from '@/components/utils/icons';
 
 export interface BibliographyItem {
   creator: { first_name: string; last_name: string }[];

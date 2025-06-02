@@ -17,7 +17,7 @@ import { SelectionInput } from '@/components/database/SelectionInput';
 import { Textarea } from '@heroui/input';
 
 import { TimecodeInput, DatePicker } from '@/components/database/TimecodeInput';
-import { CrossIcon } from '@/components/Utils/icons';
+import { CrossIcon } from '@/components/utils/icons';
 import MultipleInputs from '@/components/database/MultipleInputs';
 
 interface User {}

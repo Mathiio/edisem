@@ -4,10 +4,10 @@ import { getLinksFromKeywords } from '@/services/Links';
 import { useEffect, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
-import { CitationCarrousel } from '@/components/Utils/Carrousels';
+import { CitationCarrousel } from '@/components/utils/Carrousels';
 import { getActant, getConfByCitation } from '@/services/api';
 import { Button, Card } from '@heroui/react';
-import { LinkIcon, UserIcon } from '../Utils/icons';
+import { LinkIcon, UserIcon } from '@/components/utils/icons';
 import { Link } from 'react-router-dom';
 
 const fadeIn: Variants = {
