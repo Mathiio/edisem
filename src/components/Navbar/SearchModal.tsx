@@ -1,6 +1,6 @@
 import { SearchIcon } from '@/components/utils/icons';
 import React, { useState, useEffect, useCallback, forwardRef, useRef, useImperativeHandle } from 'react';
-import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure, Button } from '@heroui/react';
+import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure } from '@heroui/react';
 import { ActantCard, ActantSkeleton } from '@/components/search/ActantCard';
 import { ConfCard, ConfSkeleton } from '@/components/search/ConfCard';
 import { motion, Variants } from 'framer-motion';
@@ -112,17 +112,15 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
 
   return (
     <>
-      <Button
-        size='md'
-        className='cursor-pointer h-[32px] text-16 p-25 gap-10 rounded-8 text-c6 hover:text-c6 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
-        onPress={handleOpen}>
-        <SearchIcon size={16} className='text-c6 transition-all ease-in-out duration-200' />
-        Rechercher...
-      </Button>
+      <button
+        className='shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] cursor-pointer text-16 p-15 border-c4 border-2 hover:bg-c4 rounded-8 text-c6 bg-c2 transition-all ease-in-out duration-200'
+        onClick={handleOpen}>
+        <SearchIcon size={15} className='text-c6 transition-all ease-in-out duration-200' />
+      </button>
 
       <Modal
         backdrop='blur'
-        className='bg-c1'
+        className='bg-c2'
         size='3xl'
         isOpen={isOpen}
         onClose={handleClose}
@@ -158,11 +156,11 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
                   ref={inputRef}
                   classNames={{
                     base: 'w-full',
-                    clearButton: 'bg-c2',
+                    clearButton: 'bg-c3',
                     mainWrapper: 'h-full',
                     input: 'text-100 Inter font-semibold text-16 nav_searchbar',
                     inputWrapper:
-                      'group-data-[focus=true]:bg-c2 rounded-12 font-normal text-c6 bg-c2 dark:bg-c2 p-25 h-[50px]',
+                      'group-data-[focus=true]:bg-c3 rounded-12 font-normal text-c6 bg-c3 dark:bg-c3 p-25 h-[50px]',
                   }}
                   placeholder='Conférences, actant, mots clés...'
                   size='sm'

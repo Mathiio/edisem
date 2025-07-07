@@ -170,3 +170,27 @@ pre {
     66% {box-shadow: 16px 0 #fff2,-16px 0 #fff; background: #fff2}
     100%{box-shadow: 16px 0 #fff2,-16px 0 #fff; background: #fff }
 }
+
+
+
+@keyframes scrollLogos {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.3333%);
+  }
+}
+
+.animate-scrollLogos {
+  animation: scrollLogos 30s linear infinite;
+}
+
+
+.fade-left {
+  background: linear-gradient(to right, theme('colors.c1') 0%, transparent 100%);
+}
+
+.fade-right {
+  background: linear-gradient(to left, theme('colors.c1') 0%, transparent 100%);
+}

@@ -186,7 +186,7 @@ export const Conference: React.FC = () => {
           />
         </motion.div>
       )}
-      <SearchModal ref={searchModalRef} />
+      <SearchModal ref={searchModalRef}  />
     </Layouts>
   );
 };
