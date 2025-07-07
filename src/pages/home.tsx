@@ -7,6 +7,7 @@ import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/utils/Layouts';
 import { HomeBaner } from '@/components/home/HomeBaner';
 import { KeywordHighlight } from '@/components/home/KeywordHighlight';
+import { LogoCarousel } from '@/components/home/LogoCarousel';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -50,8 +51,9 @@ export const Home: React.FC = () => {
   }, [fetchSeminaires, fetchActants]);
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-75 z-0 overflow-visible'>
+    <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
       <HomeBaner />
+      <LogoCarousel/>
 
       <FullCarrousel
         title='Derniers séminaires Arcanes'

@@ -26,6 +26,7 @@ import { EditModal } from '@/components/database/EditModal';
 import { useLocalStorageProperties } from './database';
 import { AnnotationDropdown } from '@/components/conference/AnnotationDropdown';
 import { CreateModal } from '@/components/database/CreateModal';
+import { Layouts } from '@/components/utils/Layouts';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -1068,16 +1069,15 @@ const Visualisation = () => {
   }, [searchParams]);
 
   return (
+    <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
+    
     <div className='relative h-screen bg-c1 overflow-y-hidden'>
       <motion.main
-        className='mx-auto h-full max-w-screen-2xl w-full max-w-xl xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200'
+        className='mx-auto h-full w-full transition-all ease-in-out duration-200'
         initial='hidden'
         animate='visible'
         variants={containerVariants}>
-        <motion.div className='col-span-10 ' variants={itemVariants}>
-          <Navbar />
-        </motion.div>
-        <div className='mt-20 z-100'>
+        <div className='mt-0 z-100'>
           <Button
             onPress={onOpenDrawer}
             size='lg'
@@ -1212,6 +1212,7 @@ const Visualisation = () => {
         onCreateItem={handleCreateItem}
       />
     </div>
+    </Layouts>
   );
 };
 

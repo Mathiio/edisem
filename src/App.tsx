@@ -1,4 +1,4 @@
-import { useThemeMode } from '@/hooks/use-theme-mode';
+import { useThemeMode } from '@/hooks/useThemeMode';
 import { Route, Routes } from 'react-router-dom';
 import { Conference } from '@/pages/conference';
 import { Conferencier } from '@/pages/conferencier';
@@ -11,6 +11,7 @@ import { withAuth } from '@/pages/withAuth';
 import Visualisation from './pages/visualisation';
 import { ToastProvider } from '@heroui/react';
 import { HeroUIProvider } from '@heroui/react';
+import { Intervenants } from './pages/intervenants';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
@@ -25,6 +26,7 @@ function App() {
         <Route path='/conference/:id' Component={Conference} />
         <Route path='/conferencier/:id' Component={Conferencier} />
         <Route path='/database' Component={ProtectedDatabase} />
+        <Route path='/intervenants' Component={Intervenants} />
         <Route path='/recherche' Component={CahierRecherche} />
         <Route index path='/' Component={Home} />
         <Route path='/edition/:id/:title?' Component={Edition} />

@@ -1,18 +1,18 @@
-import { MagicIcon } from '@/components/utils/icons';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+
+
 
 export const HomeBaner: React.FC = () => {
   return (
-    <div className='py-[70px] justify-center flex items-center flex-col gap-[30px]'>
+    <div className='pt-150 justify-center flex items-center flex-col gap-[30px]'>
       <div className='gap-[30px] justify-between flex items-center flex-col'>
         <h1 className='z-[12] text-64 font-medium flex flex-col items-center transition-all ease-in-out duration-200 '>
-          <span className='text-c6 font-[600]'>Edisem, plongez dans</span>
+          <span className='text-c6 font-[600]'>Edisem, aux frontières</span>
           <span className='bg-gradient-to-r from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-left font-[600]'>
-            une nouvelle ère de recherche
+            de la machine et de l’imaginaire
           </span>
         </h1>
-        <p className='text-c4 text-16 z-[12]'>Explorer, Connecter, Découvrir et plus.</p>
+        <p className='text-c5 text-16 z-[12]'>Explorer les récits, la créativité et l’auctorialité à l’ère des IA génératives.</p>
 
         <motion.svg
           className='top-[-80px] absolute hidden dark:block z-[-1]'
@@ -73,14 +73,6 @@ export const HomeBaner: React.FC = () => {
         </motion.svg>
       </div>
 
-      <Link
-        to='/visualisation'
-        className='bg-transparent z-[12] py-3 px-6 flex border-3 border-c3 rounded-12 hover:border-c4 transition-all ease-in-out duration-200 items-center gap-10'>
-        <span className='text-16 text-c6'>Recherche par datavisualisation...</span>
-        <MagicIcon size={16} className='text-c4' />
-      </Link>
-
-      <div className=''></div>
     </div>
   );
 };
