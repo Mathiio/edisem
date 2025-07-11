@@ -181,6 +181,9 @@ module.exports = {
       12: '12px !important',
       14: '14px !important',
       18: '18px',
+      20: '20px',
+      24: '24px',
+      28: '28px',
       xl: '99999px',
     },
     borderSpacing: ({ theme }) => ({
@@ -636,6 +639,15 @@ module.exports = {
       12: '12',
       13: '13',
     },
+    lineClamp: {
+      4: '4',
+      5: '5',
+      6: '6',
+      7: '7',
+      8: '8',
+      9: '9',
+      10: '10',
+    },
     gridRow: {
       auto: 'auto',
       'span-1': 'span 1 / span 1',
@@ -768,8 +780,8 @@ module.exports = {
             c5: '#CECECE',
             c6: '#FFFFFF',
 
-            action: '#B4A4E5',
-            action2: '#291964',
+            action: '#6B53BA',
+            action2: '#B4A4E5',
             selected: '#FFFFFF',
 
             datavisOrange: "#c2410c",

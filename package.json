@@ -23,6 +23,7 @@
     "@react-types/datepicker": "^3.7.4",
     "@react-types/shared": "^3.23.1",
     "@splidejs/react-splide": "^0.7.12",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "d3": "^7.9.0",
     "dotenv": "^16.4.5",
     "embla-carousel": "^8.0.4",

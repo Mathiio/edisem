@@ -8,7 +8,7 @@ export const HomeBaner: React.FC = () => {
       <div className='gap-[30px] justify-between flex items-center flex-col'>
         <h1 className='z-[12] text-64 text-c6 font-medium flex flex-col items-center transition-all ease-in-out duration-200 '>
           <span>Edisem, aux frontières</span>
-          <span className='bg-gradient-to-b from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-top font-[500]'>
+          <span className='bg-gradient-to-t from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-top font-[500]'>
             de la machine et de l’imaginaire
           </span>
         </h1>
