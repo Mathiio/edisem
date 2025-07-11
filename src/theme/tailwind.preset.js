@@ -731,8 +731,8 @@ module.exports = {
           colors: {
             c0: 'transparent',
             c1: '#FFFFFF',
-            c2: '#F2F2F2',
-            c3: '#E0E0E0',
+            c2: '#F6F6F6',
+            c3: '#EDEDED',
             c4: '#525252',
             c5: '#303030',
             c6: '#0D0D0D',
@@ -763,13 +763,13 @@ module.exports = {
             c0: 'transparent',
             c1: '#070614',
             c2: '#12111F',
-            c3: '#212037',
-            c4: '#262233',
+            c3: '#242334',
+            c4: '#CBCBCB',
             c5: '#CECECE',
             c6: '#FFFFFF',
 
-            action: '#970FE4',
-            action2: '#0093FF',
+            action: '#B4A4E5',
+            action2: '#291964',
             selected: '#FFFFFF',
 
             datavisOrange: "#c2410c",

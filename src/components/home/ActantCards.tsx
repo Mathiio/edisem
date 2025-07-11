@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@heroui/react';
 import { Link } from '@heroui/react';
+import { UserIcon } from '@/components/utils/icons';
 
 type ActantCardProps = {
   id: number;
@@ -9,7 +10,7 @@ type ActantCardProps = {
   lastname: string;
   picture: string;
   interventions: number;
-  universities: { name: string; logo: string }[];
+  universities: { shortName: string; logo: string }[];
 };
 
 export const ActantCard: React.FC<ActantCardProps> = ({
@@ -39,18 +40,23 @@ export const ActantCard: React.FC<ActantCardProps> = ({
         <img src={picture} alt={`${firstname} ${lastname}`} className='w-75 h-75 object-cover rounded-12' />
       ) : (
         <div className='w-75 h-75 rounded-12 object-cover flex items-center justify-center bg-c3'>
-          <svg width='26' height='38' viewBox='0 0 32 44' fill='none' xmlns='http://www.w3.org/2000/svg'>
-            <path
-              d='M15.999 0C10.397 0 5.8427 4.6862 5.8427 10.4504C5.8427 16.1047 10.1404 20.6809 15.7424 20.8789C15.9135 20.8569 16.0845 20.8569 16.2128 20.8789C16.2556 20.8789 16.2769 20.8789 16.3197 20.8789C16.3411 20.8789 16.3411 20.8789 16.3625 20.8789C21.8362 20.6809 26.1339 16.1047 26.1553 10.4504C26.1553 4.6862 21.601 0 15.999 0Z'
-              fill='#A1A1AA'
-            />
-            <path
-              d='M26.8617 26.7293C20.8962 22.6371 11.1677 22.6371 5.15945 26.7293C2.44398 28.5993 0.947266 31.1295 0.947266 33.8356C0.947266 36.5417 2.44398 39.0498 5.13807 40.8979C8.1315 42.966 12.0656 44 15.9999 44C19.9341 44 23.8683 42.966 26.8617 40.8979C29.5558 39.0278 31.0525 36.5197 31.0525 33.7916C31.0311 31.0854 29.5558 28.5773 26.8617 26.7293Z'
-              fill='#A1A1AA'
-            />
-          </svg>
+          <UserIcon size={24} className='text-c6' />
         </div>
       )}
+      <div className='flex-col flex items-center justify-center gap-5'>
+        {universities.map((university, index) => (
+          <div key={index} className='flex items-center justify-center gap-5'>
+            <img
+              src={university.logo}
+              alt={university.shortName}
+              className='w-auto h-15 object-cover rounded-full'
+            />
+            <p className='text-12 text-left text-c5 font-extralight'>
+              {university.shortName}
+            </p>
+          </div>
+        ))}
+      </div>
       <div className='flex flex-col justify-center items-center'>
         <p className='text-16 text-center text-c6 font-medium'>
           {firstname} {lastname}
@@ -58,20 +64,6 @@ export const ActantCard: React.FC<ActantCardProps> = ({
         <p className='text-16 text-c5 font-extralight'>
           {interventions} intervention{interventions > 1 ? 's' : ''}
         </p>
-      </div>
-      <div className='flex-col flex items-center justify-center gap-5'>
-        {universities.map((university, index) => (
-          <div key={index} className='flex items-center justify-center gap-5'>
-            <img
-              src={university.logo}
-              alt={university.name.replace(/Université/g, 'U.').replace(/Vincennes-Saint-Denis/g, '')}
-              className='w-auto h-15 object-cover rounded-full mb-5'
-            />
-            <p className='text-12 text-left text-c5 font-extralight'>
-              {university.name.replace(/Université/g, 'U.').replace(/Vincennes-Saint-Denis/g, '')}
-            </p>
-          </div>
-        ))}
       </div>
     </div>
   );

@@ -113,7 +113,7 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
   return (
     <>
       <button
-        className='shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] cursor-pointer text-16 p-15 border-c4 border-2 hover:bg-c4 rounded-8 text-c6 bg-c2 transition-all ease-in-out duration-200'
+        className='shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] cursor-pointer text-16 p-15 border-c3 border-2 hover:bg-c3 rounded-8 text-c6 bg-c2 transition-all ease-in-out duration-200'
         onClick={handleOpen}>
         <SearchIcon size={15} className='text-c6 transition-all ease-in-out duration-200' />
       </button>

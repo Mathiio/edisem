@@ -20,8 +20,8 @@ export const Navbar: React.FC = () => {
 
   const linkBaseClass =
     'cursor-pointer flex flex-row items-center justify-center px-15 py-10 text-16 gap-10 text-c6 rounded-8 border-2 transition-all ease-in-out duration-200';
-  const activeClass = 'bg-c2 border-c4 shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)]';
-  const hoverClass = 'hover:bg-c2 hover:border-c4 hover:shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] border-transparent';
+  const activeClass = 'bg-c2 border-c3 shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)]';
+  const hoverClass = 'hover:bg-c2 hover:border-c3 hover:shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] border-transparent';
 
   return (
     <nav
@@ -48,16 +48,17 @@ export const Navbar: React.FC = () => {
 
           <Dropdown>
             <DropdownTrigger>
-              <div className={`${linkBaseClass} ${isOneOf(['/seminaires', '/oeuvres', '/etudes', '/journees']) ? activeClass : hoverClass}`}>
+              <div className={`${linkBaseClass} ${isOneOf(['/corpus/seminaires', '/corpus/oeuvres', '/corpus/journees-etudes', '/corpus/colloques', '/corpus/etudes-de-cas']) ? activeClass : hoverClass}`}>
                 <span className='font-normal'>Corpus</span>
               </div>
             </DropdownTrigger>
             <DropdownMenu className='p-10 bg-c2 rounded-12'>
               {[
-                { to: '/seminaires', label: 'Séminaires' },
-                { to: '/oeuvres', label: 'Œuvres' },
-                { to: '/etudes', label: 'Études de cas' },
-                { to: '/journees', label: "Journées d'études" }
+                { to: '/corpus/seminaires', label: 'Séminaires' },
+                { to: '/corpus/oeuvres', label: 'Œuvres' },
+                { to: '/corpus/etudes-de-cas', label: 'Études de cas' },
+                { to: '/corpus/journees-etudes', label: "Journées d'études" },
+                { to: '/corpus/colloques', label: "Colloques" }
               ].map(({ to, label }) => (
                 <DropdownItem key={to} className='p-0 text-c5 hover:text-c6'>
                   <Link to={to} className='flex gap-2 w-full p-2 items-center rounded-8 hover:bg-c3 transition-all'>

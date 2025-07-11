@@ -6,9 +6,9 @@ export const HomeBaner: React.FC = () => {
   return (
     <div className='pt-150 justify-center flex items-center flex-col gap-[30px]'>
       <div className='gap-[30px] justify-between flex items-center flex-col'>
-        <h1 className='z-[12] text-64 font-medium flex flex-col items-center transition-all ease-in-out duration-200 '>
-          <span className='text-c6 font-[600]'>Edisem, aux frontières</span>
-          <span className='bg-gradient-to-r from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-left font-[600]'>
+        <h1 className='z-[12] text-64 text-c6 font-medium flex flex-col items-center transition-all ease-in-out duration-200 '>
+          <span>Edisem, aux frontières</span>
+          <span className='bg-gradient-to-b from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-top font-[500]'>
             de la machine et de l’imaginaire
           </span>
         </h1>
@@ -25,7 +25,6 @@ export const HomeBaner: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{
             duration: 0.8,
-
             ease: 'easeIn',
           }}>
           <g filter='url(#filter0_nf_3326_2067)'>

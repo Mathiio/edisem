@@ -55,7 +55,7 @@ export const ProfilDropdown = () => {
 
       {/* Button trigger for opening the dropdown */}
       <DropdownTrigger className='p-3'>
-        <div className='hover:bg-c4 shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c4 items-center justify-center px-15 py-10 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'>
+        <div className='hover:bg-c3 shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-15 py-10 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'>
           {/* User avatar if authenticated, otherwise fallback icon */}
           {isAuthenticated && userData?.picture ? (
             <img
@@ -146,7 +146,7 @@ export const ProfilDropdown = () => {
           </>
         ) : (
           // When the user is not authenticated
-          <DropdownSection>
+          <DropdownSection className='mb-0'>
 
             {/* Link to Login page */}
             <DropdownItem key='login' className='p-0 hover:text-c6 text-c5'>

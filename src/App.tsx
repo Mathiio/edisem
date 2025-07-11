@@ -12,6 +12,11 @@ import Visualisation from './pages/visualisation';
 import { ToastProvider } from '@heroui/react';
 import { HeroUIProvider } from '@heroui/react';
 import { Intervenants } from './pages/intervenants';
+import { Colloques } from './pages/corpus/Colloques';
+import { EtudesDeCas } from './pages/corpus/EtudesDeCas';
+import { JourneesEtudes } from './pages/corpus/JourneesEtudes';
+import { Oeuvres } from './pages/corpus/Oeuvres';
+import { Seminaires } from './pages/corpus/Seminaires';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
@@ -27,7 +32,12 @@ function App() {
         <Route path='/conferencier/:id' Component={Conferencier} />
         <Route path='/database' Component={ProtectedDatabase} />
         <Route path='/intervenants' Component={Intervenants} />
-        <Route path='/recherche' Component={CahierRecherche} />
+        <Route path='/corpus/journees-etudes' Component={JourneesEtudes} />
+        <Route path='/corpus/colloques' Component={Colloques} />
+        <Route path='/corpus/seminaires' Component={Seminaires} />
+        <Route path='/corpus/etudes-de-cas' Component={EtudesDeCas} />
+        <Route path='/corpus/oeuvres' Component={Oeuvres} />
+        <Route path='/corpus/' Component={CahierRecherche} />
         <Route index path='/' Component={Home} />
         <Route path='/edition/:id/:title?' Component={Edition} />
         <Route path='/login' Component={LoginPage} />
