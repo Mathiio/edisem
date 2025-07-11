@@ -159,13 +159,12 @@ export const KeywordHighlight: React.FC = () => {
   return (
     <div className='py-[70px] w-full justify-center flex items-center flex-col gap-25 overflow-visible'>
       <div className='py-50 gap-20 justify-between flex items-center flex-col'>
-        <h1 className='text-64 font-medium flex flex-col items-center transition-all ease-in-out duration-200 font-[600]'>
-          <span className='text-c5'>Découvrez les sujets autour de</span>
-          <span className='text-center bg-gradient-to-r from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-left'>
-            "{selectedKeyword?.title || 'intelligence artificielle'}"
+        <h2 className='z-[12] text-64 text-c6 font-medium flex flex-col items-center transition-all ease-in-out duration-200 '>
+          <span>Sujets autour de</span>
+          <span className='text-center'>
+             "{selectedKeyword?.title || ''}"
           </span>
-        </h1>
-        <p className='text-c4 text-16'>Une exploration plus immersive par thématique.</p>
+        </h2>
       </div>
       <div className='grid grid-cols-4 w-full gap-25'>
         {loading

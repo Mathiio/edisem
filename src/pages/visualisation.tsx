@@ -3,7 +3,6 @@ import * as d3 from 'd3';
 import { getAllItems } from '@/services/Items';
 
 import { motion, Variants } from 'framer-motion';
-import { Navbar } from '@/components/navbar/Navbar';
 import { Toolbar } from '@/components/datavisualisation/Toolbar';
 import ZoomControl from '@/components/datavisualisation/ZoomControl';
 
@@ -28,10 +27,7 @@ import { AnnotationDropdown } from '@/components/conference/AnnotationDropdown';
 import { CreateModal } from '@/components/database/CreateModal';
 import { Layouts } from '@/components/utils/Layouts';
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 5 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 80, damping: 10 } },
-};
+
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },

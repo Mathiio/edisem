@@ -18,7 +18,7 @@ export const EventCard: React.FC<EventCardProps> = ({ id, title, numConf }) => {
   return (
     <div
       onClick={openEdition}
-      className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.05)] border-c4 border-2 hover:bg-c4 cursor-pointer p-50 rounded-12 justify-between flex flex-col gap-20 bg-c2 hover:bg-c3 h-full transition-all ease-in-out duration-200"
+      className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.04)] border-c3 border-2 hover:bg-c3 cursor-pointer p-50 rounded-12 justify-between flex flex-col gap-20 bg-c2 hover:bg-c3 h-full transition-all ease-in-out duration-200"
     >
       <p className='text-32 font-semibold transition-all ease-in-out duration-200 bg-gradient-to-r from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-left'>{title}</p>
       <p className='text-16 text-c5 font-extralight transition-all ease-in-out duration-200'>{numConf} conférences</p>

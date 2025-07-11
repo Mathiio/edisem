@@ -194,3 +194,27 @@ pre {
 .fade-right {
   background: linear-gradient(to left, theme('colors.c1') 0%, transparent 100%);
 }
+
+.fade-top {
+  background: linear-gradient(to top, theme('colors.c1') 0%, transparent 100%);
+}
+
+.fade-bottom {
+  background: linear-gradient(to bottom, theme('colors.c1') 0%, transparent 100%);
+}
+
+
+@layer utilities {
+  .translate-up {
+    transform: translateY(-110px); /* Ajuste en fonction de la hauteur des cards */
+  }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari and Opera */
+}
