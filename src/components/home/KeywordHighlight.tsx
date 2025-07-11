@@ -4,10 +4,10 @@ import { getLinksFromKeywords } from '@/services/Links';
 import { useEffect, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
-import { CitationCarrousel } from '@/components/utils/Carrousels';
+import { FullCarrousel } from '@/components/utils/Carrousels';
 import { getActant, getConfByCitation } from '@/services/api';
-import { Button, Card } from '@heroui/react';
-import { LinkIcon, UserIcon } from '@/components/utils/icons';
+import { Button } from '@heroui/react';
+import { ArrowIcon, UserIcon } from '@/components/utils/icons';
 import { Link } from 'react-router-dom';
 
 const fadeIn: Variants = {
@@ -31,61 +31,58 @@ const CitationSlide = ({ item }: { item: any }) => {
   }, [item.id]);
 
   return (
-    <motion.div
-      initial='hidden'
-      animate='visible'
-      variants={fadeIn}
+    <Link 
+      to={`/conference/${confId}`}
       key={item.id}
-      className='py-4 px-2 bg-c1 rounded-14 flex flex-col overflow-visible'>
-      <Card className='p-25 flex flex-col gap-15' shadow='sm'>
+      className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.04)] border-c3 border-2 hover:bg-c3 cursor-pointer p-50 rounded-12 justify-between flex flex-col gap-50 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'>
         <p
-          className='text-14 text-c4 italic leading-[150%] flex-grow overflow-hidden'
-          style={{
-            display: '-webkit-box',
-            WebkitLineClamp: 10,
-            WebkitBoxOrient: 'vertical',
-            textOverflow: 'ellipsis',
-          }}>
+          className='text-14 text-c4 italic leading-[150%] overflow-hidden line-clamp-6'>
           {item.citation}
         </p>
-        <div className='flex flex-row gap-15 items-center'>
-          {item.actant.picture ? (
-            <img
-              src={item.actant.picture}
-              alt={`${item.actant.firstname} ${item.actant.lastname}`}
-              className='w-[30px] h-[30px] object-cover rounded-12'
-            />
-          ) : (
-            <div className='min-w-[30px] h-[30px] rounded-12 object-cover flex items-center justify-center bg-c3'>
-              <UserIcon size={16} className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200' />
-            </div>
-          )}
-          <div className='flex flex-row w-full justify-between'>
-            <p className='text-18 text-c6 flex flex-row items-center leading-[70%]'>{`${item.actant.firstname} ${item.actant.lastname}`}</p>
-            {confId ? (
-              <Link to={`/conference/${confId}`}>
-                <Button
-                  key={item.id}
-                  endContent={<LinkIcon size={16} />}
-                  radius='none'
-                  className='h-[32px] px-10 text-14 rounded-8 text-selected bg-action transition-all ease-in-out duration-200 navfilter flex items-center'>
-                  Voir plus
-                </Button>
-              </Link>
+        <div className='flex w-full justify-between items-center'>
+          <div className='flex flex-row gap-10 item-center justify-between'>
+            {item.actant.picture ? (
+              <img
+                src={item.actant.picture}
+                alt={`${item.actant.firstname} ${item.actant.lastname}`}
+                className='w-[50px] h-[50px] object-cover rounded-14'
+              />
             ) : (
-              <Button
-                key={item.id}
-                endContent={<LinkIcon size={16} />}
-                radius='none'
-                disabled
-                className='h-[32px] px-10 text-14 rounded-8 opacity-50 bg-action transition-all ease-in-out duration-200 navfilter flex items-center'>
-                Chargement...
-              </Button>
+              <div className='min-w-[50px] h-[50px] rounded-12 object-cover flex items-center justify-center bg-c3'>
+                <UserIcon size={22} className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200' />
+              </div>
             )}
+            <div className='flex-col flex justify-center gap-10'>
+              <p className='text-18 text-c6 flex flex-row items-center leading-[70%]'>{`${item.actant.firstname} ${item.actant.lastname}`}</p>
+              <div className='text-18 text-c6 flex flex-row items-center leading-[70%]'>
+                {item.actant.universities?.map(
+                  (
+                    university: { logo: string; shortName: string },
+                    index: number
+                  ) => (
+                    <div key={index} className='flex items-center justify-center gap-5'>
+                      <img
+                        src={university.logo}
+                        alt={university.shortName}
+                        className='w-auto h-15 object-cover rounded-full'
+                      />
+                      <p className='text-12 text-left text-c5 font-extralight'>
+                        {university.shortName}
+                      </p>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      </Card>
-    </motion.div>
+            <Button
+              key={item.id}
+              size='sm'
+              className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action relative flex'>
+              <ArrowIcon size={14} />
+            </Button>
+          </div>
+    </Link>
   );
 };
 
@@ -157,7 +154,7 @@ export const KeywordHighlight: React.FC = () => {
   }, []);
 
   return (
-    <div className='py-[70px] w-full justify-center flex items-center flex-col gap-25 overflow-visible'>
+    <div className='w-full justify-center flex items-center flex-col gap-25 overflow-visible'>
       <div className='py-50 gap-20 justify-between flex items-center flex-col'>
         <h2 className='z-[12] text-64 text-c6 font-medium flex flex-col items-center transition-all ease-in-out duration-200 '>
           <span>Sujets autour de</span>
@@ -187,12 +184,16 @@ export const KeywordHighlight: React.FC = () => {
             ))}
       </div>
       <div className='mt-50 w-full flex rounded-12 overflow-visible h-auto'>
-        <CitationCarrousel
+        <FullCarrousel
+          title='Citations sur ce sujet'
           perPage={3}
           perMove={1}
           data={filteredCitations}
-          renderSlide={(item, index) => <CitationSlide item={item} key={index} />}
-          title={'Citations sur ce sujet'}
+          renderSlide={(item, index) => (
+            <motion.div initial='hidden' animate='visible' variants={fadeIn} custom={index} key={item.id}>
+              <CitationSlide item={item} />
+            </motion.div>
+          )}
         />
       </div>
     </div>

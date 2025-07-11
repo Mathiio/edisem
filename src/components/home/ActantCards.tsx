@@ -37,9 +37,9 @@ export const ActantCard: React.FC<ActantCardProps> = ({
         isHovered ? 'border-c4' : 'border-c3'
       }`}>
       {picture ? (
-        <img src={picture} alt={`${firstname} ${lastname}`} className='w-75 h-75 object-cover rounded-12' />
+        <img src={picture} alt={`${firstname} ${lastname}`} className='w-75 h-75 object-cover rounded-20' />
       ) : (
-        <div className='w-75 h-75 rounded-12 object-cover flex items-center justify-center bg-c3'>
+        <div className='w-75 h-75 rounded-20 object-cover flex items-center justify-center bg-c3'>
           <UserIcon size={24} className='text-c6' />
         </div>
       )}
