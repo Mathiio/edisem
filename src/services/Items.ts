@@ -286,6 +286,7 @@ export async function getUniversities() {
     const universitiesFull = universities.map((university: any) => ({
       ...university,
       title: university.name,
+      shortName: university.shortName,
       type: 'university',
     }));
 
