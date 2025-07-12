@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 
 import { useParams } from 'react-router-dom';
-import { getActant, getConfByActant } from '../services/api';
+import { getActant, getConfByActant } from '../lib/api';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon, ConferenceIcon } from '@/components/utils/icons';
-import { InfoCard, InfoSkeleton } from '@/components/actants/ActantCards';
+import { InfoCard, InfoSkeleton } from '@/components/features/actants/ActantCards';
 import { Link } from '@heroui/react';
-import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
+import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { motion, Variants } from 'framer-motion';
-import { Layouts } from '@/components/utils/Layouts';
+import { Layouts } from '@/components/layout/Layouts';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },

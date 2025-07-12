@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { getConf, getConfCitations, getConfBibliographies, getConfMediagraphies } from '../services/api';
+import { getConf, getConfCitations, getConfBibliographies, getConfMediagraphies } from '../lib/api';
 import { motion, Variants } from 'framer-motion';
-import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/conference/ConfOverview';
-import { Citations } from '@/components/conference/CitationsCards';
-import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/conference/ConfDetails';
-import { FullCarrousel, LongCarrousel } from '@/components/utils/Carrousels';
+import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
+import { Citations } from '@/components/features/conference/CitationsCards';
+import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/features/conference/ConfDetails';
+import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
 import { Tabs, Tab } from '@heroui/react';
-import { KeywordsCard } from '@/components/conference/KeywordsCards';
-import { Bibliographies, BibliographyItem } from '@/components/conference/BibliographyCards';
-import { Mediagraphies, MediagraphyItem } from '@/components/conference/MediagraphyCards';
-import { Layouts } from '@/components/utils/Layouts';
-import { SmConfCard } from '@/components/home/ConfCards';
-import SearchModal, { SearchModalRef } from '@/components/navbar/SearchModal';
+import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
+import { Bibliographies, BibliographyItem } from '@/components/features/conference/BibliographyCards';
+import { Mediagraphies, MediagraphyItem } from '@/components/features/conference/MediagraphyCards';
+import { Layouts } from '@/components/layout/Layouts';
+import { SmConfCard } from '@/components/features/home/ConfCards';
+import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },

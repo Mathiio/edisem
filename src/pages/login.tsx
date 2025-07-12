@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, Tab, Input, Button } from '@heroui/react';
-import { getActants, getStudents } from '@/services/Items';
+import { getActants, getStudents } from '@/lib/Items';
 
-import { Layouts } from '@/components/utils/Layouts';
+import { Layouts } from '@/components/layout/Layouts';
 
 export const LoginPage: React.FC = () => {
   const [actants, setActants] = useState<any>(null);

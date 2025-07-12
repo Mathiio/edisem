@@ -1,4 +1,4 @@
-import { IconSvgProps } from '@/types/types';
+import { IconSvgProps } from '@/types/ui';
 
 export const CreditIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg height={size || height} viewBox='0 0 22 22' width={size || width} {...props}>

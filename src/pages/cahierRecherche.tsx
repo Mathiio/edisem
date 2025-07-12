@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 
-import { Layouts } from '@/components/utils/Layouts';
+import { Layouts } from '@/components/layout/Layouts';
 import { DotsIcon, FileIcon } from '@/components/utils/icons';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Card, Skeleton } from '@heroui/react';
-import { getResearchByActant } from '@/services/api';
+import { getResearchByActant } from '@/lib/api';
 
 // Interface pour les propriétés de RechercheCard
 interface RechercheCardProps {
