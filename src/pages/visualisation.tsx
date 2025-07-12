@@ -6,7 +6,7 @@ import { motion, Variants } from 'framer-motion';
 import { Toolbar } from '@/components/features/datavisualisation/Toolbar';
 import ZoomControl from '@/components/features/datavisualisation/ZoomControl';
 
-import { images } from '@/components/utils/images';
+import { images } from '@/components/features/datavisualisation/images';
 import {
   compareValues,
   FilterGroup,
@@ -18,7 +18,7 @@ import {
 import OverlaySelector, { PredefinedFilter } from '@/components/features/datavisualisation/OverlaySelector';
 import { getLinksFromType } from '@/lib/Links';
 import { Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, useDisclosure } from '@heroui/react';
-import { FileIcon, SearchIcon, Sidebar } from '@/components/utils/icons';
+import { FileIcon, SearchIcon, Sidebar } from '@/components/ui/icons';
 import SearchHistory from '@/components/features/datavisualisation/SearchHistory';
 import { useSearchParams } from 'react-router-dom';
 import { EditModal } from '@/components/features/database/EditModal';

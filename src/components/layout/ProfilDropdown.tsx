@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCallback, useMemo } from 'react';
-import { UserIcon, VisualisationIcon, DataIcon, Logout, SunIcon, MoonIcon } from '@/components/utils/icons';
+import { UserIcon, VisualisationIcon, DataIcon, Logout, SunIcon, MoonIcon } from '@/components/ui/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem, User } from '@heroui/react';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { useAuth } from '@/hooks/useAuth';

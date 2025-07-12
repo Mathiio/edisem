@@ -1,4 +1,4 @@
-import { SearchIcon } from '@/components/utils/icons';
+import { SearchIcon } from '@/components/ui/icons';
 import React, { useState, useEffect, useCallback, forwardRef, useRef, useImperativeHandle } from 'react';
 import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure } from '@heroui/react';
 import { ActantCard, ActantSkeleton } from '@/components/layout/ActantCard';

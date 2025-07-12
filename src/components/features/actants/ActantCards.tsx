@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@heroui/react';
 import { Link } from '@heroui/react';
-import { UserIcon } from '@/components/utils/icons';
+import { UserIcon } from '@/components/ui/icons';
 
 type ActantCardProps = {
   id: number;

@@ -1,6 +1,6 @@
 import { FC, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import { CenterIcon, ZoomInIcon, ZoomOutIcon } from '@/components/utils/icons';
+import { CenterIcon, ZoomInIcon, ZoomOutIcon } from '@/components/ui/icons';
 import { Button } from '@heroui/react';
 
 interface ZoomControlProps {
