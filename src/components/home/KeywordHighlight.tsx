@@ -158,7 +158,7 @@ export const KeywordHighlight: React.FC = () => {
       <div className='py-50 gap-20 justify-between flex items-center flex-col'>
         <h2 className='z-[12] text-64 text-c6 font-medium flex flex-col items-center transition-all ease-in-out duration-200 '>
           <span>Sujets autour de</span>
-          <span className='text-center'>
+          <span className='text-center bg-gradient-to-t from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-top font-[500]'>
              "{selectedKeyword?.title || ''}"
           </span>
         </h2>

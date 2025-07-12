@@ -749,25 +749,14 @@ module.exports = {
             c5: '#303030',
             c6: '#0D0D0D',
 
-            action: '#970FE4',
-            action2: '#0093FF',
+            action: '#6B53BA',
+            action2: '#B4A4E5',
             selected: '#FFFFFF',
 
             datavisOrange: "#c2410c",
             datavisBlue: "#0284c7",
             datavisGreen: "#84cc16",
             datavisYellow: "#eab308"
-          },
-          logo: {
-            'crilcq': 'url(/partners/w_crilcq.png)',
-            'laval': 'url(/partners/w_laval.png)',
-            'univmtl': 'url(/partners/w_univmtl.png)',
-            'uqam': 'url(/partners/w_uqam.png)',
-            'paris8': 'url(/partners/w_paris8.png)',
-            'paragraphe': 'url(/partners/w_paragraphe.png)',
-            'sshrc': 'url(/partners/w_sshrc.png)',
-            'utc': 'url(/partners/w_utc.png)',
-            'rit': 'url(/partners/w_rit.png)',
           }
         },
         dark: {
@@ -788,17 +777,6 @@ module.exports = {
             datavisBlue: "#0284c7",
             datavisGreen: "#84cc16",
             datavisYellow: "#eab308"
-          },
-          logo: {
-            'crilcq': 'url(/partners/d_crilcq.png)',
-            'laval': 'url(/partners/d_laval.png)',
-            'univmtl': 'url(/partners/d_univmtl.png)',
-            'uqam': 'url(/partners/d_uqam.png)',
-            'paris8': 'url(/partners/d_paris8.png)',
-            'paragraphe': 'url(/partners/d_paragraphe.png)',
-            'sshrc': 'url(/partners/d_sshrc.png)',
-            'utc': 'url(/partners/d_utc.png)',
-            'rit': 'url(/partners/d_rit.png)',
           }
         },
       },
