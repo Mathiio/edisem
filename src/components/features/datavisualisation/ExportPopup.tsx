@@ -4,7 +4,7 @@ import { Input } from '@heroui/input';
 import { useState } from 'react';
 import { GeneratedImage } from '@/pages/visualisation';
 
-import { ShareIcon } from '@/components/utils/icons';
+import { ShareIcon } from '@/components/ui/icons';
 import Omk from '@/components/features/database/CreateModal';
 
 const API_URL = 'https://edisem.arcanes.ca/omk/api/';

@@ -7,7 +7,7 @@ import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards
 import { FullCarrousel } from '@/components/ui/Carrousels';
 import { getActant, getConfByCitation } from '@/lib/api';
 import { Button } from '@heroui/react';
-import { ArrowIcon, UserIcon } from '@/components/utils/icons';
+import { ArrowIcon, UserIcon } from '@/components/ui/icons';
 import { Link } from 'react-router-dom';
 
 const fadeIn: Variants = {

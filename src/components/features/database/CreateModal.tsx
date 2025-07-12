@@ -16,7 +16,7 @@ import { SelectionInput } from '@/components/features/database/SelectionInput';
 import { Textarea } from '@heroui/input';
 
 import { DatePicker, TimecodeInput } from '@/components/features/database/TimecodeInput';
-import { CrossIcon } from '@/components/utils/icons';
+import { CrossIcon } from '@/components/ui/icons';
 import { inputConfigs, InputConfig } from '@/components/features/database/EditModal';
 import MultipleInputs from './MultipleInputs';
 

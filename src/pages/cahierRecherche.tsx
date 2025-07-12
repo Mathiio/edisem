@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Layouts } from '@/components/layout/Layouts';
-import { DotsIcon, FileIcon } from '@/components/utils/icons';
+import { DotsIcon, FileIcon } from '@/components/ui/icons';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Card, Skeleton } from '@heroui/react';
 import { getResearchByActant } from '@/lib/api';
 

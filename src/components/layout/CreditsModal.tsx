@@ -1,6 +1,6 @@
-import { CrossIcon } from '@/components/utils/icons';
+import { CrossIcon } from '@/components/ui/icons';
 import { Link, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@heroui/react';
-import { CreditCard } from '@/components/utils/CreditCard';
+import { CreditCard } from '@/components/layout/CreditCard';
 
 const CreditsModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Skeleton } from '@heroui/react';
-import { FileIcon } from '@/components/utils/icons';
+import { FileIcon } from '@/components/ui/icons';
 import { AnnotationDropdown } from './AnnotationDropdown';
 
 interface CitationCardProps {

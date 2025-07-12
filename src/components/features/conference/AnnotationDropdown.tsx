@@ -13,7 +13,7 @@ import {
   Textarea,
 } from '@heroui/react';
 import React, { useEffect, useState } from 'react';
-import { CrossIcon, DotsIcon, UserIcon } from '@/components/utils/icons';
+import { CrossIcon, DotsIcon, UserIcon } from '@/components/ui/icons';
 import { IconSvgProps } from '@/types/ui';
 import Omk from '@/components/features/database/CreateModal';
 import { getActants, getAnnotations, getStudents } from '@/lib/Items';

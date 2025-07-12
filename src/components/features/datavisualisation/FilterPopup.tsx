@@ -16,7 +16,7 @@ import {
   Select,
   SelectItem,
 } from '@heroui/react';
-import { ArrowIcon, CrossIcon, PlusIcon, DotsIcon } from '@/components/utils/icons';
+import { ArrowIcon, CrossIcon, PlusIcon, DotsIcon } from '@/components/ui/icons';
 import * as Items from '@/lib/Items';
 import { getItemByID } from '@/lib/api';
 

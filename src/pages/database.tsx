@@ -18,7 +18,7 @@ import GridComponent from '@/components/features/database/GridComponent';
 import { EditModal } from '@/components/features/database/EditModal';
 import { CreateModal } from '@/components/features/database/CreateModal';
 
-import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/utils/icons';
+import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/ui/icons';
 import { usegetAllProperties } from '@/hooks/useFetchData';
 import { Layouts } from '@/components/layout/Layouts';
 

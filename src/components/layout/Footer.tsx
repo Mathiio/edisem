@@ -1,11 +1,11 @@
 import React from 'react';
 import { Image } from '@/theme/components';
-import CreditsModal from '@/components/utils/CreditsModal';
+import CreditsModal from '@/components/layout/CreditsModal';
 import { motion, Variants } from 'framer-motion';
 import { Link as RoutLink } from 'react-router-dom';
 import Logo from '@/assets/svg/logo.svg';
 import { Link } from '@heroui/react';
-import { LocationIcon, MailIcon } from '@/components/utils/icons';
+import { LocationIcon, MailIcon } from '@/components/ui/icons';
 
 const navbarVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
