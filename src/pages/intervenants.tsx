@@ -1,9 +1,9 @@
-import { Layouts } from "@/components/utils/Layouts";
-import { getActants, getUniversities } from "@/services/Items";
+import { Layouts } from "@/components/layout/Layouts";
+import { getActants, getUniversities } from "@/lib/Items";
 import { useEffect, useMemo, useState } from "react";
-import { ActantCarousel } from "@/components/actants/ActantsCarousel"; 
-import { ActantsBaner } from "@/components/actants/ActantsBaner";
-import { ActantsWorldMap } from "@/components/actants/ActantsWorldMap";
+import { ActantCarousel } from "@/components/features/actants/ActantsCarousel"; 
+import { ActantsBaner } from "@/components/features/actants/ActantsBaner";
+import { ActantsWorldMap } from "@/components/features/actants/ActantsWorldMap";
 
 
 
@@ -14,7 +14,6 @@ export const Intervenants: React.FC = () => {
     useEffect(() => {
         getActants().then(setActants);
         getUniversities().then(setUniversities);
-        console.log(universities)
     }, []);
 
     const countries = useMemo(() => {

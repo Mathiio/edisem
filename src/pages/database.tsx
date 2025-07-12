@@ -14,13 +14,13 @@ import {
   SortDescriptor,
 } from '@heroui/react';
 import { usegetDataByClass } from '../hooks/useFetchData';
-import GridComponent from '@/components/database/GridComponent';
-import { EditModal } from '@/components/database/EditModal';
-import { CreateModal } from '@/components/database/CreateModal';
+import GridComponent from '@/components/features/database/GridComponent';
+import { EditModal } from '@/components/features/database/EditModal';
+import { CreateModal } from '@/components/features/database/CreateModal';
 
 import { BackIcon, EditIcon, PlusIcon, SearchIcon } from '@/components/utils/icons';
 import { usegetAllProperties } from '@/hooks/useFetchData';
-import { Layouts } from '@/components/utils/Layouts';
+import { Layouts } from '@/components/layout/Layouts';
 
 // Reducer function to slice the result and append '...'
 const reducer = (text: any, maxLength = 100) => {

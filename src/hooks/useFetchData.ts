@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getDataByClass, getDataByUrl, fetchRT, Data, getAllProperties } from '../services/api';
+import { getDataByClass, getDataByUrl, fetchRT, Data, getAllProperties } from '../lib/Items';
 
 export const usegetDataByClass = (resourceClassId: number | null, refreshTrigger: number = 0) => {
   const [data, setData] = useState<Data[]>();

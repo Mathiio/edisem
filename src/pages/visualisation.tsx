@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { getAllItems } from '@/services/Items';
+import { getAllItems } from '@/lib/Items';
 
 import { motion, Variants } from 'framer-motion';
-import { Toolbar } from '@/components/datavisualisation/Toolbar';
-import ZoomControl from '@/components/datavisualisation/ZoomControl';
+import { Toolbar } from '@/components/features/datavisualisation/Toolbar';
+import ZoomControl from '@/components/features/datavisualisation/ZoomControl';
 
 import { images } from '@/components/utils/images';
 import {
@@ -14,18 +14,18 @@ import {
   getPropertyValue,
   ITEM_TYPES,
   storeSearchHistory,
-} from '@/components/datavisualisation/FilterPopup';
-import OverlaySelector, { PredefinedFilter } from '@/components/datavisualisation/OverlaySelector';
-import { getLinksFromType } from '@/services/Links';
+} from '@/components/features/datavisualisation/FilterPopup';
+import OverlaySelector, { PredefinedFilter } from '@/components/features/datavisualisation/OverlaySelector';
+import { getLinksFromType } from '@/lib/Links';
 import { Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, useDisclosure } from '@heroui/react';
 import { FileIcon, SearchIcon, Sidebar } from '@/components/utils/icons';
-import SearchHistory from '@/components/datavisualisation/SearchHistory';
+import SearchHistory from '@/components/features/datavisualisation/SearchHistory';
 import { useSearchParams } from 'react-router-dom';
-import { EditModal } from '@/components/database/EditModal';
+import { EditModal } from '@/components/features/database/EditModal';
 import { useLocalStorageProperties } from './database';
-import { AnnotationDropdown } from '@/components/conference/AnnotationDropdown';
-import { CreateModal } from '@/components/database/CreateModal';
-import { Layouts } from '@/components/utils/Layouts';
+import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
+import { CreateModal } from '@/components/features/database/CreateModal';
+import { Layouts } from '@/components/layout/Layouts';
 
 
 

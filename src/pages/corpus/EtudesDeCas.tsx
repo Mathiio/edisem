@@ -1,4 +1,4 @@
-import { Layouts } from "@/components/utils/Layouts";
+import { Layouts } from "@/components/layout/Layouts";
 
 
 

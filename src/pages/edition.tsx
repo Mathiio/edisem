@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 
 import { useParams } from 'react-router-dom';
-import { getConfByEdition } from '../services/api';
-import { LgConfCard, LgConfSkeleton } from '@/components/home/ConfCards';
+import { getConfByEdition } from '../lib/api';
+import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { motion, Variants } from 'framer-motion';
-import { Layouts } from '@/components/utils/Layouts';
+import { Layouts } from '@/components/layout/Layouts';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
