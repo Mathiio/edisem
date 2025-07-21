@@ -1,7 +1,7 @@
 import { SearchIcon } from '@/components/ui/icons';
 import React, { useState, useEffect, useCallback, forwardRef, useRef, useImperativeHandle } from 'react';
 import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure } from '@heroui/react';
-import { ActantCard, ActantSkeleton } from '@/components/layout/ActantCard';
+import { ActantLongCard, ActantLongCardSkeleton } from '@/components/features/actants/IntervenantCards';
 import { ConfCard, ConfSkeleton } from '@/components/layout/ConfCard';
 import { motion, Variants } from 'framer-motion';
 import { filterActants, filterConfs } from '@/lib/api';
@@ -66,7 +66,7 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
     setSearchQuery(e.target.value);
   };
 
-  const handleOpen = () => {
+  const handleSearch = () => {
     onOpen();
   };
 
@@ -96,26 +96,13 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
     };
   }, []);
 
-  const getResultText = (filteredActants: any[], filteredConfs: any[]) => {
-    const totalResults = filteredActants.length + filteredConfs.length;
-
-    if (!hasSearched) {
-      return '';
-    } else if (totalResults === 0) {
-      return 'Aucun résultat trouvé';
-    } else if (totalResults === 1) {
-      return '1 Résultat trouvé';
-    } else {
-      return `${totalResults} Résultats trouvés`;
-    }
-  };
 
   return (
     <>
       <button
-        className='shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] cursor-pointer text-16 p-15 border-c3 border-2 hover:bg-c3 rounded-8 text-c6 bg-c2 transition-all ease-in-out duration-200'
-        onClick={handleOpen}>
-        <SearchIcon size={15} className='text-c6 transition-all ease-in-out duration-200' />
+        className='focus:outline-none focus-visible:outline-none hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 text-16 p-15 border-c3 border-2 rounded-8 text-c6 transition-colors ease-in-out duration-200'
+        onClick={handleSearch}>
+        <SearchIcon size={15} className='text-c6' />
       </button>
 
       <Modal
@@ -149,7 +136,7 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
         <ModalContent>
           {() => (
             <>
-              <ModalBody className='flex justify-between p-25'>
+              <ModalBody className='flex justify-between p-40'>
                 <h1 className='font-semibold text-32 text-c6 flex flex-row justify-center py-20'>Rechercher</h1>
 
                 <Input
@@ -158,9 +145,10 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
                     base: 'w-full',
                     clearButton: 'bg-c3',
                     mainWrapper: 'h-full',
-                    input: 'text-100 Inter font-semibold text-16 nav_searchbar',
+                    input: 'text-100 Inter font-semibold text-16 nav_searchbar block',
                     inputWrapper:
-                      'group-data-[focus=true]:bg-c3 rounded-12 font-normal text-c6 bg-c3 dark:bg-c3 p-25 h-[50px]',
+                      'group-data-[focus=true]:bg-c1 rounded-12 font-normal text-c6 bg-c1 px-20 py-15 h-auto',
+                    innerWrapper: 'h-auto'
                   }}
                   placeholder='Conférences, actant, mots clés...'
                   size='sm'
@@ -175,21 +163,17 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
                 />
                 <div className={`relative ${hasSearched ? 'overflow-scroll' : 'hidden'}`}>
                   <motion.main
-                    className='w-full p-25 transition-all ease-in-out duration-200'
+                    className='w-full py-20 transition-all ease-in-out duration-200'
                     initial='hidden'
                     animate='visible'
                     variants={fadeIn}>
                     <div className='w-full flex flex-col gap-50'>
-                      {hasSearched && (
-                        <h2 className='text-16 text-c6 font-medium'>{getResultText(filteredActants, filteredConfs)}</h2>
-                      )}
-
                       {filteredConfs.length > 0 && !loadingConfs && (
-                        <div className='w-full flex flex-col gap-25'>
+                        <div className='w-full flex flex-col gap-20'>
                           <h2 className='text-24 font-medium text-c6'>
                             Conférence{filteredConfs.length > 1 ? 's' : ''}
                           </h2>
-                          <div className='w-full flex flex-col gap-15'>
+                          <div className='w-full flex flex-col gap-10'>
                             {loadingConfs
                               ? Array.from({ length: 8 }).map((_, index) => <ConfSkeleton key={index} />)
                               : filteredConfs.map((item, index) => (
@@ -219,13 +203,13 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
                         </div>
                       )}
                       {filteredActants.length > 0 && !loadingActants && (
-                        <div className='w-full flex flex-col gap-25'>
+                        <div className='w-full flex flex-col gap-20'>
                           <h2 className='text-24 font-medium text-c6'>
-                            Conférencier{filteredActants.length > 1 ? 's' : ''}
+                            Intervenant{filteredActants.length > 1 ? 's' : ''}
                           </h2>
-                          <div className='w-full flex flex-col gap-15'>
+                          <div className='w-full flex flex-col gap-10'>
                             {loadingActants
-                              ? Array.from({ length: 8 }).map((_, index) => <ActantSkeleton key={index} />)
+                              ? Array.from({ length: 8 }).map((_, index) => <ActantLongCardSkeleton key={index} />)
                               : filteredActants.map((item, index) => (
                                   <motion.div
                                     key={item.id}
@@ -234,18 +218,7 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
                                     variants={fadeIn}
                                     custom={index}
                                     onClick={handleClose}>
-                                    <ActantCard
-                                      key={item.id}
-                                      id={item.id}
-                                      firstname={item.firstname}
-                                      lastname={item.lastname}
-                                      picture={item.picture}
-                                      interventions={item.interventions}
-                                      universities={item.universities.map((uni: { name: string; logo: string }) => ({
-                                        name: uni.name,
-                                        logo: uni.logo,
-                                      }))}
-                                    />
+                                    <ActantLongCard key={item.id} {...item} />
                                   </motion.div>
                                 ))}
                           </div>

@@ -34,7 +34,7 @@ const CitationSlide = ({ item }: { item: any }) => {
     <Link 
       to={`/conference/${confId}`}
       key={item.id}
-      className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.04)] border-c3 border-2 hover:bg-c3 cursor-pointer p-50 rounded-12 justify-between flex flex-col gap-50 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'>
+      className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 hover:bg-c2 cursor-pointer p-40 rounded-12 justify-between flex flex-col gap-50 transition-all ease-in-out duration-200'>
         <p
           className='text-14 text-c4 italic leading-[150%] overflow-hidden line-clamp-6'>
           {item.citation}

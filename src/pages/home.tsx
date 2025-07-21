@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FullCarrousel } from '@/components/ui/Carrousels';
 import { getSeminaires, getActants } from '../lib/Items';
 import { EventCard, EventSkeleton } from '@/components/features/home/EventCards';
-import { ActantCard, ActantSkeleton } from '@/components/features/actants/ActantCards';
+import { ActantCard, ActantSkeleton } from '@/components/features/actants/IntervenantCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
 import { HomeBaner } from '@/components/features/home/HomeBaner';
@@ -79,17 +79,7 @@ export const Home: React.FC = () => {
       transition={{ duration: 0.3 }}
       className="h-full"
     >
-      <ActantCard
-        id={item.id}
-        firstname={item.firstname}
-        lastname={item.lastname}
-        picture={item.picture}
-        interventions={item.interventions}
-        universities={item.universities.map((uni: { shortName: string; logo: string }) => ({
-          shortName: uni.shortName,
-          logo: uni.logo,
-        }))}
-      />
+      <ActantCard key={item.id} {...item} />
     </motion.div>
   );
 
