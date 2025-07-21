@@ -114,23 +114,13 @@ export const Home: React.FC = () => {
       <section className='flex gap-50 h-[600px]'>
         {/* Partie gauche - Titre et description */}
         <div className='flex-1 flex flex-col justify-center gap-20 max-w-40'>
-          <motion.h2 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className='text-c6 text-64 transition-all ease-in-out duration-200'
-          >
+          <h2 className='text-c6 text-64 transition-all ease-in-out duration-200'>
             Intervenants & <br/>
             Conférenciers
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className='text-c5 text-16 transition-all ease-in-out duration-200 max-w-md'
-          >
+          </h2>
+          <p className='text-c5 text-16 transition-all ease-in-out duration-200 max-w-md'>
             Découvrez les chercheur·e·s, artistes et invité·e·s ayant contribué aux séminaires, colloques, journées d’études et œuvres d’EdiSem.          
-          </motion.p>
+          </p>
           <Link to='/intervenants' className="hover:bg-c3 bg-c2 border-c3 shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] w-fit cursor-pointer px-15 py-10 text-16 gap-10 text-c6 rounded-8 border-2 transition-all ease-in-out duration-200">
             <div className='font-medium'>Voir plus</div>
           </Link>
