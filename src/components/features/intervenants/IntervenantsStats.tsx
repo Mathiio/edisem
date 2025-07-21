@@ -1,13 +1,12 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Actant } from '@/types/ui';
-
 
 
 interface IntervenantsStatisticsProps {
   intervenants: Actant[];
 }
 
-const IntervenantsStats: React.FC<IntervenantsStatisticsProps> = ({ intervenants }) => {
+export default function IntervenantsStats({ intervenants }: IntervenantsStatisticsProps) {
   const statistics = useMemo(() => {
     if (!intervenants?.length) {
       return {
@@ -18,12 +17,12 @@ const IntervenantsStats: React.FC<IntervenantsStatisticsProps> = ({ intervenants
       };
     }
 
-    // 1. Nombre d'intervenants arrondi à la dizaine inférieure
+    // Round number of actants down to the nearest 10 (e.g., 93 -> "90+")
     const totalIntervenants = intervenants.length;
     const intervenantsRounded = Math.floor(totalIntervenants / 10) * 10;
     const intervenantsCount = intervenantsRounded === 0 ? totalIntervenants.toString() : `${intervenantsRounded}+`;
 
-    // 2. Nombre d'universités uniques
+    // Count of unique universities (by ID)
     const universitiesSet = new Set<string>();
     intervenants.forEach(intervenant => {
       if (intervenant.universities?.length) {
@@ -33,19 +32,17 @@ const IntervenantsStats: React.FC<IntervenantsStatisticsProps> = ({ intervenants
       }
     });
 
-    // 3. Nombre de laboratoires uniques
+    // Count of unique laboratories (by ID)
     const laboratoriesSet = new Set<string>();
-    console.log(intervenants)
     intervenants.forEach(intervenant => {
       if (intervenant.laboratories?.length) {
-        console.log("+ 1 lab")
         intervenant.laboratories.forEach(lab => {
           if (lab?.id) laboratoriesSet.add(lab.id);
         });
       }
     });
 
-    // 4. Nombre de pays uniques
+    // Count of unique countries (based on university.country field)
     const countriesSet = new Set<string>();
     intervenants.forEach(intervenant => {
       if (intervenant.universities?.length) {
@@ -63,70 +60,56 @@ const IntervenantsStats: React.FC<IntervenantsStatisticsProps> = ({ intervenants
     };
   }, [intervenants]);
 
-  const StatCard = ({ label, value, color }: {
-    label: string;
+  // Small card component for displaying one stat
+  const StatCard = ({ title, value, description }: {
+    title: string;
     value: string | number;
-    color: string;
+    description: string;
   }) => (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
-        </div>
-        <div className={`p-3 rounded-full ${color}`}>
-        </div>
+    <div className="flex flex-col gap-10">
+      <h3 className="text-64 text-c6 font-bold text-gray-900">{value}</h3>
+      <div className="py-5 px-10 flex bg-c2 w-fit rounded-8">
+        <p className="text-16 font-medium text-c5">{title}</p>
       </div>
+      <p className="text-16 font-regular text-c5">{description}</p>
     </div>
   );
 
   return (
-    <div className="w-full">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Statistiques des Intervenants</h2>
-        <p className="text-gray-600">Aperçu des données de la communauté académique</p>
+    <section className='flex gap-50'>
+      {/* Left side – Title and description */}
+      <div className='flex-1 flex flex-col justify-between'>
+        <h2 className='text-c6 text-64 transition-all ease-in-out duration-200'>
+          Quelques <br/>
+          Satistiques
+        </h2>
+        <p className='text-c5 text-16 transition-all ease-in-out duration-200 max-w-md'>
+          De Paris à Montréal, de Londres à Turin, en passant par Tokyo ou Boston, les intervenant·es explorent des thématiques aussi diverses que l’intelligence artificielle, les pratiques artistiques numériques, la sémiotique ou l’éthique des technologies.          
+        </p>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Right side – Grid of stat cards */}
+      <div className="grid grid-cols-2 w-1/2 gap-40">
         <StatCard
-          label="Intervenants"
           value={statistics.intervenantsCount}
-          color="bg-blue-500"
+          title="Intervenants identifiés"
+          description="Profils issus de disciplines variées : artistes, chercheurs, philosophes, doctorants..."
         />
-        
         <StatCard
-          label="Universités"
           value={statistics.universitiesCount}
-          color="bg-green-500"
+          title="Universités représentées"
+          description="Université Paris 8, Laval, Montréal, Sorbonne, Utrecht, Turin, NYU, MIT..."
         />
-        
         <StatCard
-          label="Laboratoires"
           value={statistics.laboratoriesCount}
-          color="bg-purple-500"
+          title="Laboratoires associés"
+          description="Laboratoire Paragraphe, LaRSH, CRILCQ, LANTISS, IRCAM, CELSA..."
         />
-        
         <StatCard
-          label="Pays"
           value={statistics.countriesCount}
-          color="bg-orange-500"
+          title="Pays représentés"
+          description="De Paris à Montréal, de Londres à Turin, en passant par Tokyo ou Boston..."
         />
       </div>
-      
-      {/* Détails supplémentaires */}
-      <div className="mt-6 bg-gray-50 rounded-lg p-4">
-        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-          <span>
-            Total exact d'intervenants: <span className="font-semibold text-gray-900">{intervenants?.length || 0}</span>
-          </span>
-          <span>•</span>
-          <span>
-            Dernière mise à jour: <span className="font-semibold text-gray-900">{new Date().toLocaleDateString('fr-FR')}</span>
-          </span>
-        </div>
-      </div>
-    </div>
+    </section>
   );
 };
-
-export default IntervenantsStats;
