@@ -8,7 +8,7 @@ import { Actant } from '@/types/ui';
 
 
 // Card displaying an intervenant with name, photo, university and intervention count
-export const ActantCard: React.FC<Actant> = ({
+export const IntervenantCard: React.FC<Actant> = ({
   id,
   firstname,
   lastname,
@@ -18,7 +18,7 @@ export const ActantCard: React.FC<Actant> = ({
 }) => {
   const navigate = useNavigate();
 
-  // Navigate to actant's page
+  // Navigate to intervenant's page
   const openIntervenantPage = () => {
     navigate(`/intervenant/${id}`);
   };
@@ -35,7 +35,7 @@ export const ActantCard: React.FC<Actant> = ({
             <UserIcon size={24} className='text-c6' />
           </div>
         )}
-      {/* Actant name and University logos and names */}
+      {/* Intervenant name and University logos and names */}
       <div className='flex flex-col justify-center items-center gap-5'>
         <p className='text-16 text-center text-c6 font-medium'>
           {firstname} {lastname}
@@ -67,8 +67,8 @@ export const ActantCard: React.FC<Actant> = ({
 };
 
 
-// Skeleton loader for ActantCard
-export const ActantSkeleton: React.FC = () => {
+// Skeleton loader for IntervenantCard
+export const IntervenantSkeleton: React.FC = () => {
   return (
     <div className='flex flex-col rounded-12 items-center justify-center p-20 gap-20 bg-c4'>
       <Skeleton className='w-75 h-75 rounded-12 justify-center flex'></Skeleton>
@@ -145,10 +145,10 @@ export const InfoSkeleton: React.FC = () => {
 
 
 
-export const ActantLongCard: React.FC<Actant> = ({ id, firstname, lastname, picture, interventions, universities }) => {
+export const IntervenantLongCard: React.FC<Actant> = ({ id, firstname, lastname, picture, interventions, universities }) => {
   const navigate = useNavigate();
 
-  // Navigate to actant's page
+  // Navigate to intervenant's page
   const openIntervenantPage = () => {
     navigate(`/intervenant/${id}`);
   };
@@ -192,7 +192,7 @@ export const ActantLongCard: React.FC<Actant> = ({ id, firstname, lastname, pict
   );
 };
 
-export const ActantLongCardSkeleton: React.FC = () => {
+export const IntervenantLongCardSkeleton: React.FC = () => {
   return (
     <div className='flex flex-col rounded-12 items-center justify-center p-20 gap-20 bg-c4'>
       <Skeleton className='w-75 h-75 rounded-12 justify-center flex'></Skeleton>

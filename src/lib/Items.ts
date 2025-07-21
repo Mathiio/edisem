@@ -247,26 +247,26 @@ export async function getDoctoralSchools() {
 
 export async function getLaboratories() {
   try {
-    const storedLaboritories = sessionStorage.getItem('laboritories');
+    const storedLaboritories = sessionStorage.getItem('laboratories');
 
     if (storedLaboritories) {
       return JSON.parse(storedLaboritories);
     }
 
-    const laboritories = await getDataByUrl(
+    const laboratories = await getDataByUrl(
       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getLaboratories&json=1',
     );
-    const laboritoriesFull = laboritories.map((laboritory: any) => ({
+    const laboratoriesFull = laboratories.map((laboritory: any) => ({
       ...laboritory,
       title: laboritory.name,
       type: 'laboritory',
     }));
 
-    sessionStorage.setItem('laboritories', JSON.stringify(laboritoriesFull));
-    return laboritoriesFull;
+    sessionStorage.setItem('laboratories', JSON.stringify(laboratoriesFull));
+    return laboratoriesFull;
   } catch (error) {
-    console.error('Error fetching laboritories:', error);
-    throw new Error('Failed to fetch laboritories');
+    console.error('Error fetching laboratories:', error);
+    throw new Error('Failed to fetch laboratories');
   }
 }
 
@@ -324,7 +324,7 @@ export async function getActants() {
         id: number;
         universities: string[];
         doctoralSchools: string[];
-        laboritories: string[];
+        laboratories: string[];
       }) => {
         const interventionsCount = confs.filter((conf: { actant: string }) => conf.actant === String(actant.id)).length;
 
@@ -335,7 +335,7 @@ export async function getActants() {
           interventions: interventionsCount,
           universities: actant.universities.map((id) => universityMap.get(id)),
           doctoralSchools: actant.doctoralSchools.map((id) => doctoralSchoolMap.get(id)),
-          laboritories: actant.laboritories.map((id) => laboratoryMap.get(id)),
+          laboratories: actant.laboratories.map((id) => laboratoryMap.get(id)),
         };
       },
     );

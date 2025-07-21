@@ -1,21 +1,21 @@
 import React from 'react';
 import { Link, Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/react';
-import { ActantLongCard } from '@/components/features/actants/IntervenantCards';
-import { getFrCountryName } from '@/components/features/actants/CountryUtils';
+import { IntervenantLongCard } from '@/components/features/intervenants/IntervenantCards';
+import { getFrCountryName } from '@/components/features/intervenants/CountryUtils';
 import { CrossIcon } from '@/components/ui/icons';
 import { Actant, University } from '@/types/ui';
 
 
 
-export interface UniversityWithActants {
+export interface UniversityWithIntervenants {
     university: University; // University metadata
-    actants: Actant[]; // List of actants for the university
+    intervenants: Actant[]; // List of intervenants for the university
     [x: string]: any; // Allow additional dynamic fields
 }
 
 interface CountryModalProps {
     selectedCountry: string | null; // Name of selected country
-    universityGroups: any[]; // Array of universities with grouped actants
+    universityGroups: any[]; // Array of universities with grouped intervenants
     onClose: () => void; // Function to close the modal
 }
 
@@ -73,8 +73,8 @@ export const CountryModal: React.FC<CountryModalProps> = ({
                         {group.university.name}
                         </h2>
                         <div className='flex flex-col gap-10'>
-                        {group.actants.map((actant : any) => (
-                            <ActantLongCard key={actant.id} {...actant} />
+                        {group.intervenants.map((intervenant : any) => (
+                            <IntervenantLongCard key={intervenant.id} {...intervenant} />
                         ))}
                         </div>
                     </div>

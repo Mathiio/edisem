@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { getActant, getConfByActant } from '../lib/api';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon, ConferenceIcon } from '@/components/ui/icons';
-import { InfoCard, InfoSkeleton } from '@/components/features/actants/IntervenantCards';
+import { InfoCard, InfoSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { Link } from '@heroui/react';
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { motion, Variants } from 'framer-motion';
@@ -121,8 +121,8 @@ export const Intervenant: React.FC = () => {
             <div className='flex flex-col justify-center items-start gap-10'>
               {loading ? (
                 Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
-              ) : actant?.laboritories && actant.laboritories.length > 0 ? (
-                actant.laboritories.map(
+              ) : actant?.laboratories && actant.laboratories.length > 0 ? (
+                actant.laboratories.map(
                   (item: { url: string; name: string | undefined }, index: React.Key | null | undefined) => (
                     <InfoCard key={index} link={item.url} name={item.name} />
                   ),

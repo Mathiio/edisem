@@ -1,7 +1,7 @@
 import { SearchIcon } from '@/components/ui/icons';
 import React, { useState, useEffect, useCallback, forwardRef, useRef, useImperativeHandle } from 'react';
 import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure } from '@heroui/react';
-import { ActantLongCard, ActantLongCardSkeleton } from '@/components/features/actants/IntervenantCards';
+import { IntervenantLongCard, IntervenantLongCardSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { ConfCard, ConfSkeleton } from '@/components/layout/ConfCard';
 import { motion, Variants } from 'framer-motion';
 import { filterActants, filterConfs } from '@/lib/api';
@@ -209,7 +209,7 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
                           </h2>
                           <div className='w-full flex flex-col gap-10'>
                             {loadingActants
-                              ? Array.from({ length: 8 }).map((_, index) => <ActantLongCardSkeleton key={index} />)
+                              ? Array.from({ length: 8 }).map((_, index) => <IntervenantLongCardSkeleton key={index} />)
                               : filteredActants.map((item, index) => (
                                   <motion.div
                                     key={item.id}
@@ -218,7 +218,7 @@ const SearchModal = forwardRef<SearchModalRef>((_props, ref) => {
                                     variants={fadeIn}
                                     custom={index}
                                     onClick={handleClose}>
-                                    <ActantLongCard key={item.id} {...item} />
+                                    <IntervenantLongCard key={item.id} {...item} />
                                   </motion.div>
                                 ))}
                           </div>
