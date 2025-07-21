@@ -11,6 +11,8 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@heroui/button": "2.2.13",
     "@heroui/date-input": "2.3.12",
     "@heroui/date-picker": "2.3.13",
@@ -19,6 +21,8 @@
     "@heroui/theme": "2.4.9",
     "@heroui/toast": "2.0.3",
     "@internationalized/date": "^3.5.4",
+    "@mui/material": "^7.2.0",
+    "@mui/x-charts": "^8.9.0",
     "@react-stately/data": "^3.11.4",
     "@react-types/datepicker": "^3.7.4",
     "@react-types/shared": "^3.23.1",

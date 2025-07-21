@@ -5,6 +5,7 @@ import { IntervenantsCarousel } from "@/components/features/intervenants/Interve
 import { IntervenantsBaner } from "@/components/features/intervenants/IntervenantsBaner";
 import { IntervenantsWorldMap } from "@/components/features/intervenants/IntervenantsWorldMap";
 import IntervenantsStats from "@/components/features/intervenants/IntervenantsStats";
+import KeywordUsageChart from "@/components/features/intervenants/KeywordUsageChart";
 
 
 
@@ -32,6 +33,7 @@ export const Intervenants: React.FC = () => {
                 universities={universities}
             />
             <IntervenantsStats intervenants={intervenants}/>
+            <KeywordUsageChart/>
         </Layouts>
     );
 };
