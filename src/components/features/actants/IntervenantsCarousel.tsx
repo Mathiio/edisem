@@ -1,22 +1,14 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { ActantCard } from '@/components/features/actants/ActantCards';
+import { ActantCard } from '@/components/features/actants/IntervenantCards';
+import { Actant } from '@/types/ui';
 
 
-type Actant = {
-  id: number;
-  firstname: string;
-  lastname: string;
-  picture: string;
-  interventions: number;
-  universities: { shortName: string; logo: string }[];
-};
-
-type ActantCarouselProps = {
+type IntervenantsCarouselProps = {
   actants: Actant[];
 };
 
 
-export const ActantCarousel: React.FC<ActantCarouselProps> = ({ actants }) => {
+export const IntervenantsCarousel: React.FC<IntervenantsCarouselProps> = ({ actants }) => {
   // Refs to the scroll container and its inner content
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);

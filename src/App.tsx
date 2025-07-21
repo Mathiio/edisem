@@ -1,7 +1,7 @@
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { Route, Routes } from 'react-router-dom';
 import { Conference } from '@/pages/conference';
-import { Conferencier } from '@/pages/conferencier';
+import { Intervenant } from '@/pages/intervenant';
 import { Home } from '@/pages/home';
 import { Database } from '@/pages/database';
 import { Edition } from '@/pages/edition';
@@ -29,7 +29,7 @@ function App() {
       <ToastProvider />
       <Routes>
         <Route path='/conference/:id' Component={Conference} />
-        <Route path='/conferencier/:id' Component={Conferencier} />
+        <Route path='/intervenant/:id' Component={Intervenant} />
         <Route path='/database' Component={ProtectedDatabase} />
         <Route path='/intervenants' Component={Intervenants} />
         <Route path='/corpus/journees-etudes' Component={JourneesEtudes} />

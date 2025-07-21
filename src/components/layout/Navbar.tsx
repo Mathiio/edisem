@@ -20,8 +20,8 @@ export const Navbar: React.FC = () => {
 
   const linkBaseClass =
     'cursor-pointer flex flex-row items-center justify-center px-15 py-10 text-16 gap-10 text-c6 rounded-8 border-2 transition-all ease-in-out duration-200';
-  const activeClass = 'bg-c2 border-c3 shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)]';
-  const hoverClass = 'hover:bg-c2 hover:border-c3 hover:shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] border-transparent';
+  const activeClass = 'bg-c2 border-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)]';
+  const hoverClass = 'hover:bg-c2 hover:border-c3 hover:shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] border-transparent';
 
   return (
     <nav

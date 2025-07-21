@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { getActant, getConfByActant } from '../lib/api';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon, ConferenceIcon } from '@/components/ui/icons';
-import { InfoCard, InfoSkeleton } from '@/components/features/actants/ActantCards';
+import { InfoCard, InfoSkeleton } from '@/components/features/actants/IntervenantCards';
 import { Link } from '@heroui/react';
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { motion, Variants } from 'framer-motion';
@@ -18,7 +18,7 @@ const fadeIn: Variants = {
   }),
 };
 
-export const Conferencier: React.FC = () => {
+export const Intervenant: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [actant, setActant] = useState<any>(null);
   const [loading, setLoading] = useState(true);

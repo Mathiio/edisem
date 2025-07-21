@@ -17,7 +17,7 @@ export const HomeBaner: React.FC = () => {
         </h1>
 
         {/* Subtitle */}
-        <p className='text-c5 text-16 z-[12]'>Explorer les récits, la créativité et l’auctorialité à l’ère des IA génératives.</p>
+        <p className='text-c5 text-16 z-[12]'>Explorer les récits, la créativité, l'authenticité et l’auctorialité à l’ère des IA génératives.</p>
 
         {/* Animated SVG background shape */}
         <motion.div
