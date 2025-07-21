@@ -1,28 +1,28 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { ActantCard } from '@/components/features/actants/IntervenantCards';
+import { IntervenantCard } from '@/components/features/intervenants/IntervenantCards';
 import { Actant } from '@/types/ui';
 
 
 type IntervenantsCarouselProps = {
-  actants: Actant[];
+  intervenants: Actant[];
 };
 
 
-export const IntervenantsCarousel: React.FC<IntervenantsCarouselProps> = ({ actants }) => {
+export const IntervenantsCarousel: React.FC<IntervenantsCarouselProps> = ({ intervenants }) => {
   // Refs to the scroll container and its inner content
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Randomly select 12 actants on component mount (memoized)
-  const selectedActants = useMemo(() => {
-    const shuffled = [...actants].sort(() => 0.5 - Math.random());
+  // Randomly select 12 intervenants on component mount (memoized)
+  const selectedIntervenants = useMemo(() => {
+    const shuffled = [...intervenants].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 12);
-  }, [actants]);
+  }, [intervenants]);
 
-  // Repeat actants 3 times to simulate infinite scrolling
-  const repeatedActants = useMemo(() => {
-    return [...selectedActants, ...selectedActants, ...selectedActants];
-  }, [selectedActants]);
+  // Repeat intervenants 3 times to simulate infinite scrolling
+  const repeatedIntervenants = useMemo(() => {
+    return [...selectedIntervenants, ...selectedIntervenants, ...selectedIntervenants];
+  }, [selectedIntervenants]);
 
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export const IntervenantsCarousel: React.FC<IntervenantsCarouselProps> = ({ acta
     // Cleanup on unmount
     animationFrameId = requestAnimationFrame(scroll);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [repeatedActants]);
+  }, [repeatedIntervenants]);
 
   return (
     <div className="relative overflow-hidden w-full py-4">
@@ -68,14 +68,14 @@ export const IntervenantsCarousel: React.FC<IntervenantsCarouselProps> = ({ acta
         ref={containerRef}
         className="overflow-hidden no-scrollbar w-full"
       >
-        {/* Inner content: repeated actants in horizontal flex layout */}
+        {/* Inner content: repeated intervenants in horizontal flex layout */}
         <div
           ref={contentRef}
           className="flex gap-20 w-max"
         >
-          {repeatedActants.map((actant, index) => (
-            <div key={`${actant.id}-${index}`} className="flex-shrink-0 w-[250px]">
-              <ActantCard {...actant} />
+          {repeatedIntervenants.map((intervenant, index) => (
+            <div key={`${intervenant.id}-${index}`} className="flex-shrink-0 w-[250px]">
+              <IntervenantCard {...intervenant} />
             </div>
           ))}
         </div>

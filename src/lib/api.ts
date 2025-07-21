@@ -147,13 +147,13 @@ export async function filterActants(searchQuery: string) {
     const actants = await Items.getActants();
     const normalizedQuery = searchQuery.toLowerCase();
 
-    const filteredActants = actants.filter((actant: { firstname: string; lastname: string; universities: any[] | null; doctoralSchools: any[] | null; laboritories: any[] | null; }) => {
+    const filteredActants = actants.filter((actant: { firstname: string; lastname: string; universities: any[] | null; doctoralSchools: any[] | null; laboratories: any[] | null; }) => {
       return (
         (actant.firstname && actant.firstname.toLowerCase().includes(normalizedQuery)) ||
         (actant.lastname && actant.lastname.toLowerCase().includes(normalizedQuery)) ||
         (actant.universities?.some((university: { name: string; }) => university && university.name.toLowerCase().includes(normalizedQuery))) ||
         (actant.doctoralSchools?.some((school: { name: string; }) => school && school.name.toLowerCase().includes(normalizedQuery))) ||
-        (actant.laboritories?.some((laboratory: { name: string; }) => laboratory && laboratory.name.toLowerCase().includes(normalizedQuery)))
+        (actant.laboratories?.some((laboratory: { name: string; }) => laboratory && laboratory.name.toLowerCase().includes(normalizedQuery)))
       );
     });
 

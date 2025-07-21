@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FullCarrousel } from '@/components/ui/Carrousels';
 import { getSeminaires, getActants } from '../lib/Items';
 import { EventCard, EventSkeleton } from '@/components/features/home/EventCards';
-import { ActantCard, ActantSkeleton } from '@/components/features/actants/IntervenantCards';
+import { IntervenantCard, IntervenantSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
 import { HomeBaner } from '@/components/features/home/HomeBaner';
@@ -79,13 +79,13 @@ export const Home: React.FC = () => {
       transition={{ duration: 0.3 }}
       className="h-full"
     >
-      <ActantCard key={item.id} {...item} />
+      <IntervenantCard key={item.id} {...item} />
     </motion.div>
   );
 
   const renderSkeletonCard = (index: number) => (
     <div key={index} className="h-full">
-      <ActantSkeleton />
+      <IntervenantSkeleton />
     </div>
   );
 

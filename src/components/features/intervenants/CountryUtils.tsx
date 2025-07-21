@@ -6,9 +6,9 @@ import { Actant, University } from '@/types/ui';
 
 
 
-export interface UniversityWithActants {
+export interface UniversityWithIntervenants {
   university: University;
-  actants: Actant[];
+  intervenants: Actant[];
 }
 
 // ============================================================================ //
@@ -129,7 +129,7 @@ export const getFrCountryName = (englishCountryName: string): string => {
 // ============================================================================ //
 
 // Custom hook to manage country data and translations
-export const useCountryData = (universities: any[], actants: any[]) => {
+export const useCountryData = (universities: any[], intervenants: any[]) => {
   const [translatedCountries, setTranslatedCountries] = useState<string[]>([]);
 
   const highlightedCountries = useMemo(() => {
@@ -143,8 +143,8 @@ export const useCountryData = (universities: any[], actants: any[]) => {
     setTranslatedCountries(translateCountries(highlightedCountries));
   }, [highlightedCountries]);
 
-  const getActantsByUniversityFromCountry = useCallback(
-    (englishCountryName: string): UniversityWithActants[] => {
+  const getIntervenantsByUniv = useCallback(
+    (englishCountryName: string): UniversityWithIntervenants[] => {
       const possibleFrenchNames = getOriginalCountryName(englishCountryName, highlightedCountries);
 
       const matchedUniversities = universities.filter((u) => possibleFrenchNames.some((frenchName) => u.country.toLowerCase() === frenchName.toLowerCase()));
@@ -152,15 +152,15 @@ export const useCountryData = (universities: any[], actants: any[]) => {
       return matchedUniversities
         .map((university) => ({
           university,
-          actants: actants.filter((a) => a.universities.some((u: any) => u.id === university.id)),
+          intervenants: intervenants.filter((a) => a.universities.some((u: any) => u.id === university.id)),
         }))
-        .filter((group) => group.actants.length > 0);
+        .filter((group) => group.intervenants.length > 0);
     },
-    [universities, actants, highlightedCountries],
+    [universities, intervenants, highlightedCountries],
   );
 
   return {
     translatedCountriesSet,
-    getActantsByUniversityFromCountry,
+    getIntervenantsByUniv,
   };
 };

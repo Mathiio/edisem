@@ -124,8 +124,8 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
     return actants
       .filter((actant: any) => 
         actant && 
-        Array.isArray(actant.laboritories) && 
-        actant.laboritories.some((lab: any) => lab && lab.id === laboratory.id)
+        Array.isArray(actant.laboratories) && 
+        actant.laboratories.some((lab: any) => lab && lab.id === laboratory.id)
       )
       .map((actant: any) => actant.id);
   }
@@ -164,7 +164,7 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
   const links = new Set();
 
   // Liens directs depuis l'actant
-  if (Array.isArray(actant.laboritories)) actant.laboritories.forEach((id: any) => id && links.add(id));
+  if (Array.isArray(actant.laboratories)) actant.laboratories.forEach((id: any) => id && links.add(id));
   if (Array.isArray(actant.universities)) actant.universities.forEach((id: any) => id && links.add(id));
   if (Array.isArray(actant.doctoralSchools)) actant.doctoralSchools.forEach((id: any) => id && links.add(id));
 

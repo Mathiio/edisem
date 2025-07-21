@@ -1,18 +1,19 @@
 import { Layouts } from "@/components/layout/Layouts";
 import { getActants, getUniversities } from "@/lib/Items";
 import { useEffect, useState } from "react";
-import { IntervenantsCarousel } from "@/components/features/actants/IntervenantsCarousel"; 
-import { IntervenantsBaner } from "@/components/features/actants/IntervenantsBaner";
-import { IntervenantsWorldMap } from "@/components/features/actants/IntervenantsWorldMap";
+import { IntervenantsCarousel } from "@/components/features/intervenants/IntervenantsCarousel"; 
+import { IntervenantsBaner } from "@/components/features/intervenants/IntervenantsBaner";
+import { IntervenantsWorldMap } from "@/components/features/intervenants/IntervenantsWorldMap";
+import IntervenantsStats from "@/components/features/intervenants/IntervenantsStats";
 
 
 
 export const Intervenants: React.FC = () => {
-    const [actants, setActants] = useState<any[]>([]);
+    const [intervenants, setIntervenants] = useState<any[]>([]);
     const [universities, setUniversities] = useState<any[]>([]);
 
     useEffect(() => {
-        getActants().then(setActants);
+        getActants().then(setIntervenants);
         getUniversities().then(setUniversities);
     }, []);
 
@@ -20,16 +21,17 @@ export const Intervenants: React.FC = () => {
         <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
             <IntervenantsBaner/>
             <div>
-                {actants.length > 0 ? (
-                <IntervenantsCarousel actants={actants} />
+                {intervenants.length > 0 ? (
+                <IntervenantsCarousel intervenants={intervenants} />
                 ) : (
                 <p className="text-c6">Chargement des intervenants...</p>
                 )}
             </div>
             <IntervenantsWorldMap
-                actants={actants}
+                intervenants={intervenants}
                 universities={universities}
             />
+            <IntervenantsStats intervenants={intervenants}/>
         </Layouts>
     );
 };
