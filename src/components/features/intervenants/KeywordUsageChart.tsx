@@ -42,8 +42,7 @@ const KeywordUsageChart: React.FC = () => {
       try {
         setLoading(true);
 
-        const [actants, confs, keywords] = await Promise.all([
-          getActants(),
+        const [confs, keywords] = await Promise.all([
           getConfs(),
           getKeywords(),
         ]);
@@ -123,7 +122,7 @@ const KeywordUsageChart: React.FC = () => {
           </defs>
           <ChartsClipPath id={clipPathId}/>
           <g clipPath={`url(#${clipPathId})`}>
-            {dataset.map((item, index) => {
+            {dataset.map((_, index) => {
               const barWidth = (1005) / dataset.length * (1 - 0.55);
               const barSpacing = (915) / dataset.length;
               const xPosition = 60 + index * barSpacing + barSpacing * 0.29;
