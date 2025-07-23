@@ -30,20 +30,14 @@ export const InfiniteSlider: React.FC<InfiniteSliderProps> = ({
         const singleSetHeight = cards.length * (cardHeight + cardGap);
 
         if (direction === 'down') {
-          // Scroll vers le bas
           container.scrollTop = scrollTop + speed;
           
-          // Réinitialiser la position de façon fluide
-          // Quand on atteint la fin du deuxième set, revenir au début du premier set
           if (scrollTop >= singleSetHeight * 2) {
             container.scrollTop = singleSetHeight;
           }
         } else {
-          // Scroll vers le haut
           container.scrollTop = scrollTop - speed;
           
-          // Réinitialiser la position de façon fluide
-          // Quand on atteint le début du premier set, revenir à la fin du deuxième set
           if (scrollTop <= singleSetHeight) {
             container.scrollTop = singleSetHeight * 2;
           }
@@ -52,7 +46,6 @@ export const InfiniteSlider: React.FC<InfiniteSliderProps> = ({
       animationRef.current = requestAnimationFrame(animate);
     };
 
-    // Initialiser la position au milieu (début du deuxième set)
     if (sliderRef.current) {
       sliderRef.current.scrollTop = cards.length * cardHeight;
     }
@@ -66,7 +59,6 @@ export const InfiniteSlider: React.FC<InfiniteSliderProps> = ({
     };
   }, [cards, direction, speed, cardHeight]);
 
-  // Tripler les cards pour créer un effet de boucle fluide
   const displayedCards = [...cards, ...cards, ...cards];
 
   return (

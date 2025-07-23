@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-  ChartContainer,
-  BarPlot,
-  ChartsXAxis,
-  ChartsYAxis,
-  ChartsTooltipContainer,
-  ChartsClipPath,
-} from '@mui/x-charts';
-import { getActants, getConfs, getKeywords } from '@/lib/Items';
+import { ChartContainer, BarPlot, ChartsXAxis, ChartsYAxis, ChartsTooltipContainer, ChartsClipPath } from '@mui/x-charts';
+import { getConfs, getKeywords } from '@/lib/Items';
 import { CustomItemTooltip } from '@/components/features/intervenants/CustomToolTip';
 
 

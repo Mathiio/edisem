@@ -1,6 +1,24 @@
 import React, { useCallback, useMemo } from 'react';
 import { useThemeMode } from '@/hooks/useThemeMode';
+import { motion, Variants } from 'framer-motion';
 
+
+// Animation variants for all logos
+const variants: Variants = {
+  hidden: { 
+    opacity: 0, 
+    scale: 0.9
+  },
+  visible: (index: number) => ({
+    opacity: 1,
+    scale: 1,
+    transition: { 
+      duration: 0.5, 
+      delay: 0.1+ index * 0.1,
+      ease: "easeOut"
+    },
+  }),
+};
 
 export const LogoCarousel: React.FC = () => {
   const { isDark } = useThemeMode(); // Get current theme mode (dark or light)
@@ -52,14 +70,18 @@ export const LogoCarousel: React.FC = () => {
 
           {/* Inner content: repeated logos in horizontal flex layout */}
           {repeatedLogos.map((logo, index) => (
-            <img
-              key={`${logo}-${index}`}
+            <motion.img
+              key={`${logo.name}-${index}`}
               src={logo.url}
-              alt={`${logo} logo`}
+              alt={`${logo.name} logo`}
               style={{ height: `${logoHeight}px` }}
               className="object-contain mr-12 flex-shrink-0 opacity-75"
               loading="lazy"
               decoding="async"
+              custom={index}
+              initial="hidden"
+              animate="visible"
+              variants={variants}
             />
           ))}
         </div>
