@@ -216,15 +216,11 @@ pre {
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;             /* Chrome, Safari and Opera */
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .MuiChartsAxis-tickLabel tspan{
   fill: theme('colors.c5') !important;
   font-size: 14px !important;
   transform: 'translateY(10px)' !important;
-}
-
-.MuiBarElement-root {
-  fill: theme('colors.action') !important;
 }

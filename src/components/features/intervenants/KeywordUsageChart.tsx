@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ChartContainer,
   BarPlot,
@@ -11,17 +11,31 @@ import { getActants, getConfs, getKeywords } from '@/lib/Items';
 import { CustomItemTooltip } from '@/components/features/intervenants/CustomToolTip';
 
 
+
+const getTailwindColor = (className: string, property: 'color' | 'fill' = 'fill'): string => {
+  const el = document.createElement('div');
+  el.className = className;
+  document.body.appendChild(el);
+  const color = getComputedStyle(el).getPropertyValue(property);
+  document.body.removeChild(el);
+  return color.trim();
+};
+
+
 const KeywordUsageChart: React.FC = () => {
-    const [colors, setColors] = useState({ c6: '', action: '' });
     const [dataset, setDataset] = useState<{ keyword: string; count: number }[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const c6Ref = useRef<HTMLDivElement>(null);
-    const actionRef = useRef<HTMLDivElement>(null);
+    const [actionColor, setActionColor] = useState<string>('#6B53BA');
+    const [actionColor2, setActionColor2] = useState<string>('#B4A4E5');
 
     const id = React.useId();
     const clipPathId = `${id}-clip-path`;
+    const gradientId = `${id}-bar-gradient`;
+
+    useEffect(() => {
+        setActionColor(getTailwindColor('fill-action'));
+        setActionColor2(getTailwindColor('fill-action2'));
+    }, []);
 
     useEffect(() => {
     const fetchData = async () => {
@@ -66,10 +80,8 @@ const KeywordUsageChart: React.FC = () => {
             .sort(() => Math.random() - 0.5);
 
         setDataset(transformedDataset);
-        setError(null);
       } catch (err) {
         console.error('Erreur lors du chargement des données:', err);
-        setError('Erreur lors du chargement des données');
       } finally {
         setLoading(false);
       }
@@ -78,51 +90,59 @@ const KeywordUsageChart: React.FC = () => {
     fetchData();
   }, []);
 
-    useEffect(() => {
-    if (c6Ref.current && actionRef.current) {
-      const c6 = getComputedStyle(c6Ref.current).color;
-      const action = getComputedStyle(actionRef.current).color;
-      setColors({ c6, action });
-    }
-  }, []);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96 bg-gray-50 rounded-lg">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement des données...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-96 bg-red-50 rounded-lg">
-        <div className="text-center">
-          <div className="text-red-600 mb-2">⚠️</div>
-          <p className="text-red-600">{error}</p>
-        </div>
-      </div>
+        <p className="text-c6 w-full text-center">Chargement des données...</p>
     );
   }
 
   return (
     <div className='w-full'>
-        <div ref={c6Ref} className="text-c6 hidden" />
-        <div ref={actionRef} className="text-action hidden" />
       <h2 className='text-16 font-medium text-c6 text-center mb-2'>Mots clés les plus utilisés par nos intervenants</h2>
       <div className='flex w-full justify-center'>
         <ChartContainer
           dataset={dataset}
           height={400}
           width={1000}
-          xAxis={[{ scaleType: 'band', dataKey: 'keyword'}]}
-          series={[{ type: 'bar', dataKey: 'count', label: 'Utilisation', color: colors.action }]}>
-          <ChartsClipPath id={clipPathId} />
+          xAxis={[{ scaleType: 'band', dataKey: 'keyword', categoryGapRatio: 0.5 }]}
+          series={[
+            {
+              type: 'bar',
+              dataKey: 'count',
+              label: 'Utilisation',
+              color: `url(#${gradientId})`,
+            },
+          ]}
+        >
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stopColor={actionColor} />
+              <stop offset="100%" stopColor={actionColor2} />
+            </linearGradient>
+          </defs>
+          <ChartsClipPath id={clipPathId}/>
           <g clipPath={`url(#${clipPathId})`}>
-            <BarPlot borderRadius={10}/>
+            {dataset.map((item, index) => {
+              const barWidth = (1005) / dataset.length * (1 - 0.55);
+              const barSpacing = (915) / dataset.length;
+              const xPosition = 60 + index * barSpacing + barSpacing * 0.29;
+              
+              return (
+                <rect
+                    className='fill-c2'
+                    key={`bg-${index}`}
+                    x={xPosition}
+                    y={40}
+                    width={barWidth}
+                    height={320}
+                    fill={``}
+                    rx={15}
+                    ry={15}
+                />
+              );
+            })}
+            <BarPlot borderRadius={15}/>
           </g>
           <ChartsXAxis
             scaleType="band"
