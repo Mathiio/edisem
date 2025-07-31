@@ -18,21 +18,17 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const linkBaseClass =
-    'cursor-pointer flex flex-row items-center justify-center px-15 py-10 text-16 gap-10 text-c6 rounded-8 border-2 transition-all ease-in-out duration-200';
+  const linkBaseClass = 'cursor-pointer flex flex-row items-center justify-center px-15 py-10 text-16 gap-10 text-c6 rounded-8 border-2 transition-all ease-in-out duration-200';
   const activeClass = 'bg-c2 border-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)]';
   const hoverClass = 'hover:bg-c2 hover:border-c3 hover:shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] border-transparent';
 
   return (
     <nav
-      className={`flex w-full sticky top-0 z-50 transition-all duration-200 ${
-        hasScrolled ? 'bg-c1/90 backdrop-blur-lg' : 'bg-transparent backdrop-blur-none'
-      }`}
+      className={`flex w-full sticky top-0 z-50 transition-all duration-200 ${hasScrolled ? 'bg-c1/90 backdrop-blur-lg' : 'bg-transparent backdrop-blur-none'}`}
       style={{
         backdropFilter: `brightness(${hasScrolled ? 150 : 100}%) blur(${hasScrolled ? 20 : 0}px)`,
-        WebkitBackdropFilter: `brightness(${hasScrolled ? 150 : 100}%) blur(${hasScrolled ? 20 : 0}px)`
-      }}
-    >
+        WebkitBackdropFilter: `brightness(${hasScrolled ? 150 : 100}%) blur(${hasScrolled ? 20 : 0}px)`,
+      }}>
       <div className='flex max-w-screen-2xl w-full justify-between p-25 mx-auto'>
         <div className='flex items-center gap-20 w-64'>
           <Link to='/' className='flex items-center gap-2'>
@@ -48,7 +44,8 @@ export const Navbar: React.FC = () => {
 
           <Dropdown>
             <DropdownTrigger>
-              <div className={`${linkBaseClass} ${isOneOf(['/corpus/seminaires', '/corpus/oeuvres', '/corpus/journees-etudes', '/corpus/colloques', '/corpus/etudes-de-cas']) ? activeClass : hoverClass}`}>
+              <div
+                className={`${linkBaseClass} ${isOneOf(['/corpus/seminaires', '/corpus/oeuvres', '/corpus/journees-etudes', '/corpus/colloques', '/corpus/etudes-de-cas']) ? activeClass : hoverClass}`}>
                 <span className='font-normal'>Corpus</span>
               </div>
             </DropdownTrigger>
@@ -58,7 +55,8 @@ export const Navbar: React.FC = () => {
                 { to: '/corpus/oeuvres', label: 'Œuvres' },
                 { to: '/corpus/etudes-de-cas', label: 'Études de cas' },
                 { to: '/corpus/journees-etudes', label: "Journées d'études" },
-                { to: '/corpus/colloques', label: "Colloques" }
+                { to: '/corpus/colloques', label: 'Colloques' },
+                { to: '/corpus/experimentations', label: 'Expérimentations' },
               ].map(({ to, label }) => (
                 <DropdownItem key={to} className='p-0 text-c5 hover:text-c6'>
                   <Link to={to} className='flex gap-2 w-full p-2 items-center rounded-8 hover:bg-c3 transition-all'>

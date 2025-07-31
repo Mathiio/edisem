@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CameraIcon, UserIcon, ShareIcon, MovieIcon } from '@/components/ui/icons';
+import { CameraIcon, UserIcon, ShareIcon, MovieIcon, ArrowIcon } from '@/components/ui/icons';
 import { motion, Variants } from 'framer-motion';
 import { addToast, Skeleton, Link, Button, cn } from '@heroui/react';
 import { AnnotationDropdown } from './AnnotationDropdown';
+import { LongCarrousel } from '@/components/ui/Carrousels';
+import { KeywordsCard } from './KeywordsCards';
+import { Splide, SplideTrack, SplideSlide } from '@splidejs/react-splide';
+import MediaViewer from './MediaViewer';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -21,39 +25,23 @@ const containerVariants: Variants = {
   },
 };
 
-type ConfOverviewProps = {
+type ExpOverviewProps = {
   id: number;
   title: string;
   actant: string;
   actantId: number;
   university: string;
   picture: string;
-  url: string;
+  medias: string[]; // Tableau de liens d'images
   fullUrl: string;
   currentTime: number;
+  buttonText: string;
 };
 
-export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actant, actantId, university, picture, url, fullUrl, currentTime }) => {
-  const [videoUrl, setVideoUrl] = useState<string>(url);
-  const [buttonText, setButtonText] = useState<string>('séance complète');
+export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant, actantId, university, picture, medias, fullUrl, currentTime, buttonText }) => {
+  const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
+
   const navigate = useNavigate();
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  useEffect(() => {
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [currentTime, true] }), '*');
-    } else {
-      console.log('iframeRef ou contentWindow non disponible');
-    }
-  }, [currentTime]);
-
-  useEffect(() => {
-    if (videoUrl) {
-      const updatedUrl = new URL(videoUrl);
-      updatedUrl.searchParams.set('enablejsapi', '1');
-      setVideoUrl(updatedUrl.toString());
-    }
-  }, [url, fullUrl]);
 
   const openActant = () => {
     navigate(`/conferencier/${actantId}`);
@@ -66,35 +54,91 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actan
     return title;
   };
 
-  const changeLink = () => {
-    if (videoUrl === url) {
-      setVideoUrl(fullUrl);
-      setButtonText('conférence');
-    } else {
-      setVideoUrl(url);
-      setButtonText('séance complète');
+  const copyToClipboard = () => {
+    // Copie l'image actuellement affichée
+    if (medias && medias[currentMediaIndex]) {
+      navigator.clipboard.writeText(medias[currentMediaIndex]).then(() => {});
     }
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(videoUrl).then(() => {});
+  const nextMedia = () => {
+    if (medias && medias.length > 1) {
+      setCurrentMediaIndex((prev) => (prev + 1) % medias.length);
+    }
+  };
+
+  const prevMedia = () => {
+    if (medias && medias.length > 1) {
+      setCurrentMediaIndex((prev) => (prev - 1 + medias.length) % medias.length);
+    }
   };
 
   return (
     <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
-      <motion.div variants={itemVariants} className='rounded-14 lg:w-full overflow-hidden'>
-        {videoUrl ? (
-          <iframe
-            ref={iframeRef}
-            className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'
-            title='YouTube Video'
-            width='100%'
-            src={videoUrl}
-            allowFullScreen></iframe>
+      <motion.div variants={itemVariants} className=' lg:w-full overflow-hidden relative'>
+        {medias && medias.length > 0 ? (
+          <div className='flex flex-col gap-10'>
+            <MediaViewer
+              src={medias[currentMediaIndex]}
+              alt={`Média ${currentMediaIndex + 1}`}
+              className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] rounded-12 overflow-hidden'
+              isVideo={medias[currentMediaIndex].includes('.mov')}
+              showNavigation={medias.length > 1}
+              onPrevious={prevMedia}
+              onNext={nextMedia}
+            />
+
+            <Splide
+              options={{
+                perPage: 3,
+                gap: '1rem',
+                pagination: false,
+                perMove: 1,
+                speed: 1000,
+                autoWidth: true,
+              }}
+              hasTrack={false}
+              aria-label='...'
+              className='flex w-full justify-between items-center gap-25'>
+              <SplideTrack className='w-full'>
+                {medias.map((media, index) => (
+                  <SplideSlide key={index}>
+                    <button
+                      key={index}
+                      onClick={() => setCurrentMediaIndex(index)}
+                      className={`flex-shrink-0 w-[136px] h-[50px] rounded-12 overflow-hidden transition-all duration-200 ${
+                        index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
+                      }`}>
+                      {media.includes('.mov') ? (
+                        <video src={media} className='w-full h-full object-cover' />
+                      ) : (
+                        <img src={media} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
+                      )}
+                    </button>
+                  </SplideSlide>
+                ))}
+              </SplideTrack>
+              <div className=' flex justify-between items-center'>
+                <div className='splide__arrows relative flex gap-10'>
+                  <Button
+                    size='sm'
+                    className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
+                    <ArrowIcon size={20} transform='rotate(180deg)' />
+                  </Button>
+                  <Button
+                    size='sm'
+                    className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
+                    <ArrowIcon size={20} />
+                  </Button>
+                </div>
+              </div>
+            </Splide>
+          </div>
         ) : (
           <UnloadedCard />
         )}
       </motion.div>
+
       <motion.div variants={itemVariants} className='w-full flex flex-col gap-25'>
         <h1 className='font-medium text-c6 text-24'>{title}</h1>
         <div className='w-full flex flex-col gap-10'>
@@ -110,6 +154,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actan
                 <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{truncateTitle(university, 48)}</p>
               </div>
             </Link>
+
             <div className='w-fit flex justify-between gap-10 items-center'>
               <Button
                 size='md'
@@ -127,15 +172,17 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actan
                 <ShareIcon size={12} />
                 Partager
               </Button>
-              {url !== fullUrl && fullUrl !== '' && (
+
+              {fullUrl !== '' && (
                 <Button
                   size='md'
                   className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
-                  onClick={changeLink}>
+                  onClick={() => window.open(fullUrl, '_blank')}>
                   <MovieIcon size={12} />
                   {buttonText}
                 </Button>
               )}
+
               <AnnotationDropdown id={id} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Conférence' />
             </div>
           </div>
@@ -144,7 +191,6 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actan
     </motion.div>
   );
 };
-
 export const ConfOverviewSkeleton: React.FC = () => {
   return (
     <div className='flex flex-col gap-20'>

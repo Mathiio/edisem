@@ -362,12 +362,7 @@ export const LaboritoryIcon: React.FC<IconSvgProps> = ({ size = 24, width, heigh
       clipRule='evenodd'
       d='M2.82537 17.8715C2.66634 17.9294 2.50032 17.9198 2.36117 17.8633C2.2207 17.8032 2.10578 17.6926 2.0515 17.5435L0.15043 12.3204C0.0418735 12.0221 0.213054 11.6838 0.531114 11.5681C0.690145 11.5102 0.856164 11.5198 0.996635 11.5799C1.13711 11.64 1.25203 11.7505 1.30631 11.8997L1.48503 12.3907L4.97765 11.1195L6.52789 15.3787L3.03527 16.65L3.20738 17.1228C3.31205 17.4225 3.14343 17.7557 2.82537 17.8715Z'
     />
-    <path
-      fill='currentColor'
-      fillRule='evenodd'
-      clipRule='evenodd'
-      d='M12.5788 14.3339L10.2846 8.03044L5.74988 9.68094L8.04414 15.9844L12.5788 14.3339Z'
-    />
+    <path fill='currentColor' fillRule='evenodd' clipRule='evenodd' d='M12.5788 14.3339L10.2846 8.03044L5.74988 9.68094L8.04414 15.9844L12.5788 14.3339Z' />
     <path
       fill='currentColor'
       fillRule='evenodd'
@@ -443,12 +438,7 @@ export const ThemeIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ..
       clipRule='evenodd'
       d='M18.2316 7.97323L8.31569 18.2415L14.0303 3.37444C14.1658 3.37444 14.2968 3.42864 14.4007 3.52803L18.2135 7.20978C18.4348 7.41758 18.4394 7.75639 18.2316 7.97323Z'
     />
-    <path
-      fill='currentColor'
-      fillRule='evenodd'
-      clipRule='evenodd'
-      d='M12.7842 2.90911L7.73821 16.055V0.388356L12.4725 2.20438C12.7526 2.3128 12.8927 2.62903 12.7842 2.90911Z'
-    />
+    <path fill='currentColor' fillRule='evenodd' clipRule='evenodd' d='M12.7842 2.90911L7.73821 16.055V0.388356L12.4725 2.20438C12.7526 2.3128 12.8927 2.62903 12.7842 2.90911Z' />
     <path
       fill='currentColor'
       fillRule='evenodd'
@@ -516,25 +506,13 @@ export const EditIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...
 );
 
 export const PlusIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
-  <svg
-    width={size || width}
-    height={size || height}
-    viewBox='0 0 14 14'
-    xmlns='http://www.w3.org/2000/svg'
-    {...props}
-    fill='currentColor'>
+  <svg width={size || width} height={size || height} viewBox='0 0 14 14' xmlns='http://www.w3.org/2000/svg' {...props} fill='currentColor'>
     <path d='M7 14C6.71667 14 6.47933 13.904 6.288 13.712C6.096 13.5207 6 13.2833 6 13V8H1C0.716667 8 0.479 7.904 0.287 7.712C0.0956668 7.52067 0 7.28333 0 7C0 6.71667 0.0956668 6.479 0.287 6.287C0.479 6.09567 0.716667 6 1 6H6V1C6 0.716667 6.096 0.479 6.288 0.287C6.47933 0.0956668 6.71667 0 7 0C7.28333 0 7.521 0.0956668 7.713 0.287C7.90433 0.479 8 0.716667 8 1V6H13C13.2833 6 13.5207 6.09567 13.712 6.287C13.904 6.479 14 6.71667 14 7C14 7.28333 13.904 7.52067 13.712 7.712C13.5207 7.904 13.2833 8 13 8H8V13C8 13.2833 7.90433 13.5207 7.713 13.712C7.521 13.904 7.28333 14 7 14Z' />
   </svg>
 );
 
 export const BackIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
-  <svg
-    width={size || width}
-    height={size || height}
-    viewBox='0 0 7 14'
-    xmlns='http://www.w3.org/2000/svg'
-    {...props}
-    fill='currentColor'>
+  <svg width={size || width} height={size || height} viewBox='0 0 7 14' xmlns='http://www.w3.org/2000/svg' {...props} fill='currentColor'>
     <path d='M6.68907 2.18568L2.56454 6.00492L6.68907 9.82416C7.10364 10.2081 7.10364 10.8282 6.68907 11.2121C6.27449 11.596 5.60478 11.596 5.19021 11.2121L0.310934 6.69396C-0.103645 6.31007 -0.103645 5.68993 0.310934 5.30604L5.19021 0.787919C5.60478 0.404027 6.27449 0.404027 6.68907 0.787919C7.09301 1.17181 7.10364 1.80179 6.68907 2.18568Z' />
   </svg>
 );
@@ -563,13 +541,7 @@ export const DataIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...
 );
 
 export const SortIcon: React.FC<IconSvgProps> = ({ size = 14, width, height, ...props }) => (
-  <svg
-    width={size || width}
-    height={size || height}
-    viewBox='0 0 24 24'
-    xmlns='http://www.w3.org/2000/svg'
-    {...props}
-    fill='currentColor'>
+  <svg width={size || width} height={size || height} viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' {...props} fill='currentColor'>
     <path
       fill-rule='evenodd'
       clip-rule='evenodd'
@@ -579,12 +551,7 @@ export const SortIcon: React.FC<IconSvgProps> = ({ size = 14, width, height, ...
 );
 
 export const Logout: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
-  <svg
-    width={size || width}
-    height={size || height}
-    viewBox='0 0 18 18'
-    xmlns='http://www.w3.org/2000/svg'
-    {...props}>
+  <svg width={size || width} height={size || height} viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg' {...props}>
     <path
       d='M0 6.56757V11.4324C0 13.7258 0 14.8724 0.76406 15.5849C1.45821 16.2321 2.53671 16.2913 4.57249 16.2968C4.46491 15.6224 4.44244 14.8168 4.43678 13.8689C4.43437 13.4659 4.7828 13.1374 5.21501 13.1351C5.64722 13.1329 5.99955 13.4578 6.00195 13.8608C6.0083 14.9247 6.03794 15.6789 6.15068 16.2512C6.25932 16.8027 6.43377 17.1219 6.6878 17.3588C6.9766 17.6281 7.38206 17.8037 8.14773 17.8996C8.93591 17.9985 9.98054 18 11.4783 18H12.5218C14.0196 18 15.0642 17.9985 15.8524 17.8996C16.6181 17.8037 17.0236 17.6281 17.3123 17.3588C17.6011 17.0895 17.7894 16.7114 17.8924 15.9975C17.9983 15.2626 18 14.2885 18 12.8919V5.10811C18 3.71149 17.9983 2.73743 17.8924 2.0025C17.7894 1.28855 17.6011 0.910482 17.3123 0.641199C17.0236 0.371916 16.6181 0.196347 15.8524 0.100359C15.0642 0.00154977 14.0196 0 12.5218 0H11.4783C9.98054 0 8.93591 0.00154977 8.14773 0.100359C7.38206 0.196347 6.9766 0.371916 6.6878 0.641199C6.43377 0.878073 6.25932 1.19728 6.15068 1.74877C6.03794 2.32112 6.0083 3.07525 6.00195 4.1392C5.99955 4.54221 5.64722 4.8671 5.21501 4.86485C4.7828 4.86261 4.43437 4.53409 4.43678 4.13107C4.44244 3.18322 4.46491 2.37758 4.57249 1.70325C2.53671 1.70867 1.45821 1.76789 0.76406 2.41515C0 3.12759 0 4.27425 0 6.56757ZM2.57701 9.516C2.27139 9.23102 2.27139 8.76898 2.57701 8.484L4.66394 6.53806C4.96957 6.25308 5.46508 6.25308 5.77071 6.53806C6.07633 6.82304 6.07633 7.28507 5.77071 7.57005L5.01976 8.27027L12.5216 8.27027C12.9538 8.27027 13.3042 8.59698 13.3042 9C13.3042 9.40302 12.9538 9.72973 12.5216 9.72973L5.01976 9.72973L5.77071 10.4299C6.07633 10.7149 6.07633 11.177 5.77071 11.4619C5.46508 11.7469 4.96957 11.7469 4.66394 11.4619L2.57701 9.516Z'
       fill='currentColor'
@@ -595,13 +562,7 @@ export const Logout: React.FC<IconSvgProps> = ({ size = 24, width, height, ...pr
 );
 
 export const VisualisationIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
-  <svg
-    width={size || width}
-    height={size || height}
-    viewBox='0 0 20 20'
-    xmlns='http://www.w3.org/2000/svg'
-    {...props}
-    fill='currentColor'>
+  <svg width={size || width} height={size || height} viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg' {...props} fill='currentColor'>
     <path d='M10 11.9999V19.9999H18V11.9999H10ZM0 19.9999H8V11.9999H0V19.9999ZM0 1.99994V9.99994H8V1.99994H0ZM13.66 0.689941L8 6.33994L13.66 11.9999L19.32 6.33994L13.66 0.689941Z' />
   </svg>
 );
@@ -772,12 +733,7 @@ export const ShareIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ..
 
 export const MovieIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 14 14' height={size || height} {...props}>
-    <path
-      fill='currentColor'
-      fillRule='evenodd'
-      clipRule='evenodd'
-      d='M7 0C8.29165 0 9.33051 0 10.1781 0.0614808L7.76903 3.67502H4.48097L6.93098 0H7Z'
-    />
+    <path fill='currentColor' fillRule='evenodd' clipRule='evenodd' d='M7 0C8.29165 0 9.33051 0 10.1781 0.0614808L7.76903 3.67502H4.48097L6.93098 0H7Z' />
     <path
       fill='currentColor'
       fillRule='evenodd'
@@ -830,20 +786,8 @@ export const Sidebar: React.FC<IconSvgProps> = ({ size = 24, width, height, ...p
 
 export const ExhangeIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 26 22' height={size || height} {...props}>
-    <path
-      d='M4.75 7.65005L16.13 7.65005M13.9 11L17.25 7.65005L13.9 4.30005'
-      stroke='currentColor'
-      stroke-width='2'
-      stroke-linecap='round'
-      stroke-linejoin='round'
-    />
-    <path
-      d='M17.25 14.3499H5.87M8.1 11L4.75 14.3499L8.1 17.7'
-      stroke='currentColor'
-      stroke-width='2'
-      stroke-linecap='round'
-      stroke-linejoin='round'
-    />
+    <path d='M4.75 7.65005L16.13 7.65005M13.9 11L17.25 7.65005L13.9 4.30005' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' />
+    <path d='M17.25 14.3499H5.87M8.1 11L4.75 14.3499L8.1 17.7' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' />
   </svg>
 );
 
@@ -949,6 +893,92 @@ export const ColloqueIcon: React.FC<IconSvgProps> = ({ size = 26, width, height,
     />
     <path
       d='M33 7V33C33 36.3137 35.6863 39 39 39C39.5523 39 40 38.5523 40 38V2C40 1.44772 39.5523 1 39 1C35.6863 1 33 3.68629 33 7Z'
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+    />
+  </svg>
+);
+
+export const MaximizeIcon: React.FC<IconSvgProps> = ({ size = 26, width, height, ...props }) => (
+  <svg width={size || width} height={size || height} viewBox='0 0 24 24' {...props}>
+    <path
+      d='M22 14C22 17.7712 22 19.6569 20.8284 20.8284C19.6569 22 17.7712 22 14 22H14C13.4477 22 13 21.5523 13 21C13 20.4477 13.4477 20 14 20C17.2426 20 18.8137 19.9991 19.9069 18.9059C21 17.8127 21 16.2426 21 13C21 14H21C21 13.4477 21.4477 13 22 13C22.5523 13 23 13.4477 23 14Z'
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+    />
+    <path
+      d='M10 22C6.22876 22 4.34315 22 3.17157 20.8284C2 19.6569 2 17.7712 2 14C2 13.4477 2.44772 13 3 13C3.55228 13 4 13.4477 4 14C4 16.2426 4.00087 17.8127 5.09411 18.9059C6.18634 19.9991 7.75736 20 10 20C10.5523 20 11 20.4477 11 21C11 21.5523 10.5523 22 10 22Z'
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+    />
+    <path
+      d='M10 2C6.22876 2 4.34315 2 3.17157 3.17157C2 4.34315 2 6.22876 2 10C2 10.5523 2.44772 11 3 11C3.55228 11 4 10.5523 4 10C4 7.75736 4.00087 6.18634 5.09411 5.09411C6.18634 4.00087 7.75736 4 10 4C10.5523 4 11 3.55228 11 3C11 2.44772 10.5523 2 10 2Z'
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+    />
+    <path
+      d='M14 2C17.7712 2 19.6569 2 20.8284 3.17157C22 4.34315 22 6.22876 22 10C22 10.5523 21.5523 11 21 11C20.4477 11 20 10.5523 20 10C20 7.75736 19.9991 6.18634 18.9059 5.09411C17.8137 4.00087 16.2426 4 14 4C13.4477 4 13 3.55228 13 3C13 2.44772 13.4477 2 14 2Z'
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+    />
+  </svg>
+);
+
+export const MinimizeIcon: React.FC<IconSvgProps> = ({ size = 26, width, height, ...props }) => (
+  <svg width={size || width} height={size || height} viewBox='0 0 24 24' {...props}>
+    <path
+      d='M12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2ZM16 6C14.8954 6 14 6.89543 14 8C14 9.10457 14.8954 10 16 10C17.1046 10 18 9.10457 18 8C18 6.89543 17.1046 6 16 6Z'
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+    />
+    <path
+      d='M3.75159 10.9675L2 12.5001L21 18.5001C20.2608 17.8738 19.2131 17.8738 18.4739 18.5001L17.7765 15.599C16.7369 14.6634 15.1888 14.5702 14.0446 15.3744L13.7464 15.5839C12.9512 16.1428 11.8694 16.0491 11.1822 15.3618L6.89249 11.0721C6.03628 10.2159 4.66286 10.1702 3.75159 10.9675Z'
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+    />
+  </svg>
+);
+
+export const SquareIcon: React.FC<IconSvgProps> = ({ size = 26, width, height, ...props }) => (
+  <svg width={size || width} height={size || height} viewBox='0 0 24 24' {...props}>
+    <path
+      d='M12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2ZM12 4C7.75736 4 6.18634 4.00087 5.09411 5.09411C4.00087 6.18634 4 7.75736 4 12C4 16.2426 4.00087 17.8137 5.09411 18.9069C6.18634 19.9991 7.75736 20 12 20C16.2426 20 17.8137 19.9991 18.9069 18.9069C19.9991 17.8137 20 16.2426 20 12C20 7.75736 19.9991 6.18634 18.9069 5.09411C17.8137 4.00087 16.2426 4 12 4Z'
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+    />
+  </svg>
+);
+
+export const GalleryIcon: React.FC<IconSvgProps> = ({ size = 26, width, height, ...props }) => (
+  <svg width={size || width} height={size || height} viewBox='0 0 24 24' {...props}>
+    <path
+      d='M15.1716 15.1716C14 16.3431 14 18.2288 14 22C14 22.5523 14.4477 23 15 23C15.5523 23 16 22.5523 16 22C16 18.7574 16.0009 17.1863 17.0941 16.0931C18.1863 15.0009 19.7574 15 22 15C22.5523 15 23 14.5523 23 14C23 13.4477 22.5523 13 22 13C18.2288 13 16.3431 13 15.1716 14.1716Z'
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+    />
+    <path
+      d='M8.82843 15.1716C10 16.3431 10 18.2288 10 22C10 22.5523 9.55228 23 9 23C8.44772 23 8 22.5523 8 22C8 18.7574 7.99913 17.1863 6.90589 16.0931C5.81366 15.0009 4.24264 15 2 15C1.44772 15 1 14.5523 1 14C1 13.4477 1.44772 13 2 13C5.77124 13 7.65685 13 8.82843 14.1716Z'
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+    />
+    <path
+      d='M8.82843 8.82843C10 7.65685 10 5.77124 10 2C10 1.44772 9.55228 1 9 1C8.44772 1 8 1.44772 8 2C8 5.24264 7.99913 6.81366 6.90589 7.90589C5.81366 8.99913 4.24264 9 2 9C1.44772 9 1 9.44772 1 10C1 10.5523 1.44772 11 2 11C5.77124 11 7.65685 11 8.82843 9.82843Z'
+      fill='currentColor'
+      fillRule='evenodd'
+      clipRule='evenodd'
+    />
+    <path
+      d='M15.1716 8.82843C14 7.65685 14 5.77124 14 2C14 1.44772 14.4477 1 15 1C15.5523 1 16 1.44772 16 2C16 5.24264 16.0009 6.81366 17.0941 7.90589C18.1863 8.99913 19.7574 9 22 9C22.5523 9 23 9.44772 23 10C23 10.5523 22.5523 11 22 11C18.2288 11 16.3431 11 15.1716 9.82843Z'
       fill='currentColor'
       fillRule='evenodd'
       clipRule='evenodd'

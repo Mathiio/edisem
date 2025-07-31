@@ -105,9 +105,7 @@ export const Conference: React.FC = () => {
             perMove={1}
             autowidth={true}
             data={confDetails.motcles}
-            renderSlide={(item) => (
-              <KeywordsCard key={item.id} onSearchClick={handleKeywordClick} id={item.id} word={item.title} />
-            )}
+            renderSlide={(item) => <KeywordsCard key={item.id} onSearchClick={handleKeywordClick} id={item.id} word={item.title} />}
           />
         )}
         {loading ? (
@@ -128,17 +126,10 @@ export const Conference: React.FC = () => {
         {loading ? (
           <ConfDetailsSkeleton></ConfDetailsSkeleton>
         ) : (
-          <ConfDetailsCard
-            edition={'Édition ' + confDetails.season + ' ' + confDetails.date.split('-')[0]}
-            date={confDetails.date}
-            description={confDetails.description}
-          />
+          <ConfDetailsCard edition={'Édition ' + confDetails.season + ' ' + confDetails.date.split('-')[0]} date={confDetails.date} description={confDetails.description} />
         )}
       </motion.div>
-      <motion.div
-        style={{ height: equalHeight || 'auto' }}
-        className='col-span-10 lg:col-span-4 flex flex-col gap-50 overflow-hidden'
-        variants={fadeIn}>
+      <motion.div style={{ height: equalHeight || 'auto' }} className='col-span-10 lg:col-span-4 flex flex-col gap-50 overflow-hidden' variants={fadeIn}>
         <div className='flex w-full flex-col gap-20 flex-grow min-h-0 overflow-hidden'>
           <Tabs
             classNames={{
@@ -152,9 +143,7 @@ export const Conference: React.FC = () => {
             selectedKey={selected}
             onSelectionChange={(key: React.Key) => setSelected(key as string)}>
             <Tab key='Citations' title='Citations' className='px-0 py-0 flex'>
-              {selected === 'Citations' && (
-                <Citations citations={confCitations} loading={loading} onTimeChange={handleTimeChange} />
-              )}
+              {selected === 'Citations' && <Citations citations={confCitations} loading={loading} onTimeChange={handleTimeChange} />}
             </Tab>
             <Tab key='Bibliographie' title='Bibliographie' className='px-0 py-0 flex flex-grow'>
               {selected === 'Bibliographie' && <Bibliographies bibliographies={confBibliographies} loading={loading} />}
@@ -174,19 +163,13 @@ export const Conference: React.FC = () => {
             data={recommendedConfs}
             renderSlide={(item) => (
               <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
-                <SmConfCard
-                  key={item.id}
-                  id={item.id}
-                  title={item.title}
-                  actant={item.actant.firstname + ' ' + item.actant.lastname}
-                  url={item.url}
-                />
+                <SmConfCard key={item.id} id={item.id} title={item.title} actant={item.actant.firstname + ' ' + item.actant.lastname} url={item.url} />
               </motion.div>
             )}
           />
         </motion.div>
       )}
-      <SearchModal ref={searchModalRef}  />
+      <SearchModal ref={searchModalRef} />
     </Layouts>
   );
 };
