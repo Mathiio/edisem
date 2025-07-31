@@ -17,6 +17,9 @@ import { EtudesDeCas } from './pages/corpus/EtudesDeCas';
 import { JourneesEtudes } from './pages/corpus/JourneesEtudes';
 import { Oeuvres } from './pages/corpus/Oeuvres';
 import { Seminaires } from './pages/corpus/Seminaires';
+import { Experimentations } from './pages/corpus/Experimentations';
+import { Experimentation } from './pages/experimentation';
+import { Feedback } from './pages/feedback';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
@@ -29,6 +32,8 @@ function App() {
       <ToastProvider />
       <Routes>
         <Route path='/conference/:id' Component={Conference} />
+        <Route path='/experimentation/:id' Component={Experimentation} />
+        <Route path='/feedback/:id' Component={Feedback} />
         <Route path='/intervenant/:id' Component={Intervenant} />
         <Route path='/database' Component={ProtectedDatabase} />
         <Route path='/intervenants' Component={Intervenants} />
@@ -37,6 +42,7 @@ function App() {
         <Route path='/corpus/seminaires' Component={Seminaires} />
         <Route path='/corpus/etudes-de-cas' Component={EtudesDeCas} />
         <Route path='/corpus/oeuvres' Component={Oeuvres} />
+        <Route path='/corpus/experimentations' Component={Experimentations} />
         <Route path='/corpus/' Component={CahierRecherche} />
         <Route index path='/' Component={Home} />
         <Route path='/edition/:id/:title?' Component={Edition} />

@@ -403,7 +403,10 @@ export async function getAllItems() {
       keywords,
       collections,
       students,
-   
+      experimentations,
+      recherches,
+      tools,
+      feedbacks,
     ] = await Promise.all([
       getConfs(),
       getActants(),
@@ -416,7 +419,10 @@ export async function getAllItems() {
       getKeywords(),
       getCollections(),
       getStudents(),
+      getExperimentations(),
       getRecherches(),
+      getTools(),
+      getFeedbacks(),
     ]);
 
     const allItems = [
@@ -431,7 +437,10 @@ export async function getAllItems() {
       ...keywords,
       ...collections,
       ...students,
-   
+      ...experimentations,
+      ...feedbacks,
+      ...tools,
+      ...(Array.isArray(recherches) ? recherches : []),
     ];
 
     sessionStorage.setItem('allItems', JSON.stringify(allItems));
@@ -440,6 +449,25 @@ export async function getAllItems() {
   } catch (error) {
     console.error('Erreur lors de la récupération des éléments:', error);
     throw new Error('Échec de la récupération des éléments');
+  }
+}
+
+export async function getTools() {
+  try {
+    const storedTools = sessionStorage.getItem('tools');
+    if (storedTools) {
+      return JSON.parse(storedTools);
+    }
+
+    const tools = await getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getTools&json=1',
+    );
+
+    sessionStorage.setItem('tools', JSON.stringify(tools));
+    return tools;
+  } catch (error) {
+    console.error('Error fetching tools:', error);
+    throw new Error('Failed to fetch tools');
   }
 }
 
@@ -544,6 +572,74 @@ export async function getSeminaires() {
   }
 }
 
+export async function getFeedbacks() {
+  try {
+    const storedFeedbacks = sessionStorage.getItem('feedbacks');
+    if (storedFeedbacks) {
+      return JSON.parse(storedFeedbacks);
+    }
+
+    const feedbacks = await getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getFeedbacks&json=1',
+    );
+  
+    feedbacks.forEach((feedback: any) => {
+      feedback.url = '/feedback/' + feedback.id;
+    });
+
+    sessionStorage.setItem('feedbacks', JSON.stringify(feedbacks));
+    return feedbacks;
+  }
+  catch (error) {
+    console.error('Error fetching feedbacks:', error);
+    throw new Error('Failed to fetch feedbacks');
+  }
+}
+
+export async function getExperimentations() {
+  try {
+    const storedExperimentations = sessionStorage.getItem('experimentations');
+
+    if (storedExperimentations) {
+      return JSON.parse(storedExperimentations);
+    }
+
+    // Récupérer les expérimentations et les feedbacks en parallèle
+    const [experimentations, feedbacks] = await Promise.all([
+      getDataByUrl(
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getExperimentations&json=1',
+      ),
+      getFeedbacks()
+    ]);
+
+    // Créer un map des feedbacks pour un accès rapide par ID
+    const feedbacksMap = new Map(feedbacks.map((feedback: any) => [feedback.id.toString(), feedback]));
+
+    // Fusionner les feedbacks dans chaque expérimentation
+    const experimentationsFull = experimentations.map((experimentation: any) => {
+      const experimentationWithFeedbacks = {
+        ...experimentation,
+        type: 'experimentation',
+      };
+
+      // Si l'expérimentation a un tableau de feedbacks, remplacer les IDs par les objets complets
+      if (experimentation.feedbacks && Array.isArray(experimentation.feedbacks)) {
+        experimentationWithFeedbacks.feedbacks = experimentation.feedbacks
+          .map((feedbackId: string) => feedbacksMap.get(feedbackId))
+          .filter(Boolean); // Enlever les feedbacks non trouvés
+      }
+
+      return experimentationWithFeedbacks;
+    });
+
+    sessionStorage.setItem('experimentations', JSON.stringify(experimentationsFull));
+    return experimentationsFull;
+  } catch (error) {
+    console.error('Error fetching experimentations:', error);
+    throw new Error('Failed to fetch experimentations');
+  }
+}
+
 export async function getStudents() {
   try {
     const storedStudents = sessionStorage.getItem('student');
@@ -577,4 +673,9 @@ export async function getStudents() {
     console.error('Error fetching students:', error);
     throw new Error('Failed to fetch students');
   }
+}
+
+export function generateThumbnailUrl(mediaId: string | number): string {
+  // Assuming the API endpoint for media thumbnails follows this pattern
+  return `https://tests.arcanes.ca/omk/s/edisem/media/${mediaId}`;
 }
