@@ -43,7 +43,16 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({ description, date, c
           <p
             className='text-16 text-c6 font-semibold transition-all ease-in-out duration-200 gap-10'
             style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
-            En collaboration avec : {collaborators?.map((collaborator) => collaborator).join(', ')}
+            En collaboration avec :{' '}
+            {collaborators
+              .map((collaborator) => {
+                // Ajustez selon la structure de vos objets collaborateur
+                if (typeof collaborator === 'string') return collaborator;
+                if (collaborator.name) return collaborator.name;
+                if (collaborator.firstName && collaborator.lastName) return `${collaborator.firstName} ${collaborator.lastName}`;
+                return '';
+              })
+              .join(', ')}
           </p>
         )}
         <p

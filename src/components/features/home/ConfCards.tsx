@@ -33,7 +33,7 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  const thumbnailUrl = url ? getYouTubeThumbnailUrl(url) : thumbnail ? thumbnail : '';
+  const thumbnailUrl = thumbnail || (url ? getYouTubeThumbnailUrl(url) : '');
 
   const [isTruncated, setIsTruncated] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);

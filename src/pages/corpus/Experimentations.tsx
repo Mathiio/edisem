@@ -1,6 +1,6 @@
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { Layouts } from '@/components/layout/Layouts';
-import { getExperimentations, getActants } from '@/lib/Items';
+import { getExperimentations, getActants, getStudents } from '@/lib/Items';
 import { motion, Variants } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
@@ -15,18 +15,16 @@ const fadeIn: Variants = {
 
 export const Experimentations: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const [filteredExperimentations, setFilteredExperimentations] = useState<any[]>([]);
+  const [experimentations, setExperimentations] = useState<any[]>([]);
 
   useEffect(() => {
     setLoading(true);
     const fetchAndProcessData = async () => {
       try {
-        // Récupérer les expérimentations (déjà compatibles avec les conférences)
-        const [experimentations, actants] = await Promise.all([getExperimentations(), getActants()]);
-        const actant = actants.find((a: any) => a.id === '17230');
-        console.log(actant);
+        // Récupérer les expérimentations, actants ET students
+        const [experimentations, actants, students] = await Promise.all([getExperimentations(), getActants(), getStudents()]);
 
-        // Créer un map des actants pour lier l'ID actant avec l'objet complet
+        // Créer un map des actants
         const actantMap = new Map();
         actants.forEach((actant: any) => {
           actantMap.set(actant.id, actant);
@@ -34,17 +32,46 @@ export const Experimentations: React.FC = () => {
           actantMap.set(Number(actant.id), actant);
         });
 
-        // Enrichir avec les données complètes de l'actant (comme pour les conférences)
-        const experimentationsWithActants = experimentations.map((experimentation: any) => ({
-          ...experimentation,
-          // Remplacer l'ID actant par l'objet complet (comme dans getConfs)
-          actant: experimentation.actant ? actantMap.get(experimentation.actant) || actantMap.get(Number(experimentation.actant)) : null,
-        }));
+        // Créer un map des students
+        const studentMap = new Map();
+        students.forEach((student: any) => {
+          studentMap.set(student.id, student);
+          studentMap.set(String(student.id), student);
+          studentMap.set(Number(student.id), student);
+        });
 
-        setFilteredExperimentations(experimentationsWithActants);
+        // Enrichir avec les données complètes des actants
+        const experimentationsWithActants = experimentations.map((experimentation: any) => {
+          // Traiter le tableau actants pour récupérer les infos complètes
+          const enrichedActants = experimentation.actants
+            ? experimentation.actants
+                .map((actantId: any) => {
+                  // Chercher d'abord dans actants, puis dans students si pas trouvé
+                  return (
+                    actantMap.get(actantId) ||
+                    actantMap.get(Number(actantId)) ||
+                    actantMap.get(String(actantId)) ||
+                    studentMap.get(actantId) ||
+                    studentMap.get(Number(actantId)) ||
+                    studentMap.get(String(actantId)) ||
+                    null
+                  );
+                })
+                .filter(Boolean) // Supprimer les valeurs null
+            : [];
 
-        console.log(experimentations);
-        console.log(experimentationsWithActants);
+          return {
+            ...experimentation,
+            enrichedActants, // Nouveau tableau avec les infos complètes
+            // Pour compatibilité, garder le premier actant comme "actant principal"
+            primaryActant: enrichedActants.length > 0 ? enrichedActants[0] : null,
+          };
+        });
+
+        setExperimentations(experimentationsWithActants);
+
+        console.log('Experimentations originales:', experimentations);
+        console.log('Experimentations enrichies:', experimentationsWithActants);
       } catch (error) {
         console.error('Erreur lors du chargement des expérimentations', error);
       } finally {
@@ -59,16 +86,17 @@ export const Experimentations: React.FC = () => {
       <div className='grid grid-cols-4 w-full gap-25'>
         {loading
           ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
-          : filteredExperimentations.map((item: any, index: number) => (
+          : experimentations.map((item: any, index: number) => (
               <motion.div key={item.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
                 <LgConfCard
                   id={item.id}
                   title={item.title}
-                  actant={item.actant ? `${item.actant.firstname} ${item.actant.lastname}` : ''}
+                  // Utiliser le premier actant (primaryActant) pour l'affichage
+                  actant={item.primaryActant ? `${item.primaryActant.firstname} ${item.primaryActant.lastname}` : ''}
                   date={item.date}
                   url={item.url}
                   thumbnail={item.thumbnail}
-                  universite={item.actant && item.actant.universities && item.actant.universities.length > 0 ? item.actant.universities[0].name : ''}
+                  universite={item.primaryActant && item.primaryActant.universities && item.primaryActant.universities.length > 0 ? item.primaryActant.universities[0].name : ''}
                   type='experimentation'
                 />
               </motion.div>
