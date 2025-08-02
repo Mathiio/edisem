@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getExperimentations, getActants, getTools, getKeywords } from '@/lib/Items';
+import { getExperimentations, getActants, getTools, getKeywords, getStudents } from '@/lib/Items';
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
@@ -24,7 +24,7 @@ const fadeIn: Variants = {
 };
 
 const viewOptions = [
-  { key: 'Feedback', title: 'Retours d’expérience' },
+  { key: 'Feedback', title: "Retours d'expérience" },
   { key: 'Hypothese', title: 'Hypothèse à expérimenter' },
   { key: 'Outils', title: 'Outils' },
   { key: 'ScientContent', title: 'Contenus scientifiques' },
@@ -83,19 +83,29 @@ export const Experimentation: React.FC = () => {
   const fetchConfData = useCallback(async () => {
     setLoading(true);
     try {
-      const [experimentations, actants, tools, concepts] = await Promise.all([getExperimentations(), getActants(), getTools(), getKeywords()]);
+      const [experimentations, actants, students, tools, concepts] = await Promise.all([getExperimentations(), getActants(), getStudents(), getTools(), getKeywords()]);
+
       const actantMap = new Map();
       actants.forEach((a: any) => {
         actantMap.set(a.id, a);
         actantMap.set(String(a.id), a);
         actantMap.set(Number(a.id), a);
       });
+
+      const studentMap = new Map();
+      students.forEach((s: any) => {
+        studentMap.set(s.id, s);
+        studentMap.set(String(s.id), s);
+        studentMap.set(Number(s.id), s);
+      });
+
       const toolMap = new Map();
       tools.forEach((t: any) => {
         toolMap.set(t.id, t);
         toolMap.set(String(t.id), t);
         toolMap.set(Number(t.id), t);
       });
+
       const conceptMap = new Map();
       concepts.forEach((c: any) => {
         conceptMap.set(c.id, c);
@@ -104,16 +114,78 @@ export const Experimentation: React.FC = () => {
       });
 
       const experimentation = experimentations.find((e: any) => String(e.id) === String(id));
-      setConfTools(tools.filter((t: any) => experimentation.technicalCredits?.includes(String(t.id))));
-      setConfConcepts(concepts.filter((c: any) => experimentation.concepts?.includes(String(c.id))));
 
       if (experimentation) {
-        experimentation.actant = experimentation.actant
-          ? actantMap.get(experimentation.actant) || actantMap.get(Number(experimentation.actant)) || actantMap.get(String(experimentation.actant))
-          : null;
+        // ✅ NOUVEAU: Traiter le tableau actants
+        if (experimentation.actants && Array.isArray(experimentation.actants)) {
+          // Enrichir tous les actants
+          experimentation.enrichedActants = experimentation.actants
+            .map((actantId: any) => {
+              return (
+                actantMap.get(actantId) ||
+                actantMap.get(Number(actantId)) ||
+                actantMap.get(String(actantId)) ||
+                studentMap.get(actantId) ||
+                studentMap.get(Number(actantId)) ||
+                studentMap.get(String(actantId)) ||
+                null
+              );
+            })
+            .filter(Boolean);
+
+          // Définir le premier actant comme actant principal pour compatibilité
+          experimentation.primaryActant = experimentation.enrichedActants.length > 0 ? experimentation.enrichedActants[0] : null;
+        }
+
+        // ✅ LEGACY: Gérer l'ancien système actant (au cas où)
+        if (experimentation.actant && !experimentation.primaryActant) {
+          // Si actant est déjà un objet complet, on le garde
+          if (typeof experimentation.actant === 'object' && experimentation.actant.id) {
+            experimentation.primaryActant = experimentation.actant;
+          } else {
+            // Si actant est juste un ID, on le cherche dans les maps
+            const actantId = experimentation.actant;
+            experimentation.primaryActant =
+              actantMap.get(actantId) ||
+              actantMap.get(Number(actantId)) ||
+              actantMap.get(String(actantId)) ||
+              studentMap.get(actantId) ||
+              studentMap.get(Number(actantId)) ||
+              studentMap.get(String(actantId));
+          }
+        }
+
+        // Enrichir les feedbacks et leurs contributors
+        if (experimentation.feedbacks) {
+          experimentation.feedbacks.forEach((feedback: any) => {
+            if (feedback.contributors) {
+              feedback.contributors = feedback.contributors.map((contributor: any) => {
+                const contributorId = contributor.id;
+
+                // Chercher dans actants
+                let enrichedContributor = actantMap.get(contributorId) || actantMap.get(String(contributorId)) || actantMap.get(Number(contributorId));
+
+                // Si pas trouvé dans actants, chercher dans students
+                if (!enrichedContributor) {
+                  enrichedContributor = studentMap.get(contributorId) || studentMap.get(String(contributorId)) || studentMap.get(Number(contributorId));
+                }
+
+                // Retourner l'objet enrichi ou garder l'original
+                return enrichedContributor || contributor;
+              });
+            }
+          });
+        }
+
+        // Mapper les students si la propriété existe
+        if (experimentation.students) {
+          experimentation.students = experimentation.students.map((s: any) => studentMap.get(s) || studentMap.get(Number(s)) || studentMap.get(String(s))).filter(Boolean);
+        }
+
+        setConfTools(tools.filter((t: any) => experimentation.technicalCredits?.includes(String(t.id))));
+        setConfConcepts(concepts.filter((c: any) => experimentation.concepts?.includes(String(c.id))));
         setConfDetails(experimentation);
 
-        // Charger les recommandations si elles existent
         if (experimentation.recommendations?.length) {
           fetchRecommendedConfs(experimentation.recommendations);
         }
@@ -210,10 +282,11 @@ export const Experimentation: React.FC = () => {
           <ExpOverviewCard
             id={confDetails.id}
             title={confDetails.title}
-            actant={confDetails.actant?.firstname + ' ' + confDetails.actant?.lastname}
-            actantId={confDetails.actant?.id}
-            university={confDetails.actant?.universities?.[0]?.name || ''}
-            picture={confDetails.actant?.picture || ''}
+            // ✅ CORRIGÉ: Utiliser primaryActant au lieu de actant
+            actant={confDetails.primaryActant?.firstname + ' ' + confDetails.primaryActant?.lastname}
+            actantId={confDetails.primaryActant?.id}
+            university={confDetails.primaryActant?.universities?.[0]?.name || ''}
+            picture={confDetails.primaryActant?.picture || ''}
             medias={confDetails.associatedMedia}
             fullUrl={confDetails.fullUrl}
             currentTime={currentVideoTime}
@@ -273,7 +346,8 @@ export const Experimentation: React.FC = () => {
             data={recommendedConfs}
             renderSlide={(item) => (
               <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
-                <SmConfCard key={item.id} id={item.id} title={item.title} actant={item.actant.firstname + ' ' + item.actant.lastname} url={item.url} />
+                {/* ✅ CORRIGÉ: Utiliser primaryActant au lieu de actant */}
+                <SmConfCard key={item.id} id={item.id} title={item.title} actant={item.primaryActant?.firstname + ' ' + item.primaryActant?.lastname} url={item.url} />
               </motion.div>
             )}
           />

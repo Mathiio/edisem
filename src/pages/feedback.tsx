@@ -1,7 +1,7 @@
 import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/conference/ExpDetails';
 import { ConfOverviewSkeleton, ExpOverviewCard } from '@/components/features/conference/ExpOverview';
 import { Layouts } from '@/components/layout/Layouts';
-import { getActants, getExperimentations } from '@/lib/Items';
+import { getActants, getExperimentations, getStudents } from '@/lib/Items';
 import { motion, Variants } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -92,7 +92,8 @@ export const Feedback: React.FC = () => {
   const fetchFeedbackData = async () => {
     setLoading(true);
     try {
-      const [experimentations, actantsData] = await Promise.all([getExperimentations(), getActants()]);
+      // ✅ AJOUT: Récupérer aussi les students
+      const [experimentations, actantsData, studentsData] = await Promise.all([getExperimentations(), getActants(), getStudents()]);
 
       // Vérification que experimentations est un tableau
       if (!Array.isArray(experimentations)) {
@@ -101,25 +102,44 @@ export const Feedback: React.FC = () => {
         return;
       }
 
+      // ✅ NOUVEAU: Créer des maps pour la recherche rapide
+      const actantMap = new Map();
+      actantsData.forEach((actant: any) => {
+        actantMap.set(actant.id, actant);
+        actantMap.set(String(actant.id), actant);
+        actantMap.set(Number(actant.id), actant);
+      });
+
+      const studentMap = new Map();
+      studentsData.forEach((student: any) => {
+        studentMap.set(student.id, student);
+        studentMap.set(String(student.id), student);
+        studentMap.set(Number(student.id), student);
+      });
+
       // Recherche du feedback dans toutes les expérimentations
       let feedbackFound = null;
+      let parentExperimentation = null;
+
       for (const exp of experimentations) {
         if (exp.feedbacks && Array.isArray(exp.feedbacks)) {
           feedbackFound = exp.feedbacks.find((feedback: any) => String(feedback.id) === String(id));
           if (feedbackFound) {
-            // Ajouter les informations de l'expérimentation parente
-            feedbackFound.experimentation = {
-              id: exp.id,
-              title: exp.title,
-              url: exp.url,
-              date: exp.date,
-            };
+            parentExperimentation = exp;
             break;
           }
         }
       }
 
-      if (feedbackFound) {
+      if (feedbackFound && parentExperimentation) {
+        // Ajouter les informations de l'expérimentation parente
+        feedbackFound.experimentation = {
+          id: parentExperimentation.id,
+          title: parentExperimentation.title,
+          url: parentExperimentation.url,
+          date: parentExperimentation.date,
+        };
+
         // Ajoute l'URL de l'expérimentation dans le feedback
         const feedbackWithUrl = {
           ...feedbackFound,
@@ -127,19 +147,65 @@ export const Feedback: React.FC = () => {
           date: feedbackFound.experimentation?.date ?? null,
         };
 
-        // Enrichir les contributeurs avec les données des actants
-        const enrichedContributors = feedbackWithUrl.contributors.map((contributor: any) => {
-          const actant = actantsData.find((a: any) => String(a.id) === String(contributor.id));
-          return {
-            ...contributor,
-            actant: actant,
-          };
-        });
+        // ✅ CORRIGÉ: Enrichir les contributeurs avec le nouveau système
+        let enrichedContributors = [];
+        let primaryActant = null;
 
-        feedbackWithUrl.actant = enrichedContributors[0].actant;
+        if (feedbackWithUrl.contributors && Array.isArray(feedbackWithUrl.contributors)) {
+          // Si les contributors sont déjà enrichis (ont firstname, lastname, etc.)
+          if (feedbackWithUrl.contributors.length > 0 && feedbackWithUrl.contributors[0].firstname) {
+            enrichedContributors = feedbackWithUrl.contributors;
+            primaryActant = enrichedContributors[0];
+          } else {
+            // Si les contributors sont des IDs, les enrichir
+            enrichedContributors = feedbackWithUrl.contributors
+              .map((contributor: any) => {
+                const contributorId = contributor.id || contributor;
+
+                // Chercher d'abord dans actants, puis dans students
+                return (
+                  actantMap.get(contributorId) ||
+                  actantMap.get(Number(contributorId)) ||
+                  actantMap.get(String(contributorId)) ||
+                  studentMap.get(contributorId) ||
+                  studentMap.get(Number(contributorId)) ||
+                  studentMap.get(String(contributorId)) ||
+                  contributor
+                ); // Garder l'original si pas trouvé
+              })
+              .filter(Boolean);
+
+            primaryActant = enrichedContributors.length > 0 ? enrichedContributors[0] : null;
+          }
+        } else {
+          // ✅ NOUVEAU: Si pas de contributors, essayer d'utiliser les actants de l'expérimentation parente
+          if (parentExperimentation.actants && Array.isArray(parentExperimentation.actants)) {
+            enrichedContributors = parentExperimentation.actants
+              .map((actantId: any) => {
+                return (
+                  actantMap.get(actantId) ||
+                  actantMap.get(Number(actantId)) ||
+                  actantMap.get(String(actantId)) ||
+                  studentMap.get(actantId) ||
+                  studentMap.get(Number(actantId)) ||
+                  studentMap.get(String(actantId)) ||
+                  null
+                );
+              })
+              .filter(Boolean);
+
+            primaryActant = enrichedContributors.length > 0 ? enrichedContributors[0] : null;
+          }
+        }
+
+        // Assigner les données enrichies
+        feedbackWithUrl.contributors = enrichedContributors;
+        feedbackWithUrl.primaryActant = primaryActant;
+        // ✅ LEGACY: Garder actant pour compatibilité
+        feedbackWithUrl.actant = primaryActant;
 
         setFeedbackDetails(feedbackWithUrl);
-        console.log(feedbackWithUrl);
+        console.log('Feedback enrichi:', feedbackWithUrl);
       } else {
         console.warn(`Aucun feedback trouvé avec l'ID: ${id}`);
         setFeedbackDetails(null);
@@ -147,8 +213,6 @@ export const Feedback: React.FC = () => {
     } catch (error) {
       console.error('Erreur lors de la récupération des données de feedback:', error);
       setFeedbackDetails(null);
-      // Optionnel : vous pourriez aussi setter un état d'erreur
-      // setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -193,10 +257,11 @@ export const Feedback: React.FC = () => {
             <ExpOverviewCard
               id={feedbackDetails.id}
               title={feedbackDetails.title}
-              actant={feedbackDetails.actant?.firstname + ' ' + feedbackDetails.actant?.lastname}
-              actantId={feedbackDetails.actant?.id}
-              university={feedbackDetails.actant?.universities?.[0]?.name || ''}
-              picture={feedbackDetails.actant?.picture || ''}
+              // ✅ CORRIGÉ: Utiliser primaryActant au lieu de actant
+              actant={feedbackDetails.primaryActant?.firstname + ' ' + feedbackDetails.primaryActant?.lastname}
+              actantId={feedbackDetails.primaryActant?.id}
+              university={feedbackDetails.primaryActant?.universities?.[0]?.name || ''}
+              picture={feedbackDetails.primaryActant?.picture || ''}
               fullUrl={feedbackDetails.url}
               medias={feedbackDetails.associatedMedia}
               currentTime={0}
