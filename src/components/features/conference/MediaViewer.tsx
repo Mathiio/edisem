@@ -6,12 +6,9 @@ interface MediaViewerProps {
   alt?: string;
   className?: string;
   isVideo?: boolean;
-  onPrevious?: () => void;
-  onNext?: () => void;
-  showNavigation?: boolean;
 }
 
-const MediaViewer: React.FC<MediaViewerProps> = ({ src, alt = 'Media', className = '', isVideo = false, onPrevious, onNext, showNavigation = false }) => {
+const MediaViewer: React.FC<MediaViewerProps> = ({ src, alt = 'Media', className = '', isVideo = false }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [objectFit, setObjectFit] = useState<'cover' | 'contain'>('cover');
   const [showControls, setShowControls] = useState(false);

@@ -18,13 +18,15 @@ const containerVariants: Variants = {
   },
 };
 
-type ExpDetailsProps = {
+type RecitiaDetailsProps = {
   description: string;
   date: string;
   collaborators?: string[];
+  genre?: string;
+  medium?: string;
 };
 
-export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({ description, date, collaborators }) => {
+export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description, date, collaborators, genre, medium }) => {
   const [expanded, setExpanded] = useState<boolean>(false);
   console.log(date);
 
@@ -39,11 +41,16 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({ description, date, c
         className='cursor-pointer flex flex-col bg-c2 hover:bg-c3 p-25 rounded-8 gap-10 transition-all ease-in-out duration-200'
         onClick={toggleExpansion}>
         <h3 className='text-16 text-c5 font-medium'>{date}</h3>
+
+        {genre && <p className='text-16 text-c6 font-semibold'>Genre : {genre}</p>}
+
+        {medium && <p className='text-16 text-c6 font-semibold'>Support : {medium}</p>}
+
         {collaborators && (
           <p
             className='text-16 text-c6 font-semibold transition-all ease-in-out duration-200 gap-10'
             style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
-            En collaboration avec :{' '}
+            Crédits :{' '}
             {collaborators
               .map((collaborator: any) => {
                 if (typeof collaborator === 'string') return collaborator;
@@ -54,6 +61,7 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({ description, date, c
               .join(', ')}
           </p>
         )}
+
         <p
           className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200 gap-10'
           style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
@@ -65,7 +73,7 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({ description, date, c
   );
 };
 
-export const ExpDetailsSkeleton: React.FC = () => {
+export const RecitiaDetailsSkeleton: React.FC = () => {
   return (
     <div className='flex w-full p-20 bg-c3 rounded-14'>
       <div className='flex w-full flex-col gap-10'>

@@ -74,7 +74,7 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
           {actant}
           <span className='text-14'> - {universite}</span>
         </p>
-        <p className='text-14 text-c5 font-extralight'>{type === 'experimentation' ? date : formatDate(date)}</p>
+        <p className='text-14 text-c5 font-extralight'>{type === 'experimentation' || type === 'oeuvre' ? date : formatDate(date)}</p>
       </div>
     </div>
   );

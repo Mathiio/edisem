@@ -407,6 +407,7 @@ export async function getAllItems() {
       recherches,
       tools,
       feedbacks,
+      recitIas,
     ] = await Promise.all([
       getConfs(),
       getActants(),
@@ -423,6 +424,7 @@ export async function getAllItems() {
       getRecherches(),
       getTools(),
       getFeedbacks(),
+      getRecitIas(),
     ]);
 
     const allItems = [
@@ -441,6 +443,7 @@ export async function getAllItems() {
       ...feedbacks,
       ...tools,
       ...(Array.isArray(recherches) ? recherches : []),
+      ...(Array.isArray(recitIas) ? recitIas : []),
     ];
 
     sessionStorage.setItem('allItems', JSON.stringify(allItems));
@@ -468,6 +471,25 @@ export async function getTools() {
   } catch (error) {
     console.error('Error fetching tools:', error);
     throw new Error('Failed to fetch tools');
+  }
+}
+
+export async function getRecitIas() {
+  try {
+    const storedRecitIas = sessionStorage.getItem('recitIas');
+    if (storedRecitIas) {
+      return JSON.parse(storedRecitIas);
+    }
+
+    const recitIas = await getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitIas&json=1',
+    );
+
+    sessionStorage.setItem('recitIas', JSON.stringify(recitIas));
+    return recitIas;
+  } catch (error) {
+    console.error('Error fetching recitIas:', error);
+    throw new Error('Failed to fetch recitIas');
   }
 }
 

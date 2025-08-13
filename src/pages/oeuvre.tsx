@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getExperimentations, getActants, getTools, getKeywords, getStudents } from '@/lib/Items';
+import { getRecitIas, getActants, getTools, getKeywords, getStudents } from '@/lib/Items';
 import { motion, Variants } from 'framer-motion';
-import { ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
@@ -10,8 +9,8 @@ import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/features/home/ConfCards';
 import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
 import { getConf } from '@/lib/api';
-import { ExpOverviewCard } from '@/components/features/conference/ExpOverview';
-import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/conference/ExpDetails';
+import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/conference/RecitiaOverview';
+import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/conference/RecitiaDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 
 const fadeIn: Variants = {
@@ -24,22 +23,19 @@ const fadeIn: Variants = {
 };
 
 const viewOptions = [
-  { key: 'Feedback', title: "Retours d'expérience" },
-  { key: 'Hypothese', title: 'Hypothèse à expérimenter' },
-  { key: 'Outils', title: 'Outils' },
-  { key: 'ScientContent', title: 'Contenus scientifiques' },
-  { key: 'CultuContent', title: 'Contenus culturels' },
+  { key: 'Analyse', title: 'Analyse' },
+  { key: 'Reference', title: 'Références' },
 ];
 
-export const Experimentation: React.FC = () => {
+export const Recitia: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
   const [currentVideoTime] = useState<number>(0);
-  const [confDetails, setConfDetails] = useState<any>(null);
+  const [oeuvreDetails, setOeuvreDetails] = useState<any>(null);
   const [recommendedConfs, setRecommendedConfs] = useState<any[]>([]);
 
-  const [confTools, setConfTools] = useState<any[]>([]);
-  const [confConcepts, setConfConcepts] = useState<any[]>([]);
+  const [oeuvreTools, setOeuvreTools] = useState<any[]>([]);
+  const [oeuvreConcepts, setOeuvreConcepts] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [loadingRecommendations, setLoadingRecommendations] = useState(true);
@@ -47,7 +43,7 @@ export const Experimentation: React.FC = () => {
   const [equalHeight, setEqualHeight] = useState<number | null>(null);
   const searchModalRef = useRef<SearchModalRef>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [selected, setSelected] = useState('Feedback');
+  const [selected, setSelected] = useState('Analyse');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Trouve l'option sélectionnée actuelle
@@ -80,11 +76,11 @@ export const Experimentation: React.FC = () => {
 
   useEffect(() => {}, [currentVideoTime]);
 
-  const fetchConfData = useCallback(async () => {
+  const fetchOeuvreData = useCallback(async () => {
     setLoading(true);
     try {
-      const [experimentations, actants, students, tools, concepts] = await Promise.all([getExperimentations(), getActants(), getStudents(), getTools(), getKeywords()]);
-
+      const [recitIas, actants, students, tools, concepts] = await Promise.all([getRecitIas(), getActants(), getStudents(), getTools(), getKeywords()]);
+      console.log(recitIas);
       const actantMap = new Map();
       actants.forEach((a: any) => {
         actantMap.set(a.id, a);
@@ -113,14 +109,21 @@ export const Experimentation: React.FC = () => {
         conceptMap.set(Number(c.id), c);
       });
 
-      const experimentation = experimentations.find((e: any) => String(e.id) === String(id));
+      const oeuvre = recitIas.find((r: any) => String(r.id) === String(id));
 
-      if (experimentation) {
+      if (oeuvre) {
         // ✅ NOUVEAU: Traiter le tableau actants
-        if (experimentation.actants && Array.isArray(experimentation.actants)) {
+        if (oeuvre.actants && Array.isArray(oeuvre.actants)) {
           // Enrichir tous les actants
-          experimentation.enrichedActants = experimentation.actants
-            .map((actantId: any) => {
+          oeuvre.enrichedActants = oeuvre.actants
+            .map((actant: any) => {
+              // Si l'actant est déjà une chaîne (nom + organisation), on la garde telle quelle
+              if (typeof actant === 'string' && !/^\d{5}$/.test(actant)) {
+                return { displayName: actant };
+              }
+
+              // Sinon, c'est un ID numérique, on cherche dans les maps
+              const actantId = actant;
               return (
                 actantMap.get(actantId) ||
                 actantMap.get(Number(actantId)) ||
@@ -134,18 +137,18 @@ export const Experimentation: React.FC = () => {
             .filter(Boolean);
 
           // Définir le premier actant comme actant principal pour compatibilité
-          experimentation.primaryActant = experimentation.enrichedActants.length > 0 ? experimentation.enrichedActants[0] : null;
+          oeuvre.primaryActant = oeuvre.enrichedActants.length > 0 ? oeuvre.enrichedActants[0] : null;
         }
 
         // ✅ LEGACY: Gérer l'ancien système actant (au cas où)
-        if (experimentation.actant && !experimentation.primaryActant) {
+        if (oeuvre.actant && !oeuvre.primaryActant) {
           // Si actant est déjà un objet complet, on le garde
-          if (typeof experimentation.actant === 'object' && experimentation.actant.id) {
-            experimentation.primaryActant = experimentation.actant;
+          if (typeof oeuvre.actant === 'object' && oeuvre.actant.id) {
+            oeuvre.primaryActant = oeuvre.actant;
           } else {
             // Si actant est juste un ID, on le cherche dans les maps
-            const actantId = experimentation.actant;
-            experimentation.primaryActant =
+            const actantId = oeuvre.actant;
+            oeuvre.primaryActant =
               actantMap.get(actantId) ||
               actantMap.get(Number(actantId)) ||
               actantMap.get(String(actantId)) ||
@@ -156,8 +159,8 @@ export const Experimentation: React.FC = () => {
         }
 
         // Enrichir les feedbacks et leurs contributors
-        if (experimentation.feedbacks) {
-          experimentation.feedbacks.forEach((feedback: any) => {
+        if (oeuvre.feedbacks) {
+          oeuvre.feedbacks.forEach((feedback: any) => {
             if (feedback.contributors) {
               feedback.contributors = feedback.contributors.map((contributor: any) => {
                 const contributorId = contributor.id;
@@ -178,16 +181,30 @@ export const Experimentation: React.FC = () => {
         }
 
         // Mapper les students si la propriété existe
-        if (experimentation.students) {
-          experimentation.students = experimentation.students.map((s: any) => studentMap.get(s) || studentMap.get(Number(s)) || studentMap.get(String(s))).filter(Boolean);
+        if (oeuvre.students) {
+          oeuvre.students = oeuvre.students.map((s: any) => studentMap.get(s) || studentMap.get(Number(s)) || studentMap.get(String(s))).filter(Boolean);
         }
 
-        setConfTools(tools.filter((t: any) => experimentation.technicalCredits?.includes(String(t.id))));
-        setConfConcepts(concepts.filter((c: any) => experimentation.concepts?.includes(String(c.id))));
-        setConfDetails(experimentation);
+        setOeuvreTools(tools.filter((t: any) => oeuvre.technicalCredits?.includes(String(t.id))));
+        setOeuvreConcepts(
+          [
+            ...(oeuvre.concepts || []),
+            ...(oeuvre.risks || []),
+            ...(oeuvre.roles || []),
+            ...(oeuvre.scenarios || []),
+            ...(oeuvre.themes || []),
+            ...(oeuvre.processes || []),
+            ...(oeuvre.affects || []),
+          ].map((word: string) => ({
+            title: word,
+          })),
+        );
 
-        if (experimentation.recommendations?.length) {
-          fetchRecommendedConfs(experimentation.recommendations);
+        console.log(oeuvreConcepts);
+        setOeuvreDetails(oeuvre);
+
+        if (oeuvre.recommendations?.length) {
+          fetchRecommendedConfs(oeuvre.recommendations);
         }
       }
     } finally {
@@ -196,8 +213,8 @@ export const Experimentation: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    fetchConfData();
-  }, [id, fetchConfData]);
+    fetchOeuvreData();
+  }, [id, fetchOeuvreData]);
 
   const handleKeywordClick = (searchTerm: string) => {
     // Ouvrir la modal de recherche avec le terme pré-rempli
@@ -205,12 +222,12 @@ export const Experimentation: React.FC = () => {
   };
 
   const renderContent = () => {
-    if (!confDetails) {
+    if (!oeuvreDetails) {
       return <div>Loading...</div>; // or return null, or a loading skeleton
     }
 
     switch (selected) {
-      case 'Hypothese':
+      case 'Analyse':
         return (
           <div
             className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
@@ -219,46 +236,16 @@ export const Experimentation: React.FC = () => {
             <div className='w-full gap-25 py-25 pl-25 flex flex-row justify-between'>
               <div className={`flex  flex-col gap-4 items-start`}>
                 <div className='w-full flex flex-col gap-10'>
-                  <p className='text-c6 text-16'>{confDetails.abstract}</p>
+                  <p className='text-c6 text-16'>{oeuvreDetails.description}</p>
                 </div>
               </div>
             </div>
             <div className='flex flex-col h-full py-25 pr-25'>{/* <AnnotationDropdown id={props.id} content={formatBibliography(props)} type='Bibliographie' /> */}</div>
           </div>
         );
-      case 'Outils':
-        return (
-          <div className='flex flex-col gap-10'>
-            {confTools.map((tool: any) => (
-              <ToolItem key={tool.id} tool={tool} />
-            ))}
-          </div>
-        );
-      case 'ScientContent':
-        return (
-          <div className='flex flex-col gap-10'>
-            {confDetails.references.map((reference: any) => (
-              <ToolItem key={reference.id} tool={reference} />
-            ))}
-          </div>
-        );
-      case 'CultuContent':
-        return (
-          <div className='flex flex-col gap-10'>
-            {confDetails.bibliographicCitations.map((citation: any) => (
-              <ToolItem key={citation.id} tool={citation} />
-            ))}
-          </div>
-        );
-      case 'Feedback':
-        console.log(confDetails.feedbacks);
-        return (
-          <div className='flex flex-col gap-10'>
-            {confDetails.feedbacks.map((feedback: any) => (
-              <ToolItem key={feedback.id} tool={feedback} />
-            ))}
-          </div>
-        );
+
+      case 'Reference':
+        return <div className='flex flex-col gap-10'>{oeuvreDetails.references?.map((reference: any, index: number) => <ToolItem key={reference.id} tool={reference} />)}</div>;
       default:
         return null;
     }
@@ -267,33 +254,45 @@ export const Experimentation: React.FC = () => {
   return (
     <Layouts className='grid grid-cols-10 col-span-10 gap-50'>
       <motion.div ref={firstDivRef} className='col-span-10 lg:col-span-6 flex flex-col gap-25 h-fit' variants={fadeIn}>
-        {!loading && confConcepts?.length > 0 && (
+        {!loading && oeuvreConcepts?.length > 0 && (
           <LongCarrousel
             perPage={3}
             perMove={1}
             autowidth={true}
-            data={confConcepts}
-            renderSlide={(item) => <KeywordsCard key={item.id} onSearchClick={handleKeywordClick} word={item.title} />}
+            data={oeuvreConcepts}
+            renderSlide={(item) => <KeywordsCard key={item.title} onSearchClick={handleKeywordClick} word={item.title} />}
           />
         )}
         {loading ? (
-          <ConfOverviewSkeleton />
+          <RecitiaOverviewSkeleton />
         ) : (
-          <ExpOverviewCard
-            id={confDetails.id}
-            title={confDetails.title}
+          <RecitiaOverviewCard
+            id={oeuvreDetails.id}
+            title={oeuvreDetails.title}
             // ✅ CORRIGÉ: Utiliser primaryActant au lieu de actant
-            actant={confDetails.primaryActant?.firstname + ' ' + confDetails.primaryActant?.lastname}
-            actantId={confDetails.primaryActant?.id}
-            university={confDetails.primaryActant?.universities?.[0]?.name || ''}
-            picture={confDetails.primaryActant?.picture || ''}
-            medias={confDetails.associatedMedia}
-            fullUrl={confDetails.fullUrl}
+            actant={
+              oeuvreDetails.primaryActant ? oeuvreDetails.primaryActant.displayName || `${oeuvreDetails.primaryActant.firstname} ${oeuvreDetails.primaryActant.lastname}` : ''
+            }
+            actantId={oeuvreDetails.primaryActant?.id}
+            university={oeuvreDetails.primaryActant?.universities?.[0]?.name || ''}
+            picture={oeuvreDetails.primaryActant?.picture || ''}
+            medias={oeuvreDetails.associatedMedia}
+            fullUrl={oeuvreDetails.fullUrl}
             currentTime={currentVideoTime}
             buttonText='Voir plus'
           />
         )}
-        {loading ? <ExpDetailsSkeleton></ExpDetailsSkeleton> : <ExpDetailsCard date={confDetails.date} collaborators={confDetails.credits} description={confDetails.description} />}
+        {loading ? (
+          <RecitiaDetailsSkeleton></RecitiaDetailsSkeleton>
+        ) : (
+          <RecitiaDetailsCard
+            date={oeuvreDetails.date}
+            collaborators={oeuvreDetails.credits}
+            description={oeuvreDetails.abstract}
+            genre={oeuvreDetails.genre}
+            medium={oeuvreDetails.medium}
+          />
+        )}
       </motion.div>
       <motion.div style={{ height: equalHeight || 'auto' }} className='col-span-10 lg:col-span-4 flex flex-col gap-50 overflow-hidden' variants={fadeIn}>
         <div className='flex w-full flex-col gap-20 flex-grow min-h-0 overflow-hidden'>
@@ -365,6 +364,14 @@ interface ToolItemProps {
     url?: string;
     thumbnail?: string;
     description?: string;
+  };
+}
+
+interface ReferenceItemProps {
+  reference: {
+    text?: string;
+    title?: string;
+    uri?: string;
   };
 }
 

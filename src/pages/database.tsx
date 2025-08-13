@@ -1,18 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
-import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Spinner,
-  Pagination,
-  useDisclosure,
-  Input,
-  SortDescriptor,
-} from '@heroui/react';
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Spinner, Pagination, useDisclosure, Input, SortDescriptor } from '@heroui/react';
 import { usegetDataByClass } from '../hooks/useFetchData';
 import GridComponent from '@/components/features/database/GridComponent';
 import { EditModal } from '@/components/features/database/EditModal';
@@ -73,10 +61,13 @@ export const Database: React.FC = () => {
 
   const [currentItemUrl, setCurrentItemUrl] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ column: '', direction: 'ascending' });
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({ column: 'o:title', direction: 'ascending' });
 
   const handleSortChange = (descriptor: SortDescriptor) => {
-    setSortDescriptor(descriptor);
+    // Ensure column is never undefined
+    if (descriptor.column) {
+      setSortDescriptor(descriptor);
+    }
   };
 
   const handleCellClick = (item: any) => {
@@ -179,9 +170,7 @@ export const Database: React.FC = () => {
   return (
     <Layouts className='col-span-10 flex flex-col gap-50'>
       <div>
-        {currentView === 'grid' && (
-          <GridComponent handleCardClick={handleCardClick} initializePropertiesLoading={initializePropertiesLoading} />
-        )}
+        {currentView === 'grid' && <GridComponent handleCardClick={handleCardClick} initializePropertiesLoading={initializePropertiesLoading} />}
         {currentView === 'table' && (
           <>
             <div className='flex flex-col gap-50'>
@@ -205,8 +194,7 @@ export const Database: React.FC = () => {
                       clearButton: 'bg-600',
                       mainWrapper: ' h-[48px] ',
                       input: 'text-c5  Inter  text-16 nav_searchbar h-[48px] px-[10px]',
-                      inputWrapper:
-                        ' shadow-none bg-c2 group-data-[focus=true]:bg-c3 rounded-8 font-normal text-c6 opacity-1 dark:bg-c3 px-[15px] py-[10px] h-full ',
+                      inputWrapper: ' shadow-none bg-c2 group-data-[focus=true]:bg-c3 rounded-8 font-normal text-c6 opacity-1 dark:bg-c3 px-[15px] py-[10px] h-full ',
                     }}
                     placeholder='Recherche avancée...'
                     startContent={<SearchIcon size={16} />}
@@ -215,9 +203,7 @@ export const Database: React.FC = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                  <button
-                    className=' min-w-fit bg-action text-100 px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '
-                    onClick={() => handleCreateClick()}>
+                  <button className=' min-w-fit bg-action text-100 px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 ' onClick={() => handleCreateClick()}>
                     <div className='text-selected'>Créer un item</div>
                     <PlusIcon size={14} className='text-selected ' />
                   </button>
@@ -229,7 +215,7 @@ export const Database: React.FC = () => {
                 </div>
                 <Table
                   aria-label='Speakers Table'
-                  sortDescriptor={sortDescriptor}
+                  sortDescriptor={sortDescriptor as any} // Type assertion to fix type incompatibility
                   onSortChange={handleSortChange}
                   bottomContent={
                     <div className='flex w-full justify-start'>
@@ -263,9 +249,7 @@ export const Database: React.FC = () => {
                       </TableColumn>
                     ))}
                   </TableHeader>
-                  <TableBody
-                    items={(!speakersLoading && items) || []}
-                    emptyContent={<Spinner label='Chargement des données Omeka S' color='secondary' size='md' />}>
+                  <TableBody items={(!speakersLoading && items) || []} emptyContent={<Spinner label='Chargement des données Omeka S' color='secondary' size='md' />}>
                     {(item) => (
                       <TableRow key={item['o:id']} className='hover:bg-c2 max-height-40 text-c6'>
                         {columns.map((col, colIndex) => (
@@ -279,18 +263,11 @@ export const Database: React.FC = () => {
                             {col.isAction ? (
                               <div className='flex justify-end'>
                                 <button onClick={() => handleCellClick(item)} className='pl-[10px]'>
-                                  <EditIcon
-                                    size={22}
-                                    className='mr-[10px] text-c5 hover:text-action transition-all ease-in-out duration-200'
-                                  />
+                                  <EditIcon size={22} className='mr-[10px] text-c5 hover:text-action transition-all ease-in-out duration-200' />
                                 </button>
                               </div>
                             ) : (
-                              <div>
-                                {col.multiple
-                                  ? reducer(getValuesByPath(item, col.dataPath))
-                                  : reducer(getValueByPath(item, col.dataPath))}
-                              </div>
+                              <div>{col.multiple ? reducer(getValuesByPath(item, col.dataPath)) : reducer(getValueByPath(item, col.dataPath))}</div>
                             )}
                           </TableCell>
                         ))}
