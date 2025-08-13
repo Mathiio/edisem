@@ -23,7 +23,7 @@ const containerVariants: Variants = {
   },
 };
 
-type ExpOverviewProps = {
+type RecitiaOverviewProps = {
   id: number;
   title: string;
   actant: string;
@@ -36,7 +36,7 @@ type ExpOverviewProps = {
   buttonText: string;
 };
 
-export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant, actantId, university, picture, medias, fullUrl, buttonText }) => {
+export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title, actant, actantId, university, picture, medias, fullUrl, buttonText }) => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
 
   const navigate = useNavigate();
@@ -166,7 +166,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant,
                 </Button>
               )}
 
-              <AnnotationDropdown id={id} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Conférence' />
+              <AnnotationDropdown id={id} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Œuvre' />
             </div>
           </div>
         </div>
@@ -174,7 +174,8 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant,
     </motion.div>
   );
 };
-export const ConfOverviewSkeleton: React.FC = () => {
+
+export const RecitiaOverviewSkeleton: React.FC = () => {
   return (
     <div className='flex flex-col gap-20'>
       <Skeleton className='rounded-14 lg:w-full lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'></Skeleton>
@@ -207,7 +208,7 @@ export const UnloadedCard: React.FC = () => {
       <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
         <h2 className='text-c5 text-32 font-semibold'>Oups !</h2>
         <p className='w-[400px] text-c5 text-16 text-regular text-center'>
-          Aucune vidéo n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
+          Aucun média n'est lié au contenu de cette œuvre. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
         </p>
       </div>
     </div>

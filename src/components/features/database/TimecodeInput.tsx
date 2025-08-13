@@ -42,7 +42,7 @@ export const TimecodeInput: React.FC<TimecodeInputProps> = ({ seconds = 0, label
     <TimeInput
       label={label}
       labelPlacement='outside'
-      value={time}
+      value={time as any}
       onChange={handleTimeChange}
       hourCycle={24}
       granularity='second'
@@ -132,9 +132,7 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs
-      .toString()
-      .padStart(2, '0')}`;
+    const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 
     const dateString = date.toString();
     return `${dateString}T${timeString}`;
@@ -143,25 +141,19 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
   const handleStartChange = (seconds: number) => {
     const newInterval = { ...parsedInterval, start: seconds };
     setParsedInterval(newInterval);
-    handleInputChange(
-      `${formatDateTime(newInterval.date, newInterval.start)}/${formatDateTime(newInterval.date, newInterval.end)}`,
-    );
+    handleInputChange(`${formatDateTime(newInterval.date, newInterval.start)}/${formatDateTime(newInterval.date, newInterval.end)}`);
   };
 
   const handleEndChange = (seconds: number) => {
     const newInterval = { ...parsedInterval, end: seconds };
     setParsedInterval(newInterval);
-    handleInputChange(
-      `${formatDateTime(newInterval.date, newInterval.start)}/${formatDateTime(newInterval.date, newInterval.end)}`,
-    );
+    handleInputChange(`${formatDateTime(newInterval.date, newInterval.start)}/${formatDateTime(newInterval.date, newInterval.end)}`);
   };
 
   const handleDateChange = (newDate: CalendarDate) => {
     const newInterval = { ...parsedInterval, date: newDate };
     setParsedInterval(newInterval);
-    handleInputChange(
-      `${formatDateTime(newInterval.date, newInterval.start)}/${formatDateTime(newInterval.date, newInterval.end)}`,
-    );
+    handleInputChange(`${formatDateTime(newInterval.date, newInterval.start)}/${formatDateTime(newInterval.date, newInterval.end)}`);
   };
 
   return (

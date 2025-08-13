@@ -8,14 +8,13 @@ const itemVariants: Variants = {
 };
 
 type KeywordsCardProps = {
-  id: number;
-  word: string;
+  word?: string;
   onSearchClick?: (searchTerm: string) => void;
 };
 
 export const KeywordsCard: React.FC<KeywordsCardProps> = ({ word, onSearchClick }) => {
   const handleClick = () => {
-    if (onSearchClick) {
+    if (word && onSearchClick) {
       onSearchClick(word);
     }
   };

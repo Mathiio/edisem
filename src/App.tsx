@@ -19,6 +19,7 @@ import { Oeuvres } from './pages/corpus/Oeuvres';
 import { Seminaires } from './pages/corpus/Seminaires';
 import { Experimentations } from './pages/corpus/Experimentations';
 import { Experimentation } from './pages/experimentation';
+import { Recitia } from '@/pages/oeuvre';
 import { Feedback } from './pages/feedback';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
@@ -33,6 +34,7 @@ function App() {
       <Routes>
         <Route path='/conference/:id' Component={Conference} />
         <Route path='/experimentation/:id' Component={Experimentation} />
+        <Route path='/oeuvre/:id' Component={Recitia} />
         <Route path='/feedback/:id' Component={Feedback} />
         <Route path='/intervenant/:id' Component={Intervenant} />
         <Route path='/database' Component={ProtectedDatabase} />
