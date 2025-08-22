@@ -105,7 +105,7 @@ export const Conference: React.FC = () => {
             perMove={1}
             autowidth={true}
             data={confDetails.motcles}
-            renderSlide={(item) => <KeywordsCard key={item.id} onSearchClick={handleKeywordClick} id={item.id} word={item.title} />}
+            renderSlide={(item) => <KeywordsCard key={item.id} onSearchClick={handleKeywordClick} word={item.title} />}
           />
         )}
         {loading ? (
