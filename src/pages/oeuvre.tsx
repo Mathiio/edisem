@@ -34,7 +34,7 @@ export const Recitia: React.FC = () => {
   const [oeuvreDetails, setOeuvreDetails] = useState<any>(null);
   const [recommendedConfs, setRecommendedConfs] = useState<any[]>([]);
 
-  const [oeuvreTools, setOeuvreTools] = useState<any[]>([]);
+  const [, setOeuvreTools] = useState<any[]>([]);
   const [oeuvreConcepts, setOeuvreConcepts] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(true);
@@ -245,7 +245,7 @@ export const Recitia: React.FC = () => {
         );
 
       case 'Reference':
-        return <div className='flex flex-col gap-10'>{oeuvreDetails.references?.map((reference: any, index: number) => <ToolItem key={reference.id} tool={reference} />)}</div>;
+        return <div className='flex flex-col gap-10'>{oeuvreDetails.references?.map((reference: any) => <ToolItem key={reference.id} tool={reference} />)}</div>;
       default:
         return null;
     }
@@ -364,14 +364,6 @@ interface ToolItemProps {
     url?: string;
     thumbnail?: string;
     description?: string;
-  };
-}
-
-interface ReferenceItemProps {
-  reference: {
-    text?: string;
-    title?: string;
-    uri?: string;
   };
 }
 
