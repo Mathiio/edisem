@@ -12,7 +12,8 @@ import { Bibliographies, BibliographyItem } from '@/components/features/conferen
 import { Mediagraphies, MediagraphyItem } from '@/components/features/conference/MediagraphyCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/features/home/ConfCards';
-import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
+import { SearchModal, SearchModalRef } from '@/components/layout/SearchModal';
+
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -22,6 +23,7 @@ const fadeIn: Variants = {
     transition: { duration: 0.6, delay: index * 0.15 },
   }),
 };
+
 
 export const Conference: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -92,7 +94,6 @@ export const Conference: React.FC = () => {
   }, [id, fetchConfData]);
 
   const handleKeywordClick = (searchTerm: string) => {
-    // Ouvrir la modal de recherche avec le terme pré-rempli
     searchModalRef.current?.openWithSearch(searchTerm);
   };
 
@@ -169,7 +170,7 @@ export const Conference: React.FC = () => {
           />
         </motion.div>
       )}
-      <SearchModal ref={searchModalRef} />
+      <SearchModal ref={searchModalRef} notrigger />
     </Layouts>
   );
 };

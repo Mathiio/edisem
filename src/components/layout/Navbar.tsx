@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { ProfilDropdown } from '@/components/layout/ProfilDropdown';
 import { Link, useLocation } from 'react-router-dom';
-import SearchModal from '@/components/layout/SearchModal';
+import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
+
 
 export const Navbar: React.FC = () => {
   const [hasScrolled, setHasScrolled] = useState(false);
+  const searchModalRef = useRef<SearchModalRef>(null);
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -77,7 +79,7 @@ export const Navbar: React.FC = () => {
         </div>
 
         <div className='flex items-center justify-end gap-10 w-64'>
-          <SearchModal />
+          <SearchModal ref={searchModalRef} />
           <ProfilDropdown />
         </div>
       </div>

@@ -20,7 +20,13 @@ export interface SearchModalRef {
   notrigger: boolean;
 }
 
-const SearchModal = forwardRef<SearchModalRef, { notrigger?: boolean }>(({ notrigger = false }, ref) => {
+interface SearchModalProps {
+  notrigger?: boolean;
+}
+
+
+export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
+  ({ notrigger = false }, ref) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
   const [filteredActants, setFilteredActants] = useState<any[]>([]);

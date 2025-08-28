@@ -68,3 +68,36 @@ export type Citation = {
   endTime: number;
   keywords: Keyword[];
 };
+
+export type SeminarEdition = {
+  id: string;
+  title: string;
+  season: string;
+  year: string;
+  conferenceCount: number;
+  date: string;
+};
+
+export type Conference = {
+  id: string;
+  title: string;
+  event: string;
+  edition: SeminarEdition | number;
+  date?: string | Date;
+  description?: string;
+  motcles: Keyword[];
+  actant?: Actant | string;
+  duration?: number;
+  location?: string;
+  speakers?: Actant[];
+  status?: 'draft' | 'published' | 'archived';
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  citations?: Citation[];
+  universities?: University[];
+  laboratories?: Laboratory[];
+  doctoralSchools?: DoctoralSchool[];
+  videoUrl?: string;
+  slidesUrl?: string[];
+  relatedConferences?: string[];
+};
