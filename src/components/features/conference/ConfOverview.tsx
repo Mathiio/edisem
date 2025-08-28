@@ -112,8 +112,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actan
             </Link>
             <div className='w-fit flex justify-between gap-10 items-center'>
               <Button
-                size='md'
-                className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] h-fit cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-10 py-5 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
                 onClick={copyToClipboard}
                 onPress={() => {
                   addToast({
@@ -130,7 +129,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actan
               {url !== fullUrl && fullUrl !== '' && (
                 <Button
                   size='md'
-                  className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                  className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] h-fit cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-10 py-5 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
                   onClick={changeLink}>
                   <MovieIcon size={12} />
                   {buttonText}
