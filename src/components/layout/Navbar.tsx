@@ -47,7 +47,7 @@ export const Navbar: React.FC = () => {
           <Dropdown>
             <DropdownTrigger>
               <div
-                className={`${linkBaseClass} ${isOneOf(['/corpus/seminaires', '/corpus/oeuvres', '/corpus/journees-etudes', '/corpus/colloques', '/corpus/etudes-de-cas']) ? activeClass : hoverClass}`}>
+                className={`${linkBaseClass} ${isOneOf(['/corpus/seminaires', '/corpus/experimentations', '/corpus/oeuvres', '/corpus/journees-etudes', '/corpus/colloques', '/corpus/etudes-de-cas']) ? activeClass : hoverClass}`}>
                 <span className='font-normal'>Corpus</span>
               </div>
             </DropdownTrigger>
@@ -55,8 +55,8 @@ export const Navbar: React.FC = () => {
               {[
                 { to: '/corpus/seminaires', label: 'Séminaires' },
                 { to: '/corpus/oeuvres', label: 'Œuvres' },
-                { to: '/corpus/etudes-de-cas', label: 'Études de cas' },
-                { to: '/corpus/journees-etudes', label: "Journées d'études" },
+                // { to: '/corpus/etudes-de-cas', label: 'Études de cas' },
+                // { to: '/corpus/journees-etudes', label: "Journées d'études" },
                 { to: '/corpus/colloques', label: 'Colloques' },
                 { to: '/corpus/experimentations', label: 'Expérimentations' },
               ].map(({ to, label }) => (
