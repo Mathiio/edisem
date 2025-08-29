@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { getConf, getConfCitations, getConfBibliographies, getConfMediagraphies } from '../lib/api';
+import { getConfCitations, getConfBibliographies, getConfMediagraphies } from '@/lib/api';
+import * as Items from '@/lib/Items'
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
 import { Citations } from '@/components/features/conference/CitationsCards';
 import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/features/conference/ConfDetails';
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
-import { Tabs, Tab } from '@heroui/react';
+import { DropdownItem, Dropdown, DropdownMenu, DropdownTrigger } from '@heroui/react';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
-import { Bibliographies, BibliographyItem } from '@/components/features/conference/BibliographyCards';
-import { Mediagraphies, MediagraphyItem } from '@/components/features/conference/MediagraphyCards';
+import { Bibliographies,  } from '@/components/features/conference/BibliographyCards';
+import { Mediagraphies } from '@/components/features/conference/MediagraphyCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/features/home/ConfCards';
 import { SearchModal, SearchModalRef } from '@/components/layout/SearchModal';
+import { ArrowIcon } from '@/components/ui/icons';
+import { Conference as ConferenceType, Bibliography, Mediagraphy } from '@/types/ui';
 
 
 const fadeIn: Variants = {
@@ -24,21 +27,35 @@ const fadeIn: Variants = {
   }),
 };
 
+const viewOptions = [
+  { key: 'Citations', title: 'Citations' },
+  { key: 'Bibliographie', title: 'Bibliographie' },
+  { key: 'Medias', title: 'Médias' },
+];
+
 
 export const Conference: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [selected, setSelected] = useState<string>('Citations');
   const [currentVideoTime, setCurrentVideoTime] = useState<number>(0);
-  const [confDetails, setConfDetails] = useState<any>(null);
-  const [recommendedConfs, setRecommendedConfs] = useState<any[]>([]);
+  const [conf, setConf] = useState<ConferenceType | null>(null);
+  const [recommendedConfs, setRecommendedConfs] = useState<ConferenceType[]>([]);
   const [confCitations, setConfCitations] = useState<any>([]);
-  const [confBibliographies, setConfBibliographies] = useState<BibliographyItem[]>([]);
-  const [confMediagraphies, setConfMediagraphies] = useState<MediagraphyItem[]>([]);
+  const [confBibliographies, setConfBibliographies] = useState<Bibliography[]>([]);
+  const [confMediagraphies, setConfMediagraphies] = useState<Mediagraphy[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingRecommendations, setLoadingRecommendations] = useState(true);
   const firstDivRef = useRef<HTMLDivElement>(null);
   const [equalHeight, setEqualHeight] = useState<number | null>(null);
   const searchModalRef = useRef<SearchModalRef>(null);
+  const selectedOption = viewOptions.find((option) => option.key === selected);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+
+  const handleOptionSelect = (optionKey: string) => {
+    setSelected(optionKey);
+    setIsDropdownOpen(false);
+  };
 
   useEffect(() => {
     if (firstDivRef.current) {
@@ -53,7 +70,7 @@ export const Conference: React.FC = () => {
   const fetchRecommendedConfs = async (recommendationIds: string[]) => {
     setLoadingRecommendations(true);
     try {
-      const recommendationsPromises = recommendationIds.map((recId) => getConf(Number(recId)));
+      const recommendationsPromises = recommendationIds.map((recId) => Items.getConfs(Number(recId)));
       const recommendations = await Promise.all(recommendationsPromises);
       setRecommendedConfs(recommendations);
     } catch (error) {
@@ -69,20 +86,21 @@ export const Conference: React.FC = () => {
   const fetchConfData = useCallback(async () => {
     setLoading(true);
     try {
-      const [details, citations, bibliographies, mediagraphies] = await Promise.all([
-        getConf(Number(id)),
+      const [conf, citations, bibliographies, mediagraphies] = await Promise.all([
+        Items.getConfs(Number(id)),
         getConfCitations(Number(id)),
         getConfBibliographies(Number(id)),
         getConfMediagraphies(Number(id)),
       ]);
 
-      setConfDetails(details);
+      setConf(conf);
+      console.log(conf)
       setConfCitations(citations);
       setConfBibliographies(bibliographies);
       setConfMediagraphies(mediagraphies);
 
-      if (details.recommendation && details.recommendation.length > 0) {
-        await fetchRecommendedConfs(details.recommendation);
+      if (conf.recommendation && conf.recommendation.length > 0) {
+        await fetchRecommendedConfs(conf.recommendation);
       }
     } finally {
       setLoading(false);
@@ -97,62 +115,84 @@ export const Conference: React.FC = () => {
     searchModalRef.current?.openWithSearch(searchTerm);
   };
 
+  const renderContent = () => {
+    switch (selected) {
+      case 'Citations':
+        return <Citations citations={confCitations} loading={loading} onTimeChange={handleTimeChange} />;
+      case 'Bibliographie':
+        return <Bibliographies bibliographies={confBibliographies} loading={loading} />;
+      case 'Medias':
+        return <Mediagraphies items={confMediagraphies} loading={loading} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Layouts className='grid grid-cols-10 col-span-10 gap-50'>
       <motion.div ref={firstDivRef} className='col-span-10 lg:col-span-6 flex flex-col gap-25 h-fit' variants={fadeIn}>
-        {!loading && confDetails.motcles.length > 0 && (
+        {!loading && conf?.motcles && conf.motcles.length > 0 && (
           <LongCarrousel
             perPage={3}
             perMove={1}
             autowidth={true}
-            data={confDetails.motcles}
+            data={conf.motcles}
             renderSlide={(item) => <KeywordsCard key={item.id} onSearchClick={handleKeywordClick} word={item.title} />}
           />
         )}
         {loading ? (
-          <ConfOverviewSkeleton />
-        ) : (
-          <ConfOverviewCard
-            id={confDetails.id}
-            title={confDetails.title}
-            actant={confDetails.actant?.firstname + ' ' + confDetails.actant?.lastname}
-            actantId={confDetails.actant?.id}
-            university={confDetails.actant?.universities?.[0]?.name || ''}
-            picture={confDetails.actant?.picture || ''}
-            url={confDetails.url}
-            fullUrl={confDetails.fullUrl}
-            currentTime={currentVideoTime}
-          />
-        )}
-        {loading ? (
-          <ConfDetailsSkeleton></ConfDetailsSkeleton>
-        ) : (
-          <ConfDetailsCard edition={'Édition ' + confDetails.season + ' ' + confDetails.date.split('-')[0]} date={confDetails.date} description={confDetails.description} />
-        )}
+          <>
+            <ConfOverviewSkeleton />
+            <ConfDetailsSkeleton/>
+          </>
+        ) : conf ? (
+          <>
+            <ConfOverviewCard conf={conf} currentTime={currentVideoTime}/>
+            <ConfDetailsCard conf={conf}/>
+          </>
+        ) : null}
       </motion.div>
       <motion.div style={{ height: equalHeight || 'auto' }} className='col-span-10 lg:col-span-4 flex flex-col gap-50 overflow-hidden' variants={fadeIn}>
         <div className='flex w-full flex-col gap-20 flex-grow min-h-0 overflow-hidden'>
-          <Tabs
-            classNames={{
-              tabList: 'w-full h-fit gap-10 bg-c0 rounded-8',
-              cursor: 'w-full',
-              tab: 'w-full bg-c2 data-[selected=true]:bg-action rounded-8 p-10 data-[hover-unselected=true]:opacity-100 data-[hover-unselected=true]:bg-c3 transition-all ease-in-out duration-200',
-              tabContent: 'group-data-[selected=true]:text-selected group-data-[selected=true]:font-medium text-c6',
-              panel: 'flex-grow min-h-0 overflow-auto',
-            }}
-            aria-label='Options'
-            selectedKey={selected}
-            onSelectionChange={(key: React.Key) => setSelected(key as string)}>
-            <Tab key='Citations' title='Citations' className='px-0 py-0 flex'>
-              {selected === 'Citations' && <Citations citations={confCitations} loading={loading} onTimeChange={handleTimeChange} />}
-            </Tab>
-            <Tab key='Bibliographie' title='Bibliographie' className='px-0 py-0 flex flex-grow'>
-              {selected === 'Bibliographie' && <Bibliographies bibliographies={confBibliographies} loading={loading} />}
-            </Tab>
-            <Tab key='Medias' title='Médias' className='px-0 py-0 flex'>
-              {selected === 'Medias' && <Mediagraphies items={confMediagraphies} loading={loading} />}
-            </Tab>
-          </Tabs>
+          <div className='flex items-center justify-between w-full'>
+            <h2 className='text-24 font-medium text-c6'>{selectedOption?.title}</h2>
+            <div className='relative'>
+              <Dropdown>
+                <DropdownTrigger className='p-0'>
+                  <div
+                    className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-15 py-10 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  >
+                    <span className='text-16 font-normal text-c6'>Autres choix</span>
+                    <ArrowIcon size={12} className='rotate-90 text-c6'/>
+                  </div>
+                </DropdownTrigger>
+
+                <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
+                  {viewOptions.map((option) => (
+                    <DropdownItem
+                      key={option.key}
+                      className={`p-0 ${selected === option.key ? 'bg-action' : ''}`}
+                      onClick={() => handleOptionSelect(option.key)}
+                    >
+                      <div
+                        className={`flex items-center w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 ${
+                          selected === option.key ? 'bg-action text-selected font-medium' : 'text-c6'
+                        }`}
+                      >
+                        <span className='text-16'>{option.title}</span>
+                      </div>
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+          </div>
+
+          {/* Contenu principal */}
+          <div className='flex-grow min-h-0 overflow-auto'>
+            {renderContent()}
+          </div>
         </div>
       </motion.div>
       {!loadingRecommendations && recommendedConfs.length > 0 && (
@@ -174,3 +214,7 @@ export const Conference: React.FC = () => {
     </Layouts>
   );
 };
+
+function getConf(arg0: number): any {
+  throw new Error('Function not implemented.');
+}

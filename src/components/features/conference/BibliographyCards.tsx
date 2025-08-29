@@ -2,27 +2,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnnotationDropdown } from './AnnotationDropdown';
 import { FileIcon } from '@/components/ui/icons';
+import { Bibliography } from '@/types/ui';
 
-export interface BibliographyItem {
-  creator: { first_name: string; last_name: string }[];
-  date: string;
-  title: string;
-  source?: string;
-  type: string;
-  class: number;
-  volume?: string;
-  issue?: string;
-  pages?: string;
-  url?: string;
-  publisher?: string;
-  editor?: string;
-  edition?: string;
-  ispartof?: string;
-  id: number;
-  number: string;
-  thumbnail?: string;
-  resource_template_id: string;
-}
+
 
 const hasContent = (
   value: string | string[] | { first_name: string; last_name: string }[] | undefined | null,
@@ -62,7 +44,7 @@ const formatAuthors = (creators: { first_name: string; last_name: string }[]) =>
 };
 
 // Modèles de formatage
-const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.ReactNode } = {
+const bibliographyTemplates: { [key: number]: (item: Bibliography) => React.ReactNode } = {
   40: (item) => (
     <>
       {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
@@ -226,11 +208,11 @@ const bibliographyTemplates: { [key: number]: (item: BibliographyItem) => React.
 };
 
 // Composant BibliographyCard optimisé
-export const BibliographyCard: React.FC<BibliographyItem & { uniqueKey?: number }> = (props) => {
+export const BibliographyCard: React.FC<Bibliography & { uniqueKey?: number }> = (props) => {
   const { thumbnail, url } = props;
   const [isHovered, setIsHovered] = useState(false);
 
-  const formatBibliography = (item: BibliographyItem) => {
+  const formatBibliography = (item: Bibliography) => {
     //console.log(item);
     const template = bibliographyTemplates[item.class];
     return template ? template(item) : item.title || 'Référence non formatée';
@@ -276,7 +258,7 @@ export const BibliographySkeleton: React.FC = () => {
 };
 
 interface BibliographiesProps {
-  bibliographies: BibliographyItem[];
+  bibliographies: Bibliography[];
   loading: boolean;
 }
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-
 import { useParams } from 'react-router-dom';
-import { getActant, getConfByActant } from '../lib/api';
+import { getConfByActant } from '@/lib/api';
+import * as Items from '@/lib/Items';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon, ConferenceIcon } from '@/components/ui/icons';
 import { InfoCard, InfoSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { Link } from '@heroui/react';
@@ -27,7 +27,7 @@ export const Intervenant: React.FC = () => {
   const fetchActantData = useCallback(async () => {
     setLoading(true);
     try {
-      const [actant, confs] = await Promise.all([getActant(Number(id)), getConfByActant(Number(id))]);
+      const [actant, confs] = await Promise.all([Items.getActants(Number(id)), getConfByActant(Number(id))]);
 
       setActant(actant);
       setConf(confs);

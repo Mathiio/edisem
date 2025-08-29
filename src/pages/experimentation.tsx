@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getExperimentations, getActants, getTools, getKeywords, getStudents } from '@/lib/Items';
+import { getExperimentations, getActants, getTools, getKeywords, getStudents, getConfs } from '@/lib/Items';
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
@@ -9,7 +9,6 @@ import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/features/home/ConfCards';
 import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
-import { getConf } from '@/lib/api';
 import { ExpOverviewCard } from '@/components/features/conference/ExpOverview';
 import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/conference/ExpDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
@@ -67,7 +66,7 @@ export const Experimentation: React.FC = () => {
   const fetchRecommendedConfs = async (recommendationIds: string[]) => {
     setLoadingRecommendations(true);
     try {
-      const recommendationsPromises = recommendationIds.map((recId) => getConf(Number(recId)));
+      const recommendationsPromises = recommendationIds.map((recId) => getConfs(Number(recId)));
       const recommendations = await Promise.all(recommendationsPromises);
       setRecommendedConfs(recommendations);
     } catch (error) {
