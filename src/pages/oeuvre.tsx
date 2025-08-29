@@ -8,10 +8,11 @@ import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/features/home/ConfCards';
 import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
-import { getConf } from '@/lib/api';
+import * as Items from '@/lib/Items';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/conference/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/conference/RecitiaDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
+import { ArrowIcon } from '@/components/ui/icons';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -63,7 +64,7 @@ export const Recitia: React.FC = () => {
   const fetchRecommendedConfs = async (recommendationIds: string[]) => {
     setLoadingRecommendations(true);
     try {
-      const recommendationsPromises = recommendationIds.map((recId) => getConf(Number(recId)));
+      const recommendationsPromises = recommendationIds.map((recId) => Items.getConfs(Number(recId)));
       const recommendations = await Promise.all(recommendationsPromises);
       setRecommendedConfs(recommendations);
     } catch (error) {
@@ -311,6 +312,7 @@ export const Recitia: React.FC = () => {
                         className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-15 py-10 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
                         <span className='text-16 font-normal text-c6'>Autres choix</span>
+                        <ArrowIcon size={12} className='rotate-90 text-c6'/>
                       </div>
                     </DropdownTrigger>
 

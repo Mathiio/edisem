@@ -1,40 +1,6 @@
 import * as Items from "@/lib/Items";
 
 
-export async function getConf(confId: number) {
-  try {
-    const confs = await Items.getConfs();
-  
-    if (Array.isArray(confs)) {
-      const conf = confs.find((a) => a.id === String(confId));
-
-      if (conf) {
-        if (conf.url !== "") {
-          const videoId = conf.url.substr(-11);
-          conf.url = `https://www.youtube.com/embed/${videoId}`;
-        }
-        if (conf.fullUrl !== "") {
-          const videoId = conf.fullUrl.substr(-11);
-          conf.fullUrl = `https://www.youtube.com/embed/${videoId}`;
-        }
-        if (conf.actant) {
-          const actant = await getActant(conf.actant);
-          conf.actant = actant;
-        }
-        return conf;
-      } else {
-        throw new Error(`Actant with id ${confId} not found`);
-      }
-    } 
-  }
-  catch (error) {
-    console.error('Error fetching conf:', error);
-    throw new Error('Failed to fetch conf');
-  }
-}
-
-
-
 export async function getItemByID(id: string): Promise<any | null> {
   try {
     const allItems = await Items.getAllItems();
@@ -49,29 +15,6 @@ export async function getItemByID(id: string): Promise<any | null> {
 
 
 
-export async function getActant(actantId: number) {
-  try {
-    const actants = await Items.getActants();
-
-    if (Array.isArray(actants)) {
-      const actant = actants.find((a) => a.id === String(actantId));
-
-      if (actant) {
-        return actant;
-      } else {
-        throw new Error(`Actant with id ${actantId} not found`);
-      }
-    } 
-  } catch (error) {
-    console.error('Error fetching actant:', error);
-    throw new Error('Failed to fetch actant');
-  }
-}
-
-
-
-
-
 export async function getConfByEdition(editionId: number) {
   try {
     const confs = await Items.getConfs();
@@ -82,7 +25,7 @@ export async function getConfByEdition(editionId: number) {
 
     const updatedConfs = await Promise.all(editionConfs.map(async (conf: { actant: number; }) => {
       if (conf.actant) {
-        const actantDetails = await getActant(conf.actant);
+        const actantDetails = await Items.getActants(conf.actant);
         return { ...conf, actant: actantDetails }; 
       }
       return conf;
@@ -108,7 +51,7 @@ export async function getConfByActant(actantId: number) {
 
     const updatedConfs = await Promise.all(actantConfs.map(async (conf: { actant: number; }) => {
       if (conf.actant) {
-        const actantDetails = await getActant(conf.actant);
+        const actantDetails = await Items.getActants(conf.actant);
         return { ...conf, actant: actantDetails }; 
       }
       return conf;
@@ -176,7 +119,7 @@ export async function filterConfs(searchQuery: string) {
       confs.map(async (conf: { actant: number }) => {
         if (conf.actant) {
           try {
-            const actantDetails = await getActant(conf.actant);
+            const actantDetails = await Items.getActants(conf.actant);
             return { 
               ...conf, 
               actant: actantDetails || { firstname: "", lastname: "" } // Fallback sécurisé

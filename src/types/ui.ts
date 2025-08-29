@@ -80,24 +80,60 @@ export type SeminarEdition = {
 
 export type Conference = {
   id: string;
-  title: string;
   event: string;
-  edition: SeminarEdition | number;
-  date?: string | Date;
-  description?: string;
+  title: string;
+  actant: Actant;
+  date: string;
+  season: string;
+  edition: string | number;
+  url: string;
+  collection: string;
+  fullUrl: string;
+  description: string;
+  citations: Citation[];
+  bibliographies: Bibliography[];
+  mediagraphies: Mediagraphy[]; 
   motcles: Keyword[];
-  actant?: Actant | string;
-  duration?: number;
-  location?: string;
-  speakers?: Actant[];
-  status?: 'draft' | 'published' | 'archived';
-  createdAt?: string | Date;
-  updatedAt?: string | Date;
-  citations?: Citation[];
-  universities?: University[];
-  laboratories?: Laboratory[];
-  doctoralSchools?: DoctoralSchool[];
-  videoUrl?: string;
-  slidesUrl?: string[];
-  relatedConferences?: string[];
+  recommendation: Conference[];
+  type: 'conference';
 };
+
+export type Bibliography = {
+  creator: { first_name: string; last_name: string }[];
+  date: string;
+  title: string;
+  source?: string;
+  type: string;
+  class: number;
+  volume?: string;
+  issue?: string;
+  pages?: string;
+  url?: string;
+  publisher?: string;
+  editor?: string;
+  edition?: string;
+  ispartof?: string;
+  id: number;
+  number: string;
+  thumbnail?: string;
+  resource_template_id: string;
+}
+
+export type Mediagraphy = {
+  id: number;
+  title: string;
+  creator: { first_name: string; last_name: string }[];
+  director: { first_name: string; last_name: string }[];
+  date: string;
+  publisher?: string;
+  uri?: string;
+  class: string;
+  medium?: string;
+  isPartOf?: string;
+  format: string;
+  type?: string;
+  thumbnail?: string;
+  location?: string;
+  place?: string;
+  resource_template_id: string;
+}

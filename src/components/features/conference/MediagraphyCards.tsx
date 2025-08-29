@@ -2,24 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CameraIcon, SoundIcon, ImageIcon, FileIcon } from '@/components/ui/icons';
 
-export interface MediagraphyItem {
-  id: number;
-  title: string;
-  creator: { first_name: string; last_name: string }[]; // tableau pour les créateurs
-  director: { first_name: string; last_name: string }[];
-  date: string;
-  publisher?: string;
-  uri?: string;
-  class: string; // Utilisation de 'class' comme vous l'avez mentionné
-  medium?: string;
-  isPartOf?: string;
-  format: string;
-  type?: string;
-  thumbnail?: string;
-  location?: string;
-  place?: string;
-  resource_template_id: string;
-}
 
 const formatAuthors = (creators: { first_name: string; last_name: string }[] = []) => {
   if (!Array.isArray(creators)) {
@@ -71,7 +53,7 @@ const getIcon = (mediaType: string) => {
   }
 };
 
-const mediagraphyTemplates: { [key: string]: (item: MediagraphyItem) => React.ReactNode } = {
+const mediagraphyTemplates: { [key: string]: (item: Mediagraphy) => React.ReactNode } = {
   '58': (item) => (
     <>
       {item.creator && item.creator.length > 0 && <span>{formatAuthors(item.creator)} </span>}
@@ -217,6 +199,7 @@ const mediagraphyTemplates: { [key: string]: (item: MediagraphyItem) => React.Re
 
 import ReactDOMServer from 'react-dom/server';
 import { AnnotationDropdown } from './AnnotationDropdown';
+import { Mediagraphy } from '@/types/ui';
 
 const ensureEndsWithPeriod = (content: React.ReactNode): React.ReactNode => {
   if (React.isValidElement(content)) {
@@ -240,7 +223,7 @@ const ensureEndsWithPeriod = (content: React.ReactNode): React.ReactNode => {
   return content;
 };
 
-export const MediagraphyCard: React.FC<MediagraphyItem> = ({
+export const MediagraphyCard: React.FC<Mediagraphy> = ({
   id,
   title,
   creator,
@@ -330,10 +313,10 @@ export const MediagraphyCard: React.FC<MediagraphyItem> = ({
   );
 };
 
-export const Mediagraphies: React.FC<{ items: MediagraphyItem[]; loading: boolean }> = ({ items, loading }) => {
+export const Mediagraphies: React.FC<{ items: Mediagraphy[]; loading: boolean }> = ({ items, loading }) => {
   // Fonction de tri pour comparer les noms de famille des créateurs ou réalisateurs
-  const sortByLastName = (a: MediagraphyItem, b: MediagraphyItem) => {
-    const getLastName = (item: MediagraphyItem) => {
+  const sortByLastName = (a: Mediagraphy, b: Mediagraphy) => {
+    const getLastName = (item: Mediagraphy) => {
       // Vérifier si 'creator' ou 'director' existent et retourner le nom de famille
       const creatorLastName = item.creator?.[0]?.last_name || ''; // Si 'creator' est défini et contient un nom de famille
       const directorLastName = item.director?.[0]?.last_name || ''; // Si 'director' est défini et contient un nom de famille

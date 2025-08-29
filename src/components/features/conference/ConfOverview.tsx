@@ -4,6 +4,8 @@ import { CameraIcon, UserIcon, ShareIcon, MovieIcon } from '@/components/ui/icon
 import { motion, Variants } from 'framer-motion';
 import { addToast, Skeleton, Link, Button, cn } from '@heroui/react';
 import { AnnotationDropdown } from './AnnotationDropdown';
+import { Conference } from '@/types/ui';
+
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -22,19 +24,12 @@ const containerVariants: Variants = {
 };
 
 type ConfOverviewProps = {
-  id: number;
-  title: string;
-  actant: string;
-  actantId: number;
-  university: string;
-  picture: string;
-  url: string;
-  fullUrl: string;
+  conf: Conference;
   currentTime: number;
 };
 
-export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actant, actantId, university, picture, url, fullUrl, currentTime }) => {
-  const [videoUrl, setVideoUrl] = useState<string>(url);
+export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTime }) => {
+  const [videoUrl, setVideoUrl] = useState<string>(conf.url);
   const [buttonText, setButtonText] = useState<string>('séance complète');
   const navigate = useNavigate();
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -53,25 +48,18 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actan
       updatedUrl.searchParams.set('enablejsapi', '1');
       setVideoUrl(updatedUrl.toString());
     }
-  }, [url, fullUrl]);
+  }, [conf.url, conf.fullUrl]);
 
   const openActant = () => {
-    navigate(`/conferencier/${actantId}`);
-  };
-
-  const truncateTitle = (title: string, maxLength: number) => {
-    if (title.length > maxLength) {
-      return title.slice(0, maxLength) + '...';
-    }
-    return title;
+    navigate(`/conferencier/${conf.actant.id}`);
   };
 
   const changeLink = () => {
-    if (videoUrl === url) {
-      setVideoUrl(fullUrl);
+    if (videoUrl === conf.url) {
+      setVideoUrl(conf.fullUrl);
       setButtonText('conférence');
     } else {
-      setVideoUrl(url);
+      setVideoUrl(conf.url);
       setButtonText('séance complète');
     }
   };
@@ -96,18 +84,18 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actan
         )}
       </motion.div>
       <motion.div variants={itemVariants} className='w-full flex flex-col gap-25'>
-        <h1 className='font-medium text-c6 text-24'>{title}</h1>
+        <h1 className='font-medium text-c6 text-24'>{conf.title}</h1>
         <div className='w-full flex flex-col gap-10'>
           <div className='w-full flex justify-between gap-10 items-center'>
             <Link className='w-fit flex justify-start gap-10 items-center cursor-pointer' onClick={openActant}>
-              {picture ? (
-                <img src={picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+              {conf.actant.picture ? (
+                <img src={conf.actant.picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
               ) : (
                 <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
               )}
               <div className='flex flex-col items-start gap-0.5'>
-                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{actant}</h3>
-                <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{truncateTitle(university, 48)}</p>
+                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{conf.actant.firstname} {conf.actant.lastname}</h3>
+                <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{conf.actant.universities?.[0]?.shortName || ''}</p>
               </div>
             </Link>
             <div className='w-fit flex justify-between gap-10 items-center'>
@@ -126,7 +114,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actan
                 <ShareIcon size={12} />
                 Partager
               </Button>
-              {url !== fullUrl && fullUrl !== '' && (
+              {conf.url !== conf.fullUrl && conf.fullUrl !== '' && (
                 <Button
                   size='md'
                   className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] h-fit cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-10 py-5 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
@@ -135,7 +123,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actan
                   {buttonText}
                 </Button>
               )}
-              <AnnotationDropdown id={id} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Conférence' />
+              <AnnotationDropdown id={Number(conf.id)} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Conférence' />
             </div>
           </div>
         </div>
@@ -147,7 +135,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ id, title, actan
 export const ConfOverviewSkeleton: React.FC = () => {
   return (
     <div className='flex flex-col gap-20'>
-      <Skeleton className='rounded-14 lg:w-full lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'></Skeleton>
+      <Skeleton className='rounded-14 lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'></Skeleton>
       <div className='flex flex-col gap-20'>
         <div className='flex flex-col gap-5'>
           <Skeleton className='w-[100%] rounded-8'>
@@ -158,12 +146,17 @@ export const ConfOverviewSkeleton: React.FC = () => {
           </Skeleton>
         </div>
         <div className='flex justify-between items-center'>
-          <Skeleton className='w-[50%] rounded-8'>
-            <p className='font-semibold text-16'>_</p>
+          <Skeleton className='w-[40%] rounded-8'>
+            <p className='font-semibold text-32'>_</p>
           </Skeleton>
-          <Skeleton className='w-[30%] rounded-8'>
-            <p className='font-semibold text-24'>_</p>
-          </Skeleton>
+          <div className='w-[30%] flex justify-end gap-10'>
+            <Skeleton className='w-[100%] rounded-8'>
+              <p className='font-semibold text-32'>_</p>
+            </Skeleton>
+            <Skeleton className='w-[100%] rounded-8'>
+              <p className='font-semibold text-32'>_</p>
+            </Skeleton>
+          </div>
         </div>
       </div>
     </div>

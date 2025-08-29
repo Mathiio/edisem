@@ -297,87 +297,83 @@ export async function getUniversities() {
   }
 }
 
-export async function getActants() {
+export async function getActants(actantId?: number) {
   try {
-    const storedActants = sessionStorage.getItem('actants');
+    const actants = sessionStorage.getItem('actants')
+      ? JSON.parse(sessionStorage.getItem('actants')!)
+      : await (async () => {
+          const [rawActants, confs, universities, doctoralSchools, laboratories] = await Promise.all([
+            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1'),
+            getConfs(),
+            getUniversities(),
+            getDoctoralSchools(),
+            getLaboratories()
+          ]);
 
-    if (storedActants) {
-      return JSON.parse(storedActants);
+          const universityMap = new Map(universities.map((u: any) => [u.id, u]));
+          const doctoralSchoolMap = new Map(doctoralSchools.map((s: any) => [s.id, s]));
+          const laboratoryMap = new Map(laboratories.map((l: any) => [l.id, l]));
+
+          return rawActants.map((actant: any) => ({
+            ...actant,
+            title: `${actant.firstname} ${actant.lastname}`,
+            type: 'actant',
+            interventions: confs.filter((c: any) => c.actant === String(actant.id)).length,
+            universities: actant.universities.map((id: string) => universityMap.get(id)),
+            doctoralSchools: actant.doctoralSchools.map((id: string) => doctoralSchoolMap.get(id)),
+            laboratories: actant.laboratories.map((id: string) => laboratoryMap.get(id)),
+          }));
+        })();
+
+    if (!sessionStorage.getItem('actants')) {
+      sessionStorage.setItem('actants', JSON.stringify(actants));
     }
 
-    const actants = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1',
-    );
-    const confs = await getConfs();
-    const universities = await getUniversities();
-    const doctoralSchools = await getDoctoralSchools();
-    const laboratories = await getLaboratories();
+    return actantId
+      ? (actants.find((a: any) => a.id === String(actantId)) ?? (() => { throw new Error(`Actant with id ${actantId} not found`) })())
+      : actants;
 
-    const universityMap = new Map(universities.map((uni: { id: any }) => [uni.id, uni]));
-    const doctoralSchoolMap = new Map(doctoralSchools.map((school: { id: any }) => [school.id, school]));
-    const laboratoryMap = new Map(laboratories.map((lab: { id: any }) => [lab.id, lab]));
-
-    const updatedActants = actants.map(
-      (actant: {
-        firstname: string;
-        lastname: string;
-        id: number;
-        universities: string[];
-        doctoralSchools: string[];
-        laboratories: string[];
-      }) => {
-        const interventionsCount = confs.filter((conf: { actant: string }) => conf.actant === String(actant.id)).length;
-
-        return {
-          ...actant,
-          title: actant.firstname + ' ' + actant.lastname,
-          type: 'actant',
-          interventions: interventionsCount,
-          universities: actant.universities.map((id) => universityMap.get(id)),
-          doctoralSchools: actant.doctoralSchools.map((id) => doctoralSchoolMap.get(id)),
-          laboratories: actant.laboratories.map((id) => laboratoryMap.get(id)),
-        };
-      },
-    );
-
-    sessionStorage.setItem('actants', JSON.stringify(updatedActants));
-    return updatedActants;
   } catch (error) {
     console.error('Error fetching actants:', error);
     throw new Error('Failed to fetch actants');
   }
 }
 
-export async function getConfs() {
+export async function getConfs(confId?: number) {
   try {
-    const storedConfs = sessionStorage.getItem('confs');
-    if (storedConfs) {
-      return JSON.parse(storedConfs);
+    const confs = sessionStorage.getItem('confs')
+      ? JSON.parse(sessionStorage.getItem('confs')!)
+      : await (async () => {
+          const [rawConfs, keywords] = await Promise.all([
+            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getConfs&json=1'),
+            getKeywords()
+          ]);
+
+          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+
+          return rawConfs.map((conf: any) => ({
+            ...conf,
+            type: 'conference',
+            motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
+          }));
+        })();
+
+    if (!sessionStorage.getItem('confs')) {
+      sessionStorage.setItem('confs', JSON.stringify(confs));
     }
 
-    const confs = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getConfs&json=1',
-    );
-    const keywords = await getKeywords();
+    return confId
+      ? await (async () => {
+          const conf = confs.find((c: any) => c.id === String(confId));
+          if (!conf) throw new Error(`Conference with id ${confId} not found`);
 
-    const keywordsMap = new Map(keywords.map((keyword: any) => [keyword.id, keyword]));
+          if (conf.actant) conf.actant = await getActants(conf.actant);
+          return conf;
+        })()
+      : confs;
 
-    const confsFull = confs.map((conf: any) => ({
-      ...conf,
-      type: 'conference',
-      motcles: conf.motcles
-        .map((keywordId: string) => {
-          const keyword = keywordsMap.get(keywordId);
-          if (!keyword) {
-            return null;
-          }
-          return keyword;
-        })
-        .filter(Boolean),
-    }));
-
-    sessionStorage.setItem('confs', JSON.stringify(confsFull));
-    return confsFull;
   } catch (error) {
     console.error('Error fetching confs:', error);
     throw new Error('Failed to fetch confs');

@@ -1,11 +1,11 @@
 import React from 'react';
-import { getKeywords, getConfs, getCitations } from '@/lib/Items';
 import { getLinksFromKeywords } from '@/lib/Links';
 import { useEffect, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { FullCarrousel } from '@/components/ui/Carrousels';
-import { getActant, getConfByCitation } from '@/lib/api';
+import { getConfByCitation } from '@/lib/api';
+import * as Items from '@/lib/Items'
 import { Button } from '@heroui/react';
 import { ArrowIcon, UserIcon } from '@/components/ui/icons';
 import { Link } from 'react-router-dom';
@@ -95,9 +95,9 @@ export const KeywordHighlight: React.FC = () => {
   useEffect(() => {
     const fetchAndProcessData = async () => {
       try {
-        const keywords = await getKeywords();
-        const confs = await getConfs();
-        const citations = await getCitations();
+        const keywords = await Items.getKeywords();
+        const confs = await Items.getConfs();
+        const citations = await Items.getCitations();
 
         const keywordLinks = await Promise.all(
           keywords.map(async (keyword: any) => {
@@ -118,7 +118,7 @@ export const KeywordHighlight: React.FC = () => {
           const updatedConfs = await Promise.all(
             confsFiltered.slice(0, 8).map(async (conf: { actant: number }) => {
               if (conf.actant) {
-                const actantDetails = await getActant(conf.actant);
+                const actantDetails = await Items.getActants(conf.actant);
                 return { ...conf, actant: actantDetails };
               }
               return conf;
@@ -134,7 +134,7 @@ export const KeywordHighlight: React.FC = () => {
           const updatedCitations = await Promise.all(
             citationsFiltered.map(async (citation: { actant: number }) => {
               if (citation.actant) {
-                const actantDetails = await getActant(citation.actant);
+                const actantDetails = await Items.getActants(citation.actant);
                 return { ...citation, actant: actantDetails };
               }
               return citation;
