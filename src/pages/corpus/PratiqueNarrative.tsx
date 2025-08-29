@@ -2,7 +2,7 @@ import { Layouts } from "@/components/layout/Layouts";
 
 
 
-export const EtudesDeCas: React.FC = () => {
+export const PratiqueNarrative: React.FC = () => {
 
 
   return (

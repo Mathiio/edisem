@@ -214,7 +214,3 @@ export const Conference: React.FC = () => {
     </Layouts>
   );
 };
-
-function getConf(arg0: number): any {
-  throw new Error('Function not implemented.');
-}

@@ -55,9 +55,9 @@ export const Navbar: React.FC = () => {
               {[
                 { to: '/corpus/seminaires', label: 'Séminaires' },
                 { to: '/corpus/oeuvres', label: 'Œuvres' },
-                // { to: '/corpus/etudes-de-cas', label: 'Études de cas' },
+                // { to: '/corpus/pratique-narrative', label: 'Pratique narrative' },
                 // { to: '/corpus/journees-etudes', label: "Journées d'études" },
-                { to: '/corpus/colloques', label: 'Colloques' },
+                // { to: '/corpus/colloques', label: 'Colloques' },
                 { to: '/corpus/experimentations', label: 'Expérimentations' },
               ].map(({ to, label }) => (
                 <DropdownItem key={to} className='p-0 text-c5 hover:text-c6'>
