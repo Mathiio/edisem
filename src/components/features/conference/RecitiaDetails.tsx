@@ -28,7 +28,6 @@ type RecitiaDetailsProps = {
 
 export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description, date, collaborators, genre, medium }) => {
   const [expanded, setExpanded] = useState<boolean>(false);
-  console.log(date);
 
   const toggleExpansion = () => {
     setExpanded(!expanded);

@@ -17,7 +17,6 @@ export const Oeuvres: React.FC = () => {
       try {
         const data = await Items.getOeuvres();
         setOeuvres(data);
-        console.log(data)
       } catch (error) {
         console.error('Erreur lors du chargement des œuvres', error);
       } finally {
@@ -31,7 +30,7 @@ export const Oeuvres: React.FC = () => {
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
       <OeuvresBaner oeuvres={oeuvres}/>
       <OeuvresKeywords oeuvres={oeuvres}/>
-      {/* <LastOeuvres oeuvres={oeuvres} loading={loading} /> */}
+      <LastOeuvres oeuvres={oeuvres} loading={loading} />
     </Layouts>
   );
 };
