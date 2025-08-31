@@ -58,7 +58,7 @@ export const OeuvresKeywords: React.FC<KeywordsCloudProps> = ({
         </h2>
       </div>
       <div className='flex flex-wrap justify-end w-1/2 gap-20'>
-        {selectedKeywords.map(([keyword, count], index) => {
+        {selectedKeywords.map(([keyword], index) => {
           const isTopKeyword = topKeywords.includes(keyword);
           return (
             <div key={`${keyword}-${index}`} className='p-1 bg-gradient-to-br from-c4 to-c2 bg-[length:120%] rounded-8 flex'>
