@@ -478,7 +478,7 @@ export async function getRecitIas() {
     }
 
     const recitIas = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitIas&json=1',
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1',
     );
 
     sessionStorage.setItem('recitIas', JSON.stringify(recitIas));
