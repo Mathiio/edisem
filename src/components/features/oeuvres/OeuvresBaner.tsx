@@ -2,9 +2,11 @@ import { BackgroundEllipse } from '@/assets/svg/BackgroundEllipse';
 import { motion } from 'framer-motion';
 import { OeuvreIcon } from '@/components/ui/icons';
 
+interface OeuvresBanerProps {
+  oeuvres: any[];
+}
 
-export const OeuvressBaner: React.FC = () => {
-
+export const OeuvresBaner: React.FC<OeuvresBanerProps> = ({ oeuvres }) => {
   return (
     <div className='pt-150 justify-center flex items-center flex-col gap-20'>
       {/* Main title with gradient highlight */}
@@ -12,17 +14,23 @@ export const OeuvressBaner: React.FC = () => {
         <OeuvreIcon size={40} className='text-c4'/>
         {/* Main title */}
         <h1 className='z-[12] text-64 text-c6 font-medium flex flex-col items-center transition-all ease-in-out duration-200'>
-          Oeuvres Edisem
+          Œuvres Edisem
         </h1>
 
         <div className='flex flex-col gap-20 justify-center items-center'>
           {/* Subtitle */}
           <p className='text-c5 text-16 z-[12] text-center'>
-            Plongez au cœur des collections intellectuelles d'EdiSem, une fenêtre ouverte sur <br/>
-            la diversité des savoirs et des pratiques qui nourrissent nos événements.
+            Découvrez les œuvres scientifiques et intellectuelles qui constituent le patrimoine éditorial<br/>
+            d'EdiSem, reflétant la richesse de nos recherches et collaborations académiques.
           </p>
 
-
+          {/* Statistics section */}
+          <div className='flex gap-20 z-[12]'>
+            {/* Total oeuvres */}
+            <div className='flex border-3 border-c3 rounded-8 p-10'>
+              <p className='text-14 text-c5'>{oeuvres.length} œuvres</p>
+            </div>
+          </div>
         </div>
 
         {/* Animated SVG background shape */}
