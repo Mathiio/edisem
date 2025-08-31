@@ -61,18 +61,13 @@ export const TopKeywords = () => {
   useEffect(() => {
     const loadSeminarKeywords = async () => {
       try {
-        console.log('Chargement des conférences de type "Séminaire"...');
-
-        // 1. Récupérer TOUTES les conférences
         const allConfs = await Items.getConfs();
         console.log(`Nombre total de conférences: ${allConfs.length}`);
 
-        // 2. Filtrer UNIQUEMENT les séminaires (toutes éditions confondues)
         const seminarConfs = allConfs.filter((conf: Conference) =>
           conf.event?.toLowerCase().includes('séminaire')
         );
 
-        // 3. Compter les mots-clés dans les séminaires
         const keywordMap = new Map<string, KeywordCount>();
 
         seminarConfs.forEach((conf: Conference) => {
@@ -93,7 +88,6 @@ export const TopKeywords = () => {
           }
         });
 
-        // 4. Trier et prendre les 3 plus fréquents
         const sortedKeywords = Array.from(keywordMap.values())
           .sort((a, b) => b.count - a.count)
           .slice(0, 3);
