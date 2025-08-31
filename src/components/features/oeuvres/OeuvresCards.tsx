@@ -27,7 +27,7 @@ export const LongCard: React.FC<OeuvreCardProps> = ({
   return (
     <motion.div
       onClick={openOeuvre}
-      className='hover:shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] w-full h-full border-c3 border-2 cursor-pointer p-20 rounded-30 flex gap-20 hover:bg-c2 transition-all duration-200'
+      className='hover:shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] w-full h-full border-t-c3 hover:border-c3 border-c1 border-2 cursor-pointer p-20 rounded-30 flex gap-20 hover:bg-c2 transition-all duration-200'
     >
       {thumbnail && (
         <img
