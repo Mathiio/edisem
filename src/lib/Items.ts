@@ -420,7 +420,7 @@ export async function getAllItems() {
       getRecherches(),
       getTools(),
       getFeedbacks(),
-      getRecitIas(),
+      getOeuvres(),
     ]);
 
     const allItems = [
@@ -470,7 +470,7 @@ export async function getTools() {
   }
 }
 
-export async function getRecitIas() {
+export async function getOeuvres() {
   try {
     const storedRecitIas = sessionStorage.getItem('recitIas');
     if (storedRecitIas) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getRecitIas, getActants, getTools, getKeywords, getStudents } from '@/lib/Items';
+import { getOeuvres, getActants, getTools, getKeywords, getStudents } from '@/lib/Items';
 import { motion, Variants } from 'framer-motion';
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
@@ -80,7 +80,7 @@ export const Recitia: React.FC = () => {
   const fetchOeuvreData = useCallback(async () => {
     setLoading(true);
     try {
-      const [recitIas, actants, students, tools, concepts] = await Promise.all([getRecitIas(), getActants(), getStudents(), getTools(), getKeywords()]);
+      const [recitIas, actants, students, tools, concepts] = await Promise.all([getOeuvres(), getActants(), getStudents(), getTools(), getKeywords()]);
       console.log(recitIas);
       const actantMap = new Map();
       actants.forEach((a: any) => {
