@@ -36,14 +36,13 @@ export const Oeuvre: React.FC = () => {
   const [recommendedConfs, setRecommendedConfs] = useState<any[]>([]);
 
   const [, setOeuvreTools] = useState<any[]>([]);
-  const [oeuvreConcepts, setOeuvreConcepts] = useState<any[]>([]);
+  const [oeuvreKeywords, setOeuvreKeywords] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [loadingRecommendations, setLoadingRecommendations] = useState(true);
   const firstDivRef = useRef<HTMLDivElement>(null);
   const [equalHeight, setEqualHeight] = useState<number | null>(null);
   const searchModalRef = useRef<SearchModalRef>(null);
-  const [isHovered, setIsHovered] = useState(false);
   const [selected, setSelected] = useState('Acteurs');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -80,7 +79,7 @@ export const Oeuvre: React.FC = () => {
   const fetchOeuvreData = useCallback(async () => {
     setLoading(true);
     try {
-      const [recitIas, actants, students, tools, concepts] = await Promise.all([getOeuvres(), getActants(), getStudents(), getTools(), getKeywords()]);
+      const [recitIas, actants, students, tools, keywords] = await Promise.all([getOeuvres(), getActants(), getStudents(), getTools(), getKeywords()]);
       console.log(recitIas);
       const actantMap = new Map();
       actants.forEach((a: any) => {
@@ -103,11 +102,11 @@ export const Oeuvre: React.FC = () => {
         toolMap.set(Number(t.id), t);
       });
 
-      const conceptMap = new Map();
-      concepts.forEach((c: any) => {
-        conceptMap.set(c.id, c);
-        conceptMap.set(String(c.id), c);
-        conceptMap.set(Number(c.id), c);
+      const keywordMap = new Map();
+      keywords.forEach((k: any) => {
+        keywordMap.set(k.id, k);
+        keywordMap.set(String(k.id), k);
+        keywordMap.set(Number(k.id), k);
       });
 
       const oeuvre = recitIas.find((r: any) => String(r.id) === String(id));
@@ -187,9 +186,10 @@ export const Oeuvre: React.FC = () => {
         }
 
         setOeuvreTools(tools.filter((t: any) => oeuvre.technicalCredits?.includes(String(t.id))));
-        setOeuvreConcepts(
+        
+        setOeuvreKeywords(
           [
-            ...(oeuvre.concepts || []),
+            ...(oeuvre.keywords || []),
             ...(oeuvre.risks || []),
             ...(oeuvre.roles || []),
             ...(oeuvre.scenarios || []),
@@ -203,16 +203,16 @@ export const Oeuvre: React.FC = () => {
                 return word;
               }
 
-              // Sinon, on cherche dans la conceptMap pour enrichir
-              const enrichedConcept = conceptMap.get(word) || conceptMap.get(Number(word)) || conceptMap.get(String(word));
+              // Sinon, on cherche dans la keywordMap pour enrichir
+              const enrichedKeyword = keywordMap.get(word) || keywordMap.get(Number(word)) || keywordMap.get(String(word));
 
-              // Retourner le concept enrichi ou créer un objet avec le titre
-              return enrichedConcept || { title: word };
+              // Retourner le keyword enrichi ou créer un objet avec le titre
+              return enrichedKeyword || { title: word };
             })
             .filter(Boolean),
         );
 
-        console.log(oeuvreConcepts);
+        console.log(oeuvreKeywords);
         setOeuvreDetails(oeuvre);
 
         if (oeuvre.recommendations?.length) {
@@ -253,12 +253,12 @@ export const Oeuvre: React.FC = () => {
   return (
     <Layouts className='grid grid-cols-10 col-span-10 gap-50'>
       <motion.div ref={firstDivRef} className='col-span-10 lg:col-span-6 flex flex-col gap-25 h-fit' variants={fadeIn}>
-        {!loading && oeuvreConcepts?.length > 0 && (
+        {!loading && oeuvreKeywords?.length > 0 && (
           <LongCarrousel
             perPage={3}
             perMove={1}
             autowidth={true}
-            data={oeuvreConcepts}
+            data={oeuvreKeywords}
             renderSlide={(item) => <KeywordsCard key={item.title} onSearchClick={handleKeywordClick} word={item.title} />}
           />
         )}
@@ -359,6 +359,7 @@ export const Oeuvre: React.FC = () => {
   );
 };
 
+// Les composants ToolItem et ActeurItem restent inchangés
 interface ToolItemProps {
   tool: {
     id: string | number;

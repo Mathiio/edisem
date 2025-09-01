@@ -1,4 +1,27 @@
 import React, { useMemo } from "react";
+import { motion, Variants } from 'framer-motion';
+
+const fadeIn: Variants = {
+  hidden: { opacity: 0, y: 0 },
+  visible: (index: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: index * 0.10 },
+  }),
+};
+
+const keywordFadeIn: Variants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: (index: number) => ({
+    opacity: 1,
+    scale: 1,
+    transition: { 
+      duration: 0.6, 
+      delay: 0.4 + index * 0.05,
+      ease: "easeOut"
+    },
+  }),
+};
 
 interface KeywordsCloudProps {
   oeuvres: Array<{ id: string; keywords?: string[] }>;
@@ -48,20 +71,42 @@ export const OeuvresKeywords: React.FC<KeywordsCloudProps> = ({
   }, [keywordCounts, topKeywords, maxKeywords]);
 
   return (
-    <section className='flex gap-50 items-end'>
+    <motion.section 
+      className='flex gap-50 items-end'
+      initial="hidden"
+      animate="visible"
+    >
       <div className='flex-1 flex flex-col justify-center gap-20 max-w-40'>
-        <p className='text-c5 text-16 transition-all ease-in-out duration-200 max-w-md'>
+        <motion.p 
+          className='text-c5 text-16 transition-all ease-in-out duration-200 max-w-md'
+          variants={fadeIn}
+          custom={0}
+        >
           Mots clés les plus abordées dans nos oeuvres.
-        </p>
-        <h2 className='text-c6 text-64 transition-all ease-in-out duration-200'>
+        </motion.p>
+        <motion.h2 
+          className='text-c6 text-64 transition-all ease-in-out duration-200'
+          variants={fadeIn}
+          custom={1}
+        >
           Les mots-clés <br /> qui Façonnent<br /> Nos œuvres
-        </h2>
+        </motion.h2>
       </div>
-      <div className='flex flex-wrap justify-end w-1/2 gap-20'>
+      
+      <motion.div 
+        className='flex flex-wrap justify-end w-1/2 gap-20'
+        initial="hidden"
+        animate="visible"
+      >
         {selectedKeywords.map(([keyword], index) => {
           const isTopKeyword = topKeywords.includes(keyword);
           return (
-            <div key={`${keyword}-${index}`} className='p-1 bg-gradient-to-br from-c4 to-c2 bg-[length:120%] rounded-8 flex'>
+            <motion.div 
+              key={`${keyword}-${index}`} 
+              className='p-1 bg-gradient-to-br from-c4 to-c2 bg-[length:120%] rounded-8 flex'
+              variants={keywordFadeIn}
+              custom={index}
+            >
               <div className="bg-c1 flex px-15 py-10 rounded-8">
                 <p className={`text-16 font-medium transition-all duration-200 ${
                   isTopKeyword
@@ -71,10 +116,10 @@ export const OeuvresKeywords: React.FC<KeywordsCloudProps> = ({
                   {keyword}
                 </p>
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 };
