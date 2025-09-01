@@ -2,9 +2,9 @@ import { FullCarrousel } from '@/components/ui/Carrousels';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
-import { SeminarEdition } from '@/types/ui';
+import { Edition } from '@/types/ui';
 
-interface EditionsCarouselProps {
+interface SeminairesCarouselProps {
   seminaires: any[];
   loading?: boolean;
 }
@@ -23,7 +23,7 @@ const cardVariants: Variants = {
 };
 
 // Seminar Edition Card Component
-const SeminarEditionCard = ({ edition }: { edition: SeminarEdition }) => {
+const SeminarEditionCard = ({ edition }: { edition: Edition }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -48,8 +48,8 @@ const SeminarEditionCard = ({ edition }: { edition: SeminarEdition }) => {
 };
 
 // Main Carousel Component
-export const EditionsCarousel = ({ seminaires, loading = false }: EditionsCarouselProps) => {
-  const [editions, setEditions] = useState<SeminarEdition[]>([]);
+export const SeminairesCarousel = ({ seminaires, loading = false }: SeminairesCarouselProps) => {
+  const [editions, setEditions] = useState<Edition[]>([]);
 
   useEffect(() => {
     if (!loading && seminaires.length > 0) {
