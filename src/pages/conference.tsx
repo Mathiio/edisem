@@ -70,7 +70,7 @@ export const Conference: React.FC = () => {
   const fetchRecommendedConfs = async (recommendationIds: string[]) => {
     setLoadingRecommendations(true);
     try {
-      const recommendationsPromises = recommendationIds.map((recId) => Items.getConfs(Number(recId)));
+      const recommendationsPromises = recommendationIds.map((recId) => Items.getSeminarConfs(Number(recId)));
       const recommendations = await Promise.all(recommendationsPromises);
       setRecommendedConfs(recommendations);
     } catch (error) {
@@ -87,7 +87,7 @@ export const Conference: React.FC = () => {
     setLoading(true);
     try {
       const [conf, citations, bibliographies, mediagraphies] = await Promise.all([
-        Items.getConfs(Number(id)),
+        Items.getSeminarConfs(Number(id)),
         getConfCitations(Number(id)),
         getConfBibliographies(Number(id)),
         getConfMediagraphies(Number(id)),

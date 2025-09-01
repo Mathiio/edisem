@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getExperimentations, getActants, getTools, getKeywords, getStudents, getConfs } from '@/lib/Items';
+import { getExperimentations, getActants, getTools, getKeywords, getStudents, getSeminarConfs } from '@/lib/Items';
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
@@ -66,7 +66,7 @@ export const Experimentation: React.FC = () => {
   const fetchRecommendedConfs = async (recommendationIds: string[]) => {
     setLoadingRecommendations(true);
     try {
-      const recommendationsPromises = recommendationIds.map((recId) => getConfs(Number(recId)));
+      const recommendationsPromises = recommendationIds.map((recId) => getSeminarConfs(Number(recId)));
       const recommendations = await Promise.all(recommendationsPromises);
       setRecommendedConfs(recommendations);
     } catch (error) {

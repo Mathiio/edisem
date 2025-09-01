@@ -304,7 +304,7 @@ export async function getActants(actantId?: number) {
       : await (async () => {
           const [rawActants, confs, universities, doctoralSchools, laboratories] = await Promise.all([
             getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1'),
-            getConfs(),
+            getSeminarConfs(),
             getUniversities(),
             getDoctoralSchools(),
             getLaboratories()
@@ -339,13 +339,54 @@ export async function getActants(actantId?: number) {
   }
 }
 
-export async function getConfs(confId?: number) {
+export async function getSeminarConfs(confId?: number) {
   try {
     const confs = sessionStorage.getItem('confs')
       ? JSON.parse(sessionStorage.getItem('confs')!)
       : await (async () => {
           const [rawConfs, keywords] = await Promise.all([
-            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getConfs&json=1'),
+            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
+            getKeywords()
+          ]);
+
+          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+
+          return rawConfs.map((conf: any) => ({
+            ...conf,
+            type: 'conference',
+            motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
+          }));
+        })();
+
+    if (!sessionStorage.getItem('confs')) {
+      sessionStorage.setItem('confs', JSON.stringify(confs));
+    }
+
+    return confId
+      ? await (async () => {
+          const conf = confs.find((c: any) => c.id === String(confId));
+          if (!conf) throw new Error(`Conference with id ${confId} not found`);
+
+          if (conf.actant) conf.actant = await getActants(conf.actant);
+          return conf;
+        })()
+      : confs;
+
+  } catch (error) {
+    console.error('Error fetching confs:', error);
+    throw new Error('Failed to fetch confs');
+  }
+}
+
+export async function getStudyDayConfs(confId?: number) {
+  try {
+    const confs = sessionStorage.getItem('confs')
+      ? JSON.parse(sessionStorage.getItem('confs')!)
+      : await (async () => {
+          const [rawConfs, keywords] = await Promise.all([
+            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
             getKeywords()
           ]);
 
@@ -388,7 +429,8 @@ export async function getAllItems() {
     }
 
     const [
-      confs,
+      studyDayConfs,
+      seminarConfs,
       actants,
       universities,
       laboratories,
@@ -405,7 +447,8 @@ export async function getAllItems() {
       feedbacks,
       recitIas,
     ] = await Promise.all([
-      getConfs(),
+      getStudyDayConfs(),
+      getSeminarConfs(),
       getActants(),
       getUniversities(),
       getLaboratories(),
@@ -424,7 +467,8 @@ export async function getAllItems() {
     ]);
 
     const allItems = [
-      ...confs,
+      ...studyDayConfs,
+      ...seminarConfs,
       ...actants,
       ...universities,
       ...laboratories,
@@ -498,7 +542,7 @@ export async function getKeywords() {
     }
 
     const keywords = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMotCles&json=1',
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getKeywords&json=1',
     );
     const keywordsFull = keywords.map((keyword: any) => ({
       ...keyword,
@@ -549,13 +593,12 @@ export async function getRecherches() {
 
 export async function getSeminaires() {
   try {
-    const confs = await getConfs();
-    const filteredConfs = confs.filter((conf: { event: string }) => conf.event === 'Séminaire Arcanes');
+    const confs = await getSeminarConfs();
     const editionMap: { [key: string]: { confNum: number; date: string; season: string } } = {};
 
     
 
-    filteredConfs.forEach((conf: { edition: any; date: string; season: string }) => {
+    confs.forEach((conf: { edition: any; date: string; season: string }) => {
       const editionId = conf.edition;
       const season = conf.season.trim();
 

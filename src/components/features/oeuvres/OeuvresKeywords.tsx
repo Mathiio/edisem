@@ -51,7 +51,7 @@ export const OeuvresKeywords: React.FC<KeywordsCloudProps> = ({
     <section className='flex gap-50 items-end'>
       <div className='flex-1 flex flex-col justify-center gap-20 max-w-40'>
         <p className='text-c5 text-16 transition-all ease-in-out duration-200 max-w-md'>
-          Mots clés les plus abordées dans nos séminaires.
+          Mots clés les plus abordées dans nos oeuvres.
         </p>
         <h2 className='text-c6 text-64 transition-all ease-in-out duration-200'>
           Les mots-clés <br /> qui Façonnent<br /> Nos œuvres

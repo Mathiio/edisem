@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import * as Items from "@/lib/Items";
 import { Conference } from '@/types/ui';
 import { SearchModal, SearchModalRef } from '@/components/layout/SearchModal';
 
@@ -10,13 +9,18 @@ type KeywordCount = {
   count: number;
 };
 
+// Props for the TopKeywords component
+interface TopKeywordsProps {
+  seminaires: any[];
+  loading?: boolean;
+}
+
 // Props for individual keyword cards
 interface KeywordCardProps {
   keyword: KeywordCount;
   position: 'first' | 'second' | 'third';
   onKeywordClick: (keyword: string) => void;
-};
-
+}
 
 // Individual keyword card component
 const KeywordCard = ({ keyword, position, onKeywordClick }: KeywordCardProps) => {
@@ -54,17 +58,15 @@ const KeywordCard = ({ keyword, position, onKeywordClick }: KeywordCardProps) =>
   );
 };
 
-export const TopKeywords = () => {
-    const [topKeywords, setTopKeywords] = useState<KeywordCount[]>([]);
-    const searchModalRef = useRef<SearchModalRef>(null);
+export const TopKeywords = ({ seminaires, loading = false }: TopKeywordsProps) => {
+  const [topKeywords, setTopKeywords] = useState<KeywordCount[]>([]);
+  const searchModalRef = useRef<SearchModalRef>(null);
 
   useEffect(() => {
-    const loadSeminarKeywords = async () => {
+    if (!loading && seminaires.length > 0) {
       try {
-        const allConfs = await Items.getConfs();
-        console.log(`Nombre total de conférences: ${allConfs.length}`);
-
-        const seminarConfs = allConfs.filter((conf: Conference) =>
+        // Filter seminar confs
+        const seminarConfs = seminaires.filter((conf: Conference) =>
           conf.event?.toLowerCase().includes('séminaire')
         );
 
@@ -95,12 +97,10 @@ export const TopKeywords = () => {
         setTopKeywords(sortedKeywords);
 
       } catch (err) {
-        console.error('Erreur lors du chargement:', err);
+        console.error('Erreur lors du traitement des mots-clés:', err);
       }
-    };
-
-    loadSeminarKeywords();
-  }, []);
+    }
+  }, [seminaires, loading]);
 
   // Get top 3 keywords sorted by count
   const topThreeKeywords = useMemo(() => {
@@ -111,10 +111,18 @@ export const TopKeywords = () => {
     return sorted.slice(0, 3);
   }, [topKeywords]);
 
-    const handleKeywordClick = (keyword: string) => {
-        searchModalRef.current?.openWithSearch(keyword);
-    };
+  const handleKeywordClick = (keyword: string) => {
+    searchModalRef.current?.openWithSearch(keyword);
+  };
 
+  // Show loading or empty state
+  if (loading) {
+    return (
+      <section className='flex flex-col items-center justify-center gap-40 p-20'>
+        <p className='text-c5 text-16'>Chargement des mots-clés...</p>
+      </section>
+    );
+  }
 
   return (
     <section className='flex flex-col items-center justify-center gap-40 p-20'>
@@ -127,7 +135,7 @@ export const TopKeywords = () => {
         </h2>
       </div>
 
-        <SearchModal ref={searchModalRef} notrigger />
+      <SearchModal ref={searchModalRef} notrigger />
 
       {/* Podium layout - same as TopIntervenants */}
       {topThreeKeywords.length > 0 ? (
