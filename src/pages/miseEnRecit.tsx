@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getOeuvres, getActants, getTools, getKeywords, getStudents } from '@/lib/Items';
+import { getRecitIas, getActants, getTools, getKeywords, getStudents } from '@/lib/Items';
 import { motion, Variants } from 'framer-motion';
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
@@ -24,11 +24,11 @@ const fadeIn: Variants = {
 };
 
 const viewOptions = [
-  { key: 'Références', title: 'Références' },
-  { key: 'Acteurs', title: 'Acteurs' },
+  { key: 'Analyse', title: 'Analyse' },
+  { key: 'Reference', title: 'Références' },
 ];
 
-export const Oeuvre: React.FC = () => {
+export const miseEnRecit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
   const [currentVideoTime] = useState<number>(0);
@@ -44,7 +44,7 @@ export const Oeuvre: React.FC = () => {
   const [equalHeight, setEqualHeight] = useState<number | null>(null);
   const searchModalRef = useRef<SearchModalRef>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [selected, setSelected] = useState('Acteurs');
+  const [selected, setSelected] = useState('Analyse');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Trouve l'option sélectionnée actuelle
@@ -64,7 +64,7 @@ export const Oeuvre: React.FC = () => {
   const fetchRecommendedConfs = async (recommendationIds: string[]) => {
     setLoadingRecommendations(true);
     try {
-      const recommendationsPromises = recommendationIds.map((recId) => Items.getSeminarConfs(Number(recId)));
+      const recommendationsPromises = recommendationIds.map((recId) => Items.getConfs(Number(recId)));
       const recommendations = await Promise.all(recommendationsPromises);
       setRecommendedConfs(recommendations);
     } catch (error) {
@@ -80,7 +80,7 @@ export const Oeuvre: React.FC = () => {
   const fetchOeuvreData = useCallback(async () => {
     setLoading(true);
     try {
-      const [recitIas, actants, students, tools, concepts] = await Promise.all([getOeuvres(), getActants(), getStudents(), getTools(), getKeywords()]);
+      const [recitIas, actants, students, tools, concepts] = await Promise.all([getRecitIas(), getActants(), getStudents(), getTools(), getKeywords()]);
       console.log(recitIas);
       const actantMap = new Map();
       actants.forEach((a: any) => {
@@ -196,20 +196,9 @@ export const Oeuvre: React.FC = () => {
             ...(oeuvre.themes || []),
             ...(oeuvre.processes || []),
             ...(oeuvre.affects || []),
-          ]
-            .map((word: any) => {
-              // Si c'est déjà un objet avec un id, on le garde
-              if (typeof word === 'object' && word !== null && 'id' in word) {
-                return word;
-              }
-
-              // Sinon, on cherche dans la conceptMap pour enrichir
-              const enrichedConcept = conceptMap.get(word) || conceptMap.get(Number(word)) || conceptMap.get(String(word));
-
-              // Retourner le concept enrichi ou créer un objet avec le titre
-              return enrichedConcept || { title: word };
-            })
-            .filter(Boolean),
+          ].map((word: string) => ({
+            title: word,
+          })),
         );
 
         console.log(oeuvreConcepts);
@@ -239,12 +228,25 @@ export const Oeuvre: React.FC = () => {
     }
 
     switch (selected) {
-      case 'Références':
+      case 'Analyse':
+        return (
+          <div
+            className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}>
+            <div className='w-full gap-25 py-25 pl-25 flex flex-row justify-between'>
+              <div className={`flex  flex-col gap-4 items-start`}>
+                <div className='w-full flex flex-col gap-10'>
+                  <p className='text-c6 text-16'>{oeuvreDetails.description}</p>
+                </div>
+              </div>
+            </div>
+            <div className='flex flex-col h-full py-25 pr-25'>{/* <AnnotationDropdown id={props.id} content={formatBibliography(props)} type='Bibliographie' /> */}</div>
+          </div>
+        );
+
+      case 'Reference':
         return <div className='flex flex-col gap-10'>{oeuvreDetails.references?.map((reference: any) => <ToolItem key={reference.id} tool={reference} />)}</div>;
-
-      case 'Acteurs':
-        return <div className='flex flex-col gap-10'>{oeuvreDetails.acteurs?.map((acteur: any) => <ActeurItem key={acteur.id} acteur={acteur} />)}</div>;
-
       default:
         return null;
     }
@@ -278,7 +280,7 @@ export const Oeuvre: React.FC = () => {
             medias={
               oeuvreDetails.associatedMedia && oeuvreDetails.associatedMedia.length > 0 ? oeuvreDetails.associatedMedia : oeuvreDetails.thumbnail ? [oeuvreDetails.thumbnail] : []
             }
-            fullUrl={oeuvreDetails.url}
+            fullUrl={oeuvreDetails.fullUrl}
             currentTime={currentVideoTime}
             buttonText='Voir plus'
           />
@@ -392,42 +394,6 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool }) => {
       </Link>
       <div className='flex flex-col h-full py-25 pr-25'>
         <AnnotationDropdown id={Number(tool.id)} content={tool.description} image={tool.thumbnail} type='Bibliographie' />
-      </div>
-    </div>
-  );
-};
-
-interface ActeurItemProps {
-  acteur: {
-    id: string | number;
-    name: string;
-    thumbnail?: string;
-    page?: string;
-  };
-}
-
-export const ActeurItem: React.FC<ActeurItemProps> = ({ acteur }) => {
-  const [isActeurHovered, setIsActeurHovered] = useState(false);
-
-  return (
-    <div
-      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity ${isActeurHovered ? 'border-c6' : 'border-c3'}`}
-      onMouseEnter={() => setIsActeurHovered(true)}
-      onMouseLeave={() => setIsActeurHovered(false)}>
-      <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={acteur.page ?? '#'} target='_blank'>
-        <div className={`flex flex-row gap-4 items-start`}>
-          {acteur.thumbnail && (
-            <div className='flex-shrink-0'>
-              <img src={acteur.thumbnail} alt={acteur.name} className='w-50 h-50 object-cover rounded-6' />
-            </div>
-          )}
-          <div className='w-full flex flex-col gap-10'>
-            <p className='text-c6 text-16'>{acteur.name}</p>
-          </div>
-        </div>
-      </Link>
-      <div className='flex flex-col h-full py-25 pr-25'>
-        <AnnotationDropdown id={Number(acteur.id)} content={acteur.name} image={acteur.thumbnail} type='Acteur' />
       </div>
     </div>
   );

@@ -11,16 +11,15 @@ export const OeuvresBaner: React.FC<OeuvresBanerProps> = ({ oeuvres }) => {
     <div className='pt-150 justify-center flex items-center flex-col gap-20'>
       {/* Main title with gradient highlight */}
       <div className='gap-20 justify-between flex items-center flex-col'>
-        <OeuvreIcon size={40} className='text-c4'/>
+        <OeuvreIcon size={40} className='text-c4' />
         {/* Main title */}
-        <h1 className='z-[12] text-64 text-c6 font-medium flex flex-col items-center transition-all ease-in-out duration-200'>
-          Œuvres Edisem
-        </h1>
+        <h1 className='z-[12] text-64 text-c6 font-medium flex flex-col items-center transition-all ease-in-out duration-200'>Œuvres Edisem</h1>
 
         <div className='flex flex-col gap-20 justify-center items-center'>
           {/* Subtitle */}
           <p className='text-c5 text-16 z-[12] text-center'>
-            Découvrez les œuvres scientifiques et intellectuelles qui constituent le patrimoine éditorial<br/>
+            Découvrez les œuvres scientifiques et intellectuelles qui constituent le patrimoine éditorial
+            <br />
             d'EdiSem, reflétant la richesse de nos recherches et collaborations académiques.
           </p>
 
@@ -41,8 +40,7 @@ export const OeuvresBaner: React.FC<OeuvresBanerProps> = ({ oeuvres }) => {
           transition={{
             duration: 0.8,
             ease: 'easeIn',
-          }}
-        >
+          }}>
           <div className='opacity-20 dark:opacity-30'>
             <BackgroundEllipse />
           </div>
