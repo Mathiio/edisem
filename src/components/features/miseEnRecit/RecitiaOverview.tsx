@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { CameraIcon, UserIcon, ShareIcon, MovieIcon, ArrowIcon } from '@/components/ui/icons';
 import { motion, Variants } from 'framer-motion';
 import { addToast, Skeleton, Link, Button, cn } from '@heroui/react';
-import { AnnotationDropdown } from './AnnotationDropdown';
+import { AnnotationDropdown } from '../conference/AnnotationDropdown';
 import { Splide, SplideTrack, SplideSlide } from '@splidejs/react-splide';
-import MediaViewer from './MediaViewer';
+import MediaViewer from '../conference/MediaViewer';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -23,12 +23,10 @@ const containerVariants: Variants = {
   },
 };
 
-type ExpOverviewProps = {
+type RecitiaOverviewProps = {
   id: number;
   title: string;
-  actant: string;
-  actantId: number;
-  university: string;
+  personnes: any;
   picture: string;
   medias: string[]; // Tableau de liens d'images
   fullUrl: string;
@@ -36,13 +34,13 @@ type ExpOverviewProps = {
   buttonText: string;
 };
 
-export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant, actantId, university, picture, medias, fullUrl, buttonText }) => {
+export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title, personnes, picture, medias, fullUrl, buttonText }) => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
 
   const navigate = useNavigate();
 
   const openActant = () => {
-    navigate(`/conferencier/${actantId}`);
+    navigate(`/personne/${personnes[0].id}`);
   };
 
   const truncateTitle = (title: string, maxLength: number) => {
@@ -126,17 +124,27 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant,
         <h1 className='font-medium text-c6 text-24'>{title}</h1>
         <div className='w-full flex flex-col gap-10'>
           <div className='w-full flex justify-between gap-10 items-center'>
-            <Link className='w-fit flex justify-start gap-10 items-center cursor-pointer' onClick={openActant}>
-              {picture ? (
-                <img src={picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
-              ) : (
-                <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
+            <div className='w-fit flex justify-start gap-10 items-center'>
+              {personnes && (
+                <div className='w-fit flex justify-start gap-10 items-center'>
+                  {personnes[0].thumbnail ? (
+                    <img src={personnes[0].thumbnail} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                  ) : (
+                    <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
+                  )}
+                  <div className='flex flex-col items-start gap-0.5'>
+                    <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0].name}</h3>
+                  </div>
+                </div>
               )}
-              <div className='flex flex-col items-start gap-0.5'>
-                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{actant}</h3>
-                <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{truncateTitle(university, 48)}</p>
-              </div>
-            </Link>
+              {personnes && personnes.length > 1 && (
+                <Button
+                  size='md'
+                  className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
+                  <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1} </h3>
+                </Button>
+              )}
+            </div>
 
             <div className='w-fit flex justify-between gap-10 items-center'>
               <Button
@@ -166,7 +174,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant,
                 </Button>
               )}
 
-              <AnnotationDropdown id={id} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Conférence' />
+              <AnnotationDropdown id={id} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Œuvre' />
             </div>
           </div>
         </div>
@@ -174,7 +182,8 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant,
     </motion.div>
   );
 };
-export const ConfOverviewSkeleton: React.FC = () => {
+
+export const RecitiaOverviewSkeleton: React.FC = () => {
   return (
     <div className='flex flex-col gap-20'>
       <Skeleton className='rounded-14 lg:w-full lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'></Skeleton>
@@ -207,7 +216,7 @@ export const UnloadedCard: React.FC = () => {
       <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
         <h2 className='text-c5 text-32 font-semibold'>Oups !</h2>
         <p className='w-[400px] text-c5 text-16 text-regular text-center'>
-          Aucune vidéo n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
+          Aucun média n'est lié au contenu de cette œuvre. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
         </p>
       </div>
     </div>

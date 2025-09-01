@@ -9,8 +9,8 @@ import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/features/home/ConfCards';
 import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
 import * as Items from '@/lib/Items';
-import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/conference/RecitiaOverview';
-import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/conference/RecitiaDetails';
+import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
+import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { ArrowIcon } from '@/components/ui/icons';
 

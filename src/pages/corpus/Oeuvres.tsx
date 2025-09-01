@@ -5,8 +5,6 @@ import { Layouts } from '@/components/layout/Layouts';
 import { getOeuvres, getActants, getStudents } from '@/lib/Items';
 import { useEffect, useState } from 'react';
 
-
-
 export const Oeuvres: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [oeuvres, setOeuvres] = useState<any[]>([]);
@@ -90,27 +88,8 @@ export const Oeuvres: React.FC = () => {
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
       <OeuvresBaner oeuvres={oeuvres} />
-      <OeuvresKeywords oeuvres={oeuvres}/>
+      <OeuvresKeywords oeuvres={oeuvres} />
       <LastOeuvres oeuvres={oeuvres} loading={loading} />
-      {/* <div className='grid grid-cols-4 w-full gap-25'>
-        {loading
-          ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
-          : oeuvres.map((item: any, index: number) => (
-              <motion.div key={item.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                <LgConfCard
-                  id={item.id}
-                  title={item.title}
-                  // Utiliser le premier actant (primaryActant) pour l'affichage
-                  actant={item.primaryActant ? item.primaryActant.displayName || `${item.primaryActant.firstname} ${item.primaryActant.lastname}` : ''}
-                  date={item.date}
-                  url={item.url}
-                  thumbnail={item.thumbnail}
-                  universite={item.primaryActant && item.primaryActant.universities && item.primaryActant.universities.length > 0 ? item.primaryActant.universities[0].name : ''}
-                  type='oeuvre'
-                />
-              </motion.div>
-            ))}
-      </div> */}
     </Layouts>
   );
 };
