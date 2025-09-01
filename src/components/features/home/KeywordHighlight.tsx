@@ -96,7 +96,7 @@ export const KeywordHighlight: React.FC = () => {
     const fetchAndProcessData = async () => {
       try {
         const keywords = await Items.getKeywords();
-        const confs = await Items.getConfs();
+        const confs = await Items.getSeminarConfs();
         const citations = await Items.getCitations();
 
         const keywordLinks = await Promise.all(

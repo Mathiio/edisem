@@ -17,7 +17,7 @@ export async function getItemByID(id: string): Promise<any | null> {
 
 export async function getConfByEdition(editionId: number) {
   try {
-    const confs = await Items.getConfs();
+    const confs = await Items.getSeminarConfs();
 
     const editionConfs = confs.filter((conf: { event: string; edition: number }) => 
       Number(conf.edition) === editionId
@@ -43,7 +43,7 @@ export async function getConfByEdition(editionId: number) {
 
 export async function getConfByActant(actantId: number) {
   try{
-    const confs = await Items.getConfs();
+    const confs = await Items.getSeminarConfs();
 
     const actantConfs = confs.filter((conf: { event: string; actant: number }) => 
       Number(conf.actant) === actantId
@@ -113,7 +113,7 @@ export async function filterActants(searchQuery: string) {
 
 export async function filterConfs(searchQuery: string) {
   try {
-    const confs = await Items.getConfs();
+    const confs = await Items.getSeminarConfs();
 
     const updatedConfs = await Promise.all(
       confs.map(async (conf: { actant: number }) => {
@@ -166,7 +166,7 @@ export async function filterConfs(searchQuery: string) {
 
 export async function getConfCitations(confId: number){
   try{
-    const confs = await Items.getConfs();
+    const confs = await Items.getSeminarConfs();
     const citations = await Items.getCitations();
     const actants = await Items.getActants();
 
@@ -195,7 +195,7 @@ export async function getConfCitations(confId: number){
 
 export async function getConfByCitation(citationId: number) {
   try {
-    const confs = await Items.getConfs();
+    const confs = await Items.getSeminarConfs();
     const citations = await Items.getCitations();
     
     // Vérifie si la citation existe
@@ -224,7 +224,7 @@ export async function getConfByCitation(citationId: number) {
 
 export async function getConfBibliographies(confId: number) {
   try {
-    const confs = await Items.getConfs();
+    const confs = await Items.getSeminarConfs();
     const bibliographies = await Items.getBibliographies();
 
     const conf = confs.find((conf: { id: number }) => Number(conf.id) === confId);
@@ -249,7 +249,7 @@ export async function getConfBibliographies(confId: number) {
 
 export async function getConfMediagraphies(confId: number) {
   try {
-    const confs = await Items.getConfs();
+    const confs = await Items.getSeminarConfs();
     const mediagraphies = await Items.getMediagraphies();
 
     const conf = confs.find((conf: { id: number }) => Number(conf.id) === confId);

@@ -303,7 +303,7 @@ export const getDataByType = async (type: string): Promise<any[]> => {
     case 'citation':
       return (await Items.getCitations()) || [];
     case 'conference':
-      return (await Items.getConfs()) || [];
+      return (await Items.getSeminarConfs()) || [];
     case 'actant':
       return (await Items.getActants()) || [];
     case 'keyword':

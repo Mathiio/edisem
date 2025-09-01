@@ -1,11 +1,13 @@
 import { FullCarrousel } from '@/components/ui/Carrousels';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as Items from "@/lib/Items";
 import { motion, Variants } from 'framer-motion';
 import { SeminarEdition } from '@/types/ui';
 
-
+interface EditionsCarouselProps {
+  seminaires: any[];
+  loading?: boolean;
+}
 
 // Card animation configuration
 const cardVariants: Variants = {
@@ -20,13 +22,10 @@ const cardVariants: Variants = {
   }),
 };
 
-
-
 // Seminar Edition Card Component
 const SeminarEditionCard = ({ edition }: { edition: SeminarEdition }) => {
   const navigate = useNavigate();
 
-  // Handle card click navigation
   const handleClick = () => {
     const url = `/edition/${edition.id}/${edition.title.toLowerCase().replace(/\s+/g, '-')}`;
     navigate(url);
@@ -48,53 +47,48 @@ const SeminarEditionCard = ({ edition }: { edition: SeminarEdition }) => {
   );
 };
 
-
-
 // Main Carousel Component
-export const EditionsCarousel = () => {
+export const EditionsCarousel = ({ seminaires, loading = false }: EditionsCarouselProps) => {
   const [editions, setEditions] = useState<SeminarEdition[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch and format seminar editions data
   useEffect(() => {
-    const fetchEditions = async () => {
-      try {
-        setIsLoading(true);
-        const seminaires = await Items.getSeminaires();
+    if (!loading && seminaires.length > 0) {
+      // Grouper par édition
+      const editionMap: { [key: string]: { confNum: number; date: string; season: string } } = {};
 
-        // Format raw data into SeminarEdition type
-        const formattedEditions = seminaires.map((seminaire: any) => ({
-          id: seminaire.id,
-          title: `Édition ${capitalizeFirstLetter(seminaire.season)} ${seminaire.year}`,
-          season: capitalizeFirstLetter(seminaire.season),
-          year: seminaire.year,
-          conferenceCount: seminaire.confNum,
-          date: seminaire.date
-        }));
+      seminaires.forEach((conf: any) => {
+        const editionId = conf.edition;
+        const season = conf.season.trim();
 
-        // Sort by year (descending) then by season
-        const sortedEditions = formattedEditions.sort((a, b) => {
+        if (!editionMap[editionId]) {
+          editionMap[editionId] = { confNum: 0, date: conf.date, season };
+        }
+        editionMap[editionId].confNum++;
+      });
+
+      // Formater les données
+      const formattedEditions = Object.entries(editionMap)
+        .map(([id, { confNum, date, season }]) => ({
+          id,
+          title: `Édition ${capitalizeFirstLetter(season)} ${date.split('-')[0]}`,
+          season: capitalizeFirstLetter(season),
+          year: date.split('-')[0],
+          conferenceCount: confNum,
+          date,
+        }))
+        .sort((a, b) => {
           if (b.year !== a.year) return Number(b.year) - Number(a.year);
           return getSeasonOrder(b.season) - getSeasonOrder(a.season);
         });
 
-        setEditions(sortedEditions);
-      } catch (error) {
-        console.error('Error fetching seminar editions:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      setEditions(formattedEditions);
+    }
+  }, [seminaires, loading]);
 
-    fetchEditions();
-  }, []);
-
-  // Helper function to capitalize first letter
   const capitalizeFirstLetter = (string: string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
-  // Get numerical order for seasons
   const getSeasonOrder = (season: string) => {
     const seasonOrder: Record<string, number> = {
       'Automne': 3,
@@ -107,7 +101,7 @@ export const EditionsCarousel = () => {
 
   return (
     <div className="w-full max-w-full">
-      {!isLoading && (
+      {!loading && editions.length > 0 && (
         <FullCarrousel
           title='Tous nos séminaires'
           data={editions}
