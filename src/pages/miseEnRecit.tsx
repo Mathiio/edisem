@@ -64,7 +64,7 @@ export const miseEnRecit: React.FC = () => {
   const fetchRecommendedConfs = async (recommendationIds: string[]) => {
     setLoadingRecommendations(true);
     try {
-      const recommendationsPromises = recommendationIds.map((recId) => Items.getConfs(Number(recId)));
+      const recommendationsPromises = recommendationIds.map((recId) => Items.getSeminarConfs(Number(recId)));
       const recommendations = await Promise.all(recommendationsPromises);
       setRecommendedConfs(recommendations);
     } catch (error) {
