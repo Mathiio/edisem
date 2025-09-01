@@ -17,9 +17,13 @@ export async function getItemByID(id: string): Promise<any | null> {
 
 export async function getConfByEdition(editionId: number) {
   try {
-    const confs = await Items.getSeminarConfs();
+    const seminarConfs = await Items.getSeminarConfs();
+    const colloqueConfs = await Items.getColloqueConfs();
+    const studyDayConfs = await Items.getStudyDayConfs();
 
-    const editionConfs = confs.filter((conf: { event: string; edition: number }) => 
+    const allConfs = [...seminarConfs, ...colloqueConfs, ...studyDayConfs];
+
+    const editionConfs = allConfs.filter((conf: { event: string; edition: number }) => 
       Number(conf.edition) === editionId
     );
 

@@ -341,8 +341,8 @@ export async function getActants(actantId?: number) {
 
 export async function getSeminarConfs(confId?: number) {
   try {
-    const confs = sessionStorage.getItem('confs')
-      ? JSON.parse(sessionStorage.getItem('confs')!)
+    const confs = sessionStorage.getItem('seminarConfs')
+      ? JSON.parse(sessionStorage.getItem('seminarConfs')!)
       : await (async () => {
           const [rawConfs, keywords] = await Promise.all([
             getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
@@ -360,8 +360,49 @@ export async function getSeminarConfs(confId?: number) {
           }));
         })();
 
-    if (!sessionStorage.getItem('confs')) {
-      sessionStorage.setItem('confs', JSON.stringify(confs));
+    if (!sessionStorage.getItem('seminarConfs')) {
+      sessionStorage.setItem('seminarConfs', JSON.stringify(confs));
+    }
+
+    return confId
+      ? await (async () => {
+          const conf = confs.find((c: any) => c.id === String(confId));
+          if (!conf) throw new Error(`Conference with id ${confId} not found`);
+
+          if (conf.actant) conf.actant = await getActants(conf.actant);
+          return conf;
+        })()
+      : confs;
+
+  } catch (error) {
+    console.error('Error fetching confs:', error);
+    throw new Error('Failed to fetch confs');
+  }
+}
+
+export async function getColloqueConfs(confId?: number) {
+  try {
+    const confs = sessionStorage.getItem('colloqueConfs')
+      ? JSON.parse(sessionStorage.getItem('colloqueConfs')!)
+      : await (async () => {
+          const [rawConfs, keywords] = await Promise.all([
+            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getColloqueConfs&json=1'),
+            getKeywords()
+          ]);
+
+          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+
+          return rawConfs.map((conf: any) => ({
+            ...conf,
+            type: 'conference',
+            motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
+          }));
+        })();
+
+    if (!sessionStorage.getItem('colloqueConfs')) {
+      sessionStorage.setItem('colloqueConfs', JSON.stringify(confs));
     }
 
     return confId
@@ -382,8 +423,8 @@ export async function getSeminarConfs(confId?: number) {
 
 export async function getStudyDayConfs(confId?: number) {
   try {
-    const confs = sessionStorage.getItem('confs')
-      ? JSON.parse(sessionStorage.getItem('confs')!)
+    const confs = sessionStorage.getItem('studyDayConfs')
+      ? JSON.parse(sessionStorage.getItem('studyDayConfs')!)
       : await (async () => {
           const [rawConfs, keywords] = await Promise.all([
             getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
@@ -401,8 +442,8 @@ export async function getStudyDayConfs(confId?: number) {
           }));
         })();
 
-    if (!sessionStorage.getItem('confs')) {
-      sessionStorage.setItem('confs', JSON.stringify(confs));
+    if (!sessionStorage.getItem('studyDayConfs')) {
+      sessionStorage.setItem('studyDayConfs', JSON.stringify(confs));
     }
 
     return confId
@@ -596,48 +637,6 @@ export async function getRecherches() {
   } catch (error) {
     console.error('Error fetching recherches:', error);
     throw new Error('Failed to fetch recherches');
-  }
-}
-
-export async function getSeminaires() {
-  try {
-    const confs = await getSeminarConfs();
-    const editionMap: { [key: string]: { confNum: number; date: string; season: string } } = {};
-
-    
-
-    confs.forEach((conf: { edition: any; date: string; season: string }) => {
-      const editionId = conf.edition;
-      const season = conf.season.trim();
-
-      if (!editionMap[editionId]) {
-        editionMap[editionId] = { confNum: 0, date: conf.date, season };
-      }
-      editionMap[editionId].confNum++;
-    });
-
-    
-
-    const editions = Object.entries(editionMap)
-      .map(([id, { confNum, date, season }]) => ({
-        id,
-        confNum,
-        year: date.split('-')[0],
-        date,
-        season,
-      }))
-      .sort((a, b) => {
-        const yearDiff = parseInt(b.year) - parseInt(a.year);
-        if (yearDiff !== 0) return yearDiff;
-
-        const seasonOrder = ['printemps', 'été', 'automne', 'hiver'];
-        return seasonOrder.indexOf(b.season) - seasonOrder.indexOf(a.season);
-      });
-      
-    return editions;
-  } catch (error) {
-    console.error('Error fetching seminars:', error);
-    throw new Error('Failed to fetch seminars');
   }
 }
 

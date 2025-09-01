@@ -69,7 +69,7 @@ export type Citation = {
   keywords: Keyword[];
 };
 
-export type SeminarEdition = {
+export type Edition = {
   id: string;
   title: string;
   season: string;
