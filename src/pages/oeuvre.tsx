@@ -9,8 +9,8 @@ import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/features/home/ConfCards';
 import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
 import * as Items from '@/lib/Items';
-import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/conference/RecitiaOverview';
-import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/conference/RecitiaDetails';
+import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
+import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { ArrowIcon } from '@/components/ui/icons';
 
@@ -186,7 +186,7 @@ export const Oeuvre: React.FC = () => {
         }
 
         setOeuvreTools(tools.filter((t: any) => oeuvre.technicalCredits?.includes(String(t.id))));
-        
+
         setOeuvreKeywords(
           [
             ...(oeuvre.keywords || []),
@@ -269,11 +269,8 @@ export const Oeuvre: React.FC = () => {
             id={oeuvreDetails.id}
             title={oeuvreDetails.title}
             // ✅ CORRIGÉ: Utiliser primaryActant au lieu de actant
-            actant={
-              oeuvreDetails.primaryActant ? oeuvreDetails.primaryActant.displayName || `${oeuvreDetails.primaryActant.firstname} ${oeuvreDetails.primaryActant.lastname}` : ''
-            }
-            actantId={oeuvreDetails.primaryActant?.id}
-            university={oeuvreDetails.primaryActant?.universities?.[0]?.name || ''}
+
+            personnes={oeuvreDetails.acteurs}
             picture={oeuvreDetails.primaryActant?.picture || ''}
             medias={
               oeuvreDetails.associatedMedia && oeuvreDetails.associatedMedia.length > 0 ? oeuvreDetails.associatedMedia : oeuvreDetails.thumbnail ? [oeuvreDetails.thumbnail] : []
@@ -288,10 +285,11 @@ export const Oeuvre: React.FC = () => {
         ) : (
           <RecitiaDetailsCard
             date={oeuvreDetails.date}
-            collaborators={oeuvreDetails.credits}
+            credits={oeuvreDetails.credits}
             description={oeuvreDetails.abstract}
             genre={oeuvreDetails.genre}
             medium={oeuvreDetails.medium}
+            actants={oeuvreDetails.actants}
           />
         )}
       </motion.div>

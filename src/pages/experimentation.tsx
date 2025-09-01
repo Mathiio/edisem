@@ -9,8 +9,8 @@ import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/features/home/ConfCards';
 import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
-import { ExpOverviewCard } from '@/components/features/conference/ExpOverview';
-import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/conference/ExpDetails';
+import { ExpOverviewCard } from '@/components/features/experimentation/ExpOverview';
+import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/experimentation/ExpDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 
 const fadeIn: Variants = {

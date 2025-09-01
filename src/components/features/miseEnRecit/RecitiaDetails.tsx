@@ -21,12 +21,13 @@ const containerVariants: Variants = {
 type RecitiaDetailsProps = {
   description: string;
   date: string;
-  collaborators?: string[];
+  credits?: string[];
   genre?: string;
   medium?: string;
+  actants?: any[];
 };
 
-export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description, date, collaborators, genre, medium }) => {
+export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description, date, credits, genre, medium, actants }) => {
   const [expanded, setExpanded] = useState<boolean>(false);
 
   const toggleExpansion = () => {
@@ -45,16 +46,14 @@ export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description,
 
         {medium && <p className='text-16 text-c6 font-semibold'>Support : {medium}</p>}
 
-        {collaborators && collaborators.length > 0 && (
-          <p
-            className='text-16 text-c6 font-semibold transition-all ease-in-out duration-200 gap-10'
-            style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
+        {credits && credits.length > 0 && (
+          <p className='text-16  text-c4  transition-all ease-in-out duration-200 gap-10' style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
             Crédits :{' '}
-            {collaborators
-              .map((collaborator: any) => {
-                if (typeof collaborator === 'string') return collaborator;
-                if (collaborator.name) return collaborator.name;
-                if (collaborator.firstName && collaborator.lastName) return `${collaborator.firstName} ${collaborator.lastName}`;
+            {credits
+              .map((credit: any) => {
+                if (typeof credit === 'string') return credit;
+                if (credit.name) return credit.name;
+                if (credit.firstName && credit.lastName) return `${credit.firstName} ${credit.lastName}`;
                 return 'test';
               })
               .join(', ')}
@@ -62,10 +61,13 @@ export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description,
         )}
         {description && (
           <p
-            className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200 gap-10'
+            className='text-16 text-c6 font-semibold transition-all ease-in-out duration-200 gap-10'
             style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
             {description}
           </p>
+        )}
+        {actants && actants.length > 0 && (
+          <p className='text-14 text-end text-c4 italic  transition-all ease-in-out duration-200'>Ajouté par : {actants.map((actant: any) => actant.name).join(', ')}</p>
         )}
         {description && <p className='text-16 text-c5 font-semibold transition-all ease-in-out duration-200'>{expanded ? 'affichez moins' : '...affichez plus'}</p>}
       </motion.div>

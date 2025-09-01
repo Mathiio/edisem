@@ -1,5 +1,5 @@
-import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/conference/ExpDetails';
-import { ConfOverviewSkeleton, ExpOverviewCard } from '@/components/features/conference/ExpOverview';
+import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/experimentation/ExpDetails';
+import { ConfOverviewSkeleton, ExpOverviewCard } from '@/components/features/experimentation/ExpOverview';
 import { Layouts } from '@/components/layout/Layouts';
 import { getActants, getExperimentations, getStudents } from '@/lib/Items';
 import { motion, Variants } from 'framer-motion';

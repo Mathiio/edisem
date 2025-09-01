@@ -7,14 +7,7 @@ import { Toolbar } from '@/components/features/datavisualisation/Toolbar';
 import ZoomControl from '@/components/features/datavisualisation/ZoomControl';
 
 import { images } from '@/components/features/datavisualisation/images';
-import {
-  compareValues,
-  FilterGroup,
-  getDataByType,
-  getPropertyValue,
-  ITEM_TYPES,
-  storeSearchHistory,
-} from '@/components/features/datavisualisation/FilterPopup';
+import { compareValues, FilterGroup, getDataByType, getPropertyValue, ITEM_TYPES, storeSearchHistory } from '@/components/features/datavisualisation/FilterPopup';
 import OverlaySelector, { PredefinedFilter } from '@/components/features/datavisualisation/OverlaySelector';
 import { getLinksFromType } from '@/lib/Links';
 import { Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, useDisclosure } from '@heroui/react';
@@ -26,8 +19,6 @@ import { useLocalStorageProperties } from './database';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { CreateModal } from '@/components/features/database/CreateModal';
 import { Layouts } from '@/components/layout/Layouts';
-
-
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
@@ -625,9 +616,7 @@ const Visualisation = () => {
 
         // Vérifier si le type de l'élément lié est visible dans le groupe de l'item principal
         if (!linkedItem.type || !group.visibleTypes.includes(linkedItem.type)) {
-          console.log(
-            `Lien ignoré car type non visible dans le groupe ${item.groupId}: ${linkedId} (${linkedItem.type})`,
-          );
+          console.log(`Lien ignoré car type non visible dans le groupe ${item.groupId}: ${linkedId} (${linkedItem.type})`);
           return;
         }
 
@@ -643,8 +632,7 @@ const Visualisation = () => {
           nodes.set(linkedId, {
             id: linkedId,
             fullTitle: linkedTitle,
-            title:
-              linkedTitle.length > CHARACTER_LIMIT ? `${linkedTitle.substring(0, CHARACTER_LIMIT)}...` : linkedTitle,
+            title: linkedTitle.length > CHARACTER_LIMIT ? `${linkedTitle.substring(0, CHARACTER_LIMIT)}...` : linkedTitle,
             type: linkedItem.type,
             // Si l'élément lié est un résultat principal d'un autre groupe, marquer comme principal
             isMain: allFilteredItems.some((fi) => fi.id === linkedId),
@@ -764,13 +752,7 @@ const Visualisation = () => {
       .force('center', d3.forceCenter(dimensions.width / 2, dimensions.height / 2))
       .force('collision', d3.forceCollide().radius(100));
 
-    const link = zoomGroup
-      .append('g')
-      .selectAll('line')
-      .data(simulationLinks)
-      .join('line')
-      .attr('stroke', 'hsl(var(--heroui-c6))')
-      .attr('stroke-width', 1);
+    const link = zoomGroup.append('g').selectAll('line').data(simulationLinks).join('line').attr('stroke', 'hsl(var(--heroui-c6))').attr('stroke-width', 1);
 
     // Créer des groupes de nœuds
     const nodeGroup = zoomGroup.append('g').selectAll('g').data(simulationNodes).join('g');
@@ -804,10 +786,7 @@ const Visualisation = () => {
         const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'conference', 'citation', 'actant'];
 
         // Si le mode annotation est activé, filtrer les types autorisés
-        if (
-          (!isAnnoteMode && allowedTypes.includes(d.type)) ||
-          (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'conference'].includes(d.type))
-        ) {
+        if ((!isAnnoteMode && allowedTypes.includes(d.type)) || (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'conference'].includes(d.type))) {
           const currentRadius = getRadiusForType(d.type) / 2;
           let offset = -2;
 
@@ -846,10 +825,7 @@ const Visualisation = () => {
       .on('click', function (_event, d) {
         const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'conference', 'citation', 'actant'];
 
-        if (
-          (!isAnnoteMode && allowedTypes.includes(d.type)) ||
-          (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'conference'].includes(d.type))
-        ) {
+        if ((!isAnnoteMode && allowedTypes.includes(d.type)) || (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'conference'].includes(d.type))) {
           handleNodeClick(d);
         }
       });
@@ -1054,8 +1030,7 @@ const Visualisation = () => {
         const maybeStringifiedArray = JSON.parse(decoded);
 
         // Si le résultat est une string (encodée deux fois), on parse encore
-        const parsed =
-          typeof maybeStringifiedArray === 'string' ? JSON.parse(maybeStringifiedArray) : maybeStringifiedArray;
+        const parsed = typeof maybeStringifiedArray === 'string' ? JSON.parse(maybeStringifiedArray) : maybeStringifiedArray;
 
         handleOverlaySelect(parsed);
       } catch (e) {
@@ -1066,148 +1041,135 @@ const Visualisation = () => {
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
-    
-    <div className='relative h-screen bg-c1 overflow-y-hidden'>
-      <motion.main
-        className='mx-auto h-full w-full transition-all ease-in-out duration-200'
-        initial='hidden'
-        animate='visible'
-        variants={containerVariants}>
-        <div className='mt-0 z-100'>
-          <Button
-            onPress={onOpenDrawer}
-            size='lg'
-            className='absolute px-4 py-4 flex justify-between bg-c2 gap-2 hover:bg-c3 hover:opacity-100 text-c6 rounded-8 z-50'>
-            <Sidebar size={26} />
-          </Button>
-        </div>
-        <motion.div
-          className='relative w-full h-full'
-          variants={containerVariants}
-          ref={containerRef}
-          style={{
-            width: '100%',
-            height: '100%',
-            position: 'relative',
-          }}
-          initial='hidden'
-          animate='visible'>
-          {showOverlay && <OverlaySelector filters={predefinedFilters} onSelect={handleOverlaySelect} />}
-          <svg
-            className='rounded-12'
-            ref={svgRef}
-            xmlns='http://www.w3.org/2000/svg'
-            width={dimensions.width}
-            height={dimensions.height}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-            }}
-            viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}></svg>
-          <div className='absolute bottom-[100px] right-0 z-[50]'>
-            <ZoomControl availableControl={!showOverlay} svgRef={svgRef} />
+      <div className='relative h-screen bg-c1 overflow-y-hidden'>
+        <motion.main className='mx-auto h-full w-full transition-all ease-in-out duration-200' initial='hidden' animate='visible' variants={containerVariants}>
+          <div className='mt-0 z-100'>
+            <Button onPress={onOpenDrawer} size='lg' className='absolute px-4 py-4 flex justify-between bg-c2 gap-2 hover:bg-c3 hover:opacity-100 text-c6 rounded-8 z-50'>
+              <Sidebar size={26} />
+            </Button>
           </div>
-        </motion.div>
-      </motion.main>
-      {/* Drawer à gauche */}
-      <Drawer isOpen={isOpenDrawer} hideCloseButton placement='left' onOpenChange={onOpenChangeDrawer}>
-        <DrawerContent className='bg-c1 z-[52] flex flex-col gap-4'>
-          {(onClose) => (
-            <>
-              <DrawerHeader className='flex flex-row items-center justify-between text-c6'>
-                <Button
-                  onPress={onClose}
-                  size='lg'
-                  className='px-4 py-4 flex justify-between  bg-c2 text-c6 rounded-8 hover:bg-c3 '>
-                  <Sidebar size={28} />
-                </Button>
-                <Button
-                  onPress={() => {
-                    onClose?.();
-                    setShowOverlay(true);
-                    setExportEnabled(false);
-                    clearSvg();
-                    // Appeler la fonction si elle existe
-                    if (resetActiveIconFunc.current) {
-                      resetActiveIconFunc.current();
-                    }
-                  }}
-                  size='lg'
-                  className='px-4 py-4 flex justify-between  bg-c2 text-c6 rounded-8 hover:bg-c3 '>
-                  Nouvelle recherche
-                  <SearchIcon size={18} />
-                </Button>
-              </DrawerHeader>
-              <DrawerBody className='text-c6 flex flex-col gap-8'>
-                <a
-                  href='/recherche'
-                  className='text-c6 flex flex-row gap-4 border-2 border-c3  hover:border-c4 rounded-12 transition w-fit p-3'>
-                  <FileIcon size={20} />
-                  <div>Cahier de recherche</div>
-                </a>
-                <SearchHistory
-                  onSelectSearch={(filters) => {
-                    handleOverlaySelect(filters);
-                  }}
-                  onClose={onClose}
-                />
-              </DrawerBody>
-            </>
-          )}
-        </DrawerContent>
-      </Drawer>
-      <EditModal
-        isOpen={isOpenEdit}
-        onClose={onCloseEdit}
-        itemUrl={currentItemUrl}
-        activeConfig={selectedConfigKey}
-        itemPropertiesData={itemPropertiesData}
-        propertiesLoading={propertiesLoading}
-        justView={!isEditMode}
-      />
-      {createItemId && (
-        <CreateModal
-          isOpen={isOpenCreate}
-          onClose={onCloseCreate}
+          <motion.div
+            className='relative w-full h-full'
+            variants={containerVariants}
+            ref={containerRef}
+            style={{
+              width: '100%',
+              height: '100%',
+              position: 'relative',
+            }}
+            initial='hidden'
+            animate='visible'>
+            {showOverlay && <OverlaySelector filters={predefinedFilters} onSelect={handleOverlaySelect} />}
+            <svg
+              className='rounded-12'
+              ref={svgRef}
+              xmlns='http://www.w3.org/2000/svg'
+              width={dimensions.width}
+              height={dimensions.height}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+              }}
+              viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}></svg>
+            <div className='absolute bottom-[100px] right-0 z-[50]'>
+              <ZoomControl availableControl={!showOverlay} svgRef={svgRef} />
+            </div>
+          </motion.div>
+        </motion.main>
+        {/* Drawer à gauche */}
+        <Drawer isOpen={isOpenDrawer} hideCloseButton placement='left' onOpenChange={onOpenChangeDrawer}>
+          <DrawerContent className='bg-c1 z-[52] flex flex-col gap-4'>
+            {(onClose) => (
+              <>
+                <DrawerHeader className='flex flex-row items-center justify-between text-c6'>
+                  <Button onPress={onClose} size='lg' className='px-4 py-4 flex justify-between  bg-c2 text-c6 rounded-8 hover:bg-c3 '>
+                    <Sidebar size={28} />
+                  </Button>
+                  <Button
+                    onPress={() => {
+                      onClose?.();
+                      setShowOverlay(true);
+                      setExportEnabled(false);
+                      clearSvg();
+                      // Appeler la fonction si elle existe
+                      if (resetActiveIconFunc.current) {
+                        resetActiveIconFunc.current();
+                      }
+                    }}
+                    size='lg'
+                    className='px-4 py-4 flex justify-between  bg-c2 text-c6 rounded-8 hover:bg-c3 '>
+                    Nouvelle recherche
+                    <SearchIcon size={18} />
+                  </Button>
+                </DrawerHeader>
+                <DrawerBody className='text-c6 flex flex-col gap-8'>
+                  <a href='/recherche' className='text-c6 flex flex-row gap-4 border-2 border-c3  hover:border-c4 rounded-12 transition w-fit p-3'>
+                    <FileIcon size={20} />
+                    <div>Cahier de recherche</div>
+                  </a>
+                  <SearchHistory
+                    onSelectSearch={(filters) => {
+                      handleOverlaySelect(filters);
+                    }}
+                    onClose={onClose}
+                  />
+                </DrawerBody>
+              </>
+            )}
+          </DrawerContent>
+        </Drawer>
+        <EditModal
+          isOpen={isOpenEdit}
+          onClose={onCloseEdit}
+          itemUrl={currentItemUrl}
           activeConfig={selectedConfigKey}
           itemPropertiesData={itemPropertiesData}
           propertiesLoading={propertiesLoading}
-          itemId={createItemId}
+          justView={!isEditMode}
         />
-      )}
-      <AnnotationDropdown
-        id={Number(annoteObject.id)}
-        content={annoteObject.content}
-        type={annoteObject.type}
-        mode={viewAnnotationMode ? 'annotate' : 'view'}
-        isOpen={isOpenAnnote}
-        onClose={() => onCloseAnnote()}
-      />
-      ;
-      <Toolbar
-        onSearch={handleSearch}
-        handleExportClick={handleExportClick}
-        generatedImage={generatedImage}
-        resetActiveIconRef={setResetActiveIconRef}
-        onSelect={handleOverlaySelect}
-        exportEnabled={exportEnabled}
-        isEditMode={isEditMode}
-        isLinkMode={isLinkMode}
-        isAddMode={isAddMode}
-        isAnnoteMode={isAnnoteMode}
-        onViewToggle={setviewAnnotationMode}
-        firstSelectedNode={firstSelectedNode}
-        secondSelectedNode={secondSelectedNode}
-        onConnect={handleConnect}
-        onCancel={CancelLink}
-        onEditToggle={handleEditModeChange}
-        onLinkToggle={handleLinkModeChange}
-        onAddToggle={handleAddModeChange}
-        onAnnoteToggle={handleAnnoteModeChange}
-        onCreateItem={handleCreateItem}
-      />
-    </div>
+        {createItemId && (
+          <CreateModal
+            isOpen={isOpenCreate}
+            onClose={onCloseCreate}
+            activeConfig={selectedConfigKey}
+            itemPropertiesData={itemPropertiesData}
+            propertiesLoading={propertiesLoading}
+            itemId={createItemId}
+          />
+        )}
+        <AnnotationDropdown
+          id={Number(annoteObject.id)}
+          content={annoteObject.content}
+          type={annoteObject.type}
+          mode={viewAnnotationMode ? 'annotate' : 'view'}
+          isOpen={isOpenAnnote}
+          onClose={() => onCloseAnnote()}
+        />
+        ;
+        <Toolbar
+          onSearch={handleSearch}
+          handleExportClick={handleExportClick}
+          generatedImage={generatedImage}
+          resetActiveIconRef={setResetActiveIconRef}
+          onSelect={handleOverlaySelect}
+          exportEnabled={exportEnabled}
+          isEditMode={isEditMode}
+          isLinkMode={isLinkMode}
+          isAddMode={isAddMode}
+          isAnnoteMode={isAnnoteMode}
+          onViewToggle={setviewAnnotationMode}
+          firstSelectedNode={firstSelectedNode}
+          secondSelectedNode={secondSelectedNode}
+          onConnect={handleConnect}
+          onCancel={CancelLink}
+          onEditToggle={handleEditModeChange}
+          onLinkToggle={handleLinkModeChange}
+          onAddToggle={handleAddModeChange}
+          onAnnoteToggle={handleAnnoteModeChange}
+          onCreateItem={handleCreateItem}
+        />
+      </div>
     </Layouts>
   );
 };
