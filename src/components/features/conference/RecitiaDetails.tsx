@@ -45,7 +45,7 @@ export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description,
 
         {medium && <p className='text-16 text-c6 font-semibold'>Support : {medium}</p>}
 
-        {collaborators && (
+        {collaborators && collaborators.length > 0 && (
           <p
             className='text-16 text-c6 font-semibold transition-all ease-in-out duration-200 gap-10'
             style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
@@ -60,13 +60,14 @@ export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description,
               .join(', ')}
           </p>
         )}
-
-        <p
-          className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200 gap-10'
-          style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
-          {description}
-        </p>
-        <p className='text-16 text-c5 font-semibold transition-all ease-in-out duration-200'>{expanded ? 'affichez moins' : '...affichez plus'}</p>
+        {description && (
+          <p
+            className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200 gap-10'
+            style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
+            {description}
+          </p>
+        )}
+        {description && <p className='text-16 text-c5 font-semibold transition-all ease-in-out duration-200'>{expanded ? 'affichez moins' : '...affichez plus'}</p>}
       </motion.div>
     </motion.div>
   );

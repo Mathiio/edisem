@@ -188,6 +188,7 @@ export const Experimentation: React.FC = () => {
         if (experimentation.recommendations?.length) {
           fetchRecommendedConfs(experimentation.recommendations);
         }
+        console.log(experimentation);
       }
     } finally {
       setLoading(false);

@@ -1,7 +1,7 @@
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
-import { OeuvresBaner } from '@/components/features/oeuvres/OeuvresBaner';
+
 import { Layouts } from '@/components/layout/Layouts';
-import { getOeuvres, getActants, getStudents } from '@/lib/Items';
+import { getRecitIas, getActants, getStudents } from '@/lib/Items';
 import { motion, Variants } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
@@ -14,7 +14,7 @@ const fadeIn: Variants = {
   }),
 };
 
-export const Oeuvres: React.FC = () => {
+export const MiseEnRecits: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [oeuvres, setOeuvres] = useState<any[]>([]);
 
@@ -23,10 +23,10 @@ export const Oeuvres: React.FC = () => {
     const fetchAndProcessData = async () => {
       try {
         // Récupérer les œuvres (RecitIas), actants ET students
-        const [oeuvres, actants, students] = await Promise.all([getOeuvres(), getActants(), getStudents()]);
-        console.log('Oeuvres originales:', oeuvres);
+        const [recitIas, actants, students] = await Promise.all([getRecitIas(), getActants(), getStudents()]);
+
         // Vérifier si recitIas est un tableau valide
-        if (!Array.isArray(oeuvres) || oeuvres.length === 0) {
+        if (!Array.isArray(recitIas) || recitIas.length === 0) {
           setLoading(false);
           return;
         }
@@ -48,7 +48,7 @@ export const Oeuvres: React.FC = () => {
         });
 
         // Enrichir avec les données complètes des actants
-        const oeuvresWithActants = oeuvres.map((oeuvre: any) => {
+        const oeuvresWithActants = recitIas.map((oeuvre: any) => {
           // Traiter le tableau actants
           let enrichedActants = [];
 
@@ -85,6 +85,7 @@ export const Oeuvres: React.FC = () => {
 
         setOeuvres(oeuvresWithActants);
 
+        console.log('Oeuvres originales:', recitIas);
         console.log('Oeuvres enrichies:', oeuvresWithActants);
       } catch (error) {
         console.error('Erreur lors du chargement des œuvres', error);
@@ -97,7 +98,6 @@ export const Oeuvres: React.FC = () => {
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
-      <OeuvresBaner oeuvres={oeuvres} />
       <div className='grid grid-cols-4 w-full gap-25'>
         {loading
           ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)

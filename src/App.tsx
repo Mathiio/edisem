@@ -15,12 +15,14 @@ import { Intervenants } from './pages/intervenants';
 import { Colloques } from './pages/corpus/Colloques';
 import { PratiqueNarrative } from './pages/corpus/PratiqueNarrative';
 import { JourneesEtudes } from './pages/corpus/JourneesEtudes';
-import { Oeuvres } from './pages/corpus/Oeuvres';
+import { MiseEnRecits } from './pages/corpus/MiseEnRecits';
 import { Seminaires } from './pages/corpus/Seminaires';
 import { Experimentations } from './pages/corpus/Experimentations';
 import { Experimentation } from './pages/experimentation';
-import { Recitia } from '@/pages/oeuvre';
+import { miseEnRecit } from '@/pages/miseEnRecit';
 import { Feedback } from './pages/feedback';
+import { Oeuvres } from './pages/corpus/Oeuvres';
+import { Oeuvre } from './pages/oeuvre';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
@@ -34,7 +36,7 @@ function App() {
       <Routes>
         <Route path='/conference/:id' Component={Conference} />
         <Route path='/experimentation/:id' Component={Experimentation} />
-        <Route path='/oeuvre/:id' Component={Recitia} />
+        <Route path='/corpus/mise-en-recit/:id' Component={miseEnRecit} />
         <Route path='/feedback/:id' Component={Feedback} />
         <Route path='/intervenant/:id' Component={Intervenant} />
         <Route path='/database' Component={ProtectedDatabase} />
@@ -43,9 +45,11 @@ function App() {
         <Route path='/corpus/colloques' Component={Colloques} />
         <Route path='/corpus/seminaires' Component={Seminaires} />
         <Route path='/corpus/pratique-narrative' Component={PratiqueNarrative} />
-        <Route path='/corpus/oeuvres' Component={Oeuvres} />
+        <Route path='/corpus/mise-en-recits' Component={MiseEnRecits} />
         <Route path='/corpus/experimentations' Component={Experimentations} />
-        <Route path='/corpus/' Component={CahierRecherche} />
+        <Route path='/corpus/oeuvres' Component={Oeuvres} />
+        <Route path='/oeuvre/:id' Component={Oeuvre} />
+        <Route path='/recherche/' Component={CahierRecherche} />
         <Route index path='/' Component={Home} />
         <Route path='/edition/:id/:title?' Component={Edition} />
         <Route path='/login' Component={LoginPage} />

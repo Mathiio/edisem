@@ -392,10 +392,10 @@ export async function getStudyDayConfs(confId?: number) {
 
           const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
 
-          return rawConfs.map((conf: any) => ({
+          return (rawConfs || []).map((conf: any) => ({
             ...conf,
             type: 'conference',
-            motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+            motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
             url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
             fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
           }));
@@ -417,7 +417,7 @@ export async function getStudyDayConfs(confId?: number) {
 
   } catch (error) {
     console.error('Error fetching confs:', error);
-    throw new Error('Failed to fetch confs');
+    return []; // Return an empty array instead of throwing an error
   }
 }
 
@@ -445,6 +445,7 @@ export async function getAllItems() {
       recherches,
       tools,
       feedbacks,
+      oeuvres,
       recitIas,
     ] = await Promise.all([
       getStudyDayConfs(),
@@ -464,6 +465,7 @@ export async function getAllItems() {
       getTools(),
       getFeedbacks(),
       getOeuvres(),
+      getRecitIas(),
     ]);
 
     const allItems = [
@@ -481,11 +483,14 @@ export async function getAllItems() {
       ...students,
       ...experimentations,
       ...feedbacks,
+      ...oeuvres,
       ...tools,
       ...(Array.isArray(recherches) ? recherches : []),
       ...(Array.isArray(recitIas) ? recitIas : []),
-    ];
 
+
+    ];
+    console.log(allItems);
     sessionStorage.setItem('allItems', JSON.stringify(allItems));
 
     return allItems;
@@ -544,7 +549,9 @@ export async function getKeywords() {
     const keywords = await getDataByUrl(
       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getKeywords&json=1',
     );
-    const keywordsFull = keywords.map((keyword: any) => ({
+
+    // Add null check and default to empty array if no keywords
+    const keywordsFull = (keywords || []).map((keyword: any) => ({
       ...keyword,
       type: 'keyword',
     }));
@@ -553,7 +560,8 @@ export async function getKeywords() {
     return keywordsFull;
   } catch (error) {
     console.error('Error fetching keywords:', error);
-    throw new Error('Failed to fetch keywords');
+    // Return an empty array instead of throwing an error
+    return [];
   }
 }
 
@@ -733,6 +741,30 @@ export async function getStudents() {
   } catch (error) {
     console.error('Error fetching students:', error);
     throw new Error('Failed to fetch students');
+  }
+}
+
+export async function getRecitIas() {
+  try {
+    const storedFeedbacks = sessionStorage.getItem('recitIas');
+    if (storedFeedbacks) {
+      return JSON.parse(storedFeedbacks);
+    }
+
+    const recitIas = await getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getFeedbacks&json=1',
+    );
+  
+    recitIas.forEach((feedback: any) => {
+      feedback.url = '/recitIas/' + feedback.id;
+    });
+
+    sessionStorage.setItem('recitIas', JSON.stringify(recitIas));
+    return recitIas;
+  }
+  catch (error) {
+    console.error('Error fetching recitIas:', error);
+    throw new Error('Failed to fetch recitIas');
   }
 }
 
