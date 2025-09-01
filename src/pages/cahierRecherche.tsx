@@ -59,21 +59,11 @@ const RechercheCard: React.FC<RechercheCardProps> = ({ recherche }) => {
   return (
     <div className='relative rounded-lg overflow-hidden border border-gray-200 h-full'>
       {/* Notification */}
-      {notification && (
-        <div className='absolute top-2 right-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-md z-10'>
-          {notification}
-        </div>
-      )}
+      {notification && <div className='absolute top-2 right-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-md z-10'>{notification}</div>}
 
       <div className='flex flex-col h-full'>
-        <a
-          href={'/visualisation?config=' + encodeURIComponent(JSON.stringify(recherche.config))}
-          className='w-full h-48 overflow-hidden'>
-          <img
-            src={recherche.imageUrl || '/rechercheDefaultImage.png'}
-            alt={recherche.title}
-            className='w-full h-full object-cover rounded-12'
-          />
+        <a href={'/visualisation?config=' + encodeURIComponent(JSON.stringify(recherche.config))} className='w-full h-48 overflow-hidden'>
+          <img src={recherche.imageUrl || '/rechercheDefaultImage.png'} alt={recherche.title} className='w-full h-full object-cover rounded-12' />
         </a>
         <div className='pt-4 flex flex-col flex-grow'>
           <div className='flex justify-between items-start mb-2'>
@@ -141,8 +131,8 @@ export const UnloadedCard: React.FC = () => (
         <h2 className='text-c6 text-2xl font-semibold'>Oups !</h2>
         <p className='text-c6 text-base text-center font-semibold'>Aucune recherche disponible pour cette session...</p>
         <p className='text-c4 text-sm text-center'>
-          Il n'existe actuellement aucune recherche d'enregistrée sur votre compte. Veuillez vérifier plus tard ou
-          explorer la visualisation graphique pour sauvegarder vos recherches.
+          Il n'existe actuellement aucune recherche d'enregistrée sur votre compte. Veuillez vérifier plus tard ou explorer la visualisation graphique pour sauvegarder vos
+          recherches.
         </p>
       </div>
     </div>
@@ -154,6 +144,7 @@ export const CahierRecherche: React.FC = () => {
   const user: any | null = userString ? JSON.parse(userString) : null;
 
   if (!user) {
+    console.log('No user found');
     return null; // Empêche le rendu du composant proprement
   }
 

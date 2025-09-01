@@ -24,11 +24,11 @@ const fadeIn: Variants = {
 };
 
 const viewOptions = [
-  { key: 'Analyse', title: 'Analyse' },
-  { key: 'Reference', title: 'Références' },
+  { key: 'Références', title: 'Références' },
+  { key: 'Acteurs', title: 'Acteurs' },
 ];
 
-export const Recitia: React.FC = () => {
+export const Oeuvre: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
   const [currentVideoTime] = useState<number>(0);
@@ -44,7 +44,7 @@ export const Recitia: React.FC = () => {
   const [equalHeight, setEqualHeight] = useState<number | null>(null);
   const searchModalRef = useRef<SearchModalRef>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [selected, setSelected] = useState('Analyse');
+  const [selected, setSelected] = useState('Acteurs');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Trouve l'option sélectionnée actuelle
@@ -196,9 +196,20 @@ export const Recitia: React.FC = () => {
             ...(oeuvre.themes || []),
             ...(oeuvre.processes || []),
             ...(oeuvre.affects || []),
-          ].map((word: string) => ({
-            title: word,
-          })),
+          ]
+            .map((word: any) => {
+              // Si c'est déjà un objet avec un id, on le garde
+              if (typeof word === 'object' && word !== null && 'id' in word) {
+                return word;
+              }
+
+              // Sinon, on cherche dans la conceptMap pour enrichir
+              const enrichedConcept = conceptMap.get(word) || conceptMap.get(Number(word)) || conceptMap.get(String(word));
+
+              // Retourner le concept enrichi ou créer un objet avec le titre
+              return enrichedConcept || { title: word };
+            })
+            .filter(Boolean),
         );
 
         console.log(oeuvreConcepts);
@@ -228,25 +239,12 @@ export const Recitia: React.FC = () => {
     }
 
     switch (selected) {
-      case 'Analyse':
-        return (
-          <div
-            className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}>
-            <div className='w-full gap-25 py-25 pl-25 flex flex-row justify-between'>
-              <div className={`flex  flex-col gap-4 items-start`}>
-                <div className='w-full flex flex-col gap-10'>
-                  <p className='text-c6 text-16'>{oeuvreDetails.description}</p>
-                </div>
-              </div>
-            </div>
-            <div className='flex flex-col h-full py-25 pr-25'>{/* <AnnotationDropdown id={props.id} content={formatBibliography(props)} type='Bibliographie' /> */}</div>
-          </div>
-        );
-
-      case 'Reference':
+      case 'Références':
         return <div className='flex flex-col gap-10'>{oeuvreDetails.references?.map((reference: any) => <ToolItem key={reference.id} tool={reference} />)}</div>;
+
+      case 'Acteurs':
+        return <div className='flex flex-col gap-10'>{oeuvreDetails.acteurs?.map((acteur: any) => <ActeurItem key={acteur.id} acteur={acteur} />)}</div>;
+
       default:
         return null;
     }
@@ -277,8 +275,10 @@ export const Recitia: React.FC = () => {
             actantId={oeuvreDetails.primaryActant?.id}
             university={oeuvreDetails.primaryActant?.universities?.[0]?.name || ''}
             picture={oeuvreDetails.primaryActant?.picture || ''}
-            medias={oeuvreDetails.associatedMedia}
-            fullUrl={oeuvreDetails.fullUrl}
+            medias={
+              oeuvreDetails.associatedMedia && oeuvreDetails.associatedMedia.length > 0 ? oeuvreDetails.associatedMedia : oeuvreDetails.thumbnail ? [oeuvreDetails.thumbnail] : []
+            }
+            fullUrl={oeuvreDetails.url}
             currentTime={currentVideoTime}
             buttonText='Voir plus'
           />
@@ -312,7 +312,7 @@ export const Recitia: React.FC = () => {
                         className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-15 py-10 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
                         <span className='text-16 font-normal text-c6'>Autres choix</span>
-                        <ArrowIcon size={12} className='rotate-90 text-c6'/>
+                        <ArrowIcon size={12} className='rotate-90 text-c6' />
                       </div>
                     </DropdownTrigger>
 
@@ -392,6 +392,42 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool }) => {
       </Link>
       <div className='flex flex-col h-full py-25 pr-25'>
         <AnnotationDropdown id={Number(tool.id)} content={tool.description} image={tool.thumbnail} type='Bibliographie' />
+      </div>
+    </div>
+  );
+};
+
+interface ActeurItemProps {
+  acteur: {
+    id: string | number;
+    name: string;
+    thumbnail?: string;
+    page?: string;
+  };
+}
+
+export const ActeurItem: React.FC<ActeurItemProps> = ({ acteur }) => {
+  const [isActeurHovered, setIsActeurHovered] = useState(false);
+
+  return (
+    <div
+      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity ${isActeurHovered ? 'border-c6' : 'border-c3'}`}
+      onMouseEnter={() => setIsActeurHovered(true)}
+      onMouseLeave={() => setIsActeurHovered(false)}>
+      <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={acteur.page ?? '#'} target='_blank'>
+        <div className={`flex flex-row gap-4 items-start`}>
+          {acteur.thumbnail && (
+            <div className='flex-shrink-0'>
+              <img src={acteur.thumbnail} alt={acteur.name} className='w-50 h-50 object-cover rounded-6' />
+            </div>
+          )}
+          <div className='w-full flex flex-col gap-10'>
+            <p className='text-c6 text-16'>{acteur.name}</p>
+          </div>
+        </div>
+      </Link>
+      <div className='flex flex-col h-full py-25 pr-25'>
+        <AnnotationDropdown id={Number(acteur.id)} content={acteur.name} image={acteur.thumbnail} type='Acteur' />
       </div>
     </div>
   );
