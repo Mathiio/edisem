@@ -1,18 +1,11 @@
-import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
+import { LastOeuvres } from '@/components/features/oeuvres/LastOeuvres';
 import { OeuvresBaner } from '@/components/features/oeuvres/OeuvresBaner';
+import { OeuvresKeywords } from '@/components/features/oeuvres/OeuvresKeywords';
 import { Layouts } from '@/components/layout/Layouts';
 import { getOeuvres, getActants, getStudents } from '@/lib/Items';
-import { motion, Variants } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-const fadeIn: Variants = {
-  hidden: { opacity: 0, y: 6 },
-  visible: (index: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, delay: index * 0.15 },
-  }),
-};
+
 
 export const Oeuvres: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -24,7 +17,6 @@ export const Oeuvres: React.FC = () => {
       try {
         // Récupérer les œuvres (RecitIas), actants ET students
         const [oeuvres, actants, students] = await Promise.all([getOeuvres(), getActants(), getStudents()]);
-        console.log('Oeuvres originales:', oeuvres);
         // Vérifier si recitIas est un tableau valide
         if (!Array.isArray(oeuvres) || oeuvres.length === 0) {
           setLoading(false);
@@ -98,7 +90,9 @@ export const Oeuvres: React.FC = () => {
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
       <OeuvresBaner oeuvres={oeuvres} />
-      <div className='grid grid-cols-4 w-full gap-25'>
+      <OeuvresKeywords oeuvres={oeuvres}/>
+      <LastOeuvres oeuvres={oeuvres} loading={loading} />
+      {/* <div className='grid grid-cols-4 w-full gap-25'>
         {loading
           ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
           : oeuvres.map((item: any, index: number) => (
@@ -116,7 +110,7 @@ export const Oeuvres: React.FC = () => {
                 />
               </motion.div>
             ))}
-      </div>
+      </div> */}
     </Layouts>
   );
 };
