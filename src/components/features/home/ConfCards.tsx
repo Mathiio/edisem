@@ -70,11 +70,17 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
           </p>
           {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-c6'></span>}
         </div>
-        <p className='text-16 text-c5 font-extralight'>
-          {actant}
-          <span className='text-14'> - {universite}</span>
-        </p>
-        <p className='text-14 text-c5 font-extralight'>{type === 'experimentation' || type === 'oeuvre' ? date : formatDate(date)}</p>
+        {actant && (
+          <p className='text-16 text-c5 font-extralight'>
+            {actant}
+            {universite && <span className='text-14'> - {universite}</span>}
+          </p>
+        )}
+        {type === 'experimentation' || type === 'mise-en-recit' || type === 'oeuvre' ? (
+          <p className='text-14 text-c5 font-extralight'>{date}</p>
+        ) : (
+          <p className='text-14 text-c5 font-extralight'>{formatDate(date)}</p>
+        )}
       </div>
     </div>
   );

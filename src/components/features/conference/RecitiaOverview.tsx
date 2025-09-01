@@ -126,17 +126,19 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
         <h1 className='font-medium text-c6 text-24'>{title}</h1>
         <div className='w-full flex flex-col gap-10'>
           <div className='w-full flex justify-between gap-10 items-center'>
-            <Link className='w-fit flex justify-start gap-10 items-center cursor-pointer' onClick={openActant}>
-              {picture ? (
-                <img src={picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
-              ) : (
-                <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
-              )}
-              <div className='flex flex-col items-start gap-0.5'>
-                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{actant}</h3>
-                <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{truncateTitle(university, 48)}</p>
-              </div>
-            </Link>
+            {actant && (
+              <Link className='w-fit flex justify-start gap-10 items-center cursor-pointer' onClick={openActant}>
+                {picture ? (
+                  <img src={picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                ) : (
+                  <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
+                )}
+                <div className='flex flex-col items-start gap-0.5'>
+                  <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{actant}</h3>
+                  <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{truncateTitle(university, 48)}</p>
+                </div>
+              </Link>
+            )}
 
             <div className='w-fit flex justify-between gap-10 items-center'>
               <Button

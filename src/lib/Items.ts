@@ -693,6 +693,27 @@ export async function getStudents() {
   }
 }
 
+export async function getOeuvres() {
+  try {
+    const storedOeuvres = sessionStorage.getItem('oeuvres');
+    if (storedOeuvres) {
+      return JSON.parse(storedOeuvres);
+    }
+
+    const oeuvres = await getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1',
+    );
+
+    sessionStorage.setItem('oeuvres', JSON.stringify(oeuvres));
+    return oeuvres;
+  }
+  catch (error) {
+    console.error('Error fetching oeuvres:', error);
+    throw new Error('Failed to fetch oeuvres');
+  }
+}
+
+
 export function generateThumbnailUrl(mediaId: string | number): string {
   // Assuming the API endpoint for media thumbnails follows this pattern
   return `https://tests.arcanes.ca/omk/s/edisem/media/${mediaId}`;
