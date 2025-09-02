@@ -541,6 +541,34 @@ export async function getAllItems() {
   }
 }
 
+export async function getAllConfs(id?: number) {
+  try {
+    const seminarConfs = await getSeminarConfs();
+    const colloqueConfs = await getColloqueConfs();
+    const studyDayConfs = await getStudyDayConfs();
+
+    const allConfs = [...seminarConfs, ...colloqueConfs, ...studyDayConfs];
+
+    if (id !== undefined) {
+      const conf = allConfs.find(conf => String(conf.id) === String(id));
+      if (!conf) {
+        throw new Error(`Conference with id ${id} not found`);
+      }
+      
+      if (conf.actant) {
+        conf.actant = await getActants(conf.actant);
+      }
+      
+      return conf; 
+    }
+
+    return allConfs;
+  } catch (error) {
+    console.error('Error fetching all confs:', error);
+    throw new Error('Failed to fetch all confs');
+  }
+}
+
 export async function getTools() {
   try {
     const storedTools = sessionStorage.getItem('tools');
