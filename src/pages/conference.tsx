@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getConfCitations, getConfBibliographies, getConfMediagraphies } from '@/lib/api';
-import * as Items from '@/lib/Items';
+import * as Items from '@/lib/Items'
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
 import { Citations } from '@/components/features/conference/CitationsCards';
@@ -9,13 +9,14 @@ import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/features/conf
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
 import { DropdownItem, Dropdown, DropdownMenu, DropdownTrigger } from '@heroui/react';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
-import { Bibliographies } from '@/components/features/conference/BibliographyCards';
+import { Bibliographies,  } from '@/components/features/conference/BibliographyCards';
 import { Mediagraphies } from '@/components/features/conference/MediagraphyCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/features/home/ConfCards';
 import { SearchModal, SearchModalRef } from '@/components/layout/SearchModal';
 import { ArrowIcon } from '@/components/ui/icons';
 import { Conference as ConferenceType, Bibliography, Mediagraphy } from '@/types/ui';
+
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -31,6 +32,7 @@ const viewOptions = [
   { key: 'Bibliographie', title: 'Bibliographie' },
   { key: 'Medias', title: 'Médias' },
 ];
+
 
 export const Conference: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,6 +50,7 @@ export const Conference: React.FC = () => {
   const searchModalRef = useRef<SearchModalRef>(null);
   const selectedOption = viewOptions.find((option) => option.key === selected);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
 
   const handleOptionSelect = (optionKey: string) => {
     setSelected(optionKey);
@@ -67,9 +70,12 @@ export const Conference: React.FC = () => {
   const fetchRecommendedConfs = async (recommendationIds: string[]) => {
     setLoadingRecommendations(true);
     try {
-      const recommendationsPromises = recommendationIds.map((recId) => Items.getSeminarConfs(Number(recId)));
-      const recommendations = await Promise.all(recommendationsPromises);
-      setRecommendedConfs(recommendations);
+      const allConfs: ConferenceType[] = await Items.getAllConfs();
+      const recommendedConfs = allConfs.filter(conf => 
+        recommendationIds.includes(String(conf.id)) || 
+        recommendationIds.includes(conf.id)
+      );
+      setRecommendedConfs(recommendedConfs);
     } catch (error) {
       console.error('Error fetching recommended conferences:', error);
       setRecommendedConfs([]);
@@ -84,21 +90,23 @@ export const Conference: React.FC = () => {
     setLoading(true);
     try {
       const [conf, citations, bibliographies, mediagraphies] = await Promise.all([
-        Items.getSeminarConfs(Number(id)),
+        Items.getAllConfs(Number(id)),
         getConfCitations(Number(id)),
         getConfBibliographies(Number(id)),
         getConfMediagraphies(Number(id)),
       ]);
 
       setConf(conf);
-      console.log(conf);
       setConfCitations(citations);
       setConfBibliographies(bibliographies);
       setConfMediagraphies(mediagraphies);
 
-      if (conf.recommendation && conf.recommendation.length > 0) {
+      if (conf?.recommendation && conf.recommendation.length > 0) {
         await fetchRecommendedConfs(conf.recommendation);
       }
+    } catch (error) {
+      console.error('Error fetching conference data:', error);
+      setConf(null);
     } finally {
       setLoading(false);
     }
@@ -140,12 +148,12 @@ export const Conference: React.FC = () => {
         {loading ? (
           <>
             <ConfOverviewSkeleton />
-            <ConfDetailsSkeleton />
+            <ConfDetailsSkeleton/>
           </>
         ) : conf ? (
           <>
-            <ConfOverviewCard conf={conf} currentTime={currentVideoTime} />
-            <ConfDetailsCard conf={conf} />
+            <ConfOverviewCard conf={conf} currentTime={currentVideoTime}/>
+            <ConfDetailsCard conf={conf}/>
           </>
         ) : null}
       </motion.div>
@@ -158,19 +166,25 @@ export const Conference: React.FC = () => {
                 <DropdownTrigger className='p-0'>
                   <div
                     className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-15 py-10 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  >
                     <span className='text-16 font-normal text-c6'>Autres choix</span>
-                    <ArrowIcon size={12} className='rotate-90 text-c6' />
+                    <ArrowIcon size={12} className='rotate-90 text-c6'/>
                   </div>
                 </DropdownTrigger>
 
                 <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
                   {viewOptions.map((option) => (
-                    <DropdownItem key={option.key} className={`p-0 ${selected === option.key ? 'bg-action' : ''}`} onClick={() => handleOptionSelect(option.key)}>
+                    <DropdownItem
+                      key={option.key}
+                      className={`p-0 ${selected === option.key ? 'bg-action' : ''}`}
+                      onClick={() => handleOptionSelect(option.key)}
+                    >
                       <div
                         className={`flex items-center w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 ${
                           selected === option.key ? 'bg-action text-selected font-medium' : 'text-c6'
-                        }`}>
+                        }`}
+                      >
                         <span className='text-16'>{option.title}</span>
                       </div>
                     </DropdownItem>
@@ -181,7 +195,9 @@ export const Conference: React.FC = () => {
           </div>
 
           {/* Contenu principal */}
-          <div className='flex-grow min-h-0 overflow-auto'>{renderContent()}</div>
+          <div className='flex-grow min-h-0 overflow-auto'>
+            {renderContent()}
+          </div>
         </div>
       </motion.div>
       {!loadingRecommendations && recommendedConfs.length > 0 && (
