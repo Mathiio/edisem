@@ -48,7 +48,7 @@ function App() {
         <Route path='/corpus/mise-en-recits' Component={MiseEnRecits} />
         <Route path='/corpus/experimentations' Component={Experimentations} />
         <Route path='/corpus/oeuvres' Component={Oeuvres} />
-        <Route path='/oeuvre/:id' Component={Oeuvre} />
+        <Route path='/corpus/oeuvre/:id' Component={Oeuvre} />
         <Route path='/recherche/' Component={CahierRecherche} />
         <Route index path='/' Component={Home} />
         <Route path='/edition/:id/:title?' Component={Edition} />
