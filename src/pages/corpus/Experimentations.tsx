@@ -1,3 +1,4 @@
+import { ExperimentationBaner } from '@/components/features/experimentation/ExpBaner';
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { getExperimentations, getActants, getStudents } from '@/lib/Items';
@@ -83,6 +84,7 @@ export const Experimentations: React.FC = () => {
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
+      <ExperimentationBaner/>
       <div className='grid grid-cols-4 w-full gap-25'>
         {loading
           ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
