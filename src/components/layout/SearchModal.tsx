@@ -7,6 +7,7 @@ import { motion, Variants } from 'framer-motion';
 import { filterActants, filterConfs } from '@/lib/api';
 import * as Items from "@/lib/Items"
 import { Conference } from '@/types/ui';
+import { SearchModalCard } from '@/components/features/oeuvres/OeuvresCards';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -32,13 +33,14 @@ interface FilteredConfs {
   studyDays: Conference[];
 }
 
+
 const filterConferencesByType = (allConfs: Conference[], actants: any[], keywords: any[], query: string, type: string) => {
   return allConfs
     .filter((conf: any) => conf.type === type)
     .filter((conf: any) => {
       const actant = actants.find((act: any) => act.id === conf.actant);
       const confKeywords = keywords.filter((kw: any) => conf.keywords?.includes(kw.id));
-      
+
       return (
         conf.title?.toLowerCase().includes(query.toLowerCase()) ||
         conf.description?.toLowerCase().includes(query.toLowerCase()) ||
@@ -54,7 +56,6 @@ const filterConferencesByType = (allConfs: Conference[], actants: any[], keyword
       return { ...conf, actant };
     });
 };
-
 
 const ConferenceSection: React.FC<{
   conferences: Conference[];
@@ -111,7 +112,56 @@ const ConferenceSection: React.FC<{
   );
 };
 
+// Composant pour la section des œuvres
+const OeuvresSection: React.FC<{
+  oeuvres: any[];
+  loading: boolean;
+  onClose: () => void;
+}> = ({ oeuvres, loading, onClose }) => {
+  if (loading) {
+    return (
+      <div className='w-full flex flex-col gap-20'>
+        <h2 className='text-24 font-medium text-c6'>Œuvres</h2>
+        <div className='w-full flex flex-col gap-10'>
+          {/* Pas de skeleton, juste un indicateur de chargement */}
+          <div className="flex justify-center items-center p-40">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-c6"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
+  if (oeuvres.length === 0) return null;
+
+  return (
+    <div className='w-full flex flex-col gap-20'>
+      <h2 className='text-24 font-medium text-c6'>
+        Œuvres ({oeuvres.length})
+      </h2>
+      <div className='w-full flex flex-col gap-10'>
+        {oeuvres.map((oeuvre, index) => (
+          <motion.div 
+            key={oeuvre.id} 
+            initial='hidden' 
+            animate='visible' 
+            variants={fadeIn} 
+            custom={index}
+          >
+            <SearchModalCard
+              id={oeuvre.id}
+              title={oeuvre.title}
+              date={oeuvre.date}
+              thumbnail={oeuvre.thumbnail}
+              acteurs={oeuvre.acteurs}
+              onClose={onClose}
+            />
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
   ({ notrigger = false }, ref) => {
@@ -120,6 +170,10 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
     const [filteredActants, setFilteredActants] = useState<any[]>([]);
     const [loadingActants, setLoadingActants] = useState(false);
     
+    // États pour les œuvres
+    const [filteredOeuvres, setFilteredOeuvres] = useState<any[]>([]);
+    const [loadingOeuvres, setLoadingOeuvres] = useState(false);
+
     // États pour les conférences
     const [filteredConferences, setFilteredConferences] = useState<FilteredConfs>({
       seminars: [],
@@ -153,7 +207,7 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
           const actantKeywords = keywords.filter((kw: any) => 
             actant.keywords?.includes ? actant.keywords.includes(kw.id) : false
           );
-          
+
           return (
             actant.firstname?.toLowerCase().includes(query.toLowerCase()) ||
             actant.lastname?.toLowerCase().includes(query.toLowerCase()) ||
@@ -172,11 +226,39 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
       }
     }, []);
 
+    // Fonction pour filtrer les œuvres
+    const fetchOeuvres = useCallback(async (query: string) => {
+      if (!query) return;
+      setLoadingOeuvres(true);
+      try {
+        const oeuvres = await Items.getOeuvres();
+
+        const filtered = oeuvres.filter((oeuvre: any) => {
+          return (
+            oeuvre.title?.toLowerCase().includes(query.toLowerCase()) ||
+            oeuvre.description?.toLowerCase().includes(query.toLowerCase()) ||
+            oeuvre.abstract?.toLowerCase().includes(query.toLowerCase()) ||
+            (oeuvre.keywords && Array.isArray(oeuvre.keywords) && 
+             oeuvre.keywords.some((keyword: string) => 
+               keyword.toLowerCase().includes(query.toLowerCase())
+             ))
+          );
+        });
+
+        setFilteredOeuvres(filtered);
+      } catch (error) {
+        console.error('Error fetching oeuvres:', error);
+        setFilteredOeuvres([]);
+      } finally {
+        setLoadingOeuvres(false);
+      }
+    }, []);
+
     // Fonction pour filtrer toutes les conférences
     const fetchAllConferences = useCallback(async (query: string) => {
       if (!query) return;
       setLoadingConferences(true);
-      
+
       try {
         const [allConfs, actants, keywords] = await Promise.all([
           Items.getAllConfs(),
@@ -210,6 +292,7 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
         setHasSearched(true);
         fetchActants(searchQuery);
         fetchAllConferences(searchQuery);
+        fetchOeuvres(searchQuery);
       } else {
         setHasSearched(false);
         setFilteredActants([]);
@@ -218,8 +301,9 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
           colloques: [],
           studyDays: []
         });
+        setFilteredOeuvres([]);
       }
-    }, [searchQuery, fetchActants, fetchAllConferences]);
+    }, [searchQuery, fetchActants, fetchAllConferences, fetchOeuvres]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchQuery(e.target.value);
@@ -244,6 +328,7 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
         colloques: [],
         studyDays: []
       });
+      setFilteredOeuvres([]);
       setHasSearched(false);
     };
 
@@ -259,10 +344,12 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
       };
     }, []);
 
-    // Calculer le nombre total de conférences
+    // Calculer le nombre total de résultats
     const totalConferences = filteredConferences.seminars.length + 
                            filteredConferences.colloques.length + 
                            filteredConferences.studyDays.length;
+    
+    const totalResults = totalConferences + filteredActants.length + filteredOeuvres.length;
 
     return (
       <>
@@ -319,7 +406,7 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
                       inputWrapper: 'group-data-[focus=true]:bg-c1 rounded-12 font-normal text-c6 bg-c1 px-20 py-15 h-auto',
                       innerWrapper: 'h-auto',
                     }}
-                    placeholder='Conférences, actant, mots clés...'
+                    placeholder='Conférences, œuvres, intervenants, mots clés...'
                     size='sm'
                     startContent={<SearchIcon size={18} />}
                     endContent={<Kbd className='flex sm:flex font-semibold text-c6 text-12 px-[8px] py-5 bg-c3 gap-5'>ESC</Kbd>}
@@ -353,6 +440,13 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
                           onClose={handleClose}
                         />
 
+                        {/* Section des œuvres */}
+                        <OeuvresSection
+                          oeuvres={filteredOeuvres}
+                          loading={loadingOeuvres}
+                          onClose={handleClose}
+                        />
+
                         {/* Section des intervenants */}
                         {filteredActants.length > 0 && !loadingActants && (
                           <div className='w-full flex flex-col gap-20'>
@@ -383,10 +477,10 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
 
                         {/* Message aucun résultat */}
                         {hasSearched && 
-                         filteredActants.length === 0 && 
-                         totalConferences === 0 && 
+                         totalResults === 0 && 
                          !loadingActants && 
-                         !loadingConferences && (
+                         !loadingConferences && 
+                         !loadingOeuvres && (
                           <div className='w-full flex justify-center p-50'>
                             <p className='text-c6 text-16'>Aucun résultat trouvé</p>
                           </div>

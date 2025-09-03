@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface OeuvreCardProps {
@@ -52,5 +53,114 @@ export const LongCard: React.FC<OeuvreCardProps> = ({
         </div>
       </div>
     </motion.div>
+  );
+};
+
+
+
+
+
+interface SearchModalProps {
+  id: string;
+  title: string;
+  date?: string;
+  thumbnail?: string;
+  acteurs?: Array<{
+    id: string;
+    name: string;
+    thumbnail?: string;
+    page?: string;
+  }>;
+  onClose: () => void;
+}
+
+export const SearchModalCard: React.FC<SearchModalProps> = ({ 
+  id, 
+  title, 
+  date, 
+  thumbnail, 
+  acteurs = [], 
+  onClose 
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
+  const [isTruncated, setIsTruncated] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  const openOeuvre = () => {
+    navigate(`/corpus/oeuvre/${id}`);
+    onClose();
+  };
+
+    const getActeursText = () => {
+    if (!acteurs || acteurs.length === 0) return '';
+        const validActeurs = acteurs.filter(acteur => acteur?.name && typeof acteur.name === 'string');
+    
+    if (validActeurs.length === 0) return '';
+    
+    const displayActeurs = validActeurs.slice(0, 2).map(acteur => acteur.name.trim());
+    let result = displayActeurs.join(', ');
+    
+    if (validActeurs.length > 2) {
+        result += ` et ${validActeurs.length - 2} autre${validActeurs.length - 2 > 1 ? 's' : ''}`;
+    }
+    
+    return result;
+    };
+
+  useEffect(() => {
+    const element = textRef.current;
+    if (element) {
+      setIsTruncated(element.scrollHeight > element.clientHeight);
+    }
+  }, [title]);
+
+  return (
+    <div
+      onClick={openOeuvre}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`cursor-pointer border-2 h-full rounded-12 flex items-center justify-start p-20 gap-20 transition-transform-colors-opacity ${
+        isHovered ? 'border-c4' : 'border-c3'
+      }`}
+    >
+      {/* Image ou placeholder */}
+      <div 
+        className={`p-50 h-full w-300 rounded-12 justify-center items-center flex ${
+          thumbnail ? 'bg-cover bg-center' : 'bg-gradient-to-br from-200 to-400'
+        }`}
+        style={thumbnail ? { backgroundImage: `url(${thumbnail})` } : {}}
+      >
+        <h3 className={`text-16 text-100 font-semibold text-selected ${thumbnail ? 'invisible' : ''}`}>
+          ŒUVRE
+        </h3>
+      </div>
+
+      {/* Contenu */}
+      <div className='flex flex-col gap-5 w-full'>
+        {/* Titre */}
+        <div className='relative'>
+          <p
+            ref={textRef}
+            className='text-16 text-c6 font-medium overflow-hidden max-h-[4.5rem] line-clamp-3'
+          >
+            {title}
+          </p>
+          {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-c6'></span>}
+        </div>
+
+        {/* Acteurs */}
+        {getActeursText() && (
+          <p className='text-16 text-c5 font-extralight'>
+            {getActeursText()}
+          </p>
+        )}
+
+        {/* Date */}
+        {date && (
+          <p className='text-14 text-c5 font-extralight'>{date}</p>
+        )}
+      </div>
+    </div>
   );
 };
