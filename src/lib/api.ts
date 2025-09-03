@@ -117,7 +117,7 @@ export async function filterActants(searchQuery: string) {
 
 export async function filterConfs(searchQuery: string) {
   try {
-    const confs = await Items.getSeminarConfs();
+    const confs = await Items.getAllConfs();
 
     const updatedConfs = await Promise.all(
       confs.map(async (conf: { actant: number }) => {

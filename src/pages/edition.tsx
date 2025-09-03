@@ -21,6 +21,15 @@ export const Edition: React.FC = () => {
   const [loadingConf, setLoadingConf] = useState(true);
   const dataFetchedRef = useRef(false);
 
+  const formatTitle = (urlTitle?: string): string => {
+    if (!urlTitle) return '';
+    
+    return urlTitle
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   const fetchConf = useCallback(async () => {
     if (dataFetchedRef.current) return;
     const conferences = await getConfByEdition(Number(id));
@@ -39,7 +48,7 @@ export const Edition: React.FC = () => {
   return (
     <Layouts className='col-span-10 flex flex-col gap-100'>
       <div className='gap-25 flex flex-col'>
-        <h2 className='text-24 font-medium text-c6'>Conférences de {title}</h2>
+        <h2 className='text-24 font-medium text-c6'>Conférences de {formatTitle(title)}</h2>
         <div className='grid grid-cols-4 grid-rows-3 gap-25'>
           {loadingConf
             ? Array.from({ length: 12 }).map((_, index) => <LgConfSkeleton key={index} />)

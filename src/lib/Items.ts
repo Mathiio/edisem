@@ -353,7 +353,7 @@ export async function getSeminarConfs(confId?: number) {
 
           return rawConfs.map((conf: any) => ({
             ...conf,
-            type: 'conference',
+            type: 'seminar',
             motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
             url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
             fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
@@ -394,7 +394,7 @@ export async function getColloqueConfs(confId?: number) {
 
           return rawConfs.map((conf: any) => ({
             ...conf,
-            type: 'conference',
+            type: 'colloque',
             motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
             url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
             fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
@@ -435,7 +435,7 @@ export async function getStudyDayConfs(confId?: number) {
 
           return (rawConfs || []).map((conf: any) => ({
             ...conf,
-            type: 'conference',
+            type: 'studyday',
             motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
             url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
             fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
@@ -531,7 +531,6 @@ export async function getAllItems() {
 
 
     ];
-    console.log(allItems);
     sessionStorage.setItem('allItems', JSON.stringify(allItems));
 
     return allItems;
