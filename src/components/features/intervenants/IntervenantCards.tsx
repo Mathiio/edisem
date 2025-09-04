@@ -5,17 +5,8 @@ import { Link } from '@heroui/react';
 import { ParticipateIcon, UserIcon } from '@/components/ui/icons';
 import { Actant } from '@/types/ui';
 
-
-
 // Card displaying an intervenant with name, photo, university and intervention count
-export const IntervenantCard: React.FC<Actant> = ({
-  id,
-  firstname,
-  lastname,
-  picture,
-  interventions,
-  universities,
-}) => {
+export const IntervenantCard: React.FC<Actant> = ({ id, firstname, lastname, picture, interventions, universities }) => {
   const navigate = useNavigate();
 
   // Navigate to intervenant's page
@@ -26,38 +17,32 @@ export const IntervenantCard: React.FC<Actant> = ({
   return (
     <div
       onClick={openIntervenantPage}
-      className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] h-full border-c3 border-2 cursor-pointer p-20 rounded-30 flex flex-col items-center justify-center gap-20 hover:bg-c2 h-full transition-all duration-200'>
-        {/* Picture or fallback icon */}
-        {picture ? (
-          <img src={picture} alt={`${firstname} ${lastname}`} className='w-60 h-60 object-cover rounded-14' />
-        ) : (
-          <div className='w-60 h-60 rounded-14 object-cover flex items-center justify-center bg-c3'>
-            <UserIcon size={24} className='text-c6' />
-          </div>
-        )}
+      className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] h-full border-c3 border-2 cursor-pointer p-20 rounded-30 flex flex-col items-center justify-center gap-20 hover:bg-c2 transition-all duration-200'>
+      {/* Picture or fallback icon */}
+      {picture ? (
+        <img src={picture} alt={`${firstname} ${lastname}`} className='w-60 h-60 object-cover rounded-14' />
+      ) : (
+        <div className='w-60 h-60 rounded-14 object-cover flex items-center justify-center bg-c3'>
+          <UserIcon size={24} className='text-c6' />
+        </div>
+      )}
       {/* Intervenant name and University logos and names */}
       <div className='flex flex-col justify-center items-center gap-5'>
         <p className='text-16 text-center text-c6 font-medium'>
           {firstname} {lastname}
         </p>
         <div className='flex-col flex items-center justify-center gap-5'>
-        {universities.map((university, index) => (
-          <div key={index} className='flex items-center justify-center gap-5'>
-            <img
-              src={university.logo}
-              alt={university.shortName}
-              className='w-auto h-15 object-cover rounded-full'
-            />
-            <p className='text-12 text-left text-c5 font-extralight'>
-              {university.shortName}
-            </p>
-          </div>
-        ))}
+          {universities.map((university, index) => (
+            <div key={index} className='flex items-center justify-center gap-5'>
+              <img src={university.logo} alt={university.shortName} className='w-auto h-15 object-cover rounded-full' />
+              <p className='text-12 text-left text-c5 font-extralight'>{university.shortName}</p>
+            </div>
+          ))}
         </div>
       </div>
       {/* Number of interventions */}
       <div className='flex gap-5 items-center'>
-        <ParticipateIcon size={20} className='text-c5'/>
+        <ParticipateIcon size={20} className='text-c5' />
         <p className='text-14 text-c5 font-regular'>
           {interventions} interv{interventions > 1 ? '.' : '.'}
         </p>
@@ -65,7 +50,6 @@ export const IntervenantCard: React.FC<Actant> = ({
     </div>
   );
 };
-
 
 // Skeleton loader for IntervenantCard
 export const IntervenantSkeleton: React.FC = () => {
@@ -88,9 +72,6 @@ export const IntervenantSkeleton: React.FC = () => {
     </div>
   );
 };
-
-
-
 
 type InfoCardProps = {
   name: string | undefined;
@@ -126,7 +107,6 @@ export const InfoCard: React.FC<InfoCardProps> = ({ name, link }) => {
   );
 };
 
-
 // Skeleton loader for InfoCard
 export const InfoSkeleton: React.FC = () => {
   return (
@@ -141,10 +121,6 @@ export const InfoSkeleton: React.FC = () => {
   );
 };
 
-
-
-
-
 export const IntervenantLongCard: React.FC<Actant> = ({ id, firstname, lastname, picture, interventions, universities }) => {
   const navigate = useNavigate();
 
@@ -154,41 +130,39 @@ export const IntervenantLongCard: React.FC<Actant> = ({ id, firstname, lastname,
   };
 
   return (
-    (<div
+    <div
       onClick={openIntervenantPage}
       className='shadow-[inset_0_0px_25px_rgba(255,255,255,0.05)] border-c3 border-2 hover:bg-c3 cursor-pointer h-full rounded-24 flex items-center justify-between p-20 gap-20 transition-transform-all duration-200'>
       <div className='flex items-center justify-start gap-20'>
-      {/* Picture or fallback icon */}
-      {picture ? (
-        <img src={picture} alt={`${firstname} ${lastname}`} className='w-75 h-75 object-cover rounded-14' />
-      ) : (
-        <div className='w-75 h-75 rounded-14 object-cover flex items-center justify-center bg-c3'>
-          <UserIcon size={24} className='text-c6' />
-        </div>
-      )}
+        {/* Picture or fallback icon */}
+        {picture ? (
+          <img src={picture} alt={`${firstname} ${lastname}`} className='w-75 h-75 object-cover rounded-14' />
+        ) : (
+          <div className='w-75 h-75 rounded-14 object-cover flex items-center justify-center bg-c3'>
+            <UserIcon size={24} className='text-c6' />
+          </div>
+        )}
         <div className='flex flex-col justify-center items-start gap-10'>
-          <p className='text-16 text-center text-c6 font-medium'>{firstname} {lastname}</p>
-           <div className="flex-col flex items-start justify-center gap-5">
+          <p className='text-16 text-center text-c6 font-medium'>
+            {firstname} {lastname}
+          </p>
+          <div className='flex-col flex items-start justify-center gap-5'>
             {universities.map((university, index) => (
               <div key={index} className='flex items-center justify-center gap-5'>
-                <img
-                  src={university.logo}
-                  alt={(university.shortName)}
-                  className='w-auto h-15 object-cover rounded-full'
-                />
-                <p className='text-14 text-left text-c5 font-extralight'>{(university.shortName)}</p>
+                <img src={university.logo} alt={university.shortName} className='w-auto h-15 object-cover rounded-full' />
+                <p className='text-14 text-left text-c5 font-extralight'>{university.shortName}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
       <div className='flex gap-5 items-center'>
-        <ParticipateIcon size={20} className='text-c5'/>
+        <ParticipateIcon size={20} className='text-c5' />
         <p className='text-14 text-c5 font-regular'>
           {interventions} interv{interventions > 1 ? '.' : '.'}
         </p>
       </div>
-    </div>)
+    </div>
   );
 };
 

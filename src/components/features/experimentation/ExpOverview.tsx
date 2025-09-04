@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CameraIcon, UserIcon, ShareIcon, MovieIcon, ArrowIcon } from '@/components/ui/icons';
 import { motion, Variants } from 'framer-motion';
-import { addToast, Skeleton, Link, Button, cn, DropdownTrigger, DropdownMenu, DropdownItem, Dropdown } from '@heroui/react';
+import { addToast, Skeleton, Link, Button, cn } from '@heroui/react';
 import { AnnotationDropdown } from '../conference/AnnotationDropdown';
 import { Splide, SplideTrack, SplideSlide } from '@splidejs/react-splide';
 import MediaViewer from '../conference/MediaViewer';
@@ -26,13 +26,13 @@ const containerVariants: Variants = {
 type ExpOverviewProps = {
   id: number;
   title: string;
-  personnes: any;
+  personnes: any[];
   medias: string[]; // Tableau de liens d'images
   fullUrl: string;
   currentTime: number;
-  buttonText: string;
   percentage: number;
   status: string;
+  buttonText: string;
 };
 
 export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, personnes, medias, fullUrl, buttonText, percentage, status }) => {
@@ -40,15 +40,8 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, personn
 
   const navigate = useNavigate();
 
-  const openPersonne = (personne: any) => {
-    navigate(`/conferencier/${personne.id}`);
-  };
-
-  const truncateTitle = (title: string, maxLength: number) => {
-    if (title.length > maxLength) {
-      return title.slice(0, maxLength) + '...';
-    }
-    return title;
+  const openActant = () => {
+    navigate(`/conferencier/${personnes[0]?.id}`);
   };
 
   const copyToClipboard = () => {
@@ -60,7 +53,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, personn
 
   const clampedPercentage = Math.max(0, Math.min(100, Math.round(percentage ?? 0)));
   const totalSegments = 5;
-  const segmentSpan = 100 / totalSegments; // 20% each
+  const segmentSpan = 100 / totalSegments;
 
   return (
     <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
@@ -129,41 +122,16 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, personn
         <h1 className='font-medium text-c6 text-24'>{title}</h1>
         <div className='w-full flex flex-col gap-10'>
           <div className='w-full flex justify-between gap-10 items-center'>
-            <div className='w-fit flex justify-start gap-10 items-center'>
-              {personnes && personnes.length > 0 && (
-                <div className='w-fit flex justify-start gap-10 items-center'>
-                  {personnes[0]?.thumbnail ? (
-                    <img src={personnes[0].thumbnail} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
-                  ) : (
-                    <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
-                  )}
-                  <div className='flex flex-col items-start gap-0.5'>
-                    <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
-                  </div>
-                </div>
+            <Link className='w-fit flex justify-start gap-10 items-center cursor-pointer' onClick={openActant}>
+              {personnes[0]?.thumbnail ? (
+                <img src={personnes[0]?.thumbnail} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+              ) : (
+                <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
               )}
-              {personnes && personnes.length > 1 && (
-                <Dropdown>
-                  <DropdownTrigger className='p-0'>
-                    <Button
-                      size='md'
-                      className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
-                      <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1} </h3>
-                    </Button>
-                  </DropdownTrigger>
-
-                  <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
-                    {personnes.slice(1).map((option: any) => (
-                      <DropdownItem key={option.key} className={`p-0`} onClick={() => openPersonne(option)}>
-                        <div className={`flex items-center w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 ${'text-c6'}`}>
-                          <span className='text-16'>{option.name}</span>
-                        </div>
-                      </DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </Dropdown>
-              )}
-            </div>
+              <div className='flex flex-col items-start gap-0.5'>
+                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
+              </div>
+            </Link>
 
             <div className='w-fit flex justify-between gap-10 items-center'>
               <Button

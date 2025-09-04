@@ -266,6 +266,7 @@ export const Oeuvre: React.FC = () => {
             medias={
               oeuvreDetails.associatedMedia && oeuvreDetails.associatedMedia.length > 0 ? oeuvreDetails.associatedMedia : oeuvreDetails.thumbnail ? [oeuvreDetails.thumbnail] : []
             }
+            credits={oeuvreDetails.credits}
             fullUrl={oeuvreDetails.url}
             currentTime={currentVideoTime}
             buttonText='Voir plus'
@@ -276,7 +277,6 @@ export const Oeuvre: React.FC = () => {
         ) : (
           <RecitiaDetailsCard
             date={oeuvreDetails.date}
-            credits={oeuvreDetails.credits}
             description={oeuvreDetails.abstract}
             genre={oeuvreDetails.genre}
             medium={oeuvreDetails.medium}
