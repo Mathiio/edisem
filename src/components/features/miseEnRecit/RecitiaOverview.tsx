@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CameraIcon, UserIcon, ShareIcon, MovieIcon, ArrowIcon } from '@/components/ui/icons';
 import { motion, Variants } from 'framer-motion';
-import { addToast, Skeleton, Link, Button, cn } from '@heroui/react';
+import { addToast, Skeleton, Link, Button, cn, DropdownMenu, Dropdown, DropdownItem, DropdownTrigger } from '@heroui/react';
 import { AnnotationDropdown } from '../conference/AnnotationDropdown';
 import { Splide, SplideTrack, SplideSlide } from '@splidejs/react-splide';
 import MediaViewer from '../conference/MediaViewer';
@@ -27,20 +27,20 @@ type RecitiaOverviewProps = {
   id: number;
   title: string;
   personnes: any;
-  picture: string;
+
   medias: string[]; // Tableau de liens d'images
   fullUrl: string;
   currentTime: number;
   buttonText: string;
 };
 
-export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title, personnes, picture, medias, fullUrl, buttonText }) => {
+export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title, personnes, medias, fullUrl, buttonText }) => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
 
   const navigate = useNavigate();
 
-  const openActant = () => {
-    navigate(`/personne/${personnes[0].id}`);
+  const openPersonne = (id: number) => {
+    navigate(`/personne/${id}`);
   };
 
   const truncateTitle = (title: string, maxLength: number) => {
@@ -125,24 +125,38 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
         <div className='w-full flex flex-col gap-10'>
           <div className='w-full flex justify-between gap-10 items-center'>
             <div className='w-fit flex justify-start gap-10 items-center'>
-              {personnes && (
+              {personnes && personnes.length > 0 && (
                 <div className='w-fit flex justify-start gap-10 items-center'>
-                  {personnes[0].thumbnail ? (
+                  {personnes[0]?.thumbnail ? (
                     <img src={personnes[0].thumbnail} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
                   ) : (
                     <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                   )}
                   <div className='flex flex-col items-start gap-0.5'>
-                    <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0].name}</h3>
+                    <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
                   </div>
                 </div>
               )}
               {personnes && personnes.length > 1 && (
-                <Button
-                  size='md'
-                  className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
-                  <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1} </h3>
-                </Button>
+                <Dropdown>
+                  <DropdownTrigger className='p-0'>
+                    <Button
+                      size='md'
+                      className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
+                      <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1} </h3>
+                    </Button>
+                  </DropdownTrigger>
+
+                  <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
+                    {personnes.slice(1).map((option: any) => (
+                      <DropdownItem key={option.key} className={`p-0`} onClick={() => openPersonne(option.id)}>
+                        <div className={`flex items-center w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 ${'text-c6'}`}>
+                          <span className='text-16'>{option.name}</span>
+                        </div>
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
               )}
             </div>
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CameraIcon, UserIcon, ShareIcon, MovieIcon, ArrowIcon } from '@/components/ui/icons';
 import { motion, Variants } from 'framer-motion';
-import { addToast, Skeleton, Link, Button, cn } from '@heroui/react';
+import { addToast, Skeleton, Link, Button, cn, DropdownTrigger, DropdownMenu, DropdownItem, Dropdown } from '@heroui/react';
 import { AnnotationDropdown } from '../conference/AnnotationDropdown';
 import { Splide, SplideTrack, SplideSlide } from '@splidejs/react-splide';
 import MediaViewer from '../conference/MediaViewer';
@@ -26,23 +26,22 @@ const containerVariants: Variants = {
 type ExpOverviewProps = {
   id: number;
   title: string;
-  actant: string;
-  actantId: number;
-  university: string;
-  picture: string;
+  personnes: any;
   medias: string[]; // Tableau de liens d'images
   fullUrl: string;
   currentTime: number;
   buttonText: string;
+  percentage: number;
+  status: string;
 };
 
-export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant, actantId, university, picture, medias, fullUrl, buttonText }) => {
+export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, personnes, medias, fullUrl, buttonText, percentage, status }) => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
 
   const navigate = useNavigate();
 
-  const openActant = () => {
-    navigate(`/conferencier/${actantId}`);
+  const openPersonne = (personne: any) => {
+    navigate(`/conferencier/${personne.id}`);
   };
 
   const truncateTitle = (title: string, maxLength: number) => {
@@ -58,6 +57,10 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant,
       navigator.clipboard.writeText(medias[currentMediaIndex]).then(() => {});
     }
   };
+
+  const clampedPercentage = Math.max(0, Math.min(100, Math.round(percentage ?? 0)));
+  const totalSegments = 5;
+  const segmentSpan = 100 / totalSegments; // 20% each
 
   return (
     <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
@@ -126,17 +129,41 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant,
         <h1 className='font-medium text-c6 text-24'>{title}</h1>
         <div className='w-full flex flex-col gap-10'>
           <div className='w-full flex justify-between gap-10 items-center'>
-            <Link className='w-fit flex justify-start gap-10 items-center cursor-pointer' onClick={openActant}>
-              {picture ? (
-                <img src={picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
-              ) : (
-                <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
+            <div className='w-fit flex justify-start gap-10 items-center'>
+              {personnes && personnes.length > 0 && (
+                <div className='w-fit flex justify-start gap-10 items-center'>
+                  {personnes[0]?.thumbnail ? (
+                    <img src={personnes[0].thumbnail} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                  ) : (
+                    <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
+                  )}
+                  <div className='flex flex-col items-start gap-0.5'>
+                    <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
+                  </div>
+                </div>
               )}
-              <div className='flex flex-col items-start gap-0.5'>
-                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{actant}</h3>
-                <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{truncateTitle(university, 48)}</p>
-              </div>
-            </Link>
+              {personnes && personnes.length > 1 && (
+                <Dropdown>
+                  <DropdownTrigger className='p-0'>
+                    <Button
+                      size='md'
+                      className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
+                      <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1} </h3>
+                    </Button>
+                  </DropdownTrigger>
+
+                  <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
+                    {personnes.slice(1).map((option: any) => (
+                      <DropdownItem key={option.key} className={`p-0`} onClick={() => openPersonne(option)}>
+                        <div className={`flex items-center w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 ${'text-c6'}`}>
+                          <span className='text-16'>{option.name}</span>
+                        </div>
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              )}
+            </div>
 
             <div className='w-fit flex justify-between gap-10 items-center'>
               <Button
@@ -171,6 +198,29 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, actant,
           </div>
         </div>
       </motion.div>
+      {percentage > 0 && (
+        <motion.div variants={itemVariants} className='w-full flex justify-between items-center flex-row gap-20'>
+          <div className='w-full'>
+            <div className='grid grid-cols-5 gap-2'>
+              {Array.from({ length: totalSegments }).map((_, index) => {
+                const segmentStart = index * segmentSpan;
+                const segmentEnd = (index + 1) * segmentSpan;
+                const segmentProgress = Math.max(0, Math.min(1, (clampedPercentage - segmentStart) / (segmentEnd - segmentStart)));
+                const widthStyle = `${segmentProgress * 100}%`;
+                return (
+                  <div key={index} className='w-full h-2 bg-c3 rounded-8 overflow-hidden'>
+                    <div className='h-full bg-action rounded-8' style={{ width: widthStyle }} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className='flex flex-row justify-end items-center gap-10'>
+            <span className='text-c6 font-medium text-16 whitespace-nowrap'>{status}</span>
+            <span className='text-c6 font-medium text-16 whitespace-nowrap'>{clampedPercentage}%</span>
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   );
 };
