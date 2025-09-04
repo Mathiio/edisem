@@ -282,18 +282,16 @@ export const Experimentation: React.FC = () => {
           <ExpOverviewCard
             id={confDetails.id}
             title={confDetails.title}
-            // ✅ CORRIGÉ: Utiliser primaryActant au lieu de actant
-            actant={confDetails.primaryActant?.firstname + ' ' + confDetails.primaryActant?.lastname}
-            actantId={confDetails.primaryActant?.id}
-            university={confDetails.primaryActant?.universities?.[0]?.name || ''}
-            picture={confDetails.primaryActant?.picture || ''}
+            personnes={confDetails.acteurs}
             medias={confDetails.associatedMedia}
-            fullUrl={confDetails.fullUrl}
+            fullUrl={confDetails.url}
             currentTime={currentVideoTime}
             buttonText='Voir plus'
+            percentage={confDetails.percentage}
+            status={confDetails.status}
           />
         )}
-        {loading ? <ExpDetailsSkeleton></ExpDetailsSkeleton> : <ExpDetailsCard date={confDetails.date} collaborators={confDetails.credits} description={confDetails.description} />}
+        {loading ? <ExpDetailsSkeleton></ExpDetailsSkeleton> : <ExpDetailsCard date={confDetails.date} actants={confDetails.actants} description={confDetails.description} />}
       </motion.div>
       <motion.div style={{ height: equalHeight || 'auto' }} className='col-span-10 lg:col-span-4 flex flex-col gap-50 overflow-hidden' variants={fadeIn}>
         <div className='flex w-full flex-col gap-20 flex-grow min-h-0 overflow-hidden'>

@@ -46,8 +46,12 @@ export const Experimentations: React.FC = () => {
           // Traiter le tableau actants pour récupérer les infos complètes
           const enrichedActants = experimentation.actants
             ? experimentation.actants
-                .map((actantId: any) => {
-                  // Chercher d'abord dans actants, puis dans students si pas trouvé
+                .map((actant: any) => {
+                  // Si l'actant est déjà une chaîne (nom + organisation), on la garde telle quelle
+                  if (typeof actant === 'string' && !/^\d{5}$/.test(actant)) {
+                    return { displayName: actant };
+                  }
+                  const actantId = actant;
                   return (
                     actantMap.get(actantId) ||
                     actantMap.get(Number(actantId)) ||
@@ -58,12 +62,34 @@ export const Experimentations: React.FC = () => {
                     null
                   );
                 })
-                .filter(Boolean) // Supprimer les valeurs null
+                .filter(Boolean)
+            : [];
+
+          // Traiter le tableau acteurs pour récupérer les infos complètes (même logique)
+          const enrichedActeurs = experimentation.acteurs
+            ? experimentation.acteurs
+                .map((acteur: any) => {
+                  if (typeof acteur === 'string' && !/^\d{5}$/.test(acteur)) {
+                    return { displayName: acteur };
+                  }
+                  const acteurId = acteur;
+                  return (
+                    actantMap.get(acteurId) ||
+                    actantMap.get(Number(acteurId)) ||
+                    actantMap.get(String(acteurId)) ||
+                    studentMap.get(acteurId) ||
+                    studentMap.get(Number(acteurId)) ||
+                    studentMap.get(String(acteurId)) ||
+                    null
+                  );
+                })
+                .filter(Boolean)
             : [];
 
           return {
             ...experimentation,
-            enrichedActants, // Nouveau tableau avec les infos complètes
+            enrichedActants,
+            enrichedActeurs,
             // Pour compatibilité, garder le premier actant comme "actant principal"
             primaryActant: enrichedActants.length > 0 ? enrichedActants[0] : null,
           };
@@ -94,7 +120,7 @@ export const Experimentations: React.FC = () => {
                   id={item.id}
                   title={item.title}
                   // Utiliser le premier actant (primaryActant) pour l'affichage
-                  actant={item.primaryActant ? `${item.primaryActant.firstname} ${item.primaryActant.lastname}` : ''}
+                  actant={item.acteurs?.[0]?.name || ''}
                   date={item.date}
                   url={item.url}
                   thumbnail={item.thumbnail}

@@ -21,6 +21,13 @@ const MediaViewer: React.FC<MediaViewerProps> = ({ src, alt = 'Media', className
     setObjectFit(objectFit === 'cover' ? 'contain' : 'cover');
   };
 
+  const handleBackdropClick = (event: React.MouseEvent) => {
+    // Fermer le plein écran seulement si on clique sur le backdrop (pas sur l'image)
+    if (event.target === event.currentTarget) {
+      setIsFullscreen(false);
+    }
+  };
+
   // Gestion de la touche Échap pour sortir du plein écran
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -61,7 +68,11 @@ const MediaViewer: React.FC<MediaViewerProps> = ({ src, alt = 'Media', className
   };
 
   return (
-    <div className={containerClasses} onMouseEnter={() => setShowControls(true)} onMouseLeave={() => setShowControls(false)}>
+    <div
+      className={containerClasses}
+      onMouseEnter={() => setShowControls(true)}
+      onMouseLeave={() => setShowControls(false)}
+      onClick={isFullscreen ? handleBackdropClick : undefined}>
       {/* Wrapper pour le média et les contrôles associés */}
       <div className={mediaWrapperClasses}>
         {/* Média principal */}

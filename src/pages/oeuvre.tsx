@@ -23,10 +23,7 @@ const fadeIn: Variants = {
   }),
 };
 
-const viewOptions = [
-  { key: 'Références', title: 'Références' },
-  { key: 'Acteurs', title: 'Acteurs' },
-];
+const viewOptions = [{ key: 'Références', title: 'Références' }];
 
 export const Oeuvre: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,7 +40,7 @@ export const Oeuvre: React.FC = () => {
   const firstDivRef = useRef<HTMLDivElement>(null);
   const [equalHeight, setEqualHeight] = useState<number | null>(null);
   const searchModalRef = useRef<SearchModalRef>(null);
-  const [selected, setSelected] = useState('Acteurs');
+  const [selected, setSelected] = useState('Références');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Trouve l'option sélectionnée actuelle
@@ -242,9 +239,6 @@ export const Oeuvre: React.FC = () => {
       case 'Références':
         return <div className='flex flex-col gap-10'>{oeuvreDetails.references?.map((reference: any) => <ToolItem key={reference.id} tool={reference} />)}</div>;
 
-      case 'Acteurs':
-        return <div className='flex flex-col gap-10'>{oeuvreDetails.acteurs?.map((acteur: any) => <ActeurItem key={acteur.id} acteur={acteur} />)}</div>;
-
       default:
         return null;
     }
@@ -268,10 +262,7 @@ export const Oeuvre: React.FC = () => {
           <RecitiaOverviewCard
             id={oeuvreDetails.id}
             title={oeuvreDetails.title}
-            // ✅ CORRIGÉ: Utiliser primaryActant au lieu de actant
-
             personnes={oeuvreDetails.acteurs}
-            picture={oeuvreDetails.primaryActant?.picture || ''}
             medias={
               oeuvreDetails.associatedMedia && oeuvreDetails.associatedMedia.length > 0 ? oeuvreDetails.associatedMedia : oeuvreDetails.thumbnail ? [oeuvreDetails.thumbnail] : []
             }
@@ -391,42 +382,6 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool }) => {
       </Link>
       <div className='flex flex-col h-full py-25 pr-25'>
         <AnnotationDropdown id={Number(tool.id)} content={tool.description} image={tool.thumbnail} type='Bibliographie' />
-      </div>
-    </div>
-  );
-};
-
-interface ActeurItemProps {
-  acteur: {
-    id: string | number;
-    name: string;
-    thumbnail?: string;
-    page?: string;
-  };
-}
-
-export const ActeurItem: React.FC<ActeurItemProps> = ({ acteur }) => {
-  const [isActeurHovered, setIsActeurHovered] = useState(false);
-
-  return (
-    <div
-      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity ${isActeurHovered ? 'border-c6' : 'border-c3'}`}
-      onMouseEnter={() => setIsActeurHovered(true)}
-      onMouseLeave={() => setIsActeurHovered(false)}>
-      <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={acteur.page ?? '#'} target='_blank'>
-        <div className={`flex flex-row gap-4 items-start`}>
-          {acteur.thumbnail && (
-            <div className='flex-shrink-0'>
-              <img src={acteur.thumbnail} alt={acteur.name} className='w-50 h-50 object-cover rounded-6' />
-            </div>
-          )}
-          <div className='w-full flex flex-col gap-10'>
-            <p className='text-c6 text-16'>{acteur.name}</p>
-          </div>
-        </div>
-      </Link>
-      <div className='flex flex-col h-full py-25 pr-25'>
-        <AnnotationDropdown id={Number(acteur.id)} content={acteur.name} image={acteur.thumbnail} type='Acteur' />
       </div>
     </div>
   );
