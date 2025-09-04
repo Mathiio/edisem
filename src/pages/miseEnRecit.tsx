@@ -271,12 +271,10 @@ export const miseEnRecit: React.FC = () => {
             id={oeuvreDetails.id}
             title={oeuvreDetails.title}
             // ✅ CORRIGÉ: Utiliser primaryActant au lieu de actant
-            actant={
+            personnes={
               oeuvreDetails.primaryActant ? oeuvreDetails.primaryActant.displayName || `${oeuvreDetails.primaryActant.firstname} ${oeuvreDetails.primaryActant.lastname}` : ''
             }
-            actantId={oeuvreDetails.primaryActant?.id}
-            university={oeuvreDetails.primaryActant?.universities?.[0]?.name || ''}
-            picture={oeuvreDetails.primaryActant?.picture || ''}
+            credits={oeuvreDetails.credits}
             medias={
               oeuvreDetails.associatedMedia && oeuvreDetails.associatedMedia.length > 0 ? oeuvreDetails.associatedMedia : oeuvreDetails.thumbnail ? [oeuvreDetails.thumbnail] : []
             }
@@ -290,7 +288,7 @@ export const miseEnRecit: React.FC = () => {
         ) : (
           <RecitiaDetailsCard
             date={oeuvreDetails.date}
-            collaborators={oeuvreDetails.credits}
+            credits={oeuvreDetails.credits}
             description={oeuvreDetails.abstract}
             genre={oeuvreDetails.genre}
             medium={oeuvreDetails.medium}

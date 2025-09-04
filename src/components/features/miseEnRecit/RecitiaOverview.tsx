@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CameraIcon, UserIcon, ShareIcon, MovieIcon, ArrowIcon } from '@/components/ui/icons';
+import { CameraIcon, UserIcon, ShareIcon, MovieIcon, ArrowIcon, SettingsIcon } from '@/components/ui/icons';
 import { motion, Variants } from 'framer-motion';
-import { addToast, Skeleton, Link, Button, cn, DropdownMenu, Dropdown, DropdownItem, DropdownTrigger } from '@heroui/react';
+import { addToast, Skeleton, Button, cn, DropdownMenu, Dropdown, DropdownItem, DropdownTrigger } from '@heroui/react';
 import { AnnotationDropdown } from '../conference/AnnotationDropdown';
 import { Splide, SplideTrack, SplideSlide } from '@splidejs/react-splide';
 import MediaViewer from '../conference/MediaViewer';
@@ -27,27 +27,20 @@ type RecitiaOverviewProps = {
   id: number;
   title: string;
   personnes: any;
-
+  credits?: string | string[];
   medias: string[]; // Tableau de liens d'images
   fullUrl: string;
   currentTime: number;
   buttonText: string;
 };
 
-export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title, personnes, medias, fullUrl, buttonText }) => {
+export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title, personnes, medias, fullUrl, buttonText, credits }) => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
 
   const navigate = useNavigate();
 
   const openPersonne = (id: number) => {
     navigate(`/personne/${id}`);
-  };
-
-  const truncateTitle = (title: string, maxLength: number) => {
-    if (title.length > maxLength) {
-      return title.slice(0, maxLength) + '...';
-    }
-    return title;
   };
 
   const copyToClipboard = () => {
@@ -188,6 +181,24 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                 </Button>
               )}
 
+              {((Array.isArray(credits) && credits.length > 0) || (typeof credits === 'string' && credits.trim() !== '')) && (
+                <Button
+                  size='md'
+                  className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                  onClick={() => {
+                    if (typeof credits === 'string') {
+                      window.open(credits, '_blank');
+                    } else if (Array.isArray(credits) && credits.length > 0) {
+                      const url = credits[0];
+                      if (typeof url === 'string') {
+                        window.open(url, '_blank');
+                      }
+                    }
+                  }}>
+                  <SettingsIcon size={12} />
+                  Crédits
+                </Button>
+              )}
               <AnnotationDropdown id={id} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Œuvre' />
             </div>
           </div>

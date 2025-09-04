@@ -257,19 +257,21 @@ export const Feedback: React.FC = () => {
             <ExpOverviewCard
               id={feedbackDetails.id}
               title={feedbackDetails.title}
-              // ✅ CORRIGÉ: Utiliser primaryActant au lieu de actant
-              actant={feedbackDetails.primaryActant?.firstname + ' ' + feedbackDetails.primaryActant?.lastname}
-              actantId={feedbackDetails.primaryActant?.id}
-              university={feedbackDetails.primaryActant?.universities?.[0]?.name || ''}
-              picture={feedbackDetails.primaryActant?.picture || ''}
+              personnes={feedbackDetails.actants}
               fullUrl={feedbackDetails.url}
               medias={feedbackDetails.associatedMedia}
               currentTime={0}
               buttonText='Expérience associée'
+              percentage={feedbackDetails.percentage}
+              status={feedbackDetails.status}
             />
           )
         )}
-        {loading ? <ExpDetailsSkeleton /> : feedbackDetails && <ExpDetailsCard date={feedbackDetails.date} description={feedbackDetails.description} />}
+        {loading ? (
+          <ExpDetailsSkeleton />
+        ) : (
+          feedbackDetails && <ExpDetailsCard actants={feedbackDetails.acteurs} date={feedbackDetails.date} description={feedbackDetails.description} />
+        )}
       </motion.div>
 
       <motion.div style={{ height: equalHeight || 'auto' }} className='col-span-10 lg:col-span-4 flex flex-col gap-50 overflow-hidden' variants={fadeIn}>
