@@ -1,6 +1,6 @@
 import { BackgroundEllipse } from '@/assets/svg/BackgroundEllipse';
 import { motion } from 'framer-motion';
-import { ColloqueIcon } from '@/components/ui/icons';
+import { StudyDayIcon } from '@/components/ui/icons';
 
 interface StudyDayBanerProps {
   studyDay: any[];
@@ -14,7 +14,7 @@ export const StudyDayBaner = ({ studyDay }: StudyDayBanerProps) => {
   return (
     <div className='pt-150 justify-center flex items-center flex-col gap-20 relative'>
       <div className='gap-20 justify-between flex items-center flex-col'>
-        <ColloqueIcon size={40} className='text-c4'/>
+        <StudyDayIcon size={40} className='text-c4'/>
 
         <h1 className='z-[12] text-64 text-c6 font-medium flex flex-col items-center'>
           Journées d'études Edisem
