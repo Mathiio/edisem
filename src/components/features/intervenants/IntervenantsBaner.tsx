@@ -18,7 +18,7 @@ export const IntervenantsBaner: React.FC = () => {
             {/* Subtitle */}
             <p className='text-c5 text-16 z-[12] text-center'>
                 Retrouvez ici les chercheur·euses, artistes, doctorant·es et penseur·euses qui <br/> 
-                façonnent la réflexion autour de l’art et de l’intelligence artificielle.
+                façonnent la réflexion autour des arts, du design, des humanités numériques et de l’intelligence artificielle.
             </p>
             {/* Animated SVG background shape */}
             <motion.div
