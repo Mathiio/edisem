@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 
 import { useParams } from 'react-router-dom';
-import { getConfByEdition } from '../lib/api';
+import { getConfByEdition } from '../../lib/api';
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
@@ -66,6 +66,7 @@ export const Edition: React.FC = () => {
                         ? item.actant.universities[0].name
                         : ''
                     }
+                    conferenceType={item.type}
                   />
                 </motion.div>
               ))}
