@@ -2,7 +2,6 @@ import { TopIcon } from '@/components/ui/icons';
 import { Actant } from '@/types/ui';
 import { useMemo } from 'react';
 
-
 // Props for main component
 interface TopIntervenantsProps {
   intervenants: Actant[];
@@ -14,16 +13,13 @@ interface IntervenantCardProps {
   position: 'first' | 'second' | 'third';
 }
 
-
-
 // Individual speaker card component
 const IntervenantCard = ({ intervenant, position }: IntervenantCardProps) => {
-
   // Position-specific styles
   const positionStyles = {
     first: { container: 'transform -translate-y-20 z-10' },
     second: { container: 'transform translate-y-10 z-5' },
-    third: { container: 'transform translate-y-10 z-5' }
+    third: { container: 'transform translate-y-10 z-5' },
   };
 
   const currentStyle = positionStyles[position];
@@ -50,11 +46,8 @@ const IntervenantCard = ({ intervenant, position }: IntervenantCardProps) => {
   );
 };
 
-
-
 // Main component
 export default function TopIntervenants({ intervenants }: TopIntervenantsProps) {
-
   // Get top 3 speakers sorted by interventions
   const topIntervenants = useMemo(() => {
     if (!intervenants?.length) return [];

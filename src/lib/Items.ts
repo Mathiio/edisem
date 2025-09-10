@@ -488,6 +488,7 @@ export async function getAllItems() {
       feedbacks,
       oeuvres,
       recitIas,
+      personnes,
     ] = await Promise.all([
       getStudyDayConfs(),
       getSeminarConfs(),
@@ -507,6 +508,7 @@ export async function getAllItems() {
       getFeedbacks(),
       getOeuvres(),
       getRecitIas(),
+      getPersonnes(),
     ]);
 
     const allItems = [
@@ -528,7 +530,7 @@ export async function getAllItems() {
       ...tools,
       ...(Array.isArray(recherches) ? recherches : []),
       ...(Array.isArray(recitIas) ? recitIas : []),
-
+      ...(Array.isArray(personnes) ? personnes : []),
 
     ];
     sessionStorage.setItem('allItems', JSON.stringify(allItems));
@@ -587,22 +589,69 @@ export async function getTools() {
   }
 }
 
-export async function getOeuvres() {
+export async function getPersonnes(id?: number) {
   try {
-    const storedRecitIas = sessionStorage.getItem('recitIas');
-    if (storedRecitIas) {
-      return JSON.parse(storedRecitIas);
+    const storedPersonnes = sessionStorage.getItem('personnes');
+    if (storedPersonnes) {
+      const personnes = JSON.parse(storedPersonnes);
+      return id ? personnes.find((p: any) => p.id === String(id)) : personnes;
     }
 
-    const recitIas = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1',
+    const personnes = await getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getPersonnes&json=1',
     );
 
-    sessionStorage.setItem('recitIas', JSON.stringify(recitIas));
-    return recitIas;
+    sessionStorage.setItem('personnes', JSON.stringify(personnes));
+    return id ? personnes.find((p: any) => p.id === String(id)) : personnes;
+  }
+  catch (error) {
+    console.error('Error fetching personnes:', error);
+    throw new Error('Failed to fetch personnes');
+  }
+}
+
+export async function getOeuvres(id?: number) {
+  try {
+    const storedOeuvres = sessionStorage.getItem('oeuvres');
+    if (storedOeuvres) {
+      const oeuvres = JSON.parse(storedOeuvres);
+      return id ? oeuvres.find((o: any) => o.id === String(id)) : oeuvres;
+    }
+
+    const [oeuvres,personnes] = await Promise.all([getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1',
+    ), getPersonnes()])
+
+    const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
+  
+    const oeuvresFull = oeuvres.map((oeuvre: any) => {
+      // Parse les IDs multiples séparés par des virgules
+      let personneIds: string[] = [];
+      
+      if (oeuvre.personne) {
+        if (typeof oeuvre.personne === 'string') {
+          personneIds = oeuvre.personne.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(oeuvre.personne)) {
+          personneIds = oeuvre.personne.map((id: any) => String(id));
+        } else {
+          personneIds = [String(oeuvre.personne)];
+        }
+      }
+      
+      const personnes = personneIds.map((id: string) => personnesMap.get(id)).filter(Boolean);
+      
+      return {
+        ...oeuvre,
+        type: 'oeuvre',
+        personne: personnes.length > 0 ? personnes : null,
+      };
+    });
+    sessionStorage.setItem('oeuvres', JSON.stringify(oeuvresFull));
+    return id ? oeuvresFull.find((o: any) => o.id === String(id)) : oeuvresFull;
+
   } catch (error) {
-    console.error('Error fetching recitIas:', error);
-    throw new Error('Failed to fetch recitIas');
+    console.error('Error fetching oeuvres:', error);
+    throw new Error('Failed to fetch oeuvres');
   }
 }
 

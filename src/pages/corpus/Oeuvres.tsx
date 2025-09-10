@@ -15,7 +15,7 @@ export const Oeuvres: React.FC = () => {
       try {
         // Récupérer les œuvres (RecitIas), actants ET students
         const [oeuvres, actants, students] = await Promise.all([getOeuvres(), getActants(), getStudents()]);
-        // Vérifier si recitIas est un tableau valide
+        // Vérifier si oeuvres est un tableau valide
         if (!Array.isArray(oeuvres) || oeuvres.length === 0) {
           setLoading(false);
           return;

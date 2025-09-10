@@ -357,11 +357,11 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(({ notri
                 <Input
                   ref={inputRef}
                   classNames={{
-                    base: 'w-full',
+                    base: 'w-full ',
                     clearButton: 'bg-c3',
                     mainWrapper: 'h-full',
-                    input: 'text-100 Inter font-semibold text-16 nav_searchbar block',
-                    inputWrapper: 'group-data-[focus=true]:bg-c1 rounded-12 font-normal text-c6 bg-c1 px-20 py-15 h-auto',
+                    input: 'text-100 Inter font-semibold text-16 nav_searchbar block focus:outline-none focus-visible:outline-none',
+                    inputWrapper: 'group-data-[focus=true]:bg-c1 rounded-12 font-normal text-c6 bg-c1 px-20 py-15 h-auto ',
                     innerWrapper: 'h-auto',
                   }}
                   placeholder='Conférences, œuvres, intervenants, mots clés...'

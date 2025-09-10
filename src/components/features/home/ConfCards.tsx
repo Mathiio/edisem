@@ -138,11 +138,16 @@ type SmConfCardProps = {
   title: string;
   actant: string;
   url?: string;
+  thumbnail?: string;
 };
 
-export const SmConfCard: React.FC<SmConfCardProps> = ({ id, title, actant, url }) => {
+export const SmConfCard: React.FC<SmConfCardProps> = ({ id, title, actant, url, thumbnail }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const thumbnailUrl = url ? getYouTubeThumbnailUrl(url) : '';
+  let thumbnailUrl = url ? getYouTubeThumbnailUrl(url) : '';
+  if (thumbnail) {
+    thumbnailUrl = thumbnail;
+    console.log(thumbnailUrl);
+  }
 
   const textRef = useRef<HTMLParagraphElement>(null);
 

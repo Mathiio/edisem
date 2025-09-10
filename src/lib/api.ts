@@ -274,3 +274,21 @@ export async function getConfMediagraphies(confId: number) {
 }
 
 
+export async function getOeuvresByPersonne(personneId: number) {
+  const oeuvres = await Items.getOeuvres();
+  return oeuvres.filter((oeuvre: any) => {
+    if (!oeuvre.personne) return false;
+    
+    // Si personne est un tableau d'objets (nouvelle structure)
+    if (Array.isArray(oeuvre.personne)) {
+      return oeuvre.personne.some((p: any) => p.id === String(personneId));
+    }
+    
+    // Si personne est une chaîne (ancienne structure)
+    if (typeof oeuvre.personne === 'string') {
+      return oeuvre.personne.includes(String(personneId));
+    }
+    
+    return false;
+  });
+}

@@ -80,7 +80,7 @@ export const LastOeuvres: React.FC<LastOeuvresProps> = ({ oeuvres, loading, item
                   id={item.id}
                   title={item.title}
                   thumbnail={item.thumbnail}
-                  actant={item.acteurs?.[0]?.name || ''}
+                  actant={Array.isArray(item.personne) && item.personne.length > 0 ? item.personne[0].name : item.personne?.name || ''}
                   date={item.date}
                   universite={item.primaryActant?.universities?.[0]?.name || ''}
                 />

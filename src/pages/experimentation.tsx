@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getExperimentations, getActants, getTools, getKeywords, getStudents, getSeminarConfs } from '@/lib/Items';
+import { getExperimentations, getActants, getTools, getKeywords, getStudents } from '@/lib/Items';
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
@@ -35,13 +35,12 @@ export const Experimentation: React.FC = () => {
 
   const [currentVideoTime] = useState<number>(0);
   const [confDetails, setConfDetails] = useState<any>(null);
-  const [recommendedConfs, setRecommendedConfs] = useState<any[]>([]);
 
   const [confTools, setConfTools] = useState<any[]>([]);
   const [confConcepts, setConfConcepts] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(true);
-  const [loadingRecommendations, setLoadingRecommendations] = useState(true);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
   const firstDivRef = useRef<HTMLDivElement>(null);
   const [equalHeight, setEqualHeight] = useState<number | null>(null);
   const searchModalRef = useRef<SearchModalRef>(null);
@@ -63,20 +62,6 @@ export const Experimentation: React.FC = () => {
     }
   }, [loading]);
 
-  const fetchRecommendedConfs = async (recommendationIds: string[]) => {
-    setLoadingRecommendations(true);
-    try {
-      const recommendationsPromises = recommendationIds.map((recId) => getSeminarConfs(Number(recId)));
-      const recommendations = await Promise.all(recommendationsPromises);
-      setRecommendedConfs(recommendations);
-    } catch (error) {
-      console.error('Error fetching recommended conferences:', error);
-      setRecommendedConfs([]);
-    } finally {
-      setLoadingRecommendations(false);
-    }
-  };
-
   useEffect(() => {}, [currentVideoTime]);
 
   const fetchConfData = useCallback(async () => {
@@ -84,6 +69,7 @@ export const Experimentation: React.FC = () => {
     try {
       const [experimentations, actants, students, tools, concepts] = await Promise.all([getExperimentations(), getActants(), getStudents(), getTools(), getKeywords()]);
 
+      // Créer un map des actants
       const actantMap = new Map();
       actants.forEach((a: any) => {
         actantMap.set(a.id, a);
@@ -184,10 +170,8 @@ export const Experimentation: React.FC = () => {
         setConfTools(tools.filter((t: any) => experimentation.technicalCredits?.includes(String(t.id))));
         setConfConcepts(concepts.filter((c: any) => experimentation.concepts?.includes(String(c.id))));
         setConfDetails(experimentation);
+        setRecommendations(experimentations);
 
-        if (experimentation.recommendations?.length) {
-          fetchRecommendedConfs(experimentation.recommendations);
-        }
         console.log(experimentation);
       }
     } finally {
@@ -335,22 +319,22 @@ export const Experimentation: React.FC = () => {
           </motion.div>
         </div>
       </motion.div>
-      {!loadingRecommendations && recommendedConfs.length > 0 && (
+      {recommendations.length > 0 && (
         <motion.div className='col-span-10 h-full lg:col-span-4 flex flex-col gap-50 flex-grow' variants={fadeIn}>
           <FullCarrousel
-            title='Conférences associées'
+            title='Autres expérimentations'
             perPage={2}
             perMove={1}
-            data={recommendedConfs}
+            data={recommendations}
             renderSlide={(item) => (
               <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
-                {/* ✅ CORRIGÉ: Utiliser primaryActant au lieu de actant */}
-                <SmConfCard key={item.id} id={item.id} title={item.title} actant={item.primaryActant?.firstname + ' ' + item.primaryActant?.lastname} url={item.url} />
+                <SmConfCard key={item.id} id={item.id} title={item.title} actant={item.acteurs?.[0]?.name || ''} thumbnail={item.thumbnail} />
               </motion.div>
             )}
           />
         </motion.div>
       )}
+
       <SearchModal ref={searchModalRef} notrigger={true} />
     </Layouts>
   );

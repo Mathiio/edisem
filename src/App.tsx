@@ -20,9 +20,10 @@ import { Seminaires } from '@/pages/corpus/seminaires';
 import { Experimentations } from '@/pages/corpus/experimentations';
 import { Experimentation } from '@/pages/experimentation';
 import { miseEnRecit } from '@/pages/miseEnRecit';
-import { Feedback } from '@/pages/feedback';
-import { Oeuvres } from '@/pages/corpus/oeuvres';
-import { Oeuvre } from '@/pages/oeuvre';
+import { Feedback } from './pages/feedback';
+import { Oeuvres } from './pages/corpus/Oeuvres';
+import { Oeuvre } from './pages/oeuvre';
+import { Personne } from './pages/personne';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
