@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CameraIcon, UserIcon, ShareIcon, MovieIcon, ArrowIcon, SettingsIcon } from '@/components/ui/icons';
 import { motion, Variants } from 'framer-motion';
 import { addToast, Skeleton, Button, cn, DropdownMenu, Dropdown, DropdownItem, DropdownTrigger } from '@heroui/react';
@@ -119,16 +119,16 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
           <div className='w-full flex justify-between gap-10 items-center'>
             <div className='w-fit flex justify-start gap-10 items-center'>
               {personnes && personnes.length > 0 && (
-                <div className='w-fit flex justify-start gap-10 items-center'>
-                  {personnes[0]?.thumbnail ? (
-                    <img src={personnes[0].thumbnail} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                <Link to={`/personne/${personnes[0].id}`} className='w-fit flex justify-start gap-10 items-center'>
+                  {personnes[0]?.picture ? (
+                    <img src={personnes[0].picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
                   ) : (
                     <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                   )}
                   <div className='flex flex-col items-start gap-0.5'>
                     <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
                   </div>
-                </div>
+                </Link>
               )}
               {personnes && personnes.length > 1 && (
                 <Dropdown>
@@ -143,7 +143,12 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                   <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
                     {personnes.slice(1).map((option: any) => (
                       <DropdownItem key={option.key} className={`p-0`} onClick={() => openPersonne(option.id)}>
-                        <div className={`flex items-center w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 ${'text-c6'}`}>
+                        <div className={`flex items-center gap-15 w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 ${'text-c6'}`}>
+                          {option.picture ? (
+                            <img src={option.picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                          ) : (
+                            <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
+                          )}
                           <span className='text-16'>{option.name}</span>
                         </div>
                       </DropdownItem>

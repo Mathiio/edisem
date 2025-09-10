@@ -89,7 +89,7 @@ export const InfoCard: React.FC<InfoCardProps> = ({ name, link }) => {
       className={`border-2 border-c3 h-full w-full rounded-12 flex items-center justify-start p-20 gap-20 transition-transform-colors-opacity 
         ${link ? `cursor-pointer ${isHovered ? 'border-c4' : 'border-c3'}` : ''}`}>
       <div className='flex flex-col justify-center items-start gap-5'>
-        <p className='text-14 text-c6 font-regular'>{name}</p>
+        <p className='text-14 leading-[120%] text-c6 font-regular'>{name}</p>
       </div>
     </div>
   );
@@ -112,10 +112,10 @@ export const InfoSkeleton: React.FC = () => {
   return (
     <div className='h-full w-full flex flex-col rounded-12 items-start justify-start p-20 gap-5 bg-c4'>
       <Skeleton className='w-[100%] rounded-8'>
-        <p className='text-14 text-c6 font-regular'>_</p>
+        <p className='text-14 leading-[120%] text-c6 font-regular'>_</p>
       </Skeleton>
       <Skeleton className='w-[60%] rounded-8'>
-        <p className='text-14 text-c6 font-regular'>_</p>
+        <p className='text-14 leading-[120%] text-c6 font-regular'>_</p>
       </Skeleton>
     </div>
   );

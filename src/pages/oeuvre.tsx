@@ -151,7 +151,8 @@ export const Oeuvre: React.FC = () => {
               actantMap.get(String(actantId)) ||
               studentMap.get(actantId) ||
               studentMap.get(Number(actantId)) ||
-              studentMap.get(String(actantId));
+              studentMap.get(String(actantId)) ||
+              null;
           }
         }
 
@@ -163,11 +164,16 @@ export const Oeuvre: React.FC = () => {
                 const contributorId = contributor.id;
 
                 // Chercher dans actants
-                let enrichedContributor = actantMap.get(contributorId) || actantMap.get(String(contributorId)) || actantMap.get(Number(contributorId));
+                let enrichedContributor = actantMap.get(contributorId) || actantMap.get(String(contributorId)) || actantMap.get(Number(contributorId)) || null;
 
                 // Si pas trouvé dans actants, chercher dans students
                 if (!enrichedContributor) {
-                  enrichedContributor = studentMap.get(contributorId) || studentMap.get(String(contributorId)) || studentMap.get(Number(contributorId));
+                  enrichedContributor =
+                    studentMap.get(contributorId) ||
+                    studentMap.get(String(contributorId)) ||
+                    studentMap.get(Number(contributorId)) ||
+                    studentMap.get(String(contributorId)) ||
+                    null;
                 }
 
                 // Retourner l'objet enrichi ou garder l'original
@@ -262,7 +268,7 @@ export const Oeuvre: React.FC = () => {
           <RecitiaOverviewCard
             id={oeuvreDetails.id}
             title={oeuvreDetails.title}
-            personnes={oeuvreDetails.acteurs}
+            personnes={oeuvreDetails.personne}
             medias={
               oeuvreDetails.associatedMedia && oeuvreDetails.associatedMedia.length > 0 ? oeuvreDetails.associatedMedia : oeuvreDetails.thumbnail ? [oeuvreDetails.thumbnail] : []
             }
