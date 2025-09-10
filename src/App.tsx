@@ -61,12 +61,12 @@ function App() {
         <Route path='/corpus/colloques/conference/:id' Component={Conference} />
         <Route path='/corpus/journees-etudes/conference/:id' Component={Conference} />
 
-        <Route path='/conference/:id' Component={Conference} />
-        <Route path='/experimentation/:id' Component={Experimentation} />
+        {/* Individual item routes */}
+        <Route path='/corpus/experimentation/:id' Component={Experimentation} />
         <Route path='/corpus/mise-en-recit/:id' Component={miseEnRecit} />
+        <Route path='/corpus/oeuvre/:id' Component={Oeuvre} />
         <Route path='/feedback/:id' Component={Feedback} />
         <Route path='/intervenant/:id' Component={Intervenant} />
-        <Route path='/corpus/oeuvre/:id' Component={Oeuvre} />
       </Routes>
     </HeroUIProvider>
   );
