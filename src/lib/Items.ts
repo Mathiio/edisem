@@ -304,7 +304,7 @@ export async function getActants(actantId?: number) {
       : await (async () => {
           const [rawActants, confs, universities, doctoralSchools, laboratories] = await Promise.all([
             getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1'),
-            getSeminarConfs(),
+            getAllConfs(),
             getUniversities(),
             getDoctoralSchools(),
             getLaboratories()

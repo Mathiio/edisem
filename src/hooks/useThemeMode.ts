@@ -10,10 +10,10 @@ type ThemeMode = typeof Theme.light | typeof Theme.dark;
 
 export const useThemeMode = (defaultThemeMode?: ThemeMode) => {
   const [currentMode, setCurrentMode] = useState<ThemeMode>(() => {
-    if (typeof window === 'undefined') return defaultThemeMode ?? Theme.light;
+    if (typeof window === 'undefined') return defaultThemeMode ?? Theme.dark;
     
     const storedTheme = localStorage.getItem(Theme.key) as ThemeMode | null;
-    return storedTheme || (defaultThemeMode ?? Theme.light);
+    return storedTheme || (defaultThemeMode ?? Theme.dark);
   });
 
   const isDark = useMemo(() => currentMode === Theme.dark, [currentMode]);
@@ -40,7 +40,7 @@ export const useThemeMode = (defaultThemeMode?: ThemeMode) => {
 
   useEffect(() => {
     const storedTheme = localStorage.getItem(Theme.key) as ThemeMode | null;
-    const initialTheme = storedTheme || (defaultThemeMode ?? Theme.light);
+    const initialTheme = storedTheme || (defaultThemeMode ?? Theme.dark);
     document.documentElement.classList.remove(Theme.light, Theme.dark);
     document.documentElement.classList.add(initialTheme);
     setCurrentMode(initialTheme);
