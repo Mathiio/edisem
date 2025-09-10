@@ -61,9 +61,9 @@ export const Personne: React.FC = () => {
               </svg>
             </div>
           )}
-          <div className='flex flex-col gap-5'>
+          <div className='flex flex-col gap-15'>
             <p className='text-32 font-medium text-c6'>{loading ? '' : personne?.name}</p>
-            <p className='text-16 text-c4 font-regular'>{loading ? '' : personne?.birthDate}</p>
+            <p className='text-14 text-c4 font-regular'>{loading ? '' : personne?.birthDate}</p>
           </div>
         </Link>
         <div className='flex gap-20 justify-between items-center'>
