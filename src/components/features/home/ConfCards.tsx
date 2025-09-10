@@ -21,9 +21,9 @@ const getYouTubeThumbnailUrl = (ytb: string): string => {
 
 const getContextualRoute = (conferenceType: string, itemType: string, id: number): string => {
   // Handle corpus items that stay within their sections
-  if (itemType === 'experimentation') return `/corpus/experimentations/${id}`;
-  if (itemType === 'mise-en-recit') return `/corpus/mise-en-recits/${id}`;
-  if (itemType === 'oeuvre') return `/corpus/oeuvres/${id}`;
+  if (itemType === 'experimentation') return `/corpus/experimentation/${id}`;
+  if (itemType === 'mise-en-recit') return `/corpus/mise-en-recit/${id}`;
+  if (itemType === 'oeuvre') return `/corpus/oeuvre/${id}`;
   
   // Handle conferences contextually based on their type
   if (itemType === 'conference' || !itemType) {
