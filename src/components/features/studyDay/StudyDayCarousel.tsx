@@ -27,7 +27,8 @@ const SeminarEditionCard = ({ edition }: { edition: Edition }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    const url = `/edition/${edition.id}/${edition.title.toLowerCase().replace(/\s+/g, '-')}`;
+    const slug = edition.title.toLowerCase().replace(/\s+/g, '-');
+    const url = `/corpus/journees-etudes/edition/${edition.id}/${slug}`;
     navigate(url);
   };
 

@@ -18,7 +18,6 @@ export const JourneesEtudes: React.FC = () => {
         console.error('Error loading colloques', error);
       } finally {
         setLoading(false);
-        console.log(studyDay)
       }
     })();
   }, []);

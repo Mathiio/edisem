@@ -5,14 +5,13 @@ import { ProfilDropdown } from '@/components/layout/ProfilDropdown';
 import { Link, useLocation } from 'react-router-dom';
 import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
 
-
 export const Navbar: React.FC = () => {
   const [hasScrolled, setHasScrolled] = useState(false);
   const searchModalRef = useRef<SearchModalRef>(null);
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
-  const isOneOf = (paths: string[]) => paths.includes(location.pathname);
+  const isCorpusPath = () => location.pathname.startsWith('/corpus');
 
   useEffect(() => {
     const handleScroll = () => setHasScrolled(window.scrollY > 100);
@@ -47,7 +46,7 @@ export const Navbar: React.FC = () => {
           <Dropdown>
             <DropdownTrigger>
               <div
-                className={`${linkBaseClass} ${isOneOf(['/corpus/seminaires', '/corpus/experimentations', '/corpus/oeuvres', '/corpus/journees-etudes', '/corpus/colloques', '/corpus/etudes-de-cas']) ? activeClass : hoverClass}`}>
+                className={`${linkBaseClass} ${isCorpusPath() ? activeClass : hoverClass}`}>
                 <span className='font-normal'>Corpus</span>
               </div>
             </DropdownTrigger>

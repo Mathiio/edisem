@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@heroui/react';
 
+
 function formatDate(dateString: string) {
   const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   const dateParts = dateString.split('-');
@@ -18,6 +19,28 @@ const getYouTubeThumbnailUrl = (ytb: string): string => {
   return videoId ? `http://img.youtube.com/vi/${videoId}/0.jpg` : '';
 };
 
+const getContextualRoute = (conferenceType: string, itemType: string, id: number): string => {
+  // Handle corpus items that stay within their sections
+  if (itemType === 'experimentation') return `/corpus/experimentations/${id}`;
+  if (itemType === 'mise-en-recit') return `/corpus/mise-en-recits/${id}`;
+  if (itemType === 'oeuvre') return `/corpus/oeuvres/${id}`;
+  
+  // Handle conferences contextually based on their type
+  if (itemType === 'conference' || !itemType) {
+    switch (conferenceType) {
+      case 'seminar':
+        return `/corpus/seminaires/conference/${id}`;
+      case 'colloque':
+        return `/corpus/colloques/conference/${id}`;
+      case 'studyday':
+        return `/corpus/journees-etudes/conference/${id}`;
+      default:
+        return `/conference/${id}`;
+    }
+  }
+  return `/${itemType}/${id}`;
+};
+
 type LgConfCardProps = {
   id: number;
   title: string;
@@ -27,9 +50,10 @@ type LgConfCardProps = {
   url?: string;
   type?: string;
   thumbnail?: string;
+  conferenceType?: string;
 };
 
-export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, url, universite, type, thumbnail }) => {
+export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, url, universite, type, thumbnail, conferenceType }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
@@ -39,7 +63,8 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
   const textRef = useRef<HTMLParagraphElement>(null);
 
   const openConf = () => {
-    navigate(`/${type ? type : 'conference'}/${id}`);
+    const route = getContextualRoute(conferenceType || '', type || 'conference', id);
+    navigate(route);
   };
 
   useEffect(() => {
