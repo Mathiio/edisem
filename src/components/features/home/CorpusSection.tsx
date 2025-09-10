@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
 import { FullCarrousel } from '@/components/ui/Carrousels';
-import { ColloqueIcon, ExperimentationIcon, OeuvreIcon, SeminaireIcon } from '@/components/ui/icons';
+import { ColloqueIcon, ExperimentationIcon, OeuvreIcon, SeminaireIcon, StudyDayIcon } from '@/components/ui/icons';
 
 // Animation variants for cards
 const cardVariants: Variants = {
@@ -39,8 +39,15 @@ const corpusCards = [
     id: 'experimentations',
     icon: ExperimentationIcon,
     title: 'Expérimentations',
-    description: 'Projets expérimentaux et recherches innovantes.',
+    description: 'Explorations interdisciplinaires et démarches expérimentales.',
     path: '/corpus/experimentations',
+  },
+  {
+    id: 'StudyDayIcon',
+    icon: StudyDayIcon,
+    title: 'Journées d\'études',
+    description: 'Journées de recherche et de présentation de travaux académiques.',
+    path: '/corpus/journees-etudes',
   },
   {
     id: 'colloques',
