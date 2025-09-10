@@ -12,12 +12,12 @@ import Visualisation from '@/pages/visualisation';
 import { ToastProvider } from '@heroui/react';
 import { HeroUIProvider } from '@heroui/react';
 import { Intervenants } from '@/pages/intervenants';
-import { Colloques } from '@/pages/corpus/colloques';
-import { PratiqueNarrative } from '@/pages/corpus/pratiqueNarrative';
-import { JourneesEtudes } from '@/pages/corpus/journeesEtudes';
-import { MiseEnRecits } from '@/pages/corpus/miseEnRecits';
-import { Seminaires } from '@/pages/corpus/seminaires';
-import { Experimentations } from '@/pages/corpus/experimentations';
+import { Colloques } from '@/pages/corpus/Colloques';
+import { PratiqueNarrative } from '@/pages/corpus/PratiqueNarrative';
+import { JourneesEtudes } from '@/pages/corpus/JourneesEtudes';
+import { MiseEnRecits } from '@/pages/corpus/MiseEnRecits';
+import { Seminaires } from '@/pages/corpus/Seminaires';
+import { Experimentations } from '@/pages/corpus/Experimentations';
 import { Experimentation } from '@/pages/experimentation';
 import { miseEnRecit } from '@/pages/miseEnRecit';
 import { Feedback } from './pages/feedback';
@@ -68,6 +68,7 @@ function App() {
         <Route path='/corpus/oeuvre/:id' Component={Oeuvre} />
         <Route path='/feedback/:id' Component={Feedback} />
         <Route path='/intervenant/:id' Component={Intervenant} />
+        <Route path='/personne/:id' Component={Personne} />
       </Routes>
     </HeroUIProvider>
   );

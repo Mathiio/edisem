@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@heroui/react';
 
-
 function formatDate(dateString: string) {
   const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   const dateParts = dateString.split('-');
@@ -24,7 +23,7 @@ const getContextualRoute = (conferenceType: string, itemType: string, id: number
   if (itemType === 'experimentation') return `/corpus/experimentation/${id}`;
   if (itemType === 'mise-en-recit') return `/corpus/mise-en-recit/${id}`;
   if (itemType === 'oeuvre') return `/corpus/oeuvre/${id}`;
-  
+
   // Handle conferences contextually based on their type
   if (itemType === 'conference' || !itemType) {
     switch (conferenceType) {
