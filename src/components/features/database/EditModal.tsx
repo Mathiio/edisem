@@ -1,17 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Input,
-  Spinner,
-  Button,
-  ModalBody,
-  ModalFooter,
-  ModalContent,
-  Modal,
-  Link,
-  ModalHeader,
-  LinkIcon,
-  addToast,
-} from '@heroui/react';
+import { Input, Spinner, Button, ModalBody, ModalFooter, ModalContent, Modal, Link, ModalHeader, LinkIcon, addToast } from '@heroui/react';
 import { usegetDataByClassDetails } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/features/database/SelectionInput';
 import { Textarea } from '@heroui/input';
@@ -306,18 +294,9 @@ class Omk {
     });
   };
 
-  public updateRessource = (
-    id: string,
-    data: any,
-    type: string = 'items',
-    fd: any | null = null,
-    m: string = 'PUT',
-    cb: ((rs: any) => void) | false = false,
-  ): void => {
+  public updateRessource = (id: string, data: any, type: string = 'items', fd: any | null = null, m: string = 'PUT', cb: ((rs: any) => void) | false = false): void => {
     if (this.ident !== undefined && this.key !== undefined) {
-      let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(
-        this.ident,
-      )}&key_credential=${encodeURIComponent(this.key)}`;
+      let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(this.ident)}&key_credential=${encodeURIComponent(this.key)}`;
 
       if (data) {
         // Récupérer les données actuelles de l'élément
@@ -343,18 +322,9 @@ class Omk {
     }
   };
 
-  public updateItem = (
-    id: string,
-    data: any,
-    type: string = 'items',
-    fd: any | null = null,
-    m: string = 'PUT',
-    cb: ((rs: any) => void) | false = false,
-  ): void => {
+  public updateItem = (id: string, data: any, type: string = 'items', fd: any | null = null, m: string = 'PUT', cb: ((rs: any) => void) | false = false): void => {
     if (this.ident !== undefined && this.key !== undefined) {
-      let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(
-        this.ident,
-      )}&key_credential=${encodeURIComponent(this.key)}`;
+      let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(this.ident)}&key_credential=${encodeURIComponent(this.key)}`;
 
       if (data) {
         this.postData({ u: url, m: m }, fd ? fd : data).then((rs: any) => {
@@ -879,21 +849,8 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
   ],
 };
 
-export const EditModal: React.FC<EditModalProps> = ({
-  isOpen,
-  onClose,
-  itemUrl,
-  activeConfig,
-  itemPropertiesData,
-  propertiesLoading,
-  justView = false,
-}) => {
-  const {
-    data: itemDetailsData,
-    loading: detailsLoading,
-    error: detailsError,
-    refetch: refetchItemDetails,
-  } = usegetDataByClassDetails(itemUrl);
+export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, activeConfig, itemPropertiesData, propertiesLoading, justView = false }) => {
+  const { data: itemDetailsData, loading: detailsLoading, error: detailsError, refetch: refetchItemDetails } = usegetDataByClassDetails(itemUrl);
 
   //console.log(itemPropertiesData);
   const [itemData, setItemData] = useState<any>({});
@@ -1072,10 +1029,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                 <h2 className='text-c6 text-32 font-semibold'>{justView ? 'Details' : 'Modification'}</h2>
 
                 <Link onPress={onClose}>
-                  <CrossIcon
-                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
-                    size={24}
-                  />
+                  <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
                 </Link>
               </ModalHeader>
               <ModalBody className='flex p-25'>
@@ -1092,7 +1046,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                               key={col.key}
                               size='lg'
                               classNames={{
-                                label: 'text-semibold',
+                                label: 'text-semibold !text-c6 text-24',
                                 inputWrapper: 'bg-c1 shadow-none border-1 border-200',
                                 input: 'h-[50px] ',
                               }}
@@ -1100,7 +1054,7 @@ export const EditModal: React.FC<EditModalProps> = ({
                               className='min-h-[50px]'
                               type='text'
                               label={col.label}
-                              labelPlacement='outside'
+                              labelPlacement='outside-top'
                               placeholder={`Entrez ${col.label}`}
                               defaultValue={value}
                               onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
@@ -1130,44 +1084,19 @@ export const EditModal: React.FC<EditModalProps> = ({
                       } else if (col.type === 'time') {
                         return (
                           <>
-                            <TimecodeInput
-                              key={col.key}
-                              label={col.label}
-                              seconds={value}
-                              handleInputChange={(value) => handleInputChange(col.dataPath, value)}
-                            />
+                            <TimecodeInput key={col.key} label={col.label} seconds={value} handleInputChange={(value) => handleInputChange(col.dataPath, value)} />
                           </>
                         );
                       } else if (col.type === 'date') {
                         return (
                           <>
-                            <DatePicker
-                              key={col.key}
-                              label={col.label}
-                              date={value}
-                              handleInputChange={(value) => handleInputChange(col.dataPath, value)}
-                            />
+                            <DatePicker key={col.key} label={col.label} date={value} handleInputChange={(value) => handleInputChange(col.dataPath, value)} />
                           </>
                         );
                       } else if (col.type === 'selection') {
-                        return (
-                          <SelectionInput
-                            justView={justView}
-                            key={col.key}
-                            col={col}
-                            actualData={itemDetailsData}
-                            handleInputChange={handleInputChange}
-                          />
-                        );
+                        return <SelectionInput justView={justView} key={col.key} col={col} actualData={itemDetailsData} handleInputChange={handleInputChange} />;
                       } else if (col.type === 'inputs') {
-                        return (
-                          <MultipleInputs
-                            key={col.key}
-                            col={col}
-                            actualData={itemDetailsData}
-                            handleInputChange={handleInputChange}
-                          />
-                        );
+                        return <MultipleInputs key={col.key} col={col} actualData={itemDetailsData} handleInputChange={handleInputChange} />;
                       } else {
                         return null;
                       }

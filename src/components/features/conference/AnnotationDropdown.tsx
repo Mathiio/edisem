@@ -1,17 +1,4 @@
-import {
-  Button,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Input,
-  Link,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  Textarea,
-} from '@heroui/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Link, Modal, ModalBody, ModalContent, ModalHeader, Textarea } from '@heroui/react';
 import React, { useEffect, useState } from 'react';
 import { CrossIcon, DotsIcon, UserIcon } from '@/components/ui/icons';
 import { IconSvgProps } from '@/types/ui';
@@ -43,16 +30,7 @@ interface AnnotationDropdownProps {
   onClose?: () => void;
 }
 
-export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
-  id,
-  content,
-  image,
-  actant,
-  type,
-  mode = 'dropdown',
-  isOpen = false,
-  onClose: externalOnClose,
-}) => {
+export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, content, image, actant, type, mode = 'dropdown', isOpen = false, onClose: externalOnClose }) => {
   const userString = localStorage.getItem('user');
   const user: any | null = userString ? JSON.parse(userString) : null;
 
@@ -110,11 +88,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
     setIsLoading(true);
 
     try {
-      const [fetchedAnnotations, actants, students] = await Promise.all([
-        getAnnotations(),
-        getActants(),
-        getStudents(),
-      ]);
+      const [fetchedAnnotations, actants, students] = await Promise.all([getAnnotations(), getActants(), getStudents()]);
 
       console.log(actants);
       console.log(students);
@@ -195,10 +169,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
               <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
                 <h1 className='text-32 text-c6 font-semibold'>Annotation</h1>
                 <Link onPress={onAnnotateClose}>
-                  <CrossIcon
-                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
-                    size={24}
-                  />
+                  <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
                 </Link>
               </ModalHeader>
               <ModalBody className='flex p-[25px] gap-25'>
@@ -223,9 +194,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
                             style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
                             {content}
                           </p>
-                          <p
-                            className='text-16 text-c5 font-semibold cursor-pointer transition-all ease-in-out duration-200'
-                            onClick={toggleExpansion}>
+                          <p className='text-16 text-c5 font-semibold cursor-pointer transition-all ease-in-out duration-200' onClick={toggleExpansion}>
                             {expanded ? 'affichez moins' : '...affichez plus'}
                           </p>
                         </>
@@ -242,14 +211,14 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     classNames={{
-                      label: 'text-semibold',
+                      label: 'text-semibold !text-c6 text-24',
                       inputWrapper: 'bg-c2 shadow-none border-1 border-200',
                       input: 'h-[50px]',
                       mainWrapper: 'w-full',
                     }}
                     className='min-h-[50px]'
                     label="Titre de l'annotation *"
-                    labelPlacement='outside'
+                    labelPlacement='outside-top'
                     placeholder='Entrez un titre..'
                   />
                   <Textarea
@@ -257,24 +226,21 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     classNames={{
-                      label: 'text-semibold',
+                      label: 'text-semibold !text-c6 text-24',
                       inputWrapper: 'w-full bg-c2 shadow-none border-1 border-200',
                       input: ' h-[50px]',
                       mainWrapper: 'w-full',
                     }}
                     className='min-h-[50px]'
                     label='Commentaire *'
-                    labelPlacement='outside'
+                    labelPlacement='outside-top'
                     placeholder='Entrez votre commentaire..'
                   />
                   <div className='flex w-full flex-row justify-end items-center gap-3 mt-4'>
                     <Button onClick={onAnnotateClose} className='w-fit px-3 h-[40px] bg-c2 text-c6 rounded-8'>
                       Annuler
                     </Button>
-                    <Button
-                      type='submit'
-                      className='w-fit px-3 h-[40px] bg-action text-selected rounded-8 '
-                      disabled={isSubmitting}>
+                    <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected rounded-8 ' disabled={isSubmitting}>
                       {isSubmitting ? 'Création...' : 'Annoter'}
                     </Button>
                   </div>
@@ -309,10 +275,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
               <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
                 <h1 className='text-32 text-c6 font-semibold'>Annotations</h1>
                 <Link onPress={onViewClose}>
-                  <CrossIcon
-                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
-                    size={24}
-                  />
+                  <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
                 </Link>
               </ModalHeader>
               <ModalBody className='flex flex-col p-6 gap-6'>
@@ -324,39 +287,24 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
                   <div className='flex flex-col gap-[30px] w-full'>
                     <div className='flex flex-row items-center gap-10'>
                       <h1 className='text-16 text-c6'>Annotations</h1>
-                      <div className='rounded-[7px] text-[12px] border-2 p-5 leading-[60%] text-c6 border-c3'>
-                        {annotations.length}
-                      </div>
+                      <div className='rounded-[7px] text-[12px] border-2 p-5 leading-[60%] text-c6 border-c3'>{annotations.length}</div>
                     </div>
                     <div className='flex flex-col gap-[30px] max-h-[350px] overflow-y-scroll'>
                       {annotations.map((annotation: any, index) => (
-                        <div
-                          key={index}
-                          className=' flex flex-col border-2 px-[15px] py-[15px] border-c3 w-fit gap-[15px] rounded-12'>
+                        <div key={index} className=' flex flex-col border-2 px-[15px] py-[15px] border-c3 w-fit gap-[15px] rounded-12'>
                           <div className='flex flex-row rounded-8 items-center h-[40px] gap-10 text-c6 transition-all ease-in-out duration-200'>
                             {annotation.contributor?.picture ? (
-                              <img
-                                src={annotation.contributor.picture}
-                                alt='Avatar'
-                                className='w-[30px] h-[30px] rounded-[6px] object-cover'
-                              />
+                              <img src={annotation.contributor.picture} alt='Avatar' className='w-[30px] h-[30px] rounded-[6px] object-cover' />
                             ) : (
-                              <UserIcon
-                                size={16}
-                                className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200'
-                              />
+                              <UserIcon size={16} className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200' />
                             )}
                             <span className='text-14 font-normal text-c6'>
                               {annotation.contributor?.firstname && annotation.contributor?.lastname
                                 ? `${annotation.contributor.firstname} ${annotation.contributor.lastname.charAt(0)}.`
-                                : annotation.contributor?.firstname ||
-                                  annotation.contributor?.lastname ||
-                                  'Utilisateur'}
+                                : annotation.contributor?.firstname || annotation.contributor?.lastname || 'Utilisateur'}
                             </span>
                             <div className='w-[5px] h-[5px]'></div>
-                            <span className='text-14 font-normal text-c6'>
-                              {new Date(annotation.created).toLocaleDateString('ca-CA')}
-                            </span>
+                            <span className='text-14 font-normal text-c6'>{new Date(annotation.created).toLocaleDateString('ca-CA')}</span>
                           </div>
                           <h3 className='text-xl text-c6 font-semibold'>{annotation.title}</h3>
                           <p className='text-base text-c4'>{annotation.description}</p>
@@ -417,10 +365,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
               <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
                 <h1 className='text-32 text-c6 font-semibold'>Annotation</h1>
                 <Link onPress={onAnnotateClose}>
-                  <CrossIcon
-                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
-                    size={24}
-                  />
+                  <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
                 </Link>
               </ModalHeader>
               <ModalBody className='flex p-[25px] gap-25'>
@@ -445,9 +390,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
                             style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
                             {content}
                           </p>
-                          <p
-                            className='text-16 text-c5 font-semibold cursor-pointer transition-all ease-in-out duration-200'
-                            onClick={toggleExpansion}>
+                          <p className='text-16 text-c5 font-semibold cursor-pointer transition-all ease-in-out duration-200' onClick={toggleExpansion}>
                             {expanded ? 'affichez moins' : '...affichez plus'}
                           </p>
                         </>
@@ -464,14 +407,14 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     classNames={{
-                      label: 'text-semibold',
+                      label: 'text-semibold !text-c6 text-24',
                       inputWrapper: 'bg-c2 shadow-none border-1 border-200',
                       input: 'h-[50px]',
                       mainWrapper: 'w-full',
                     }}
                     className='min-h-[50px]'
                     label="Titre de l'annotation *"
-                    labelPlacement='outside'
+                    labelPlacement='outside-top'
                     placeholder='Entrez un titre..'
                   />
                   <Textarea
@@ -479,24 +422,21 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     classNames={{
-                      label: 'text-semibold',
+                      label: 'text-semibold !text-c6 text-24',
                       inputWrapper: 'w-full bg-c2 shadow-none border-1 border-200',
                       input: ' h-[50px]',
                       mainWrapper: 'w-full',
                     }}
                     className='min-h-[50px]'
                     label='Commentaire *'
-                    labelPlacement='outside'
+                    labelPlacement='outside-top'
                     placeholder='Entrez votre commentaire..'
                   />
                   <div className='flex w-full flex-row justify-end items-center gap-3 mt-4'>
                     <Button onClick={onAnnotateClose} className='w-fit px-3 h-[40px] bg-c2 text-c6 rounded-8'>
                       Annuler
                     </Button>
-                    <Button
-                      type='submit'
-                      className='w-fit px-3 h-[40px] bg-action text-selected rounded-8 '
-                      disabled={isSubmitting}>
+                    <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected rounded-8 ' disabled={isSubmitting}>
                       {isSubmitting ? 'Création...' : 'Annoter'}
                     </Button>
                   </div>
@@ -527,10 +467,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
               <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
                 <h1 className='text-32 text-c6 font-semibold'>Annotations</h1>
                 <Link onPress={onViewClose}>
-                  <CrossIcon
-                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
-                    size={24}
-                  />
+                  <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
                 </Link>
               </ModalHeader>
               <ModalBody className='flex flex-col p-6 gap-6'>
@@ -542,39 +479,24 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({
                   <div className='flex flex-col gap-[30px] w-full'>
                     <div className='flex flex-row items-center gap-10'>
                       <h1 className='text-16 text-c6'>Annotations</h1>
-                      <div className='rounded-[7px] text-[12px] border-2 p-5 leading-[60%] text-c6 border-c3'>
-                        {annotations.length}
-                      </div>
+                      <div className='rounded-[7px] text-[12px] border-2 p-5 leading-[60%] text-c6 border-c3'>{annotations.length}</div>
                     </div>
                     <div className='flex flex-col gap-[30px] max-h-[350px] overflow-y-scroll'>
                       {annotations.map((annotation: any, index) => (
-                        <div
-                          key={index}
-                          className=' flex flex-col border-2 px-[15px] py-[15px] border-c3 w-fit gap-[15px] rounded-12'>
+                        <div key={index} className=' flex flex-col border-2 px-[15px] py-[15px] border-c3 w-fit gap-[15px] rounded-12'>
                           <div className='flex flex-row rounded-8 items-center h-[40px] gap-10 text-c6 transition-all ease-in-out duration-200'>
                             {annotation.contributor?.picture ? (
-                              <img
-                                src={annotation.contributor.picture}
-                                alt='Avatar'
-                                className='w-[30px] h-[30px] rounded-[6px] object-cover'
-                              />
+                              <img src={annotation.contributor.picture} alt='Avatar' className='w-[30px] h-[30px] rounded-[6px] object-cover' />
                             ) : (
-                              <UserIcon
-                                size={16}
-                                className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200'
-                              />
+                              <UserIcon size={16} className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200' />
                             )}
                             <span className='text-14 font-normal text-c6'>
                               {annotation.contributor?.firstname && annotation.contributor?.lastname
                                 ? `${annotation.contributor.firstname} ${annotation.contributor.lastname.charAt(0)}.`
-                                : annotation.contributor?.firstname ||
-                                  annotation.contributor?.lastname ||
-                                  'Utilisateur'}
+                                : annotation.contributor?.firstname || annotation.contributor?.lastname || 'Utilisateur'}
                             </span>
                             <div className='w-[5px] h-[5px]'></div>
-                            <span className='text-14 font-normal text-c6'>
-                              {new Date(annotation.created).toLocaleDateString('ca-CA')}
-                            </span>
+                            <span className='text-14 font-normal text-c6'>{new Date(annotation.created).toLocaleDateString('ca-CA')}</span>
                           </div>
                           <h3 className='text-xl text-c6 font-semibold'>{annotation.title}</h3>
                           <p className='text-base text-c4'>{annotation.description}</p>

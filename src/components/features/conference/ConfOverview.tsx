@@ -6,7 +6,6 @@ import { addToast, Skeleton, Link, Button, cn } from '@heroui/react';
 import { AnnotationDropdown } from './AnnotationDropdown';
 import { Conference } from '@/types/ui';
 
-
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
   visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 80, damping: 10 } },
@@ -51,7 +50,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
   }, [conf.url, conf.fullUrl]);
 
   const openActant = () => {
-    navigate(`/conferencier/${conf.actant.id}`);
+    navigate(`/intervenant/${conf.actant.id}`);
   };
 
   const changeLink = () => {
@@ -94,7 +93,9 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
                 <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
               )}
               <div className='flex flex-col items-start gap-0.5'>
-                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{conf.actant.firstname} {conf.actant.lastname}</h3>
+                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>
+                  {conf.actant.firstname} {conf.actant.lastname}
+                </h3>
                 <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{conf.actant.universities?.[0]?.shortName || ''}</p>
               </div>
             </Link>

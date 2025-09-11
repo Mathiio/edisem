@@ -61,52 +61,53 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
               className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] rounded-12 overflow-hidden'
               isVideo={medias[currentMediaIndex].includes('.mov')}
             />
-
-            <Splide
-              options={{
-                perPage: 3,
-                gap: '1rem',
-                pagination: false,
-                perMove: 1,
-                speed: 1000,
-                autoWidth: true,
-              }}
-              hasTrack={false}
-              aria-label='...'
-              className='flex w-full justify-between items-center gap-25'>
-              <SplideTrack className='w-full'>
-                {medias.map((media, index) => (
-                  <SplideSlide key={index}>
-                    <button
-                      key={index}
-                      onClick={() => setCurrentMediaIndex(index)}
-                      className={`flex-shrink-0 w-[136px] h-[50px] rounded-12 overflow-hidden transition-all duration-200 ${
-                        index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
-                      }`}>
-                      {media.includes('.mov') ? (
-                        <video src={media} className='w-full h-full object-cover' />
-                      ) : (
-                        <img src={media} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
-                      )}
-                    </button>
-                  </SplideSlide>
-                ))}
-              </SplideTrack>
-              <div className=' flex justify-between items-center'>
-                <div className='splide__arrows relative flex gap-10'>
-                  <Button
-                    size='sm'
-                    className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
-                    <ArrowIcon size={20} transform='rotate(180deg)' />
-                  </Button>
-                  <Button
-                    size='sm'
-                    className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
-                    <ArrowIcon size={20} />
-                  </Button>
+            {medias.length > 1 && (
+              <Splide
+                options={{
+                  perPage: 3,
+                  gap: '1rem',
+                  pagination: false,
+                  perMove: 1,
+                  speed: 1000,
+                  autoWidth: true,
+                }}
+                hasTrack={false}
+                aria-label='...'
+                className='flex w-full justify-between items-center gap-25'>
+                <SplideTrack className='w-full'>
+                  {medias.map((media, index) => (
+                    <SplideSlide key={index}>
+                      <button
+                        key={index}
+                        onClick={() => setCurrentMediaIndex(index)}
+                        className={`flex-shrink-0 w-[136px] h-[50px] rounded-12 overflow-hidden transition-all duration-200 ${
+                          index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
+                        }`}>
+                        {media.includes('.mov') ? (
+                          <video src={media} className='w-full h-full object-cover' />
+                        ) : (
+                          <img src={media} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
+                        )}
+                      </button>
+                    </SplideSlide>
+                  ))}
+                </SplideTrack>
+                <div className=' flex justify-between items-center'>
+                  <div className='splide__arrows relative flex gap-10'>
+                    <Button
+                      size='sm'
+                      className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
+                      <ArrowIcon size={20} transform='rotate(180deg)' />
+                    </Button>
+                    <Button
+                      size='sm'
+                      className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
+                      <ArrowIcon size={20} />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </Splide>
+              </Splide>
+            )}
           </div>
         ) : (
           <UnloadedCard />
@@ -136,7 +137,7 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                     <Button
                       size='md'
                       className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
-                      <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1} </h3>
+                      <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1} Artistes</h3>
                     </Button>
                   </DropdownTrigger>
 
@@ -201,7 +202,7 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                     }
                   }}>
                   <SettingsIcon size={12} />
-                  Crédits
+                  Crédits complets
                 </Button>
               )}
               <AnnotationDropdown id={id} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Œuvre' />

@@ -4,19 +4,9 @@ import { AnnotationDropdown } from './AnnotationDropdown';
 import { FileIcon } from '@/components/ui/icons';
 import { Bibliography } from '@/types/ui';
 
-
-
-const hasContent = (
-  value: string | string[] | { first_name: string; last_name: string }[] | undefined | null,
-): boolean => {
+const hasContent = (value: string | string[] | { first_name: string; last_name: string }[] | undefined | null): boolean => {
   // Si value est un tableau d'objets créateurs (avec first_name et last_name)
-  if (
-    Array.isArray(value) &&
-    value.length > 0 &&
-    typeof value[0] === 'object' &&
-    'first_name' in value[0] &&
-    'last_name' in value[0]
-  ) {
+  if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object' && 'first_name' in value[0] && 'last_name' in value[0]) {
     return value.some(
       (creator) => typeof creator === 'object' && (creator.first_name.trim() !== '' || creator.last_name.trim() !== ''), // Vérifie que l'un des deux est non vide
     );
@@ -220,9 +210,7 @@ export const BibliographyCard: React.FC<Bibliography & { uniqueKey?: number }> =
 
   return (
     <div
-      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${
-        isHovered ? 'border-c6' : 'border-c3'
-      }`}
+      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
       <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={url ?? '#'} target='_blank'>
@@ -257,53 +245,76 @@ export const BibliographySkeleton: React.FC = () => {
   );
 };
 
-interface BibliographiesProps {
+interface BibliographySection {
+  title: string;
   bibliographies: Bibliography[];
-  loading: boolean;
 }
 
-export const Bibliographies: React.FC<BibliographiesProps> = ({ bibliographies, loading }) => {
-  // Séparation des bibliographies en fonction de l'ID
-  const conferenceBibliographies = bibliographies.filter((bibliography) => bibliography.resource_template_id === '81');
-  const complementaryBibliographies = bibliographies.filter(
-    (bibliography) => bibliography.resource_template_id !== '81',
-  );
+interface BibliographiesProps {
+  // Nouveau système : sections avec titres
+  sections?: BibliographySection[];
+  // Système legacy : un seul tableau avec filtrage par resource_template_id
+  bibliographies?: Bibliography[];
+  loading: boolean;
+  type?: 'scientific' | 'cultural';
+  // Configuration pour le système legacy
+  legacyConfig?: {
+    normalTitle: string;
+    complementaryTitle: string;
+    complementaryTemplateId: string;
+  };
+}
+
+export const Bibliographies: React.FC<BibliographiesProps> = ({ sections = [], bibliographies = [], loading, legacyConfig }) => {
+  // Déterminer quelle méthode utiliser
+  const useLegacyMode = bibliographies.length > 0 && !sections.length;
+
+  let finalSections: BibliographySection[] = [];
+  let totalBibliographies = 0;
+
+  if (useLegacyMode && legacyConfig) {
+    // Mode legacy : filtrer par resource_template_id
+    const normalBibliographies = bibliographies.filter((biblio) => biblio.resource_template_id !== legacyConfig.complementaryTemplateId);
+    const complementaryBibliographies = bibliographies.filter((biblio) => biblio.resource_template_id === legacyConfig.complementaryTemplateId);
+
+    finalSections = [
+      { title: legacyConfig.normalTitle, bibliographies: normalBibliographies },
+      { title: legacyConfig.complementaryTitle, bibliographies: complementaryBibliographies },
+    ].filter((section) => section.bibliographies.length > 0);
+
+    totalBibliographies = bibliographies.length;
+  } else {
+    // Mode nouveau : utiliser les sections fournies
+    finalSections = sections;
+    totalBibliographies = sections.reduce((total, section) => total + section.bibliographies.length, 0);
+  }
 
   return (
     <div className='w-full h-full overflow-hidden flex flex-col gap-20'>
       <div className='flex flex-col gap-20 overflow-y-auto scroll-container'>
         {loading ? (
-          Array.from({ length: bibliographies.length }).map((_, index) => <BibliographySkeleton key={index} />)
+          Array.from({ length: totalBibliographies }).map((_, index) => <BibliographySkeleton key={index} />)
         ) : (
           <>
-            {/* Bibliographies de conférence */}
-            {conferenceBibliographies.length > 0 && (
-              <>
-                <h2 className='text-16 text-c5 font-medium'>Bibliographies de Conférence</h2>
-                <div className='flex flex-col gap-10'>
-                  {conferenceBibliographies.map((bibliography, index) => (
-                    <BibliographyCard key={index} {...bibliography} uniqueKey={index} />
-                  ))}
-                </div>
-              </>
+            {/* Rendu dynamique des sections */}
+            {finalSections.map(
+              (section, sectionIndex) =>
+                section.bibliographies.length > 0 && (
+                  <div key={sectionIndex}>
+                    <h2 className='text-16 text-c5 font-medium'>{section.title}</h2>
+                    <div className='flex flex-col gap-10'>
+                      {section.bibliographies.map((bibliography, index) => (
+                        <BibliographyCard key={`${sectionIndex}-${index}`} {...bibliography} uniqueKey={index} />
+                      ))}
+                    </div>
+                  </div>
+                ),
             )}
 
-            {/* Bibliographies complémentaires */}
-            {complementaryBibliographies.length > 0 && (
-              <>
-                <h2 className='text-16 text-c5 font-medium'>Bibliographies Complémentaires</h2>
-                <div className='flex flex-col gap-10'>
-                  {complementaryBibliographies.map((bibliography, index) => (
-                    <BibliographyCard key={index} {...bibliography} uniqueKey={index} />
-                  ))}
-                </div>
-              </>
-            )}
+            {/* Si aucune bibliographie n'est disponible */}
+            {totalBibliographies === 0 && !loading && <UnloadedCard />}
           </>
         )}
-
-        {/* Si aucune bibliographie n'est disponible */}
-        {bibliographies.length === 0 && !loading && <UnloadedCard />}
       </div>
     </div>
   );
@@ -315,9 +326,7 @@ export const UnloadedCard: React.FC = () => {
       <FileIcon size={42} className='text-c6' />
       <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
         <h2 className='text-c6 text-32 font-semibold'>Oups !</h2>
-        <p className='text-c5 text-16 text-center'>
-          Aucune bibliographie n'est liée à cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections.
-        </p>
+        <p className='text-c5 text-16 text-center'>Aucune bibliographie n'est liée à cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections.</p>
       </div>
     </div>
   );
