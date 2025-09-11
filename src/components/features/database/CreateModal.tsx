@@ -1,16 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Input,
-  Spinner,
-  Button,
-  ModalBody,
-  ModalFooter,
-  ModalContent,
-  Modal,
-  Link,
-  ModalHeader,
-  addToast,
-} from '@heroui/react';
+import { Input, Spinner, Button, ModalBody, ModalFooter, ModalContent, Modal, Link, ModalHeader, addToast } from '@heroui/react';
 import { useFetchRT } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/features/database/SelectionInput';
 import { Textarea } from '@heroui/input';
@@ -402,18 +391,9 @@ class Omk {
     return baseValue;
   };
 
-  public updateRessource = (
-    id: string,
-    data: any,
-    type: string = 'items',
-    fd: any | null = null,
-    m: string = 'PUT',
-    cb: ((rs: any) => void) | false = false,
-  ): void => {
+  public updateRessource = (id: string, data: any, type: string = 'items', fd: any | null = null, m: string = 'PUT', cb: ((rs: any) => void) | false = false): void => {
     if (this.ident !== undefined && this.key !== undefined) {
-      let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(
-        this.ident,
-      )}&key_credential=${encodeURIComponent(this.key)}`;
+      let url = `${this.api}${type}/${id}?key_identity=${encodeURIComponent(this.ident)}&key_credential=${encodeURIComponent(this.key)}`;
 
       if (data) {
         this.getItem(id).then((oriData: any) => {
@@ -607,20 +587,8 @@ interface NewModalProps {
   propertiesLoading: boolean;
 }
 
-export const CreateModal: React.FC<NewModalProps> = ({
-  isOpen,
-  onClose,
-  itemId,
-  activeConfig,
-  itemPropertiesData,
-  propertiesLoading,
-}) => {
-  const {
-    data: itemDetailsData,
-    loading: detailsLoading,
-    error: detailsError,
-    refetch: refetchItemDetails,
-  } = useFetchRT(itemId);
+export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, activeConfig, itemPropertiesData, propertiesLoading }) => {
+  const { data: itemDetailsData, loading: detailsLoading, error: detailsError, refetch: refetchItemDetails } = useFetchRT(itemId);
 
   const [itemData, setItemData] = useState<any>({});
   const [saving, setSaving] = useState(false);
@@ -770,10 +738,7 @@ export const CreateModal: React.FC<NewModalProps> = ({
               <ModalHeader className='flex justify-between p-25 '>
                 <h2 className='text-c6 text-32 font-semibold'>Nouvel item</h2>
                 <Link onPress={onClose}>
-                  <CrossIcon
-                    className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200'
-                    size={24}
-                  />
+                  <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
                 </Link>
               </ModalHeader>
               <ModalBody className='flex p-25'>
@@ -788,14 +753,14 @@ export const CreateModal: React.FC<NewModalProps> = ({
                               key={col.key}
                               size='lg'
                               classNames={{
-                                label: 'text-semibold',
+                                label: 'text-semibold !text-c6 text-24',
                                 inputWrapper: 'bg-c1',
                                 input: 'h-[50px]',
                               }}
                               className='min-h-[50px]'
                               type='text'
                               label={col.label}
-                              labelPlacement='outside'
+                              labelPlacement='outside-top'
                               placeholder={`Entrez ${col.label}`}
                               isRequired
                               onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
@@ -824,33 +789,19 @@ export const CreateModal: React.FC<NewModalProps> = ({
                       } else if (col.type === 'time') {
                         return (
                           <>
-                            <TimecodeInput
-                              label={col.label}
-                              handleInputChange={(value) => handleInputChange(col.dataPath, value)}
-                            />
+                            <TimecodeInput label={col.label} handleInputChange={(value) => handleInputChange(col.dataPath, value)} />
                           </>
                         );
                       } else if (col.type === 'date') {
                         return (
                           <>
-                            <DatePicker
-                              key={col.key}
-                              label={col.label}
-                              handleInputChange={(value) => handleInputChange(col.dataPath, value)}
-                            />
+                            <DatePicker key={col.key} label={col.label} handleInputChange={(value) => handleInputChange(col.dataPath, value)} />
                           </>
                         );
                       } else if (col.type === 'selection') {
                         return <SelectionInput key={col.key} col={col} handleInputChange={handleInputChange} />;
                       } else if (col.type === 'inputs') {
-                        return (
-                          <MultipleInputs
-                            key={col.key}
-                            col={col}
-                            actualData={itemDetailsData}
-                            handleInputChange={handleInputChange}
-                          />
-                        );
+                        return <MultipleInputs key={col.key} col={col} actualData={itemDetailsData} handleInputChange={handleInputChange} />;
                       } else {
                         return null;
                       }

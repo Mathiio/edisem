@@ -83,7 +83,7 @@ export const LoginPage: React.FC = () => {
               <Input
                 size='lg'
                 classNames={{
-                  label: 'text-semibold',
+                  label: 'text-semibold !text-c6 text-24',
                   inputWrapper: 'bg-c2 shadow-none border-1 border-200',
                   input: 'h-[50px]',
                   mainWrapper: 'w-full',
@@ -91,7 +91,7 @@ export const LoginPage: React.FC = () => {
                 className='min-h-[50px] '
                 type='email'
                 label='Email'
-                labelPlacement='outside'
+                labelPlacement='outside-top'
                 placeholder='Entrez votre email'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -109,7 +109,7 @@ export const LoginPage: React.FC = () => {
               <Input
                 size='lg'
                 classNames={{
-                  label: 'text-semibold',
+                  label: 'text-semibold !text-c6 text-24',
                   inputWrapper: 'bg-c2 shadow-none border-1 border-200',
                   input: 'h-[50px]',
                   mainWrapper: 'w-full',
@@ -117,7 +117,7 @@ export const LoginPage: React.FC = () => {
                 className='min-h-[50px]'
                 type='email'
                 label='Email'
-                labelPlacement='outside'
+                labelPlacement='outside-top'
                 placeholder='Entrez votre email'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -125,7 +125,7 @@ export const LoginPage: React.FC = () => {
               <Input
                 size='lg'
                 classNames={{
-                  label: 'text-semibold',
+                  label: 'text-semibold !text-c6 text-24',
                   inputWrapper: 'w-full bg-c2 shadow-none border-1 border-200',
                   input: ' h-[50px]',
                   mainWrapper: 'w-full',
@@ -133,7 +133,7 @@ export const LoginPage: React.FC = () => {
                 className='min-h-[50px]'
                 type='password'
                 label='Mot de passe *'
-                labelPlacement='outside'
+                labelPlacement='outside-top'
                 placeholder='Entrez votre mot de passe'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

@@ -23,7 +23,10 @@ const fadeIn: Variants = {
   }),
 };
 
-const viewOptions = [{ key: 'Références', title: 'Références' }];
+const viewOptions = [
+  { key: 'ContentScient', title: 'Contenus scientifiques' },
+  { key: 'ContentCultu', title: 'Contenus culturels' },
+];
 
 export const Oeuvre: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -40,7 +43,7 @@ export const Oeuvre: React.FC = () => {
   const firstDivRef = useRef<HTMLDivElement>(null);
   const [equalHeight, setEqualHeight] = useState<number | null>(null);
   const searchModalRef = useRef<SearchModalRef>(null);
-  const [selected, setSelected] = useState('Références');
+  const [selected, setSelected] = useState('ContentScient');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Trouve l'option sélectionnée actuelle
@@ -242,8 +245,22 @@ export const Oeuvre: React.FC = () => {
     }
 
     switch (selected) {
-      case 'Références':
-        return <div className='flex flex-col gap-10'>{oeuvreDetails.references?.map((reference: any) => <ToolItem key={reference.id} tool={reference} />)}</div>;
+      case 'ContentScient':
+        return (
+          <div className='flex flex-col gap-10'>
+            {(oeuvreDetails.referencesScient || []).map((reference: any) => (
+              <ToolItem key={reference.id} tool={reference} />
+            ))}
+          </div>
+        );
+      case 'ContentCultu':
+        return (
+          <div className='flex flex-col gap-10'>
+            {(oeuvreDetails.referencesCultu || []).map((reference: any) => (
+              <ToolItem key={reference.id} tool={reference} />
+            ))}
+          </div>
+        );
 
       default:
         return null;

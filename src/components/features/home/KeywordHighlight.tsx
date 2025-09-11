@@ -5,7 +5,7 @@ import { motion, Variants } from 'framer-motion';
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { FullCarrousel } from '@/components/ui/Carrousels';
 import { getConfByCitation } from '@/lib/api';
-import * as Items from '@/lib/Items'
+import * as Items from '@/lib/Items';
 import { Button } from '@heroui/react';
 import { ArrowIcon, UserIcon } from '@/components/ui/icons';
 import { Link } from 'react-router-dom';
@@ -31,57 +31,36 @@ const CitationSlide = ({ item }: { item: any }) => {
   }, [item.id]);
 
   return (
-    <Link 
+    <Link
       to={`/conference/${confId}`}
       key={item.id}
       className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 hover:bg-c2 cursor-pointer p-40 rounded-12 justify-between flex flex-col gap-50 transition-all ease-in-out duration-200'>
-        <p
-          className='text-14 text-c4 italic leading-[150%] overflow-hidden line-clamp-6'>
-          {item.citation}
-        </p>
-        <div className='flex w-full justify-between items-center'>
-          <div className='flex flex-row gap-10 item-center justify-between'>
-            {item.actant.picture ? (
-              <img
-                src={item.actant.picture}
-                alt={`${item.actant.firstname} ${item.actant.lastname}`}
-                className='w-[50px] h-[50px] object-cover rounded-14'
-              />
-            ) : (
-              <div className='min-w-[50px] h-[50px] rounded-12 object-cover flex items-center justify-center bg-c3'>
-                <UserIcon size={22} className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200' />
-              </div>
-            )}
-            <div className='flex-col flex justify-center gap-10'>
-              <p className='text-18 text-c6 flex flex-row items-center leading-[70%]'>{`${item.actant.firstname} ${item.actant.lastname}`}</p>
-              <div className='text-18 text-c6 flex flex-row items-center leading-[70%]'>
-                {item.actant.universities?.map(
-                  (
-                    university: { logo: string; shortName: string },
-                    index: number
-                  ) => (
-                    <div key={index} className='flex items-center justify-center gap-5'>
-                      <img
-                        src={university.logo}
-                        alt={university.shortName}
-                        className='w-auto h-15 object-cover rounded-full'
-                      />
-                      <p className='text-12 text-left text-c5 font-extralight'>
-                        {university.shortName}
-                      </p>
-                    </div>
-                  )
-                )}
-              </div>
+      <p className='text-14 text-c4 italic leading-[150%] overflow-hidden line-clamp-6'>{item.citation}</p>
+      <div className='flex w-full justify-between items-center'>
+        <div className='flex flex-row gap-10 item-center justify-between'>
+          {item.actant.picture ? (
+            <img src={item.actant.picture} alt={`${item.actant.firstname} ${item.actant.lastname}`} className='w-[50px] h-[50px] object-cover rounded-14' />
+          ) : (
+            <div className='min-w-[50px] h-[50px] rounded-12 object-cover flex items-center justify-center bg-c3'>
+              <UserIcon size={22} className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200' />
+            </div>
+          )}
+          <div className='flex-col flex justify-center gap-10'>
+            <p className='text-18 text-c6 flex flex-row items-center leading-[70%]'>{`${item.actant.firstname} ${item.actant.lastname}`}</p>
+            <div className='text-18 text-c6 flex flex-row items-center leading-[70%]'>
+              {item.actant.universities?.map((university: { logo: string; shortName: string }, index: number) => (
+                <div key={index} className='flex items-center justify-center gap-5'>
+                  <img src={university.logo} alt={university.shortName} className='w-auto h-15 object-cover rounded-full' />
+                  <p className='text-12 text-left text-c5 font-extralight'>{university.shortName}</p>
+                </div>
+              ))}
             </div>
           </div>
-            <Button
-              key={item.id}
-              size='sm'
-              className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action relative flex'>
-              <ArrowIcon size={14} />
-            </Button>
-          </div>
+        </div>
+        <Button key={item.id} size='sm' className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action relative flex'>
+          <ArrowIcon size={14} />
+        </Button>
+      </div>
     </Link>
   );
 };
@@ -111,9 +90,7 @@ export const KeywordHighlight: React.FC = () => {
           const randomKeyword = filteredKeywords[Math.floor(Math.random() * filteredKeywords.length)];
           setSelectedKeyword(randomKeyword);
 
-          const confsFiltered = confs.filter((conf: { motcles: any[] }) =>
-            conf.motcles.some((motcle) => motcle.id === randomKeyword.id),
-          );
+          const confsFiltered = confs.filter((conf: { motcles: any[] }) => conf.motcles.some((motcle) => motcle.id === randomKeyword.id));
 
           const updatedConfs = await Promise.all(
             confsFiltered.slice(0, 8).map(async (conf: { actant: number }) => {
@@ -127,9 +104,7 @@ export const KeywordHighlight: React.FC = () => {
 
           setFilteredConfs(updatedConfs);
 
-          const citationsFiltered = citations.filter((citation: { motcles: string[] }) =>
-            citation.motcles.includes(String(randomKeyword.id)),
-          );
+          const citationsFiltered = citations.filter((citation: { motcles: string[] }) => citation.motcles.includes(String(randomKeyword.id)));
 
           const updatedCitations = await Promise.all(
             citationsFiltered.map(async (citation: { actant: number }) => {
@@ -159,7 +134,7 @@ export const KeywordHighlight: React.FC = () => {
         <h2 className='z-[12] text-64 text-c6 font-medium flex flex-col items-center transition-all ease-in-out duration-200 '>
           <span>Sujets autour de</span>
           <span className='text-center bg-gradient-to-t from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-top font-[500]'>
-             "{selectedKeyword?.title || ''}"
+            "{selectedKeyword?.title || ''}"
           </span>
         </h2>
       </div>
@@ -174,11 +149,9 @@ export const KeywordHighlight: React.FC = () => {
                   actant={`${item.actant.firstname} ${item.actant.lastname}`}
                   date={item.date}
                   url={item.url}
-                  universite={
-                    item.actant.universities && item.actant.universities.length > 0
-                      ? item.actant.universities[0].name
-                      : ''
-                  }
+                  type={'conference'}
+                  universite={item.actant.universities && item.actant.universities.length > 0 ? item.actant.universities[0].name : ''}
+                  conferenceType={item.type}
                 />
               </motion.div>
             ))}

@@ -70,13 +70,13 @@ const MultipleInputs: React.FC<SelectionInputProps> = ({ col, actualData, handle
         <div key={`${col.key}-${index}`} className=' w-full flex flex-row gap-10 '>
           <Input
             classNames={{
-              label: 'text-semibold',
+              label: 'text-semibold !text-c6 text-24',
               inputWrapper: 'bg-c1 shadow-none border-1 border-200 w-full min-h-[50px]',
               input: 'h-[50px] min-h-[50px] w-full',
             }}
             className='min-h-[50px] w-full '
             type='text'
-            labelPlacement='outside'
+            labelPlacement='outside-top'
             placeholder={`Entrez ${col.label}`}
             defaultValue={value.values || ''}
             onChange={(e) => handleChange(index, e.target.value)}
@@ -85,18 +85,11 @@ const MultipleInputs: React.FC<SelectionInputProps> = ({ col, actualData, handle
             <div className='flex flex-row gap-10 mb-4'>
               <Dropdown classNames={{ content: 'w-fit min-w-[10px]', base: 'w-[fit]', backdrop: 'w-fit' }}>
                 <DropdownTrigger>
-                  <Button
-                    startContent={<SortIcon size={16} className='text-c6' />}
-                    className='px-[15px] py-10 flex gap-10 bg-c3 border-none rounded-8'>
+                  <Button startContent={<SortIcon size={16} className='text-c6' />} className='px-[15px] py-10 flex gap-10 bg-c3 border-none rounded-8'>
                     {value.language === 'fr' ? 'Fr' : 'En'}
                   </Button>
                 </DropdownTrigger>
-                <DropdownMenu
-                  classNames={{ base: 'w-fit', list: 'w-fit' }}
-                  aria-label='Language selection'
-                  variant='flat'
-                  disallowEmptySelection
-                  selectionMode='single'>
+                <DropdownMenu classNames={{ base: 'w-fit', list: 'w-fit' }} aria-label='Language selection' variant='flat' disallowEmptySelection selectionMode='single'>
                   <DropdownItem
                     onClick={() => {
                       handleLanguageChange(index, 'fr');

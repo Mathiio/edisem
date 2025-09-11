@@ -142,17 +142,13 @@ type SmConfCardProps = {
 
 export const SmConfCard: React.FC<SmConfCardProps> = ({ id, title, actant, url, thumbnail }) => {
   const [isHovered, setIsHovered] = useState(false);
-  let thumbnailUrl = url ? getYouTubeThumbnailUrl(url) : '';
-  if (thumbnail) {
-    thumbnailUrl = thumbnail;
-    console.log(thumbnailUrl);
-  }
-
+  const navigate = useNavigate();
   const textRef = useRef<HTMLParagraphElement>(null);
 
-  const openConf = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.location.href = `/conference/${id}`;
+  const thumbnailUrl = thumbnail || (url ? getYouTubeThumbnailUrl(url) : '');
+
+  const openConf = () => {
+    navigate(`/conference/${id}`);
   };
 
   return (
