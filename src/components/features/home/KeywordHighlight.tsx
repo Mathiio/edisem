@@ -23,7 +23,6 @@ const fadeIn: Variants = {
 
 const CitationSlide = ({ item }: { item: any }) => {
   const [conf, setConf] = useState<Conference | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchConf = async () => {
@@ -32,8 +31,6 @@ const CitationSlide = ({ item }: { item: any }) => {
         setConf(conference);
       } catch (error) {
         console.error('Erreur lors de la récupération de la conférence:', error);
-      } finally {
-        setLoading(false);
       }
     };
     
