@@ -64,7 +64,7 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
   export async function getLinksFromCollections( collections: { id: string }[]): Promise<{ id: string; links: string[] }[]> {
     if (!Array.isArray(collections)) return [];
   
-    const confs = await Items.getSeminarConfs();
+    const confs = await Items.getAllConfs();
     
     return collections.map(collection => {
       const links: string[] = [];
@@ -136,7 +136,7 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
     if (!identifiant || !identifiant.id) return [];
     
     const links: string[] = [];
-    const confs = await Items.getSeminarConfs();
+    const confs = await Items.getAllConfs();
     const citations = await Items.getCitations();
     
     const citation = citations.find((c :any) => c.id === identifiant.id);
@@ -169,7 +169,7 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
   if (Array.isArray(actant.doctoralSchools)) actant.doctoralSchools.forEach((id: any) => id && links.add(id));
 
   // Conférences
-  const confs = await Items.getSeminarConfs();
+  const confs = await Items.getAllConfs();
   confs.forEach((conf:any) => {
     if (conf.actant === actant.id) {
       // Ajoute la conférence elle-même
@@ -208,7 +208,7 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
   export async function getLinksFromBibliographies(bibliography: any): Promise<string[]> {
     if (!bibliography || !bibliography.id) return [];
     const links: string[] = [];
-    const confs = await Items.getSeminarConfs();
+    const confs = await Items.getAllConfs();
     confs.forEach((conf: any) => {
       if (conf && Array.isArray(conf.bibliographies) && conf.bibliographies.includes(bibliography.id)) {
         links.push(conf.id);  
@@ -230,7 +230,7 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
     if (!mediagraphie || !mediagraphie.id) return [];
     
     const links: string[] = [];
-    const confs = await Items.getSeminarConfs();
+    const confs = await Items.getAllConfs();
     confs.forEach((conf : any) => {
       if (conf && Array.isArray(conf.mediagraphies) && conf.mediagraphies.includes(mediagraphie.id)) {
         links.push(conf.id);  
@@ -252,7 +252,7 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
     if (!keyword || !keyword.id) return [];
     
     const links: string[] = [];
-    const confs = await Items.getSeminarConfs();
+    const confs = await Items.getAllConfs();
     confs.forEach((conf:any) => {
       if (conf && 
           Array.isArray(conf.motcles) && 

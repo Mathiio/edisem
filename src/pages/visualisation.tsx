@@ -41,6 +41,9 @@ export interface GeneratedImage {
 const getConfigKey = (nodeType: string): string | null => {
   const typeMap: Record<string, string> = {
     conference: 'conferences',
+    studyday: 'conferences', 
+    colloque: 'conferences',
+    seminar: 'conferences', 
     citation: 'citations',
     actant: 'conferenciers',
     bibliography: 'bibliography',
@@ -615,8 +618,12 @@ const Visualisation = () => {
         }
 
         // Vérifier si le type de l'élément lié est visible dans le groupe de l'item principal
-        if (!linkedItem.type || !group.visibleTypes.includes(linkedItem.type)) {
-          console.log(`Lien ignoré car type non visible dans le groupe ${item.groupId}: ${linkedId} (${linkedItem.type})`);
+        const normalizedType = ['colloque', 'seminar', 'studyday'].includes(linkedItem.type) 
+          ? 'conference' 
+          : linkedItem.type;
+
+        if (!linkedItem.type || !group.visibleTypes.includes(normalizedType)) {
+          console.log(`Lien ignoré car type non visible dans le groupe ${item.groupId}: ${linkedId} (${linkedItem.type} -> ${normalizedType})`);
           return;
         }
 
