@@ -214,7 +214,7 @@ export async function getConfByCitation(citationId: number) {
       conf.citations.includes(citationId)
     );
     
-    return conf ? Number(conf.id) : null; // Retourne l'ID de la conférence en tant que nombre
+    return conf;
   } catch (error) {
     console.error('Error fetching conference by citation:', error);
     throw new Error('Failed to fetch conference by citation');

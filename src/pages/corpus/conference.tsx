@@ -205,7 +205,7 @@ export const Conference: React.FC = () => {
             data={recommendedConfs}
             renderSlide={(item) => (
               <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
-                <SmConfCard key={item.id} id={item.id} title={item.title} actant={item.actant.firstname + ' ' + item.actant.lastname} url={item.url} />
+                <SmConfCard {...item} />
               </motion.div>
             )}
           />

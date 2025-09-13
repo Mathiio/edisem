@@ -328,7 +328,7 @@ export const Experimentation: React.FC = () => {
             data={recommendations}
             renderSlide={(item) => (
               <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
-                <SmConfCard key={item.id} id={item.id} title={item.title} actant={item.acteurs?.[0]?.name || ''} thumbnail={item.thumbnail} />
+                <SmConfCard {...item} />
               </motion.div>
             )}
           />

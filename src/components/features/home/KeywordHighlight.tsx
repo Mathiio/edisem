@@ -9,6 +9,8 @@ import * as Items from '@/services/Items';
 import { Button } from '@heroui/react';
 import { ArrowIcon, UserIcon } from '@/components/ui/icons';
 import { Link } from 'react-router-dom';
+import { Conference } from '@/types/ui';
+import { buildConfsRoute } from '@/lib/utils';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -20,19 +22,34 @@ const fadeIn: Variants = {
 };
 
 const CitationSlide = ({ item }: { item: any }) => {
-  const [confId, setConfId] = useState<number | null>(null);
+  const [conf, setConf] = useState<Conference | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchConfId = async () => {
-      const id = await getConfByCitation(item.id);
-      setConfId(id);
+    const fetchConf = async () => {
+      try {
+        const conference = await getConfByCitation(item.id);
+        setConf(conference);
+      } catch (error) {
+        console.error('Erreur lors de la récupération de la conférence:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchConfId();
+    
+    fetchConf();
   }, [item.id]);
+
+  const getConfRoute = (): string => {
+    if (!conf) {
+      return '#';
+    }
+    return buildConfsRoute(conf.type, Number(conf.id));
+  };
 
   return (
     <Link
-      to={`/conference/${confId}`}
+      to={getConfRoute()}
       key={item.id}
       className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 hover:bg-c2 cursor-pointer p-40 rounded-12 justify-between flex flex-col gap-50 transition-all ease-in-out duration-200'>
       <p className='text-14 text-c4 italic leading-[150%] overflow-hidden line-clamp-6'>{item.citation}</p>
@@ -67,7 +84,7 @@ const CitationSlide = ({ item }: { item: any }) => {
 
 export const KeywordHighlight: React.FC = () => {
   const [selectedKeyword, setSelectedKeyword] = useState<any | null>(null);
-  const [filteredConfs, setFilteredConfs] = useState<any[]>([]);
+  const [filteredConfs, setFilteredConfs] = useState<Conference[]>([]);
   const [filteredCitations, setFilteredCitations] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -141,18 +158,9 @@ export const KeywordHighlight: React.FC = () => {
       <div className='grid grid-cols-4 w-full gap-25'>
         {loading
           ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
-          : filteredConfs.map((item, index) => (
-              <motion.div key={item.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                <LgConfCard
-                  id={item.id}
-                  title={item.title}
-                  actant={`${item.actant.firstname} ${item.actant.lastname}`}
-                  date={item.date}
-                  url={item.url}
-                  type={'conference'}
-                  universite={item.actant.universities && item.actant.universities.length > 0 ? item.actant.universities[0].name : ''}
-                  conferenceType={item.type}
-                />
+          : filteredConfs.map((conference, index) => (
+              <motion.div key={conference.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
+                <LgConfCard {...conference} />
               </motion.div>
             ))}
       </div>
@@ -162,10 +170,8 @@ export const KeywordHighlight: React.FC = () => {
           perPage={3}
           perMove={1}
           data={filteredCitations}
-          renderSlide={(item, index) => (
-            <motion.div initial='hidden' animate='visible' variants={fadeIn} custom={index} key={item.id}>
+          renderSlide={(item) => (
               <CitationSlide item={item} />
-            </motion.div>
           )}
         />
       </div>

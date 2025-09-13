@@ -1,30 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from "@heroui/react";
+import { buildConfsRoute, formatDate } from '@/lib/utils';
+import { Conference } from '@/types/ui';
 
-function formatDate(dateString: string) {
-  const mois = [
-    'janvier',
-    'février',
-    'mars',
-    'avril',
-    'mai',
-    'juin',
-    'juillet',
-    'août',
-    'septembre',
-    'octobre',
-    'novembre',
-    'décembre',
-  ];
-  const dateParts = dateString.split('-');
-  const year = dateParts[0];
-  const monthIndex = parseInt(dateParts[1], 10) - 1;
-  const day = parseInt(dateParts[2], 10);
-  const formattedDate = `${day} ${mois[monthIndex]} ${year}`;
 
-  return formattedDate;
-}
 
 const getYouTubeThumbnailUrl = (ytb: string): string => {
   const videoId = ytb.match(
@@ -33,26 +13,18 @@ const getYouTubeThumbnailUrl = (ytb: string): string => {
   return videoId ? `http://img.youtube.com/vi/${videoId}/0.jpg` : '';
 };
 
-type LgConfCardProps = {
-  id: number;
-  title: string;
-  actant: string;
-  date: string;
-  universite: string;
-  url?: string;
-};
 
-export const ConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, url, universite }) => {
+export const ConfCard: React.FC<Conference> = ( conference ) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  const thumbnailUrl = url ? getYouTubeThumbnailUrl(url) : '';
+  const thumbnailUrl = conference.url ? getYouTubeThumbnailUrl(conference.url) : '';
 
   const [isTruncated, setIsTruncated] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
 
   const openConf = () => {
-    navigate(`/conference/${id}`);
+    navigate(buildConfsRoute(conference.type, Number(conference.id)));
   };
 
   useEffect(() => {
@@ -60,7 +32,7 @@ export const ConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, u
     if (element) {
       setIsTruncated(element.scrollHeight > element.clientHeight);
     }
-  }, [title]);
+  }, [conference.title]);
 
   return (
     <div
@@ -83,15 +55,15 @@ export const ConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, u
           <p
             ref={textRef}
             className='text-16 text-c6 font-medium overflow-hidden max-h-[4.5rem] line-clamp-3'>
-            {title}
+            {conference.title}
           </p>
           {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-c6'></span>}
         </div>
         <p className='text-16 text-c5 font-extralight'>
-          {actant}
-          <span className='text-14'> - {universite}</span>
+          {conference.actant?.firstname} {conference.actant?.lastname}
+          <span className='text-14'> - {conference.actant?.universities && <span className='text-14'> {conference.actant?.universities[0].shortName}</span>}</span>
         </p>
-        <p className='text-14 text-c5 font-extralight'>{formatDate(date)}</p>
+        <p className='text-14 text-c5 font-extralight'>{formatDate(conference.date)}</p>
       </div>
     </div>
   );

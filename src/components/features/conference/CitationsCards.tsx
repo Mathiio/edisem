@@ -2,6 +2,17 @@ import React, { useState } from 'react';
 import { Button, Skeleton } from '@heroui/react';
 import { FileIcon } from '@/components/ui/icons';
 import { AnnotationDropdown } from './AnnotationDropdown';
+import { motion, Variants } from 'framer-motion';
+
+
+const fadeIn: Variants = {
+  hidden: { opacity: 0, y: 6 },
+  visible: (index: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: index * 0.15 },
+  }),
+};
 
 interface CitationCardProps {
   startTime: number;
@@ -128,15 +139,17 @@ export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTime
           <UnloadedCard />
         ) : (
           citations.map((citation, index) => (
-            <CitationCard
-              key={index}
-              id={citation.id}
-              startTime={citation.startTime}
-              endTime={citation.endTime}
-              actant={citation.actant.firstname + ' ' + citation.actant.lastname}
-              citation={citation.citation}
-              onTimeChange={onTimeChange}
-            />
+            <motion.div key={citation.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
+              <CitationCard
+                key={index}
+                id={citation.id}
+                startTime={citation.startTime}
+                endTime={citation.endTime}
+                actant={citation.actant.firstname + ' ' + citation.actant.lastname}
+                citation={citation.citation}
+                onTimeChange={onTimeChange}
+              />
+            </motion.div>
           ))
         )}
       </div>

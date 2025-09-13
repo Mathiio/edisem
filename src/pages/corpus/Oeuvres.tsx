@@ -2,7 +2,7 @@ import { LastOeuvres } from '@/components/features/oeuvres/LastOeuvres';
 import { OeuvresBaner } from '@/components/features/oeuvres/OeuvresBaner';
 import { OeuvresKeywords } from '@/components/features/oeuvres/OeuvresKeywords';
 import { Layouts } from '@/components/layout/Layouts';
-import { getOeuvres, getActants, getStudents } from '@/lib/Items';
+import { getOeuvres, getActants, getStudents } from '@/services/Items';
 import { useEffect, useState } from 'react';
 
 export const Oeuvres: React.FC = () => {

@@ -1,68 +1,29 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@heroui/react';
+import { buildConfsRoute, formatDate } from '@/lib/utils';
+import { Conference } from '@/types/ui';
 
-function formatDate(dateString: string) {
-  const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  const dateParts = dateString.split('-');
-  const year = dateParts[0];
-  const monthIndex = parseInt(dateParts[1], 10) - 1;
-  const day = parseInt(dateParts[2], 10);
-  const formattedDate = `${day} ${mois[monthIndex]} ${year}`;
-
-  return formattedDate;
-}
 
 const getYouTubeThumbnailUrl = (ytb: string): string => {
   const videoId = ytb.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
   return videoId ? `http://img.youtube.com/vi/${videoId}/0.jpg` : '';
 };
 
-const getContextualRoute = (conferenceType: string, itemType: string, id: number): string => {
-  // Handle corpus items that stay within their sections
-  if (itemType === 'experimentation') return `/corpus/experimentation/${id}`;
-  if (itemType === 'mise-en-recit') return `/corpus/mise-en-recit/${id}`;
-  if (itemType === 'oeuvre') return `/corpus/oeuvre/${id}`;
 
-  // Handle conferences contextually based on their type
-  if (itemType === 'conference' || !itemType) {
-    switch (conferenceType) {
-      case 'seminar':
-        return `/corpus/seminaires/conference/${id}`;
-      case 'colloque':
-        return `/corpus/colloques/conference/${id}`;
-      case 'studyday':
-        return `/corpus/journees-etudes/conference/${id}`;
-      default:
-        return `/conference/${id}`;
-    }
-  }
-  return `/${itemType}/${id}`;
-};
 
-type LgConfCardProps = {
-  id: number;
-  title: string;
-  actant: string;
-  date: string;
-  universite: string;
-  url?: string;
-  type?: string;
-  thumbnail?: string;
-  conferenceType?: string;
-};
-
-export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date, url, universite, type, thumbnail, conferenceType }) => {
+export const LgConfCard: React.FC<Conference> = (props) => {
+  const conference = props;
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  const thumbnailUrl = thumbnail || (url ? getYouTubeThumbnailUrl(url) : '');
+  const thumbnailUrl = conference.url ? getYouTubeThumbnailUrl(conference.url) : '';
 
   const [isTruncated, setIsTruncated] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
 
   const openConf = () => {
-    const route = getContextualRoute(conferenceType || '', type || 'conference', id);
+    const route = buildConfsRoute( conference.type, Number(conference.id));
     navigate(route);
   };
 
@@ -71,7 +32,7 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
     if (element) {
       setIsTruncated(element.scrollHeight > element.clientHeight);
     }
-  }, [title]);
+  }, [conference.title]);
 
   return (
     <div
@@ -90,20 +51,20 @@ export const LgConfCard: React.FC<LgConfCardProps> = ({ id, title, actant, date,
       <div className='flex flex-col gap-5 z-10'>
         <div className='relative'>
           <p ref={textRef} className='text-16 text-c6 font-medium overflow-hidden max-h-[4.5rem] line-clamp-3'>
-            {title}
+            {conference.title}
           </p>
           {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-c6'></span>}
         </div>
-        {actant && (
+        {conference.actant && (
           <p className='text-16 text-c5 font-extralight'>
-            {actant}
-            {universite && <span className='text-14'> - {universite}</span>}
+            {conference.actant.firstname} {conference.actant.lastname}
+            {conference.actant.universities && <span className='text-14'> - {conference.actant.universities[0].shortName}</span>}
           </p>
         )}
-        {type === 'experimentation' || type === 'mise-en-recit' || type === 'oeuvre' ? (
-          <p className='text-14 text-c5 font-extralight'>{date}</p>
+        {conference.type === 'experimentation' || conference.type === 'mise-en-recit' || conference.type === 'oeuvre' ? (
+          <p className='text-14 text-c5 font-extralight'>{conference.date}</p>
         ) : (
-          <p className='text-14 text-c5 font-extralight'>{formatDate(date)}</p>
+          <p className='text-14 text-c5 font-extralight'>{formatDate(conference.date)}</p>
         )}
       </div>
     </div>
@@ -132,23 +93,19 @@ export const LgConfSkeleton: React.FC = () => {
   );
 };
 
-type SmConfCardProps = {
-  id: number;
-  title: string;
-  actant: string;
-  url?: string;
-  thumbnail?: string;
-};
 
-export const SmConfCard: React.FC<SmConfCardProps> = ({ id, title, actant, url, thumbnail }) => {
+
+export const SmConfCard: React.FC<Conference> = (props) => {
+  const conference = props;
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   const textRef = useRef<HTMLParagraphElement>(null);
 
-  const thumbnailUrl = thumbnail || (url ? getYouTubeThumbnailUrl(url) : '');
+  const thumbnailUrl = conference.url ? getYouTubeThumbnailUrl(conference.url) : '';
 
   const openConf = () => {
-    navigate(`/conference/${id}`);
+    const route = buildConfsRoute(conference.type, Number(conference.id));
+    navigate(route);
   };
 
   return (
@@ -168,10 +125,10 @@ export const SmConfCard: React.FC<SmConfCardProps> = ({ id, title, actant, url, 
       <div className='flex flex-col gap-5 z-10'>
         <div className='relative'>
           <p ref={textRef} className='text-16 text-c6 font-medium overflow-hidden line-clamp-3'>
-            {title}
+            {conference.title}
           </p>
         </div>
-        <p className='text-16 text-c5 font-extralight'>{actant}</p>
+        <p className='text-16 text-c5 font-extralight'>{conference.actant.firstname} {conference.actant.lastname}</p>
       </div>
     </div>
   );
