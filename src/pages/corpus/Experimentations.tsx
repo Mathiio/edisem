@@ -116,17 +116,7 @@ export const Experimentations: React.FC = () => {
           ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
           : experimentations.map((item: any, index: number) => (
               <motion.div key={item.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                <LgConfCard
-                  id={item.id}
-                  title={item.title}
-                  // Utiliser le premier actant (primaryActant) pour l'affichage
-                  actant={item.acteurs?.[0]?.name || ''}
-                  date={item.date}
-                  url={item.url}
-                  thumbnail={item.thumbnail}
-                  universite={item.primaryActant && item.primaryActant.universities && item.primaryActant.universities.length > 0 ? item.primaryActant.universities[0].name : ''}
-                  type='experimentation'
-                />
+                <LgConfCard {...item} />
               </motion.div>
             ))}
       </div>

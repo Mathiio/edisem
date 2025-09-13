@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Skeleton } from "@heroui/react";
 import { motion, Variants } from 'framer-motion';
 import { Conference } from '@/types/ui';
+import { formatDate } from '@/lib/utils';
 
 
 const itemVariants: Variants = {
@@ -31,18 +32,6 @@ export const ConfDetailsCard: React.FC<ConfDetailsProps> = ({ conf }) => {
     const toggleExpansion = () => {
         setExpanded(!expanded);
     };
-
-    function formatDate(dateString: string) {
-        const mois = [
-            "janvier", "février", "mars", "avril", "mai", "juin",
-            "juillet", "août", "septembre", "octobre", "novembre", "décembre"
-        ];
-        const dateParts = dateString.split("-");
-        const year = dateParts[0];
-        const monthIndex = parseInt(dateParts[1], 10) - 1;
-        const day = parseInt(dateParts[2], 10);
-        return `${day} ${mois[monthIndex]} ${year}`;
-    }
 
     const formattedDate = formatDate(conf.date);
     const editionText = `Édition ${conf.season} ${conf.date.split('-')[0]}`;

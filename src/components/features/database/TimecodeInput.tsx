@@ -183,10 +183,6 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
           <TimecodeInput label='Start Time' seconds={parsedInterval.start} handleInputChange={handleStartChange} />
           <TimecodeInput label='End Time' seconds={parsedInterval.end} handleInputChange={handleEndChange} />
         </div>
-        {/* <p>
-          Interval: {formatDateTime(parsedInterval.date, parsedInterval.start)}/
-          {formatDateTime(parsedInterval.date, parsedInterval.end)}
-        </p> */}
       </div>
     </div>
   );

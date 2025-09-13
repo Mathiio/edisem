@@ -1,25 +1,16 @@
 
 // Navigation utilities
-export const getContextualRoute = (conferenceType: string, itemType: string, id: number): string => {
-  // Handle corpus items that stay within their sections
-  if (itemType === 'experimentation') return `/corpus/experimentation/${id}`;
-  if (itemType === 'mise-en-recit') return `/corpus/mise-en-recit/${id}`;
-  if (itemType === 'oeuvre') return `/corpus/oeuvre/${id}`;
-
-  // Handle conferences contextually based on their type
-  if (itemType === 'conference' || !itemType) {
-    switch (conferenceType) {
-      case 'seminar':
-        return `/corpus/seminaires/conference/${id}`;
-      case 'colloque':
-        return `/corpus/colloques/conference/${id}`;
-      case 'studyday':
-        return `/corpus/journees-etudes/conference/${id}`;
-      default:
-        return `/conference/${id}`;
-    }
+export const buildConfsRoute = (confType: string, id: number): string => {
+  switch (confType) {
+    case 'seminar':
+      return `/corpus/seminaires/conference/${id}`;
+    case 'colloque':
+      return `/corpus/colloques/conference/${id}`;
+    case 'studyday':
+      return `/corpus/journees-etudes/conference/${id}`;
+    default:
+      return `/`;
   }
-  return `/${itemType}/${id}`;
 };
 
 

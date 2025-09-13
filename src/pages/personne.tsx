@@ -127,17 +127,7 @@ export const Personne: React.FC = () => {
             ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
             : oeuvres.map((item, index) => (
                 <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id} custom={index}>
-                  <LgConfCard
-                    key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    actant={Array.isArray(item.personne) && item.personne.length > 0 ? item.personne[0].name : item.personne?.name || ''}
-                    date={item.date}
-                    url={''}
-                    thumbnail={item.thumbnail}
-                    universite={item.primaryActant?.universities?.[0]?.name || ''}
-                    type='oeuvre'
-                  />
+                  <LgConfCard {...item} />
                 </motion.div>
               ))}
         </div>

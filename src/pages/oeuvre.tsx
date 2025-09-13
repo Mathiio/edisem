@@ -359,8 +359,7 @@ export const Oeuvre: React.FC = () => {
             data={recommendedConfs}
             renderSlide={(item) => (
               <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
-                {/* ✅ CORRIGÉ: Utiliser primaryActant au lieu de actant */}
-                <SmConfCard key={item.id} id={item.id} title={item.title} actant={item.primaryActant?.firstname + ' ' + item.primaryActant?.lastname} url={item.url} />
+                <SmConfCard {...item} />
               </motion.div>
             )}
           />

@@ -82,16 +82,9 @@ const ConferenceSection: React.FC<{
         {title} ({conferences.length})
       </h2>
       <div className='w-full flex flex-col gap-10'>
-        {conferences.map((item, index) => (
-          <motion.div key={item.id} initial='hidden' animate='visible' variants={fadeIn} custom={index} onClick={onClose}>
-            <ConfCard
-              id={Number(item.id)}
-              title={item.title}
-              actant={item.actant ? `${item.actant.firstname} ${item.actant.lastname}` : ''}
-              date={item.date}
-              url={item.url}
-              universite={item.actant && item.actant.universities && item.actant.universities.length > 0 ? item.actant.universities[0].name : ''}
-            />
+        {conferences.map((conference, index) => (
+          <motion.div key={conference.id} initial='hidden' animate='visible' variants={fadeIn} custom={index} onClick={onClose}>
+            <ConfCard {...conference} />
           </motion.div>
         ))}
       </div>

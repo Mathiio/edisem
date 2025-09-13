@@ -52,22 +52,9 @@ export const Edition: React.FC = () => {
         <div className='grid grid-cols-4 grid-rows-3 gap-25'>
           {loadingConf
             ? Array.from({ length: 12 }).map((_, index) => <LgConfSkeleton key={index} />)
-            : conf.map((item, index) => (
-                <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id} custom={index}>
-                  <LgConfCard
-                    key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    actant={item.actant.firstname + ' ' + item.actant.lastname}
-                    date={item.date}
-                    url={item.url}
-                    universite={
-                      item.actant.universities && item.actant.universities.length > 0
-                        ? item.actant.universities[0].name
-                        : ''
-                    }
-                    conferenceType={item.type}
-                  />
+            : conf.map((conference, index) => (
+                <motion.div initial='hidden' animate='visible' variants={fadeIn} key={conference.id} custom={index}>
+                  <LgConfCard {...conference} />
                 </motion.div>
               ))}
         </div>

@@ -95,6 +95,7 @@ export type Conference = {
   mediagraphies: Mediagraphy[]; 
   motcles: Keyword[];
   recommendation: Conference[];
+  thumbnail?: string;
   type: string;
 };
 
