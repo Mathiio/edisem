@@ -1054,7 +1054,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                               className='min-h-[50px]'
                               type='text'
                               label={col.label}
-                              labelPlacement='outside-top'
+                              labelPlacement='outside'
                               placeholder={`Entrez ${col.label}`}
                               defaultValue={value}
                               onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
