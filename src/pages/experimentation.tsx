@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getExperimentations, getActants, getTools, getKeywords, getStudents } from '@/lib/Items';
+import { getExperimentations, getActants, getTools, getKeywords, getStudents } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';

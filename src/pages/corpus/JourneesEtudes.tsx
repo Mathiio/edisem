@@ -1,6 +1,6 @@
 import { Layouts } from "@/components/layout/Layouts";
 import { useEffect, useState } from "react";
-import * as Items from "@/lib/Items"
+import * as Items from "@/services/Items"
 import { StudyDayBaner } from "@/components/features/studyDay/StudyDayBaner";
 import { StudyDayCarousel } from "@/components/features/studyDay/StudyDayCarousel";
 

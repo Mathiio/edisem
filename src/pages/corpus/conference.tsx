@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { getConfCitations, getConfBibliographies, getConfMediagraphies } from '@/lib/api';
-import * as Items from '@/lib/Items';
+import { getConfCitations, getConfBibliographies, getConfMediagraphies } from '@/services/api';
+import * as Items from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
 import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
 import { Citations } from '@/components/features/conference/CitationsCards';

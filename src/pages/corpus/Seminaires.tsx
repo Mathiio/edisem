@@ -2,7 +2,7 @@ import { SeminairesCarousel } from "@/components/features/seminaires/SeminairesC
 import { SeminairesBaner } from "@/components/features/seminaires/SeminairesBaner";
 import { TopKeywords } from "@/components/features/seminaires/TopKeywords";
 import { Layouts } from "@/components/layout/Layouts";
-import * as Items from "@/lib/Items";
+import * as Items from "@/services/Items";
 import { useEffect, useState } from 'react';
 
 export const Seminaires = () => {

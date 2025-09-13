@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { IntervenantCard, IntervenantSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { InfiniteSlider } from '@/components/features/home/InfiniteSlider';
-import { getActants } from '@/lib/Items';
+import { getActants } from '@/services/Items';
 
 
 

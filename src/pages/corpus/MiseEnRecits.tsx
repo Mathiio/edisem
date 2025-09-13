@@ -1,7 +1,7 @@
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 
 import { Layouts } from '@/components/layout/Layouts';
-import { getRecitIas, getActants, getStudents } from '@/lib/Items';
+import { getRecitIas, getActants, getStudents } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
 import { useEffect, useState } from 'react';
 

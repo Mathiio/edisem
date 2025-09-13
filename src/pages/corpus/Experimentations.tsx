@@ -1,7 +1,7 @@
 import { ExperimentationBaner } from '@/components/features/experimentation/ExpBaner';
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { Layouts } from '@/components/layout/Layouts';
-import { getExperimentations, getActants, getStudents } from '@/lib/Items';
+import { getExperimentations, getActants, getStudents } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
 import { useEffect, useState } from 'react';
 

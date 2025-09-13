@@ -1,4 +1,4 @@
-import * as Items from "@/lib/Items"
+import * as Items from "@/services/Items"
 
 
 export const getLinksFromType = async (item: any, type: string): Promise<string[]> => {

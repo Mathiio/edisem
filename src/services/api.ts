@@ -1,4 +1,4 @@
-import * as Items from "@/lib/Items";
+import * as Items from "@/services/Items";
 
 
 export async function getItemByID(id: string): Promise<any | null> {

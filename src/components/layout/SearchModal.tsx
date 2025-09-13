@@ -4,7 +4,7 @@ import { Input, Kbd, Modal, ModalContent, ModalBody, useDisclosure } from '@hero
 import { IntervenantLongCard, IntervenantLongCardSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { ConfCard, ConfSkeleton } from '@/components/layout/ConfCard';
 import { motion, Variants } from 'framer-motion';
-import * as Items from '@/lib/Items';
+import * as Items from '@/services/Items';
 import { Conference } from '@/types/ui';
 import { SearchModalCard } from '@/components/features/oeuvres/OeuvresCards';
 
