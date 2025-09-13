@@ -472,6 +472,7 @@ export async function getAllItems() {
     const [
       studyDayConfs,
       seminarConfs,
+      colloqueConfs,
       actants,
       universities,
       laboratories,
@@ -492,6 +493,7 @@ export async function getAllItems() {
     ] = await Promise.all([
       getStudyDayConfs(),
       getSeminarConfs(),
+      getColloqueConfs(),
       getActants(),
       getUniversities(),
       getLaboratories(),
@@ -514,6 +516,7 @@ export async function getAllItems() {
     const allItems = [
       ...studyDayConfs,
       ...seminarConfs,
+      ...colloqueConfs,
       ...actants,
       ...universities,
       ...laboratories,
