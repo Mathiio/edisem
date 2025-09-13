@@ -91,7 +91,7 @@ export const LoginPage: React.FC = () => {
                 className='min-h-[50px] '
                 type='email'
                 label='Email'
-                labelPlacement='outside-top'
+                labelPlacement='outside'
                 placeholder='Entrez votre email'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -117,7 +117,7 @@ export const LoginPage: React.FC = () => {
                 className='min-h-[50px]'
                 type='email'
                 label='Email'
-                labelPlacement='outside-top'
+                labelPlacement='outside'
                 placeholder='Entrez votre email'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -133,7 +133,7 @@ export const LoginPage: React.FC = () => {
                 className='min-h-[50px]'
                 type='password'
                 label='Mot de passe *'
-                labelPlacement='outside-top'
+                labelPlacement='outside'
                 placeholder='Entrez votre mot de passe'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

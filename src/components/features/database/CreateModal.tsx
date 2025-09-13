@@ -760,7 +760,7 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
                               className='min-h-[50px]'
                               type='text'
                               label={col.label}
-                              labelPlacement='outside-top'
+                              labelPlacement='outside'
                               placeholder={`Entrez ${col.label}`}
                               isRequired
                               onChange={(e) => handleInputChange(col.dataPath, e.target.value)}

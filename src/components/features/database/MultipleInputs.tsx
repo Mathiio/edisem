@@ -76,7 +76,7 @@ const MultipleInputs: React.FC<SelectionInputProps> = ({ col, actualData, handle
             }}
             className='min-h-[50px] w-full '
             type='text'
-            labelPlacement='outside-top'
+            labelPlacement='outside'
             placeholder={`Entrez ${col.label}`}
             defaultValue={value.values || ''}
             onChange={(e) => handleChange(index, e.target.value)}
