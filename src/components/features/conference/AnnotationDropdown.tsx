@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { CrossIcon, DotsIcon, UserIcon } from '@/components/ui/icons';
 import { IconSvgProps } from '@/types/ui';
 import Omk from '@/components/features/database/CreateModal';
-import { getActants, getAnnotations, getStudents } from '@/lib/Items';
+import { getActants, getAnnotations, getStudents } from '@/services/Items';
 
 const API_URL = 'https://edisem.arcanes.ca/omk/api/';
 const API_KEY = import.meta.env.VITE_API_KEY;

@@ -1,11 +1,11 @@
 import React from 'react';
-import { getLinksFromKeywords } from '@/lib/Links';
+import { getLinksFromKeywords } from '@/services/Links';
 import { useEffect, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { FullCarrousel } from '@/components/ui/Carrousels';
-import { getConfByCitation } from '@/lib/api';
-import * as Items from '@/lib/Items';
+import { getConfByCitation } from '@/services/api';
+import * as Items from '@/services/Items';
 import { Button } from '@heroui/react';
 import { ArrowIcon, UserIcon } from '@/components/ui/icons';
 import { Link } from 'react-router-dom';

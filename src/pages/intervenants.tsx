@@ -1,5 +1,5 @@
 import { Layouts } from "@/components/layout/Layouts";
-import { getActants, getUniversities } from "@/lib/Items";
+import { getActants, getUniversities } from "@/services/Items";
 import { useEffect, useState } from "react";
 import { IntervenantsCarousel } from "@/components/features/intervenants/IntervenantsCarousel"; 
 import { IntervenantsBaner } from "@/components/features/intervenants/IntervenantsBaner";

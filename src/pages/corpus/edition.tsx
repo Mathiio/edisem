@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 
 import { useParams } from 'react-router-dom';
-import { getConfByEdition } from '../../lib/api';
+import { getConfByEdition } from '../../services/api';
 import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';

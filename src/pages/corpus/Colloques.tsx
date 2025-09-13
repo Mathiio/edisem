@@ -1,7 +1,7 @@
 import { ColloquesBaner } from "@/components/features/colloques/ColloquesBaner";
 import { Layouts } from "@/components/layout/Layouts";
 import { useEffect, useState } from "react";
-import * as Items from "@/lib/Items"
+import * as Items from "@/services/Items"
 import { ColloquesCarousel } from "@/components/features/colloques/ColloquesCarousel";
 
 

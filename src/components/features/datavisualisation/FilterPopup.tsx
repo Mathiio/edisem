@@ -17,8 +17,8 @@ import {
   SelectItem,
 } from '@heroui/react';
 import { ArrowIcon, CrossIcon, PlusIcon, DotsIcon } from '@/components/ui/icons';
-import * as Items from '@/lib/Items';
-import { getItemByID } from '@/lib/api';
+import * as Items from '@/services/Items';
+import { getItemByID } from '@/services/api';
 
 const generateSearchTitle = (filterGroups: any[]): string => {
   // Si aucun groupe de filtres, retourner un titre par défaut

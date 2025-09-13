@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { getAllItems } from '@/lib/Items';
+import { getAllItems } from '@/services/Items';
 
 import { motion, Variants } from 'framer-motion';
 import { Toolbar } from '@/components/features/datavisualisation/Toolbar';
@@ -9,7 +9,7 @@ import ZoomControl from '@/components/features/datavisualisation/ZoomControl';
 import { images } from '@/components/features/datavisualisation/images';
 import { compareValues, FilterGroup, getDataByType, getPropertyValue, ITEM_TYPES, storeSearchHistory } from '@/components/features/datavisualisation/FilterPopup';
 import OverlaySelector, { PredefinedFilter } from '@/components/features/datavisualisation/OverlaySelector';
-import { getLinksFromType } from '@/lib/Links';
+import { getLinksFromType } from '@/services/Links';
 import { Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, useDisclosure } from '@heroui/react';
 import { FileIcon, SearchIcon, Sidebar } from '@/components/ui/icons';
 import SearchHistory from '@/components/features/datavisualisation/SearchHistory';

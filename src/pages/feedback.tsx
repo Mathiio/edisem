@@ -1,7 +1,7 @@
 import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/experimentation/ExpDetails';
 import { ConfOverviewSkeleton, ExpOverviewCard } from '@/components/features/experimentation/ExpOverview';
 import { Layouts } from '@/components/layout/Layouts';
-import { getActants, getExperimentations, getStudents } from '@/lib/Items';
+import { getActants, getExperimentations, getStudents } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';

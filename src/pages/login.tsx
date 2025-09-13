@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, Tab, Input, Button } from '@heroui/react';
-import { getActants, getStudents } from '@/lib/Items';
+import { getActants, getStudents } from '@/services/Items';
 
 import { Layouts } from '@/components/layout/Layouts';
 
