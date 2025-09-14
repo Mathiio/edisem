@@ -6,7 +6,7 @@ import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
-import { SmConfCard } from '@/components/features/home/ConfCards';
+import { SmConfCard } from '@/components/ui/ConfCards';
 import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
 import * as Items from '@/services/Items';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';

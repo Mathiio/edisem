@@ -1,21 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from "@heroui/react";
-import { buildConfsRoute, formatDate } from '@/lib/utils';
-import { Conference } from '@/types/ui';
-
-
-
-const getYouTubeThumbnailUrl = (ytb: string): string => {
-  const videoId = ytb.match(
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-  )?.[1];
-  return videoId ? `http://img.youtube.com/vi/${videoId}/0.jpg` : '';
-};
-
+import { buildConfsRoute, formatDate, getYouTubeThumbnailUrl } from '@/lib/utils';
+import { Actant, Conference } from '@/types/ui';
+import { UserIcon } from '@/components/ui/icons';
+import * as Items from '@/services/Items';
 
 export const ConfCard: React.FC<Conference> = ( conference ) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [actants, setActants] = useState<any[]>([]);
+  const [isLoadingActants, setIsLoadingActants] = useState(false);
   const navigate = useNavigate();
 
   const thumbnailUrl = conference.url ? getYouTubeThumbnailUrl(conference.url) : '';
@@ -33,6 +27,86 @@ export const ConfCard: React.FC<Conference> = ( conference ) => {
       setIsTruncated(element.scrollHeight > element.clientHeight);
     }
   }, [conference.title]);
+
+  // Récupération des actants
+  useEffect(() => {
+    const fetchActants = async () => {
+      if (!conference.actant) {
+        setActants([]);
+        return;
+      }
+
+      setIsLoadingActants(true);
+
+      try {
+        if (Array.isArray(conference.actant) && 
+            conference.actant.length > 0 && 
+            conference.actant[0] && 
+            typeof conference.actant[0] === 'object' && 
+            'firstname' in conference.actant[0]) {
+          setActants(conference.actant as Actant[]);
+          return;
+        }
+
+        let actantIds: string[] = [];
+
+        if (Array.isArray(conference.actant)) {
+          actantIds = conference.actant.map(id => 
+            typeof id === 'object' ? String(id.id || '') : String(id)
+          ).filter(id => id);
+        } else if (typeof conference.actant === 'string') {
+          actantIds = (conference.actant as string).includes(',') 
+            ? (conference.actant as string).split(',').map((id: string) => id.trim())
+            : [conference.actant as string];
+        } else if (typeof conference.actant === 'number') {
+          actantIds = [String(conference.actant)];
+        }
+
+        if (actantIds.length > 0) {
+          const fetchedActants = await Items.getActants(actantIds);
+          setActants(fetchedActants);
+        } else {
+          setActants([]);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des actants:', error);
+        setActants([]);
+      } finally {
+        setIsLoadingActants(false);
+      }
+    };
+
+    fetchActants();
+  }, [conference.actant]);
+
+  // Helper pour formater les noms d'actants
+  const renderActantNames = () => {
+    if (isLoadingActants) {
+      return 'Chargement...';
+    }
+
+    if (!actants || actants.length === 0) {
+      return 'Aucun intervenant';
+    }
+
+    if (actants.length === 1) {
+      const actant = actants[0];
+      return `${actant?.firstname || ''} ${actant?.lastname || ''}`;
+    }
+
+    // Plusieurs actants - afficher les 2 premiers
+    const displayActants = actants.slice(0, 2);
+    const names = displayActants
+      .filter(actant => actant)
+      .map(actant => `${actant.firstname || ''} ${actant.lastname || ''}`)
+      .join(', ');
+
+    return actants.length > 2 
+      ? `${names} et ${actants.length - 2} autre${actants.length > 3 ? 's' : ''}`
+      : names;
+  };
+
+  const hasActants = actants && actants.length > 0;
 
   return (
     <div
@@ -59,10 +133,62 @@ export const ConfCard: React.FC<Conference> = ( conference ) => {
           </p>
           {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-c6'></span>}
         </div>
-        <p className='text-16 text-c5 font-extralight'>
-          {conference.actant?.firstname} {conference.actant?.lastname}
-          <span className='text-14'> - {conference.actant?.universities && <span className='text-14'> {conference.actant?.universities[0].shortName}</span>}</span>
-        </p>
+
+        {/* Section actants avec avatars */}
+        {isLoadingActants ? (
+          <div className='flex items-center gap-5'>
+            <div className='flex items-center gap-2'>
+              <div className='w-6 h-6 rounded-6 bg-c3 animate-pulse'></div>
+              <div className='w-6 h-6 rounded-6 bg-c3 animate-pulse -ml-10'></div>
+            </div>
+            <div className='h-4 w-32 bg-c3 rounded animate-pulse'></div>
+          </div>
+        ) : hasActants ? (
+          <div className='flex items-center gap-5'>
+            {/* Actant avatars */}
+            <div className='flex items-center relative'>
+              {actants.slice(0, 2).map((actant, index) => {
+                const isLastAvatar = index === 1;
+                const showCounter = actants.length > 2 && isLastAvatar;
+
+                return actant && (
+                  <div
+                    key={actant.id || index}
+                    className={`w-6 h-6 rounded-6 border-2 border-c1 overflow-hidden ${
+                      index > 0 ? '-ml-10' : ''
+                    }`}
+                    style={{
+                      zIndex: index + 1,
+                    }}>
+                    {showCounter ? (
+                      <div className='w-full h-full bg-c4 flex items-center justify-center text-12 font-bold text-c2'>
+                        +{actants.length - 1}
+                      </div>
+                    ) : actant.picture ? (
+                      <img 
+                        src={actant.picture} 
+                        alt={`${actant.firstname} ${actant.lastname}`}
+                        className='w-full h-full object-cover'
+                      />
+                    ) : (
+                      <div className='w-full h-full bg-c4 flex items-center justify-center'>
+                        <UserIcon size={8} className='text-c1' />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Actant names */}
+            <p className='text-16 text-c5 font-extralight'>
+              {renderActantNames()}
+            </p>
+          </div>
+        ) : (
+          <p className='text-16 text-c5 font-extralight'>Aucun intervenant</p>
+        )}
+
         <p className='text-14 text-c5 font-extralight'>{formatDate(conference.date)}</p>
       </div>
     </div>

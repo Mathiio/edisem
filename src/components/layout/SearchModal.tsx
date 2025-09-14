@@ -36,22 +36,106 @@ const filterConferencesByType = (allConfs: Conference[], actants: any[], keyword
   return allConfs
     .filter((conf: any) => conf.type === type)
     .filter((conf: any) => {
-      const actant = actants.find((act: any) => act.id === conf.actant);
-      const confKeywords = keywords.filter((kw: any) => conf.keywords?.includes(kw.id));
+      let confActants: any[] = [];
 
+      // Gestion améliorée des différents formats d'actants
+      if (Array.isArray(conf.actant)) {
+        // Si c'est déjà un tableau d'objets complets
+        if (conf.actant.length > 0 && typeof conf.actant[0] === 'object' && conf.actant[0].firstname) {
+          confActants = conf.actant;
+        } else {
+          // Si c'est un tableau d'IDs
+          confActants = actants.filter((act: any) => 
+            conf.actant.includes(String(act.id)) || conf.actant.includes(Number(act.id))
+          );
+        }
+      } else if (typeof conf.actant === 'string') {
+        if (conf.actant.includes(',')) {
+          // Plusieurs IDs séparés par des virgules
+          const actantIds = conf.actant.split(',').map((id: string) => id.trim());
+          confActants = actants.filter((act: any) => 
+            actantIds.includes(String(act.id))
+          );
+        } else {
+          // Un seul ID en string
+          const actant = actants.find((act: any) => String(act.id) === conf.actant);
+          confActants = actant ? [actant] : [];
+        }
+      } else if (typeof conf.actant === 'number') {
+        // Un seul ID en number
+        const actant = actants.find((act: any) => Number(act.id) === conf.actant);
+        confActants = actant ? [actant] : [];
+      }
+
+      // Gestion des mots-clés
+      let confKeywords: any[] = [];
+      if (conf.keywords) {
+        if (Array.isArray(conf.keywords)) {
+          confKeywords = keywords.filter((kw: any) => conf.keywords.includes(kw.id));
+        } else if (typeof conf.keywords === 'string') {
+          const keywordIds = conf.keywords.includes(',') 
+            ? conf.keywords.split(',').map((id: string) => id.trim())
+            : [conf.keywords];
+          confKeywords = keywords.filter((kw: any) => keywordIds.includes(String(kw.id)));
+        }
+      }
+
+      // Recherche dans tous les champs
+      const queryLower = query.toLowerCase();
+      
       return (
-        conf.title?.toLowerCase().includes(query.toLowerCase()) ||
-        conf.description?.toLowerCase().includes(query.toLowerCase()) ||
-        (actant &&
-          (`${actant.firstname} ${actant.lastname}`.toLowerCase().includes(query.toLowerCase()) ||
-            actant.firstname?.toLowerCase().includes(query.toLowerCase()) ||
-            actant.lastname?.toLowerCase().includes(query.toLowerCase()))) ||
-        confKeywords.some((kw: any) => kw.name?.toLowerCase().includes(query.toLowerCase()))
+        conf.title?.toLowerCase().includes(queryLower) ||
+        conf.description?.toLowerCase().includes(queryLower) ||
+        conf.abstract?.toLowerCase().includes(queryLower) ||
+        confActants.some((actant: any) => {
+          if (!actant) return false;
+          
+          const fullName = `${actant.firstname || ''} ${actant.lastname || ''}`.toLowerCase();
+          const firstName = actant.firstname?.toLowerCase() || '';
+          const lastName = actant.lastname?.toLowerCase() || '';
+          const description = actant.description?.toLowerCase() || '';
+          
+          return fullName.includes(queryLower) ||
+                 firstName.includes(queryLower) ||
+                 lastName.includes(queryLower) ||
+                 description.includes(queryLower);
+        }) ||
+        confKeywords.some((kw: any) => 
+          kw.name?.toLowerCase().includes(queryLower)
+        )
       );
     })
     .map((conf: any) => {
-      const actant = actants.find((act: any) => act.id === conf.actant);
-      return { ...conf, actant };
+      // Reconstruit la conférence avec les actants complets
+      let confActants: any[] = [];
+
+      if (Array.isArray(conf.actant)) {
+        if (conf.actant.length > 0 && typeof conf.actant[0] === 'object' && conf.actant[0].firstname) {
+          confActants = conf.actant;
+        } else {
+          confActants = actants.filter((act: any) => 
+            conf.actant.includes(String(act.id)) || conf.actant.includes(Number(act.id))
+          );
+        }
+      } else if (typeof conf.actant === 'string') {
+        if (conf.actant.includes(',')) {
+          const actantIds = conf.actant.split(',').map((id: string) => id.trim());
+          confActants = actants.filter((act: any) => 
+            actantIds.includes(String(act.id))
+          );
+        } else {
+          const actant = actants.find((act: any) => String(act.id) === conf.actant);
+          confActants = actant ? [actant] : [];
+        }
+      } else if (typeof conf.actant === 'number') {
+        const actant = actants.find((act: any) => Number(act.id) === conf.actant);
+        confActants = actant ? [actant] : [];
+      }
+
+      return { 
+        ...conf, 
+        actant: confActants
+      };
     });
 };
 

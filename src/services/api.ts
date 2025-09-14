@@ -1,4 +1,5 @@
 import * as Items from "@/services/Items";
+import { Actant } from "@/types/ui";
 
 
 export async function getItemByID(id: string): Promise<any | null> {
@@ -15,7 +16,7 @@ export async function getItemByID(id: string): Promise<any | null> {
 
 
 
-export async function getConfByEdition(editionId: number) {
+export async function getConfByEdition(editionId: string) {
   try {
     const seminarConfs = await Items.getSeminarConfs();
     const colloqueConfs = await Items.getColloqueConfs();
@@ -23,16 +24,32 @@ export async function getConfByEdition(editionId: number) {
 
     const allConfs = [...seminarConfs, ...colloqueConfs, ...studyDayConfs];
 
-    const editionConfs = allConfs.filter((conf: { event: string; edition: number }) => 
-      Number(conf.edition) === editionId
+    const editionConfs = allConfs.filter((conf: any) => 
+      conf.edition === editionId
     );
 
-    const updatedConfs = await Promise.all(editionConfs.map(async (conf: { actant: number; }) => {
-      if (conf.actant) {
-        const actantDetails = await Items.getActants(conf.actant);
-        return { ...conf, actant: actantDetails }; 
+    const updatedConfs = await Promise.all(editionConfs.map(async (conf: any) => {
+      if (!conf.actant) return conf;
+
+      try {
+        if (typeof conf.actant === 'string' && conf.actant.includes(',')) {
+          const actantIds = conf.actant.split(',').map((id: string) => parseInt(id.trim()));
+          const actantDetails = await Promise.all(
+            actantIds.map((id: string) => Items.getActants(id))
+          );
+          return { ...conf, actant: actantDetails };
+        }
+        
+        if (typeof conf.actant === 'string' || typeof conf.actant === 'number') {
+          const actantDetails = await Items.getActants(conf.actant);
+          return { ...conf, actant: [actantDetails] };
+        }
+        return conf;
+
+      } catch (error) {
+        console.error(`Error fetching actant for conf ${conf.id}:`, error);
+        return { ...conf, actant: [] };
       }
-      return conf;
     }));
 
     return updatedConfs;
@@ -44,22 +61,35 @@ export async function getConfByEdition(editionId: number) {
 
 
 
-
-export async function getConfByActant(actantId: number) {
-  try{
+export async function getConfByActant(actantId: string) {
+  try {
     const confs = await Items.getAllConfs();
 
-    const actantConfs = confs.filter((conf: { event: string; actant: number }) => 
-      Number(conf.actant) === actantId
-    );
+    const actantConfs = confs.filter((conf: { actant: string | string[] }) => {
+      if (typeof conf.actant === 'string') {
+        return conf.actant.includes(',') 
+          ? conf.actant.split(',').map(id => id.trim()).includes(actantId)
+          : conf.actant === actantId;
+      }
+      return Array.isArray(conf.actant) && conf.actant.includes(actantId);
+    });
 
-    const updatedConfs = await Promise.all(actantConfs.map(async (conf: { actant: number; }) => {
+  const updatedConfs = await Promise.all(
+    actantConfs.map(async (conf: { actant: string | string[]; }) => {
       if (conf.actant) {
-        const actantDetails = await Items.getActants(conf.actant);
-        return { ...conf, actant: actantDetails }; 
+        const actantIds = typeof conf.actant === 'string' 
+          ? (conf.actant.includes(',') ? conf.actant.split(',').map(id => id.trim()) : [conf.actant])
+          : conf.actant;
+        
+        const actantDetails = await Promise.all(
+          actantIds.map(id => Items.getActants(id))
+        );
+        
+        return { ...conf, actant: actantDetails.flat() }; 
       }
       return conf;
-    }));
+    })
+  );
 
     return updatedConfs;
   } catch (error) {
@@ -67,6 +97,7 @@ export async function getConfByActant(actantId: number) {
     throw new Error('Failed to fetch confByActant');
   }
 }
+
 
 
 export async function getResearchByActant(actantId: string) {
@@ -120,7 +151,7 @@ export async function filterConfs(searchQuery: string) {
     const confs = await Items.getAllConfs();
 
     const updatedConfs = await Promise.all(
-      confs.map(async (conf: { actant: number }) => {
+      confs.map(async (conf: { actant: string }) => {
         if (conf.actant) {
           try {
             const actantDetails = await Items.getActants(conf.actant);
@@ -197,20 +228,20 @@ export async function getConfCitations(confId: number){
 }
 
 
-export async function getConfByCitation(citationId: number) {
+export async function getConfByCitation(citationId: string) {
   try {
     const confs = await Items.getAllConfs();
     const citations = await Items.getCitations();
     
     // Vérifie si la citation existe
-    const citation = citations.find((citation: { id: number }) => citation.id === citationId);
+    const citation = citations.find((citation: { id: string }) => citation.id === citationId);
     
     if (!citation) {
       return null; // Retourne null si la citation n'existe pas
     }
     
     // Recherche la conférence qui contient cet ID de citation
-    const conf = confs.find((conf: { citations: number[] }) => 
+    const conf = confs.find((conf: { citations: string[] }) => 
       conf.citations.includes(citationId)
     );
     

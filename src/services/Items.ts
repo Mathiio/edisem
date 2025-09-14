@@ -297,7 +297,7 @@ export async function getUniversities() {
   }
 }
 
-export async function getActants(actantId?: number) {
+export async function getActants(actantIds?: string | string[]) {
   try {
     const actants = sessionStorage.getItem('actants')
       ? JSON.parse(sessionStorage.getItem('actants')!)
@@ -314,24 +314,58 @@ export async function getActants(actantId?: number) {
           const doctoralSchoolMap = new Map(doctoralSchools.map((s: any) => [s.id, s]));
           const laboratoryMap = new Map(laboratories.map((l: any) => [l.id, l]));
 
-          return rawActants.map((actant: any) => ({
-            ...actant,
-            title: `${actant.firstname} ${actant.lastname}`,
-            type: 'actant',
-            interventions: confs.filter((c: any) => c.actant === String(actant.id)).length,
-            universities: actant.universities.map((id: string) => universityMap.get(id)),
-            doctoralSchools: actant.doctoralSchools.map((id: string) => doctoralSchoolMap.get(id)),
-            laboratories: actant.laboratories.map((id: string) => laboratoryMap.get(id)),
-          }));
+          return rawActants.map((actant: any) => {
+            const interventions = confs.filter((c: any) => {
+              if (typeof c.actant === 'string' && c.actant.includes(',')) {
+                const actantIds = c.actant.split(',').map((id: string) => id.trim());
+                return actantIds.includes(String(actant.id));
+              }
+              else if (Array.isArray(c.actant)) {
+                return c.actant.map(String).includes(String(actant.id));
+              }
+              else {
+                return String(c.actant) === String(actant.id);
+              }
+            }).length;
+
+            return {
+              ...actant,
+              title: `${actant.firstname} ${actant.lastname}`,
+              type: 'actant',
+              interventions,
+              universities: actant.universities.map((id: string) => universityMap.get(id)),
+              doctoralSchools: actant.doctoralSchools.map((id: string) => doctoralSchoolMap.get(id)),
+              laboratories: actant.laboratories.map((id: string) => laboratoryMap.get(id)),
+            };
+          });
         })();
 
     if (!sessionStorage.getItem('actants')) {
       sessionStorage.setItem('actants', JSON.stringify(actants));
     }
 
-    return actantId
-      ? (actants.find((a: any) => a.id === String(actantId)) ?? (() => { throw new Error(`Actant with id ${actantId} not found`) })())
-      : actants;
+    // Si aucun ID spécifié, retourner tous les actants
+    if (!actantIds) {
+      return actants;
+    }
+
+    // Normaliser les IDs en tableau de strings
+    const normalizedIds = Array.isArray(actantIds) 
+      ? actantIds.map(id => String(id))
+      : [String(actantIds)];
+
+    // Filtrer les actants correspondants
+    const foundActants = actants.filter((a: any) => 
+      normalizedIds.includes(String(a.id))
+    );
+
+    // Si un seul ID était demandé (pas un tableau), retourner l'objet unique
+    if (!Array.isArray(actantIds) && foundActants.length > 0) {
+      return foundActants[0];
+    }
+
+    // Sinon retourner le tableau (même si vide)
+    return foundActants;
 
   } catch (error) {
     console.error('Error fetching actants:', error);

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CameraIcon, UserIcon, ShareIcon, MovieIcon } from '@/components/ui/icons';
 import { motion, Variants } from 'framer-motion';
-import { addToast, Skeleton, Link, Button, cn } from '@heroui/react';
+import { addToast, Skeleton, Link, Button, cn, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { AnnotationDropdown } from './AnnotationDropdown';
 import { Conference } from '@/types/ui';
 
@@ -49,8 +49,8 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
     }
   }, [conf.url, conf.fullUrl]);
 
-  const openActant = () => {
-    navigate(`/intervenant/${conf.actant.id}`);
+  const openActant = (id: string) => {
+    navigate(`/intervenant/${id}`);
   };
 
   const changeLink = () => {
@@ -86,19 +86,64 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
         <h1 className='font-medium text-c6 text-24'>{conf.title}</h1>
         <div className='w-full flex flex-col gap-10'>
           <div className='w-full flex justify-between gap-10 items-center'>
-            <Link className='w-fit flex justify-start gap-10 items-center cursor-pointer' onClick={openActant}>
-              {conf.actant.picture ? (
-                <img src={conf.actant.picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
-              ) : (
-                <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
+            <div className='w-fit flex justify-start gap-10 items-center'>
+              {/* Premier actant */}
+              {conf.actant && Array.isArray(conf.actant) && conf.actant.length > 0 && (
+                <Link 
+                  className='w-fit flex justify-start gap-10 items-center cursor-pointer' 
+                  onClick={() => openActant(conf.actant[0].id)}
+                >
+                  {conf.actant[0]?.picture ? (
+                    <img src={conf.actant[0].picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                  ) : (
+                    <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
+                  )}
+                  <div className='flex flex-col items-start gap-0.5'>
+                    <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>
+                      {conf.actant[0]?.firstname} {conf.actant[0]?.lastname}
+                    </h3>
+                    <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>
+                      {conf.actant[0]?.universities?.[0]?.shortName || ''}
+                    </p>
+                  </div>
+                </Link>
               )}
-              <div className='flex flex-col items-start gap-0.5'>
-                <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>
-                  {conf.actant.firstname} {conf.actant.lastname}
-                </h3>
-                <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{conf.actant.universities?.[0]?.shortName || ''}</p>
-              </div>
-            </Link>
+
+              {conf.actant && Array.isArray(conf.actant) && conf.actant.length > 1 && (
+                <Dropdown>
+                  <DropdownTrigger className='p-0'>
+                    <Button
+                      size='md'
+                      className='text-16 h-full min-h-[36px] px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c4 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
+                      <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>
+                        +{conf.actant.length - 1}
+                      </h3>
+                    </Button>
+                  </DropdownTrigger>
+
+                  <DropdownMenu aria-label='Autres intervenants' className='p-10 bg-c2 rounded-12'>
+                    {conf.actant.slice(1).map((actant: any) => (
+                      <DropdownItem key={actant.id} className={`p-0`} onClick={() => openActant(actant.id)}>
+                        <div className={`flex items-center gap-15 w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 text-c6`}>
+                          {actant.picture ? (
+                            <img src={actant.picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                          ) : (
+                            <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
+                          )}
+                          <div className='flex flex-col items-start gap-0.5'>
+                            <span className='text-16 font-medium'>{actant.firstname} {actant.lastname}</span>
+                            <span className='text-14 text-c4 font-extralight'>
+                              {actant.universities?.[0]?.shortName || ''}
+                            </span>
+                          </div>
+                        </div>
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              )}
+            </div>
+
             <div className='w-fit flex justify-between gap-10 items-center'>
               <Button
                 className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] h-fit cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-10 py-5 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
