@@ -82,7 +82,7 @@ export type Conference = {
   id: string;
   event: string;
   title: string;
-  actant: Actant;
+  actant: Actant[];
   date: string;
   season: string;
   edition: string | number;

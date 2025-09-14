@@ -1,5 +1,5 @@
 import { ExperimentationBaner } from '@/components/features/experimentation/ExpBaner';
-import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
+import { LgConfCard, LgConfSkeleton } from '@/components/ui/ConfCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { getExperimentations, getActants, getStudents } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';

@@ -5,7 +5,7 @@ import * as Items from '@/services/Items';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon, ConferenceIcon } from '@/components/ui/icons';
 import { InfoCard, InfoSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { Link } from '@heroui/react';
-import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
+import { LgConfCard, LgConfSkeleton } from '@/components/ui/ConfCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
 
@@ -25,9 +25,11 @@ export const Intervenant: React.FC = () => {
   const [conf, setConf] = useState<any[]>([]);
 
   const fetchActantData = useCallback(async () => {
+    if (!id) return;
+    
     setLoading(true);
     try {
-      const [actant, confs] = await Promise.all([Items.getActants(Number(id)), getConfByActant(Number(id))]);
+      const [actant, confs] = await Promise.all([Items.getActants(id), getConfByActant(id)]);
 
       setActant(actant);
       setConf(confs);

@@ -7,7 +7,7 @@ import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
-import { SmConfCard } from '@/components/features/home/ConfCards';
+import { SmConfCard } from '@/components/ui/ConfCards';
 import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
 import { ExpOverviewCard } from '@/components/features/experimentation/ExpOverview';
 import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/experimentation/ExpDetails';

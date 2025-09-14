@@ -1,4 +1,4 @@
-import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
+import { LgConfCard, LgConfSkeleton } from '@/components/ui/ConfCards';
 
 import { Layouts } from '@/components/layout/Layouts';
 import { getRecitIas, getActants, getStudents } from '@/services/Items';

@@ -5,7 +5,7 @@ import * as Items from '@/services/Items';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon } from '@/components/ui/icons';
 import { InfoCard, InfoSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { Link } from '@heroui/react';
-import { LgConfCard, LgConfSkeleton } from '@/components/features/home/ConfCards';
+import { LgConfCard, LgConfSkeleton } from '@/components/ui/ConfCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
 
