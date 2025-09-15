@@ -104,7 +104,7 @@ export const StudyDayCarousel = ({ studyDay, loading = false }: StudyDayCarousel
     <div className="w-full max-w-full">
       {!loading && editions.length > 0 && (
         <FullCarrousel
-          title='Tous nos colloques'
+          title="Toutes nos Journées d'édtudes"
           data={editions}
           perPage={3}
           perMove={1}
