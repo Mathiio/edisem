@@ -1,3 +1,4 @@
+import { GenreCarousel } from '@/components/features/oeuvres/GenresCarousel';
 import { LastOeuvres } from '@/components/features/oeuvres/LastOeuvres';
 import { OeuvresBaner } from '@/components/features/oeuvres/OeuvresBaner';
 import { OeuvresKeywords } from '@/components/features/oeuvres/OeuvresKeywords';
@@ -88,6 +89,7 @@ export const Oeuvres: React.FC = () => {
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
       <OeuvresBaner oeuvres={oeuvres} />
+      <GenreCarousel oeuvres={oeuvres} loading={loading} />
       <OeuvresKeywords oeuvres={oeuvres} />
       <LastOeuvres oeuvres={oeuvres} loading={loading} />
     </Layouts>

@@ -20,10 +20,11 @@ import { Seminaires } from '@/pages/corpus/seminaires';
 import { Experimentations } from '@/pages/corpus/experimentations';
 import { Experimentation } from '@/pages/experimentation';
 import { miseEnRecit } from '@/pages/miseEnRecit';
-import { Feedback } from './pages/feedback';
-import { Oeuvres } from './pages/corpus/oeuvres';
-import { Oeuvre } from './pages/oeuvre';
-import { Personne } from './pages/personne';
+import { Feedback } from '@/pages/feedback';
+import { Oeuvres } from '@/pages/corpus/oeuvres';
+import { Oeuvre } from '@/pages/corpus/oeuvre';
+import { Personne } from '@/pages/personne';
+import { GenreDetail } from '@/pages/corpus/genre';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
@@ -63,6 +64,7 @@ function App() {
         <Route path='/corpus/journees-etudes/conference/:id' Component={Conference} />
 
         {/* Individual item routes */}
+        <Route path='/corpus/oeuvres/genre/:id/:slug?' Component={GenreDetail} />
         <Route path='/corpus/experimentation/:id' Component={Experimentation} />
         <Route path='/corpus/mise-en-recit/:id' Component={miseEnRecit} />
         <Route path='/corpus/oeuvre/:id' Component={Oeuvre} />
