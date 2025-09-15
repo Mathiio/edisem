@@ -79,6 +79,7 @@ export type Edition = {
 };
 
 export type Conference = {
+  [x: string]: any;
   id: string;
   event: string;
   title: string;
