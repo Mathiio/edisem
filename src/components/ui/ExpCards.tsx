@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@heroui/react';
-import { buildConfsRoute, getYouTubeThumbnailUrl } from '@/lib/utils';
 import { Conference } from '@/types/ui';
-import { UserIcon } from '@/components/ui/icons';
 
 
 
@@ -91,11 +89,8 @@ export const SmConfCard: React.FC<Conference> = (props) => {
   const navigate = useNavigate();
   const textRef = useRef<HTMLParagraphElement>(null);
 
-  const thumbnailUrl = experimentation.url ? getYouTubeThumbnailUrl(experimentation.url) : '';
-
   const openConf = () => {
-    const route = buildConfsRoute(experimentation.type, Number(experimentation.id));
-    navigate(route);
+    navigate(`/corpus/experimentation/${experimentation.id}`);
   };
 
 
