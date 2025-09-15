@@ -301,7 +301,7 @@ export const Oeuvre: React.FC = () => {
           <RecitiaDetailsCard
             date={oeuvreDetails.date}
             description={oeuvreDetails.abstract}
-            genre={oeuvreDetails.genre}
+            // genre={oeuvreDetails.genre}
             medium={oeuvreDetails.medium}
             actants={oeuvreDetails.actants}
           />

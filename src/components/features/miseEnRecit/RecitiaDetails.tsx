@@ -28,6 +28,7 @@ type RecitiaDetailsProps = {
 };
 
 export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description, date, credits, genre, medium, actants }) => {
+  console.log(genre)
   const [expanded, setExpanded] = useState<boolean>(false);
 
   const toggleExpansion = () => {
