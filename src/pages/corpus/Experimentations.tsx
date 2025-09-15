@@ -1,5 +1,5 @@
 import { ExperimentationBaner } from '@/components/features/experimentation/ExpBaner';
-import { LgConfCard, LgConfSkeleton } from '@/components/ui/ConfCards';
+import { LgExpCard, LgExpSkeleton } from '@/components/ui/ExpCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { getExperimentations, getActants, getStudents } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
@@ -113,10 +113,10 @@ export const Experimentations: React.FC = () => {
       <ExperimentationBaner/>
       <div className='grid grid-cols-4 w-full gap-25'>
         {loading
-          ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
+          ? Array.from({ length: 8 }).map((_, index) => <LgExpSkeleton key={index} />)
           : experimentations.map((item: any, index: number) => (
               <motion.div key={item.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                <LgConfCard {...item} />
+                <LgExpCard {...item} />
               </motion.div>
             ))}
       </div>
