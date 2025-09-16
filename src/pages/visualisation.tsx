@@ -623,7 +623,6 @@ const Visualisation = () => {
           : linkedItem.type;
 
         if (!linkedItem.type || !group.visibleTypes.includes(normalizedType)) {
-          console.log(`Lien ignoré car type non visible dans le groupe ${item.groupId}: ${linkedId} (${linkedItem.type} -> ${normalizedType})`);
           return;
         }
 
