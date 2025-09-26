@@ -1,5 +1,4 @@
-// components/features/search/SearchModal.tsx
-import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Modal, ModalContent, ModalBody, useDisclosure } from '@heroui/react';
 import { SearchIcon } from '@/components/ui/icons';
 import { useSearch } from '@/hooks/useSearch';

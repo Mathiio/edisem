@@ -13,7 +13,6 @@ export interface FilteredConfs {
   studyDays: Conference[];
 }
 
-// Mapping des types de recherche
 const SEARCH_TYPE_MAPPING = {
   'journées d\'études': 'studyday',
   'journée d\'étude': 'studyday', 
@@ -91,17 +90,6 @@ export class SearchService {
     
     return actantKeywords.some(kw => 
       kw.name?.toLowerCase().includes(query)
-    );
-  }
-
-  private static matchActantRecherches(actant: any, recherches: any[], query: string): boolean {
-    const actantRecherches = recherches.filter(recherche => 
-      recherche.creator === actant.id
-    );
-    
-    return actantRecherches.some(recherche => 
-      recherche.title?.toLowerCase().includes(query) ||
-      recherche.description?.toLowerCase().includes(query)
     );
   }
 
