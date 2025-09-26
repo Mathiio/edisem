@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 import { Input, Kbd } from '@heroui/react';
 import { SearchIcon } from '@/components/ui/icons';
 
