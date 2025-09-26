@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from "@heroui/react";
-import { buildConfsRoute, formatDate, getYouTubeThumbnailUrl } from '@/lib/utils';
+import { buildConfsRoute, formatDate, getYouTubeThumbnailUrl, truncateText } from '@/lib/utils';
 import { Actant, Conference } from '@/types/ui';
 import { UserIcon } from '@/components/ui/icons';
 import * as Items from '@/services/Items';
 
 export const ConfCard: React.FC<Conference> = ( conference ) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [actants, setActants] = useState<any[]>([]);
   const [isLoadingActants, setIsLoadingActants] = useState(false);
   const navigate = useNavigate();
@@ -111,13 +110,9 @@ export const ConfCard: React.FC<Conference> = ( conference ) => {
   return (
     <div
       onClick={openConf}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`cursor-pointer border-2 h-full rounded-12 flex items-center justify-start p-20 gap-20 transition-transform-colors-opacity ${
-        isHovered ? 'border-c4' : 'border-c3'
-      }`}>
-      <div className={`p-50 h-full w-300 rounded-12 justify-center items-center flex  ${
-          thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-200 to-400'
+      className='shadow-[inset_0_0px_25px_rgba(255,255,255,0.05)] border-c3 border-2 hover:bg-c3 rounded-24 cursor-pointer h-full flex items-center justify-start p-20 gap-20 transition-all duration-200'>
+      <div className={`p-50 h-full w-200 rounded-12 justify-center items-center flex  ${
+          thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-c4 to-c3'
         }`}
         style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
         <h3 className={`text-16 text-100 font-semibold text-selected ${thumbnailUrl ? 'invisible' : ''}`}>
@@ -129,7 +124,7 @@ export const ConfCard: React.FC<Conference> = ( conference ) => {
           <p
             ref={textRef}
             className='text-16 text-c6 font-medium overflow-hidden max-h-[4.5rem] line-clamp-3'>
-            {conference.title}
+            {truncateText(conference.title, 96)}
           </p>
           {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-c6'></span>}
         </div>

@@ -2,6 +2,7 @@ import { FullCarrousel } from '@/components/ui/Carrousels';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
+import { slugUtils } from '@/lib/utils';
 
 interface GenreCarouselProps {
   oeuvres: any[];
@@ -9,7 +10,6 @@ interface GenreCarouselProps {
 }
 
 interface Genre {
-  id: string;
   name: string;
   count: number;
   oeuvres: any[];
@@ -33,17 +33,10 @@ const GenreCard = ({ genre }: { genre: Genre }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    const slug = genre.name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-    
-    const url = `/corpus/oeuvres/genre/${genre.id}/${slug}`;
-    navigate(url);
+    const slug = slugUtils.toSlug(genre.name);
+    navigate(`/corpus/oeuvres/genre/${slug}`);
   };
+  
 
   return (
     <motion.div
@@ -69,43 +62,33 @@ const GenreCard = ({ genre }: { genre: Genre }) => {
 export const GenreCarousel = ({ oeuvres, loading = false }: GenreCarouselProps) => {
   const [genres, setGenres] = useState<Genre[]>([]);
 
-  useEffect(() => {
+    useEffect(() => {
     if (!loading && oeuvres.length > 0) {
-      const genreMap: { [key: string]: { name: string; oeuvres: any[] } } = {};
+        const genreMap: { [key: string]: { oeuvres: any[] } } = {};
 
-      oeuvres.forEach((oeuvre: any) => {
-        if (oeuvre.genre && Array.isArray(oeuvre.genre)) {
-          oeuvre.genre.forEach((genreItem: any) => {
-            const genreId = genreItem.id;
-            const genreName = genreItem.name;
+        oeuvres.forEach((oeuvre: any) => {
+        const genreName = oeuvre.genre;
+        if (!genreName) return;
 
-            if (!genreMap[genreId]) {
-              genreMap[genreId] = {
-                name: genreName,
-                oeuvres: []
-              };
-            }
-            genreMap[genreId].oeuvres.push(oeuvre);
-          });
+        if (!genreMap[genreName]) {
+            genreMap[genreName] = { oeuvres: [] };
         }
-      });
+        genreMap[genreName].oeuvres.push(oeuvre);
+        });
 
-      const formattedGenres = Object.entries(genreMap)
-        .map(([id, { name, oeuvres }]) => ({
-          id,
-          name,
-          count: oeuvres.length,
-          oeuvres: oeuvres.sort((a, b) => b.date - a.date)
+        const formattedGenres = Object.entries(genreMap)
+        .map(([name, { oeuvres }]) => ({
+            name,
+            count: oeuvres.length,
+            oeuvres: oeuvres.sort((a, b) => b.date - a.date)
         }))
-        .sort((a, b) => b.count - a.count); 
+        .sort((a, b) => b.count - a.count);
 
-      setGenres(formattedGenres);
+        setGenres(formattedGenres);
     }
-  }, [oeuvres, loading]);
+    }, [oeuvres, loading]);
 
-  if (loading || genres.length === 0) {
-    return null;
-  }
+  if (loading || genres.length === 0) return null;
 
   return (
     <div className="w-full max-w-full">
@@ -114,7 +97,7 @@ export const GenreCarousel = ({ oeuvres, loading = false }: GenreCarouselProps) 
         data={genres}
         perPage={3}
         perMove={1}
-        renderSlide={(genre, index) => <GenreCard genre={genre} key={`${genre.id}-${index}`} />}
+        renderSlide={(genre, index) => <GenreCard genre={genre} key={`${genre.name}-${index}`} />}
       />
     </div>
   );

@@ -8,7 +8,7 @@ interface OeuvresBanerProps {
 
 export const OeuvresBaner: React.FC<OeuvresBanerProps> = ({ oeuvres }) => {
   return (
-    <div className='pt-150 justify-center flex items-center flex-col gap-20'>
+    <div className='pt-100 justify-center flex items-center flex-col gap-20'>
       {/* Main title with gradient highlight */}
       <div className='gap-20 justify-between flex items-center flex-col'>
         <OeuvreIcon size={40} className='text-c4' />

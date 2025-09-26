@@ -7,14 +7,17 @@ import { useEffect, useState } from 'react';
 
 export const Seminaires = () => {
   const [seminaires, setSeminaires] = useState([]);
+  const [seminarEditions, setSeminarEditions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
+        const editions = await Items.getEditions();
+        setSeminarEditions(editions.filter((ed: any) => ed.editionType === 'séminaire'));
         setSeminaires(await Items.getSeminarConfs());
       } catch (error) {
-        console.error('Error loading seminars', error);
+        console.error('Error loading seminars & editions', error);
       } finally {
         setLoading(false);
       }
@@ -23,9 +26,9 @@ export const Seminaires = () => {
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
-          <SeminairesBaner seminaires={seminaires} />
-          <SeminairesCarousel seminaires={seminaires} loading={loading}/>
-          <TopKeywords seminaires={seminaires} loading={loading} />
+      <SeminairesBaner editions={seminarEditions} />
+      <SeminairesCarousel editions={seminarEditions} loading={loading}/>
+      <TopKeywords seminaires={seminaires} loading={loading} />
     </Layouts>
   );
 };

@@ -4,6 +4,7 @@ import { getOeuvres, getActants, getStudents } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
 import { OeuvreCard } from '@/components/features/oeuvres/OeuvresCards';
+import { slugUtils } from '@/lib/utils';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -20,7 +21,7 @@ interface Oeuvre {
   description: string;
   date: string;
   abstract: string;
-  genre: Array<{ id: string; name: string }>;
+  genre: string;
   thumbnail: string;
   enrichedActants: any[];
   primaryActant: any;
@@ -28,25 +29,16 @@ interface Oeuvre {
 }
 
 export const GenreDetail: React.FC = () => {
-  const { id, slug } = useParams<{ id: string; slug?: string }>();
+  const { slug } = useParams<{ slug?: string }>();
   const [oeuvres, setOeuvres] = useState<Oeuvre[]>([]);
   const [genreName, setGenreName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const dataFetchedRef = useRef(false);
 
-    const formatSlug = (urlSlug?: string): string => {
-    if (!urlSlug) return '';
-    
-    return urlSlug
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    };
-
   const enrichOeuvresWithActants = async (oeuvres: any[]) => {
     try {
       const [actants, students] = await Promise.all([getActants(), getStudents()]);
-      
+
       // Créer les maps des actants et students
       const actantMap = new Map();
       actants.forEach((actant: any) => {
@@ -94,67 +86,46 @@ export const GenreDetail: React.FC = () => {
         };
       });
     } catch (error) {
-      console.error('Erreur lors de l\'enrichissement des œuvres:', error);
+      console.error("Erreur lors de l'enrichissement des œuvres:", error);
       return oeuvres;
     }
   };
 
-  const fetchOeuvresByGenre = useCallback(async () => {
-    if (dataFetchedRef.current || !id) return;
-    dataFetchedRef.current = true;
+const fetchOeuvresByGenre = useCallback(async () => {
+  if (dataFetchedRef.current || !slug) return;
+  dataFetchedRef.current = true;
 
-    try {
-      setLoading(true);
-      
-      // Récupérer toutes les œuvres
-      const allOeuvres = await getOeuvres();
-      
-      if (!Array.isArray(allOeuvres) || allOeuvres.length === 0) {
-        setOeuvres([]);
-        return;
-      }
+  try {
+    setLoading(true);
 
-      // Filtrer les œuvres par genre
-      const filteredOeuvres = allOeuvres.filter((oeuvre: any) => {
-        if (!oeuvre.genre || !Array.isArray(oeuvre.genre)) return false;
-        
-        return oeuvre.genre.some((genreItem: any) => genreItem.id === id);
-      });
-
-      // Récupérer le nom du genre à partir de la première œuvre trouvée
-      if (filteredOeuvres.length > 0) {
-        const genre = filteredOeuvres[0].genre.find((g: any) => g.id === id);
-        if (genre) {
-          setGenreName(genre.name);
-        }
-      }
-
-      // Si on n'a pas trouvé le nom via les œuvres, utiliser le slug
-      if (!genreName && slug) {
-        setGenreName(formatSlug(slug));
-      }
-
-      // Enrichir avec les données des actants
-      const enrichedOeuvres = await enrichOeuvresWithActants(filteredOeuvres);
-      
-      // Trier par date décroissante
-      const sortedOeuvres = enrichedOeuvres.sort((a: any, b: any) => {
-        const dateA = parseInt(a.date) || 0;
-        const dateB = parseInt(b.date) || 0;
-        return dateB - dateA;
-      });
-
-      setOeuvres(sortedOeuvres);
-      
-      console.log(`Œuvres trouvées pour le genre "${genreName}":`, sortedOeuvres.length);
-      
-    } catch (error) {
-      console.error('Erreur lors de la récupération des œuvres par genre:', error);
+    const allOeuvres = await getOeuvres();
+    if (!Array.isArray(allOeuvres) || allOeuvres.length === 0) {
       setOeuvres([]);
-    } finally {
-      setLoading(false);
+      return;
     }
-  }, [id, slug, genreName]);
+
+    const filteredOeuvres = allOeuvres.filter(
+        (oeuvre: any) => slugUtils.matches(oeuvre.genre, slug)
+    );
+
+    setGenreName(
+        filteredOeuvres.length > 0 ? filteredOeuvres[0].genre : slugUtils.toTitle(slug)
+    );
+
+    const enrichedOeuvres = await enrichOeuvresWithActants(filteredOeuvres);
+
+    const sortedOeuvres = enrichedOeuvres.sort(
+      (a: any, b: any) => (parseInt(b.date) || 0) - (parseInt(a.date) || 0)
+    );
+
+    setOeuvres(sortedOeuvres);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des œuvres par genre:', error);
+    setOeuvres([]);
+  } finally {
+    setLoading(false);
+  }
+}, [slug]);
 
   useEffect(() => {
     if (!dataFetchedRef.current) {
@@ -162,43 +133,31 @@ export const GenreDetail: React.FC = () => {
     }
   }, [fetchOeuvresByGenre]);
 
-  // Utiliser le slug formaté si on n'a pas encore le nom du genre
-  const displayTitle = genreName || formatSlug(slug) || 'Genre';
+  const displayTitle = genreName || slugUtils.toTitle(slug || '') || 'Genre';
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-100'>
       <div className='gap-25 flex flex-col'>
         <div className='flex flex-col gap-15'>
           <h1 className='text-40 font-semibold text-c6'>{displayTitle}</h1>
-          <p className='text-18 text-c4'>
-            {loading ? 'Chargement...' : `${oeuvres.length} ${oeuvres.length === 1 ? 'œuvre' : 'œuvres'}`}
-          </p>
+          <p className='text-18 text-c4'>{loading ? 'Chargement...' : `${oeuvres.length} ${oeuvres.length === 1 ? 'œuvre' : 'œuvres'}`}</p>
         </div>
-        
+
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-25'>
           {loading
             ? Array.from({ length: 8 }).map((_, index) => <div key={index} />)
             : oeuvres.map((oeuvre, index) => (
-                <motion.div 
-                  initial='hidden' 
-                  animate='visible' 
-                  variants={fadeIn} 
-                  key={oeuvre.id} 
-                  custom={index}
-                >
-                  <OeuvreCard id={oeuvre.id} title={oeuvre.title} date={oeuvre.date} thumbnail={oeuvre.thumbnail} acteurs={oeuvre.enrichedActants}/>
+                <motion.div initial='hidden' animate='visible' variants={fadeIn} key={oeuvre.id} custom={index}>
+                  <OeuvreCard id={oeuvre.id} title={oeuvre.title} date={oeuvre.date} thumbnail={oeuvre.thumbnail} acteurs={oeuvre.enrichedActants} />
                 </motion.div>
               ))}
         </div>
 
         {!loading && oeuvres.length === 0 && (
           <div className='flex flex-col items-center justify-center py-100 gap-20'>
-            <div className='text-60 opacity-20'>🎭</div>
             <div className='flex flex-col gap-10 text-center'>
               <h3 className='text-24 font-medium text-c6'>Aucune œuvre trouvée</h3>
-              <p className='text-16 text-c4'>
-                Il n'y a pas encore d'œuvres dans la catégorie "{displayTitle}".
-              </p>
+              <p className='text-16 text-c4'>Il n'y a pas encore d'œuvres dans la catégorie "{displayTitle}".</p>
             </div>
           </div>
         )}
