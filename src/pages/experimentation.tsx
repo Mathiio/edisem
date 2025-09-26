@@ -8,7 +8,7 @@ import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/r
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/ui/ConfCards';
-import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
+import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
 import { ExpOverviewCard } from '@/components/features/experimentation/ExpOverview';
 import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/experimentation/ExpDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';

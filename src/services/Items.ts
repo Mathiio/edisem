@@ -373,6 +373,48 @@ export async function getActants(actantIds?: string | string[]) {
   }
 }
 
+export async function getEditions(editionIds?: string | string[]) {
+  try {
+    let editions: any[];
+    const storedEditions = sessionStorage.getItem('editions');
+
+    if (!storedEditions) {
+      const rawEditions = await getDataByUrl(
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getEditions&json=1',
+      );
+
+      editions = rawEditions.map((edition: any) => ({
+        ...edition,
+        type: 'edition',
+      }));
+
+      sessionStorage.setItem('editions', JSON.stringify(editions));
+    } else {
+      editions = JSON.parse(storedEditions);
+    }
+
+    if (!editionIds) {
+      return editions;
+    }
+
+    const normalizedIds = Array.isArray(editionIds) 
+      ? editionIds.map(id => String(id))
+      : [String(editionIds)];
+
+    const foundEditions = editions.filter((e: any) => 
+      normalizedIds.includes(String(e.id))
+    );
+
+    return !Array.isArray(editionIds) && foundEditions.length > 0 
+      ? foundEditions[0] 
+      : foundEditions;
+
+  } catch (error) {
+    console.error('Error fetching editions:', error);
+    throw new Error('Failed to fetch editions');
+  }
+}
+
 export async function getSeminarConfs(confId?: number) {
   try {
     const confs = sessionStorage.getItem('seminarConfs')

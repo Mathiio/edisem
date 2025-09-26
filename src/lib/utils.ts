@@ -46,6 +46,17 @@ export const getYear = (dateString: string): string => {
   return dateString.split('-')[0];
 };
 
+export const getSeasonOrder = (season: string) => {
+  const seasonOrder: Record<string, number> = {
+    'automne': 3,
+    'été': 2,
+    'printemps': 1,
+    'hiver': 0
+  };
+  return seasonOrder[season] || 0;
+};
+
+
 
 
 
@@ -83,14 +94,28 @@ export const truncateText = (text: string, maxLength: number): string => {
   return text.substring(0, maxLength).trim() + '...';
 };
 
-export const slugify = (text: string): string => {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove accents
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single
+export const slugUtils = {
+  toSlug: (text: string): string => {
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  },
+
+  toTitle: (slug: string): string => {
+    return slug
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  },
+
+  matches: (text: string, slug: string): boolean => {
+    return slugUtils.toSlug(text) === slug;
+  }
 };
 
 export const capitalizeFirst = (text: string): string => {

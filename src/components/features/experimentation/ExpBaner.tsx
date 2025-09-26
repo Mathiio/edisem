@@ -8,7 +8,7 @@ export const ExperimentationBaner = () => {
   // Count stats
 
   return (
-    <div className='pt-150 justify-center flex items-center flex-col gap-20 relative'>
+    <div className='pt-100 justify-center flex items-center flex-col gap-20 relative'>
       <div className='gap-20 justify-between flex items-center flex-col'>
         <ExperimentationIcon size={40} className='text-c4'/>
 
@@ -23,7 +23,6 @@ export const ExperimentationBaner = () => {
           </p>
 
         </div>
-
         <AnimatedBackground />
       </div>
     </div>
