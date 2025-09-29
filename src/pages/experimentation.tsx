@@ -207,7 +207,6 @@ export const Experimentation: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className='flex flex-col h-full py-25 pr-25'>{/* <AnnotationDropdown id={props.id} content={formatBibliography(props)} type='Bibliographie' /> */}</div>
           </div>
         );
       case 'Outils':

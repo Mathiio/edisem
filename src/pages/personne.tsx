@@ -5,7 +5,7 @@ import * as Items from '@/services/Items';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon } from '@/components/ui/icons';
 import { InfoCard, InfoSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { Link } from '@heroui/react';
-import { LgConfCard, LgConfSkeleton } from '@/components/ui/ConfCards';
+import { LgOeuvreCard, LgOeuvreSkeleton } from '@/components/ui/OeuvreCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
 
@@ -27,11 +27,21 @@ export const Personne: React.FC = () => {
   const fetchPersonneData = useCallback(async () => {
     setLoading(true);
     try {
+      // Vider le cache pour forcer le rechargement avec les données normalisées
+      sessionStorage.removeItem('personnes');
+      sessionStorage.removeItem('oeuvres');
+
       const [personne, oeuvres] = await Promise.all([Items.getPersonnes(Number(id)), getOeuvresByPersonne(Number(id))]);
 
+      // Les données sont déjà normalisées dans le service
       setPersonne(personne);
-      setOeuvres(oeuvres);
-      console.log(oeuvres);
+
+      setOeuvres(Array.isArray(oeuvres) ? oeuvres : []);
+      console.log('Personne data:', personne);
+      console.log('Oeuvres data:', oeuvres);
+      console.log('Number of oeuvres found:', oeuvres ? oeuvres.length : 0);
+    } catch (error) {
+      console.error('Error fetching personne data:', error);
     } finally {
       setLoading(false);
     }
@@ -44,7 +54,7 @@ export const Personne: React.FC = () => {
   return (
     <Layouts className='col-span-10 flex flex-col gap-100'>
       <div className='flex flex-col gap-50'>
-        <Link isExternal className='gap-20 text-c6 w-fit' href={!loading ? personne?.url : '#'} showAnchorIcon anchorIcon={<LinkIcon size={28} />}>
+        <Link isExternal className='gap-20 text-c6 w-fit' href={!loading ? personne?.source : '#'} showAnchorIcon anchorIcon={<LinkIcon size={28} />}>
           {personne?.picture ? (
             <img className='w-75 h-75 object-cover rounded-12' src={personne.picture} alt='' />
           ) : (
@@ -63,7 +73,14 @@ export const Personne: React.FC = () => {
           )}
           <div className='flex flex-col gap-15'>
             <p className='text-32 font-medium text-c6'>{loading ? '' : personne?.name}</p>
-            <p className='text-14 text-c4 font-regular'>{loading ? '' : personne?.birthDate}</p>
+            <div className='flex flex-col gap-5'>
+              {personne?.firstName && personne?.lastName && (
+                <p className='text-14 text-c4 font-regular'>
+                  {personne.firstName} {personne.lastName}
+                </p>
+              )}
+              {personne?.birthday && <p className='text-14 text-c4 font-regular'>Né(e) le {personne.birthday}</p>}
+            </div>
           </div>
         </Link>
         <div className='flex gap-20 justify-between items-center'>
@@ -72,15 +89,15 @@ export const Personne: React.FC = () => {
               <div className='w-[22px]'>
                 <UniversityIcon className='transition-transform-colors-opacity text-c6' size={22} />
               </div>
-              <h3 className='text-16 text-left text-c6 font-medium'>Statut(s)</h3>
+              <h3 className='text-16 text-left text-c6 font-medium'>Métier(s)</h3>
             </div>
             <div className='flex flex-col justify-center items-start gap-10'>
               {loading ? (
                 Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
-              ) : personne?.status && personne.status.length > 0 ? (
-                personne.status.map((item: string, index: React.Key | null | undefined) => <InfoCard key={index} link={''} name={item} />)
+              ) : personne?.jobTitle && personne.jobTitle.length > 0 ? (
+                personne.jobTitle.map((item: any, index: React.Key | null | undefined) => <InfoCard key={index} link={''} name={item.title} />)
               ) : (
-                <InfoCard key={0} link={''} name={'Aucun statut trouvé'} />
+                <InfoCard key={0} link={''} name={'Aucun métier trouvé'} />
               )}
             </div>
           </div>
@@ -89,15 +106,15 @@ export const Personne: React.FC = () => {
               <div className='w-[22px]'>
                 <SchoolIcon className='transition-transform-colors-opacity text-c6' size={22} />
               </div>
-              <h3 className='text-16 text-left text-c6 font-medium'>Projet(s) passé(s)</h3>
+              <h3 className='text-16 text-left text-c6 font-medium'>Description</h3>
             </div>
             <div className='flex flex-col justify-center items-start gap-10'>
               {loading ? (
                 Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
-              ) : personne?.pastProject ? (
-                <InfoCard key={0} link={''} name={personne.pastProject} />
+              ) : personne?.description ? (
+                <InfoCard key={0} link={''} name={personne.description.length > 200 ? `${personne.description.substring(0, 200)}...` : personne.description} />
               ) : (
-                <InfoCard key={0} link={''} name={'Aucun projet passé trouvé'} />
+                <InfoCard key={0} link={''} name={'Aucune description trouvée'} />
               )}
             </div>
           </div>
@@ -106,15 +123,15 @@ export const Personne: React.FC = () => {
               <div className='w-[22px]'>
                 <LaboritoryIcon className='transition-transform-colors-opacity text-c6' size={22} />
               </div>
-              <h3 className='text-16 text-left text-c6 font-medium'>Localisation(s)</h3>
+              <h3 className='text-16 text-left text-c6 font-medium'>Pays d'origine</h3>
             </div>
             <div className='flex flex-col justify-center items-start gap-10'>
               {loading ? (
                 Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
-              ) : personne?.basedNear && personne.basedNear.length > 0 ? (
-                <InfoCard key={0} link={''} name={personne.basedNear} />
+              ) : personne?.countryOfOrigin && personne.countryOfOrigin.length > 0 ? (
+                personne.countryOfOrigin.map((item: any, index: React.Key | null | undefined) => <InfoCard key={index} link={''} name={item.name} />)
               ) : (
-                <InfoCard key={0} link={''} name={'Aucune localisation trouvée'} />
+                <InfoCard key={0} link={''} name={"Aucun pays d'origine trouvé"} />
               )}
             </div>
           </div>
@@ -124,10 +141,10 @@ export const Personne: React.FC = () => {
         <h2 className='text-24 font-medium text-c6'>Dernière(s) oeuvre(s)</h2>
         <div className='grid grid-cols-4 grid-rows-2 gap-25'>
           {loading
-            ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
+            ? Array.from({ length: 8 }).map((_, index) => <LgOeuvreSkeleton key={index} />)
             : oeuvres.map((item, index) => (
                 <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id} custom={index}>
-                  <LgConfCard {...item} />
+                  <LgOeuvreCard {...item} />
                 </motion.div>
               ))}
         </div>

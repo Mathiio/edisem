@@ -8,7 +8,10 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "generate:resource": "node resource-system/generate-resource.cjs",
+    "migrate:config": "node resource-system/dist/migrateResourceTypes.js",
+    "generate:service": "node resource-system/dist/resourceGenerator.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
