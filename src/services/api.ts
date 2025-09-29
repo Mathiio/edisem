@@ -146,56 +146,6 @@ export async function filterActants(searchQuery: string) {
 
 
 
-export async function filterConfs(searchQuery: string) {
-  try {
-    const confs = await Items.getAllConfs();
-
-    const updatedConfs = await Promise.all(
-      confs.map(async (conf: { actant: string }) => {
-        if (conf.actant) {
-          try {
-            const actantDetails = await Items.getActants(conf.actant);
-            return { 
-              ...conf, 
-              actant: actantDetails || { firstname: "", lastname: "" } // Fallback sécurisé
-            };
-          } catch (error) {
-            console.error(`Error fetching actant ${conf.actant}:`, error);
-            return { 
-              ...conf, 
-              actant: { firstname: "", lastname: "" } // Objet vide sécurisé
-            };
-          }
-        }
-        return conf;
-      })
-    );
-
-    const filteredConfs = updatedConfs.filter((conf: any) => {
-      const lowerSearchQuery = searchQuery.toLowerCase();
-
-      // Vérifications avec gestion des valeurs manquantes
-      const eventMatch = conf.event?.toLowerCase().includes(lowerSearchQuery);
-      const titleMatch = conf.title?.toLowerCase().includes(lowerSearchQuery);
-      const actantMatch = conf.actant?.firstname?.toLowerCase().includes(lowerSearchQuery) 
-                       || conf.actant?.lastname?.toLowerCase().includes(lowerSearchQuery);
-      const keywordsMatch = conf.motcles?.some((keyword: any) =>
-        [keyword.title, ...keyword.english_terms, ...keyword.orthographic_variants]
-          .some(term => term?.toLowerCase().includes(lowerSearchQuery))
-      );
-
-      return eventMatch || titleMatch || actantMatch || keywordsMatch;
-    });
-
-    return filteredConfs;
-  } catch (error) {
-    console.error('Error fetching conferences:', error);
-    throw new Error('Failed to fetch conferences');
-  }
-}
-
-
-
 
 
 

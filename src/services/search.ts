@@ -53,10 +53,7 @@ export class SearchService {
       const normalizedQuery = this.normalizeSearchQuery(query);
 
       return actants.filter((actant: any) => {
-        // Recherche dans les informations de base
         const basicMatch = this.matchBasicActantFields(actant, normalizedQuery);
-        
-        // Recherche dans les mots-clés
         const keywordMatch = this.matchActantKeywords(actant, keywords, normalizedQuery);
         
         return basicMatch || keywordMatch;
