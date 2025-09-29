@@ -7,7 +7,7 @@ import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/r
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/ui/ConfCards';
-import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
+import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
 import * as Items from '@/services/Items';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';

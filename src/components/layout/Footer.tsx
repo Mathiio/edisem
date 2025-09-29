@@ -39,8 +39,7 @@ export const Footer: React.FC = () => {
           <div className='text-24 text-c6 font-medium'>Arcanes</div>
         </RoutLink>
         <p className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200'>
-          Une plateforme d’éditorialisation des séminaires. Une autre manière d’explorer les conférences et les
-          conférenciers des séminaires Arcanes.
+          Une plateforme d’éditorialisation de la recherche Arcanes autour de l'intelligence artificielle, des pratiques narratives et des puissances du faux. Découvrez ses corpus et ses intervenants.
         </p>
       </motion.div>
       <motion.div className='flex col-span-3 flex-col items-start gap-8' variants={navbarVariants}>

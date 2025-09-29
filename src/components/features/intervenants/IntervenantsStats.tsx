@@ -81,7 +81,7 @@ export default function IntervenantsStats({ intervenants }: IntervenantsStatisti
       <div className='flex-1 flex flex-col justify-between'>
         <h2 className='text-c6 text-64 transition-all ease-in-out duration-200'>
           Quelques <br/>
-          Satistiques
+          Statistiques
         </h2>
         <p className='text-c5 text-16 transition-all ease-in-out duration-200 max-w-md'>
           De Paris à Montréal, de Londres à Turin, en passant par Tokyo ou Boston, les intervenant·es explorent des thématiques aussi diverses que l’intelligence artificielle, les pratiques artistiques numériques, la sémiotique ou l’éthique des technologies.          

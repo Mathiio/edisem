@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { getConfByEdition } from '@/services/api';
-import { getActants } from '@/services/Items';
+import * as Items from '@/services/Items';
 import { LgConfCard, LgConfSkeleton } from '@/components/ui/ConfCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
-import { Conference, Actant } from '@/types/ui';
+import { Conference, Actant, Edition as EditionType } from '@/types/ui';
+import { BackgroundEllipse } from '@/assets/svg/BackgroundEllipse';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -17,19 +18,23 @@ const fadeIn: Variants = {
 };
 
 export const Edition: React.FC = () => {
-  const { id, title } = useParams<{ id: string; title?: string }>();
+  const { id } = useParams<{ id: string; title?: string }>();
   const [conf, setConf] = useState<Conference[]>([]);
   const [loadingConf, setLoadingConf] = useState(true);
+  const [edition, setEdition] = useState<EditionType | null>(null);
   const dataFetchedRef = useRef(false);
 
-  const formatTitle = (urlTitle?: string): string => {
-    if (!urlTitle) return '';
-
-    return urlTitle
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
+  const fetchEdition = useCallback(async () => {
+    if (!id) return;
+    try {
+      const editions = await Items.getEditions();
+      const selectedEdition = editions.find((ed: EditionType) => ed.id === id);
+      setEdition(selectedEdition || null);
+    } catch (err) {
+      console.error('Erreur lors de la récupération de l’édition :', err);
+      setEdition(null);
+    }
+  }, [id]);
 
   // Helper pour enrichir les conférences avec les actants complets
   const enrichConferencesWithActants = async (conferences: any[]) => {
@@ -58,7 +63,7 @@ export const Edition: React.FC = () => {
           // Récupérer les données complètes des actants
           const actantPromises = actantIds.map(async (actantId: string) => {
             try {
-              return await getActants(actantId);
+              return await Items.getActants(actantId);
             } catch (error) {
               console.warn(`Failed to fetch actant ${actantId}:`, error);
               return null;
@@ -102,25 +107,40 @@ export const Edition: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    if (dataFetchedRef.current) {
-      return;
-    }
+    fetchEdition();
     fetchConf();
-  }, [fetchConf]);
+  }, [fetchEdition, fetchConf]);
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-100'>
-      <div className='gap-25 flex flex-col'>
-        <h2 className='text-24 font-medium text-c6'>Conférences de {formatTitle(title)}</h2>
-        <div className='grid grid-cols-4 grid-rows-3 gap-25'>
-          {loadingConf
-            ? Array.from({ length: 12 }).map((_, index) => <LgConfSkeleton key={index} />)
-            : conf.map((conference, index) => (
-                <motion.div initial='hidden' animate='visible' variants={fadeIn} key={conference.id} custom={index}>
-                  <LgConfCard {...conference} />
-                </motion.div>
-              ))}
+      <div className='pt-100 justify-center flex items-center flex-col gap-20 relative'>
+        <div className='gap-20 justify-between flex items-center flex-col'>
+            <h1 className='z-[12] text-64 text-c6 font-medium flex text-center flex-col items-center max-w-[850px]'>
+              {edition?.title}
+            </h1>
+            <p className='text-c5 text-16 z-[12] text-center max-w-[600px]'>
+              {edition?.editionType ? edition.editionType.charAt(0).toUpperCase() + edition.editionType.slice(1) : ''} Edisem - Édition {edition?.season} {edition?.year}
+            </p>
+          <motion.div
+            className='top-[-50px] absolute z-[-1]'
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, ease: 'easeIn' }}
+          >
+            <div className='opacity-20 dark:opacity-30'>
+              <BackgroundEllipse />
+            </div>
+          </motion.div>
         </div>
+      </div>
+      <div className='grid grid-cols-4 grid-rows-3 gap-25'>
+        {loadingConf
+          ? Array.from({ length: 12 }).map((_, index) => <LgConfSkeleton key={index} />)
+          : conf.map((conference, index) => (
+              <motion.div initial='hidden' animate='visible' variants={fadeIn} key={conference.id} custom={index}>
+                <LgConfCard {...conference} />
+              </motion.div>
+            ))}
       </div>
     </Layouts>
   );

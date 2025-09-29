@@ -1,21 +1,20 @@
-import { Layouts } from "@/components/layout/Layouts";
-import { useEffect, useState } from "react";
-import * as Items from "@/services/Items"
 import { StudyDayBaner } from "@/components/features/studyDay/StudyDayBaner";
 import { StudyDayCarousel } from "@/components/features/studyDay/StudyDayCarousel";
+import { Layouts } from "@/components/layout/Layouts";
+import * as Items from "@/services/Items";
+import { useEffect, useState } from 'react';
 
-
-
-export const JourneesEtudes: React.FC = () => {
-  const [studyDay, setStudyDay] = useState([]);
+export const JourneesEtudes = () => {
+  const [studyDayEditions, setStudyDayEditions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
-        setStudyDay(await Items.getStudyDayConfs());
+        const editions = await Items.getEditions();
+        setStudyDayEditions(editions.filter((ed: any) => ed.editionType === "journée d’études"));
       } catch (error) {
-        console.error('Error loading colloques', error);
+        console.error('Error loading study day editions', error);
       } finally {
         setLoading(false);
       }
@@ -23,9 +22,9 @@ export const JourneesEtudes: React.FC = () => {
   }, []);
 
   return (
-       <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
-          <StudyDayBaner studyDay={studyDay}/>
-          <StudyDayCarousel studyDay={studyDay} loading={loading}/>
-       </Layouts>
+    <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
+      <StudyDayBaner editions={studyDayEditions} />
+      <StudyDayCarousel editions={studyDayEditions} loading={loading}/>
+    </Layouts>
   );
 };

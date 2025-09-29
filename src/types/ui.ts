@@ -72,10 +72,10 @@ export type Citation = {
 export type Edition = {
   id: string;
   title: string;
+  conferences: Conference[];
   season: string;
+  editionType: string;
   year: string;
-  conferenceCount: number;
-  date: string;
 };
 
 export type Conference = {

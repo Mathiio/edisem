@@ -3,7 +3,7 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Image } from '@/
 import Logo from '@/assets/svg/logo.svg';
 import { ProfilDropdown } from '@/components/layout/ProfilDropdown';
 import { Link, useLocation } from 'react-router-dom';
-import SearchModal, { SearchModalRef } from '@/components/layout/SearchModal';
+import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
 
 export const Navbar: React.FC = () => {
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -17,6 +17,17 @@ export const Navbar: React.FC = () => {
     const handleScroll = () => setHasScrolled(window.scrollY > 100);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        searchModalRef.current?.openWithSearch('');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const linkBaseClass = 'cursor-pointer flex flex-row items-center justify-center px-15 py-10 text-16 gap-10 text-c6 rounded-8 border-2 transition-all ease-in-out duration-200';
@@ -55,7 +66,7 @@ export const Navbar: React.FC = () => {
                 { to: '/corpus/seminaires', label: 'Séminaires' },
                 { to: '/corpus/oeuvres', label: 'Œuvres' },
                 { to: '/corpus/journees-etudes', label: "Journées d'études" },
-                // { to: '/corpus/pratique-narrative', label: 'Pratique narrative' },
+                { to: '/corpus/pratique-narrative', label: 'Pratique narrative' },
                 { to: '/corpus/colloques', label: 'Colloques' },
                 { to: '/corpus/experimentations', label: 'Expérimentations' },
               ].map(({ to, label }) => (
