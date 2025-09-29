@@ -1,23 +1,40 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@heroui/react';
-import { buildConfsRoute, getYouTubeThumbnailUrl } from '@/lib/utils';
-import { Conference } from '@/types/ui';
+import { getYouTubeThumbnailUrl } from '@/lib/utils';
 import { UserIcon } from '@/components/ui/icons';
 
-export const LgConfCard: React.FC<Conference> = (props) => {
-  const conference = props;
+interface Oeuvre {
+  id: string | number;
+  title: string;
+  url?: string | string[];
+  type?: string;
+  actant?: any[];
+  personne?: any[];
+  picture?: string;
+  thumbnail?: string;
+  description?: string;
+  abstract?: string;
+  date?: string;
+  genre?: any[];
+  keywords?: string[];
+  [key: string]: any;
+}
+
+export const LgOeuvreCard: React.FC<Oeuvre> = (props) => {
+  const oeuvre = props;
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  const thumbnailUrl = conference.url ? getYouTubeThumbnailUrl(conference.url) : '';
+  // Priorité : thumbnail > picture > url (YouTube) > url (lien)
+  const thumbnailUrl = oeuvre.thumbnail || oeuvre.picture || (oeuvre.url ? getYouTubeThumbnailUrl(Array.isArray(oeuvre.url) ? oeuvre.url[0] : oeuvre.url) : '');
 
   const [isTruncated, setIsTruncated] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
 
-  const openConf = () => {
-    const route = buildConfsRoute(conference.type, Number(conference.id));
-    navigate(route);
+  const openOeuvre = () => {
+    // Navigation vers la page de l'œuvre
+    navigate(`/corpus/oeuvre/${oeuvre.id}`);
   };
 
   useEffect(() => {
@@ -25,32 +42,40 @@ export const LgConfCard: React.FC<Conference> = (props) => {
     if (element) {
       setIsTruncated(element.scrollHeight > element.clientHeight);
     }
-  }, [conference.title]);
+  }, [oeuvre.title]);
 
   const formatActantNames = () => {
-    if (!conference.actant || !Array.isArray(conference.actant) || conference.actant.length === 0) {
+    // Utiliser personne si disponible, sinon actant
+    const people = oeuvre.personne || oeuvre.actant || [];
+
+    if (!Array.isArray(people) || people.length === 0) {
       return 'Aucun intervenant';
     }
 
-    if (conference.actant.length === 1) {
-      const actant = conference.actant[0];
-      return `${actant?.firstname || ''} ${actant?.lastname || ''}`;
+    if (people.length === 1) {
+      const person = people[0];
+      return `${person?.firstname || person?.firstName || ''} ${person?.lastname || person?.lastName || ''}`;
     }
 
-    const displayActants = conference.actant.slice(0, 3);
-    const names = displayActants
-      .filter((actant) => actant)
-      .map((actant) => `${actant.firstname?.charAt(0) || ''}. ${actant.lastname || ''}`)
+    const displayPeople = people.slice(0, 3);
+    const names = displayPeople
+      .filter((person) => person)
+      .map((person) => {
+        const firstname = person.firstname || person.firstName || '';
+        const lastname = person.lastname || person.lastName || '';
+        return `${firstname?.charAt(0) || ''}. ${lastname || ''}`;
+      })
       .join(' - ');
 
-    return conference.actant.length > 3 ? `${names}...` : names;
+    return people.length > 3 ? `${names}...` : names;
   };
 
-  const hasActants = conference.actant && Array.isArray(conference.actant) && conference.actant.length > 0;
+  const hasActants =
+    (oeuvre.personne && Array.isArray(oeuvre.personne) && oeuvre.personne.length > 0) || (oeuvre.actant && Array.isArray(oeuvre.actant) && oeuvre.actant.length > 0);
 
   return (
     <div
-      onClick={openConf}
+      onClick={openOeuvre}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className='cursor-pointer flex flex-col gap-10 transition-all ease-in-out duration-200 relative'>
@@ -60,12 +85,12 @@ export const LgConfCard: React.FC<Conference> = (props) => {
       <div
         className={`p-50 h-200 w-full rounded-12 justify-center items-center flex z-10 ${thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-c3 to-c4'}`}
         style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
-        <h3 className={`text-16 text-100 font-semibold text-selected ${thumbnailUrl ? 'invisible' : ''}`}>CONFÉRENCE</h3>
+        <h3 className={`text-16 text-100 font-semibold text-selected ${thumbnailUrl ? 'invisible' : ''}`}>ŒUVRE</h3>
       </div>
       <div className='flex flex-col gap-5 z-10'>
         <div className='relative'>
           <p ref={textRef} className='text-16 text-c6 font-medium overflow-hidden max-h-[4.5rem] line-clamp-3'>
-            {conference.title}
+            {oeuvre.title}
           </p>
           {isTruncated && <span className='absolute bottom-0 right-0 bg-white text-c6'></span>}
         </div>
@@ -73,9 +98,10 @@ export const LgConfCard: React.FC<Conference> = (props) => {
           <div className='flex items-center gap-5'>
             {/* Actant avatars */}
             <div className='flex items-center relative'>
-              {conference.actant.slice(0, 3).map((actant, index) => {
+              {(oeuvre.personne || oeuvre.actant || []).slice(0, 3).map((person, index) => {
                 const isLastAvatar = index === 2;
-                const showCounter = conference.actant.length > 3 && isLastAvatar;
+                const people = oeuvre.personne || oeuvre.actant || [];
+                const showCounter = people.length > 3 && isLastAvatar;
 
                 // Déterminer la classe de rotation selon l'index
                 const getRotationClass = () => {
@@ -92,17 +118,17 @@ export const LgConfCard: React.FC<Conference> = (props) => {
                 };
 
                 return (
-                  actant && (
+                  person && (
                     <div
-                      key={actant.id || index}
+                      key={person.id || index}
                       className={`w-8 h-8 rounded-8 border-3 border-c1 overflow-hidden ${index > 0 ? '-ml-15' : ''} ${getRotationClass()}`}
                       style={{
                         zIndex: index + 1,
                       }}>
                       {showCounter ? (
-                        <div className='w-full h-full bg-c4 flex items-center justify-center text-14 font-bold text-c2'>+{conference.actant.length - 2}</div>
-                      ) : actant.picture ? (
-                        <img src={actant.picture} alt={`${actant.firstname} ${actant.lastname}`} className='w-full h-full object-cover' />
+                        <div className='w-full h-full bg-c4 flex items-center justify-center text-14 font-bold text-c2'>+{people.length - 2}</div>
+                      ) : person.picture ? (
+                        <img src={person.picture} alt={`${person.firstname || person.firstName} ${person.lastname || person.lastName}`} className='w-full h-full object-cover' />
                       ) : (
                         <div className='w-full h-full bg-c4 flex items-center justify-center text-12 font-semibold text-c1'>
                           <UserIcon size={12} className='text-c1' />
@@ -116,7 +142,9 @@ export const LgConfCard: React.FC<Conference> = (props) => {
 
             {/* Actant info */}
             <div className='flex flex-col gap-1'>
-              <p className='text-16 text-c5 font-extralight'>{conference.actant.length === 1 ? '1 intervenant' : `${conference.actant.length} intervenants`}</p>
+              <p className='text-16 text-c5 font-extralight'>
+                {(oeuvre.personne || oeuvre.actant || []).length === 1 ? '1 intervenant' : `${(oeuvre.personne || oeuvre.actant || []).length} intervenants`}
+              </p>
               <p className='text-14 text-c5 font-extralight'>{formatActantNames()}</p>
             </div>
           </div>
@@ -127,7 +155,7 @@ export const LgConfCard: React.FC<Conference> = (props) => {
   );
 };
 
-export const LgConfSkeleton: React.FC = () => {
+export const LgOeuvreSkeleton: React.FC = () => {
   return (
     <div className='flex flex-col gap-10'>
       <Skeleton className='p-50 w-full h-200 rounded-12 justify-center flex'>
@@ -149,43 +177,47 @@ export const LgConfSkeleton: React.FC = () => {
   );
 };
 
-export const SmConfCard: React.FC<Conference> = (props) => {
-  const conference = props;
+export const SmOeuvreCard: React.FC<Oeuvre> = (props) => {
+  const oeuvre = props;
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   const textRef = useRef<HTMLParagraphElement>(null);
 
-  const thumbnailUrl = conference.url ? getYouTubeThumbnailUrl(conference.url) : '';
+  // Priorité : thumbnail > picture > url (YouTube) > url (lien)
+  const thumbnailUrl = oeuvre.thumbnail || oeuvre.picture || (oeuvre.url ? getYouTubeThumbnailUrl(Array.isArray(oeuvre.url) ? oeuvre.url[0] : oeuvre.url) : '');
 
-  const openConf = () => {
-    const route = buildConfsRoute(conference.type, Number(conference.id));
-    navigate(route);
+  const openOeuvre = () => {
+    // Navigation vers la page de l'œuvre
+    navigate(`/corpus/oeuvre/${oeuvre.id}`);
   };
 
   // Helper pour formater les noms d'actants
   const renderActantNames = () => {
-    if (!conference.actant || !Array.isArray(conference.actant) || conference.actant.length === 0) {
+    // Utiliser personne si disponible, sinon actant
+    const people = oeuvre.personne || oeuvre.actant || [];
+
+    if (!Array.isArray(people) || people.length === 0) {
       return 'Aucun intervenant';
     }
 
-    if (conference.actant.length === 1) {
-      const actant = conference.actant[0];
-      return `${actant?.firstname || ''} ${actant?.lastname || ''}`;
+    if (people.length === 1) {
+      const person = people[0];
+      return `${person?.firstname || person?.firstName || ''} ${person?.lastname || person?.lastName || ''}`;
     }
 
-    // Plusieurs actants - afficher les 2 premiers
-    const displayActants = conference.actant.slice(0, 2);
-    const names = displayActants
-      .filter((actant) => actant)
-      .map((actant) => `${actant.firstname || ''} ${actant.lastname || ''}`)
+    // Plusieurs personnes - afficher les 2 premiers
+    const displayPeople = people.slice(0, 2);
+    const names = displayPeople
+      .filter((person) => person)
+      .map((person) => `${person.firstname || person.firstName || ''} ${person.lastname || person.lastName || ''}`)
       .join(', ');
 
-    return conference.actant.length > 2 ? `${names} et ${conference.actant.length - 2} autre${conference.actant.length > 3 ? 's' : ''}` : names;
+    return people.length > 2 ? `${names} et ${people.length - 2} autre${people.length > 3 ? 's' : ''}` : names;
   };
 
   return (
     <div
-      onClick={openConf}
+      onClick={openOeuvre}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className='cursor-pointer flex flex-col gap-10 transition-all ease-in-out duration-200 relative'>
@@ -195,12 +227,12 @@ export const SmConfCard: React.FC<Conference> = (props) => {
       <div
         className={`p-50 h-200 w-full rounded-12 justify-center items-center flex z-10 ${thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-c3 to-c4'}`}
         style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
-        <h3 className={`text-16 text-100 font-semibold text-selected ${thumbnailUrl ? 'invisible' : ''}`}>CONFÉRENCE</h3>
+        <h3 className={`text-16 text-100 font-semibold text-selected ${thumbnailUrl ? 'invisible' : ''}`}>ŒUVRE</h3>
       </div>
       <div className='flex flex-col gap-5 z-10'>
         <div className='relative'>
           <p ref={textRef} className='text-16 text-c6 font-medium overflow-hidden line-clamp-3'>
-            {conference.title}
+            {oeuvre.title}
           </p>
         </div>
         <p className='text-16 text-c5 font-extralight'>{renderActantNames()}</p>

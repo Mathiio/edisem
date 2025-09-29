@@ -25,6 +25,8 @@ import { Oeuvres } from '@/pages/corpus/oeuvres';
 import { Oeuvre } from '@/pages/corpus/oeuvre';
 import { Personne } from '@/pages/personne';
 import { GenreDetail } from '@/pages/corpus/genre';
+import { ElementNarratif } from './pages/elementnarratif';
+import { ElementEsthetique } from './pages/elementesthetique';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
@@ -52,7 +54,8 @@ function App() {
         <Route path='/corpus/mise-en-recits' Component={MiseEnRecits} />
         <Route path='/corpus/experimentations' Component={Experimentations} />
         <Route path='/corpus/oeuvres' Component={Oeuvres} />
-
+        <Route path='/corpus/element-narratif/:id' Component={ElementNarratif} />
+        <Route path='/corpus/element-esthetique/:id' Component={ElementEsthetique} />
         {/* Contextual edition routes */}
         <Route path='/corpus/seminaires/edition/:id/:title?' Component={Edition} />
         <Route path='/corpus/colloques/edition/:id/:title?' Component={Edition} />

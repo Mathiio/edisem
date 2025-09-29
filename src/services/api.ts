@@ -307,19 +307,31 @@ export async function getConfMediagraphies(confId: number) {
 
 export async function getOeuvresByPersonne(personneId: number) {
   const oeuvres = await Items.getOeuvres();
-  return oeuvres.filter((oeuvre: any) => {
+  console.log('All oeuvres:', oeuvres);
+  console.log('Looking for personneId:', personneId);
+  
+  const filteredOeuvres = oeuvres.filter((oeuvre: any) => {
+    console.log('Checking oeuvre:', oeuvre.id, 'personne:', oeuvre.personne);
+    
     if (!oeuvre.personne) return false;
     
     // Si personne est un tableau d'objets (nouvelle structure)
     if (Array.isArray(oeuvre.personne)) {
-      return oeuvre.personne.some((p: any) => p.id === String(personneId));
+      const found = oeuvre.personne.some((p: any) => p.id === String(personneId));
+      console.log('Array check result:', found);
+      return found;
     }
     
     // Si personne est une chaîne (ancienne structure)
     if (typeof oeuvre.personne === 'string') {
-      return oeuvre.personne.includes(String(personneId));
+      const found = oeuvre.personne.includes(String(personneId));
+      console.log('String check result:', found);
+      return found;
     }
     
     return false;
   });
+  
+  console.log('Filtered oeuvres:', filteredOeuvres);
+  return filteredOeuvres;
 }

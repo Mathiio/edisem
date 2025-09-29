@@ -20,6 +20,11 @@ export const buildConfsRoute = (confType: string, id: number): string => {
 ////////////////////////////////////////////////////////////////////////////
 
 export const formatDate = (dateString: string): string => {
+  // Vérifier que dateString est une chaîne de caractères
+  if (typeof dateString !== 'string' || !dateString) {
+    return '';
+  }
+  
   const mois = [
     'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
     'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
@@ -34,6 +39,11 @@ export const formatDate = (dateString: string): string => {
 };
 
 export const formatDateShort = (dateString: string): string => {
+  // Vérifier que dateString est une chaîne de caractères
+  if (typeof dateString !== 'string' || !dateString) {
+    return '';
+  }
+  
   const date = new Date(dateString);
   return date.toLocaleDateString('fr-FR', {
     day: '2-digit',
@@ -43,6 +53,11 @@ export const formatDateShort = (dateString: string): string => {
 };
 
 export const getYear = (dateString: string): string => {
+  // Vérifier que dateString est une chaîne de caractères
+  if (typeof dateString !== 'string' || !dateString) {
+    return '';
+  }
+  
   return dateString.split('-')[0];
 };
 
@@ -54,6 +69,11 @@ export const getYear = (dateString: string): string => {
 ////////////////////////////////////////////////////////////////////////////
 
 export const getYouTubeThumbnailUrl = (ytb: string): string => {
+  // Vérifier que ytb est une chaîne de caractères
+  if (typeof ytb !== 'string' || !ytb) {
+    return '';
+  }
+  
   const videoId = ytb.match(
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
   )?.[1];
@@ -61,6 +81,11 @@ export const getYouTubeThumbnailUrl = (ytb: string): string => {
 };
 
 export const getYouTubeVideoId = (url: string): string | null => {
+  // Vérifier que url est une chaîne de caractères
+  if (typeof url !== 'string' || !url) {
+    return null;
+  }
+  
   const match = url.match(
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
   );
@@ -68,6 +93,11 @@ export const getYouTubeVideoId = (url: string): string | null => {
 };
 
 export const isValidYouTubeUrl = (url: string): boolean => {
+  // Vérifier que url est une chaîne de caractères
+  if (typeof url !== 'string' || !url) {
+    return false;
+  }
+  
   return getYouTubeVideoId(url) !== null;
 };
 
@@ -79,11 +109,21 @@ export const isValidYouTubeUrl = (url: string): boolean => {
 ////////////////////////////////////////////////////////////////////////////
 
 export const truncateText = (text: string, maxLength: number): string => {
+  // Vérifier que text est une chaîne de caractères
+  if (typeof text !== 'string' || !text) {
+    return '';
+  }
+  
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength).trim() + '...';
 };
 
 export const slugify = (text: string): string => {
+  // Vérifier que text est une chaîne de caractères
+  if (typeof text !== 'string' || !text) {
+    return '';
+  }
+  
   return text
     .toLowerCase()
     .normalize('NFD')
@@ -94,5 +134,10 @@ export const slugify = (text: string): string => {
 };
 
 export const capitalizeFirst = (text: string): string => {
+  // Vérifier que text est une chaîne de caractères
+  if (typeof text !== 'string' || !text) {
+    return '';
+  }
+  
   return text.charAt(0).toUpperCase() + text.slice(1);
 };

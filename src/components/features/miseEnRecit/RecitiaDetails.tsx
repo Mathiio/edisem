@@ -28,7 +28,7 @@ type RecitiaDetailsProps = {
 };
 
 export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description, date, credits, genre, medium, actants }) => {
-  console.log(genre)
+  console.log(genre);
   const [expanded, setExpanded] = useState<boolean>(false);
 
   const toggleExpansion = () => {
@@ -67,7 +67,7 @@ export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description,
             {description}
           </p>
         )}
-        {actants && actants.length > 0 && (
+        {Array.isArray(actants) && actants.length > 0 && (
           <p className='text-14 text-end text-c4 italic  transition-all ease-in-out duration-200'>Ajouté par : {actants.map((actant: any) => actant.name).join(', ')}</p>
         )}
         {description && <p className='text-16 text-c5 font-semibold transition-all ease-in-out duration-200'>{expanded ? 'affichez moins' : '...affichez plus'}</p>}

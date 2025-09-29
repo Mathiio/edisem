@@ -111,12 +111,35 @@ export const getAllProperties = async (): Promise<any[]> => {
 
 export async function getDataByUrl(url: string) {
   try {
+    console.log(`Fetching data from: ${url}`);
     const response = await fetch(url);
+    console.log(`Response status: ${response.status} ${response.statusText}`);
+    
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
     }
-    const data = (await response.json()) as Data;
-    return data;
+    
+    // Check if response has content
+    const text = await response.text();
+    console.log(`Response text length: ${text.length}`);
+    console.log(`Response text preview: ${text.substring(0, 200)}...`);
+    
+    if (!text || text.trim() === '') {
+      console.warn(`Empty response from ${url}`);
+      return [];
+    }
+    
+    // Try to parse JSON
+    try {
+      const data = JSON.parse(text);
+      console.log(`Parsed data type: ${Array.isArray(data) ? 'array' : typeof data}`);
+      console.log(`Parsed data length: ${Array.isArray(data) ? data.length : 'N/A'}`);
+      return data;
+    } catch (jsonError) {
+      console.error(`JSON parsing error for ${url}:`, jsonError);
+      console.error('Response text:', text);
+      return [];
+    }
   } catch (error) {
     console.error('Fetch error:', error);
     throw error;
@@ -675,12 +698,12 @@ export async function getOeuvres(id?: number) {
         }
       }
       
-      const personnes = personneIds.map((id: string) => personnesMap.get(id)).filter(Boolean);
+      const personnesLinked = personneIds.map((id: string) => personnesMap.get(id)).filter(Boolean);
       
       return {
         ...oeuvre,
         type: 'oeuvre',
-        personne: personnes.length > 0 ? personnes : null,
+        personne: personnesLinked.length > 0 ? personnesLinked : null,
       };
     });
     sessionStorage.setItem('oeuvres', JSON.stringify(oeuvresFull));
@@ -877,6 +900,153 @@ export async function getRecitIas() {
   catch (error) {
     console.error('Error fetching recitIas:', error);
     throw new Error('Failed to fetch recitIas');
+  }
+}
+
+export async function getElementNarratifs(id?: number): Promise<any> {
+  try {
+    const storedElementNarratifs = sessionStorage.getItem('elementNarratifs');
+    if (storedElementNarratifs) {
+      const elementNarratifs = JSON.parse(storedElementNarratifs);
+      return id ? elementNarratifs.find((e: any) => e.id === String(id)) : elementNarratifs;
+    }
+
+    const [elementNarratifs, personnes, mediagraphies] = await Promise.all([
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getElementNarratifs&json=1'),
+      getPersonnes(),
+      getMediagraphies()
+    ]);
+
+    const personnesMap = new Map(personnes.map((item: any) => [String(item.id), item]));
+    const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
+
+    const elementNarratifsFull = elementNarratifs.map((element: any) => {
+      // Gérer la relation creator (personnes)
+      let creator = [];
+      if (element.creator) {
+        if (typeof element.creator === 'string' && element.creator.includes(',')) {
+          const creatorIds = element.creator.split(',').map((id: string) => id.trim());
+          creator = creatorIds.map((id: string) => personnesMap.get(id)).filter(Boolean);
+        } else if (Array.isArray(element.creator)) {
+          creator = element.creator.map((id: any) => personnesMap.get(String(id))).filter(Boolean);
+        } else {
+          const creatorObj = personnesMap.get(String(element.creator));
+          creator = creatorObj ? [creatorObj] : [];
+        }
+      }
+      // Gérer la relation references (mediagraphies)
+      let references = null;
+      if (element.references) {
+        if (typeof element.references === 'string' && element.references.includes(',')) {
+          const referencesIds = element.references.split(',').map((id: string) => id.trim());
+          references = referencesIds.map((id: string) => mediagraphiesMap.get(id)).filter(Boolean);
+        } else if (Array.isArray(element.references)) {
+          references = element.references.map((id: any) => mediagraphiesMap.get(String(id))).filter(Boolean);
+        } else {
+          references = mediagraphiesMap.get(String(element.references));
+        }
+      }
+
+      return {
+        ...element,
+        type: 'elementNarratifs',
+        creator,
+        references,
+        // Gérer associatedMedia comme tableau
+        associatedMedia: Array.isArray(element.associatedMedia) 
+          ? element.associatedMedia 
+          : element.associatedMedia 
+            ? [element.associatedMedia] 
+            : []
+      };
+    });
+
+    sessionStorage.setItem('elementNarratifs', JSON.stringify(elementNarratifsFull));
+    return id ? elementNarratifsFull.find((e: any) => e.id === String(id)) : elementNarratifsFull;
+
+  } catch (error) {
+    console.error('Error fetching elementNarratifs:', error);
+    throw new Error('Failed to fetch elementNarratifs');
+  }
+}
+
+
+export async function getElementEsthetique( id?: number) {
+  try {
+    const storedElementEsthetique = sessionStorage.getItem('elementEsthetique');
+
+    if (storedElementEsthetique) {
+      const elementEsthetique = JSON.parse(storedElementEsthetique);
+      return id ? elementEsthetique.find((e: any) => e.id === String(id)) : elementEsthetique;
+    }
+
+    // Récupérer elementEsthetique et les personnes, actants en parallèle
+    const [elementEsthetique, personnes, actants] = await Promise.all([
+      getDataByUrl(
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getElementEsthetique&json=1',
+      ),
+      getPersonnes(),
+      getActants()
+    ]);
+
+   
+    console.log('personnes', personnes);
+
+    // Créer des maps pour un accès rapide par ID
+    const personnesMap = new Map(personnes.map((personne: any) => [personne.id.toString(), personne]));
+    const actantsMap = new Map(actants.map((actant: any) => [actant.id.toString(), actant]));
+
+    // Créer une map des elementEsthetique pour les relations relatedResource
+    const elementEsthetiqueMap = new Map(elementEsthetique.map((element: any) => [element.id.toString(), element]));
+
+    // Fusionner les relations dans chaque elementEsthetique
+    const elementEsthetiqueFull = elementEsthetique.map((elementEsthetique: any) => {
+      const elementWithRelations = {
+        ...elementEsthetique,
+        type: 'elementEsthetique',
+      };
+
+      // Si elementEsthetique a des creator, remplacer les IDs par les objets complets
+      if (elementEsthetique.creator) {
+        if (Array.isArray(elementEsthetique.creator)) {
+          elementWithRelations.creator = elementEsthetique.creator
+            .map((creatoId: string) => personnesMap.get(creatoId))
+            .filter(Boolean);
+        } else {
+          const creatorObj = personnesMap.get(elementEsthetique.creator);
+          elementWithRelations.creator = creatorObj ? [creatorObj] : [];
+        }
+      } else {
+        elementWithRelations.creator = [];
+      }
+      // Si elementEsthetique a des contributor, remplacer les IDs par les objets complets
+      if (elementEsthetique.contributor) {
+        if (Array.isArray(elementEsthetique.contributor)) {
+          elementWithRelations.contributor = elementEsthetique.contributor
+            .map((contributoId: string) => actantsMap.get(contributoId))
+            .filter(Boolean);
+        } else {
+          elementWithRelations.contributor = actantsMap.get(elementEsthetique.contributor);
+        }
+      }
+      // Si elementEsthetique a des relatedResource, remplacer les IDs par les objets complets
+      if (elementEsthetique.relatedResource) {
+        if (Array.isArray(elementEsthetique.relatedResource)) {
+          elementWithRelations.relatedResource = elementEsthetique.relatedResource
+            .map((resourceId: string) => elementEsthetiqueMap.get(resourceId))
+            .filter(Boolean);
+        } else {
+          elementWithRelations.relatedResource = elementEsthetiqueMap.get(elementEsthetique.relatedResource);
+        }
+      }
+      return elementWithRelations;
+    });
+
+    sessionStorage.setItem('elementEsthetique', JSON.stringify(elementEsthetiqueFull));
+    return elementEsthetiqueFull;
+  } catch (error) {
+    console.error('Error fetching elementEsthetique:', error);
+    throw new Error('Failed to fetch elementEsthetique');
   }
 }
 
