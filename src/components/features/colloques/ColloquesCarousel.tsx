@@ -1,11 +1,11 @@
 import { FullCarrousel } from '@/components/ui/Carrousels';
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
 import { Edition } from '@/types/ui';
+import { getSeasonOrder } from '@/lib/utils';
 
-interface ColloqueCarouselProps {
-  colloques: any[];
+interface ColloquesCarouselProps {
+  editions: Edition[];
   loading?: boolean;
 }
 
@@ -22,14 +22,13 @@ const cardVariants: Variants = {
   }),
 };
 
-// Seminar Edition Card Component
-const SeminarEditionCard = ({ edition }: { edition: Edition }) => {
+// Colloques Edition Card Component
+const ColloqueEditionCard = ({ edition }: { edition: Edition }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
     const slug = edition.title.toLowerCase().replace(/\s+/g, '-');
-    const url = `/corpus/colloques/edition/${edition.id}/${slug}`;
-    navigate(url);
+    navigate(`/corpus/seminaires/edition/${edition.id}/${slug}`);
   };
 
   return (
@@ -41,74 +40,36 @@ const SeminarEditionCard = ({ edition }: { edition: Edition }) => {
       className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-40 rounded-30 flex flex-col gap-40 hover:bg-c2 h-full transition-all ease-in-out duration-200"
     >
       <h2 className='text-32 text-c6'>{edition.title}</h2>
-      <p className="text-18 text-c4">
-        {edition.conferenceCount} conférences
-      </p>
+      <div className='flex flex-col items-start'>
+        <p className="text-18 text-c4">
+          Édition {edition.season} {edition.year}
+        </p>
+        <p className="text-18 text-c4">
+          {edition.conferences?.length ?? 0} conférences
+        </p>
+      </div>
     </motion.div>
   );
 };
 
 // Main Carousel Component
-export const ColloquesCarousel = ({ colloques, loading = false }: ColloqueCarouselProps) => {
-  const [editions, setEditions] = useState<Edition[]>([]);
-
-  useEffect(() => {
-    if (!loading && colloques.length > 0) {
-      // Grouper par édition
-      const editionMap: { [key: string]: { confNum: number; date: string; season: string } } = {};
-
-      colloques.forEach((conf: any) => {
-        const editionId = conf.edition;
-        const season = conf.season.trim();
-
-        if (!editionMap[editionId]) {
-          editionMap[editionId] = { confNum: 0, date: conf.date, season };
-        }
-        editionMap[editionId].confNum++;
-      });
-
-      // Formater les données
-      const formattedEditions = Object.entries(editionMap)
-        .map(([id, { confNum, date, season }]) => ({
-          id,
-          title: `Édition ${capitalizeFirstLetter(season)} ${date.split('-')[0]}`,
-          season: capitalizeFirstLetter(season),
-          year: date.split('-')[0],
-          conferenceCount: confNum,
-          date,
-        }))
-        .sort((a, b) => {
-          if (b.year !== a.year) return Number(b.year) - Number(a.year);
-          return getSeasonOrder(b.season) - getSeasonOrder(a.season);
-        });
-
-      setEditions(formattedEditions);
-    }
-  }, [colloques, loading]);
-
-  const capitalizeFirstLetter = (string: string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  };
-
-  const getSeasonOrder = (season: string) => {
-    const seasonOrder: Record<string, number> = {
-      'Automne': 3,
-      'Été': 2,
-      'Printemps': 1,
-      'Hiver': 0
-    };
-    return seasonOrder[season] || 0;
-  };
+export const ColloquesCarousel = ({ editions, loading = false }: ColloquesCarouselProps) => {
+  if (!editions || editions.length === 0) return null;
+  
+  const sortedEditions = [...editions].sort((a, b) => {
+    if (b.year !== a.year) return Number(b.year) - Number(a.year);
+    return getSeasonOrder(b.season) - getSeasonOrder(a.season);
+  });
 
   return (
     <div className="w-full max-w-full">
       {!loading && editions.length > 0 && (
         <FullCarrousel
           title='Tous nos colloques'
-          data={editions}
+          data={sortedEditions}
           perPage={3}
           perMove={1}
-          renderSlide={(edition, index) => <SeminarEditionCard edition={edition} key={index} />}
+          renderSlide={(edition, index) => <ColloqueEditionCard edition={edition} key={index} />}
         />
       )}
     </div>

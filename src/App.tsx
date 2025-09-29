@@ -67,7 +67,7 @@ function App() {
         <Route path='/corpus/journees-etudes/conference/:id' Component={Conference} />
 
         {/* Individual item routes */}
-        <Route path='/corpus/oeuvres/genre/:id/:slug?' Component={GenreDetail} />
+        <Route path='/corpus/oeuvres/genre/:slug' Component={GenreDetail} />
         <Route path='/corpus/experimentation/:id' Component={Experimentation} />
         <Route path='/corpus/mise-en-recit/:id' Component={miseEnRecit} />
         <Route path='/corpus/oeuvre/:id' Component={Oeuvre} />

@@ -4,6 +4,7 @@ import { Skeleton } from '@heroui/react';
 import { buildConfsRoute, getYouTubeThumbnailUrl } from '@/lib/utils';
 import { Conference } from '@/types/ui';
 import { UserIcon } from '@/components/ui/icons';
+import { truncateText } from '@/lib/utils';
 
 export const LgConfCard: React.FC<Conference> = (props) => {
   const conference = props;
@@ -45,6 +46,32 @@ export const LgConfCard: React.FC<Conference> = (props) => {
 
     return conference.actant.length > 3 ? `${names}...` : names;
   };
+  
+
+
+  const formatUnivNames = () => {
+    if (
+      !conference.actant ||
+      !Array.isArray(conference.actant) ||
+      conference.actant.length === 0
+    ) {
+      return 'Aucun intervenant';
+    }
+
+    if (conference.actant.length === 1) {
+      const actant = conference.actant[0];
+      if (!actant?.universities || actant.universities.length === 0) {
+        return 'Université inconnue';
+      }
+      return actant.universities.map(u => u.shortName).join(', ');
+    }
+
+    const universities = conference.actant
+      .flatMap(actant => actant?.universities?.map(u => u.shortName) || [])
+      .filter(Boolean);
+
+    return truncateText(universities.join(' - '), 35);
+  };
 
   const hasActants = conference.actant && Array.isArray(conference.actant) && conference.actant.length > 0;
 
@@ -71,7 +98,6 @@ export const LgConfCard: React.FC<Conference> = (props) => {
         </div>
         {hasActants && (
           <div className='flex items-center gap-5'>
-            {/* Actant avatars */}
             <div className='flex items-center relative'>
               {conference.actant.slice(0, 3).map((actant, index) => {
                 const isLastAvatar = index === 2;
@@ -114,10 +140,13 @@ export const LgConfCard: React.FC<Conference> = (props) => {
               })}
             </div>
 
-            {/* Actant info */}
-            <div className='flex flex-col gap-1'>
-              <p className='text-16 text-c5 font-extralight'>{conference.actant.length === 1 ? '1 intervenant' : `${conference.actant.length} intervenants`}</p>
-              <p className='text-14 text-c5 font-extralight'>{formatActantNames()}</p>
+            <div className='flex flex-col gap-5'>
+              <p className='text-14 text-c5 font-extralight'>
+                {formatActantNames()}
+              </p>
+              <p className='text-14 text-c5 font-extralight'>
+                {formatUnivNames()}
+              </p>
             </div>
           </div>
         )}
@@ -162,7 +191,6 @@ export const SmConfCard: React.FC<Conference> = (props) => {
     navigate(route);
   };
 
-  // Helper pour formater les noms d'actants
   const renderActantNames = () => {
     if (!conference.actant || !Array.isArray(conference.actant) || conference.actant.length === 0) {
       return 'Aucun intervenant';
@@ -173,7 +201,6 @@ export const SmConfCard: React.FC<Conference> = (props) => {
       return `${actant?.firstname || ''} ${actant?.lastname || ''}`;
     }
 
-    // Plusieurs actants - afficher les 2 premiers
     const displayActants = conference.actant.slice(0, 2);
     const names = displayActants
       .filter((actant) => actant)
