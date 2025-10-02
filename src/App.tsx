@@ -26,7 +26,7 @@ import { Oeuvre } from '@/pages/corpus/oeuvre';
 import { Personne } from '@/pages/personne';
 import { GenreDetail } from '@/pages/corpus/genre';
 import { ElementNarratif } from './pages/elementnarratif';
-import { ElementEsthetique } from './pages/elementesthetique';
+// import { ElementEsthetique } from './pages/elementesthetique';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
@@ -50,12 +50,12 @@ function App() {
         <Route path='/corpus/seminaires' Component={Seminaires} />
         <Route path='/corpus/colloques' Component={Colloques} />
         <Route path='/corpus/journees-etudes' Component={JourneesEtudes} />
-        <Route path='/corpus/pratique-narrative' Component={PratiqueNarrative} />
+        <Route path='/corpus/pratiques-narratives' Component={PratiqueNarrative} />
         <Route path='/corpus/mise-en-recits' Component={MiseEnRecits} />
         <Route path='/corpus/experimentations' Component={Experimentations} />
         <Route path='/corpus/oeuvres' Component={Oeuvres} />
         <Route path='/corpus/element-narratif/:id' Component={ElementNarratif} />
-        <Route path='/corpus/element-esthetique/:id' Component={ElementEsthetique} />
+        {/* <Route path='/corpus/element-esthetique/:id' Component={ElementEsthetique} /> */}
         {/* Contextual edition routes */}
         <Route path='/corpus/seminaires/edition/:id/:title?' Component={Edition} />
         <Route path='/corpus/colloques/edition/:id/:title?' Component={Edition} />

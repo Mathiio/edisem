@@ -66,7 +66,7 @@ export const Navbar: React.FC = () => {
                 { to: '/corpus/seminaires', label: 'Séminaires' },
                 { to: '/corpus/oeuvres', label: 'Œuvres' },
                 { to: '/corpus/journees-etudes', label: "Journées d'études" },
-                { to: '/corpus/pratique-narrative', label: 'Pratique narrative' },
+                { to: '/corpus/pratiques-narratives', label: 'IA & Pratiques narratives' },
                 { to: '/corpus/colloques', label: 'Colloques' },
                 { to: '/corpus/experimentations', label: 'Expérimentations' },
               ].map(({ to, label }) => (
