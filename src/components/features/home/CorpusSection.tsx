@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
 import { FullCarrousel } from '@/components/ui/Carrousels';
-import { ColloqueIcon, ExperimentationIcon, OeuvreIcon, SeminaireIcon, StudyDayIcon } from '@/components/ui/icons';
+import { ColloqueIcon, ExperimentationIcon, OeuvreIcon, PratiqueNarrativeIcon, SeminaireIcon, StudyDayIcon } from '@/components/ui/icons';
 
 // Animation variants for cards
 const cardVariants: Variants = {
@@ -41,6 +41,13 @@ const corpusCards = [
     title: 'Expérimentations',
     description: 'Explorations interdisciplinaires et démarches expérimentales.',
     path: '/corpus/experimentations',
+  },
+  {
+    id: 'PratiqueNarrative',
+    icon: PratiqueNarrativeIcon,
+    title: 'IA & Pratiques Narratives',
+    description: "Réflexions autour des usages narratifs de l'intelligence artificielle.",
+    path: '/corpus/pratiques-narratives',
   },
   {
     id: 'StudyDayIcon',
