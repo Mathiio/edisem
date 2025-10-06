@@ -145,7 +145,6 @@ export const ElementNarratif: React.FC = () => {
             description={elementNarratifDetails.description}
             genre={elementNarratifDetails.genre}
             medium={elementNarratifDetails.duration}
-            actants={elementNarratifDetails.creator}
           />
         )}
       </motion.div>
