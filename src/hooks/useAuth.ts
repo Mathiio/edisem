@@ -16,11 +16,22 @@ export const useAuth = () => {
     try {
       const user = localStorage.getItem('user');
       const userId = localStorage.getItem('userId');
+
       
-      setIsAuthenticated(!!user || !!userId);
-      
-      if (user) {
-        setUserData(JSON.parse(user));
+
+      const authenticated = !!(user && user !== 'null' && user !== 'undefined') || !!(userId && userId !== 'null' && userId !== 'undefined');
+
+     
+
+      setIsAuthenticated(authenticated);
+
+      if (user && user !== 'null' && user !== 'undefined') {
+        try {
+          setUserData(JSON.parse(user));
+        } catch (parseError) {
+          console.error('Error parsing user data:', parseError);
+          setUserData(null);
+        }
       } else {
         setUserData(null);
       }

@@ -12,6 +12,7 @@ import { SearchModal, SearchModalRef } from '@/components/features/search/Search
 import { ExpOverviewCard } from '@/components/features/experimentation/ExpOverview';
 import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/experimentation/ExpDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
+import CommentSection from '@/components/layout/CommentSection';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -333,6 +334,9 @@ export const Experimentation: React.FC = () => {
           />
         </motion.div>
       )}
+      <motion.div className='col-span-4 h-full lg:col-span-4 flex flex-col gap-50 flex-grow' variants={fadeIn}>
+        <CommentSection LinkedResourceId={Number(id)} />
+      </motion.div>
 
       <SearchModal ref={searchModalRef} notrigger={true} />
     </Layouts>

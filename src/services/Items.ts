@@ -111,9 +111,9 @@ export const getAllProperties = async (): Promise<any[]> => {
 
 export async function getDataByUrl(url: string) {
   try {
-    console.log(`Fetching data from: ${url}`);
+    //console.log(`Fetching data from: ${url}`);
     const response = await fetch(url);
-    console.log(`Response status: ${response.status} ${response.statusText}`);
+    //console.log(`Response status: ${response.status} ${response.statusText}`);
     
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
@@ -121,8 +121,8 @@ export async function getDataByUrl(url: string) {
     
     // Check if response has content
     const text = await response.text();
-    console.log(`Response text length: ${text.length}`);
-    console.log(`Response text preview: ${text.substring(0, 200)}...`);
+    //console.log(`Response text length: ${text.length}`);
+    //console.log(`Response text preview: ${text.substring(0, 200)}...`);
     
     if (!text || text.trim() === '') {
       console.warn(`Empty response from ${url}`);
@@ -132,8 +132,8 @@ export async function getDataByUrl(url: string) {
     // Try to parse JSON
     try {
       const data = JSON.parse(text);
-      console.log(`Parsed data type: ${Array.isArray(data) ? 'array' : typeof data}`);
-      console.log(`Parsed data length: ${Array.isArray(data) ? data.length : 'N/A'}`);
+      //console.log(`Parsed data type: ${Array.isArray(data) ? 'array' : typeof data}`);
+      //console.log(`Parsed data length: ${Array.isArray(data) ? data.length : 'N/A'}`);
       return data;
     } catch (jsonError) {
       console.error(`JSON parsing error for ${url}:`, jsonError);
@@ -589,6 +589,7 @@ export async function getAllItems() {
       oeuvres,
       recitIas,
       personnes,
+      comments,
     ] = await Promise.all([
       getStudyDayConfs(),
       getSeminarConfs(),
@@ -610,6 +611,7 @@ export async function getAllItems() {
       getOeuvres(),
       getRecitIas(),
       getPersonnes(),
+      getComments(),
     ]);
 
     const allItems = [
@@ -633,7 +635,7 @@ export async function getAllItems() {
       ...(Array.isArray(recherches) ? recherches : []),
       ...(Array.isArray(recitIas) ? recitIas : []),
       ...(Array.isArray(personnes) ? personnes : []),
-
+      ...(Array.isArray(comments) ? comments : []),
     ];
     sessionStorage.setItem('allItems', JSON.stringify(allItems));
 
@@ -720,37 +722,78 @@ export async function getOeuvres(id?: number) {
       return id ? oeuvres.find((o: any) => o.id === String(id)) : oeuvres;
     }
 
-    const [oeuvres,personnes] = await Promise.all([getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1',
-    ), getPersonnes()])
+    // Use Promise.all to fetch all needed data (can fetch additional data for linking elements)
+    const [oeuvres, personnes, elementsNarratifs, elementsEsthetique] = await Promise.all([
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1'),
+      getPersonnes(),
+      getElementNarratifs(),
+      getElementEsthetique(),
+    ]);
 
+    // Build maps for fast lookups
     const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
-  
+    const elementsNarratifsMap = new Map(
+      (elementsNarratifs || []).map((e: any) => [String(e.id), { ...e, type: 'elementNarratif' }])
+    );
+    const elementsEsthetiqueMap = new Map(
+      (elementsEsthetique || []).map((e: any) => [String(e.id), { ...e, type: 'elementEsthetique' }])
+    );
+
     const oeuvresFull = oeuvres.map((oeuvre: any) => {
-      // Parse les IDs multiples séparés par des virgules
+      // Parse les IDs multiples séparés par des virgules pour personne
       let personneIds: string[] = [];
-      
       if (oeuvre.personne) {
         if (typeof oeuvre.personne === 'string') {
           personneIds = oeuvre.personne.split(',').map((id: string) => id.trim());
         } else if (Array.isArray(oeuvre.personne)) {
           personneIds = oeuvre.personne.map((id: any) => String(id));
-        } else {
+        } else if (oeuvre.personne != null) {
           personneIds = [String(oeuvre.personne)];
         }
       }
-      
+
+      // Parse les IDs multiples pour elementsNarratifs
+      let elementsNarratifsIds: string[] = [];
+      if (oeuvre.elementsNarratifs) {
+        if (typeof oeuvre.elementsNarratifs === 'string') {
+          elementsNarratifsIds = oeuvre.elementsNarratifs.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(oeuvre.elementsNarratifs)) {
+          elementsNarratifsIds = oeuvre.elementsNarratifs.map((id: any) => String(id));
+        } else if (oeuvre.elementsNarratifs != null) {
+          elementsNarratifsIds = [String(oeuvre.elementsNarratifs)];
+        }
+      }
+
+      // Parse les IDs multiples pour elementsEsthetique
+      let elementsEsthetiqueIds: string[] = [];
+      if (oeuvre.elementsEsthetique) {
+        if (typeof oeuvre.elementsEsthetique === 'string') {
+          elementsEsthetiqueIds = oeuvre.elementsEsthetique.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(oeuvre.elementsEsthetique)) {
+          elementsEsthetiqueIds = oeuvre.elementsEsthetique.map((id: any) => String(id));
+        } else if (oeuvre.elementsEsthetique != null) {
+          elementsEsthetiqueIds = [String(oeuvre.elementsEsthetique)];
+        }
+      }
+
+      // Relink objects using the maps
       const personnesLinked = personneIds.map((id: string) => personnesMap.get(id)).filter(Boolean);
+      const elementsNarratifsLinked = elementsNarratifsIds.map((id: string) => elementsNarratifsMap.get(id)).filter(Boolean);
+      const elementsEsthetiqueLinked = elementsEsthetiqueIds.map((id: string) => elementsEsthetiqueMap.get(id)).filter(Boolean);
+
       
+
       return {
         ...oeuvre,
         type: 'oeuvre',
         personne: personnesLinked.length > 0 ? personnesLinked : null,
+        elementsNarratifs: elementsNarratifsLinked.length > 0 ? elementsNarratifsLinked : null,
+        elementsEsthetique: elementsEsthetiqueLinked.length > 0 ? elementsEsthetiqueLinked : null,
       };
     });
+
     sessionStorage.setItem('oeuvres', JSON.stringify(oeuvresFull));
     return id ? oeuvresFull.find((o: any) => o.id === String(id)) : oeuvresFull;
-
   } catch (error) {
     console.error('Error fetching oeuvres:', error);
     throw new Error('Failed to fetch oeuvres');
@@ -1092,6 +1135,32 @@ export async function getElementEsthetique( id?: number) {
   }
 }
 
+export async function getComments(forceRefresh = false) {
+  try {
+    const storedComments = sessionStorage.getItem('comments');
+    if (storedComments && !forceRefresh) {
+      return JSON.parse(storedComments);
+    }
+
+      const [comments, actants] = await Promise.all([
+      getDataByUrl(
+      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getComments&json=1',
+    ),getActants()
+    ]);
+
+    const actantsMap = new Map(actants.map((actant: any) => [actant.id.toString(), actant]));
+    comments.forEach((comment: any) => {
+      comment.actant = actantsMap.get(comment.actant);
+    });
+
+
+    sessionStorage.setItem('comments', JSON.stringify(comments));
+    return comments;
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    throw new Error('Failed to fetch comments');
+  }
+}
 export function generateThumbnailUrl(mediaId: string | number): string {
   // Assuming the API endpoint for media thumbnails follows this pattern
   return `https://tests.arcanes.ca/omk/s/edisem/media/${mediaId}`;

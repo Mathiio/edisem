@@ -11,6 +11,7 @@ import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/featu
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { ArrowIcon } from '@/components/ui/icons';
+import CommentSection from '@/components/layout/CommentSection';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -117,35 +118,6 @@ export const ElementEsthetique: React.FC = () => {
     }
 
     switch (selected) {
-      case 'References':
-        // Ensure relatedResource is always treated as an array
-        const relatedResources = Array.isArray(elementEsthetiquDetails.relatedResource)
-          ? elementEsthetiquDetails.relatedResource
-          : elementEsthetiquDetails.relatedResource
-            ? [elementEsthetiquDetails.relatedResource]
-            : [];
-
-        return (
-          <div className='flex flex-col gap-10'>
-            {relatedResources.length > 0 ? (
-              relatedResources.map((reference: any) => <ToolItem key={reference.id} tool={reference} />)
-            ) : (
-              <div className='p-20 bg-c2 rounded-12 border-2 border-c3 text-c4'>Aucune ressource liée disponible</div>
-            )}
-          </div>
-        );
-      case 'Transcript':
-        return elementEsthetiquDetails.description ? (
-          <div className='flex flex-col gap-10'>
-            <div className='p-20 bg-c2 rounded-12 border-2 border-c3'>
-              <div className='text-c6'>📄 Description complète</div>
-              <div className='text-c4 mt-10'>{elementEsthetiquDetails.description}</div>
-            </div>
-          </div>
-        ) : (
-          <div className='p-20 bg-c2 rounded-12 border-2 border-c3 text-c4'>Aucune description disponible</div>
-        );
-
       case 'Analyse':
         return (
           <div className='flex flex-col gap-20'>
@@ -374,7 +346,7 @@ export const ElementEsthetique: React.FC = () => {
               </div>
 
               {/* Contenu principal */}
-              <div className='flex-grow min-h-0 overflow-auto'>{renderContent()}</div>
+              <div className='flex-grow min-h-0 overflow-auto pr-25'>{renderContent()}</div>
             </div>
           </motion.div>
         </div>
@@ -394,6 +366,9 @@ export const ElementEsthetique: React.FC = () => {
           />
         </motion.div>
       )}
+      <motion.div className='col-span-4 h-full lg:col-span-4 flex flex-col gap-50 flex-grow' variants={fadeIn}>
+        <CommentSection LinkedResourceId={Number(id)} />
+      </motion.div>
     </Layouts>
   );
 };
