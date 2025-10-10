@@ -8,6 +8,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Tabs, Tab } from '@heroui/react';
 import { ToolItem } from './experimentation';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
+import CommentSection from '@/components/layout/CommentSection';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -204,6 +205,17 @@ export const Feedback: React.FC = () => {
         // ✅ LEGACY: Garder actant pour compatibilité
         feedbackWithUrl.actant = primaryActant;
 
+        // ✅ NOUVEAU: Créer les propriétés attendues par les composants
+        feedbackWithUrl.enrichedActants = enrichedContributors.map((contributor: any) => ({
+          ...contributor,
+          name: `${contributor.firstname} ${contributor.lastname}`,
+          thumbnail: contributor.picture || contributor.thumbnail,
+        }));
+
+        // ✅ LEGACY: Garder les anciennes propriétés pour compatibilité
+        feedbackWithUrl.actants = feedbackWithUrl.enrichedActants;
+        feedbackWithUrl.acteurs = feedbackWithUrl.enrichedActants;
+
         setFeedbackDetails(feedbackWithUrl);
         console.log('Feedback enrichi:', feedbackWithUrl);
       } else {
@@ -257,7 +269,7 @@ export const Feedback: React.FC = () => {
             <ExpOverviewCard
               id={feedbackDetails.id}
               title={feedbackDetails.title}
-              personnes={feedbackDetails.actants}
+              personnes={feedbackDetails.enrichedActants}
               fullUrl={feedbackDetails.url}
               medias={feedbackDetails.associatedMedia}
               currentTime={0}
@@ -270,7 +282,7 @@ export const Feedback: React.FC = () => {
         {loading ? (
           <ExpDetailsSkeleton />
         ) : (
-          feedbackDetails && <ExpDetailsCard actants={feedbackDetails.acteurs} date={feedbackDetails.date} description={feedbackDetails.description} />
+          feedbackDetails && <ExpDetailsCard actants={feedbackDetails.enrichedActants} date={feedbackDetails.date} description={feedbackDetails.description} />
         )}
       </motion.div>
 
@@ -294,6 +306,10 @@ export const Feedback: React.FC = () => {
             ))}
           </Tabs>
         </div>
+      </motion.div>
+
+      <motion.div className='col-span-4 h-full lg:col-span-4 flex flex-col gap-50 flex-grow' variants={fadeIn}>
+        <CommentSection LinkedResourceId={Number(id)} />
       </motion.div>
     </Layouts>
   );

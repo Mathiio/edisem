@@ -259,29 +259,247 @@ export async function getOeuvresByPersonne(personneId: number) {
   const oeuvres = await Items.getOeuvres();
   console.log('All oeuvres:', oeuvres);
   console.log('Looking for personneId:', personneId);
-  
+
   const filteredOeuvres = oeuvres.filter((oeuvre: any) => {
     console.log('Checking oeuvre:', oeuvre.id, 'personne:', oeuvre.personne);
-    
+
     if (!oeuvre.personne) return false;
-    
+
     // Si personne est un tableau d'objets (nouvelle structure)
     if (Array.isArray(oeuvre.personne)) {
       const found = oeuvre.personne.some((p: any) => p.id === String(personneId));
       console.log('Array check result:', found);
       return found;
     }
-    
+
     // Si personne est une chaîne (ancienne structure)
     if (typeof oeuvre.personne === 'string') {
       const found = oeuvre.personne.includes(String(personneId));
       console.log('String check result:', found);
       return found;
     }
-    
+
     return false;
   });
-  
+
   console.log('Filtered oeuvres:', filteredOeuvres);
   return filteredOeuvres;
+}
+
+
+/**
+ * Créer un commentaire Edisem
+ *
+ * @param commentaireData - Données du commentaire
+ * @returns Promise avec le résultat de la création
+ */
+export async function createEdisemComment(commentaireData: {
+  contenu: string; // Le texte du commentaire
+  actantId?: number; // ID de l'actant associé (optionnel)
+  relatedResourceId?: number; // ID de la ressource liée (optionnel)
+  owner_id: number;
+  class_id?: number;
+}): Promise<any> {
+  try {
+    // Utiliser un owner_id temporaire valide (1 = administrateur)
+    // TODO: Implémenter la synchronisation des utilisateurs entre les systèmes
+    const finalOwnerId = 1;
+    // Utiliser le contenu directement comme titre (comme dans votre exemple)
+    const titre = commentaireData.contenu;
+
+    // Créer les propriétés du commentaire
+    const values: any[] = [
+      {
+        property_id: 1, // dcterms:title - ENVOYÉ EN PREMIER pour générer o:title
+        value: titre,
+        type: 'literal'
+      },
+      {
+        property_id: 561, // schema:commentText
+        value: commentaireData.contenu,
+        type: 'literal'
+      },
+      {
+        property_id: 562, // schema:commentTime
+        value: new Date().toISOString(),
+        type: 'literal'
+      }
+    ];
+
+    console.log('Values to insert:', values);
+
+    // Ajouter automatiquement l'actant (l'auteur du commentaire)
+    // Pour l'instant, nous devons faire correspondre l'utilisateur local avec une ressource actant
+    // TODO: Implémenter la synchronisation des utilisateurs entre les systèmes
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    if (currentUser && currentUser.id) {
+      values.push({
+        property_id: 2095, // jdc:hasActant
+        value_resource_id: parseInt(currentUser.id),
+        type: 'resource'
+      });
+    }
+
+    // Ajouter la ressource liée si fournie (ma:hasRelatedResource)
+    if (commentaireData.relatedResourceId) {
+      values.push({
+        property_id: 1794,
+        value_resource_id: commentaireData.relatedResourceId,
+        type: 'resource'
+      });
+    }
+
+    // Préparer les paramètres de requête
+    const params = new URLSearchParams({
+      helper: 'Query',
+      action: 'createResource',
+      json: '1',
+      template_id: '123',
+      owner_id: String(finalOwnerId),
+      class_id: String(commentaireData.class_id || ''),
+      values: JSON.stringify(values)
+    });
+
+    console.log('Sending request params:', params.toString());
+    console.log('Final URL:', `https://tests.arcanes.ca/omk/s/edisem/page/ajax?${params.toString()}`);
+
+    const response = await fetch(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?${params.toString()}`, {
+      method: 'GET', // Utiliser GET car les paramètres sont dans l'URL
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Server error response:', errorText);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    const responseText = await response.text();
+    console.log('Raw server response:', responseText);
+
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Response text:', responseText);
+      throw new Error(`Invalid JSON response from server: ${responseText}`);
+    }
+
+    if (!result.success) {
+      throw new Error(result.message || 'Erreur lors de la création du commentaire');
+    }
+
+    return {
+      success: true,
+      commentaireId: result.id,
+      message: 'Commentaire créé avec succès'
+    };
+
+  } catch (error) {
+    console.error('Erreur lors de la création du commentaire Edisem:', error);
+    throw new Error('Impossible de créer le commentaire');
+  }
+}
+
+/**
+ * Récupérer tous les commentaires Edisem
+ *
+ * @returns Promise avec la liste des commentaires
+ */
+export async function getEdisemComments(): Promise<any[]> {
+  try {
+    const response = await fetch('https://tests.arcanes.ca/omk/s/edisem/page/ajax', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        helper: 'Query',
+        action: 'getEdisemComments',
+        json: '1'
+      }).toString()
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Server error response:', errorText);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    const result = await response.json();
+
+    if (!result || !Array.isArray(result)) {
+      throw new Error('Format de réponse invalide');
+    }
+
+    return result;
+
+  } catch (error) {
+    console.error('Erreur lors de la récupération des commentaires:', error);
+    throw error;
+  }
+}
+
+/**
+ * Récupérer un commentaire Edisem par son ID
+ *
+ * @param commentaireId - ID du commentaire
+ * @returns Promise avec les données du commentaire
+ */
+export async function getEdisemCommentById(commentaireId: number): Promise<any> {
+  try {
+    const comments = await getEdisemComments();
+    const comment = comments.find((c: any) => c.id === commentaireId);
+
+    if (!comment) {
+      throw new Error(`Commentaire avec l'ID ${commentaireId} non trouvé`);
+    }
+
+    return comment;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du commentaire:', error);
+    throw error;
+  }
+}
+
+/**
+ * Supprimer un commentaire Edisem (soft delete)
+ *
+ * @param commentaireId - ID du commentaire à supprimer
+ * @returns Promise avec le résultat de la suppression
+ */
+export async function deleteEdisemComment(commentaireId: number): Promise<any> {
+  try {
+    const response = await fetch('https://tests.arcanes.ca/omk/s/edisem/page/ajax', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        helper: 'Query',
+        action: 'deleteResource',
+        json: '1',
+        id: commentaireId.toString()
+      }).toString()
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message || 'Erreur lors de la suppression du commentaire');
+    }
+
+    return {
+      success: true,
+      message: 'Commentaire supprimé avec succès'
+    };
+
+  } catch (error) {
+    console.error('Erreur lors de la suppression du commentaire Edisem:', error);
+    throw new Error('Impossible de supprimer le commentaire');
+  }
 }

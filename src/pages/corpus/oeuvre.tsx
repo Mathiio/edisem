@@ -13,6 +13,7 @@ import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/featu
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { ArrowIcon } from '@/components/ui/icons';
+import CommentSection from '@/components/layout/CommentSection';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -26,6 +27,9 @@ const fadeIn: Variants = {
 const viewOptions = [
   { key: 'ContentScient', title: 'Contenus scientifiques' },
   { key: 'ContentCultu', title: 'Contenus culturels' },
+  { key: 'Archives', title: 'Archives' },
+  { key: 'ElementsNarratifs', title: 'Éléments narratifs' },
+  { key: 'ElementsEsthetique', title: 'Éléments esthétiques' },
 ];
 
 export const Oeuvre: React.FC = () => {
@@ -261,7 +265,40 @@ export const Oeuvre: React.FC = () => {
             ))}
           </div>
         );
-
+      case 'Archives':
+        return (
+          <div className='flex flex-col gap-10'>
+            {(oeuvreDetails.archives || []).map((archive: any) => (
+              <ToolItem key={archive.id} tool={archive} />
+            ))}
+          </div>
+        );
+      case 'ElementsNarratifs':
+        return (
+          <div className='flex flex-col gap-10'>
+            {(oeuvreDetails.elementsNarratifs || []).map((elementNarratif: any) => {
+              const toolData = {
+                ...elementNarratif,
+                url: '/corpus/element-narratif/' + elementNarratif.id,
+                thumbnail: elementNarratif.associatedMedia && elementNarratif.associatedMedia.length > 0 ? elementNarratif.associatedMedia[0] : elementNarratif.thumbnail,
+              };
+              return <ToolItem key={elementNarratif.id} tool={toolData} />;
+            })}
+          </div>
+        );
+      case 'ElementsEsthetique':
+        return (
+          <div className='flex flex-col gap-10'>
+            {(oeuvreDetails.elementsEsthetique || []).map((elementEsthetique: any) => {
+              const toolData = {
+                ...elementEsthetique,
+                url: '/corpus/element-esthetique/' + elementEsthetique.id,
+                thumbnail: elementEsthetique.associatedMedia && elementEsthetique.associatedMedia.length > 0 ? elementEsthetique.associatedMedia[0] : elementEsthetique.thumbnail,
+              };
+              return <ToolItem key={elementEsthetique.id} tool={toolData} />;
+            })}
+          </div>
+        );
       default:
         return null;
     }
@@ -365,6 +402,9 @@ export const Oeuvre: React.FC = () => {
           />
         </motion.div>
       )}
+      <motion.div className='col-span-4 h-full lg:col-span-4 flex flex-col gap-50 flex-grow' variants={fadeIn}>
+        <CommentSection LinkedResourceId={Number(id)} />
+      </motion.div>
       <SearchModal ref={searchModalRef} notrigger={true} />
     </Layouts>
   );
@@ -389,7 +429,7 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool }) => {
       className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity ${isToolHovered ? 'border-c6' : 'border-c3'}`}
       onMouseEnter={() => setIsToolHovered(true)}
       onMouseLeave={() => setIsToolHovered(false)}>
-      <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={tool.url ?? '#'} target='_blank'>
+      <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={tool.url ?? '#'}>
         <div className={`flex flex-row gap-4 items-start`}>
           {tool.thumbnail && (
             <div className='flex-shrink-0'>
