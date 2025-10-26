@@ -6,6 +6,7 @@ import { addToast, Skeleton, Button, cn, DropdownMenu, Dropdown, DropdownItem, D
 import { AnnotationDropdown } from '../conference/AnnotationDropdown';
 import { Splide, SplideTrack, SplideSlide } from '@splidejs/react-splide';
 import MediaViewer from '../conference/MediaViewer';
+import { getYouTubeThumbnailUrl } from '@/lib/utils';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -28,7 +29,7 @@ type RecitiaOverviewProps = {
   title: string;
   personnes: any;
   credits?: string | string[];
-  medias: string[]; // Tableau de liens d'images
+  medias: (string | { id?: number; title?: string; url?: string; thumbnail?: string })[]; // Tableau de liens d'images ou objets média
   fullUrl: string;
   currentTime: number;
   buttonText: string;
@@ -46,7 +47,9 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
   const copyToClipboard = () => {
     // Copie l'image actuellement affichée
     if (medias && medias[currentMediaIndex]) {
-      navigator.clipboard.writeText(medias[currentMediaIndex]).then(() => {});
+      const currentMedia = medias[currentMediaIndex];
+      const urlToCopy = typeof currentMedia === 'string' ? currentMedia : currentMedia.url || currentMedia.thumbnail || '';
+      navigator.clipboard.writeText(urlToCopy).then(() => {});
     }
   };
 
@@ -59,7 +62,16 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
               src={medias[currentMediaIndex]}
               alt={`Média ${currentMediaIndex + 1}`}
               className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] rounded-12 overflow-hidden'
-              isVideo={medias[currentMediaIndex].includes('.mov')}
+              isVideo={(() => {
+                const currentMedia = medias[currentMediaIndex];
+                if (typeof currentMedia === 'string') {
+                  return currentMedia.includes('.mov');
+                }
+                if (typeof currentMedia === 'object' && currentMedia !== null && 'url' in currentMedia) {
+                  return currentMedia.url?.includes('.mov');
+                }
+                return false;
+              })()}
             />
             {medias.length > 1 && (
               <Splide
@@ -75,22 +87,36 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                 aria-label='...'
                 className='flex w-full justify-between items-center gap-25'>
                 <SplideTrack className='w-full'>
-                  {medias.map((media, index) => (
-                    <SplideSlide key={index}>
-                      <button
-                        key={index}
-                        onClick={() => setCurrentMediaIndex(index)}
-                        className={`flex-shrink-0 w-[136px] h-[50px] rounded-12 overflow-hidden transition-all duration-200 ${
-                          index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
-                        }`}>
-                        {media.includes('.mov') ? (
-                          <video src={media} className='w-full h-full object-cover' />
-                        ) : (
-                          <img src={media} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
-                        )}
-                      </button>
-                    </SplideSlide>
-                  ))}
+                  {medias.map((media, index) => {
+                    // Obtenir la thumbnail appropriée
+                    let thumbnailSrc = '';
+                    if (typeof media === 'string') {
+                      thumbnailSrc = media;
+                    } else {
+                      // Si c'est une URL YouTube, générer la thumbnail YouTube
+                      if (media.url && (media.url.includes('youtube.com') || media.url.includes('youtu.be'))) {
+                        thumbnailSrc = getYouTubeThumbnailUrl(media.url);
+                      } else {
+                        thumbnailSrc = media.thumbnail || media.url || '';
+                      }
+                    }
+
+                    return (
+                      <SplideSlide key={index}>
+                        <button
+                          onClick={() => setCurrentMediaIndex(index)}
+                          className={`flex-shrink-0 w-[136px] h-[50px] rounded-12 overflow-hidden transition-all duration-200 ${
+                            index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
+                          }`}>
+                          {typeof media === 'string' && media.includes('.mov') ? (
+                            <video src={media} className='w-full h-full object-cover' />
+                          ) : (
+                            <img src={thumbnailSrc} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
+                          )}
+                        </button>
+                      </SplideSlide>
+                    );
+                  })}
                 </SplideTrack>
                 <div className=' flex justify-between items-center'>
                   <div className='splide__arrows relative flex gap-10'>

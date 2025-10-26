@@ -171,24 +171,98 @@ export async function getCitations() {
   }
 }
 
-export async function getAnnotations() {
+export async function getAnnotations( id?: string | number   ) {
   try {
+    console.log('🚀 getAnnotations() called', id ? `for ID: ${id}` : '(all annotations)');
     const storedCitations = sessionStorage.getItem('annotations');
 
     if (storedCitations) {
-      return JSON.parse(storedCitations);
+      console.log('📦 Using cached annotations from sessionStorage');
+      const allAnnotations = JSON.parse(storedCitations);
+
+    // Si un ID est spécifié, chercher l'annotation avec cet ID
+    if (id) {
+      console.log(`🎯 Looking for annotation with ID: "${id}" (cached)`);
+
+      // Chercher directement l'annotation avec cet ID
+      const foundAnnotation = allAnnotations.find((annotation: any) =>
+        String(annotation.id) === String(id)
+      );
+
+      if (foundAnnotation) {
+        console.log(`✅ Found annotation with ID: ${id} (cached)`);
+        return [foundAnnotation]; // Retourner un tableau avec l'annotation trouvée
+      } else {
+        console.log(`❌ No cached annotation found with ID: "${id}"`);
+        return [];
+      }
     }
 
-    const annotations = await getDataByUrl(
+      return allAnnotations;
+    }
+
+    console.log('📡 Fetching fresh annotations data...');
+    const [annotations, personnes, actants, students] = await Promise.all([
+      getDataByUrl(
       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAnnotations&json=1',
-    );
+    ),
+    getPersonnes(),
+    getActants(),
+    getStudents()
+  ]);
+
+    console.log('📋 Raw annotations structure:', annotations.slice(0, 3)); // Show first 3 annotations
+    console.log('🔍 Sample annotation keys:', annotations.length > 0 ? Object.keys(annotations[0]) : 'No annotations');
+
     const annotationsFull = annotations.map((annotation: any) => ({
       ...annotation,
       type: 'annotation',
     }));
 
-    sessionStorage.setItem('annotation', JSON.stringify(annotationsFull));
-    return annotationsFull;
+    console.log('🔄 Processing annotations, count:', annotationsFull.length);
+    console.log('👥 Available personnes:', personnes.length, 'actants:', actants.length, 'students:', students.length);
+
+    annotationsFull.forEach((annotation: any) => {
+      const contributorId = annotation.contributor;
+
+      // Chercher dans toutes les catégories: personnes, actants, students
+      annotation.actant = [
+        ...personnes.filter((personne: any) => personne.id === contributorId),
+        ...actants.filter((actant: any) => actant.id === contributorId),
+        ...students.filter((student: any) => student.id === contributorId)
+      ];
+
+     
+    });
+
+    // Si un ID est spécifié, chercher l'annotation avec cet ID
+    let resultAnnotations = annotationsFull;
+    if (id) {
+      console.log(`🎯 Looking for annotation with ID: "${id}" (fresh data)`);
+
+      // Chercher directement l'annotation avec cet ID
+      const foundAnnotation = annotationsFull.find((annotation: any) =>
+        String(annotation.id) === String(id)
+      );
+
+      if (foundAnnotation) {
+        console.log(`✅ Found annotation with ID: ${id} (fresh data)`);
+        resultAnnotations = [foundAnnotation]; // Retourner un tableau avec l'annotation trouvée
+      } else {
+        console.log(`❌ No fresh annotation found with ID: "${id}"`);
+        resultAnnotations = [];
+      }
+    }
+
+    console.log('✅ Annotations processed successfully:', resultAnnotations.length);
+    console.log(resultAnnotations);
+
+
+
+    sessionStorage.setItem('annotations', JSON.stringify(annotationsFull));
+
+    return resultAnnotations;
+
   } catch (error) {
     console.error('Error fetching actants:', error);
     throw new Error('Failed to fetch actants');
@@ -723,11 +797,12 @@ export async function getOeuvres(id?: number) {
     }
 
     // Use Promise.all to fetch all needed data (can fetch additional data for linking elements)
-    const [oeuvres, personnes, elementsNarratifs, elementsEsthetique] = await Promise.all([
+    const [oeuvres, personnes, elementsNarratifs, elementsEsthetique, annotations] = await Promise.all([
       getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1'),
       getPersonnes(),
       getElementNarratifs(),
       getElementEsthetique(),
+      getAnnotations()
     ]);
 
     // Build maps for fast lookups
@@ -738,6 +813,10 @@ export async function getOeuvres(id?: number) {
     const elementsEsthetiqueMap = new Map(
       (elementsEsthetique || []).map((e: any) => [String(e.id), { ...e, type: 'elementEsthetique' }])
     );
+    const annotationsMap = new Map(
+      (annotations || []).map((a: any) => [String(a.id), { ...a, type: 'annotation' }])
+    );
+   
 
     const oeuvresFull = oeuvres.map((oeuvre: any) => {
       // Parse les IDs multiples séparés par des virgules pour personne
@@ -776,12 +855,24 @@ export async function getOeuvres(id?: number) {
         }
       }
 
+      // Parse les IDs multiples pour annotations
+      let annotationsIds: string[] = [];
+      if (oeuvre.annotations) {
+        if (typeof oeuvre.annotations === 'string') {
+          annotationsIds = oeuvre.annotations.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(oeuvre.annotations)) {
+          annotationsIds = oeuvre.annotations.map((id: any) => String(id));
+        } else if (oeuvre.annotations != null) {  
+          annotationsIds = [String(oeuvre.annotations)];
+        }
+      }
+
       // Relink objects using the maps
       const personnesLinked = personneIds.map((id: string) => personnesMap.get(id)).filter(Boolean);
       const elementsNarratifsLinked = elementsNarratifsIds.map((id: string) => elementsNarratifsMap.get(id)).filter(Boolean);
       const elementsEsthetiqueLinked = elementsEsthetiqueIds.map((id: string) => elementsEsthetiqueMap.get(id)).filter(Boolean);
+      const annotationsLinked = annotationsIds.map((id: string) => annotationsMap.get(id)).filter(Boolean);
 
-      
 
       return {
         ...oeuvre,
@@ -789,6 +880,7 @@ export async function getOeuvres(id?: number) {
         personne: personnesLinked.length > 0 ? personnesLinked : null,
         elementsNarratifs: elementsNarratifsLinked.length > 0 ? elementsNarratifsLinked : null,
         elementsEsthetique: elementsEsthetiqueLinked.length > 0 ? elementsEsthetiqueLinked : null,
+        annotations: annotationsLinked.length > 0 ? annotationsLinked : null,
       };
     });
 
@@ -1161,6 +1253,137 @@ export async function getComments(forceRefresh = false) {
     throw new Error('Failed to fetch comments');
   }
 }
+
+export async function getAnalyseCritiqueById(id: string | number) {
+  try {
+    console.log('🔍 Searching for analyse critique with ID:', id);
+
+    // Try to fetch directly from the API endpoint that might return this specific item
+    // Based on the structure shown by the user, it seems like this might be a specific content type
+    try {
+      // Try to get it from all items if cached first
+      const allItems = await getAllItems();
+      const analyseCritique = allItems.find((item: any) =>
+        item.id === String(id) && (
+          item.type === 'analyse-critique' ||
+          item.type === 'analyse_critique' ||
+          item.type === 'recherche' ||
+          item.title?.toLowerCase().includes('analyse') ||
+          item.description?.toLowerCase().includes('analyse') ||
+          item.id === String(id) // Also try to find by ID alone
+        )
+      );
+
+      if (analyseCritique) {
+        console.log('✅ Found analyse critique in all items:', analyseCritique);
+        return analyseCritique;
+      }
+    } catch (e) {
+      console.log('No cached items found, trying direct fetch...');
+    }
+
+    // If not found in cache, try to fetch specific recherches (which might include analyses critiques)
+    const recherches = await getRecherches();
+    const foundAnalyse = recherches.find((recherche: any) => String(recherche.id) === String(id));
+
+    if (foundAnalyse) {
+      console.log('✅ Found analyse critique in recherches:', foundAnalyse);
+      return {
+        ...foundAnalyse,
+        type: 'analyse-critique'
+      };
+    }
+
+    // Try to fetch directly from API if it's a specific content type
+    try {
+      const directItem = await getDataByUrl(
+        `https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getItem&id=${id}&json=1`
+      );
+
+      if (directItem && (directItem.id === String(id) || directItem['o:id'] === String(id))) {
+        console.log('✅ Found analyse critique via direct API call:', directItem);
+        return {
+          ...directItem,
+          type: 'analyse-critique'
+        };
+      }
+    } catch (e) {
+      console.log('Direct API call failed, trying alternative endpoints...');
+    }
+
+    console.log('❌ Analyse critique not found with ID:', id);
+    return null;
+
+  } catch (error) {
+    console.error('Error fetching analyse critique:', error);
+    throw new Error('Failed to fetch analyse critique');
+  }
+}
+/**
+ * Récupère les Objets techno-industriels avec leurs relations hydratées
+ * @param id - Optionnel: ID spécifique d'un objet à récupérer
+ * @returns Tableau d'objets techno-industriels ou objet unique si ID fourni
+ */
+export async function getObjetsTechnoIndustriels(id?: number) {
+  try {
+    // 1. CACHE : Vérifier sessionStorage
+    const storedObjets = sessionStorage.getItem('objetsTechnoIndustriels');
+    if (storedObjets) {
+      const objets = JSON.parse(storedObjets);
+      return id ? objets.find((o: any) => o.id === String(id)) : objets;
+    }
+
+    // 2. FETCH : Récupérer données + dépendances en Promise.all
+    const [rawObjets, annotations, keywords] = await Promise.all([
+      getDataByUrl(
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getObjetsTechnoIndustriels&json=1'
+      ),
+      getAnnotations(),
+      getKeywords()
+    ]);
+
+    // 3. MAPS : Créer maps pour accès rapide
+    const annotationsMap = new Map(annotations.map((a: any) => [String(a.id), a]));
+    const keywordsMap = new Map(keywords.map((k: any) => [String(k.id), k]));
+
+    // 4. HYDRATATION : Remplacer IDs par objets complets
+    const objetsFull = rawObjets.map((objet: any) => {
+      // Hydrater descriptions (annotations)
+      let descriptionsHydrated = [];
+      if (Array.isArray(objet.descriptions)) {
+        descriptionsHydrated = objet.descriptions
+          .map((id: any) => annotationsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      // Hydrater keywords
+      let keywordsHydrated = [];
+      if (Array.isArray(objet.keywords)) {
+        keywordsHydrated = objet.keywords
+          .map((id: any) => keywordsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      return {
+        ...objet,
+        type: 'objetTechnoIndustriel',
+        descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
+        keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
+        // tools, reviews, relatedResources sont déjà hydratés dans PHP
+        // associatedMedia est déjà un tableau d'URLs
+      };
+    });
+
+    // 5. CACHE + RETURN : Stocker et retourner
+    sessionStorage.setItem('objetsTechnoIndustriels', JSON.stringify(objetsFull));
+    return id ? objetsFull.find((o: any) => o.id === String(id)) : objetsFull;
+
+  } catch (error) {
+    console.error('Error fetching objets techno-industriels:', error);
+    throw new Error('Failed to fetch objets techno-industriels');
+  }
+}
+
 export function generateThumbnailUrl(mediaId: string | number): string {
   // Assuming the API endpoint for media thumbnails follows this pattern
   return `https://tests.arcanes.ca/omk/s/edisem/media/${mediaId}`;

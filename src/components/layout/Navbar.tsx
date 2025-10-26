@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { ProfilDropdown } from '@/components/layout/ProfilDropdown';
@@ -10,8 +10,22 @@ export const Navbar: React.FC = () => {
   const searchModalRef = useRef<SearchModalRef>(null);
   const location = useLocation();
 
-  const isActive = (path: string) => location.pathname === path;
-  const isCorpusPath = () => location.pathname.startsWith('/corpus');
+  // Optimiser les calculs dérivés de location.pathname
+  const isActive = useMemo(() => (path: string) => location.pathname === path, [location.pathname]);
+  const isCorpusPathValue = useMemo(() => location.pathname.startsWith('/corpus'), [location.pathname]);
+
+  // Mémoriser le tableau des éléments du dropdown pour éviter les re-renders inutiles
+  const corpusItems = useMemo(
+    () => [
+      { to: '/corpus/seminaires', label: 'Séminaires' },
+      { to: '/corpus/oeuvres', label: 'Œuvres' },
+      { to: '/corpus/journees-etudes', label: "Journées d'études" },
+      { to: '/corpus/pratiques-narratives', label: 'IA & Pratiques narratives' },
+      { to: '/corpus/colloques', label: 'Colloques' },
+      { to: '/corpus/experimentations', label: 'Expérimentations' },
+    ],
+    [],
+  );
 
   useEffect(() => {
     const handleScroll = () => setHasScrolled(window.scrollY > 100);
@@ -56,21 +70,13 @@ export const Navbar: React.FC = () => {
 
           <Dropdown>
             <DropdownTrigger>
-              <div
-                className={`${linkBaseClass} ${isCorpusPath() ? activeClass : hoverClass}`}>
+              <div className={`${linkBaseClass} ${isCorpusPathValue ? activeClass : hoverClass}`}>
                 <span className='font-normal'>Corpus</span>
               </div>
             </DropdownTrigger>
             <DropdownMenu className='p-10 bg-c2 rounded-12'>
-              {[
-                { to: '/corpus/seminaires', label: 'Séminaires' },
-                { to: '/corpus/oeuvres', label: 'Œuvres' },
-                { to: '/corpus/journees-etudes', label: "Journées d'études" },
-                { to: '/corpus/pratiques-narratives', label: 'IA & Pratiques narratives' },
-                { to: '/corpus/colloques', label: 'Colloques' },
-                { to: '/corpus/experimentations', label: 'Expérimentations' },
-              ].map(({ to, label }) => (
-                <DropdownItem key={to} className='p-0 text-c5 hover:text-c6'>
+              {corpusItems.map(({ to, label }) => (
+                <DropdownItem key={to} className='p-0 text-c5 hover:text-c6' textValue={label}>
                   <Link to={to} className='flex gap-2 w-full p-2 items-center rounded-8 hover:bg-c3 transition-all'>
                     <div className='font-medium text-16 text-c6'>{label}</div>
                   </Link>

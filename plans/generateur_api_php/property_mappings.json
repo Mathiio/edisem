@@ -1,0 +1,339 @@
+{
+  "comment": "Mapping des property_id courants vers les noms de champs PHP dans QuerySqlViewHelper.php",
+  "version": "1.0",
+  "mappings": {
+    "1": {
+      "label": "dcterms:title",
+      "field_name": "title",
+      "type": "literal",
+      "description": "Titre principal de la ressource"
+    },
+    "2": {
+      "label": "dcterms:creator",
+      "field_name": "creator",
+      "type": "resource",
+      "description": "Créateur de la ressource",
+      "needs_map": true,
+      "map_properties": ["title"]
+    },
+    "4": {
+      "label": "dcterms:description",
+      "field_name": "description",
+      "type": "literal",
+      "description": "Description de la ressource",
+      "note": "Parfois utilisé pour les annotations (value_resource_id)"
+    },
+    "7": {
+      "label": "dcterms:date",
+      "field_name": "date",
+      "type": "literal",
+      "description": "Date associée à la ressource"
+    },
+    "11": {
+      "label": "dcterms:source",
+      "field_name": "source",
+      "type": "uri",
+      "description": "Source de la ressource"
+    },
+    "19": {
+      "label": "dcterms:abstract",
+      "field_name": "abstract",
+      "type": "literal",
+      "description": "Résumé ou abstract de la ressource"
+    },
+    "26": {
+      "label": "dcterms:medium",
+      "field_name": "medium",
+      "type": "literal",
+      "description": "Medium de la ressource"
+    },
+    "36": {
+      "label": "dcterms:references",
+      "field_name": "references",
+      "type": "resource",
+      "description": "Références scientifiques",
+      "needs_map": true,
+      "map_properties": ["title", "url", "thumbnail"]
+    },
+    "48": {
+      "label": "dcterms:bibliographicCitation",
+      "field_name": "bibliographicCitations",
+      "type": "resource",
+      "description": "Citations bibliographiques",
+      "needs_map": true,
+      "map_properties": ["title", "url", "thumbnail"]
+    },
+    "139": {
+      "label": "foaf:firstName",
+      "field_name": "firstName",
+      "type": "literal",
+      "description": "Prénom (pour personnes/actants)"
+    },
+    "140": {
+      "label": "foaf:lastName",
+      "field_name": "lastName",
+      "type": "literal",
+      "description": "Nom de famille (pour personnes/actants)"
+    },
+    "174": {
+      "label": "foaf:page",
+      "field_name": "page",
+      "type": "uri",
+      "description": "Page web associée (pour maps de ressources liées)",
+      "note": "Utilisé dans les maps, property_id pour récupérer l'URL"
+    },
+    "386": {
+      "label": "schema:agent",
+      "field_name": "acteurs",
+      "type": "resource",
+      "description": "Agents/Acteurs de la ressource",
+      "needs_map": true,
+      "map_properties": ["name", "thumbnail", "page"],
+      "alternative_field_name": "agents"
+    },
+    "428": {
+      "label": "schema:artform",
+      "field_name": "elementsEsthetique",
+      "type": "resource",
+      "description": "Éléments esthétiques"
+    },
+    "438": {
+      "label": "schema:associatedMedia",
+      "field_name": "associatedMedia",
+      "type": "resource",
+      "description": "Médias associés",
+      "needs_special_handling": true,
+      "note": "Nécessite requête UNION sur media table"
+    },
+    "461": {
+      "label": "schema:backstory",
+      "field_name": "elementsNarratifs",
+      "type": "resource",
+      "description": "Éléments narratifs"
+    },
+    "561": {
+      "label": "schema:commentText",
+      "field_name": "commentText",
+      "type": "literal",
+      "description": "Texte du commentaire",
+      "alternative_field_name": "contenu"
+    },
+    "562": {
+      "label": "schema:commentTime",
+      "field_name": "commentTime",
+      "type": "literal",
+      "description": "Horodatage du commentaire",
+      "alternative_field_name": "timestamp"
+    },
+    "581": {
+      "label": "schema:contributor",
+      "field_name": "actants",
+      "type": "resource",
+      "description": "Contributeurs",
+      "needs_map": true,
+      "map_properties": ["name", "thumbnail", "page"],
+      "alternative_field_name": "contributors"
+    },
+    "724": {
+      "label": "schema:email",
+      "field_name": "mail",
+      "type": "literal",
+      "description": "Adresse email"
+    },
+    "937": {
+      "label": "schema:isRelatedTo",
+      "field_name": "relatedItems",
+      "type": "resource",
+      "description": "Ressources liées"
+    },
+    "1517": {
+      "label": "schema:url",
+      "field_name": "url",
+      "type": "uri",
+      "description": "URL de la ressource"
+    },
+    "1621": {
+      "label": "schema:genre",
+      "field_name": "genre",
+      "type": "resource",
+      "description": "Genre de la ressource",
+      "needs_map": true,
+      "map_properties": ["title"],
+      "note": "Souvent customvocab, récupérer le titre"
+    },
+    "1701": {
+      "label": "schema:image",
+      "field_name": "picture",
+      "type": "resource",
+      "description": "Image principale",
+      "needs_special_handling": true,
+      "note": "Utiliser storage_id et extension directement"
+    },
+    "1794": {
+      "label": "ma:hasRelatedResource",
+      "field_name": "relatedResource",
+      "type": "resource",
+      "description": "Ressource liée"
+    },
+    "2079": {
+      "label": "genstory:hasScenario",
+      "field_name": "scenarios",
+      "type": "resource",
+      "description": "Scénarios",
+      "needs_map": true,
+      "map_properties": ["title"]
+    },
+    "2080": {
+      "label": "genstory:hasMonde",
+      "field_name": "mondes",
+      "type": "resource",
+      "description": "Mondes",
+      "needs_map": true,
+      "map_properties": ["title"]
+    },
+    "2095": {
+      "label": "jdc:hasActant",
+      "field_name": "actant",
+      "type": "resource",
+      "description": "Actant lié"
+    },
+    "2097": {
+      "label": "jdc:hasConcept",
+      "field_name": "keywords",
+      "type": "resource",
+      "description": "Concepts/Mots-clés",
+      "needs_map": true,
+      "map_properties": ["title"],
+      "alternative_field_name": "concepts"
+    },
+    "2145": {
+      "label": "theatre:credit",
+      "field_name": "credits",
+      "type": "uri",
+      "description": "Crédits",
+      "note": "Peut aussi être une ressource avec display_title et thumbnail"
+    },
+    "2355": {
+      "label": "drama:achieves",
+      "field_name": "archives",
+      "type": "resource",
+      "description": "Archives",
+      "needs_map": true,
+      "map_properties": ["title", "source"],
+      "note": "Source récupérée depuis media.source"
+    },
+    "3038": {
+      "label": "jdc:hasUniversity",
+      "field_name": "universities",
+      "type": "resource",
+      "description": "Universités"
+    },
+    "3043": {
+      "label": "jdc:hasEcoleDoctorale",
+      "field_name": "doctoralSchools",
+      "type": "resource",
+      "description": "Écoles doctorales"
+    },
+    "3044": {
+      "label": "jdc:hasLaboratoire",
+      "field_name": "laboratories",
+      "type": "resource",
+      "description": "Laboratoires"
+    },
+    "3233": {
+      "label": "storyline:hasTheme",
+      "field_name": "themes",
+      "type": "resource",
+      "description": "Thèmes",
+      "needs_map": true,
+      "map_properties": ["title"]
+    },
+    "3235": {
+      "label": "storyline:hasRole",
+      "field_name": "roles",
+      "type": "resource",
+      "description": "Rôles",
+      "needs_map": true,
+      "map_properties": ["title"]
+    },
+    "3238": {
+      "label": "storyline:hasProcess",
+      "field_name": "processes",
+      "type": "resource",
+      "description": "Processus",
+      "needs_map": true,
+      "map_properties": ["title"]
+    },
+    "3239": {
+      "label": "storyline:hasAffect",
+      "field_name": "affects",
+      "type": "resource",
+      "description": "Affects",
+      "needs_map": true,
+      "map_properties": ["title"]
+    },
+    "3240": {
+      "label": "storyline:hasRisk",
+      "field_name": "risks",
+      "type": "resource",
+      "description": "Risques",
+      "needs_map": true,
+      "map_properties": ["title"]
+    }
+  },
+  "special_cases": {
+    "thumbnail_principal": {
+      "description": "Thumbnail/logo principal de la ressource",
+      "sql_source": "media table via item_id",
+      "field_name": "thumbnail",
+      "always_include": true
+    },
+    "associated_media": {
+      "property_id": 438,
+      "description": "Médias associés nécessitant requête UNION",
+      "field_name": "associatedMedia",
+      "needs_union_query": true
+    },
+    "image_property": {
+      "property_id": 1701,
+      "description": "Image principale utilisant storage_id et extension",
+      "field_name": "picture",
+      "use_storage_direct": true
+    },
+    "credits_with_metadata": {
+      "property_id": 235,
+      "description": "Crédits avec display_title et thumbnail_url",
+      "field_name": "credits",
+      "needs_map": true,
+      "map_properties": ["display_title", "thumbnail_url"]
+    }
+  },
+  "common_map_patterns": {
+    "title_only": {
+      "description": "Map pour récupérer uniquement le titre",
+      "properties_to_fetch": [1],
+      "map_name_suffix": "Map"
+    },
+    "title_thumbnail": {
+      "description": "Map pour titre + thumbnail",
+      "properties_to_fetch": [1, "media"],
+      "map_name_suffix": "Map",
+      "additional_maps": ["ThumbnailMap"]
+    },
+    "title_thumbnail_url": {
+      "description": "Map pour titre + thumbnail + URL",
+      "properties_to_fetch": [1, 121, 174, 1517, "media"],
+      "map_name_suffix": "Map",
+      "additional_maps": ["ThumbnailMap", "PageMap"]
+    }
+  },
+  "naming_conventions": {
+    "map_variable": "{resourceName}Map",
+    "thumbnail_map": "{resourceName}ThumbnailMap",
+    "page_map": "{resourceName}PageMap",
+    "uri_map": "{resourceName}UriMap",
+    "ids_variable": "{resourceName}Ids",
+    "result_variable": "Based on function context (e.g., $oeuvre, $actant, $experimentation)"
+  }
+}
+

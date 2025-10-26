@@ -46,15 +46,9 @@ export const LgConfCard: React.FC<Conference> = (props) => {
 
     return conference.actant.length > 3 ? `${names}...` : names;
   };
-  
-
 
   const formatUnivNames = () => {
-    if (
-      !conference.actant ||
-      !Array.isArray(conference.actant) ||
-      conference.actant.length === 0
-    ) {
+    if (!conference.actant || !Array.isArray(conference.actant) || conference.actant.length === 0) {
       return 'Aucun intervenant';
     }
 
@@ -63,12 +57,10 @@ export const LgConfCard: React.FC<Conference> = (props) => {
       if (!actant?.universities || actant.universities.length === 0) {
         return 'Université inconnue';
       }
-      return actant.universities.map(u => u.shortName).join(', ');
+      return actant.universities.map((u) => u.shortName).join(', ');
     }
 
-    const universities = conference.actant
-      .flatMap(actant => actant?.universities?.map(u => u.shortName) || [])
-      .filter(Boolean);
+    const universities = conference.actant.flatMap((actant) => actant?.universities?.map((u) => u.shortName) || []).filter(Boolean);
 
     return truncateText(universities.join(' - '), 35);
   };
@@ -141,12 +133,8 @@ export const LgConfCard: React.FC<Conference> = (props) => {
             </div>
 
             <div className='flex flex-col gap-5'>
-              <p className='text-14 text-c5 font-extralight'>
-                {formatActantNames()}
-              </p>
-              <p className='text-14 text-c5 font-extralight'>
-                {formatUnivNames()}
-              </p>
+              <p className='text-14 text-c5 font-extralight'>{formatActantNames()}</p>
+              <p className='text-14 text-c5 font-extralight'>{formatUnivNames()}</p>
             </div>
           </div>
         )}

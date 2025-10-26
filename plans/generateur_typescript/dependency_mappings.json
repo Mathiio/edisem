@@ -1,0 +1,257 @@
+{
+  "comment": "Mapping des property_id PHP vers les fonctions TypeScript dans Items.ts pour l'hydratation",
+  "version": "1.0",
+  "base_url": "https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query",
+  
+  "dependencies": {
+    "2095": {
+      "label": "jdc:hasActant",
+      "php_field": "actant",
+      "ts_field": "actant",
+      "ts_function": "getActants",
+      "resource_type": "Actant",
+      "hydration_type": "single_or_array",
+      "description": "Actant lié à la ressource"
+    },
+    "386": {
+      "label": "schema:agent",
+      "php_field": "personne",
+      "ts_field": "personne",
+      "ts_function": "getPersonnes",
+      "resource_type": "Personne",
+      "hydration_type": "array",
+      "description": "Agents/Personnes (acteurs, réalisateurs, etc.)",
+      "alternative_ts_field": "acteurs",
+      "note": "Peut aussi utiliser getActants() selon contexte"
+    },
+    "581": {
+      "label": "schema:contributor",
+      "php_field": "actants",
+      "ts_field": "actants",
+      "ts_function": "getActants",
+      "resource_type": "Actant",
+      "hydration_type": "array",
+      "description": "Contributeurs",
+      "alternative_ts_field": "contributors",
+      "multiple_sources": ["getActants", "getStudents"],
+      "note": "Peut provenir de actants OU students - chercher dans les deux"
+    },
+    "461": {
+      "label": "schema:backstory",
+      "php_field": "elementsNarratifs",
+      "ts_field": "elementsNarratifs",
+      "ts_function": "getElementNarratifs",
+      "resource_type": "ElementNarratif",
+      "hydration_type": "array",
+      "description": "Éléments narratifs"
+    },
+    "428": {
+      "label": "schema:artform",
+      "php_field": "elementsEsthetique",
+      "ts_field": "elementsEsthetique",
+      "ts_function": "getElementEsthetique",
+      "resource_type": "ElementEsthetique",
+      "hydration_type": "array",
+      "description": "Éléments esthétiques"
+    },
+    "4": {
+      "label": "dcterms:description",
+      "php_field": "annotations",
+      "ts_field": "annotations",
+      "ts_function": "getAnnotations",
+      "resource_type": "Annotation",
+      "hydration_type": "array",
+      "description": "Annotations (quand type = resource)",
+      "note": "Property_id 4 peut être literal OU resource - vérifier dans le JSON"
+    },
+    "2097": {
+      "label": "jdc:hasConcept",
+      "php_field": "keywords",
+      "ts_field": "keywords",
+      "ts_function": "getKeywords",
+      "resource_type": "Keyword",
+      "hydration_type": "array",
+      "description": "Concepts/Mots-clés",
+      "alternative_ts_field": "concepts"
+    },
+    "1606": {
+      "label": "schema:hasFeedback",
+      "php_field": "feedbacks",
+      "ts_field": "feedbacks",
+      "ts_function": "getFeedbacks",
+      "resource_type": "Feedback",
+      "hydration_type": "array",
+      "description": "Feedbacks liés"
+    },
+    "3038": {
+      "label": "jdc:hasUniversity",
+      "php_field": "universities",
+      "ts_field": "universities",
+      "ts_function": "getUniversities",
+      "resource_type": "University",
+      "hydration_type": "array",
+      "description": "Universités",
+      "hydrate": false,
+      "note": "Généralement pas hydraté - les détails sont chargés à la demande"
+    },
+    "3043": {
+      "label": "jdc:hasEcoleDoctorale",
+      "php_field": "doctoralSchools",
+      "ts_field": "doctoralSchools",
+      "ts_function": "getDoctoralSchools",
+      "resource_type": "DoctoralSchool",
+      "hydration_type": "array",
+      "description": "Écoles doctorales",
+      "hydrate": true,
+      "note": "Hydrater dans getActants()"
+    },
+    "3044": {
+      "label": "jdc:hasLaboratoire",
+      "php_field": "laboratories",
+      "ts_field": "laboratories",
+      "ts_function": "getLaboratories",
+      "resource_type": "Laboratory",
+      "hydration_type": "array",
+      "description": "Laboratoires",
+      "hydrate": true,
+      "note": "Hydrater dans getActants()"
+    },
+    "951": {
+      "label": "bibo:cites",
+      "php_field": "mediagraphies",
+      "ts_field": "mediagraphies",
+      "ts_function": "getMediagraphies",
+      "resource_type": "Mediagraphie",
+      "hydration_type": "array",
+      "description": "Médiagraphies",
+      "hydrate": true
+    },
+    "36": {
+      "label": "dcterms:references",
+      "php_field": "references",
+      "ts_field": "references",
+      "ts_function": "getBibliographies",
+      "resource_type": "Bibliographie",
+      "hydration_type": "array",
+      "description": "Références bibliographiques",
+      "note": "Peut aussi référencer des médiagraphies"
+    },
+    "48": {
+      "label": "dcterms:bibliographicCitation",
+      "php_field": "bibliographicCitations",
+      "ts_field": "bibliographicCitations",
+      "ts_function": "getMediagraphies",
+      "resource_type": "Mediagraphie",
+      "hydration_type": "array",
+      "description": "Citations bibliographiques"
+    },
+    "2": {
+      "label": "dcterms:creator",
+      "php_field": "creator",
+      "ts_field": "creator",
+      "ts_function": "getPersonnes",
+      "resource_type": "Personne",
+      "hydration_type": "array",
+      "description": "Créateur(s) de la ressource"
+    },
+    "544": {
+      "label": "dcterms:isReferencedBy",
+      "php_field": "citations",
+      "ts_field": "citations",
+      "ts_function": "getCitations",
+      "resource_type": "Citation",
+      "hydration_type": "array",
+      "description": "Citations"
+    },
+    "937": {
+      "label": "schema:isRelatedTo",
+      "php_field": "relatedItems",
+      "ts_field": "relatedItems",
+      "ts_function": null,
+      "resource_type": "Various",
+      "hydration_type": "array",
+      "description": "Éléments liés (type variable)",
+      "hydrate": false,
+      "note": "Type variable - laisser comme IDs"
+    },
+    "1794": {
+      "label": "ma:hasRelatedResource",
+      "php_field": "relatedResource",
+      "ts_field": "relatedResource",
+      "ts_function": null,
+      "resource_type": "Various",
+      "hydration_type": "single",
+      "description": "Ressource liée",
+      "hydrate": false,
+      "note": "Type variable - laisser comme ID"
+    }
+  },
+
+  "hydration_rules": {
+    "when_to_hydrate": [
+      "Le property_id a une fonction TypeScript correspondante",
+      "Le PHP retourne uniquement des IDs (pas d'objets détaillés)",
+      "La ressource est fréquemment utilisée dans le frontend"
+    ],
+    "when_not_to_hydrate": [
+      "Le PHP retourne déjà des objets complets (avec maps PHP)",
+      "Aucune fonction TypeScript n'existe",
+      "La ressource est rarement utilisée (charger à la demande)",
+      "Le champ n'est pas de type resource"
+    ]
+  },
+
+  "common_patterns": {
+    "pattern_simple_array": {
+      "description": "Array d'IDs propre → Array d'objets",
+      "code_template": "field: Array.isArray(item.phpField) ? item.phpField.map((id: any) => map.get(String(id))).filter(Boolean) : []"
+    },
+    "pattern_legacy_array": {
+      "description": "IDs avec virgules OU array → Array d'objets",
+      "requires_parsing": true,
+      "code_template": "Voir GENERATION_GUIDE_TS.md Pattern B"
+    },
+    "pattern_single": {
+      "description": "ID unique → Objet unique",
+      "code_template": "field: item.phpField ? map.get(String(item.phpField)) : null"
+    },
+    "pattern_multiple_sources": {
+      "description": "Chercher dans plusieurs maps (ex: actants + students)",
+      "code_template": "field: [...actants.filter(a => a.id === id), ...students.filter(s => s.id === id)]"
+    }
+  },
+
+  "special_transformations": {
+    "compose_title": {
+      "description": "Composer un titre à partir de firstName + lastName",
+      "condition": "Fields firstname et lastname existent",
+      "code": "title: item.firstname ? `${item.firstname} ${item.lastname}` : item.title"
+    },
+    "youtube_embed": {
+      "description": "Convertir URL YouTube en embed",
+      "condition": "Field url contient youtube.com",
+      "code": "url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url"
+    },
+    "count_relations": {
+      "description": "Compter les relations (ex: interventions)",
+      "code": "interventions: confs.filter((c: any) => c.actant.includes(item.id)).length"
+    }
+  },
+
+  "naming_conventions": {
+    "function_name": "get{Nom} (même que PHP mais avec majuscule TypeScript)",
+    "cache_key": "Nom en minuscule/camelCase",
+    "variable_raw": "raw{Nom}",
+    "variable_full": "{nom}Full",
+    "map_variable": "{ressource}Map",
+    "ids_variable": "{ressource}Ids",
+    "linked_variable": "{ressource}Linked"
+  },
+
+  "examples": {
+    "no_hydration": ["getUniversities", "getLaboratories", "getDoctoralSchools", "getCitations"],
+    "simple_hydration": ["getComments", "getFeedbacks"],
+    "complex_hydration": ["getOeuvres", "getElementNarratifs", "getExperimentations", "getActants"]
+  }
+}
+
