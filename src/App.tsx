@@ -27,6 +27,19 @@ import { Personne } from '@/pages/personne';
 import { GenreDetail } from '@/pages/corpus/genre';
 import { ElementNarratif } from '@/pages/elementnarratif';
 import { ElementEsthetique } from '@/pages/elementesthetique';
+import { AnalyseCritique } from './pages/analysecritique';
+
+// 🆕 Import de l'architecture générique (pour tests)
+import { ConfigurableDetailPage } from '@/pages/generic/ConfigurableDetailPage';
+import { conferenceConfig } from '@/pages/generic/config/conferenceConfig';
+import { experimentationConfig } from '@/pages/generic/config/experimentationConfig';
+import { miseEnRecitConfig } from '@/pages/generic/config/miseEnRecitConfig';
+import { oeuvreConfig } from '@/pages/generic/config/oeuvreConfig';
+import { elementEsthetiqueConfig } from '@/pages/generic/config/elementEsthetiqueConfig';
+import { elementNarratifConfig } from '@/pages/generic/config/elementNarratifConfig';
+import { feedbackConfig } from '@/pages/generic/config/feedbackConfig';
+import { analyseCritiqueConfig } from '@/pages/generic/config/analyseCritiqueConfig';
+import { objetTechnoConfig } from '@/pages/generic/config/objetTechnoConfig';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
@@ -56,6 +69,7 @@ function App() {
         <Route path='/corpus/oeuvres' Component={Oeuvres} />
         <Route path='/corpus/element-narratif/:id' Component={ElementNarratif} />
         <Route path='/corpus/element-esthetique/:id' Component={ElementEsthetique} />
+        <Route path='/corpus/analyse-critique/:id' Component={AnalyseCritique} />
         {/* Contextual edition routes */}
         <Route path='/corpus/seminaires/edition/:id/:title?' Component={Edition} />
         <Route path='/corpus/colloques/edition/:id/:title?' Component={Edition} />
@@ -74,6 +88,21 @@ function App() {
         <Route path='/feedback/:id' Component={Feedback} />
         <Route path='/intervenant/:id' Component={Intervenant} />
         <Route path='/personne/:id' Component={Personne} />
+
+        {/* 🆕 ROUTES DE TEST - Nouvelle architecture générique (1 SEUL fichier par type!) */}
+        {/* Plus besoin de créer une page - on utilise directement la config! */}
+        {/* Pour tester, ajoutez "-new" dans l'URL, ex: /corpus/seminaires/conference-new/:id */}
+        <Route path='/corpus/seminaires/conference-new/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
+        <Route path='/corpus/colloques/conference-new/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
+        <Route path='/corpus/journees-etudes/conference-new/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
+        <Route path='/corpus/experimentation-new/:id' element={<ConfigurableDetailPage config={experimentationConfig} />} />
+        <Route path='/corpus/mise-en-recit-new/:id' element={<ConfigurableDetailPage config={miseEnRecitConfig} />} />
+        <Route path='/corpus/oeuvre-new/:id' element={<ConfigurableDetailPage config={oeuvreConfig} />} />
+        <Route path='/corpus/element-esthetique-new/:id' element={<ConfigurableDetailPage config={elementEsthetiqueConfig} />} />
+        <Route path='/corpus/element-narratif-new/:id' element={<ConfigurableDetailPage config={elementNarratifConfig} />} />
+        <Route path='/feedback-new/:id' element={<ConfigurableDetailPage config={feedbackConfig} />} />
+        <Route path='/corpus/analyse-critique-new/:id' element={<ConfigurableDetailPage config={analyseCritiqueConfig} />} />
+        <Route path='/corpus/objet-techno/:id' element={<ConfigurableDetailPage config={objetTechnoConfig} />} />
       </Routes>
     </HeroUIProvider>
   );

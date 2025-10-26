@@ -83,6 +83,8 @@ export const Conference: React.FC = () => {
 
   const fetchConfData = useCallback(async () => {
     setLoading(true);
+    // Remettre le temps de la vidéo à zéro quand on change de conférence
+    setCurrentVideoTime(0);
     try {
       const [conf, citations, bibliographies, mediagraphies] = await Promise.all([
         Items.getAllConfs(Number(id)),

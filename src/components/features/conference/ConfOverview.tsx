@@ -33,6 +33,28 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
   const navigate = useNavigate();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Remettre videoUrl à conf.url quand on change de conférence
+  useEffect(() => {
+    // Vérifier si conf.url est une URL valide avant de créer l'objet URL
+    if (conf.url && typeof conf.url === 'string' && conf.url.trim() !== '') {
+      try {
+        // Ajouter un timestamp pour forcer le rechargement de l'iframe même avec la même URL
+        const baseUrl = conf.url;
+        const urlWithTimestamp = new URL(baseUrl);
+        urlWithTimestamp.searchParams.set('t', Date.now().toString());
+        setVideoUrl(urlWithTimestamp.toString());
+        setButtonText('séance complète');
+      } catch (urlError) {
+        console.warn('Invalid URL provided:', conf.url, urlError);
+        // Si l'URL n'est pas valide, utiliser une chaîne vide pour éviter l'erreur
+        setVideoUrl('');
+      }
+    } else {
+      // Si pas d'URL valide, définir une URL vide
+      setVideoUrl('');
+    }
+  }, [conf.url]);
+
   useEffect(() => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [currentTime, true] }), '*');
@@ -42,12 +64,17 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
   }, [currentTime]);
 
   useEffect(() => {
-    if (videoUrl) {
-      const updatedUrl = new URL(videoUrl);
-      updatedUrl.searchParams.set('enablejsapi', '1');
-      setVideoUrl(updatedUrl.toString());
+    if (videoUrl && videoUrl.trim() !== '') {
+      try {
+        const updatedUrl = new URL(videoUrl);
+        updatedUrl.searchParams.set('enablejsapi', '1');
+        setVideoUrl(updatedUrl.toString());
+      } catch (urlError) {
+        console.warn('Invalid video URL for jsapi:', videoUrl, urlError);
+        // Si l'URL n'est pas valide, ne rien faire
+      }
     }
-  }, [conf.url, conf.fullUrl]);
+  }, [videoUrl]);
 
   const openActant = (id: string) => {
     navigate(`/intervenant/${id}`);
@@ -55,16 +82,28 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
 
   const changeLink = () => {
     if (videoUrl === conf.url) {
-      setVideoUrl(conf.fullUrl);
-      setButtonText('conférence');
+      // Vérifier si conf.fullUrl est une URL valide
+      if (conf.fullUrl && typeof conf.fullUrl === 'string' && conf.fullUrl.trim() !== '') {
+        setVideoUrl(conf.fullUrl);
+        setButtonText('conférence');
+      } else {
+        console.warn('Invalid fullUrl:', conf.fullUrl);
+      }
     } else {
-      setVideoUrl(conf.url);
-      setButtonText('séance complète');
+      // Vérifier si conf.url est une URL valide
+      if (conf.url && typeof conf.url === 'string' && conf.url.trim() !== '') {
+        setVideoUrl(conf.url);
+        setButtonText('séance complète');
+      } else {
+        console.warn('Invalid url:', conf.url);
+      }
     }
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(videoUrl).then(() => {});
+    if (videoUrl && videoUrl.trim() !== '') {
+      navigator.clipboard.writeText(videoUrl).then(() => {});
+    }
   };
 
   return (
@@ -89,10 +128,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
             <div className='w-fit flex justify-start gap-10 items-center'>
               {/* Premier actant */}
               {conf.actant && Array.isArray(conf.actant) && conf.actant.length > 0 && (
-                <Link 
-                  className='w-fit flex justify-start gap-10 items-center cursor-pointer' 
-                  onClick={() => openActant(conf.actant[0].id)}
-                >
+                <Link className='w-fit flex justify-start gap-10 items-center cursor-pointer' onClick={() => openActant(conf.actant[0].id)}>
                   {conf.actant[0]?.picture ? (
                     <img src={conf.actant[0].picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
                   ) : (
@@ -102,9 +138,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
                     <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>
                       {conf.actant[0]?.firstname} {conf.actant[0]?.lastname}
                     </h3>
-                    <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>
-                      {conf.actant[0]?.universities?.[0]?.shortName || ''}
-                    </p>
+                    <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{conf.actant[0]?.universities?.[0]?.shortName || ''}</p>
                   </div>
                 </Link>
               )}
@@ -115,9 +149,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
                     <Button
                       size='md'
                       className='text-16 h-full min-h-[36px] px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c4 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
-                      <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>
-                        +{conf.actant.length - 1}
-                      </h3>
+                      <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+{conf.actant.length - 1}</h3>
                     </Button>
                   </DropdownTrigger>
 
@@ -131,10 +163,10 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
                             <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                           )}
                           <div className='flex flex-col items-start gap-0.5'>
-                            <span className='text-16 font-medium'>{actant.firstname} {actant.lastname}</span>
-                            <span className='text-14 text-c4 font-extralight'>
-                              {actant.universities?.[0]?.shortName || ''}
+                            <span className='text-16 font-medium'>
+                              {actant.firstname} {actant.lastname}
                             </span>
+                            <span className='text-14 text-c4 font-extralight'>{actant.universities?.[0]?.shortName || ''}</span>
                           </div>
                         </div>
                       </DropdownItem>
@@ -160,15 +192,21 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
                 <ShareIcon size={12} />
                 Partager
               </Button>
-              {conf.url !== conf.fullUrl && conf.fullUrl !== '' && (
-                <Button
-                  size='md'
-                  className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] h-fit cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-10 py-5 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
-                  onClick={changeLink}>
-                  <MovieIcon size={12} />
-                  {buttonText}
-                </Button>
-              )}
+              {conf.url &&
+                conf.fullUrl &&
+                typeof conf.url === 'string' &&
+                typeof conf.fullUrl === 'string' &&
+                conf.url.trim() !== '' &&
+                conf.fullUrl.trim() !== '' &&
+                conf.url !== conf.fullUrl && (
+                  <Button
+                    size='md'
+                    className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] h-fit cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-10 py-5 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
+                    onClick={changeLink}>
+                    <MovieIcon size={12} />
+                    {buttonText}
+                  </Button>
+                )}
               <AnnotationDropdown id={Number(conf.id)} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Conférence' />
             </div>
           </div>

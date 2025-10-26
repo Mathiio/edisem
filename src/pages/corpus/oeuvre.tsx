@@ -30,6 +30,7 @@ const viewOptions = [
   { key: 'Archives', title: 'Archives' },
   { key: 'ElementsNarratifs', title: 'Éléments narratifs' },
   { key: 'ElementsEsthetique', title: 'Éléments esthétiques' },
+  { key: 'AnalyseCritique', title: 'Analyse critique' },
 ];
 
 export const Oeuvre: React.FC = () => {
@@ -296,6 +297,19 @@ export const Oeuvre: React.FC = () => {
                 thumbnail: elementEsthetique.associatedMedia && elementEsthetique.associatedMedia.length > 0 ? elementEsthetique.associatedMedia[0] : elementEsthetique.thumbnail,
               };
               return <ToolItem key={elementEsthetique.id} tool={toolData} />;
+            })}
+          </div>
+        );
+      case 'AnalyseCritique':
+        return (
+          <div className='flex flex-col gap-10'>
+            {(oeuvreDetails.annotations || []).map((annotation: any) => {
+              const toolData = {
+                ...annotation,
+                url: '/corpus/analyse-critique/' + annotation.id,
+                thumbnail: annotation.associatedMedia && annotation.associatedMedia.length > 0 ? annotation.associatedMedia[0] : annotation.thumbnail,
+              };
+              return <ToolItem key={annotation.id} tool={toolData} />;
             })}
           </div>
         );

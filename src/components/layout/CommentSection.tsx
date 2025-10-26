@@ -32,6 +32,8 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
       // Filtrer les commentaires selon le LinkedResourceId
       const filteredComments = comments.filter((comment: Comment) => comment.relatedResource === LinkedResourceId.toString());
       setComments(filteredComments);
+
+      console.log('filteredComments', filteredComments);
     });
   }, [LinkedResourceId]);
 
@@ -171,7 +173,7 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
         {comments.length === 0 ? (
           <p className='text-[#adadad] text-sm text-center py-8'>Soyez le premier à laisser un commentaire !</p>
         ) : (
-          comments.map((comment) => (
+          comments.map((comment: any) => (
             <motion.div
               key={comment.id}
               className='w-full p-5 md:p-6 rounded-12 border-2 border-[#262233] flex gap-3'
@@ -183,10 +185,10 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
                 stiffness: 300,
                 damping: 20,
               }}>
-              <img className='w-[45px] h-[45px] rounded-6 flex-shrink-0' src={comment.avatar} alt={comment.author || 'Avatar'} />
+              <img className='w-[45px] h-[45px] rounded-6 flex-shrink-0' src={comment.actant.picture} alt={comment.author || 'Avatar'} />
               <div className='flex-1 flex flex-col gap-2'>
                 <div className='flex items-center gap-2'>
-                  <span className='text-c4 text-14 font-regular'>{comment.author || 'Anonyme'}</span>
+                  <span className='text-c4 text-14 font-regular'>{comment.actant.title || 'Anonyme'}</span>
                   <span className='text-[#adadad] text-12'>{comment.commentTime ? formatDate(comment.commentTime) : "À l'instant"}</span>
                 </div>
                 <div className='flex flex-col gap-1'>

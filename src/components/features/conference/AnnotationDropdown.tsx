@@ -88,15 +88,19 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
     setIsLoading(true);
 
     try {
-      const [fetchedAnnotations, actants, students] = await Promise.all([getAnnotations(), getActants(), getStudents()]);
+      // Maintenant getAnnotations() peut filtrer directement par ID
+      const [fetchedAnnotations, actants, students] = await Promise.all([
+        getAnnotations(id as string | number), // Passe l'ID pour filtrer directement
+        getActants(),
+        getStudents(),
+      ]);
 
       console.log(actants);
       console.log(students);
       console.log(id);
+      console.log('Filtered annotations for ID:', id, ':', fetchedAnnotations.length);
 
-      const relatedAnnotations = fetchedAnnotations.filter((annotation: any) => annotation.related === id.toString());
-
-      const annotationsWithContributors = relatedAnnotations.map((annotation: any) => {
+      const annotationsWithContributors = fetchedAnnotations.map((annotation: any) => {
         const contributor =
           actants.find((actant: any) => actant.id.toString() === annotation.contributor.toString()) ||
           students.find((student: any) => student.id.toString() === annotation.contributor.toString());

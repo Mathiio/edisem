@@ -1,0 +1,417 @@
+{
+  "ANNOTATION": "Ceci est un exemple annoté montrant comment générer la fonction getOeuvres() à partir du JSON",
+  
+  "EXTRACTION_METADATA": {
+    "template_id": 103,
+    "fonction_name": "getOeuvres",
+    "raison_nom": "@type[1] = 'fiafcore:Film' → Films → getOeuvres (contexte spécifique)",
+    "variable_result": "$oeuvre"
+  },
+
+  "@context": "https://tests.arcanes.ca/omk/api-context",
+  "@id": "https://tests.arcanes.ca/omk/api/items/19125",
+  "@type": [
+    "o:Item",
+    "fiafcore:Film"
+  ],
+  "ANNOTATION_@type": "Utiliser le deuxième élément pour nommer la fonction",
+
+  "o:id": 19125,
+  "o:is_public": true,
+  "o:owner": {
+    "@id": "https://tests.arcanes.ca/omk/api/users/20",
+    "o:id": 20
+  },
+  "o:resource_class": {
+    "@id": "https://tests.arcanes.ca/omk/api/resource_classes/2689",
+    "o:id": 2689
+  },
+  "o:resource_template": {
+    "@id": "https://tests.arcanes.ca/omk/api/resource_templates/103",
+    "o:id": 103
+  },
+  "ANNOTATION_o:resource_template": "EXTRAIT ICI : template_id = 103",
+
+  "o:thumbnail": null,
+  "thumbnail_display_urls": {
+    "large": "https://tests.arcanes.ca/omk/files/large/da97b96c7083d61ce1e2012e053ca4042ce04953.jpg",
+    "medium": "https://tests.arcanes.ca/omk/files/medium/da97b96c7083d61ce1e2012e053ca4042ce04953.jpg",
+    "square": "https://tests.arcanes.ca/omk/files/square/da97b96c7083d61ce1e2012e053ca4042ce04953.jpg"
+  },
+  "ANNOTATION_thumbnail_display_urls": "Présence de ceci → GÉNÉRER logoQuery et logoMap",
+
+  "dcterms:title": [
+    {
+      "type": "literal",
+      "property_id": 1,
+      "property_label": "Title",
+      "is_public": true,
+      "@value": "Her"
+    }
+  ],
+  "ANNOTATION_dcterms:title": [
+    "property_id: 1",
+    "type: literal → Stocker @value directement",
+    "PHP: case 1: $oeuvre['title'] = $value['value']; break;"
+  ],
+
+  "schema:genre": [
+    {
+      "type": "customvocab:45",
+      "property_id": 1621,
+      "property_label": "genre",
+      "is_public": true,
+      "@id": "https://tests.arcanes.ca/omk/api/items/19328",
+      "value_resource_id": 19328,
+      "value_resource_name": "items",
+      "url": null,
+      "display_title": "Cinéma"
+    }
+  ],
+  "ANNOTATION_schema:genre": [
+    "property_id: 1621",
+    "type: customvocab → Traiter comme resource",
+    "display_title présent → CRÉER genreMap",
+    "PHP_MAP: genreIds[] = 19328, puis requête pour récupérer titre (property_id 1)",
+    "PHP_CASE: case 1621: $oeuvre['genre'] = $genreMap[$genreId] ?? ''; break;"
+  ],
+
+  "schema:associatedMedia": [
+    {
+      "type": "resource",
+      "property_id": 438,
+      "property_label": "associatedMedia",
+      "is_public": true,
+      "@id": "https://tests.arcanes.ca/omk/api/media/19126",
+      "value_resource_id": 19126,
+      "value_resource_name": "media",
+      "url": null,
+      "display_title": "Affiche de Her (2013) de Spike Jonze",
+      "thumbnail_url": "https://tests.arcanes.ca/omk/files/square/da97b96c7083d61ce1e2012e053ca4042ce04953.jpg",
+      "thumbnail_title": "Affiche de Her (2013) de Spike Jonze",
+      "thumbnail_type": "image/jpeg"
+    }
+  ],
+  "ANNOTATION_schema:associatedMedia": [
+    "property_id: 438",
+    "CAS SPÉCIAL : Médias associés",
+    "PHP_MAP: UNION query sur media table (item_id et id)",
+    "PHP_CASE: case 438: if($associatedMediaMap[$mediaId]) { $oeuvre['associatedMedia'][] = generateThumbnailUrl(...) }"
+  ],
+
+  "dcterms:date": [
+    {
+      "type": "literal",
+      "property_id": 7,
+      "property_label": "Date",
+      "is_public": true,
+      "@value": "2013 (Première : 12 octobre 2013 - Festival du film de New York / Sortie générale : 10 janvier 2014)"
+    }
+  ],
+  "ANNOTATION_dcterms:date": [
+    "property_id: 7",
+    "type: literal",
+    "PHP: case 7: $oeuvre['date'] = $value['value']; break;"
+  ],
+
+  "dcterms:abstract": [
+    {
+      "type": "literal",
+      "property_id": 19,
+      "property_label": "Abstract",
+      "is_public": true,
+      "@value": "« Dans un futur proche, un écrivain solitaire développe une relation improbable avec un système d'exploitation conçu pour répondre à tous ses besoins..."
+    }
+  ],
+  "ANNOTATION_dcterms:abstract": [
+    "property_id: 19",
+    "type: literal",
+    "PHP: case 19: $oeuvre['abstract'] = $value['value']; break;"
+  ],
+
+  "schema:agent": [
+    {
+      "type": "resource",
+      "property_id": 386,
+      "property_label": "agent",
+      "is_public": true,
+      "@id": "https://tests.arcanes.ca/omk/api/items/19133",
+      "value_resource_id": 19133,
+      "value_resource_name": "items",
+      "url": null,
+      "display_title": "Spike Jonze",
+      "thumbnail_url": "https://tests.arcanes.ca/omk/files/square/98cff3149f463e6db0d0f3c26359e9e0efef91d1.jpg",
+      "thumbnail_title": "Spike Jonze portrait",
+      "thumbnail_type": "image/jpeg"
+    }
+  ],
+  "ANNOTATION_schema:agent": [
+    "property_id: 386",
+    "type: resource",
+    "display_title + thumbnail_url présents → CRÉER agentMap + agentThumbnailMap + agentPageMap",
+    "PHP_MAP: 3 requêtes - titre (property_id 1), page (property_id 174), thumbnail (media)",
+    "PHP_CASE: case 386: $oeuvre['personne'][] = [ 'id' => $agentId, 'name' => $agentMap[...], 'thumbnail' => $agentThumbnailMap[...], 'page' => $agentPageMap[...] ]",
+    "NOTE: Dans le contexte Oeuvres, stocké comme 'personne' pour distinction avec contributeurs"
+  ],
+
+  "theatre:credit": [
+    {
+      "type": "uri",
+      "property_id": 2145,
+      "property_label": "credit",
+      "is_public": true,
+      "@id": "https://www.imdb.com/title/tt1798709/fullcredits/"
+    }
+  ],
+  "ANNOTATION_theatre:credit": [
+    "property_id: 2145",
+    "type: uri",
+    "PHP: case 2145: $oeuvre['credits'] = $value['uri']; break;"
+  ],
+
+  "jdc:hasConcept": [
+    {
+      "type": "resource",
+      "property_id": 2097,
+      "property_label": "a comme concept",
+      "is_public": true,
+      "@id": "https://tests.arcanes.ca/omk/api/items/13508",
+      "value_resource_id": 13508,
+      "value_resource_name": "items",
+      "url": null,
+      "display_title": "Science-fiction"
+    }
+  ],
+  "ANNOTATION_jdc:hasConcept": [
+    "property_id: 2097",
+    "type: resource (multiple valeurs possibles)",
+    "display_title présent → CRÉER linkedResourceMap (map générique pour tous les concepts/thèmes/etc)",
+    "PHP_MAP: Récupérer titres pour tous les IDs de propriétés similaires (2097, 3233, 3238, etc)",
+    "PHP_CASE: case 2097: $oeuvre['keywords'][] = $linkedResourceMap[$conceptId] ?? '';"
+  ],
+
+  "schema:backstory": [
+    {
+      "type": "resource",
+      "property_id": 461,
+      "property_label": "backstory",
+      "is_public": true,
+      "@id": "https://tests.arcanes.ca/omk/api/items/19165",
+      "value_resource_id": 19165,
+      "value_resource_name": "items",
+      "url": null,
+      "display_title": "Éléments narratif de Her",
+      "thumbnail_url": "https://tests.arcanes.ca/omk/files/square/54d7bd937cd0805830780ce43ce21e6f1a253e32.jpg",
+      "thumbnail_title": "Samantha.png",
+      "thumbnail_type": "image/png"
+    }
+  ],
+  "ANNOTATION_schema:backstory": [
+    "property_id: 461",
+    "type: resource",
+    "Stocker uniquement l'ID (pas besoin de map car déjà détaillé ailleurs)",
+    "PHP: case 461: $oeuvre['elementsNarratifs'][] = $value['value_resource_id']; break;"
+  ],
+
+  "schema:artform": [
+    {
+      "type": "resource",
+      "property_id": 428,
+      "property_label": "artform",
+      "is_public": true,
+      "@id": "https://tests.arcanes.ca/omk/api/items/19158",
+      "value_resource_id": 19158,
+      "value_resource_name": "items",
+      "url": null,
+      "display_title": "Plus doux que nature",
+      "thumbnail_url": "https://tests.arcanes.ca/omk/files/square/cda9cfa221aaeab59a5628aee2f12df1ba7b5183.jpg",
+      "thumbnail_title": "1.png",
+      "thumbnail_type": "image/png"
+    }
+  ],
+  "ANNOTATION_schema:artform": [
+    "property_id: 428",
+    "type: resource",
+    "PHP: case 428: $oeuvre['elementsEsthetique'][] = $value['value_resource_id']; break;"
+  ],
+
+  "dcterms:description": [
+    {
+      "type": "resource",
+      "property_id": 4,
+      "property_label": "Description",
+      "is_public": true,
+      "@id": "https://tests.arcanes.ca/omk/api/items/19120",
+      "value_resource_id": 19120,
+      "value_resource_name": "items",
+      "url": null,
+      "display_title": "Her de Spike Jonze, Sky d'OpenAI, et la plainte de Scarlett Johansson",
+      "thumbnail_url": "https://tests.arcanes.ca/omk/files/square/2ec3367c5dc66d4612fda08977a5344d64fa2da7.jpg",
+      "thumbnail_title": "Comparison Scarlett Johansson's Voice VS. "Sky" Voice OpenAI no similarities!",
+      "thumbnail_type": null
+    }
+  ],
+  "ANNOTATION_dcterms:description": [
+    "property_id: 4",
+    "CAS PARTICULIER: Normalement literal, mais ici type=resource (annotations)",
+    "PHP: case 4: $oeuvre['annotations'][] = $value['value_resource_id']; break;"
+  ],
+
+  "dcterms:references": [
+    {
+      "type": "resource",
+      "property_id": 36,
+      "property_label": "References",
+      "is_public": true,
+      "@id": "https://tests.arcanes.ca/omk/api/items/19192",
+      "value_resource_id": 19192,
+      "value_resource_name": "items",
+      "url": null,
+      "display_title": "Chicken Soup for the Postmodern Soul: Philosophizing Spike Jonze's Her Through the Lens of Evolving Modernity",
+      "thumbnail_url": "https://tests.arcanes.ca/omk/files/square/8f2dba62217998f7de8ab6c4b6f6d6c56f78e423.jpg",
+      "thumbnail_title": "FilmMatter",
+      "thumbnail_type": "image/png"
+    }
+  ],
+  "ANNOTATION_dcterms:references": [
+    "property_id: 36",
+    "type: resource",
+    "display_title + thumbnail_url + url présents → CRÉER referencesAndCitationsIds (groupé avec 48)",
+    "PHP_MAP: titleMap, uriMap (property_id 121), thumbnailMap",
+    "PHP_CASE: case 36: $oeuvre['referencesScient'][] = ['id' => $refId, 'title' => $titleMap[...], 'url' => $uriMap[...], 'thumbnail' => $thumbnailMap[...]]"
+  ],
+
+  "dcterms:bibliographicCitation": [
+    {
+      "type": "resource",
+      "property_id": 48,
+      "property_label": "Bibliographic Citation",
+      "is_public": true,
+      "@id": "https://tests.arcanes.ca/omk/api/items/19190",
+      "value_resource_id": 19190,
+      "value_resource_name": "items",
+      "url": null,
+      "display_title": "Her : Son rêve familier",
+      "thumbnail_url": "https://tests.arcanes.ca/omk/files/square/f95f8458b9012d2943c43776518a2e0045b63d17.jpg",
+      "thumbnail_title": "zeroconduite",
+      "thumbnail_type": "image/png"
+    }
+  ],
+  "ANNOTATION_dcterms:bibliographicCitation": [
+    "property_id: 48",
+    "type: resource",
+    "Groupé avec property_id 36 pour les maps (referencesAndCitationsIds)",
+    "PHP_CASE: case 48: $oeuvre['referencesCultu'][] = ['id' => $citId, 'title' => $titleMap[...], 'url' => $uriMap[...], 'thumbnail' => $thumbnailMap[...]]"
+  ],
+
+  "drama:achieves": [
+    {
+      "type": "resource",
+      "property_id": 2355,
+      "property_label": "achieves",
+      "is_public": true,
+      "@id": "https://tests.arcanes.ca/omk/api/media/19128",
+      "value_resource_id": 19128,
+      "value_resource_name": "media",
+      "url": null,
+      "display_title": "Spike Jonze's HER - Behind-The-Scenes",
+      "thumbnail_url": "https://tests.arcanes.ca/omk/files/square/2bfe2a66f190d343299889d9eb72e75262a7ee85.jpg",
+      "thumbnail_title": "Spike Jonze's HER - Behind-The-Scenes",
+      "thumbnail_type": null
+    }
+  ],
+  "ANNOTATION_drama:achieves": [
+    "property_id: 2355",
+    "type: resource (media)",
+    "CAS SPÉCIAL: Archives - besoin de source depuis media.source",
+    "PHP_MAP: archiveTitleMap (property_id 1), archiveSourceMap (depuis media.source)",
+    "PHP_CASE: case 2355: $oeuvre['archives'][] = ['id' => $archiveId, 'title' => $archiveTitleMap[...], 'source' => $archiveSourceMap[...]]",
+    "NOTE: Peut aussi être literal (value texte simple)"
+  ],
+
+  "schema:isRelatedTo": [
+    {
+      "type": "resource",
+      "property_id": 937,
+      "property_label": "isRelatedTo",
+      "is_public": true,
+      "@id": "https://tests.arcanes.ca/omk/api/items/19110",
+      "value_resource_id": 19110,
+      "value_resource_name": "items",
+      "url": null,
+      "display_title": "Simulacre de compagnon émotionnel",
+      "thumbnail_url": "https://tests.arcanes.ca/omk/files/square/44fdbb880d72bb13c03fd69377d423739561ac18.jpg",
+      "thumbnail_title": "Image généré par Dall-e",
+      "thumbnail_type": "image/png"
+    }
+  ],
+  "ANNOTATION_schema:isRelatedTo": [
+    "property_id: 937",
+    "type: resource",
+    "Stocker uniquement l'ID",
+    "PHP: case 937: $oeuvre['relatedItems'][] = $value['value_resource_id']; break;"
+  ],
+
+  "schema:url": [
+    {
+      "type": "uri",
+      "property_id": 1517,
+      "property_label": "url",
+      "is_public": true,
+      "@id": "https://www.imdb.com/fr/title/tt1798709/"
+    }
+  ],
+  "ANNOTATION_schema:url": [
+    "property_id: 1517",
+    "type: uri",
+    "Peut avoir plusieurs valeurs → Utiliser tableau",
+    "PHP: case 1517: $oeuvre['url'][] = $value['uri']; break;"
+  ],
+
+  "LISTE_COMPLETE_PROPERTY_IDS": [
+    1, 4, 7, 19, 26, 36, 48, 386, 428, 438, 461, 937, 1517, 1621, 2097, 2145, 2355
+  ],
+
+  "LISTE_COMPLETE_PROPERTY_IDS_AVEC_RESSOURCES_LIEES": [
+    "Note: Ajouter aussi les property_ids des ressources liées nécessitant des maps détaillées",
+    "Pour agents/acteurs (386): 1 (titre), 174 (page), media (thumbnail)",
+    "Pour genre (1621): 1 (titre)",
+    "Pour concepts et similaires: 1 (titre)",
+    "Pour références/citations (36, 48): 1 (titre), 121 (uri), media (thumbnail)",
+    "Pour archives (2355): 1 (titre), media.source",
+    "DONC ajouter: 581 (contributeurs détaillés), 3233, 3238, 3239, 2079, 3235, 3240, 2080 (concepts liés)"
+  ],
+
+  "PROPERTY_IDS_FINAUX_POUR_REQUETE": "1, 4, 7, 19, 26, 36, 48, 386, 428, 438, 461, 1517, 581, 2145, 2097, 2355, 3236, 3237, 3233, 3238, 3239, 2079, 3235, 3240, 2080, 1621",
+
+  "STRUCTURE_TABLEAU_INITIAL": {
+    "id": "resource_id",
+    "title": "''",
+    "annotations": "[]",
+    "date": "''",
+    "abstract": "''",
+    "actants": "[]",
+    "personne": "[]",
+    "credits": "''",
+    "associatedMedia": "[]",
+    "url": "[]",
+    "keywords": "[]",
+    "archives": "[]",
+    "genre": "''",
+    "elementsEsthetique": "[]",
+    "elementsNarratifs": "[]",
+    "thumbnail": "logoMap[id] ?? ''"
+  },
+
+  "MAPS_A_GENERER": [
+    "logoMap (thumbnail principal)",
+    "associatedMediaMap (property_id 438)",
+    "genreMap (property_id 1621)",
+    "agentMap + agentThumbnailMap + agentPageMap (property_id 386)",
+    "contributorMap + contributorThumbnailMap + contributorPageMap (property_id 581)",
+    "referencesAndCitationsIds → titleMap + uriMap + thumbnailMap (property_id 36, 48)",
+    "linkedResourceMap (property_id 2097, 3233, 3238, 3239, 2079, 3235, 3240, 2080)",
+    "archiveTitleMap + archiveSourceMap (property_id 2355)"
+  ]
+}
+
