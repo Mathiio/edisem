@@ -59,7 +59,7 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
     // Vue 1 : Condition initiale / Contexte
     createTextView({
       key: 'ConditionInitiale',
-      title: 'Contexte et imaginaire',
+      title: 'Figure narrative',
       getText: (itemDetails) => itemDetails?.conditionInitiale,
       emptyMessage: 'Aucune condition initiale définie',
     }),
@@ -67,7 +67,7 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
     // Vue 2 : Outils/Technologies utilisés
     createItemsListView({
       key: 'Outils',
-      title: 'Technologies et outils',
+      title: 'Outils',
       getItems: (itemDetails) =>
         (itemDetails?.tools || []).map((tool: any) => ({
           ...tool,
@@ -80,7 +80,7 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
     // Vue 3 : Reviews et critiques
     createItemsListView({
       key: 'Reviews',
-      title: 'Critiques et analyses',
+      title: 'Contenus scientifiques',
       getItems: (itemDetails) => itemDetails?.reviews || [],
       emptyMessage: 'Aucune critique disponible',
       annotationType: 'Critique',
@@ -89,7 +89,7 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
     // Vue 4 : Ressources liées (articles, autres ressources)
     createItemsListView({
       key: 'RessourcesLiees',
-      title: 'Ressources liées',
+      title: 'Contenus culturels',
       getItems: (itemDetails) => itemDetails?.relatedResources || [],
       emptyMessage: 'Aucune ressource liée',
       annotationType: 'Ressource',
@@ -98,7 +98,7 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
     // Vue 5 : Descriptions/Analyses critiques
     createItemsListView({
       key: 'Descriptions',
-      title: 'Analyses détaillées',
+      title: 'Analyses critiques',
       getItems: (itemDetails) => itemDetails?.descriptions || [],
       emptyMessage: 'Aucune analyse détaillée',
       annotationType: 'Analyse',
