@@ -748,19 +748,37 @@ export async function getAllConfs(id?: number) {
   }
 }
 
-export async function getTools() {
+/**
+ * Récupère tous les outils (eclap:Tool) avec leurs relations hydratées
+ * Template ID: 114
+ * @param id - Optionnel: ID spécifique d'un outil à récupérer
+ * @returns Tableau d'outils ou objet unique si ID fourni
+ */
+export async function getTools(id?: number) {
   try {
+    // 1. CACHE : Vérifier sessionStorage
     const storedTools = sessionStorage.getItem('tools');
     if (storedTools) {
-      return JSON.parse(storedTools);
+      const tools = JSON.parse(storedTools);
+      return id ? tools.find((t: any) => t.id === String(id) || t.id === id) : tools;
     }
 
-    const tools = await getDataByUrl(
+    // 2. FETCH : Récupérer les données (pas d'hydratation nécessaire car PHP fait déjà les maps)
+    const rawTools = await getDataByUrl(
       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getTools&json=1',
     );
 
-    sessionStorage.setItem('tools', JSON.stringify(tools));
-    return tools;
+    // 3. TRANSFORMATION : Ajouter le type et s'assurer que tout est correct
+    const toolsFull = rawTools.map((tool: any) => ({
+      ...tool,
+      type: 'tool',
+      // programmingLanguages, contributors, isPartOf sont déjà hydratés dans PHP
+      // associatedMedia est déjà un tableau d'URLs
+    }));
+
+    // 4. CACHE + RETURN : Stocker et retourner
+    sessionStorage.setItem('tools', JSON.stringify(toolsFull));
+    return id ? toolsFull.find((t: any) => t.id === String(id) || t.id === id) : toolsFull;
   } catch (error) {
     console.error('Error fetching tools:', error);
     throw new Error('Failed to fetch tools');

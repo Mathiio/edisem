@@ -40,6 +40,7 @@ import { elementNarratifConfig } from '@/pages/generic/config/elementNarratifCon
 import { feedbackConfig } from '@/pages/generic/config/feedbackConfig';
 import { analyseCritiqueConfig } from '@/pages/generic/config/analyseCritiqueConfig';
 import { objetTechnoConfig } from '@/pages/generic/config/objetTechnoConfig';
+import { toolConfig } from '@/pages/generic/config/toolConfig';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
@@ -103,6 +104,7 @@ function App() {
         <Route path='/feedback-new/:id' element={<ConfigurableDetailPage config={feedbackConfig} />} />
         <Route path='/corpus/analyse-critique-new/:id' element={<ConfigurableDetailPage config={analyseCritiqueConfig} />} />
         <Route path='/corpus/objet-techno/:id' element={<ConfigurableDetailPage config={objetTechnoConfig} />} />
+        <Route path='/corpus/tool/:id' element={<ConfigurableDetailPage config={toolConfig} />} />
       </Routes>
     </HeroUIProvider>
   );
