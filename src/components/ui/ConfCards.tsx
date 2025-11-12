@@ -77,7 +77,7 @@ export const LgConfCard: React.FC<Conference> = (props) => {
         className={`absolute w-full h-full rounded-12 transition-all ease-in-out duration-200 
         ${isHovered ? 'bg-c2 scale-105' : 'scale-100'}`}></div>
       <div
-        className={`p-50 h-200 w-full rounded-12 justify-center items-center flex z-10 ${thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-c3 to-c4'}`}
+        className={`p-50 aspect-video w-full rounded-12 justify-center items-center flex z-10 ${thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-c3 to-c4'}`}
         style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
         <h3 className={`text-16 text-100 font-semibold text-selected ${thumbnailUrl ? 'invisible' : ''}`}>CONFÉRENCE</h3>
       </div>

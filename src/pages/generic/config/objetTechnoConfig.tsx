@@ -56,25 +56,21 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
 
   // ✨ Vues personnalisées pour les objets techno-industriels
   viewOptions: [
+    // Vue 5 : Descriptions/Analyses critiques
+    createItemsListView({
+      key: 'Descriptions',
+      title: 'Analyses critiques',
+      getItems: (itemDetails) => itemDetails?.descriptions || [],
+      emptyMessage: 'Aucune analyse détaillée',
+      annotationType: 'Analyse',
+      mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
+    }),
     // Vue 1 : Condition initiale / Contexte
     createTextView({
       key: 'ConditionInitiale',
       title: 'Figure narrative',
       getText: (itemDetails) => itemDetails?.conditionInitiale,
       emptyMessage: 'Aucune condition initiale définie',
-    }),
-
-    // Vue 2 : Outils/Technologies utilisés
-    createItemsListView({
-      key: 'Outils',
-      title: 'Outils',
-      getItems: (itemDetails) =>
-        (itemDetails?.tools || []).map((tool: any) => ({
-          ...tool,
-          title: tool.name || tool.title || 'Outil sans nom',
-        })),
-      emptyMessage: 'Aucun outil associé',
-      annotationType: 'Outil',
     }),
 
     // Vue 3 : Reviews et critiques
@@ -95,14 +91,17 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
       annotationType: 'Ressource',
     }),
 
-    // Vue 5 : Descriptions/Analyses critiques
+    // Vue 2 : Outils/Technologies utilisés
     createItemsListView({
-      key: 'Descriptions',
-      title: 'Analyses critiques',
-      getItems: (itemDetails) => itemDetails?.descriptions || [],
-      emptyMessage: 'Aucune analyse détaillée',
-      annotationType: 'Analyse',
-      mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
+      key: 'Outils',
+      title: 'Outils',
+      getItems: (itemDetails) =>
+        (itemDetails?.tools || []).map((tool: any) => ({
+          ...tool,
+          title: tool.name || tool.title || 'Outil sans nom',
+        })),
+      emptyMessage: 'Aucun outil associé',
+      annotationType: 'Outil',
     }),
   ],
 

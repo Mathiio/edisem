@@ -12,7 +12,6 @@ export const elementEsthetiqueConfig: GenericDetailPageConfig = {
 
     return {
       itemDetails: data,
-      keywords: [], // TODO: Ajouter les keywords si nécessaire
       recommendations: [],
     };
   },

@@ -58,6 +58,7 @@ export interface GenericDetailPageConfig {
 
   // Options de vue (tabs)
   viewOptions: ViewOption[];
+  defaultView?: string; // Clé de l'onglet par défaut (sinon utilise le premier élément de viewOptions)
 
   // Sections optionnelles
   showKeywords?: boolean;

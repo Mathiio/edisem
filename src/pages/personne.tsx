@@ -30,6 +30,9 @@ export const Personne: React.FC = () => {
       // Vider le cache pour forcer le rechargement avec les données normalisées
       sessionStorage.removeItem('personnes');
       sessionStorage.removeItem('oeuvres');
+      sessionStorage.removeItem('elementNarratifs');
+      sessionStorage.removeItem('elementEsthetique');
+      sessionStorage.removeItem('annotations');
 
       const [personne, oeuvres] = await Promise.all([Items.getPersonnes(Number(id)), getOeuvresByPersonne(Number(id))]);
 

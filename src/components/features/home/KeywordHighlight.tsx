@@ -34,7 +34,9 @@ const CitationSlide = ({ item }: { item: Citation }) => {
       }
     };
 
-    fetchConf();
+    if (item.id) {
+      fetchConf();
+    }
   }, [item.id]);
 
   const getConfRoute = (): string => {
@@ -93,9 +95,7 @@ export const KeywordHighlight: React.FC = () => {
       let actantIds: string[] = [];
 
       if (typeof actant === 'string') {
-        actantIds = actant.includes(',') 
-          ? actant.split(',').map((id: string) => id.trim())
-          : [actant];
+        actantIds = actant.includes(',') ? actant.split(',').map((id: string) => id.trim()) : [actant];
       } else if (Array.isArray(actant)) {
         actantIds = actant.map(String);
       } else if (typeof actant === 'object' && actant.id) {
@@ -111,7 +111,7 @@ export const KeywordHighlight: React.FC = () => {
             console.error(`Error fetching actant ${id}:`, error);
             return null;
           }
-        })
+        }),
       );
 
       return actantDetails.filter((actant): actant is Actant => actant !== null);
@@ -130,8 +130,13 @@ export const KeywordHighlight: React.FC = () => {
 
         const keywordLinks = await Promise.all(
           keywords.map(async (keyword: Keyword) => {
-            const links = await getLinksFromKeywords(keyword);
-            return { ...keyword, linkCount: links.length };
+            try {
+              const links = await getLinksFromKeywords(keyword);
+              return { ...keyword, linkCount: links.length };
+            } catch (error) {
+              console.error(`Error getting links for keyword ${keyword.id}:`, error);
+              return { ...keyword, linkCount: 0 };
+            }
           }),
         );
 
@@ -140,27 +145,28 @@ export const KeywordHighlight: React.FC = () => {
           const randomKeyword = filteredKeywords[Math.floor(Math.random() * filteredKeywords.length)];
           setSelectedKeyword(randomKeyword);
 
-          const confsFiltered = confs.filter((conf: any) => 
-            conf.motcles?.some((motcle: any) => motcle.id === randomKeyword.id)
-          );
+          const confsFiltered = confs.filter((conf: any) => conf.motcles?.some((motcle: any) => motcle.id === randomKeyword.id));
 
           // Traitement des conférences avec actants normalisés en array
           const updatedConfs = await Promise.all(
             confsFiltered.slice(0, 8).map(async (conf: any) => {
-              const actantArray = await normalizeActantToArray(conf.actant);
-              return { 
-                ...conf, 
-                actant: actantArray 
-              } as Conference;
-            })
+              try {
+                const actantArray = await normalizeActantToArray(conf.actant);
+                return {
+                  ...conf,
+                  actant: actantArray,
+                } as Conference;
+              } catch (error) {
+                console.error(`Error normalizing actant for conf ${conf.id}:`, error);
+                return { ...conf, actant: [] } as Conference;
+              }
+            }),
           );
 
           setFilteredConfs(updatedConfs);
 
           // Traitement des citations (actant unique)
-          const citationsFiltered = citations.filter((citation: any) => 
-            citation.motcles?.includes(String(randomKeyword.id))
-          );
+          const citationsFiltered = citations.filter((citation: any) => citation.motcles?.includes(String(randomKeyword.id)));
 
           const updatedCitations = await Promise.all(
             citationsFiltered.map(async (citation: any) => {
@@ -172,10 +178,10 @@ export const KeywordHighlight: React.FC = () => {
                   } else if (typeof citation.actant === 'object' && citation.actant.id) {
                     actantDetails = citation.actant;
                   }
-                  
-                  return { 
-                    ...citation, 
-                    actant: actantDetails 
+
+                  return {
+                    ...citation,
+                    actant: actantDetails,
                   } as Citation;
                 } catch (error) {
                   console.error(`Error fetching actant for citation ${citation.id}:`, error);
@@ -186,7 +192,8 @@ export const KeywordHighlight: React.FC = () => {
             }),
           );
 
-          setFilteredCitations(updatedCitations.filter((citation): citation is Citation => citation !== null));
+          const validCitations = updatedCitations.filter((citation): citation is Citation => citation !== null);
+          setFilteredCitations(validCitations);
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error);
@@ -218,13 +225,7 @@ export const KeywordHighlight: React.FC = () => {
             ))}
       </div>
       <div className='mt-50 w-full flex rounded-12 overflow-visible h-auto'>
-        <FullCarrousel
-          title='Citations sur ce sujet'
-          perPage={3}
-          perMove={1}
-          data={filteredCitations}
-          renderSlide={(item) => <CitationSlide item={item} />}
-        />
+        <FullCarrousel title='Citations sur ce sujet' perPage={3} perMove={1} data={filteredCitations} renderSlide={(item) => <CitationSlide item={item} />} />
       </div>
     </div>
   );
