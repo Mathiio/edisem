@@ -47,7 +47,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config }) 
   const [viewData, setViewData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [loadingRecommendations, setLoadingRecommendations] = useState(true);
-  const [selected, setSelected] = useState(config.viewOptions[0]?.key || '');
+  const [selected, setSelected] = useState(config.defaultView || config.viewOptions[0]?.key || '');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [equalHeight, setEqualHeight] = useState<number | null>(null);
 
@@ -108,6 +108,11 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config }) 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Synchronize selected view with config changes
+  useEffect(() => {
+    setSelected(config.defaultView || config.viewOptions[0]?.key || '');
+  }, [config.defaultView, config.viewOptions]);
 
   const handleKeywordClick = (searchTerm: string) => {
     searchModalRef.current?.openWithSearch(searchTerm);

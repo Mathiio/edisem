@@ -1,6 +1,15 @@
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { Route, Routes } from 'react-router-dom';
-import { Conference } from '@/pages/corpus/conference';
+// ❌ Anciens imports pour les composants individuels (maintenant remplacés par ConfigurableDetailPage)
+// Conservés pour référence mais ne sont plus utilisés
+// import { Conference } from '@/pages/corpus/conference';
+// import { Experimentation } from '@/pages/experimentation';
+// import { miseEnRecit } from '@/pages/miseEnRecit';
+// import { Feedback } from '@/pages/feedback';
+// import { Oeuvre } from '@/pages/corpus/oeuvre';
+// import { ElementNarratif } from '@/pages/elementnarratif';
+// import { ElementEsthetique } from '@/pages/elementesthetique';
+// import { AnalyseCritique } from './pages/analysecritique';
 import { Intervenant } from '@/pages/intervenant';
 import { Home } from '@/pages/home';
 import { Database } from '@/pages/database';
@@ -18,18 +27,14 @@ import { JourneesEtudes } from '@/pages/corpus/JourneesEtudes';
 import { MiseEnRecits } from '@/pages/corpus/MiseEnRecits';
 import { Seminaires } from '@/pages/corpus/Seminaires';
 import { Experimentations } from '@/pages/corpus/Experimentations';
-import { Experimentation } from '@/pages/experimentation';
-import { miseEnRecit } from '@/pages/miseEnRecit';
-import { Feedback } from '@/pages/feedback';
 import { Oeuvres } from '@/pages/corpus/Oeuvres';
-import { Oeuvre } from '@/pages/corpus/oeuvre';
 import { Personne } from '@/pages/personne';
 import { GenreDetail } from '@/pages/corpus/genre';
-import { ElementNarratif } from '@/pages/elementnarratif';
-import { ElementEsthetique } from '@/pages/elementesthetique';
-import { AnalyseCritique } from './pages/analysecritique';
 
-// 🆕 Import de l'architecture générique (pour tests)
+// 🆕 NOUVELLE ARCHITECTURE GÉNÉRIQUE - Système principal
+// Toutes les pages de détails utilisent maintenant ConfigurableDetailPage avec une configuration
+// Cela permet de centraliser la logique et de réduire la duplication de code
+// Pour ajouter un nouveau type d'item, créez simplement un fichier de config dans @/pages/generic/config/
 import { ConfigurableDetailPage } from '@/pages/generic/ConfigurableDetailPage';
 import { conferenceConfig } from '@/pages/generic/config/conferenceConfig';
 import { experimentationConfig } from '@/pages/generic/config/experimentationConfig';
@@ -68,43 +73,72 @@ function App() {
         <Route path='/corpus/mise-en-recits' Component={MiseEnRecits} />
         <Route path='/corpus/experimentations' Component={Experimentations} />
         <Route path='/corpus/oeuvres' Component={Oeuvres} />
-        <Route path='/corpus/element-narratif/:id' Component={ElementNarratif} />
-        <Route path='/corpus/element-esthetique/:id' Component={ElementEsthetique} />
-        <Route path='/corpus/analyse-critique/:id' Component={AnalyseCritique} />
+        {/* ❌ Anciennes routes pour les éléments individuels - remplacées par ConfigurableDetailPage ci-dessous */}
+        {/* <Route path='/corpus/element-narratif/:id' Component={ElementNarratif} /> */}
+        {/* <Route path='/corpus/element-esthetique/:id' Component={ElementEsthetique} /> */}
+        {/* <Route path='/corpus/analyse-critique/:id' Component={AnalyseCritique} /> */}
         {/* Contextual edition routes */}
         <Route path='/corpus/seminaires/edition/:id/:title?' Component={Edition} />
         <Route path='/corpus/colloques/edition/:id/:title?' Component={Edition} />
         <Route path='/corpus/journees-etudes/edition/:id/:title?' Component={Edition} />
 
-        {/* Contextual conference routes */}
+        {/* ============================================ */}
+        {/* 🆕 NOUVELLE ARCHITECTURE GÉNÉRIQUE - ROUTES PRINCIPALES */}
+        {/* ============================================ */}
+        {/* 
+          Toutes les pages de détails utilisent maintenant ConfigurableDetailPage
+          avec une configuration spécifique. Cela permet de :
+          - Centraliser la logique métier dans les configs
+          - Réduire la duplication de code
+          - Faciliter la maintenance et l'ajout de nouveaux types
+          
+          Pour ajouter un nouveau type :
+          1. Créez un fichier config dans @/pages/generic/config/
+          2. Importez la config ici
+          3. Ajoutez la route avec ConfigurableDetailPage
+        */}
+
+        {/* Routes contextuelles pour les conférences (séminaires, colloques, journées d'études) */}
+        <Route path='/corpus/seminaires/conference/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
+        <Route path='/corpus/colloques/conference/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
+        <Route path='/corpus/journees-etudes/conference/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
+
+        {/* Routes pour les items individuels */}
+        <Route path='/corpus/oeuvres/genre/:slug' Component={GenreDetail} />
+        <Route path='/corpus/experimentation/:id' element={<ConfigurableDetailPage config={experimentationConfig} />} />
+        <Route path='/corpus/mise-en-recit/:id' element={<ConfigurableDetailPage config={miseEnRecitConfig} />} />
+        <Route path='/corpus/oeuvre/:id' element={<ConfigurableDetailPage config={oeuvreConfig} />} />
+        <Route path='/feedback/:id' element={<ConfigurableDetailPage config={feedbackConfig} />} />
+        <Route path='/corpus/element-esthetique/:id' element={<ConfigurableDetailPage config={elementEsthetiqueConfig} />} />
+        <Route path='/corpus/element-narratif/:id' element={<ConfigurableDetailPage config={elementNarratifConfig} />} />
+        <Route path='/corpus/analyse-critique/:id' element={<ConfigurableDetailPage config={analyseCritiqueConfig} />} />
+        <Route path='/corpus/objet-techno/:id' element={<ConfigurableDetailPage config={objetTechnoConfig} />} />
+        <Route path='/corpus/tool/:id' element={<ConfigurableDetailPage config={toolConfig} />} />
+
+        {/* Routes pour les personnes/intervenants (toujours utilisées directement) */}
+        <Route path='/intervenant/:id' Component={Intervenant} />
+        <Route path='/personne/:id' Component={Personne} />
+
+        {/* ============================================ */}
+        {/* ❌ ANCIENNES ROUTES - DÉSACTIVÉES */}
+        {/* ============================================ */}
+        {/* 
+          Les routes suivantes sont commentées car elles utilisent les anciens composants
+          individuels. Elles sont conservées pour référence mais ne sont plus actives.
+          Le nouveau système utilise ConfigurableDetailPage avec des configurations.
+        */}
+        {/* 
         <Route path='/corpus/seminaires/conference/:id' Component={Conference} />
         <Route path='/corpus/colloques/conference/:id' Component={Conference} />
         <Route path='/corpus/journees-etudes/conference/:id' Component={Conference} />
-
-        {/* Individual item routes */}
-        <Route path='/corpus/oeuvres/genre/:slug' Component={GenreDetail} />
         <Route path='/corpus/experimentation/:id' Component={Experimentation} />
         <Route path='/corpus/mise-en-recit/:id' Component={miseEnRecit} />
         <Route path='/corpus/oeuvre/:id' Component={Oeuvre} />
         <Route path='/feedback/:id' Component={Feedback} />
-        <Route path='/intervenant/:id' Component={Intervenant} />
-        <Route path='/personne/:id' Component={Personne} />
-
-        {/* 🆕 ROUTES DE TEST - Nouvelle architecture générique (1 SEUL fichier par type!) */}
-        {/* Plus besoin de créer une page - on utilise directement la config! */}
-        {/* Pour tester, ajoutez "-new" dans l'URL, ex: /corpus/seminaires/conference-new/:id */}
-        <Route path='/corpus/seminaires/conference-new/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
-        <Route path='/corpus/colloques/conference-new/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
-        <Route path='/corpus/journees-etudes/conference-new/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
-        <Route path='/corpus/experimentation-new/:id' element={<ConfigurableDetailPage config={experimentationConfig} />} />
-        <Route path='/corpus/mise-en-recit-new/:id' element={<ConfigurableDetailPage config={miseEnRecitConfig} />} />
-        <Route path='/corpus/oeuvre-new/:id' element={<ConfigurableDetailPage config={oeuvreConfig} />} />
-        <Route path='/corpus/element-esthetique-new/:id' element={<ConfigurableDetailPage config={elementEsthetiqueConfig} />} />
-        <Route path='/corpus/element-narratif-new/:id' element={<ConfigurableDetailPage config={elementNarratifConfig} />} />
-        <Route path='/feedback-new/:id' element={<ConfigurableDetailPage config={feedbackConfig} />} />
-        <Route path='/corpus/analyse-critique-new/:id' element={<ConfigurableDetailPage config={analyseCritiqueConfig} />} />
-        <Route path='/corpus/objet-techno/:id' element={<ConfigurableDetailPage config={objetTechnoConfig} />} />
-        <Route path='/corpus/tool/:id' element={<ConfigurableDetailPage config={toolConfig} />} />
+        <Route path='/corpus/element-narratif/:id' Component={ElementNarratif} />
+        <Route path='/corpus/element-esthetique/:id' Component={ElementEsthetique} />
+        <Route path='/corpus/analyse-critique/:id' Component={AnalyseCritique} />
+        */}
       </Routes>
     </HeroUIProvider>
   );

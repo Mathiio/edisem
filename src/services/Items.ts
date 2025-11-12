@@ -112,23 +112,35 @@ export const getAllProperties = async (): Promise<any[]> => {
 export async function getDataByUrl(url: string) {
   try {
     //console.log(`Fetching data from: ${url}`);
-    const response = await fetch(url);
+
+    // Check if this is an AJAX call that should use POST
+    const isAjaxCall = url.includes('/ajax?') && url.includes('helper=Query');
+
+    let response;
+    if (isAjaxCall) {
+      // For AJAX calls, use GET with parameters in URL (the API expects this format)
+      response = await fetch(url);
+    } else {
+      // Regular GET request
+      response = await fetch(url);
+    }
+
     //console.log(`Response status: ${response.status} ${response.statusText}`);
-    
+
     if (!response.ok) {
       throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
     }
-    
+
     // Check if response has content
     const text = await response.text();
     //console.log(`Response text length: ${text.length}`);
     //console.log(`Response text preview: ${text.substring(0, 200)}...`);
-    
+
     if (!text || text.trim() === '') {
       console.warn(`Empty response from ${url}`);
       return [];
     }
-    
+
     // Try to parse JSON
     try {
       const data = JSON.parse(text);
@@ -748,12 +760,7 @@ export async function getAllConfs(id?: number) {
   }
 }
 
-/**
- * Récupère tous les outils (eclap:Tool) avec leurs relations hydratées
- * Template ID: 114
- * @param id - Optionnel: ID spécifique d'un outil à récupérer
- * @returns Tableau d'outils ou objet unique si ID fourni
- */
+
 export async function getTools(id?: number) {
   try {
     // 1. CACHE : Vérifier sessionStorage
@@ -1337,11 +1344,7 @@ export async function getAnalyseCritiqueById(id: string | number) {
     throw new Error('Failed to fetch analyse critique');
   }
 }
-/**
- * Récupère les Objets techno-industriels avec leurs relations hydratées
- * @param id - Optionnel: ID spécifique d'un objet à récupérer
- * @returns Tableau d'objets techno-industriels ou objet unique si ID fourni
- */
+
 export async function getObjetsTechnoIndustriels(id?: number) {
   try {
     // 1. CACHE : Vérifier sessionStorage

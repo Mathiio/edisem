@@ -211,7 +211,7 @@ export const toolConfig: GenericDetailPageConfig = {
     // Vue 4 : Projet associé
     {
       key: 'ProjetAssocie',
-      title: 'Projet associé',
+      title: 'Projets associés',
       renderContent: ({ itemDetails }) => {
         if (!itemDetails?.isPartOf) {
           return <div className='p-20 bg-c2 rounded-12 border-2 border-c3 text-c4 text-center'>Aucun projet associé</div>;
@@ -239,6 +239,9 @@ export const toolConfig: GenericDetailPageConfig = {
       },
     },
   ],
+
+  // Onglet par défaut
+  defaultView: 'Caracteristiques',
 
   // Sections optionnelles
   showKeywords: false, // Les tools n'ont pas de keywords dans le JSON fourni

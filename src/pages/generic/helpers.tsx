@@ -98,13 +98,13 @@ export const createCulturalReferencesView = (): ViewOption => {
 /**
  * Vue pour les outils
  */
-export const createToolsView = (getTools?: (itemDetails: any, viewData?: any) => ToolItemData[]): ViewOption => {
+export const createToolsView = (getTools?: (itemDetails: any, viewData?: any) => ToolItemData[], mapUrl?: (item: ToolItemData) => string): ViewOption => {
   return {
     key: 'Outils',
     title: 'Outils',
     renderContent: ({ itemDetails, viewData }) => {
       const items = getTools ? getTools(itemDetails, viewData) : itemDetails?.tools || [];
-      return <ItemsList items={items} emptyMessage='Aucun outil' annotationType='Outil' />;
+      return <ItemsList items={items} emptyMessage='Aucun outil' annotationType='Outil' mapUrl={mapUrl} />;
     },
   };
 };
@@ -156,7 +156,7 @@ export const createAestheticElementsView = (): ViewOption => {
 export const createCriticalAnalysisView = (): ViewOption => {
   return createItemsListView({
     key: 'AnalyseCritique',
-    title: 'Analyse critique',
+    title: 'Analyses critiques',
     getItems: (itemDetails) => itemDetails?.annotations || [],
     emptyMessage: 'Aucune analyse critique',
     annotationType: 'Analyse',
@@ -207,18 +207,18 @@ export const createAnalysisView = (): ViewOption => {
  */
 export const createOeuvreViews = (): ViewOption[] => {
   return [
+    createCriticalAnalysisView(),
     createScientificReferencesView(),
     createCulturalReferencesView(),
-    createArchivesView(),
+    //createArchivesView(),
     createNarrativeElementsView(),
     createAestheticElementsView(),
-    createCriticalAnalysisView(),
   ];
 };
 
 /**
  * Ensemble complet pour une page Experimentation
  */
-export const createExperimentationViews = (toolsGetter?: (itemDetails: any, viewData?: any) => ToolItemData[]): ViewOption[] => {
-  return [createFeedbacksView(), createHypothesisView(), createToolsView(toolsGetter), createScientificReferencesView(), createCulturalReferencesView()];
+export const createExperimentationViews = (toolsGetter?: (itemDetails: any, viewData?: any) => ToolItemData[], toolsMapUrl?: (item: ToolItemData) => string): ViewOption[] => {
+  return [createFeedbacksView(), createHypothesisView(), createScientificReferencesView(), createCulturalReferencesView(), createToolsView(toolsGetter, toolsMapUrl)];
 };

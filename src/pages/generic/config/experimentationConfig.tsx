@@ -110,7 +110,10 @@ export const experimentationConfig: GenericDetailPageConfig = {
   }),
 
   // ✨ Options de vue simplifiées avec viewHelpers (5 vues en 1 ligne!)
-  viewOptions: createExperimentationViews((_itemDetails, viewData) => viewData?.tools || []),
+  viewOptions: createExperimentationViews(
+    (_itemDetails, viewData) => viewData?.tools || [],
+    (tool) => `/corpus/tool/${tool.id}`,
+  ),
 
   // Sections optionnelles
   showKeywords: true,
