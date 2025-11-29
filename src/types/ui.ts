@@ -55,6 +55,7 @@ export type Actant = {
   picture: string;
   mail: string;
   url: string;
+  jobTitle?: { title: string }[];
   universities: University[];
   doctoralSchools: DoctoralSchool[];
   laboratories: Laboratory[];

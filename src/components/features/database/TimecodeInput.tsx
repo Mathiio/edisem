@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TimeInput } from '@heroui/date-input';
-import { Time, CalendarDate, DateValue } from '@internationalized/date';
+import { Time, CalendarDate } from '@internationalized/date';
 import { Calendar } from '@heroui/react';
 
 interface TimecodeInputProps {
@@ -148,10 +148,12 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
     handleInputChange(`${formatDateTime(newInterval.date, newInterval.start)}/${formatDateTime(newInterval.date, newInterval.end)}`);
   };
 
-  const handleDateChange = (newDate: CalendarDate) => {
-    const newInterval = { ...parsedInterval, date: newDate };
-    setParsedInterval(newInterval);
-    handleInputChange(`${formatDateTime(newInterval.date, newInterval.start)}/${formatDateTime(newInterval.date, newInterval.end)}`);
+  const handleDateChange = (newDate: any) => {
+    if (newDate instanceof CalendarDate) {
+      const newInterval = { ...parsedInterval, date: newDate };
+      setParsedInterval(newInterval);
+      handleInputChange(`${formatDateTime(newInterval.date, newInterval.start)}/${formatDateTime(newInterval.date, newInterval.end)}`);
+    }
   };
 
   return (
@@ -169,7 +171,7 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
               nextButton: 'rounded-8 w-[50px]',
             }}
             aria-label='Date'
-            value={parsedInterval.date}
+            value={parsedInterval.date as any}
             onChange={handleDateChange}
             showMonthAndYearPickers
             visibleMonths={2}
@@ -185,6 +187,7 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
     </div>
   );
 };
+
 interface DateInputProps {
   date?: string;
   handleInputChange: (value: string) => void;
@@ -213,7 +216,7 @@ export const DatePicker: React.FC<DateInputProps> = ({ label, date, handleInputC
     setSelectedDate(getInitialDateValue());
   }, [date]);
 
-  const handleDateChange = (newDate: DateValue | null) => {
+  const handleDateChange = (newDate: any) => {
     if (newDate instanceof CalendarDate) {
       setSelectedDate(newDate);
       handleInputChange(newDate.toString().split('T')[0]); // Exemple de format ISO 8601 sans l'heure
@@ -236,7 +239,7 @@ export const DatePicker: React.FC<DateInputProps> = ({ label, date, handleInputC
           nextButton: 'rounded-8 w-[50px]',
         }}
         aria-label='Date'
-        value={selectedDate}
+        value={selectedDate as any}
         onChange={handleDateChange}
         showMonthAndYearPickers
         visibleMonths={2}
