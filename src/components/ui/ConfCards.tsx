@@ -172,30 +172,12 @@ export const SmConfCard: React.FC<Conference> = (props) => {
   const navigate = useNavigate();
   const textRef = useRef<HTMLParagraphElement>(null);
 
-  const thumbnailUrl = conference.url ? getYouTubeThumbnailUrl(conference.url) : '';
+  // Utiliser le thumbnail directement si disponible, sinon essayer getYouTubeThumbnailUrl
+  const thumbnailUrl = conference.thumbnail || (conference.url ? getYouTubeThumbnailUrl(conference.url) : '');
 
   const openConf = () => {
     const route = buildConfsRoute(conference.type, Number(conference.id));
     navigate(route);
-  };
-
-  const renderActantNames = () => {
-    if (!conference.actant || !Array.isArray(conference.actant) || conference.actant.length === 0) {
-      return 'Aucun intervenant';
-    }
-
-    if (conference.actant.length === 1) {
-      const actant = conference.actant[0];
-      return `${actant?.firstname || ''} ${actant?.lastname || ''}`;
-    }
-
-    const displayActants = conference.actant.slice(0, 2);
-    const names = displayActants
-      .filter((actant) => actant)
-      .map((actant) => `${actant.firstname || ''} ${actant.lastname || ''}`)
-      .join(', ');
-
-    return conference.actant.length > 2 ? `${names} et ${conference.actant.length - 2} autre${conference.actant.length > 3 ? 's' : ''}` : names;
   };
 
   return (
@@ -203,10 +185,10 @@ export const SmConfCard: React.FC<Conference> = (props) => {
       onClick={openConf}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className='cursor-pointer flex flex-col gap-10 transition-all ease-in-out duration-200 relative'>
+      className={`p-2 cursor-pointer justify-center flex flex-col gap-10 transition-all ease-in-out duration-200 relative ${isHovered ? 'bg-c2 rounded-12' : ''}`}>
       <div
-        className={`absolute w-full h-full rounded-12 transition-all ease-in-out duration-200 
-        ${isHovered ? 'bg-c2 scale-105' : 'scale-100'}`}></div>
+        className={` absolute min-w-full h-full rounded-12 transition-all ease-in-out duration-200 
+       `}></div>
       <div
         className={`p-50 h-200 w-full rounded-12 justify-center items-center flex z-10 ${thumbnailUrl ? 'bg-cover bg-center ' : 'bg-gradient-to-br from-c3 to-c4'}`}
         style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
@@ -218,7 +200,6 @@ export const SmConfCard: React.FC<Conference> = (props) => {
             {conference.title}
           </p>
         </div>
-        <p className='text-16 text-c5 font-extralight'>{renderActantNames()}</p>
       </div>
     </div>
   );

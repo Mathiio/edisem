@@ -901,31 +901,18 @@ export const ColloqueIcon: React.FC<IconSvgProps> = ({ size = 26, width, height,
 );
 
 export const MaximizeIcon: React.FC<IconSvgProps> = ({ size = 26, width, height, ...props }) => (
-  <svg width={size || width} height={size || height} viewBox='0 0 24 24' {...props}>
-    <path
-      d='M22 14C22 17.7712 22 19.6569 20.8284 20.8284C19.6569 22 17.7712 22 14 22H14C13.4477 22 13 21.5523 13 21C13 20.4477 13.4477 20 14 20C17.2426 20 18.8137 19.9991 19.9069 18.9059C21 17.8127 21 16.2426 21 13C21 14H21C21 13.4477 21.4477 13 22 13C22.5523 13 23 13.4477 23 14Z'
-      fill='currentColor'
-      fillRule='evenodd'
-      clipRule='evenodd'
-    />
-    <path
-      d='M10 22C6.22876 22 4.34315 22 3.17157 20.8284C2 19.6569 2 17.7712 2 14C2 13.4477 2.44772 13 3 13C3.55228 13 4 13.4477 4 14C4 16.2426 4.00087 17.8127 5.09411 18.9059C6.18634 19.9991 7.75736 20 10 20C10.5523 20 11 20.4477 11 21C11 21.5523 10.5523 22 10 22Z'
-      fill='currentColor'
-      fillRule='evenodd'
-      clipRule='evenodd'
-    />
-    <path
-      d='M10 2C6.22876 2 4.34315 2 3.17157 3.17157C2 4.34315 2 6.22876 2 10C2 10.5523 2.44772 11 3 11C3.55228 11 4 10.5523 4 10C4 7.75736 4.00087 6.18634 5.09411 5.09411C6.18634 4.00087 7.75736 4 10 4C10.5523 4 11 3.55228 11 3C11 2.44772 10.5523 2 10 2Z'
-      fill='currentColor'
-      fillRule='evenodd'
-      clipRule='evenodd'
-    />
-    <path
-      d='M14 2C17.7712 2 19.6569 2 20.8284 3.17157C22 4.34315 22 6.22876 22 10C22 10.5523 21.5523 11 21 11C20.4477 11 20 10.5523 20 10C20 7.75736 19.9991 6.18634 18.9059 5.09411C17.8137 4.00087 16.2426 4 14 4C13.4477 4 13 3.55228 13 3C13 2.44772 13.4477 2 14 2Z'
-      fill='currentColor'
-      fillRule='evenodd'
-      clipRule='evenodd'
-    />
+  <svg width={size || width} height={size || height} viewBox='0 0 24 24' fill='none' {...props}>
+    {/* Coin bas droit */}
+    <path d='M22 14c0 3.77 0 5.66-1.17 6.83C19.66 22 17.77 22 14 22a1 1 0 110-2c3.24 0 4.81 0 5.9-1.09C21 17.81 21 16.24 21 13a1 1 0 112 0z' fill='currentColor' />
+
+    {/* Coin bas gauche */}
+    <path d='M10 22c-3.77 0-5.66 0-6.83-1.17C2 19.66 2 17.77 2 14a1 1 0 112 0c0 2.24 0 3.81 1.09 4.91C6.19 20 7.76 20 10 20a1 1 0 110 2z' fill='currentColor' />
+
+    {/* Coin haut gauche */}
+    <path d='M10 2c-3.77 0-5.66 0-6.83 1.17C2 4.34 2 6.23 2 10a1 1 0 102 0c0-2.24 0-3.81 1.09-4.91C6.19 4 7.76 4 10 4a1 1 0 100-2z' fill='currentColor' />
+
+    {/* Coin haut droit */}
+    <path d='M14 2c3.77 0 5.66 0 6.83 1.17C22 4.34 22 6.23 22 10a1 1 0 11-2 0c0-2.24 0-3.81-1.09-4.91C18.81 4 17.24 4 14 4a1 1 0 110-2z' fill='currentColor' />
   </svg>
 );
 

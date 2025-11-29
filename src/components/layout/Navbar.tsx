@@ -64,9 +64,9 @@ export const Navbar: React.FC = () => {
         </div>
 
         <div className='flex items-center gap-20'>
-          <Link to='/' className={`${linkBaseClass} ${isActive('/') ? activeClass : hoverClass}`}>
+          {/* <Link to='/' className={`${linkBaseClass} ${isActive('/') ? activeClass : hoverClass}`}>
             <div className='font-medium'>Accueil</div>
-          </Link>
+          </Link> */}
 
           <Dropdown>
             <DropdownTrigger>

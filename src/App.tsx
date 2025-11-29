@@ -24,7 +24,6 @@ import { Intervenants } from '@/pages/intervenants';
 import { Colloques } from '@/pages/corpus/Colloques';
 import { PratiqueNarrative } from '@/pages/corpus/PratiqueNarrative';
 import { JourneesEtudes } from '@/pages/corpus/JourneesEtudes';
-import { MiseEnRecits } from '@/pages/corpus/MiseEnRecits';
 import { Seminaires } from '@/pages/corpus/Seminaires';
 import { Experimentations } from '@/pages/corpus/Experimentations';
 import { Oeuvres } from '@/pages/corpus/Oeuvres';
@@ -38,7 +37,6 @@ import { GenreDetail } from '@/pages/corpus/genre';
 import { ConfigurableDetailPage } from '@/pages/generic/ConfigurableDetailPage';
 import { conferenceConfig } from '@/pages/generic/config/conferenceConfig';
 import { experimentationConfig } from '@/pages/generic/config/experimentationConfig';
-import { miseEnRecitConfig } from '@/pages/generic/config/miseEnRecitConfig';
 import { oeuvreConfig } from '@/pages/generic/config/oeuvreConfig';
 import { elementEsthetiqueConfig } from '@/pages/generic/config/elementEsthetiqueConfig';
 import { elementNarratifConfig } from '@/pages/generic/config/elementNarratifConfig';
@@ -46,6 +44,7 @@ import { feedbackConfig } from '@/pages/generic/config/feedbackConfig';
 import { analyseCritiqueConfig } from '@/pages/generic/config/analyseCritiqueConfig';
 import { objetTechnoConfig } from '@/pages/generic/config/objetTechnoConfig';
 import { toolConfig } from '@/pages/generic/config/toolConfig';
+import { documentationScientifiqueConfig } from '@/pages/generic/config/documentationScientifiqueConfig';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
@@ -70,7 +69,6 @@ function App() {
         <Route path='/corpus/colloques' Component={Colloques} />
         <Route path='/corpus/journees-etudes' Component={JourneesEtudes} />
         <Route path='/corpus/pratiques-narratives' Component={PratiqueNarrative} />
-        <Route path='/corpus/mise-en-recits' Component={MiseEnRecits} />
         <Route path='/corpus/experimentations' Component={Experimentations} />
         <Route path='/corpus/oeuvres' Component={Oeuvres} />
         {/* ❌ Anciennes routes pour les éléments individuels - remplacées par ConfigurableDetailPage ci-dessous */}
@@ -106,7 +104,6 @@ function App() {
         {/* Routes pour les items individuels */}
         <Route path='/corpus/oeuvres/genre/:slug' Component={GenreDetail} />
         <Route path='/corpus/experimentation/:id' element={<ConfigurableDetailPage config={experimentationConfig} />} />
-        <Route path='/corpus/mise-en-recit/:id' element={<ConfigurableDetailPage config={miseEnRecitConfig} />} />
         <Route path='/corpus/oeuvre/:id' element={<ConfigurableDetailPage config={oeuvreConfig} />} />
         <Route path='/feedback/:id' element={<ConfigurableDetailPage config={feedbackConfig} />} />
         <Route path='/corpus/element-esthetique/:id' element={<ConfigurableDetailPage config={elementEsthetiqueConfig} />} />
@@ -114,6 +111,7 @@ function App() {
         <Route path='/corpus/analyse-critique/:id' element={<ConfigurableDetailPage config={analyseCritiqueConfig} />} />
         <Route path='/corpus/objet-techno/:id' element={<ConfigurableDetailPage config={objetTechnoConfig} />} />
         <Route path='/corpus/tool/:id' element={<ConfigurableDetailPage config={toolConfig} />} />
+        <Route path='/corpus/documentation-scientifique/:id' element={<ConfigurableDetailPage config={documentationScientifiqueConfig} />} />
 
         {/* Routes pour les personnes/intervenants (toujours utilisées directement) */}
         <Route path='/intervenant/:id' Component={Intervenant} />

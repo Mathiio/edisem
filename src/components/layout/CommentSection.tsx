@@ -32,8 +32,6 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
       // Filtrer les commentaires selon le LinkedResourceId
       const filteredComments = comments.filter((comment: Comment) => comment.relatedResource === LinkedResourceId.toString());
       setComments(filteredComments);
-
-      console.log('filteredComments', filteredComments);
     });
   }, [LinkedResourceId]);
 

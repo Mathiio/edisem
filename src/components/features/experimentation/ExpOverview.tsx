@@ -33,9 +33,10 @@ type ExpOverviewProps = {
   percentage: number;
   status: string;
   buttonText: string;
+  type?: string;
 };
 
-export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, personnes, medias, fullUrl, buttonText, percentage, status }) => {
+export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, personnes, medias, fullUrl, buttonText, percentage, status, type }) => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
 
   const navigate = useNavigate();
@@ -119,7 +120,10 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, personn
       </motion.div>
 
       <motion.div variants={itemVariants} className='w-full flex flex-col gap-25'>
-        <h1 className='font-medium text-c6 text-24'>{title}</h1>
+        <div className='flex items-center gap-15'>
+          <h1 className='font-medium text-c6 text-24'>{title}</h1>
+          {type && <span className='text-14 text-c5 px-10 py-5 bg-c2 rounded-8 border border-c3'>{type}</span>}
+        </div>
         <div className='w-full flex flex-col gap-10'>
           <div className='w-full flex justify-between gap-10 items-center'>
             <Link className='w-fit flex justify-start gap-10 items-center cursor-pointer' onClick={openActant}>
@@ -130,6 +134,9 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({ id, title, personn
               )}
               <div className='flex flex-col items-start gap-0.5'>
                 <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
+                {personnes[0]?.jobTitle && Array.isArray(personnes[0].jobTitle) && personnes[0].jobTitle.length > 0 && (
+                  <p className='text-c4 font-extralight text-14'>{personnes[0].jobTitle[0]?.title}</p>
+                )}
               </div>
             </Link>
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LinkIcon, ImageIcon, SoundIcon, CameraIcon, FileIcon, UserIcon } from '@/components/ui/icons';
 import { Link } from 'react-router-dom';
-import { Button } from '@heroui/button';
+import { Button } from '@heroui/react';
 
 interface MediaCardProps {
   title: string;

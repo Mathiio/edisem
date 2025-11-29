@@ -2,6 +2,7 @@ import { GenericDetailPageConfig, FetchResult } from '../config';
 import { ConfOverviewCard, ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
 import { ConfDetailsCard, ConfDetailsSkeleton } from '@/components/features/conference/ConfDetails';
 import { Citations } from '@/components/features/conference/CitationsCards';
+import { Microresumes } from '@/components/features/conference/MicroresumesCards';
 import { Bibliographies } from '@/components/features/conference/BibliographyCards';
 import { Mediagraphies } from '@/components/features/conference/MediagraphyCards';
 import { getConfCitations, getConfBibliographies, getConfMediagraphies } from '@/services/api';
@@ -20,6 +21,8 @@ export const conferenceConfig: GenericDetailPageConfig = {
       getConfMediagraphies(Number(id)),
     ]);
 
+    console.log('🔍 Conf récupérée:', conf);
+
     return {
       itemDetails: conf,
       keywords: conf?.motcles || [],
@@ -28,6 +31,7 @@ export const conferenceConfig: GenericDetailPageConfig = {
         citations,
         bibliographies,
         mediagraphies,
+        microresumes: (conf?.micro_resumes || []).slice().sort((a: any, b: any) => a.startTime - b.startTime),
       },
     };
   },
@@ -56,9 +60,14 @@ export const conferenceConfig: GenericDetailPageConfig = {
   // Options de vue
   viewOptions: [
     {
+      key: 'MicroResumes',
+      title: 'Micro-résumés',
+      renderContent: ({ viewData, loading, onTimeChange }) => <Microresumes microresumes={viewData.microresumes || []} loading={loading} onTimeChange={onTimeChange} />,
+    },
+    {
       key: 'Citations',
       title: 'Citations',
-      renderContent: ({ viewData, loading }) => <Citations citations={viewData.citations || []} loading={loading} onTimeChange={() => {}} />,
+      renderContent: ({ viewData, loading, onTimeChange }) => <Citations citations={viewData.citations || []} loading={loading} onTimeChange={onTimeChange} />,
     },
     {
       key: 'Bibliographie',
@@ -87,4 +96,7 @@ export const conferenceConfig: GenericDetailPageConfig = {
   showRecommendations: true,
   showComments: true,
   recommendationsTitle: 'Conférences associées',
+
+  // Type à afficher
+  type: 'Conférence',
 };

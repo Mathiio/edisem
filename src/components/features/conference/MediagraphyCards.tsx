@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CameraIcon, SoundIcon, ImageIcon, FileIcon } from '@/components/ui/icons';
 
-
 const formatAuthors = (creators: { first_name: string; last_name: string }[] = []) => {
   if (!Array.isArray(creators)) {
     console.error("creators n'est pas un tableau");
@@ -246,21 +245,12 @@ export const MediagraphyCard: React.FC<Mediagraphy> = ({
 
   return (
     <div
-      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${
-        isHovered ? 'border-c6' : 'border-c3'
-      }`}
+      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
       <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={uri ?? '#'} target='_blank'>
-        <div
-          className={`flex flex-col justify-center transition-transform-colors-opacity ${
-            isHovered ? 'text-c6' : 'text-c4'
-          }`}>
-          {thumbnail ? (
-            <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' />
-          ) : (
-            getIcon(mediaType)
-          )}
+        <div className={`flex flex-col justify-center transition-transform-colors-opacity ${isHovered ? 'text-c6' : 'text-c4'}`}>
+          {thumbnail ? <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' /> : getIcon(mediaType)}
         </div>
 
         <div className='w-full text-16 text-c6 font-extralight'>
@@ -313,7 +303,7 @@ export const MediagraphyCard: React.FC<Mediagraphy> = ({
   );
 };
 
-export const Mediagraphies: React.FC<{ items: Mediagraphy[]; loading: boolean }> = ({ items, loading }) => {
+export const Mediagraphies: React.FC<{ items: Mediagraphy[]; loading: boolean; notitle?: boolean }> = ({ items, loading, notitle }) => {
   // Fonction de tri pour comparer les noms de famille des créateurs ou réalisateurs
   const sortByLastName = (a: Mediagraphy, b: Mediagraphy) => {
     const getLastName = (item: Mediagraphy) => {
@@ -355,7 +345,7 @@ export const Mediagraphies: React.FC<{ items: Mediagraphy[]; loading: boolean }>
             {/* Mediagraphies de conférence */}
             {sortedConferenceMediagraphies.length > 0 && (
               <>
-                <h2 className='text-16 text-c5 font-medium'>Médiagraphies de Conférence</h2>
+                {!notitle && <h2 className='text-16 text-c5 font-medium'>Médiagraphies de Conférence</h2>}
                 <div className='flex flex-col gap-10'>
                   {sortedConferenceMediagraphies.map((item, index) => (
                     <MediagraphyCard key={index} {...item} />
@@ -367,7 +357,7 @@ export const Mediagraphies: React.FC<{ items: Mediagraphy[]; loading: boolean }>
             {/* Médiagraphies complémentaires */}
             {sortedComplementaryMediagraphies.length > 0 && (
               <>
-                <h2 className='text-16 text-c5 font-medium'>Médiagraphies Complémentaires</h2>
+                {!notitle && <h2 className='text-16 text-c5 font-medium'>Médiagraphies Complémentaires</h2>}
                 <div className='flex flex-col gap-10'>
                   {sortedComplementaryMediagraphies.map((item, index) => (
                     <MediagraphyCard key={index} {...item} />
@@ -391,8 +381,7 @@ export const UnloadedCard: React.FC = () => (
     <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
       <h2 className='text-c6 text-32 font-semibold'>Oups !</h2>
       <p className='text-c5 text-16 text-center'>
-        Aucune médiagraphie n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres
-        sections de notre site.
+        Aucune médiagraphie n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
       </p>
     </div>
   </div>

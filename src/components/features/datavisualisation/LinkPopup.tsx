@@ -55,17 +55,12 @@ export default function LinkPopup({ firstSelectedNode, secondSelectedNode, onCon
 
   return (
     <div className='w-full flex flex-col gap-4 h-full overflow-hidden justify-between'>
-      <div className='text-14 flex justify-start leading-[150%] w-full gap-2 rounded-0 text-c6 bg-transparent'>
-        Connecter des données
-      </div>
+      <div className='text-14 flex justify-start leading-[150%] w-full gap-2 rounded-0 text-c6 bg-transparent'>Connecter des données</div>
       <Divider />
 
       <div className='flex flex-row gap-20 items-center'>
         {/* Premier nœud */}
-        <div
-          className={`text-14 text-c6 py-4 w-full bg-c3 rounded-8 flex flex-col justify-center items-center ${
-            !firstSelectedNode ? 'border-2 border-white' : ''
-          }`}>
+        <div className={`text-14 text-c6 py-4 w-full bg-c3 rounded-8 flex flex-col justify-center items-center ${!firstSelectedNode ? 'border-2 border-white' : ''}`}>
           {firstSelectedNode ? firstSelectedNode.fullTitle : <div className='loader'></div>}
         </div>
 
@@ -77,15 +72,7 @@ export default function LinkPopup({ firstSelectedNode, secondSelectedNode, onCon
         <div
           className={`text-14 text-c6 py-4 w-full bg-c3 rounded-8 flex flex-col justify-center items-center ${
             firstSelectedNode && !secondSelectedNode ? 'border-2 border-white opacity-100' : ''
-          } ${
-            !firstSelectedNode
-              ? 'opacity-50'
-              : firstSelectedNode && !secondSelectedNode
-                ? ''
-                : !secondSelectedNode
-                  ? 'opacity-50'
-                  : ''
-          }`}>
+          } ${!firstSelectedNode ? 'opacity-50' : firstSelectedNode && !secondSelectedNode ? '' : !secondSelectedNode ? 'opacity-50' : ''}`}>
           {secondSelectedNode ? secondSelectedNode.fullTitle : <div className='loader'></div>}
         </div>
       </div>
@@ -104,7 +91,7 @@ export default function LinkPopup({ firstSelectedNode, secondSelectedNode, onCon
         labelPlacement='outside-left'
         placeholder='Sélectionnez un type de lien'>
         {LINK_TYPES.map((type) => (
-          <SelectItem className='text-c6 bg-c3' key={type.key}>
+          <SelectItem className='text-c6 bg-c3' key={type.key} textValue={type.label}>
             {type.label}
           </SelectItem>
         ))}

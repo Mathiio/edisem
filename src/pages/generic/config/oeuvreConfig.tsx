@@ -130,6 +130,8 @@ export const oeuvreConfig: GenericDetailPageConfig = {
       }
     }
 
+    console.log('oeuvre', oeuvre);
+
     return {
       itemDetails: oeuvre,
       keywords: oeuvreKeywords,
@@ -165,12 +167,41 @@ export const oeuvreConfig: GenericDetailPageConfig = {
     actants: oeuvre.actants,
   }),
 
+  // Mapper pour les recommandations (format SmConfCard)
+  mapRecommendationProps: (oeuvre: any) => ({
+    id: oeuvre.id,
+    title: oeuvre.title,
+    type: 'oeuvre',
+    url: null, // url est pour YouTube, on ne l'utilise pas ici
+    thumbnail: oeuvre.associatedMedia?.[0] || oeuvre.thumbnail || null,
+    actant: oeuvre.personne || [],
+  }),
+
   // ✨ Options de vue simplifiées avec viewHelpers (6 vues en 1 ligne!)
   viewOptions: createOeuvreViews(),
 
   // Sections optionnelles
   showKeywords: true,
-  showRecommendations: false, // Géré manuellement
+  showRecommendations: true,
   showComments: true,
-  recommendationsTitle: 'Conférences associées',
+  recommendationsTitle: 'Œuvres similaires',
+
+  // Smart recommendations
+  smartRecommendations: {
+    // Récupère toutes les oeuvres pour trouver des similaires
+    getAllResourcesOfType: async () => {
+      const oeuvres = await getOeuvres();
+      return oeuvres;
+    },
+
+    // Pour les oeuvres, on ne veut pas de recommandations liées
+    // Les éléments narratifs/esthétiques sont déjà dans les vues
+    // On veut seulement des oeuvres similaires
+    getRelatedItems: () => [],
+
+    maxRecommendations: 5,
+  },
+
+  // Type à afficher
+  type: 'Œuvre',
 };

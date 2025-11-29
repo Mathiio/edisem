@@ -25,9 +25,10 @@ const containerVariants: Variants = {
 type ConfOverviewProps = {
   conf: Conference;
   currentTime: number;
+  type?: string;
 };
 
-export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTime }) => {
+export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTime, type }) => {
   const [videoUrl, setVideoUrl] = useState<string>(conf.url);
   const [buttonText, setButtonText] = useState<string>('séance complète');
   const navigate = useNavigate();
@@ -56,10 +57,21 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
   }, [conf.url]);
 
   useEffect(() => {
+    console.log('🎬 ConfOverviewCard - Changement de temps détecté:', {
+      currentTime,
+      confId: conf.id,
+      confTitle: conf.title,
+      iframeExists: !!iframeRef.current,
+      contentWindowExists: !!iframeRef.current?.contentWindow,
+    });
+
     if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [currentTime, true] }), '*');
+      const message = JSON.stringify({ event: 'command', func: 'seekTo', args: [currentTime, true] });
+      console.log('📤 ConfOverviewCard - Envoi message à YouTube:', message);
+      iframeRef.current.contentWindow.postMessage(message, '*');
+      console.log('✅ ConfOverviewCard - Message envoyé à YouTube');
     } else {
-      console.log('iframeRef ou contentWindow non disponible');
+      console.log('❌ ConfOverviewCard - iframeRef ou contentWindow non disponible');
     }
   }, [currentTime]);
 
@@ -75,6 +87,21 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
       }
     }
   }, [videoUrl]);
+
+  useEffect(() => {
+    if (iframeRef.current?.contentWindow) {
+      // Convertir en nombre si nécessaire
+      const time = typeof currentTime === 'string' ? parseInt(currentTime, 10) : currentTime;
+
+      const message = JSON.stringify({
+        event: 'command',
+        func: 'seekTo',
+        args: [time, true],
+      });
+
+      iframeRef.current.contentWindow.postMessage(message, '*');
+    }
+  }, [currentTime]);
 
   const openActant = (id: string) => {
     navigate(`/intervenant/${id}`);
@@ -122,7 +149,10 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
         )}
       </motion.div>
       <motion.div variants={itemVariants} className='w-full flex flex-col gap-25'>
-        <h1 className='font-medium text-c6 text-24'>{conf.title}</h1>
+        <div className='flex items-center gap-15'>
+          <h1 className='font-medium text-c6 text-24'>{conf.title}</h1>
+          {type && <span className='text-14 text-c5 px-10 py-5 bg-c2 rounded-8 border border-c3'>{type}</span>}
+        </div>
         <div className='w-full flex flex-col gap-10'>
           <div className='w-full flex justify-between gap-10 items-center'>
             <div className='w-fit flex justify-start gap-10 items-center'>
@@ -138,7 +168,11 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
                     <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>
                       {conf.actant[0]?.firstname} {conf.actant[0]?.lastname}
                     </h3>
-                    <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{conf.actant[0]?.universities?.[0]?.shortName || ''}</p>
+                    {conf.actant[0]?.jobTitle && Array.isArray(conf.actant[0].jobTitle) && conf.actant[0].jobTitle.length > 0 ? (
+                      <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{conf.actant[0].jobTitle[0]?.title}</p>
+                    ) : (
+                      <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{conf.actant[0]?.universities?.[0]?.shortName || ''}</p>
+                    )}
                   </div>
                 </Link>
               )}
@@ -166,7 +200,11 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
                             <span className='text-16 font-medium'>
                               {actant.firstname} {actant.lastname}
                             </span>
-                            <span className='text-14 text-c4 font-extralight'>{actant.universities?.[0]?.shortName || ''}</span>
+                            {actant.jobTitle && Array.isArray(actant.jobTitle) && actant.jobTitle.length > 0 ? (
+                              <span className='text-14 text-c4 font-extralight'>{actant.jobTitle[0]?.title}</span>
+                            ) : (
+                              <span className='text-14 text-c4 font-extralight'>{actant.universities?.[0]?.shortName || ''}</span>
+                            )}
                           </div>
                         </div>
                       </DropdownItem>

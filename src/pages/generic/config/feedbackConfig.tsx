@@ -163,6 +163,16 @@ export const feedbackConfig: GenericDetailPageConfig = {
     description: feedback.description,
   }),
 
+  // Mapper pour les recommandations (format SmConfCard)
+  mapRecommendationProps: (feedback: any) => ({
+    id: feedback.id,
+    title: feedback.title,
+    type: 'feedback',
+    url: null, // url est pour YouTube, on ne l'utilise pas ici
+    thumbnail: feedback.thumbnail || null,
+    actant: feedback.enrichedActants || [],
+  }),
+
   // Vues basées sur les catégories de feedback
   viewOptions: FEEDBACK_CATEGORIES.map((category) => ({
     key: category.key,
@@ -198,6 +208,47 @@ export const feedbackConfig: GenericDetailPageConfig = {
   })),
 
   showKeywords: false,
-  showRecommendations: false,
+  showRecommendations: true,
   showComments: true,
+  recommendationsTitle: 'Autres retours d\'expérience',
+
+  // Smart recommendations
+  smartRecommendations: {
+    // Récupère tous les feedbacks de toutes les expérimentations
+    getAllResourcesOfType: async () => {
+      const experimentations = await getExperimentations();
+      const allFeedbacks: any[] = [];
+      
+      experimentations.forEach((exp: any) => {
+        if (exp.feedbacks && Array.isArray(exp.feedbacks)) {
+          allFeedbacks.push(...exp.feedbacks);
+        }
+      });
+      
+      return allFeedbacks;
+    },
+    
+    // Récupère les autres feedbacks de la même expérimentation
+    getRelatedItems: async (itemDetails) => {
+      if (!itemDetails?.experimentation?.id) return [];
+      
+      const experimentations = await getExperimentations();
+      const parentExp = experimentations.find((e: any) => 
+        String(e.id) === String(itemDetails.experimentation.id)
+      );
+      
+      if (parentExp && parentExp.feedbacks) {
+        return parentExp.feedbacks.filter(
+          (f: any) => String(f.id) !== String(itemDetails.id)
+        );
+      }
+      
+      return [];
+    },
+    
+    maxRecommendations: 5,
+  },
+  
+  // Type à afficher
+  type: 'Feedback',
 };

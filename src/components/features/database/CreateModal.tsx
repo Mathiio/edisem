@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Input, Spinner, Button, ModalBody, ModalFooter, ModalContent, Modal, Link, ModalHeader, addToast } from '@heroui/react';
 import { useFetchRT } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/features/database/SelectionInput';
-import { Textarea } from '@heroui/input';
+import { Textarea } from '@heroui/react';
 
 import { DatePicker, TimecodeInput } from '@/components/features/database/TimecodeInput';
 import { CrossIcon } from '@/components/ui/icons';

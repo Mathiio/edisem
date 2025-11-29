@@ -1,6 +1,6 @@
 import React from 'react';
 import { addToast, Button, Checkbox, cn, Divider } from '@heroui/react';
-import { Input } from '@heroui/input';
+import { Input } from '@heroui/react';
 import { useState } from 'react';
 import { GeneratedImage } from '@/pages/visualisation';
 

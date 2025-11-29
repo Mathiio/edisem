@@ -1,5 +1,68 @@
 const API_URL = 'https://tests.arcanes.ca/omk/api';
 
+// Clés de cache utilisées dans sessionStorage
+const CACHE_KEYS = [
+  'citations',
+  'annotations',
+  'bibliographies',
+  'mediagraphies',
+  'doctoralSchools',
+  'laboratories',
+  'universities',
+  'actants',
+  'editions',
+  'seminarConfs',
+  'colloqueConfs',
+  'studyDayConfs',
+  'allItems',
+  'tools',
+  'personnes',
+  'oeuvres',
+  'keywords',
+  'collections',
+  'feedbacks',
+  'experimentations',
+  'student',
+  'students',
+  'recitIas',
+  'elementNarratifs',
+  'elementEsthetique',
+  'comments',
+  'objetsTechnoIndustriels',
+  'documentationsScientifiques',
+];
+
+const CACHE_TIMESTAMP_KEY = 'edisem_cache_timestamp';
+
+/**
+ * Vérifie si le cache doit être vidé (si c'est un nouveau jour)
+ * et vide tous les caches si nécessaire
+ */
+function checkAndClearDailyCache(): void {
+  try {
+    const today = new Date().toDateString(); // Format: "Mon Jan 01 2024"
+    const lastCacheDate = sessionStorage.getItem(CACHE_TIMESTAMP_KEY);
+
+    // Si c'est un nouveau jour, vider tous les caches
+    if (lastCacheDate !== today) {
+      console.log('🗑️ Vidage du cache journalier - Nouveau jour détecté');
+      
+      // Vider tous les caches
+      CACHE_KEYS.forEach((key) => {
+        sessionStorage.removeItem(key);
+      });
+
+      // Mettre à jour le timestamp
+      sessionStorage.setItem(CACHE_TIMESTAMP_KEY, today);
+      
+      console.log('✅ Cache vidé avec succès');
+    }
+  } catch (error) {
+    console.error('Erreur lors de la vérification du cache:', error);
+    // En cas d'erreur, on continue quand même pour ne pas bloquer l'application
+  }
+}
+
 export interface Data {
   [x: string]: any;
   length: any;
@@ -128,6 +191,7 @@ export async function getDataByUrl(url: string) {
     //console.log(`Response status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
+      console.error(`Erreur ${response.status} ${response.statusText} pour ${url}`);
       throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
     }
 
@@ -160,6 +224,7 @@ export async function getDataByUrl(url: string) {
 
 export async function getCitations() {
   try {
+    checkAndClearDailyCache();
     const storedCitations = sessionStorage.getItem('citations');
 
     if (storedCitations) {
@@ -185,6 +250,7 @@ export async function getCitations() {
 
 export async function getAnnotations( id?: string | number   ) {
   try {
+    checkAndClearDailyCache();
     console.log('🚀 getAnnotations() called', id ? `for ID: ${id}` : '(all annotations)');
     const storedCitations = sessionStorage.getItem('annotations');
 
@@ -213,7 +279,7 @@ export async function getAnnotations( id?: string | number   ) {
       return allAnnotations;
     }
 
-    console.log('📡 Fetching fresh annotations data...');
+    
     const [annotations, personnes, actants, students] = await Promise.all([
       getDataByUrl(
       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAnnotations&json=1',
@@ -223,17 +289,13 @@ export async function getAnnotations( id?: string | number   ) {
     getStudents()
   ]);
 
-    console.log('📋 Raw annotations structure:', annotations.slice(0, 3)); // Show first 3 annotations
-    console.log('🔍 Sample annotation keys:', annotations.length > 0 ? Object.keys(annotations[0]) : 'No annotations');
-
+   
     const annotationsFull = annotations.map((annotation: any) => ({
       ...annotation,
       type: 'annotation',
     }));
 
-    console.log('🔄 Processing annotations, count:', annotationsFull.length);
-    console.log('👥 Available personnes:', personnes.length, 'actants:', actants.length, 'students:', students.length);
-
+    
     annotationsFull.forEach((annotation: any) => {
       const contributorId = annotation.contributor;
 
@@ -250,7 +312,7 @@ export async function getAnnotations( id?: string | number   ) {
     // Si un ID est spécifié, chercher l'annotation avec cet ID
     let resultAnnotations = annotationsFull;
     if (id) {
-      console.log(`🎯 Looking for annotation with ID: "${id}" (fresh data)`);
+      
 
       // Chercher directement l'annotation avec cet ID
       const foundAnnotation = annotationsFull.find((annotation: any) =>
@@ -258,18 +320,13 @@ export async function getAnnotations( id?: string | number   ) {
       );
 
       if (foundAnnotation) {
-        console.log(`✅ Found annotation with ID: ${id} (fresh data)`);
+       
         resultAnnotations = [foundAnnotation]; // Retourner un tableau avec l'annotation trouvée
       } else {
-        console.log(`❌ No fresh annotation found with ID: "${id}"`);
+       
         resultAnnotations = [];
       }
     }
-
-    console.log('✅ Annotations processed successfully:', resultAnnotations.length);
-    console.log(resultAnnotations);
-
-
 
     sessionStorage.setItem('annotations', JSON.stringify(annotationsFull));
 
@@ -283,6 +340,7 @@ export async function getAnnotations( id?: string | number   ) {
 
 export async function getBibliographies() {
   try {
+    checkAndClearDailyCache();
     const storedBibliographies = sessionStorage.getItem('bibliographies');
 
     if (storedBibliographies) {
@@ -307,6 +365,7 @@ export async function getBibliographies() {
 
 export async function getMediagraphies() {
   try {
+    checkAndClearDailyCache();
     const storedMediagraphies = sessionStorage.getItem('mediagraphies');
 
     if (storedMediagraphies) {
@@ -331,6 +390,7 @@ export async function getMediagraphies() {
 
 export async function getDoctoralSchools() {
   try {
+    checkAndClearDailyCache();
     const storedDoctoralSchools = sessionStorage.getItem('doctoralSchools');
 
     if (storedDoctoralSchools) {
@@ -356,6 +416,7 @@ export async function getDoctoralSchools() {
 
 export async function getLaboratories() {
   try {
+    checkAndClearDailyCache();
     const storedLaboritories = sessionStorage.getItem('laboratories');
 
     if (storedLaboritories) {
@@ -381,6 +442,7 @@ export async function getLaboratories() {
 
 export async function getUniversities() {
   try {
+    checkAndClearDailyCache();
     const storedUniversities = sessionStorage.getItem('universities');
 
     if (storedUniversities) {
@@ -408,6 +470,7 @@ export async function getUniversities() {
 
 export async function getActants(actantIds?: string | string[]) {
   try {
+    checkAndClearDailyCache();
     const actants = sessionStorage.getItem('actants')
       ? JSON.parse(sessionStorage.getItem('actants')!)
       : await (async () => {
@@ -484,6 +547,7 @@ export async function getActants(actantIds?: string | string[]) {
 
 export async function getEditions(editionIds?: string | string[]) {
   try {
+    checkAndClearDailyCache();
     let editions: any[];
     const storedEditions = sessionStorage.getItem('editions');
 
@@ -526,6 +590,7 @@ export async function getEditions(editionIds?: string | string[]) {
 
 export async function getSeminarConfs(confId?: number) {
   try {
+    checkAndClearDailyCache();
     const confs = sessionStorage.getItem('seminarConfs')
       ? JSON.parse(sessionStorage.getItem('seminarConfs')!)
       : await (async () => {
@@ -567,6 +632,7 @@ export async function getSeminarConfs(confId?: number) {
 
 export async function getColloqueConfs(confId?: number) {
   try {
+    checkAndClearDailyCache();
     const confs = sessionStorage.getItem('colloqueConfs')
       ? JSON.parse(sessionStorage.getItem('colloqueConfs')!)
       : await (async () => {
@@ -608,6 +674,7 @@ export async function getColloqueConfs(confId?: number) {
 
 export async function getStudyDayConfs(confId?: number) {
   try {
+    checkAndClearDailyCache();
     const confs = sessionStorage.getItem('studyDayConfs')
       ? JSON.parse(sessionStorage.getItem('studyDayConfs')!)
       : await (async () => {
@@ -649,6 +716,7 @@ export async function getStudyDayConfs(confId?: number) {
 
 export async function getAllItems() {
   try {
+    checkAndClearDailyCache();
     const cachedItems = sessionStorage.getItem('allItems');
     if (cachedItems) {
       return JSON.parse(cachedItems);
@@ -673,7 +741,6 @@ export async function getAllItems() {
       tools,
       feedbacks,
       oeuvres,
-      recitIas,
       personnes,
       comments,
     ] = await Promise.all([
@@ -695,7 +762,6 @@ export async function getAllItems() {
       getTools(),
       getFeedbacks(),
       getOeuvres(),
-      getRecitIas(),
       getPersonnes(),
       getComments(),
     ]);
@@ -719,7 +785,6 @@ export async function getAllItems() {
       ...oeuvres,
       ...tools,
       ...(Array.isArray(recherches) ? recherches : []),
-      ...(Array.isArray(recitIas) ? recitIas : []),
       ...(Array.isArray(personnes) ? personnes : []),
       ...(Array.isArray(comments) ? comments : []),
     ];
@@ -734,14 +799,40 @@ export async function getAllItems() {
 
 export async function getAllConfs(id?: number) {
   try {
-    const seminarConfs = await getSeminarConfs();
-    const colloqueConfs = await getColloqueConfs();
-    const studyDayConfs = await getStudyDayConfs();
+    checkAndClearDailyCache();
+    const [seminarConfs, colloqueConfs, studyDayConfs, microResumes] = await Promise.all([
+      getSeminarConfs(),
+      getColloqueConfs(),
+      getStudyDayConfs(),
+      getMicroResumes()
+    ]);
+
+    // Créer une map des micro-résumés indexée par relatedResource (ID de conférence)
+    const microResumesByConfId = new Map<string, any[]>();
+    microResumes.forEach((microResume: any) => {
+      if (microResume.relatedResource) {
+        const confId = String(microResume.relatedResource);
+        if (!microResumesByConfId.has(confId)) {
+          microResumesByConfId.set(confId, []);
+        }
+        microResumesByConfId.get(confId)!.push(microResume);
+      }
+    });
 
     const allConfs = [...seminarConfs, ...colloqueConfs, ...studyDayConfs];
 
+    // Lier les micro-résumés aux conférences
+    const allConfsWithMicroResumes = allConfs.map((conf: any) => {
+      const confId = String(conf.id);
+      const linkedMicroResumes = microResumesByConfId.get(confId) || [];
+      return {
+        ...conf,
+        micro_resumes: linkedMicroResumes.length > 0 ? linkedMicroResumes : null,
+      };
+    });
+
     if (id !== undefined) {
-      const conf = allConfs.find(conf => String(conf.id) === String(id));
+      const conf = allConfsWithMicroResumes.find(conf => String(conf.id) === String(id));
       if (!conf) {
         throw new Error(`Conference with id ${id} not found`);
       }
@@ -753,7 +844,9 @@ export async function getAllConfs(id?: number) {
       return conf; 
     }
 
-    return allConfs;
+    
+
+    return allConfsWithMicroResumes;
   } catch (error) {
     console.error('Error fetching all confs:', error);
     throw new Error('Failed to fetch all confs');
@@ -763,6 +856,7 @@ export async function getAllConfs(id?: number) {
 
 export async function getTools(id?: number) {
   try {
+    checkAndClearDailyCache();
     // 1. CACHE : Vérifier sessionStorage
     const storedTools = sessionStorage.getItem('tools');
     if (storedTools) {
@@ -794,6 +888,7 @@ export async function getTools(id?: number) {
 
 export async function getPersonnes(id?: number) {
   try {
+    checkAndClearDailyCache();
     const storedPersonnes = sessionStorage.getItem('personnes');
     if (storedPersonnes) {
       const personnes = JSON.parse(storedPersonnes);
@@ -814,21 +909,33 @@ export async function getPersonnes(id?: number) {
 }
 
 export async function getOeuvres(id?: number) {
+
   try {
+    checkAndClearDailyCache();
     const storedOeuvres = sessionStorage.getItem('oeuvres');
     if (storedOeuvres) {
+
       const oeuvres = JSON.parse(storedOeuvres);
+
+      
       return id ? oeuvres.find((o: any) => o.id === String(id)) : oeuvres;
     }
+    
+
 
     // Use Promise.all to fetch all needed data (can fetch additional data for linking elements)
-    const [oeuvres, personnes, elementsNarratifs, elementsEsthetique, annotations] = await Promise.all([
+    const [oeuvres, personnes, elementsNarratifs, elementsEsthetique, annotations, keywords, bibliographies, mediagraphies] = await Promise.all([
       getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1'),
       getPersonnes(),
       getElementNarratifs(),
       getElementEsthetique(),
-      getAnnotations()
+      getAnnotations(),
+      getKeywords(),
+      getBibliographies(),
+      getMediagraphies()
     ]);
+
+    
 
     // Build maps for fast lookups
     const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
@@ -841,7 +948,19 @@ export async function getOeuvres(id?: number) {
     const annotationsMap = new Map(
       (annotations || []).map((a: any) => [String(a.id), { ...a, type: 'annotation' }])
     );
-   
+    const keywordsMap = new Map(
+      (keywords || []).map((k: any) => [String(k.id), { ...k, type: 'keyword' }])
+    );
+    
+    // Créer aussi une map indexée par titre pour pouvoir chercher par titre
+    const keywordsMapByTitle = new Map(
+      (keywords || []).map((k: any) => [String(k.title || k.id), { ...k, type: 'keyword' }])
+    );
+
+    const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
+    const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
+    
+  
 
     const oeuvresFull = oeuvres.map((oeuvre: any) => {
       // Parse les IDs multiples séparés par des virgules pour personne
@@ -892,11 +1011,73 @@ export async function getOeuvres(id?: number) {
         }
       }
 
+      // Parse les IDs multiples pour keywords
+      let keywordsLinked: any[] = [];
+      if (oeuvre.keywords) {
+        // Si keywords est déjà un tableau d'objets complets (déjà hydraté), on les garde tels quels
+        if (Array.isArray(oeuvre.keywords) && oeuvre.keywords.length > 0 && typeof oeuvre.keywords[0] === 'object' && oeuvre.keywords[0].title) {
+          // Keywords déjà hydratés (objets avec title), on les garde
+          keywordsLinked = oeuvre.keywords.map((k: any) => ({ ...k, type: 'keyword' }));
+        } else {
+          // Sinon, on parse les IDs/titres et on les lie
+          let keywordsIds: string[] = [];
+          if (typeof oeuvre.keywords === 'string') {
+            keywordsIds = oeuvre.keywords.split(',').map((id: string) => id.trim());
+          } else if (Array.isArray(oeuvre.keywords)) {
+            keywordsIds = oeuvre.keywords.map((id: any) => String(id));
+          } else if (oeuvre.keywords != null) {  
+            keywordsIds = [String(oeuvre.keywords)];
+          }
+          
+          // Relink objects using the maps (chercher d'abord par ID, puis par titre)
+          keywordsLinked = keywordsIds.map((idOrTitle: string) => {
+            // Essayer d'abord par ID
+            let keyword = keywordsMap.get(idOrTitle);
+            if (!keyword) {
+              // Si pas trouvé par ID, essayer par titre
+              keyword = keywordsMapByTitle.get(idOrTitle);
+            }
+            return keyword;
+          }).filter(Boolean);
+          
+          // Log pour debug si keywordsIds existe mais keywordsLinked est vide
+          if (keywordsIds.length > 0 && keywordsLinked.length === 0) {
+            console.log(`⚠️ Oeuvre ${oeuvre.id}: keywordsIds/titres trouvés mais non liés`, { keywordsIds, keywordsMapSize: keywordsMap.size, sampleKeywordId: keywordsIds[0] });
+          }
+        }
+      }
+
+      // Parse les IDs multiples pour referencesScient
+      let referencesScientIds: string[] = [];
+      if (oeuvre.referencesScient) {
+        if (typeof oeuvre.referencesScient === 'string') {
+          referencesScientIds = oeuvre.referencesScient.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(oeuvre.referencesScient)) {
+          referencesScientIds = oeuvre.referencesScient.map((id: any) => String(id));
+        } else if (oeuvre.referencesScient != null) {
+          referencesScientIds = [String(oeuvre.referencesScient)];
+        }
+      }
+
+      // Parse les IDs multiples pour referencesCultu
+      let referencesCultuIds: string[] = [];
+      if (oeuvre.referencesCultu) {
+        if (typeof oeuvre.referencesCultu === 'string') {
+          referencesCultuIds = oeuvre.referencesCultu.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(oeuvre.referencesCultu)) {
+          referencesCultuIds = oeuvre.referencesCultu.map((id: any) => String(id));
+        } else if (oeuvre.referencesCultu != null) {
+          referencesCultuIds = [String(oeuvre.referencesCultu)];
+        }
+      }
+
       // Relink objects using the maps
       const personnesLinked = personneIds.map((id: string) => personnesMap.get(id)).filter(Boolean);
       const elementsNarratifsLinked = elementsNarratifsIds.map((id: string) => elementsNarratifsMap.get(id)).filter(Boolean);
       const elementsEsthetiqueLinked = elementsEsthetiqueIds.map((id: string) => elementsEsthetiqueMap.get(id)).filter(Boolean);
       const annotationsLinked = annotationsIds.map((id: string) => annotationsMap.get(id)).filter(Boolean);
+      const referencesScientLinked = referencesScientIds.map((id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id)).filter(Boolean);
+      const referencesCultuLinked = referencesCultuIds.map((id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id)).filter(Boolean);
 
 
       return {
@@ -906,8 +1087,13 @@ export async function getOeuvres(id?: number) {
         elementsNarratifs: elementsNarratifsLinked.length > 0 ? elementsNarratifsLinked : null,
         elementsEsthetique: elementsEsthetiqueLinked.length > 0 ? elementsEsthetiqueLinked : null,
         annotations: annotationsLinked.length > 0 ? annotationsLinked : null,
+        keywords: keywordsLinked.length > 0 ? keywordsLinked : null,
+        referencesScient: referencesScientLinked.length > 0 ? referencesScientLinked : null,
+        referencesCultu: referencesCultuLinked.length > 0 ? referencesCultuLinked : null,
       };
     });
+
+ 
 
     sessionStorage.setItem('oeuvres', JSON.stringify(oeuvresFull));
     return id ? oeuvresFull.find((o: any) => o.id === String(id)) : oeuvresFull;
@@ -919,6 +1105,7 @@ export async function getOeuvres(id?: number) {
 
 export async function getKeywords() {
   try {
+    checkAndClearDailyCache();
     const storedKeywords = sessionStorage.getItem('keywords');
 
     if (storedKeywords) {
@@ -946,6 +1133,7 @@ export async function getKeywords() {
 
 export async function getCollections() {
   try {
+    checkAndClearDailyCache();
     const storedCollections = sessionStorage.getItem('collections');
     if (storedCollections) {
       return JSON.parse(storedCollections);
@@ -980,6 +1168,7 @@ export async function getRecherches() {
 
 export async function getFeedbacks() {
   try {
+    checkAndClearDailyCache();
     const storedFeedbacks = sessionStorage.getItem('feedbacks');
     if (storedFeedbacks) {
       return JSON.parse(storedFeedbacks);
@@ -1004,6 +1193,7 @@ export async function getFeedbacks() {
 
 export async function getExperimentations() {
   try {
+    checkAndClearDailyCache();
     const storedExperimentations = sessionStorage.getItem('experimentations');
 
     if (storedExperimentations) {
@@ -1011,13 +1201,16 @@ export async function getExperimentations() {
     }
 
     // Récupérer les expérimentations et les feedbacks en parallèle
-    const [experimentations, feedbacks] = await Promise.all([
+    const [experimentations, feedbacks, bibliographies, mediagraphies] = await Promise.all([
       getDataByUrl(
         'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getExperimentations&json=1',
       ),
-      getFeedbacks()
+      getFeedbacks(),
+      getBibliographies(),
+      getMediagraphies()
     ]);
-
+    const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
+    const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
     // Créer un map des feedbacks pour un accès rapide par ID
     const feedbacksMap = new Map(feedbacks.map((feedback: any) => [feedback.id.toString(), feedback]));
 
@@ -1035,8 +1228,39 @@ export async function getExperimentations() {
           .filter(Boolean); // Enlever les feedbacks non trouvés
       }
 
+      // Gérer la relation references (mediagraphies et bibliographies)
+      if (experimentation.references) {
+        const getReference = (id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id);
+
+        if (typeof experimentation.references === 'string' && experimentation.references.includes(',')) {
+          const referencesIds = experimentation.references.split(',').map((id: string) => id.trim());
+          experimentationWithFeedbacks.references = referencesIds.map((id: string) => getReference(id)).filter(Boolean);
+        } else if (Array.isArray(experimentation.references)) {
+          experimentationWithFeedbacks.references = experimentation.references.map((id: any) => getReference(String(id))).filter(Boolean);
+        } else {
+          experimentationWithFeedbacks.references = getReference(String(experimentation.references));
+        }
+      }
+
+      // Gérer la relation bibliographicCitations (mediagraphies et bibliographies)
+      if (experimentation.bibliographicCitations) {
+        const getCitation = (id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id);
+
+        if (typeof experimentation.bibliographicCitations === 'string' && experimentation.bibliographicCitations.includes(',')) {
+          const citationsIds = experimentation.bibliographicCitations.split(',').map((id: string) => id.trim());
+          experimentationWithFeedbacks.bibliographicCitations = citationsIds.map((id: string) => getCitation(id)).filter(Boolean);
+        } else if (Array.isArray(experimentation.bibliographicCitations)) {
+          experimentationWithFeedbacks.bibliographicCitations = experimentation.bibliographicCitations.map((id: any) => getCitation(String(id))).filter(Boolean);
+        } else {
+          experimentationWithFeedbacks.bibliographicCitations = getCitation(String(experimentation.bibliographicCitations));
+        }
+      }
+
       return experimentationWithFeedbacks;
     });
+
+
+    console.log('experimentationsFull', experimentationsFull);
 
     sessionStorage.setItem('experimentations', JSON.stringify(experimentationsFull));
     return experimentationsFull;
@@ -1048,6 +1272,7 @@ export async function getExperimentations() {
 
 export async function getStudents() {
   try {
+    checkAndClearDailyCache();
     const storedStudents = sessionStorage.getItem('student');
 
     if (storedStudents) {
@@ -1081,47 +1306,27 @@ export async function getStudents() {
   }
 }
 
-export async function getRecitIas() {
-  try {
-    const storedFeedbacks = sessionStorage.getItem('recitIas');
-    if (storedFeedbacks) {
-      return JSON.parse(storedFeedbacks);
-    }
-
-    const recitIas = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getFeedbacks&json=1',
-    );
-  
-    recitIas.forEach((feedback: any) => {
-      feedback.url = '/recitIas/' + feedback.id;
-    });
-
-    sessionStorage.setItem('recitIas', JSON.stringify(recitIas));
-    return recitIas;
-  }
-  catch (error) {
-    console.error('Error fetching recitIas:', error);
-    throw new Error('Failed to fetch recitIas');
-  }
-}
 
 export async function getElementNarratifs(id?: number): Promise<any> {
   try {
+    checkAndClearDailyCache();
     const storedElementNarratifs = sessionStorage.getItem('elementNarratifs');
     if (storedElementNarratifs) {
       const elementNarratifs = JSON.parse(storedElementNarratifs);
       return id ? elementNarratifs.find((e: any) => e.id === String(id)) : elementNarratifs;
     }
 
-    const [elementNarratifs, personnes, mediagraphies] = await Promise.all([
+    const [elementNarratifs, personnes, mediagraphies, bibliographies] = await Promise.all([
       getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getElementNarratifs&json=1'),
       getPersonnes(),
-      getMediagraphies()
+      getMediagraphies(),
+      getBibliographies()
     ]);
 
     const personnesMap = new Map(personnes.map((item: any) => [String(item.id), item]));
     const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
-
+    const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
+    
     const elementNarratifsFull = elementNarratifs.map((element: any) => {
       // Gérer la relation creator (personnes)
       let creator = [];
@@ -1136,16 +1341,18 @@ export async function getElementNarratifs(id?: number): Promise<any> {
           creator = creatorObj ? [creatorObj] : [];
         }
       }
-      // Gérer la relation references (mediagraphies)
+      // Gérer la relation references (mediagraphies et bibliographies)
       let references = null;
       if (element.references) {
+        const getReference = (id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id);
+
         if (typeof element.references === 'string' && element.references.includes(',')) {
           const referencesIds = element.references.split(',').map((id: string) => id.trim());
-          references = referencesIds.map((id: string) => mediagraphiesMap.get(id)).filter(Boolean);
+          references = referencesIds.map((id: string) => getReference(id)).filter(Boolean);
         } else if (Array.isArray(element.references)) {
-          references = element.references.map((id: any) => mediagraphiesMap.get(String(id))).filter(Boolean);
+          references = element.references.map((id: any) => getReference(String(id))).filter(Boolean);
         } else {
-          references = mediagraphiesMap.get(String(element.references));
+          references = getReference(String(element.references));
         }
       }
 
@@ -1175,6 +1382,7 @@ export async function getElementNarratifs(id?: number): Promise<any> {
 
 export async function getElementEsthetique( id?: number) {
   try {
+    checkAndClearDailyCache();
     const storedElementEsthetique = sessionStorage.getItem('elementEsthetique');
 
     if (storedElementEsthetique) {
@@ -1254,6 +1462,7 @@ export async function getElementEsthetique( id?: number) {
 
 export async function getComments(forceRefresh = false) {
   try {
+    checkAndClearDailyCache();
     const storedComments = sessionStorage.getItem('comments');
     if (storedComments && !forceRefresh) {
       return JSON.parse(storedComments);
@@ -1281,6 +1490,7 @@ export async function getComments(forceRefresh = false) {
 
 export async function getAnalyseCritiqueById(id: string | number) {
   try {
+    checkAndClearDailyCache();
     console.log('🔍 Searching for analyse critique with ID:', id);
 
     // Try to fetch directly from the API endpoint that might return this specific item
@@ -1347,6 +1557,7 @@ export async function getAnalyseCritiqueById(id: string | number) {
 
 export async function getObjetsTechnoIndustriels(id?: number) {
   try {
+    checkAndClearDailyCache();
     // 1. CACHE : Vérifier sessionStorage
     const storedObjets = sessionStorage.getItem('objetsTechnoIndustriels');
     if (storedObjets) {
@@ -1404,6 +1615,145 @@ export async function getObjetsTechnoIndustriels(id?: number) {
     throw new Error('Failed to fetch objets techno-industriels');
   }
 }
+
+export async function getDocumentationsScientifiques(id?: number) {
+  try {
+    checkAndClearDailyCache();
+    // 1. CACHE : Vérifier sessionStorage
+    const storedDocs = sessionStorage.getItem('documentationsScientifiques');
+    if (storedDocs) {
+      const docs = JSON.parse(storedDocs);
+      return id ? docs.find((d: any) => d.id === String(id)) : docs;
+    }
+
+    // 2. FETCH : Récupérer données + dépendances en Promise.all
+    const [rawDocs, allItems, keywords, personnes, annotations] = await Promise.all([
+      getDataByUrl(
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getDocumentationsScientifiques&json=1'
+      ),
+      getAllItems(),
+      getKeywords(),
+      getPersonnes(),
+      getAnnotations()
+    ]);
+
+    console.log("rawdocs",rawDocs)
+
+    // 3. MAPS : Créer maps pour accès rapide
+    const itemsMap = new Map(allItems.map((item: any) => [String(item.id), item]));
+    const keywordsMap = new Map(keywords.map((k: any) => [String(k.id), k]));
+    const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
+    const annotationsMap = new Map(annotations.map((a: any) => [String(a.id), a]));
+    // 4. HYDRATATION : Remplacer IDs par objets complets
+    const docsFull = rawDocs.map((doc: any) => {
+      // Hydrater descriptions (items)
+      let descriptionsHydrated = [];
+      if (Array.isArray(doc.descriptions)) {
+        descriptionsHydrated = doc.descriptions
+          .map((id: any) => annotationsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      // Hydrater keywords
+      let keywordsHydrated = [];
+      if (Array.isArray(doc.keywords)) {
+        keywordsHydrated = doc.keywords
+          .map((id: any) => keywordsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      // Hydrater creator (personne)
+      let creatorHydrated = null;
+      if (doc.creator) {
+        creatorHydrated = personnesMap.get(String(doc.creator)) || null;
+      }
+
+      // Hydrater associatedMedia (items)
+      let associatedMediaHydrated = [];
+      if (Array.isArray(doc.associatedMedia)) {
+        associatedMediaHydrated = doc.associatedMedia
+          .map((id: any) => itemsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      // Hydrater sources (items)
+      let sourcesHydrated = [];
+      if (Array.isArray(doc.sources)) {
+        sourcesHydrated = doc.sources
+          .map((id: any) => itemsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      // Hydrater isRelatedTo (items)
+      let isRelatedToHydrated = [];
+      if (Array.isArray(doc.isRelatedTo)) {
+        isRelatedToHydrated = doc.isRelatedTo
+          .map((id: any) => itemsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      return {
+        ...doc,
+        type: 'documentationScientifique',
+        descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
+        keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
+        creator: creatorHydrated,
+        associatedMedia: associatedMediaHydrated.length > 0 ? associatedMediaHydrated : [],
+        sources: sourcesHydrated.length > 0 ? sourcesHydrated : [],
+        isRelatedTo: isRelatedToHydrated.length > 0 ? isRelatedToHydrated : [],
+      };
+    });
+
+    // 5. CACHE + RETURN : Stocker et retourner
+    sessionStorage.setItem('documentationsScientifiques', JSON.stringify(docsFull));
+    return id ? docsFull.find((d: any) => d.id === String(id)) : docsFull;
+
+  } catch (error) {
+    console.error('Error fetching documentations scientifiques:', error);
+    throw new Error('Failed to fetch documentations scientifiques');
+  }
+}
+
+export async function getMicroResumes(id?: number) {
+  try {
+    checkAndClearDailyCache();
+    // 1. CACHE : Vérifier sessionStorage
+    const storedMicroResumes = sessionStorage.getItem('microResumes');
+    if (storedMicroResumes) {
+      const microResumes = JSON.parse(storedMicroResumes);
+      return id ? microResumes.find((m: any) => m.id === String(id)) : microResumes;
+    } 
+
+    // 2. FETCH : Récupérer données + dépendances en Promise.all
+    const [rawMicroResumes, outil] = await Promise.all([
+      getDataByUrl(
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMicroResumes&json=1'
+      ),
+      getTools()
+    ]);
+
+    const outilMap = new Map(outil.map((o: any) => [String(o.id), o]));
+    const microResumesFull = rawMicroResumes.map((microResume: any) => {
+      // Hydrater outil
+      let outilHydrated = null;
+      if (microResume.outil) {
+        outilHydrated = outilMap.get(String(microResume.outil)) || null;
+      }
+      return {
+        ...microResume,
+        type: 'microResume',
+        outil: outilHydrated,
+      };
+    }); 
+
+    sessionStorage.setItem('microResumes', JSON.stringify(microResumesFull));
+    return id ? microResumesFull.find((m: any) => m.id === String(id)) : microResumesFull;
+  } catch (error) {
+    console.error('Error fetching micro resumes:', error);
+    throw new Error('Failed to fetch micro resumes');
+  }
+}
+
 
 export function generateThumbnailUrl(mediaId: string | number): string {
   // Assuming the API endpoint for media thumbnails follows this pattern

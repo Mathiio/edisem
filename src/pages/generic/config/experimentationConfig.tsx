@@ -109,6 +109,16 @@ export const experimentationConfig: GenericDetailPageConfig = {
     description: exp.description,
   }),
 
+  // Mapper pour les recommandations (format SmConfCard)
+  mapRecommendationProps: (exp: any) => ({
+    id: exp.id,
+    title: exp.title,
+    type: 'experimentation',
+    url: null, // url est pour YouTube, on ne l'utilise pas ici
+    thumbnail: exp.associatedMedia?.[0] || exp.thumbnail || null,
+    actant: exp.enrichedActants || exp.actants || [],
+  }),
+
   // ✨ Options de vue simplifiées avec viewHelpers (5 vues en 1 ligne!)
   viewOptions: createExperimentationViews(
     (_itemDetails, viewData) => viewData?.tools || [],
@@ -119,5 +129,24 @@ export const experimentationConfig: GenericDetailPageConfig = {
   showKeywords: true,
   showRecommendations: true,
   showComments: true,
-  recommendationsTitle: 'Autres expérimentations',
+  recommendationsTitle: 'Expérimentations similaires',
+
+  // Smart recommendations
+  smartRecommendations: {
+    // Récupère toutes les expérimentations pour trouver des similaires
+    getAllResourcesOfType: async () => {
+      const experimentations = await getExperimentations();
+      return experimentations;
+    },
+    
+    // Pour les expérimentations, on ne veut pas de recommandations liées
+    // Les feedbacks sont déjà dans les vues
+    // On veut seulement des expérimentations similaires
+    getRelatedItems: () => [],
+    
+    maxRecommendations: 5,
+  },
+  
+  // Type à afficher
+  type: 'Expérimentation',
 };

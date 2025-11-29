@@ -34,6 +34,20 @@ export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description,
     setExpanded(!expanded);
   };
 
+  // Check if there's any content to display
+  const hasContent =
+    date ||
+    genre ||
+    medium ||
+    (credits && credits.length > 0) ||
+    description ||
+    (Array.isArray(actants) && actants.length > 0);
+
+  // Don't render if there's no content
+  if (!hasContent) {
+    return null;
+  }
+
   return (
     <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
       <motion.div
