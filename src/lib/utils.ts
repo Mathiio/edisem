@@ -8,6 +8,26 @@ export const buildConfsRoute = (confType: string, id: number): string => {
       return `/corpus/colloques/conference/${id}`;
     case 'studyday':
       return `/corpus/journees-etudes/conference/${id}`;
+    case 'oeuvre':
+      return `/corpus/oeuvre/${id}`;
+    case 'objetTechnoIndustriel':
+      return `/corpus/objet-techno/${id}`;
+    case 'experimentation':
+      return `/corpus/experimentation/${id}`;
+    case 'elementNarratif':
+      return `/corpus/element-narratif/${id}`;
+    case 'elementEsthetique':
+      return `/corpus/element-esthetique/${id}`;
+    case 'annotation':
+      return `/corpus/analyse-critique/${id}`;
+    case 'feedback':
+      return `/feedback/${id}`;
+    case 'tool':
+      return `/corpus/tool/${id}`;
+    case 'miseEnRecit':
+      return `/corpus/mise-en-recit/${id}`;
+    case 'documentationScientifique':
+      return `/corpus/documentation-scientifique/${id}`;
     default:
       return `/`;
   }

@@ -1,5 +1,5 @@
 import { Button, Divider } from '@heroui/react';
-import { Textarea } from '@heroui/input';
+import { Textarea } from '@heroui/react';
 import { useRef, useState } from 'react';
 import { FilterGroup } from './FilterPopup';
 

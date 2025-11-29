@@ -257,6 +257,7 @@ interface BibliographiesProps {
   bibliographies?: Bibliography[];
   loading: boolean;
   type?: 'scientific' | 'cultural';
+  notitle?: boolean;
   // Configuration pour le système legacy
   legacyConfig?: {
     normalTitle: string;
@@ -265,7 +266,7 @@ interface BibliographiesProps {
   };
 }
 
-export const Bibliographies: React.FC<BibliographiesProps> = ({ sections = [], bibliographies = [], loading, legacyConfig }) => {
+export const Bibliographies: React.FC<BibliographiesProps> = ({ sections = [], bibliographies = [], loading, legacyConfig, notitle = false }) => {
   // Déterminer quelle méthode utiliser
   const useLegacyMode = bibliographies.length > 0 && !sections.length;
 
@@ -301,7 +302,7 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ sections = [], b
               (section, sectionIndex) =>
                 section.bibliographies.length > 0 && (
                   <div key={sectionIndex}>
-                    <h2 className='text-16 text-c5 font-medium'>{section.title}</h2>
+                    {!notitle && <h2 className='text-16 text-c5 font-medium'>{section.title}</h2>}
                     <div className='flex flex-col gap-10'>
                       {section.bibliographies.map((bibliography, index) => (
                         <BibliographyCard key={`${sectionIndex}-${index}`} {...bibliography} uniqueKey={index} />

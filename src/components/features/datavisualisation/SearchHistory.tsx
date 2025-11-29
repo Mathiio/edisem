@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import { FilterGroup } from './FilterPopup';
-import { Button } from '@heroui/button';
+import { Button } from '@heroui/react';
 
 interface SearchHistoryItem {
   id: number;

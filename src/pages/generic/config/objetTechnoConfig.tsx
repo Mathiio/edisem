@@ -2,7 +2,7 @@ import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
 import { getObjetsTechnoIndustriels, getKeywords } from '@/services/Items';
-import { createItemsListView, createTextView } from '../helpers';
+import { createItemsListView, createScientificReferencesView, createTextView } from '../helpers';
 
 export const objetTechnoConfig: GenericDetailPageConfig = {
   // Data fetching avec enrichissement des keywords
@@ -54,6 +54,16 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
         .join('<br><br>') || '',
   }),
 
+  // Mapper pour les recommandations (format SmConfCard)
+  mapRecommendationProps: (objet: any) => ({
+    id: objet.id,
+    title: objet.title,
+    type: 'objetTechnoIndustriel',
+    url: null, // url est pour YouTube, on ne l'utilise pas ici
+    thumbnail: objet.associatedMedia?.[0] || objet.thumbnail || null,
+    actant: [],
+  }),
+
   // ✨ Vues personnalisées pour les objets techno-industriels
   viewOptions: [
     // Vue 5 : Descriptions/Analyses critiques
@@ -72,6 +82,8 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
       getText: (itemDetails) => itemDetails?.conditionInitiale,
       emptyMessage: 'Aucune condition initiale définie',
     }),
+
+    createScientificReferencesView(),
 
     // Vue 3 : Reviews et critiques
     createItemsListView({
@@ -108,5 +120,25 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
   // Sections optionnelles
   showKeywords: true,
   showComments: true,
-  showRecommendations: false,
+  showRecommendations: true,
+  recommendationsTitle: 'Objets techno similaires',
+
+  // Smart recommendations
+  smartRecommendations: {
+    // Récupère tous les objets techno pour trouver des similaires
+    getAllResourcesOfType: async () => {
+      const objets = await getObjetsTechnoIndustriels();
+      return objets;
+    },
+
+    // Pour les objets techno, on ne veut pas de recommandations liées
+    // Les analyses critiques sont déjà dans les vues
+    // On veut seulement des objets techno similaires
+    getRelatedItems: () => [],
+
+    maxRecommendations: 5,
+  },
+
+  // Type à afficher
+  type: 'Objet techno-industriel',
 };

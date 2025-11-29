@@ -113,6 +113,16 @@ export const toolConfig: GenericDetailPageConfig = {
         .join('<br><br>') || '',
   }),
 
+  // Mapper pour les recommandations (format SmConfCard)
+  mapRecommendationProps: (tool: any) => ({
+    id: tool.id,
+    title: tool.name || tool.title,
+    type: 'tool',
+    url: null, // url est pour YouTube, on ne l'utilise pas ici
+    thumbnail: tool.thumbnail || null,
+    actant: tool.enrichedContributors || [],
+  }),
+
   // ✨ Vues personnalisées pour les outils
   viewOptions: [
     // Vue 1 : Caractéristiques (Type, Fonction, puis autres)
@@ -246,5 +256,23 @@ export const toolConfig: GenericDetailPageConfig = {
   // Sections optionnelles
   showKeywords: false, // Les tools n'ont pas de keywords dans le JSON fourni
   showComments: true,
-  showRecommendations: false,
+  showRecommendations: true,
+  recommendationsTitle: 'Outils similaires',
+
+  // Smart recommendations
+  smartRecommendations: {
+    // Récupère tous les outils pour trouver des similaires
+    getAllResourcesOfType: async () => {
+      const tools = await getTools();
+      return tools;
+    },
+    
+    // Pour les outils, on veut seulement des outils similaires
+    getRelatedItems: () => [],
+    
+    maxRecommendations: 5,
+  },
+  
+  // Type à afficher
+  type: 'Outil',
 };

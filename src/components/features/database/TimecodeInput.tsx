@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { TimeInput } from '@heroui/date-input'; // Assurez-vous que l'importation est correcte
-import { Time } from '@internationalized/date';
-import { Calendar, DateValue } from '@heroui/calendar';
-
-import { CalendarDate } from '@internationalized/date';
+import { TimeInput } from '@heroui/date-input';
+import { Time, CalendarDate, DateValue } from '@internationalized/date';
+import { Calendar } from '@heroui/react';
 
 interface TimecodeInputProps {
   seconds?: number;

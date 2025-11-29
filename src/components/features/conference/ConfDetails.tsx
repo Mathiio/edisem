@@ -36,6 +36,14 @@ export const ConfDetailsCard: React.FC<ConfDetailsProps> = ({ conf }) => {
     const formattedDate = formatDate(conf.date);
     const editionText = `Édition ${conf.season} ${conf.date.split('-')[0]}`;
 
+    // Check if there's any content to display
+    const hasContent = formattedDate || editionText || conf.description;
+
+    // Don't render if there's no content
+    if (!hasContent) {
+        return null;
+    }
+
   return (
     <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
       <motion.div

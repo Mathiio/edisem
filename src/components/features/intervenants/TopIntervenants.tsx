@@ -25,7 +25,9 @@ const IntervenantCard = ({ intervenant, position }: IntervenantCardProps) => {
   const currentStyle = positionStyles[position];
 
   return (
-    <div className={`${currentStyle.container} flex flex-col items-center justify-center gap-20 p-40 rounded-16 border-2 border-c3 w-64`}>
+    <a
+      href={`/intervenant/${intervenant.id}`}
+      className={`${currentStyle.container} flex flex-col items-center justify-center gap-20 p-40 rounded-16 border-2 border-c3 w-64 hover:border-c4 transition-all duration-300`}>
       {/* Speaker stats */}
       <div className='flex flex-col items-center justify-center gap-10'>
         <h3 className={`text-64 text-c6 font-bold`}>{intervenant.interventions}</h3>
@@ -42,7 +44,7 @@ const IntervenantCard = ({ intervenant, position }: IntervenantCardProps) => {
           ))}
         </div>
       </div>
-    </div>
+    </a>
   );
 };
 

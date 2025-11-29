@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button, Skeleton } from '@heroui/react';
+import { Button, Link, Skeleton } from '@heroui/react';
 import { FileIcon } from '@/components/ui/icons';
-import { AnnotationDropdown } from './AnnotationDropdown';
+
 import { motion, Variants } from 'framer-motion';
 
 const fadeIn: Variants = {
@@ -13,19 +13,25 @@ const fadeIn: Variants = {
   }),
 };
 
-interface CitationCardProps {
+interface MicroresumeCardProps {
+  id: number;
+  title: string;
+  description: string;
   startTime: number;
   endTime: number;
-  actant: any;
-  id: number;
-  citation: string;
+  outil: {
+    id: string;
+    title: string;
+    description: string;
+    thumbnail: string;
+  };
   onTimeChange: (time: number) => void;
 }
 
-export const CitationCard: React.FC<CitationCardProps> = ({ id, startTime, endTime, actant, citation, onTimeChange }) => {
+export const MicroresumeCard: React.FC<MicroresumeCardProps> = ({ title, description, startTime, endTime, outil, onTimeChange }) => {
   const [expanded, setExpanded] = useState(false);
   const CHARACTER_LIMIT = 350;
-  const shouldTruncate = citation.length > CHARACTER_LIMIT;
+  const shouldTruncate = description.length > CHARACTER_LIMIT;
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -40,22 +46,18 @@ export const CitationCard: React.FC<CitationCardProps> = ({ id, startTime, endTi
   };
 
   const handleClick = () => {
-    console.log('🎯 CitationCard - Clic sur citation:', {
-      id,
-      actant,
-      startTime,
-      endTime,
-      citation: citation.substring(0, 50) + '...',
-    });
-    console.log('⏰ CitationCard - Appel onTimeChange avec startTime:', startTime);
-    onTimeChange(startTime);
+    // Convertir en nombre si nécessaire
+    const time = typeof startTime === 'string' ? parseInt(startTime, 10) : startTime;
+
+    console.log('⏰ Appel onTimeChange avec:', time);
+    onTimeChange(time);
   };
 
   const toggleExpansion = () => {
     setExpanded(!expanded);
   };
 
-  const displayText = expanded ? citation : citation.slice(0, CHARACTER_LIMIT);
+  const displayText = expanded ? description : description.slice(0, CHARACTER_LIMIT);
 
   return (
     <div className='w-full flex flex-row justify-start border-2 p-25 border-c3 rounded-12 items-start gap-10 transition-transform-colors-opacity'>
@@ -65,10 +67,8 @@ export const CitationCard: React.FC<CitationCardProps> = ({ id, startTime, endTi
             <Button onClick={handleClick} className='px-10 py-5 h-auto text-16 rounded-6 text-c6 hover:text-c6 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'>
               {formatTime(startTime) + ' - ' + formatTime(endTime)}
             </Button>
-            <h3 className='text-c6 text-16 font-medium'>{actant}</h3>
+            <h3 className='text-c6 text-16 font-medium'>{title}</h3>
           </div>
-
-          <AnnotationDropdown id={id} content={citation} actant={actant} type='Citation' />
         </div>
 
         <div className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200'>
@@ -81,12 +81,20 @@ export const CitationCard: React.FC<CitationCardProps> = ({ id, startTime, endTi
             </div>
           )}
         </div>
+        <div className='w-full flex flex-row justify-start items-center gap-10'>
+          <Link
+            href={'/corpus/tool/' + outil.id}
+            className='p-2 w-fit flex flex-row border-2 border-c3 hover:border-c6 transition-all ease-in-out duration-200 rounded-8 items-center gap-10'>
+            <img src={outil.thumbnail} alt={outil.title} className='w-50 object-cover rounded-[4px]' />
+            <p className='text-16 text-c6'>{outil.title}</p>
+          </Link>
+        </div>
       </div>
     </div>
   );
 };
 
-export const CitationSkeleton: React.FC = () => {
+export const MicroresumeSkeleton: React.FC = () => {
   return (
     <div className='w-full flex flex-col justify-start rounded-12 bg-c3 items-start p-10 gap-5 transition-transform-colors-opacity'>
       <div className='w-full flex justify-start items-center gap-10'>
@@ -119,32 +127,40 @@ export const CitationSkeleton: React.FC = () => {
   );
 };
 
-interface CitationsProps {
-  citations: { id: number; citation: string; actant: any; startTime: number; endTime: number }[];
+interface MicroresumesProps {
+  microresumes: {
+    id: number;
+    title: string;
+    description: string;
+    startTime: number;
+    endTime: number;
+    outil: { id: string; title: string; description: string; thumbnail: string };
+  }[];
   loading: boolean;
   onTimeChange: (time: number) => void;
 }
 
-export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTimeChange }) => {
-  console.log('🔍 Citations récupérées:', citations);
+export const Microresumes: React.FC<MicroresumesProps> = ({ microresumes, loading, onTimeChange }) => {
+  console.log('🔍 Microresumes récupérées:', microresumes);
 
   return (
     <div className='w-full h-max flex flex-col gap-20'>
       <div className='flex flex-col gap-20 h-full overflow-y-auto scroll-container'>
         {loading ? (
-          Array.from({ length: 8 }).map((_) => <CitationSkeleton />)
-        ) : citations.length === 0 ? (
+          Array.from({ length: 8 }).map((_) => <MicroresumeSkeleton />)
+        ) : microresumes.length === 0 ? (
           <UnloadedCard />
         ) : (
-          citations.map((citation, index) => (
-            <motion.div key={citation.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-              <CitationCard
+          microresumes.map((microresume, index) => (
+            <motion.div key={microresume.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
+              <MicroresumeCard
                 key={index}
-                id={citation.id}
-                startTime={citation.startTime}
-                endTime={citation.endTime}
-                actant={citation.actant.firstname + ' ' + citation.actant.lastname}
-                citation={citation.citation}
+                id={microresume.id}
+                startTime={microresume.startTime}
+                endTime={microresume.endTime}
+                title={microresume.title}
+                description={microresume.description}
+                outil={microresume.outil}
                 onTimeChange={onTimeChange}
               />
             </motion.div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
 import { LongCard } from './OeuvresCards';
-import { Pagination } from '@heroui/pagination';
+import { Pagination } from '@heroui/react';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },

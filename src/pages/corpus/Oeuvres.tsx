@@ -76,9 +76,33 @@ export const Oeuvres: React.FC = () => {
 
         setOeuvres(oeuvresWithActants);
 
-        console.log('Oeuvres enrichies:', oeuvresWithActants);
+        // Extraire et afficher tous les mots-clés
+        const allKeywords: Record<string, { count: number; oeuvres: string[]; description?: string }> = {};
+
+        oeuvresWithActants.forEach((oeuvre: any) => {
+          if (oeuvre.keywords && Array.isArray(oeuvre.keywords)) {
+            oeuvre.keywords.forEach((keyword: any) => {
+              const keywordTitle = typeof keyword === 'string' ? keyword : keyword.title || keyword.id || 'Sans titre';
+              const keywordDescription = typeof keyword === 'string' ? undefined : keyword.description || keyword.short_resume;
+
+              if (!allKeywords[keywordTitle]) {
+                allKeywords[keywordTitle] = { count: 0, oeuvres: [], description: keywordDescription };
+              }
+              allKeywords[keywordTitle].count += 1;
+              if (!allKeywords[keywordTitle].oeuvres.includes(oeuvre.id)) {
+                allKeywords[keywordTitle].oeuvres.push(oeuvre.id);
+              }
+              // Garder la première description trouvée si pas déjà définie
+              if (!allKeywords[keywordTitle].description && keywordDescription) {
+                allKeywords[keywordTitle].description = keywordDescription;
+              }
+            });
+          }
+        });
       } catch (error) {
-        console.error('Erreur lors du chargement des œuvres', error);
+        console.error('❌ ERREUR lors du chargement des œuvres:', error);
+        // En cas d'erreur, on définit un tableau vide pour éviter que le composant plante
+        setOeuvres([]);
       } finally {
         setLoading(false);
       }

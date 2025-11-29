@@ -33,9 +33,10 @@ type RecitiaOverviewProps = {
   fullUrl: string;
   currentTime: number;
   buttonText: string;
+  type?: string;
 };
 
-export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title, personnes, medias, fullUrl, buttonText, credits }) => {
+export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title, personnes, medias, fullUrl, buttonText, credits, type }) => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
 
   const navigate = useNavigate();
@@ -90,12 +91,22 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                   {medias.map((media, index) => {
                     // Obtenir la thumbnail appropriée
                     let thumbnailSrc = '';
+                    let isYouTubeVideo = false;
+
                     if (typeof media === 'string') {
-                      thumbnailSrc = media;
+                      // Si c'est une string qui contient une URL YouTube, générer la thumbnail
+                      if (media.includes('youtube.com') || media.includes('youtu.be')) {
+                        thumbnailSrc = getYouTubeThumbnailUrl(media);
+                        isYouTubeVideo = true;
+                      } else {
+                        // Sinon utiliser directement comme thumbnail (URL d'image)
+                        thumbnailSrc = media;
+                      }
                     } else {
                       // Si c'est une URL YouTube, générer la thumbnail YouTube
                       if (media.url && (media.url.includes('youtube.com') || media.url.includes('youtu.be'))) {
                         thumbnailSrc = getYouTubeThumbnailUrl(media.url);
+                        isYouTubeVideo = true;
                       } else {
                         thumbnailSrc = media.thumbnail || media.url || '';
                       }
@@ -105,14 +116,22 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                       <SplideSlide key={index}>
                         <button
                           onClick={() => setCurrentMediaIndex(index)}
-                          className={`flex-shrink-0 w-[136px] h-[50px] rounded-12 overflow-hidden transition-all duration-200 ${
+                          className={`flex-shrink-0 w-[136px] h-[60px] rounded-12 overflow-hidden transition-all duration-200 ${
                             index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
                           }`}>
-                          {typeof media === 'string' && media.includes('.mov') ? (
-                            <video src={media} className='w-full h-full object-cover' />
-                          ) : (
-                            <img src={thumbnailSrc} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
-                          )}
+                          <div className='relative w-full h-full'>
+                            {typeof media === 'string' && media.includes('.mov') ? (
+                              <video src={media} className='w-full h-full object-cover' />
+                            ) : (
+                              <img src={thumbnailSrc} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
+                            )}
+                            {/* Icône vidéo pour les vidéos YouTube */}
+                            {isYouTubeVideo && (
+                              <div className='absolute bottom-2 right-2'>
+                                <MovieIcon size={16} className='text-c6 drop-shadow-lg' />
+                              </div>
+                            )}
+                          </div>
                         </button>
                       </SplideSlide>
                     );
@@ -140,53 +159,13 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
         )}
       </motion.div>
 
-      <motion.div variants={itemVariants} className='w-full flex flex-col gap-25'>
-        <h1 className='font-medium text-c6 text-24'>{title}</h1>
-        <div className='w-full flex flex-col gap-10'>
-          <div className='w-full flex justify-between gap-10 items-center'>
-            <div className='w-fit flex justify-start gap-10 items-center'>
-              {Array.isArray(personnes) && personnes.length > 0 && (
-                <Link to={`/personne/${personnes[0].id}`} className='w-fit flex justify-start gap-10 items-center'>
-                  {personnes[0]?.picture ? (
-                    <img src={personnes[0].picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
-                  ) : (
-                    <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
-                  )}
-                  <div className='flex flex-col items-start gap-0.5'>
-                    <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
-                  </div>
-                </Link>
-              )}
-              {Array.isArray(personnes) && personnes.length > 1 && (
-                <Dropdown>
-                  <DropdownTrigger className='p-0'>
-                    <Button
-                      size='md'
-                      className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
-                      <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1}</h3>
-                    </Button>
-                  </DropdownTrigger>
-
-                  <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
-                    {Array.isArray(personnes) && personnes.length > 1
-                      ? personnes.slice(1).map((option: any, index: number) => (
-                          <DropdownItem key={option.id || `person-${index}`} className={`p-0`} onClick={() => openPersonne(option.id)}>
-                            <div className={`flex items-center gap-15 w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 text-c6`}>
-                              {option.picture ? (
-                                <img src={option.picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
-                              ) : (
-                                <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
-                              )}
-                              <span className='text-16'>{option.name}</span>
-                            </div>
-                          </DropdownItem>
-                        ))
-                      : null}
-                  </DropdownMenu>
-                </Dropdown>
-              )}
-            </div>
-
+      <motion.div variants={itemVariants} className={`w-full flex flex-col ${!Array.isArray(personnes) ? 'gap-0' : 'gap-25'}`}>
+        <div className='flex items-center gap-15 justify-between'>
+          <div className='flex items-center gap-15'>
+            <h1 className='font-medium text-c6 text-24'>{title}</h1>
+            {type && <span className='text-14 text-c5 px-10 py-5 bg-c2 rounded-8 border border-c3'>{type}</span>}
+          </div>
+          {(!Array.isArray(personnes) || personnes.length === 0) && (
             <div className='w-fit flex justify-between gap-10 items-center'>
               <Button
                 size='md'
@@ -235,6 +214,111 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
               )}
               <AnnotationDropdown id={id} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Œuvre' />
             </div>
+          )}
+        </div>
+        <div className='w-full flex flex-col gap-10'>
+          <div className='w-full flex justify-between gap-10 items-center'>
+            <div className='w-fit flex justify-start gap-10 items-center'>
+              {Array.isArray(personnes) && personnes.length > 0 && (
+                <Link to={`/personne/${personnes[0].id}`} className='w-fit flex justify-start gap-10 items-center'>
+                  {personnes[0]?.picture ? (
+                    <img src={personnes[0].picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                  ) : (
+                    <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
+                  )}
+                  <div className='flex flex-col items-start gap-0.5'>
+                    <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
+                    {personnes[0]?.jobTitle && Array.isArray(personnes[0].jobTitle) && personnes[0].jobTitle.length > 0 && (
+                      <p className='text-c4 font-extralight text-14'>{personnes[0].jobTitle[0]?.title}</p>
+                    )}
+                  </div>
+                </Link>
+              )}
+              {Array.isArray(personnes) && personnes.length > 1 && (
+                <Dropdown>
+                  <DropdownTrigger className='p-0'>
+                    <Button
+                      size='md'
+                      className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
+                      <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1}</h3>
+                    </Button>
+                  </DropdownTrigger>
+
+                  <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
+                    {Array.isArray(personnes) && personnes.length > 1
+                      ? personnes.slice(1).map((option: any, index: number) => (
+                          <DropdownItem key={option.id || `person-${index}`} className={`p-0`} onClick={() => openPersonne(option.id)}>
+                            <div className={`flex items-center gap-15 w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 text-c6`}>
+                              {option.picture ? (
+                                <img src={option.picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                              ) : (
+                                <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
+                              )}
+                              <div className='flex flex-col items-start gap-0.5'>
+                                <span className='text-16'>{option.name}</span>
+                                {option.jobTitle && Array.isArray(option.jobTitle) && option.jobTitle.length > 0 && (
+                                  <span className='text-14 text-c4 font-extralight'>{option.jobTitle[0]?.title}</span>
+                                )}
+                              </div>
+                            </div>
+                          </DropdownItem>
+                        ))
+                      : null}
+                  </DropdownMenu>
+                </Dropdown>
+              )}
+            </div>
+
+            {Array.isArray(personnes) && personnes.length > 0 && (
+              <div className='w-fit flex justify-between gap-10 items-center'>
+                <Button
+                  size='md'
+                  className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                  onClick={copyToClipboard}
+                  onPress={() => {
+                    addToast({
+                      title: 'Lien copié',
+                      classNames: {
+                        base: cn(['text-c6', 'mb-4']),
+                        icon: 'w-6 h-6 fill-current text-c6',
+                      },
+                    });
+                  }}>
+                  <ShareIcon size={12} />
+                  Partager
+                </Button>
+
+                {fullUrl !== '' && (
+                  <Button
+                    size='md'
+                    className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                    onClick={() => window.open(fullUrl, '_blank')}>
+                    <MovieIcon size={12} />
+                    {buttonText}
+                  </Button>
+                )}
+
+                {((Array.isArray(credits) && credits.length > 0) || (typeof credits === 'string' && credits.trim() !== '')) && (
+                  <Button
+                    size='md'
+                    className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                    onClick={() => {
+                      if (typeof credits === 'string') {
+                        window.open(credits, '_blank');
+                      } else if (Array.isArray(credits) && credits.length > 0) {
+                        const url = credits[0];
+                        if (typeof url === 'string') {
+                          window.open(url, '_blank');
+                        }
+                      }
+                    }}>
+                    <SettingsIcon size={12} />
+                    Crédits complets
+                  </Button>
+                )}
+                <AnnotationDropdown id={id} content='Exemple de contenu obligatoire' image='https://example.com/image.jpg' actant='Jean Dupont' type='Œuvre' />
+              </div>
+            )}
           </div>
         </div>
       </motion.div>

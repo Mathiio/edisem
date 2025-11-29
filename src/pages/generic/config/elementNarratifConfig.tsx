@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
-import { getElementNarratifs } from '@/services/Items';
+import { getElementNarratifs, getOeuvres } from '@/services/Items';
 import { createItemsListView } from '../helpers';
 
 /**
@@ -40,6 +40,16 @@ export const elementNarratifConfig: GenericDetailPageConfig = {
     medium: element.duration,
   }),
 
+  // Mapper pour les recommandations (format SmConfCard)
+  mapRecommendationProps: (element: any) => ({
+    id: element.id,
+    title: element.title,
+    type: 'elementNarratif',
+    url: null, // url est pour YouTube, on ne l'utilise pas ici
+    thumbnail: element.associatedMedia?.[0] || element.thumbnail || null,
+    actant: [],
+  }),
+
   // Vue unique : Références
   viewOptions: [
     createItemsListView({
@@ -52,6 +62,33 @@ export const elementNarratifConfig: GenericDetailPageConfig = {
   ],
 
   showKeywords: false,
-  showRecommendations: false,
+  showRecommendations: true,
   showComments: true,
+  recommendationsTitle: 'Autres éléments narratifs',
+
+  // Smart recommendations
+  smartRecommendations: {
+    // Récupère tous les éléments narratifs pour trouver des similaires
+    getAllResourcesOfType: async () => {
+      const elements = await getElementNarratifs();
+      return elements;
+    },
+
+    // Récupère les autres éléments narratifs de la même oeuvre
+    getRelatedItems: async (itemDetails) => {
+      const oeuvres = await getOeuvres();
+      const parentOeuvre = oeuvres.find((o: any) => o.elementsNarratifs?.some((e: any) => String(e.id) === String(itemDetails.id)));
+
+      if (parentOeuvre) {
+        return (parentOeuvre.elementsNarratifs || []).filter((e: any) => String(e.id) !== String(itemDetails.id));
+      }
+
+      return [];
+    },
+
+    maxRecommendations: 5,
+  },
+
+  // Type à afficher
+  type: 'Élément narratif',
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MaximizeIcon, MinimizeIcon, SquareIcon, GalleryIcon } from '@/components/ui/icons';
-import { getYouTubeVideoId } from '@/lib/utils';
+import { getYouTubeVideoId, getYouTubeThumbnailUrl } from '@/lib/utils';
 
 interface MediaViewerProps {
   src: string | { url?: string; thumbnail?: string }; // Support pour objet avec URL YouTube
@@ -15,7 +15,12 @@ const MediaViewer: React.FC<MediaViewerProps> = ({ src, alt = 'Media', className
   const [showControls, setShowControls] = useState(false);
 
   // Déterminer le type de média
-  const mediaData = typeof src === 'string' ? { url: src, thumbnail: src } : src;
+  const mediaData = typeof src === 'string'
+    ? {
+        url: src,
+        thumbnail: (src.includes('youtube.com') || src.includes('youtu.be')) ? getYouTubeThumbnailUrl(src) : src
+      }
+    : src;
   const isYouTube = mediaData.url && (mediaData.url.includes('youtube.com') || mediaData.url.includes('youtu.be'));
   const youtubeVideoId = isYouTube ? getYouTubeVideoId(mediaData.url!) : null;
 

@@ -34,7 +34,7 @@ export const LongCard: React.FC<OeuvreCardProps> = ({ id, title, thumbnail, acta
         )}
 
         <div className='flex justify-between items-center'>
-          {date && <p className='text-12 text-c4'>{new Date(date).toLocaleDateString()}</p>}
+          {date && <p className='text-12 text-c4'>{date}</p>}
           {universite && <p className='text-12 text-c4'>{universite}</p>}
         </div>
       </div>
@@ -124,11 +124,6 @@ export const SearchModalCard: React.FC<SearchModalProps> = ({ id, title, date, t
     </div>
   );
 };
-
-
-
-
-
 
 interface OeuvreProps {
   id: string;
