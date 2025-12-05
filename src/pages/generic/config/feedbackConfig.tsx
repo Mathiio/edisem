@@ -184,7 +184,7 @@ export const feedbackConfig: GenericDetailPageConfig = {
       const hasData = category.subcategories.some((subcategory) => itemDetails[subcategory.key] && itemDetails[subcategory.key].trim() !== '');
 
       if (!hasData) {
-        return <div className='p-20 bg-c2 rounded-12 border-2 border-c3 text-c4'>Aucune donnée disponible pour cette catégorie</div>;
+        return null;
       }
 
       return (
@@ -210,7 +210,7 @@ export const feedbackConfig: GenericDetailPageConfig = {
   showKeywords: false,
   showRecommendations: true,
   showComments: true,
-  recommendationsTitle: 'Autres retours d\'expérience',
+  recommendationsTitle: "Autres retours d'expérience",
 
   // Smart recommendations
   smartRecommendations: {
@@ -218,37 +218,33 @@ export const feedbackConfig: GenericDetailPageConfig = {
     getAllResourcesOfType: async () => {
       const experimentations = await getExperimentations();
       const allFeedbacks: any[] = [];
-      
+
       experimentations.forEach((exp: any) => {
         if (exp.feedbacks && Array.isArray(exp.feedbacks)) {
           allFeedbacks.push(...exp.feedbacks);
         }
       });
-      
+
       return allFeedbacks;
     },
-    
+
     // Récupère les autres feedbacks de la même expérimentation
     getRelatedItems: async (itemDetails) => {
       if (!itemDetails?.experimentation?.id) return [];
-      
+
       const experimentations = await getExperimentations();
-      const parentExp = experimentations.find((e: any) => 
-        String(e.id) === String(itemDetails.experimentation.id)
-      );
-      
+      const parentExp = experimentations.find((e: any) => String(e.id) === String(itemDetails.experimentation.id));
+
       if (parentExp && parentExp.feedbacks) {
-        return parentExp.feedbacks.filter(
-          (f: any) => String(f.id) !== String(itemDetails.id)
-        );
+        return parentExp.feedbacks.filter((f: any) => String(f.id) !== String(itemDetails.id));
       }
-      
+
       return [];
     },
-    
+
     maxRecommendations: 5,
   },
-  
+
   // Type à afficher
   type: 'Feedback',
 };

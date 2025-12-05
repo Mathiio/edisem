@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
+import { getYouTubeThumbnailUrl, isValidYouTubeUrl } from '@/lib/utils';
 
 /**
  * Composants réutilisables pour les viewOptions
@@ -40,7 +41,33 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, showAnnotation = true,
 
     // Si associatedMedia est un tableau, prendre le premier
     if (Array.isArray(tool.associatedMedia) && tool.associatedMedia.length > 0) {
-      return tool.associatedMedia[0];
+      const firstMedia = tool.associatedMedia[0];
+
+      // Si c'est un objet
+      if (typeof firstMedia === 'object' && firstMedia !== null) {
+        const mediaObj = firstMedia as any; // Type assertion pour éviter les erreurs TS
+
+        // Vérifier d'abord si l'objet a une propriété thumbnail
+        if (mediaObj.thumbnail) {
+          return mediaObj.thumbnail;
+        }
+
+        // Sinon vérifier si l'objet a une propriété url
+        if (mediaObj.url) {
+          const mediaUrl = mediaObj.url;
+          // Si l'URL est YouTube, récupérer la thumbnail
+          if (isValidYouTubeUrl(mediaUrl)) {
+            return getYouTubeThumbnailUrl(mediaUrl);
+          }
+          // Sinon retourner l'URL normale
+          return mediaUrl;
+        }
+      }
+
+      // Si c'est une string, la retourner directement
+      if (typeof firstMedia === 'string') {
+        return firstMedia;
+      }
     }
 
     // Si associatedMedia est une string
@@ -111,36 +138,19 @@ export const SimpleTextBlock: React.FC<SimpleTextBlockProps> = ({ content, class
 };
 
 // ========================================
-// EmptyState - Afficher quand il n'y a pas de données
-// ========================================
-
-interface EmptyStateProps {
-  message?: string;
-}
-
-export const EmptyState: React.FC<EmptyStateProps> = ({ message = 'Aucune donnée disponible' }) => {
-  return (
-    <div className='p-20 bg-c2 rounded-12 border-2 border-c3 text-center'>
-      <p className='text-c4 text-14'>{message}</p>
-    </div>
-  );
-};
-
-// ========================================
 // ItemsList - Liste d'items avec ToolItem
 // ========================================
 
 interface ItemsListProps {
   items: ToolItemData[];
-  emptyMessage?: string;
   showAnnotation?: boolean;
   annotationType?: string;
   mapUrl?: (item: ToolItemData) => string; // Fonction pour générer l'URL
 }
 
-export const ItemsList: React.FC<ItemsListProps> = ({ items, emptyMessage = 'Aucun élément disponible', showAnnotation = true, annotationType = 'Bibliographie', mapUrl }) => {
+export const ItemsList: React.FC<ItemsListProps> = ({ items, showAnnotation = true, annotationType = 'Bibliographie', mapUrl }) => {
   if (!items || items.length === 0) {
-    return <EmptyState message={emptyMessage} />;
+    return null;
   }
 
   return (

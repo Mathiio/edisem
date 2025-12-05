@@ -19,6 +19,7 @@ import { useLocalStorageProperties } from './database';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { CreateModal } from '@/components/features/database/CreateModal';
 import { Layouts } from '@/components/layout/Layouts';
+import { chatToFilter } from '@/hooks/ChatToFilter';
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
@@ -41,9 +42,9 @@ export interface GeneratedImage {
 const getConfigKey = (nodeType: string): string | null => {
   const typeMap: Record<string, string> = {
     conference: 'conferences',
-    studyday: 'conferences', 
+    studyday: 'conferences',
     colloque: 'conferences',
-    seminar: 'conferences', 
+    seminar: 'conferences',
     citation: 'citations',
     actant: 'conferenciers',
     bibliography: 'bibliography',
@@ -618,9 +619,7 @@ const Visualisation = () => {
         }
 
         // Vérifier si le type de l'élément lié est visible dans le groupe de l'item principal
-        const normalizedType = ['colloque', 'seminar', 'studyday'].includes(linkedItem.type) 
-          ? 'conference' 
-          : linkedItem.type;
+        const normalizedType = ['colloque', 'seminar', 'studyday'].includes(linkedItem.type) ? 'conference' : linkedItem.type;
 
         if (!linkedItem.type || !group.visibleTypes.includes(normalizedType)) {
           return;
@@ -1044,6 +1043,19 @@ const Visualisation = () => {
       }
     }
   }, [searchParams]);
+
+  const handleSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchTerm = e.target.value;
+
+    const filter = chatToFilter(searchTerm);
+    handleSearch(filter.groups);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchTermChange(e as any);
+    }
+  };
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getElementEsthetique } from '@/services/Items';
+import { getElementEsthetiques } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
@@ -78,7 +78,7 @@ export const ElementEsthetique: React.FC = () => {
 
     setLoading(true);
     try {
-      const data = await getElementEsthetique(Number(id));
+      const data = await getElementEsthetiques(Number(id));
       console.log('ElementEsthetique data:', data);
 
       if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {

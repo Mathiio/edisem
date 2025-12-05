@@ -1,14 +1,14 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
-import { getElementEsthetique, getOeuvres } from '@/services/Items';
+import { getElementEsthetiques, getOeuvres } from '@/services/Items';
 
 /**
  * Configuration pour les pages d'éléments esthétiques
  */
 export const elementEsthetiqueConfig: GenericDetailPageConfig = {
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const data = await getElementEsthetique(Number(id));
+    const data = await getElementEsthetiques(Number(id));
 
     return {
       itemDetails: data,
@@ -55,7 +55,7 @@ export const elementEsthetiqueConfig: GenericDetailPageConfig = {
       title: 'Analyse',
       renderContent: ({ itemDetails }) => {
         if (!itemDetails) {
-          return <div className='p-20 bg-c2 rounded-12 border-2 border-c3 text-c4'>Aucune donnée disponible</div>;
+          return null;
         }
 
         const fields = [
@@ -104,29 +104,25 @@ export const elementEsthetiqueConfig: GenericDetailPageConfig = {
   smartRecommendations: {
     // Récupère tous les éléments esthétiques pour trouver des similaires
     getAllResourcesOfType: async () => {
-      const elements = await getElementEsthetique();
+      const elements = await getElementEsthetiques();
       return elements;
     },
-    
+
     // Récupère les autres éléments esthétiques de la même oeuvre
     getRelatedItems: async (itemDetails) => {
       const oeuvres = await getOeuvres();
-      const parentOeuvre = oeuvres.find((o: any) => 
-        o.elementsEsthetique?.some((e: any) => String(e.id) === String(itemDetails.id))
-      );
-      
+      const parentOeuvre = oeuvres.find((o: any) => o.elementsEsthetique?.some((e: any) => String(e.id) === String(itemDetails.id)));
+
       if (parentOeuvre) {
-        return (parentOeuvre.elementsEsthetique || []).filter(
-          (e: any) => String(e.id) !== String(itemDetails.id)
-        );
+        return (parentOeuvre.elementsEsthetique || []).filter((e: any) => String(e.id) !== String(itemDetails.id));
       }
-      
+
       return [];
     },
-    
+
     maxRecommendations: 5,
   },
-  
+
   // Type à afficher
   type: 'Élément esthétique',
 };

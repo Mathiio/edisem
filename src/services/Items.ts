@@ -30,6 +30,7 @@ const CACHE_KEYS = [
   'comments',
   'objetsTechnoIndustriels',
   'documentationsScientifiques',
+  'recitsMediatiques',
 ];
 
 const CACHE_TIMESTAMP_KEY = 'edisem_cache_timestamp';
@@ -248,103 +249,179 @@ export async function getCitations() {
   }
 }
 
-export async function getAnnotations( id?: string | number   ) {
+export async function getAnnotations(id?: string | number) {
   try {
     checkAndClearDailyCache();
     console.log('🚀 getAnnotations() called', id ? `for ID: ${id}` : '(all annotations)');
-    const storedCitations = sessionStorage.getItem('annotations');
+    
+    const storedAnnotations = sessionStorage.getItem('annotations');
 
-    if (storedCitations) {
+    // 📦 CACHE : Si les données sont en cache
+    if (storedAnnotations) {
       console.log('📦 Using cached annotations from sessionStorage');
-      const allAnnotations = JSON.parse(storedCitations);
+      const allAnnotations = JSON.parse(storedAnnotations);
 
-    // Si un ID est spécifié, chercher l'annotation avec cet ID
-    if (id) {
-      console.log(`🎯 Looking for annotation with ID: "${id}" (cached)`);
+      // Si un ID est spécifié, retourner l'annotation spécifique
+      if (id) {
+        console.log(`🎯 Looking for annotation with ID: "${id}" (cached)`);
+        const foundAnnotation = allAnnotations.find((annotation: any) =>
+          String(annotation.id) === String(id)
+        );
 
-      // Chercher directement l'annotation avec cet ID
-      const foundAnnotation = allAnnotations.find((annotation: any) =>
-        String(annotation.id) === String(id)
-      );
-
-      if (foundAnnotation) {
-        console.log(`✅ Found annotation with ID: ${id} (cached)`);
-        return [foundAnnotation]; // Retourner un tableau avec l'annotation trouvée
-      } else {
-        console.log(`❌ No cached annotation found with ID: "${id}"`);
-        return [];
+        if (foundAnnotation) {
+          console.log(`✅ Found annotation with ID: ${id} (cached)`);
+          return [foundAnnotation];
+        } else {
+          console.log(`❌ No cached annotation found with ID: "${id}"`);
+          return [];
+        }
       }
-    }
 
       return allAnnotations;
     }
 
-    
+    // 🌐 FETCH : Récupérer les données depuis l'API
     const [annotations, personnes, actants, students] = await Promise.all([
       getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAnnotations&json=1',
-    ),
-    getPersonnes(),
-    getActants(),
-    getStudents()
-  ]);
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAnnotations&json=1',
+      ),
+      getPersonnes(),
+      getActants(),
+      getStudents()
+    ]);
 
-   
+    
+
+    
+
+    // 🏗️ CONSTRUCTION : Créer les objets annotations de base
     const annotationsFull = annotations.map((annotation: any) => ({
       ...annotation,
       type: 'annotation',
     }));
 
-    
+    // 👥 ASSOCIATION : Associer les contributeurs (personnes, actants, students)
     annotationsFull.forEach((annotation: any) => {
       const contributorId = annotation.contributor;
-
-      // Chercher dans toutes les catégories: personnes, actants, students
       annotation.actant = [
         ...personnes.filter((personne: any) => personne.id === contributorId),
         ...actants.filter((actant: any) => actant.id === contributorId),
         ...students.filter((student: any) => student.id === contributorId)
       ];
-
-     
     });
 
-    // Si un ID est spécifié, chercher l'annotation avec cet ID
-    let resultAnnotations = annotationsFull;
-    if (id) {
-      
 
-      // Chercher directement l'annotation avec cet ID
+    // 💾 CACHE : Mettre en cache les annotations avec targets résolus
+    sessionStorage.setItem('annotations', JSON.stringify(annotationsFull));
+    console.log('✅ Annotations mises en cache avec targets résolus');
+
+    // 🎯 FILTRAGE : Si un ID est spécifié, retourner l'annotation spécifique
+    if (id) {
       const foundAnnotation = annotationsFull.find((annotation: any) =>
         String(annotation.id) === String(id)
       );
-
-      if (foundAnnotation) {
-       
-        resultAnnotations = [foundAnnotation]; // Retourner un tableau avec l'annotation trouvée
-      } else {
-       
-        resultAnnotations = [];
-      }
+      return foundAnnotation ? [foundAnnotation] : [];
     }
 
-    sessionStorage.setItem('annotations', JSON.stringify(annotationsFull));
-
-    return resultAnnotations;
+    return annotationsFull;
 
   } catch (error) {
-    console.error('Error fetching actants:', error);
-    throw new Error('Failed to fetch actants');
+    console.error('❌ Error fetching annotations:', error);
+    throw new Error('Failed to fetch annotations');
   }
 }
 
-export async function getBibliographies() {
+export async function getAnnotationsWithTargets(annotations: any) {
+  if (!annotations) return annotations;
+
+  console.log('annotations', annotations);
+
+  // Toujours travailler sur un tableau
+  const list = Array.isArray(annotations) ? annotations : [annotations];
+
+  async function resolveTarget(target: any): Promise<any> {
+    if (!target || !target.id || !target.template_id) return target;
+
+    const id = parseInt(target.id);
+    const tpl = parseInt(target.template_id);
+
+    switch (tpl) {
+      case 83:
+      case 98:
+        return await getMediagraphies(id);
+
+      case 81:
+      case 99:
+        return await getBibliographies(id);
+
+      case 119:
+        // return await getRecitCitoyens(id);
+
+      case 120:
+        // return await getRecitMediatiques(id);
+
+      case 103:
+        return await getOeuvres(id);
+
+      case 117:
+        return await getObjetsTechnoIndustriels(id);
+
+      case 124:
+        return await getDocumentationsScientifiques(id);
+
+      case 121:
+        return await getStudyDayConfs(id);
+
+      case 71:
+        return await getSeminarConfs(id);
+
+      case 122:
+        return await getColloqueConfs(id);
+
+      case 125:
+        return await getAnnotations(id);
+
+      case 104:
+        return await getElementEsthetiques(id);
+
+      case 105:
+        return await getElementNarratifs(id);
+
+      case 106:
+        return await getExperimentations(id);
+
+      case 118:
+        return await getTools(id);
+
+      default:
+        return target;
+    }
+  }
+
+  return await Promise.all(list.map(async annotation => {
+    if (annotation.target && Array.isArray(annotation.target)) {
+      annotation.target = await Promise.all(annotation.target.map(resolveTarget));
+    }
+
+    if (annotation.related && Array.isArray(annotation.related)) {
+      annotation.related = await Promise.all(annotation.related.map(resolveTarget));
+    }
+    return annotation;
+  }));
+}
+
+
+
+
+export async function getBibliographies(id?: number) {
   try {
     checkAndClearDailyCache();
     const storedBibliographies = sessionStorage.getItem('bibliographies');
 
     if (storedBibliographies) {
-      return JSON.parse(storedBibliographies);
+      const bibliographies = JSON.parse(storedBibliographies);
+      // Si un ID est spécifié, retourner la bibliographie spécifique
+      return id ? bibliographies.find((b: any) => String(b.id) === String(id)) : bibliographies;
     }
 
     const bibliographies = await getDataByUrl(
@@ -352,24 +429,26 @@ export async function getBibliographies() {
     );
     const bibliographiesFull = bibliographies.map((bibliographie: any) => ({
       ...bibliographie,
-      type: 'bibliography',
+      type: 'bibliographie',
     }));
 
     sessionStorage.setItem('bibliographies', JSON.stringify(bibliographiesFull));
-    return bibliographiesFull;
+    
+    // Si un ID est spécifié, retourner la bibliographie spécifique
+    return id ? bibliographiesFull.find((b: any) => String(b.id) === String(id)) : bibliographiesFull;
   } catch (error) {
     console.error('Error fetching bibliographies:', error);
     throw new Error('Failed to fetch bibliographies');
   }
 }
-
-export async function getMediagraphies() {
+export async function getMediagraphies(id?: number) {
   try {
     checkAndClearDailyCache();
     const storedMediagraphies = sessionStorage.getItem('mediagraphies');
 
     if (storedMediagraphies) {
-      return JSON.parse(storedMediagraphies);
+      const mediagraphies = JSON.parse(storedMediagraphies);
+      return id ? mediagraphies.find((m: any) => String(m.id) === String(id)) : mediagraphies;
     }
 
     const mediagraphies = await getDataByUrl(
@@ -381,7 +460,7 @@ export async function getMediagraphies() {
     }));
 
     sessionStorage.setItem('mediagraphies', JSON.stringify(mediagraphiesFull));
-    return mediagraphiesFull;
+    return id ? mediagraphiesFull.find((m: any) => String(m.id) === String(id)) : mediagraphiesFull;
   } catch (error) {
     console.error('Error fetching mediagraphies:', error);
     throw new Error('Failed to fetch mediagraphies');
@@ -854,7 +933,7 @@ export async function getAllConfs(id?: number) {
 }
 
 
-export async function getTools(id?: number) {
+export async function getTools(id?: number): Promise<any> {
   try {
     checkAndClearDailyCache();
     // 1. CACHE : Vérifier sessionStorage
@@ -899,6 +978,10 @@ export async function getPersonnes(id?: number) {
       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getPersonnes&json=1',
     );
 
+    personnes.forEach((personne: any) => {
+      personne.type = 'personne';
+    });
+
     sessionStorage.setItem('personnes', JSON.stringify(personnes));
     return id ? personnes.find((p: any) => p.id === String(id)) : personnes;
   }
@@ -928,7 +1011,7 @@ export async function getOeuvres(id?: number) {
       getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1'),
       getPersonnes(),
       getElementNarratifs(),
-      getElementEsthetique(),
+      getElementEsthetiques(),
       getAnnotations(),
       getKeywords(),
       getBibliographies(),
@@ -1143,6 +1226,10 @@ export async function getCollections() {
       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCollections&json=1',
     );
 
+    collections.forEach((collection: any) => {
+      collection.type = 'collection';
+    });
+
     sessionStorage.setItem('collections', JSON.stringify(collections));
     return collections;
   } catch (error) {
@@ -1180,7 +1267,10 @@ export async function getFeedbacks() {
   
     feedbacks.forEach((feedback: any) => {
       feedback.url = '/feedback/' + feedback.id;
+      feedback.type = 'feedback';
     });
+
+
 
     sessionStorage.setItem('feedbacks', JSON.stringify(feedbacks));
     return feedbacks;
@@ -1191,13 +1281,14 @@ export async function getFeedbacks() {
   }
 }
 
-export async function getExperimentations() {
+export async function getExperimentations(id?: number) {
   try {
     checkAndClearDailyCache();
     const storedExperimentations = sessionStorage.getItem('experimentations');
 
     if (storedExperimentations) {
-      return JSON.parse(storedExperimentations);
+      const experimentations = JSON.parse(storedExperimentations);
+      return id ? experimentations.find((e: any) => String(e.id) || String(e.id) === String(id)) : experimentations;
     }
 
     // Récupérer les expérimentations et les feedbacks en parallèle
@@ -1263,7 +1354,7 @@ export async function getExperimentations() {
     console.log('experimentationsFull', experimentationsFull);
 
     sessionStorage.setItem('experimentations', JSON.stringify(experimentationsFull));
-    return experimentationsFull;
+    return id ? experimentationsFull.find((e: any) => String(e.id) || String(e.id) === String(id)) : experimentationsFull;
   } catch (error) {
     console.error('Error fetching experimentations:', error);
     throw new Error('Failed to fetch experimentations');
@@ -1380,18 +1471,18 @@ export async function getElementNarratifs(id?: number): Promise<any> {
 }
 
 
-export async function getElementEsthetique( id?: number) {
+export async function getElementEsthetiques( id?: number) {
   try {
     checkAndClearDailyCache();
-    const storedElementEsthetique = sessionStorage.getItem('elementEsthetique');
+    const storedElementEsthetiques = sessionStorage.getItem('elementEsthetiques');
 
-    if (storedElementEsthetique) {
-      const elementEsthetique = JSON.parse(storedElementEsthetique);
-      return id ? elementEsthetique.find((e: any) => e.id === String(id)) : elementEsthetique;
+    if (storedElementEsthetiques) {
+      const elementEsthetiques = JSON.parse(storedElementEsthetiques);
+      return id ? elementEsthetiques.find((e: any) => e.id === String(id)) : elementEsthetiques;
     }
 
     // Récupérer elementEsthetique et les personnes, actants en parallèle
-    const [elementEsthetique, personnes, actants] = await Promise.all([
+    const [elementEsthetiques, personnes, actants] = await Promise.all([
       getDataByUrl(
         'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getElementEsthetique&json=1',
       ),
@@ -1407,10 +1498,10 @@ export async function getElementEsthetique( id?: number) {
     const actantsMap = new Map(actants.map((actant: any) => [actant.id.toString(), actant]));
 
     // Créer une map des elementEsthetique pour les relations relatedResource
-    const elementEsthetiqueMap = new Map(elementEsthetique.map((element: any) => [element.id.toString(), element]));
+    const elementEsthetiquesMap = new Map(elementEsthetiques.map((element: any) => [element.id.toString(), element]));
 
     // Fusionner les relations dans chaque elementEsthetique
-    const elementEsthetiqueFull = elementEsthetique.map((elementEsthetique: any) => {
+    const elementEsthetiquesFull = elementEsthetiques.map((elementEsthetique: any) => {
       const elementWithRelations = {
         ...elementEsthetique,
         type: 'elementEsthetique',
@@ -1443,17 +1534,17 @@ export async function getElementEsthetique( id?: number) {
       if (elementEsthetique.relatedResource) {
         if (Array.isArray(elementEsthetique.relatedResource)) {
           elementWithRelations.relatedResource = elementEsthetique.relatedResource
-            .map((resourceId: string) => elementEsthetiqueMap.get(resourceId))
+            .map((resourceId: string) => elementEsthetiquesMap.get(resourceId))
             .filter(Boolean);
         } else {
-          elementWithRelations.relatedResource = elementEsthetiqueMap.get(elementEsthetique.relatedResource);
+          elementWithRelations.relatedResource = elementEsthetiquesMap.get(elementEsthetique.relatedResource);
         }
       }
       return elementWithRelations;
     });
 
-    sessionStorage.setItem('elementEsthetique', JSON.stringify(elementEsthetiqueFull));
-    return elementEsthetiqueFull;
+    sessionStorage.setItem('elementEsthetiques', JSON.stringify(elementEsthetiquesFull));
+    return elementEsthetiquesFull;
   } catch (error) {
     console.error('Error fetching elementEsthetique:', error);
     throw new Error('Failed to fetch elementEsthetique');
@@ -1627,23 +1718,23 @@ export async function getDocumentationsScientifiques(id?: number) {
     }
 
     // 2. FETCH : Récupérer données + dépendances en Promise.all
-    const [rawDocs, allItems, keywords, personnes, annotations] = await Promise.all([
+    const [rawDocs, keywords, personnes, annotations, bibliographies, mediagraphies] = await Promise.all([
       getDataByUrl(
         'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getDocumentationsScientifiques&json=1'
       ),
-      getAllItems(),
       getKeywords(),
       getPersonnes(),
-      getAnnotations()
+      getAnnotations(),
+      getBibliographies(),
+      getMediagraphies()
     ]);
 
-    console.log("rawdocs",rawDocs)
-
     // 3. MAPS : Créer maps pour accès rapide
-    const itemsMap = new Map(allItems.map((item: any) => [String(item.id), item]));
     const keywordsMap = new Map(keywords.map((k: any) => [String(k.id), k]));
     const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
     const annotationsMap = new Map(annotations.map((a: any) => [String(a.id), a]));
+    const bibliographiesMap = new Map(bibliographies.map((b: any) => [String(b.id), b]));
+    const mediagraphiesMap = new Map(mediagraphies.map((m: any) => [String(m.id), m]));
     // 4. HYDRATATION : Remplacer IDs par objets complets
     const docsFull = rawDocs.map((doc: any) => {
       // Hydrater descriptions (items)
@@ -1672,15 +1763,6 @@ export async function getDocumentationsScientifiques(id?: number) {
       let associatedMediaHydrated = [];
       if (Array.isArray(doc.associatedMedia)) {
         associatedMediaHydrated = doc.associatedMedia
-          .map((id: any) => itemsMap.get(String(id)))
-          .filter(Boolean);
-      }
-
-      // Hydrater sources (items)
-      let sourcesHydrated = [];
-      if (Array.isArray(doc.sources)) {
-        sourcesHydrated = doc.sources
-          .map((id: any) => itemsMap.get(String(id)))
           .filter(Boolean);
       }
 
@@ -1688,9 +1770,33 @@ export async function getDocumentationsScientifiques(id?: number) {
       let isRelatedToHydrated = [];
       if (Array.isArray(doc.isRelatedTo)) {
         isRelatedToHydrated = doc.isRelatedTo
-          .map((id: any) => itemsMap.get(String(id)))
           .filter(Boolean);
       }
+
+      // Hydrater referencesScient (items)
+      let referencesScientHydrated = [];
+      if (Array.isArray(doc.referencesScient)) {
+        // Vérifier si c'est déjà des objets complets ou des IDs
+        if (doc.referencesScient.length > 0 && typeof doc.referencesScient[0] === 'object' && doc.referencesScient[0] !== null) {
+          // Déjà des objets complets
+          referencesScientHydrated = doc.referencesScient;
+        } else {
+          // Ce sont des IDs, les hydrater
+          referencesScientHydrated = doc.referencesScient
+            .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
+            .filter(Boolean);
+        }
+      }
+
+      // Hydrater referencesCultu (items)
+      let referencesCultuHydrated = [];
+      if (Array.isArray(doc.referencesCultu)) {
+        referencesCultuHydrated = doc.referencesCultu
+          .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
+          .filter(Boolean);
+      }
+
+      
 
       return {
         ...doc,
@@ -1699,8 +1805,9 @@ export async function getDocumentationsScientifiques(id?: number) {
         keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
         creator: creatorHydrated,
         associatedMedia: associatedMediaHydrated.length > 0 ? associatedMediaHydrated : [],
-        sources: sourcesHydrated.length > 0 ? sourcesHydrated : [],
         isRelatedTo: isRelatedToHydrated.length > 0 ? isRelatedToHydrated : [],
+        referencesScient: referencesScientHydrated.length > 0 ? referencesScientHydrated : [],
+        referencesCultu: referencesCultuHydrated.length > 0 ? referencesCultuHydrated : [],
       };
     });
 
@@ -1711,6 +1818,117 @@ export async function getDocumentationsScientifiques(id?: number) {
   } catch (error) {
     console.error('Error fetching documentations scientifiques:', error);
     throw new Error('Failed to fetch documentations scientifiques');
+  }
+}
+
+export async function getRecitsMediatiques(id?: number) {
+  try {
+    checkAndClearDailyCache();
+    // 1. CACHE : Vérifier sessionStorage
+    const storedRecits = sessionStorage.getItem('recitsMediatiques');
+    if (storedRecits) {
+      const recits = JSON.parse(storedRecits);
+      return id ? recits.find((r: any) => r.id === String(id)) : recits;
+    }
+
+    // 2. FETCH : Récupérer données + dépendances en Promise.all
+    const [rawRecits, keywords, personnes, annotations, bibliographies, mediagraphies, tools] = await Promise.all([
+      getDataByUrl(
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsMediatiques&json=1'
+      ),
+      getKeywords(),
+      getPersonnes(),
+      getAnnotations(),
+      getBibliographies(),
+      getMediagraphies(),
+      getTools()
+    ]);
+    console.log('rawRecits', rawRecits);
+    // 3. MAPS : Créer maps pour accès rapide
+    const keywordsMap = new Map(keywords.map((k: any) => [String(k.id), k]));
+    const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
+    const annotationsMap = new Map(annotations.map((a: any) => [String(a.id), a]));
+    const bibliographiesMap = new Map(bibliographies.map((b: any) => [String(b.id), b]));
+    const mediagraphiesMap = new Map(mediagraphies.map((m: any) => [String(m.id), m]));
+    const toolsMap = new Map(tools.map((t: any) => [String(t.id), t]));
+
+    // 4. HYDRATATION : Remplacer IDs par objets complets
+    const recitsFull = rawRecits.map((recit: any) => {
+      // Hydrater descriptions (annotations)
+      let descriptionsHydrated = [];
+      if (Array.isArray(recit.descriptions)) {
+        descriptionsHydrated = recit.descriptions
+          .map((id: any) => annotationsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      // Hydrater keywords
+      let keywordsHydrated = [];
+      if (Array.isArray(recit.keywords)) {
+        keywordsHydrated = recit.keywords
+          .map((id: any) => keywordsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      // Hydrater creator (personne)
+      let creatorHydrated = null;
+      if (recit.creator) {
+        creatorHydrated = personnesMap.get(String(recit.creator)) || null;
+      }
+
+
+      // Hydrater isRelatedTo (objets avec id, title, thumbnail - déjà complets depuis le PHP)
+      let isRelatedToHydrated = [];
+      if (Array.isArray(recit.isRelatedTo)) {
+        isRelatedToHydrated = recit.isRelatedTo.filter(Boolean);
+      }
+
+      // Hydrater tools
+      let toolsHydrated = [];
+      if (Array.isArray(recit.tools)) {
+        toolsHydrated = recit.tools
+          .map((id: any) => toolsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      // Hydrater scientificContent (bibliographies/mediagraphies)
+      let scientificContentHydrated = [];
+      if (Array.isArray(recit.scientificContent)) {
+        scientificContentHydrated = recit.scientificContent
+          .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
+          .filter(Boolean);
+      }
+
+      // Hydrater culturalContent (bibliographies/mediagraphies)
+      let culturalContentHydrated = [];
+      if (Array.isArray(recit.culturalContent)) {
+        culturalContentHydrated = recit.culturalContent
+          .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
+          .filter(Boolean);
+      }
+
+
+
+      return {
+        ...recit,
+        type: 'recitMediatique',
+        descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
+        keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
+        creator: creatorHydrated,
+        isRelatedTo: isRelatedToHydrated.length > 0 ? isRelatedToHydrated : [],
+        tools: toolsHydrated.length > 0 ? toolsHydrated : [],
+        scientificContent: scientificContentHydrated.length > 0 ? scientificContentHydrated : [],
+        culturalContent: culturalContentHydrated.length > 0 ? culturalContentHydrated : [],
+      };
+    });
+
+    // 5. CACHE + RETURN : Stocker et retourner
+    sessionStorage.setItem('recitsMediatiques', JSON.stringify(recitsFull));
+    return id ? recitsFull.find((r: any) => r.id === String(id)) : recitsFull;
+
+  } catch (error) {
+    console.error('Error fetching recits mediatiques:', error);
+    throw new Error('Failed to fetch recits mediatiques');
   }
 }
 

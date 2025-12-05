@@ -1,35 +1,22 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
-import { getDocumentationsScientifiques, getKeywords, getAllItems } from '@/services/Items';
-import { createItemsListView, createTextView } from '../helpers';
+import { getDocumentationsScientifiques, getKeywords } from '@/services/Items';
+import { createCulturalReferencesView, createItemsListView, createScientificReferencesView, createTextView } from '../helpers';
 
 export const documentationScientifiqueConfig: GenericDetailPageConfig = {
   // Data fetching avec enrichissement des keywords
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const [docs, concepts] = await Promise.all([getDocumentationsScientifiques(), getKeywords()]);
-
-    const doc = docs.find((d: any) => String(d.id) === String(id));
+    const [doc, concepts] = await Promise.all([getDocumentationsScientifiques(Number(id)), getKeywords()]);
 
     // Enrichir les keywords si nécessaire
     const docKeywords = concepts.filter((c: any) => doc?.keywords?.some((k: any) => String(k.id) === String(c.id)));
 
-    // Extraire les IDs de isRelatedTo pour les recommandations
-    const recommendationIds = doc?.isRelatedTo?.map((item: any) => String(item.id)) || [];
-
-    console.log(doc);
-
     return {
       itemDetails: doc,
       keywords: docKeywords,
-      recommendations: recommendationIds,
+      // Pas de recommendations classiques pour déclencher les smart recommendations
     };
-  },
-
-  // Fonction pour récupérer les recommandations complètes depuis isRelatedTo
-  fetchRecommendations: async (ids: string[]) => {
-    const allItems = await getAllItems();
-    return allItems.filter((item: any) => ids.includes(String(item.id)));
   },
 
   // Composants UI réutilisés
@@ -74,7 +61,6 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
       key: 'Descriptions',
       title: 'Analyses détaillées',
       getItems: (itemDetails) => itemDetails?.descriptions || [],
-      emptyMessage: 'Aucune analyse détaillée',
       annotationType: 'Analyse',
       mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
     }),
@@ -84,26 +70,12 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
       key: 'ConditionInitiale',
       title: 'Figure narrative',
       getText: (itemDetails) => itemDetails?.conditionInitiale,
-      emptyMessage: 'Aucune condition initiale définie',
     }),
 
     // Vue 5 : Sources
-    createItemsListView({
-      key: 'Sources',
-      title: 'Contenus scientifiques',
-      getItems: (itemDetails) => itemDetails?.sources || [],
-      emptyMessage: 'Aucun contenu scientifique lié',
-      annotationType: 'Source',
-    }),
+    createScientificReferencesView(),
 
-    // Vue 6 : Ressources liées
-    createItemsListView({
-      key: 'RessourcesLiees',
-      title: 'Contenus culturels',
-      getItems: (itemDetails) => itemDetails?.isRelatedTo || [],
-      emptyMessage: 'Aucun contenu culturel lié',
-      annotationType: 'Ressource',
-    }),
+    createCulturalReferencesView(),
   ],
 
   // Sections optionnelles
@@ -114,18 +86,16 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
 
   // Smart recommendations
   smartRecommendations: {
-    // Récupère toutes les documentations scientifiques pour trouver des similaires
-    getAllResourcesOfType: async () => {
+    // Retourne toutes les autres documentations scientifiques comme recommandations
+    getRelatedItems: async (itemDetails: any) => {
       const docs = await getDocumentationsScientifiques();
-      return docs;
+      // Retourner toutes les docs sauf celle actuelle
+      return docs.filter((doc: any) => String(doc.id) !== String(itemDetails.id));
     },
 
-    // Pour les documentations scientifiques, on veut seulement des documentations similaires
-    getRelatedItems: () => [],
-
-    maxRecommendations: 5,
+    maxRecommendations: 5, // Afficher plus de recommandations
   },
 
   // Type à afficher
-  type: 'Documentation scientifique',
+  type: 'documentationScientifique',
 };

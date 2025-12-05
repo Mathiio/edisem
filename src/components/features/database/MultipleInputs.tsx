@@ -113,7 +113,7 @@ const MultipleInputs: React.FC<SelectionInputProps> = ({ col, actualData, handle
       {canAddMoreInputs && (
         <Button
           startContent={<AddIcon size={16} />}
-          className='px-[15px] py-10 flex gap-10 bg-c3 border-none rounded-8 w-full hover:text-action text-c6 font-semibold'
+          className='px-[15px] py-10 min-h-[50px] flex gap-10 bg-c3 border-none rounded-8 w-full hover:text-action text-c6 font-semibold'
           onClick={handleAddInput}>
           Ajouter {col.label}
         </Button>

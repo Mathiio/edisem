@@ -71,7 +71,6 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
       key: 'Descriptions',
       title: 'Analyses critiques',
       getItems: (itemDetails) => itemDetails?.descriptions || [],
-      emptyMessage: 'Aucune analyse détaillée',
       annotationType: 'Analyse',
       mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
     }),
@@ -80,7 +79,6 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
       key: 'ConditionInitiale',
       title: 'Figure narrative',
       getText: (itemDetails) => itemDetails?.conditionInitiale,
-      emptyMessage: 'Aucune condition initiale définie',
     }),
 
     createScientificReferencesView(),
@@ -90,7 +88,6 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
       key: 'Reviews',
       title: 'Contenus scientifiques',
       getItems: (itemDetails) => itemDetails?.reviews || [],
-      emptyMessage: 'Aucune critique disponible',
       annotationType: 'Critique',
     }),
 
@@ -99,7 +96,6 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
       key: 'RessourcesLiees',
       title: 'Contenus culturels',
       getItems: (itemDetails) => itemDetails?.relatedResources || [],
-      emptyMessage: 'Aucune ressource liée',
       annotationType: 'Ressource',
     }),
 
@@ -112,7 +108,6 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
           ...tool,
           title: tool.name || tool.title || 'Outil sans nom',
         })),
-      emptyMessage: 'Aucun outil associé',
       annotationType: 'Outil',
     }),
   ],

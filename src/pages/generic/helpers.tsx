@@ -17,7 +17,6 @@ interface CreateItemsListViewOptions {
   key: string;
   title: string;
   getItems: (itemDetails: any) => ToolItemData[];
-  emptyMessage?: string;
   showAnnotation?: boolean;
   annotationType?: string;
   mapUrl?: (item: ToolItemData) => string;
@@ -29,9 +28,7 @@ export const createItemsListView = (options: CreateItemsListViewOptions): ViewOp
     title: options.title,
     renderContent: ({ itemDetails }) => {
       const items = options.getItems(itemDetails);
-      return (
-        <ItemsList items={items} emptyMessage={options.emptyMessage} showAnnotation={options.showAnnotation} annotationType={options.annotationType} mapUrl={options.mapUrl} />
-      );
+      return <ItemsList items={items} showAnnotation={options.showAnnotation} annotationType={options.annotationType} mapUrl={options.mapUrl} />;
     },
   };
 };
@@ -80,8 +77,20 @@ export const createScientificReferencesView = (): ViewOption => {
     title: 'Contenus scientifiques',
     renderContent: ({ itemDetails, loading }) => {
       const references = itemDetails?.referencesScient || itemDetails?.references || [];
+
       const mediagraphies = references.filter((ref: any) => ref?.type === 'mediagraphie' || ref?.mediagraphyType);
-      const bibliographies = references.filter((ref: any) => ref?.type === 'bibliographie' || ref?.template);
+      const bibliographies = references
+        .filter((ref: any) => ref?.type === 'bibliographie' || ref?.template || ref?.resource_template_id)
+        .map((ref: any) => ({
+          ...ref,
+          id: parseInt(ref.id) || ref.id, // Convertir id en number si c'est une string
+          creator: Array.isArray(ref.creator) && ref.creator.length > 0 && typeof ref.creator[0] === 'object' ? ref.creator : [], // Garder le creator tel quel s'il est déjà au bon format, sinon tableau vide
+        }));
+
+      // Si aucune référence, ne rien afficher du tout
+      if (references.length === 0) {
+        return null;
+      }
 
       return (
         <div className='space-y-6'>
@@ -94,10 +103,9 @@ export const createScientificReferencesView = (): ViewOption => {
           {bibliographies.length > 0 && (
             <div>
               <h3 className='text-lg text-c5 font-semibold mb-4'>Bibliographies</h3>
-              <Bibliographies bibliographies={bibliographies} loading={loading} notitle />
+              <Bibliographies sections={[{ title: 'Bibliographies', bibliographies }]} loading={loading} notitle />
             </div>
           )}
-          {references.length === 0 && <p className='text-gray-500'>Aucune référence scientifique</p>}
         </div>
       );
     },
@@ -114,7 +122,18 @@ export const createCulturalReferencesView = (): ViewOption => {
     renderContent: ({ itemDetails, loading }) => {
       const references = itemDetails?.referencesCultu || itemDetails?.bibliographicCitations || [];
       const mediagraphies = references.filter((ref: any) => ref?.type === 'mediagraphie' || ref?.mediagraphyType);
-      const bibliographies = references.filter((ref: any) => ref?.type === 'bibliographie' || ref?.template);
+      const bibliographies = references
+        .filter((ref: any) => ref?.type === 'bibliographie' || ref?.template || ref?.resource_template_id)
+        .map((ref: any) => ({
+          ...ref,
+          id: parseInt(ref.id) || ref.id, // Convertir id en number si c'est une string
+          creator: Array.isArray(ref.creator) && ref.creator.length > 0 && typeof ref.creator[0] === 'object' ? ref.creator : [], // Garder le creator tel quel s'il est déjà au bon format, sinon tableau vide
+        }));
+
+      // Si aucune référence, ne rien afficher du tout
+      if (references.length === 0) {
+        return null;
+      }
 
       return (
         <div className='space-y-6'>
@@ -127,10 +146,9 @@ export const createCulturalReferencesView = (): ViewOption => {
           {bibliographies.length > 0 && (
             <div>
               <h3 className='text-lg text-c5 font-semibold mb-4'>Bibliographies</h3>
-              <Bibliographies bibliographies={bibliographies} loading={loading} notitle />
+              <Bibliographies sections={[{ title: 'Bibliographies', bibliographies }]} loading={loading} notitle />
             </div>
           )}
-          {references.length === 0 && <p className='text-gray-500'>Aucune référence culturelle</p>}
         </div>
       );
     },
@@ -146,7 +164,7 @@ export const createToolsView = (getTools?: (itemDetails: any, viewData?: any) =>
     title: 'Outils',
     renderContent: ({ itemDetails, viewData }) => {
       const items = getTools ? getTools(itemDetails, viewData) : itemDetails?.tools || [];
-      return <ItemsList items={items} emptyMessage='Aucun outil' annotationType='Outil' mapUrl={mapUrl} />;
+      return <ItemsList items={items} annotationType='Outil' mapUrl={mapUrl} />;
     },
   };
 };
@@ -159,7 +177,7 @@ export const createArchivesView = (): ViewOption => {
     key: 'Archives',
     title: 'Archives',
     getItems: (itemDetails) => itemDetails?.archives || [],
-    emptyMessage: 'Aucune archive',
+
     annotationType: 'Archive',
   });
 };
@@ -172,7 +190,6 @@ export const createNarrativeElementsView = (): ViewOption => {
     key: 'ElementsNarratifs',
     title: 'Éléments narratifs',
     getItems: (itemDetails) => itemDetails?.elementsNarratifs || [],
-    emptyMessage: 'Aucun élément narratif',
     annotationType: 'Élément narratif',
     mapUrl: (item) => `/corpus/element-narratif/${item.id}`,
   });
@@ -186,7 +203,6 @@ export const createAestheticElementsView = (): ViewOption => {
     key: 'ElementsEsthetique',
     title: 'Éléments esthétiques',
     getItems: (itemDetails) => itemDetails?.elementsEsthetique || [],
-    emptyMessage: 'Aucun élément esthétique',
     annotationType: 'Élément esthétique',
     mapUrl: (item) => `/corpus/element-esthetique/${item.id}`,
   });
@@ -200,7 +216,6 @@ export const createCriticalAnalysisView = (): ViewOption => {
     key: 'AnalyseCritique',
     title: 'Analyses critiques',
     getItems: (itemDetails) => itemDetails?.annotations || [],
-    emptyMessage: 'Aucune analyse critique',
     annotationType: 'Analyse',
     mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
   });
@@ -214,7 +229,6 @@ export const createFeedbacksView = (): ViewOption => {
     key: 'Feedback',
     title: "Retours d'expérience",
     getItems: (itemDetails) => itemDetails?.feedbacks || [],
-    emptyMessage: "Aucun retour d'expérience",
     annotationType: 'Feedback',
     mapUrl: (item) => `/feedback/${item.id}`,
   });
@@ -228,7 +242,6 @@ export const createHypothesisView = (): ViewOption => {
     key: 'Hypothese',
     title: 'Hypothèse à expérimenter',
     getText: (itemDetails) => itemDetails?.abstract,
-    emptyMessage: 'Aucune hypothèse définie',
   });
 };
 
@@ -240,7 +253,6 @@ export const createAnalysisView = (): ViewOption => {
     key: 'Analyse',
     title: 'Analyse',
     getText: (itemDetails) => itemDetails?.description || itemDetails?.abstract,
-    emptyMessage: 'Aucune analyse disponible',
   });
 };
 
@@ -381,4 +393,271 @@ export const generateSmartRecommendations = async (itemDetails: any, strategy: S
   }
 
   return recommendations.slice(0, maxRecommendations);
+};
+
+// helpers.ts - Section Target Mapper (à ajouter à votre fichier existant)
+
+// ========================================
+// Target Mapper Configuration
+// ========================================
+
+/**
+ * Configuration du mapping template_id -> type d'annotation et URL
+ */
+const TARGET_TYPE_MAP: Record<
+  number,
+  {
+    type: string;
+    getUrl?: (target: any) => string;
+  }
+> = {
+  // Médiagraphies (83, 98)
+  83: {
+    type: 'mediagraphie',
+  },
+  98: {
+    type: 'mediagraphie',
+  },
+
+  // Bibliographies (81, 99)
+  81: {
+    type: 'bibliographie',
+  },
+  99: {
+    type: 'bibliographie',
+  },
+
+  // Documentation Scientifique (124)
+  124: {
+    type: 'documentationScientifique',
+  },
+
+  // Oeuvres (103)
+  103: {
+    type: 'oeuvre',
+  },
+
+  // Objets techno-industriels (117)
+  117: {
+    type: 'objetTechnoIndustriel',
+  },
+
+  // Recit citoyen (119)
+  119: {
+    type: 'recitCitoyen',
+  },
+
+  // Recit médiatique (120)
+  120: {
+    type: 'recitMediatique',
+  },
+
+  // Analyse critique (125)
+  125: {
+    type: 'annotation',
+  },
+
+  // Study Day (121)
+  121: {
+    type: 'studyDay',
+  },
+
+  // Seminar (71)
+  71: {
+    type: 'seminar',
+  },
+
+  // Colloque (122)
+  122: {
+    type: 'colloque',
+  },
+
+  // Élément esthétique (104)
+  104: {
+    type: 'elementEsthetique',
+  },
+
+  // Élément narratif (105)
+  105: {
+    type: 'elementNarratif',
+  },
+
+  // Expérimentation (106)
+  106: {
+    type: 'experimentation',
+  },
+
+  // Tool (118)
+  118: {
+    type: 'tool',
+  },
+};
+
+/**
+ * Récupère la configuration d'un target selon son template_id
+ */
+const getTargetTypeInfo = (templateId: number | string) => {
+  const id = parseInt(String(templateId));
+  return TARGET_TYPE_MAP[id] || null;
+};
+
+// ========================================
+// Helper pour créer une vue Target
+// ========================================
+
+/**
+ * Crée une vue pour afficher le target d'une annotation de manière dynamique
+ * Utilise le composant ItemsList existant pour l'affichage
+ */
+export const createTargetView = (options?: { key?: string; title?: string; getTargets?: (itemDetails: any) => any }): ViewOption => {
+  return {
+    key: options?.key || 'target',
+    title: options?.title || 'Contenus annotés',
+
+    renderContent: ({ itemDetails }) => {
+      const targets = options?.getTargets ? options.getTargets(itemDetails) : itemDetails?.target;
+
+      // Support pour les tableaux (nouveau format) et objets simples (ancien format)
+      const targetArray = Array.isArray(targets) ? targets : targets ? [targets] : [];
+      const firstTarget = targetArray[0];
+
+      if (!firstTarget) {
+        return null;
+      }
+
+      const renderer = TARGET_COMPONENT_MAP[firstTarget.type];
+
+      if (!renderer) {
+        return (
+          <div className='p-4 bg-orange-50 border-2 border-orange-200 rounded-12'>
+            <p className='font-semibold text-c5 text-14'>{firstTarget.title}</p>
+          </div>
+        );
+      }
+
+      return (
+        <div className='space-y-4'>
+          <div>
+            <span className='inline-block py-1 text-xs font-medium text-c5 rounded-full'>{firstTarget.type}</span>
+          </div>
+
+          {renderer(firstTarget)}
+        </div>
+      );
+    },
+  };
+};
+
+// Mapping type -> rendu du composant métier correct
+const TARGET_COMPONENT_MAP: Record<string, (target: any) => JSX.Element> = {
+  elementEsthetique: (t) => <ItemsList items={[t]} annotationType='Élément esthétique' mapUrl={(i) => `/corpus/element-esthetique/${i.id}`} />,
+
+  elementNarratif: (t) => <ItemsList items={[t]} annotationType='Élément narratif' mapUrl={(i) => `/corpus/element-narratif/${i.id}`} />,
+
+  bibliographie: (t) => <Bibliographies bibliographies={[t]} loading={false} notitle />,
+
+  mediagraphie: (t) => <Mediagraphies items={[t]} loading={false} notitle />,
+
+  documentationScientifique: (t) => <ItemsList items={[t]} annotationType='Documentation scientifique' mapUrl={(i) => `/corpus/documentation/${i.id}`} />,
+
+  studyDay: (t) => <ItemsList items={[t]} annotationType='Conférence Study Day' mapUrl={(i) => `/corpus/journees-etudes/conference/${i.id}`} />,
+
+  seminar: (t) => <ItemsList items={[t]} annotationType='Conférence Séminaire' mapUrl={(i) => `/corpus/seminaires/conference/${i.id}`} />,
+
+  colloque: (t) => <ItemsList items={[t]} annotationType='Conférence Colloque' mapUrl={(i) => `/corpus/colloques/conference/${i.id}`} />,
+
+  objetTechnoIndustriel: (t) => <ItemsList items={[t]} annotationType='Objet techno-industriel' mapUrl={(i) => `/corpus/objet-techno-industriel/${i.id}`} />,
+
+  recitCitoyen: (t) => <ItemsList items={[t]} annotationType='Recit citoyen' mapUrl={(i) => `/corpus/recit-citoyen/${i.id}`} />,
+
+  recitMediatique: (t) => <ItemsList items={[t]} annotationType='Recit médiatique' mapUrl={(i) => `/corpus/recit-mediatique/${i.id}`} />,
+
+  oeuvre: (t) => <ItemsList items={[t]} annotationType='Oeuvre' mapUrl={(i) => `/corpus/oeuvre/${i.id}`} />,
+
+  annotation: (t) => <ItemsList items={[t]} annotationType='Analyse critique' mapUrl={(i) => `/corpus/analyse-critique/${i.id}`} />,
+
+  experimentation: (t) => <ItemsList items={[t]} annotationType='Expérimentation' mapUrl={(i) => `/corpus/experimentation/${i.id}`} />,
+};
+
+/**
+ * Crée une vue pour afficher plusieurs targets (si l'annotation en a plusieurs)
+ */
+export const createTargetsListView = (options?: { key?: string; title?: string; emptyMessage?: string; getTargets?: (itemDetails: any) => any[] }): ViewOption => {
+  return {
+    key: options?.key || 'targets',
+    title: options?.title || 'Ressources liées',
+    renderContent: ({ itemDetails }) => {
+      let targets = options?.getTargets ? options.getTargets(itemDetails) : itemDetails?.targets || [itemDetails?.target].filter(Boolean);
+
+      // Filtrer les valeurs null, undefined et autres valeurs falsy
+      if (Array.isArray(targets)) {
+        targets = targets.filter((target) => target !== null && target !== undefined && target !== '');
+      }
+
+      console.log('Targets received:', targets);
+
+      if (!targets || targets.length === 0) {
+        return null;
+      }
+
+      // Grouper les targets par type pour un affichage organisé
+      const targetsByType: Record<string, { typeInfo: any; items: any[] }> = targets.reduce((acc: Record<string, { typeInfo: any; items: any[] }>, target: any) => {
+        // Debug: afficher les targets pour comprendre la structure
+        console.log('Target debug:', target);
+
+        if (!target || (!target.template_id && !target.resource_template_id)) return acc;
+
+        const templateId = target.template_id || target.resource_template_id;
+        const typeInfo = getTargetTypeInfo(templateId);
+        if (!typeInfo) {
+          console.log('No typeInfo found for template_id:', templateId, 'target:', target);
+          // Pour le debug, créons un typeInfo temporaire pour les template_id inconnus
+          const tempTypeInfo = {
+            type: `Type inconnu (${templateId})`,
+            getUrl: undefined, // Pas de getUrl, on utilisera l'URL existante dans les données
+          };
+          if (!acc[tempTypeInfo.type]) {
+            acc[tempTypeInfo.type] = {
+              typeInfo: tempTypeInfo,
+              items: [],
+            };
+          }
+          acc[tempTypeInfo.type].items.push(target);
+          return acc;
+        }
+
+        if (!acc[typeInfo.type]) {
+          acc[typeInfo.type] = {
+            typeInfo,
+            items: [],
+          };
+        }
+        acc[typeInfo.type].items.push(target);
+        return acc;
+      }, {});
+
+      console.log('targetsByType:', targetsByType);
+
+      return (
+        <div className='space-y-8'>
+          {Object.entries(targetsByType).map(([typeName, { typeInfo, items }]) => {
+            console.log('Rendering type:', typeName, 'with items:', items);
+            return (
+              <div key={typeName} className='space-y-3'>
+                <h3 className='text-lg font-semibold text-c5 flex items-center gap-2'>
+                  <span className='inline-block  py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full'>{typeName}</span>
+                </h3>
+                <ItemsList
+                  items={items}
+                  showAnnotation={true}
+                  annotationType={typeName}
+                  mapUrl={(item) => (typeInfo.getUrl ? typeInfo.getUrl(item) : item.url || item.uri || '#')}
+                />
+              </div>
+            );
+          })}
+        </div>
+      );
+    },
+  };
 };

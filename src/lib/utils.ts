@@ -28,6 +28,8 @@ export const buildConfsRoute = (confType: string, id: number): string => {
       return `/corpus/mise-en-recit/${id}`;
     case 'documentationScientifique':
       return `/corpus/documentation-scientifique/${id}`;
+    case 'recitMediatique':
+      return `/corpus/recit-mediatique/${id}`;
     default:
       return `/`;
   }

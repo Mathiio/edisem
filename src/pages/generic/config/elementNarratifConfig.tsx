@@ -56,7 +56,6 @@ export const elementNarratifConfig: GenericDetailPageConfig = {
       key: 'References',
       title: 'Références',
       getItems: (itemDetails) => itemDetails?.references || [],
-      emptyMessage: 'Aucune référence disponible',
       annotationType: 'Bibliographie',
     }),
   ],

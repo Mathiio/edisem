@@ -8,6 +8,7 @@ import { Link } from '@heroui/react';
 import { LgConfCard, LgConfSkeleton } from '@/components/ui/ConfCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
+import { DynamicBreadcrumbs } from '@/components/layout/DynamicBreadcrumbs';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -23,16 +24,25 @@ export const Intervenant: React.FC = () => {
   const [actant, setActant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [conf, setConf] = useState<any[]>([]);
+  const [breadcrumbTitle, setBreadcrumbTitle] = useState('Intervenant');
 
   const fetchActantData = useCallback(async () => {
     if (!id) return;
-    
+
     setLoading(true);
     try {
       const [actant, confs] = await Promise.all([Items.getActants(id), getConfByActant(id)]);
 
       setActant(actant);
       setConf(confs);
+
+      // Mettre à jour le titre du breadcrumb avec le nom de l'actant
+      const firstName = actant?.firstname || actant?.first_name;
+      const lastName = actant?.lastname || actant?.last_name;
+
+      if (firstName && lastName) {
+        setBreadcrumbTitle(`${firstName} ${lastName} - Intervenant`);
+      }
     } finally {
       setLoading(false);
     }
@@ -44,13 +54,9 @@ export const Intervenant: React.FC = () => {
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-100'>
+      <DynamicBreadcrumbs itemTitle={breadcrumbTitle} />
       <div className='flex flex-col gap-50'>
-        <Link
-          isExternal
-          className='gap-10 text-c6 w-fit'
-          href={!loading ? actant?.url : '#'}
-          showAnchorIcon
-          anchorIcon={<LinkIcon size={28} />}>
+        <Link isExternal className='gap-10 text-c6 w-fit' href={!loading ? actant?.url : '#'} showAnchorIcon anchorIcon={<LinkIcon size={28} />}>
           {actant?.picture ? (
             <img className='w-75 h-75 object-cover rounded-12' src={actant.picture} alt='' />
           ) : (
@@ -82,11 +88,9 @@ export const Intervenant: React.FC = () => {
               {loading ? (
                 Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
               ) : actant?.universities && actant.universities.length > 0 ? (
-                actant.universities.map(
-                  (item: { url: string; name: string | undefined }, index: React.Key | null | undefined) => (
-                    <InfoCard key={index} link={item.url} name={item.name} />
-                  ),
-                )
+                actant.universities.map((item: { url: string; name: string | undefined }, index: React.Key | null | undefined) => (
+                  <InfoCard key={index} link={item.url} name={item.name} />
+                ))
               ) : (
                 <InfoCard key={0} link={''} name={'Aucune université trouvée'} />
               )}
@@ -103,11 +107,9 @@ export const Intervenant: React.FC = () => {
               {loading ? (
                 Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
               ) : actant?.doctoralSchools && actant.doctoralSchools.length > 0 ? (
-                actant.doctoralSchools.map(
-                  (item: { url: string; name: string | undefined }, index: React.Key | null | undefined) => (
-                    <InfoCard key={index} link={item.url} name={item.name} />
-                  ),
-                )
+                actant.doctoralSchools.map((item: { url: string; name: string | undefined }, index: React.Key | null | undefined) => (
+                  <InfoCard key={index} link={item.url} name={item.name} />
+                ))
               ) : (
                 <InfoCard key={0} link={''} name={'Aucune école doctorale trouvée'} />
               )}
@@ -124,11 +126,9 @@ export const Intervenant: React.FC = () => {
               {loading ? (
                 Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
               ) : actant?.laboratories && actant.laboratories.length > 0 ? (
-                actant.laboratories.map(
-                  (item: { url: string; name: string | undefined }, index: React.Key | null | undefined) => (
-                    <InfoCard key={index} link={item.url} name={item.name} />
-                  ),
-                )
+                actant.laboratories.map((item: { url: string; name: string | undefined }, index: React.Key | null | undefined) => (
+                  <InfoCard key={index} link={item.url} name={item.name} />
+                ))
               ) : (
                 <InfoCard key={0} link={''} name={'Aucun laboratoire trouvé'} />
               )}
@@ -142,11 +142,7 @@ export const Intervenant: React.FC = () => {
               <h3 className='text-16 text-left text-c6 font-medium'>Participations(s)</h3>
             </div>
             <div className='flex flex-col justify-center items-start gap-10'>
-              {loading ? (
-                Array.from({ length: 1 }).map((_, index) => <InfoSkeleton key={index} />)
-              ) : (
-                <InfoCard link={''} name={actant?.interventions} />
-              )}
+              {loading ? Array.from({ length: 1 }).map((_, index) => <InfoSkeleton key={index} />) : <InfoCard link={''} name={actant?.interventions} />}
             </div>
           </div>
         </div>

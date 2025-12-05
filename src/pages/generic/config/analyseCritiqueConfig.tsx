@@ -1,8 +1,8 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
-import { getAnnotations, getObjetsTechnoIndustriels, getOeuvres } from '@/services/Items';
-import { createItemsListView } from '../helpers';
+import { getAnnotations, getAnnotationsWithTargets, getObjetsTechnoIndustriels, getOeuvres } from '@/services/Items';
+import { createTargetsListView } from '../helpers';
 
 /**
  * Configuration pour les pages d'analyse critique
@@ -10,9 +10,10 @@ import { createItemsListView } from '../helpers';
 export const analyseCritiqueConfig: GenericDetailPageConfig = {
   dataFetcher: async (id: string): Promise<FetchResult> => {
     const annotation = await getAnnotations(id);
+    const annotationFull = await getAnnotationsWithTargets(annotation);
 
     // getAnnotations retourne un tableau, prendre le premier élément
-    const annotationData = Array.isArray(annotation) && annotation.length > 0 ? annotation[0] : annotation;
+    const annotationData = Array.isArray(annotationFull) && annotationFull.length > 0 ? annotationFull[0] : annotationFull;
     console.log('annotationData', annotationData);
     return {
       itemDetails: annotationData,
@@ -56,12 +57,16 @@ export const analyseCritiqueConfig: GenericDetailPageConfig = {
 
   // Vue unique : Références
   viewOptions: [
-    createItemsListView({
-      key: 'References',
-      title: 'Références',
-      getItems: (itemDetails) => itemDetails?.hasRelatedResource || [],
-      emptyMessage: 'Aucune référence disponible',
-      annotationType: 'Bibliographie',
+    // Vue principale : afficher le target (la ressource analysée)
+    createTargetsListView({
+      key: 'target',
+      title: 'Ressource analysée',
+      getTargets: (itemDetails) => itemDetails?.target || [],
+    }),
+    createTargetsListView({
+      key: 'related',
+      title: 'Ressources liées',
+      getTargets: (itemDetails) => itemDetails?.related || [],
     }),
   ],
 

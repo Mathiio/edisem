@@ -729,6 +729,7 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
     { key: 'nom', label: 'Nom', dataPath: 'foaf:lastName.0.@value', type: 'input' },
     { key: 'prenom', label: 'Prénom', dataPath: 'foaf:firstName.0.@value', type: 'input' },
     { key: 'titre', label: 'Nom et prénom', dataPath: 'dcterms:title.0.@value', type: 'input' },
+    { key: 'portfolio', label: 'Portfolio', dataPath: 'schema:url.0.@id', type: 'lien' },
     {
       key: 'jdc:hasUniversity',
       label: 'Université',
@@ -1119,7 +1120,10 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                             <Button
                               key={col.dataPath}
                               onClick={() => {
-                                // Extraction de l'ID de la ressource à partir de l'URL
+                                if (col.dataPath === 'schema:url.0.@id') {
+                                  const conferenceUrl = value;
+                                  window.open(conferenceUrl, '_blank', 'noopener,noreferrer');
+                                }
                                 const resourceId = value.split('/').pop();
                                 // Formation du nouveau lien pour la conférence
                                 const conferenceUrl = `https://edisem.arcanes.ca/conference/${resourceId}`;
@@ -1129,7 +1133,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                               endContent={<LinkIcon />}
                               radius='none'
                               className='h-[32px] px-10 text-16 rounded-8 text-selected bg-c3 transition-all ease-in-out duration-200 navfilter flex items-center'>
-                              Voir dans la conférence
+                              {col.label}
                             </Button>
                           );
                         }

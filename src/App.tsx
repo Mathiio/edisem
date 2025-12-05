@@ -29,6 +29,7 @@ import { Experimentations } from '@/pages/corpus/Experimentations';
 import { Oeuvres } from '@/pages/corpus/Oeuvres';
 import { Personne } from '@/pages/personne';
 import { GenreDetail } from '@/pages/corpus/genre';
+import { TestPage } from '@/pages/test';
 
 // 🆕 NOUVELLE ARCHITECTURE GÉNÉRIQUE - Système principal
 // Toutes les pages de détails utilisent maintenant ConfigurableDetailPage avec une configuration
@@ -45,6 +46,7 @@ import { analyseCritiqueConfig } from '@/pages/generic/config/analyseCritiqueCon
 import { objetTechnoConfig } from '@/pages/generic/config/objetTechnoConfig';
 import { toolConfig } from '@/pages/generic/config/toolConfig';
 import { documentationScientifiqueConfig } from '@/pages/generic/config/documentationScientifiqueConfig';
+import { recitmediatiqueConfig } from '@/pages/generic/config/recitmediatiqueConfig';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
@@ -112,10 +114,13 @@ function App() {
         <Route path='/corpus/objet-techno/:id' element={<ConfigurableDetailPage config={objetTechnoConfig} />} />
         <Route path='/corpus/tool/:id' element={<ConfigurableDetailPage config={toolConfig} />} />
         <Route path='/corpus/documentation-scientifique/:id' element={<ConfigurableDetailPage config={documentationScientifiqueConfig} />} />
+        <Route path='/corpus/recit-mediatique/:id' element={<ConfigurableDetailPage config={recitmediatiqueConfig} />} />
 
         {/* Routes pour les personnes/intervenants (toujours utilisées directement) */}
         <Route path='/intervenant/:id' Component={Intervenant} />
         <Route path='/personne/:id' Component={Personne} />
+
+        <Route path='/test/' Component={TestPage} />
 
         {/* ============================================ */}
         {/* ❌ ANCIENNES ROUTES - DÉSACTIVÉES */}
