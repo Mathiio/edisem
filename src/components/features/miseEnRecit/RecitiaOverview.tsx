@@ -163,7 +163,7 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
         <div className='flex items-center gap-15 justify-between'>
           <div className='flex items-center gap-15'>
             <h1 className='font-medium text-c6 text-24'>{title}</h1>
-            {type && <span className='text-14 text-c5 px-10 py-5 bg-c2 rounded-8 border border-c3'>{type}</span>}
+            {type && <span className='text-14 w-fit text-c5 px-10 py-5 bg-c2 rounded-8 border border-c3 whitespace-nowrap'>{type}</span>}
           </div>
           {(!Array.isArray(personnes) || personnes.length === 0) && (
             <div className='w-fit flex justify-between gap-10 items-center'>
@@ -184,15 +184,17 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                 Partager
               </Button>
 
-              {fullUrl !== '' && (
-                <Button
-                  size='md'
-                  className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
-                  onClick={() => window.open(fullUrl, '_blank')}>
-                  <MovieIcon size={12} />
-                  {buttonText}
-                </Button>
-              )}
+              {fullUrl !== '' ||
+                fullUrl !== null ||
+                (fullUrl !== undefined && (
+                  <Button
+                    size='md'
+                    className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                    onClick={() => window.open(fullUrl, '_blank')}>
+                    <MovieIcon size={12} />
+                    {buttonText}
+                  </Button>
+                ))}
 
               {((Array.isArray(credits) && credits.length > 0) || (typeof credits === 'string' && credits.trim() !== '')) && (
                 <Button

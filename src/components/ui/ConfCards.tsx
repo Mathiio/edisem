@@ -173,7 +173,38 @@ export const SmConfCard: React.FC<Conference> = (props) => {
   const textRef = useRef<HTMLParagraphElement>(null);
 
   // Utiliser le thumbnail directement si disponible, sinon essayer getYouTubeThumbnailUrl
-  const thumbnailUrl = conference.thumbnail || (conference.url ? getYouTubeThumbnailUrl(conference.url) : '');
+  let thumbnailUrl = '';
+
+  // Priorité 1: Thumbnail depuis associatedMedia
+  if (conference.associatedMedia?.[0]?.thumbnail) {
+    thumbnailUrl = conference.associatedMedia[0].thumbnail;
+  }
+  // Priorité 2: YouTube thumbnail depuis associatedMedia
+  else if (conference.associatedMedia?.[0]?.url && (conference.associatedMedia[0].url.includes('youtube.com') || conference.associatedMedia[0].url.includes('youtu.be'))) {
+    thumbnailUrl = getYouTubeThumbnailUrl(conference.associatedMedia[0].url);
+  }
+  // Priorité 3: Thumbnail direct (si c'est une string)
+  else if (typeof conference.thumbnail === 'string' && conference.thumbnail) {
+    thumbnailUrl = conference.thumbnail;
+  }
+  // Priorité 4: YouTube thumbnail depuis thumbnail.url (si thumbnail est un objet)
+  else if (
+    typeof conference.thumbnail === 'object' &&
+    conference.thumbnail &&
+    'url' in conference.thumbnail &&
+    (conference.thumbnail as any).url &&
+    ((conference.thumbnail as any).url.includes('youtube.com') || (conference.thumbnail as any).url.includes('youtu.be'))
+  ) {
+    thumbnailUrl = getYouTubeThumbnailUrl((conference.thumbnail as any).url);
+  }
+  // Priorité 5: Thumbnail depuis thumbnail.thumbnail (si thumbnail est un objet)
+  else if (typeof conference.thumbnail === 'object' && conference.thumbnail && 'thumbnail' in conference.thumbnail && (conference.thumbnail as any).thumbnail) {
+    thumbnailUrl = (conference.thumbnail as any).thumbnail;
+  }
+  // Priorité 6: YouTube thumbnail depuis conference.url
+  else if (conference.url && (conference.url.includes('youtube.com') || conference.url.includes('youtu.be'))) {
+    thumbnailUrl = getYouTubeThumbnailUrl(conference.url);
+  }
 
   const openConf = () => {
     const route = buildConfsRoute(conference.type, Number(conference.id));

@@ -200,7 +200,7 @@ export const toolConfig: GenericDetailPageConfig = {
             {programmingLanguages.length > 0 && (
               <div className='flex flex-col gap-10'>
                 <div className='text-c6 font-semibold text-14'>Langage de programmation de l'outil</div>
-                <ItemsList items={programmingLanguages} emptyMessage='Aucun langage de programmation spécifié' showAnnotation={false} />
+                <ItemsList items={programmingLanguages} showAnnotation={false} />
               </div>
             )}
 
@@ -266,13 +266,13 @@ export const toolConfig: GenericDetailPageConfig = {
       const tools = await getTools();
       return tools;
     },
-    
+
     // Pour les outils, on veut seulement des outils similaires
     getRelatedItems: () => [],
-    
+
     maxRecommendations: 5,
   },
-  
+
   // Type à afficher
   type: 'Outil',
 };

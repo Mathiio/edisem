@@ -151,7 +151,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
       <motion.div variants={itemVariants} className='w-full flex flex-col gap-25'>
         <div className='flex items-center gap-15'>
           <h1 className='font-medium text-c6 text-24'>{conf.title}</h1>
-          {type && <span className='text-14 text-c5 px-10 py-5 bg-c2 rounded-8 border border-c3'>{type}</span>}
+          {type && <span className='text-14 w-fit text-c5 px-10 py-5 bg-c2 rounded-8 border border-c3 whitespace-nowrap'>{type}</span>}
         </div>
         <div className='w-full flex flex-col gap-10'>
           <div className='w-full flex justify-between gap-10 items-center'>

@@ -1,16 +1,30 @@
 import React from 'react';
 import { useLocation, useParams, Link } from 'react-router-dom';
-import { Breadcrumbs, BreadcrumbItem } from '@heroui/react';
+import { Breadcrumbs, BreadcrumbItem, Spinner } from '@heroui/react';
+
+interface LoadingBreadcrumbItemProps {
+  label: string;
+  isLoading?: boolean;
+}
+
+const LoadingBreadcrumbItem: React.FC<LoadingBreadcrumbItemProps> = ({ label, isLoading = false }) => (
+  <span className='flex items-center'>
+    {label}
+    {isLoading && <Spinner size='sm' className='ml-2' classNames={{ circle1: 'w-3 h-3', circle2: 'w-3 h-3', wrapper: 'w-3 h-3' }} />}
+  </span>
+);
 
 interface BreadcrumbConfig {
   label: string;
   href?: string;
+  isLoading?: boolean;
 }
 
 /**
  * Génère les breadcrumbs en fonction de l'URL actuelle
  */
 const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string): BreadcrumbConfig[] => {
+  const isItemLoading = !itemTitle;
   const breadcrumbs: BreadcrumbConfig[] = [{ label: 'Accueil', href: '/' }];
 
   // Découpe le chemin en segments
@@ -26,8 +40,9 @@ const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string):
 
       if (segments[2] === 'conference' && params.id) {
         breadcrumbs.push({
-          label: itemTitle || `Conférence #${params.id}`,
+          label: itemTitle || `Conférence`,
           href: `/corpus/seminaires/conference/${params.id}`,
+          isLoading: isItemLoading,
         });
       }
     } else if (segments[1] === 'colloques') {
@@ -35,8 +50,9 @@ const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string):
 
       if (segments[2] === 'conference' && params.id) {
         breadcrumbs.push({
-          label: itemTitle || `Conférence #${params.id}`,
+          label: itemTitle || `Conférence`,
           href: `/corpus/colloques/conference/${params.id}`,
+          isLoading: isItemLoading,
         });
       }
     } else if (segments[1] === 'journees-etudes') {
@@ -44,8 +60,9 @@ const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string):
 
       if (segments[2] === 'conference' && params.id) {
         breadcrumbs.push({
-          label: itemTitle || `Conférence #${params.id}`,
+          label: itemTitle || `Conférence`,
           href: `/corpus/journees-etudes/conference/${params.id}`,
+          isLoading: isItemLoading,
         });
       }
     } else if (segments[1] === 'pratiques-narratives') {
@@ -55,26 +72,30 @@ const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string):
 
       if (segments[2] === 'mise-en-recit' && params.id) {
         breadcrumbs.push({
-          label: itemTitle || `Mise en récit #${params.id}`,
+          label: itemTitle || `Mise en récit`,
+          isLoading: isItemLoading,
         });
       }
     } else if (segments[1] === 'mise-en-recit' && params.id) {
       breadcrumbs.push({ label: 'Mise en récits', href: '/corpus/mise-en-recits' });
       breadcrumbs.push({
-        label: itemTitle || `Mise en récit #${params.id}`,
+        label: itemTitle || `Mise en récit`,
+        isLoading: isItemLoading,
       });
     } else if (segments[1] === 'experimentations') {
       breadcrumbs.push({ label: 'Expérimentations', href: '/corpus/experimentations' });
 
       if (segments[2] === 'experimentation' && params.id) {
         breadcrumbs.push({
-          label: itemTitle || `Expérimentation #${params.id}`,
+          label: itemTitle || `Expérimentation`,
+          isLoading: isItemLoading,
         });
       }
     } else if (segments[1] === 'experimentation' && params.id) {
       breadcrumbs.push({ label: 'Expérimentations', href: '/corpus/experimentations' });
       breadcrumbs.push({
         label: itemTitle || `Expérimentation #${params.id}`,
+        isLoading: isItemLoading,
       });
     } else if (segments[1] === 'oeuvres') {
       breadcrumbs.push({ label: 'Œuvres', href: '/corpus/oeuvres' });
@@ -87,45 +108,53 @@ const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string):
     } else if (segments[1] === 'oeuvre' && params.id) {
       breadcrumbs.push({ label: 'Œuvres', href: '/corpus/oeuvres' });
       breadcrumbs.push({
-        label: itemTitle || `Œuvre #${params.id}`,
+        label: itemTitle || `Œuvre`,
+        isLoading: isItemLoading,
       });
     } else if (segments[1] === 'element-narratif' && params.id) {
       breadcrumbs.push({ label: 'Éléments narratifs' });
       breadcrumbs.push({
-        label: itemTitle || `Élément narratif #${params.id}`,
+        label: itemTitle || `Élément narratif`,
+        isLoading: isItemLoading,
       });
     } else if (segments[1] === 'element-esthetique' && params.id) {
       breadcrumbs.push({ label: 'Éléments esthétiques' });
       breadcrumbs.push({
-        label: itemTitle || `Élément esthétique #${params.id}`,
+        label: itemTitle || `Élément esthétique`,
+        isLoading: isItemLoading,
       });
     } else if (segments[1] === 'analyse-critique' && params.id) {
       breadcrumbs.push({ label: 'Analyses critiques' });
       breadcrumbs.push({
-        label: itemTitle || `Analyse critique #${params.id}`,
+        label: itemTitle || `Analyse critique`,
+        isLoading: isItemLoading,
       });
     } else if (segments[1] === 'objet-techno' && params.id) {
       breadcrumbs.push({ label: 'Objets technologiques' });
       breadcrumbs.push({
-        label: itemTitle || `Objet techno #${params.id}`,
+        label: itemTitle || `Objet techno`,
+        isLoading: isItemLoading,
       });
     } else if (segments[1] === 'tool' && params.id) {
       breadcrumbs.push({ label: 'Outils' });
       breadcrumbs.push({
-        label: itemTitle || `Outil #${params.id}`,
+        label: itemTitle || `Outil`,
+        isLoading: isItemLoading,
       });
     } else if (segments[1] === 'documentation-scientifique' && params.id) {
       breadcrumbs.push({ label: 'Documentation scientifique' });
       breadcrumbs.push({
-        label: itemTitle || `Documentation #${params.id}`,
+        label: itemTitle || `Documentation`,
+        isLoading: isItemLoading,
       });
     }
-  } else if (segments[0] === 'intervenants') {
+  } else if (segments[0] === 'intervenant' || segments[0] === 'intervenants') {
     breadcrumbs.push({ label: 'Intervenants', href: '/intervenants' });
 
     if (params.id) {
       breadcrumbs.push({
         label: itemTitle || `Intervenant #${params.id}`,
+        isLoading: isItemLoading,
       });
     }
   } else if (segments[0] === 'visualisation') {
@@ -138,6 +167,7 @@ const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string):
     breadcrumbs.push({ label: 'Feedbacks' });
     breadcrumbs.push({
       label: itemTitle || `Feedback #${params.id}`,
+      isLoading: isItemLoading,
     });
   }
 
@@ -191,7 +221,13 @@ export const DynamicBreadcrumbs: React.FC<DynamicBreadcrumbsProps> = ({ itemTitl
 
         return (
           <BreadcrumbItem key={`${crumb.href || crumb.label}-${index}`} isCurrent={isLast}>
-            {crumb.href && !isLast ? <Link to={crumb.href}>{crumb.label}</Link> : crumb.label}
+            {crumb.href && !isLast ? (
+              <Link to={crumb.href}>
+                <LoadingBreadcrumbItem label={crumb.label} isLoading={crumb.isLoading} />
+              </Link>
+            ) : (
+              <LoadingBreadcrumbItem label={crumb.label} isLoading={crumb.isLoading} />
+            )}
           </BreadcrumbItem>
         );
       })}

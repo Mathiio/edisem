@@ -136,7 +136,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config }) 
   };
 
   // Render content based on selected view
-  const renderContent = () => {
+  const renderedContent = useMemo(() => {
     if (!itemDetails) {
       return <div>Loading...</div>;
     }
@@ -146,13 +146,19 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config }) 
       return null;
     }
 
-    return viewOption.renderContent({
+    const content = viewOption.renderContent({
       itemDetails,
       viewData,
       loading,
       onTimeChange: handleTimeChange,
     });
-  };
+
+    // Return null if content is null or undefined
+    return content || null || undefined;
+  }, [itemDetails, selected, viewData, loading, config.viewOptions]);
+
+  // Check if the rendered content is empty
+  const hasRenderedContent = renderedContent !== null && renderedContent !== undefined;
 
   // Helper function to extract text from a React element recursively
   const extractTextFromElement = (element: React.ReactElement | React.ReactNode): string => {
@@ -397,7 +403,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config }) 
       </motion.div>
 
       {/* Colonne secondaire - Vues multiples */}
-      {shouldShowRightColumn && (
+      {shouldShowRightColumn && hasRenderedContent && (
         <motion.div style={{ height: equalHeight || 'auto' }} className='col-span-10 lg:col-span-4 flex flex-col gap-50 overflow-hidden' variants={fadeIn}>
           <div className='flex w-full flex-col gap-20 flex-grow min-h-0 overflow-hidden'>
             {/* Header avec titre et dropdown */}
@@ -434,7 +440,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config }) 
             </div>
 
             {/* Contenu de la vue sélectionnée */}
-            <div className='flex-grow min-h-0 overflow-auto'>{renderContent()}</div>
+            <div className='flex-grow min-h-0 overflow-auto'>{renderedContent}</div>
           </div>
         </motion.div>
       )}
