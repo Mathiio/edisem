@@ -2,8 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { getConfByActant } from '@/services/api';
 import * as Items from '@/services/Items';
-import { UniversityIcon, SchoolIcon, LaboritoryIcon } from '@/components/ui/icons';
-import { InfoCard, InfoSkeleton } from '@/components/features/intervenants/IntervenantCards';
+import { IntervenantAffiliations } from '@/components/features/intervenants/IntervenantAffiliations';
 import { Link } from '@heroui/react';
 import { Layouts } from '@/components/layout/Layouts';
 import { DynamicBreadcrumbs } from '@/components/layout/DynamicBreadcrumbs';
@@ -49,7 +48,7 @@ export const Intervenant: React.FC = () => {
     <Layouts className='col-span-10 flex flex-col gap-100'>
       <DynamicBreadcrumbs itemTitle={breadcrumbTitle} />
       <div className='flex flex-col items-center gap-75'>
-        <Link isExternal className='gap-25 text-c6 w-fit flex flex-col items-center' href={!loading ? actant?.url : '#'}>
+        <Link isExternal className='gap-20 text-c6 w-fit flex flex-col items-center' href={!loading ? actant?.url : '#'}>
           {actant?.picture ? (
             <img className='w-100 h-100 object-cover rounded-18' src={actant.picture} alt='' />
           ) : (
@@ -71,66 +70,17 @@ export const Intervenant: React.FC = () => {
             <p className='text-16 text-c6'>{actant?.interventions} participations</p>
           </div>
         </Link>
-        <div className='flex gap-20 justify-between items-center'>
-          <div className='h-full w-full flex flex-col gap-10'>
-            <div className='flex gap-10'>
-              <div className='w-[22px]'>
-                <UniversityIcon className='transition-transform-colors-opacity text-c6' size={22} />
-              </div>
-              <h3 className='text-16 text-left text-c6 font-medium'>Université(s)</h3>
-            </div>
-            <div className='flex flex-col justify-center items-start gap-10'>
-              {loading ? (
-                Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
-              ) : actant?.universities && actant.universities.length > 0 ? (
-                actant.universities.map((item: { url: string; name: string | undefined }, index: React.Key | null | undefined) => (
-                  <InfoCard key={index} link={item.url} name={item.name} />
-                ))
-              ) : (
-                <InfoCard key={0} link={''} name={'Aucune université trouvée'} />
-              )}
-            </div>
-          </div>
-          <div className='h-full w-full flex flex-col gap-10'>
-            <div className='flex gap-10'>
-              <div className='w-[22px]'>
-                <SchoolIcon className='transition-transform-colors-opacity text-c6' size={22} />
-              </div>
-              <h3 className='text-16 text-left text-c6 font-medium'>École(s) doctorale(s)</h3>
-            </div>
-            <div className='flex flex-col justify-center items-start gap-10'>
-              {loading ? (
-                Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
-              ) : actant?.doctoralSchools && actant.doctoralSchools.length > 0 ? (
-                actant.doctoralSchools.map((item: { url: string; name: string | undefined }, index: React.Key | null | undefined) => (
-                  <InfoCard key={index} link={item.url} name={item.name} />
-                ))
-              ) : (
-                <InfoCard key={0} link={''} name={'Aucune école doctorale trouvée'} />
-              )}
-            </div>
-          </div>
-          <div className='h-full w-full flex flex-col gap-10'>
-            <div className='flex gap-10'>
-              <div className='w-[22px]'>
-                <LaboritoryIcon className='transition-transform-colors-opacity text-c6' size={22} />
-              </div>
-              <h3 className='text-16 text-left text-c6 font-medium'>Laboratoire(s)</h3>
-            </div>
-            <div className='flex flex-col justify-center items-start gap-10'>
-              {loading ? (
-                Array.from({ length: 2 }).map((_, index) => <InfoSkeleton key={index} />)
-              ) : actant?.laboratories && actant.laboratories.length > 0 ? (
-                actant.laboratories.map((item: { url: string; name: string | undefined }, index: React.Key | null | undefined) => (
-                  <InfoCard key={index} link={item.url} name={item.name} />
-                ))
-              ) : (
-                <InfoCard key={0} link={''} name={'Aucun laboratoire trouvé'} />
-              )}
-            </div>
+
+          {/* Universités, Écoles, Labos */}
+           <div className="w-full">
+            <IntervenantAffiliations 
+              universities={actant?.universities || []}
+              doctoralSchools={actant?.doctoralSchools || []}
+              laboratories={actant?.laboratories || []}
+              loading={loading}
+            />
           </div>
         </div>
-      </div>
     
       <IntervenantKeywordCloud intervenantConfs={conf} />
       
