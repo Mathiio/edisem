@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@heroui/react';
 import { Link } from '@heroui/react';
@@ -80,16 +80,21 @@ type InfoCardProps = {
 
 // Card displaying a simple piece of linked information
 export const InfoCard: React.FC<InfoCardProps> = ({ name, link }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
   const content = (
     <div
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`border-2 border-c3 h-full w-full rounded-12 flex items-center justify-start p-20 gap-20 transition-transform-colors-opacity 
-        ${link ? `cursor-pointer ${isHovered ? 'border-c4' : 'border-c3'}` : ''}`}>
+      className={`
+        shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] 
+        border-c3 border-2 
+        h-full w-full 
+        rounded-16
+        flex flex-col items-start justify-center 
+        p-20 
+        transition-all ease-in-out duration-200
+        ${link ? 'cursor-pointer hover:bg-c2' : ''}
+      `}
+    >
       <div className='flex flex-col justify-center items-start gap-5'>
-        <p className='text-14 leading-[120%] text-c6 font-regular'>{name}</p>
+        <p className='text-16 leading-[120%] text-c6 font-medium'>{name}</p>
       </div>
     </div>
   );
@@ -97,7 +102,7 @@ export const InfoCard: React.FC<InfoCardProps> = ({ name, link }) => {
   return (
     <>
       {link ? (
-        <Link isExternal className='gap-10 text-c6 w-full' href={link}>
+        <Link isExternal className='gap-10 text-c6 w-full h-full' href={link}>
           {content}
         </Link>
       ) : (
