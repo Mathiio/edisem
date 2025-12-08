@@ -19,7 +19,6 @@ import { useLocalStorageProperties } from './database';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { CreateModal } from '@/components/features/database/CreateModal';
 import { Layouts } from '@/components/layout/Layouts';
-import { chatToFilter } from '@/hooks/ChatToFilter';
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
@@ -1044,18 +1043,18 @@ const Visualisation = () => {
     }
   }, [searchParams]);
 
-  const handleSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const searchTerm = e.target.value;
+  // const handleSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const searchTerm = e.target.value;
 
-    const filter = chatToFilter(searchTerm);
-    handleSearch(filter.groups);
-  };
+  //   const filter = chatToFilter(searchTerm);
+  //   handleSearch(filter.groups);
+  // };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSearchTermChange(e as any);
-    }
-  };
+  // const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === 'Enter') {
+  //     handleSearchTermChange(e as any);
+  //   }
+  // };
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>

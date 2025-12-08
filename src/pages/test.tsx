@@ -132,8 +132,8 @@ export const TestPage: React.FC = () => {
   };
 
   // Analyse globale des résultats
-  const analyzeResults = (query: string, results: EmbeddingSearchResult['data']['results']) => {
-    if (!results || !results.length) return null;
+  const analyzeResults = (query: string, results: EmbeddingSearchResult['data']) => {
+    if (!results?.results || !results.results.length) return null;
 
     // Détecter la longueur de la requête pour adapter les seuils
     const queryLength = query.split(/\s+/).length;
@@ -143,9 +143,9 @@ export const TestPage: React.FC = () => {
     const thresholds = isShortQuery ? { excellent: 0.65, good: 0.55, fair: 0.45, poor: 0.35 } : { excellent: 0.75, good: 0.65, fair: 0.55, poor: 0.45 };
 
     // Calculer le score moyen des 3 premiers résultats (plus représentatif)
-    const avgTop3Score = results.slice(0, 3).reduce((sum: number, r: { similarity: number }) => sum + r.similarity, 0) / Math.min(3, results.length);
+    const avgTop3Score = results.results.slice(0, 3).reduce((sum: number, r: { similarity: number }) => sum + r.similarity, 0) / Math.min(3, results.results.length);
 
-    const topScore = results[0]?.similarity || 0;
+    const topScore = results.results[0]?.similarity || 0;
 
     let quality = '';
     let recommendation = '';
@@ -180,10 +180,10 @@ export const TestPage: React.FC = () => {
     }
 
     // Catégoriser les résultats
-    const excellent = results.filter((r: { similarity: number }) => r.similarity >= 0.9).length;
-    const bon = results.filter((r: { similarity: number }) => r.similarity >= 0.7 && r.similarity < 0.9).length;
-    const moyen = results.filter((r: { similarity: number }) => r.similarity >= 0.5 && r.similarity < 0.7).length;
-    const faible = results.filter((r: { similarity: number }) => r.similarity < 0.5).length;
+    const excellent = results.results.filter((r: { similarity: number }) => r.similarity >= 0.9).length;
+    const bon = results.results.filter((r: { similarity: number }) => r.similarity >= 0.7 && r.similarity < 0.9).length;
+    const moyen = results.results.filter((r: { similarity: number }) => r.similarity >= 0.5 && r.similarity < 0.7).length;
+    const faible = results.results.filter((r: { similarity: number }) => r.similarity < 0.5).length;
 
     return {
       quality,
@@ -193,7 +193,7 @@ export const TestPage: React.FC = () => {
     };
   };
 
-  const analysis = searchResult?.data ? analyzeResults(searchQuery, searchResult.data.results) : null;
+  const analysis = searchResult?.data ? analyzeResults(searchQuery, searchResult.data) : null;
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-6 z-0 overflow-visible text-c6'>
@@ -327,9 +327,9 @@ export const TestPage: React.FC = () => {
           {/* Liste des résultats avec interprétation */}
           <div className='p-5 bg-white border border-gray-200 rounded-xl shadow-md'>
             <h2 className='text-xl font-bold mb-4 text-gray-800'>🎯 Résultats Classés par Pertinence</h2>
-            {searchResult.data.results.length > 0 ? (
+            {searchResult.data.results && searchResult.data.results.length > 0 ? (
               <div className='space-y-3 max-h-[600px] overflow-y-auto pr-2'>
-                {searchResult.data.results.map((result, index) => {
+                {searchResult.data.results?.map((result, index) => {
                   const interpretation = interpretSimilarity(result.similarity);
                   return (
                     <div key={index} className='p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500 hover:shadow-md transition-shadow'>
