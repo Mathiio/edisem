@@ -37,11 +37,19 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, showAnnotation = true,
 
   // Récupérer la thumbnail
   const getThumbnail = (): string | undefined => {
-    if (tool.thumbnail) return tool.thumbnail;
+    console.log(`[ToolItem] Getting thumbnail for "${tool.title}" (ID: ${tool.id})`);
+    console.log(`[ToolItem] tool.thumbnail:`, tool.thumbnail);
+    console.log(`[ToolItem] tool.associatedMedia:`, tool.associatedMedia);
+
+    if (tool.thumbnail) {
+      console.log(`[ToolItem] ✅ Using tool.thumbnail:`, tool.thumbnail);
+      return tool.thumbnail;
+    }
 
     // Si associatedMedia est un tableau, prendre le premier
     if (Array.isArray(tool.associatedMedia) && tool.associatedMedia.length > 0) {
       const firstMedia = tool.associatedMedia[0];
+      console.log(`[ToolItem] firstMedia from array:`, firstMedia);
 
       // Si c'est un objet
       if (typeof firstMedia === 'object' && firstMedia !== null) {
@@ -49,6 +57,7 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, showAnnotation = true,
 
         // Vérifier d'abord si l'objet a une propriété thumbnail
         if (mediaObj.thumbnail) {
+          console.log(`[ToolItem] ✅ Using mediaObj.thumbnail:`, mediaObj.thumbnail);
           return mediaObj.thumbnail;
         }
 
@@ -57,24 +66,30 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, showAnnotation = true,
           const mediaUrl = mediaObj.url;
           // Si l'URL est YouTube, récupérer la thumbnail
           if (isValidYouTubeUrl(mediaUrl)) {
-            return getYouTubeThumbnailUrl(mediaUrl);
+            const ytThumb = getYouTubeThumbnailUrl(mediaUrl);
+            console.log(`[ToolItem] ✅ Using YouTube thumbnail:`, ytThumb);
+            return ytThumb;
           }
           // Sinon retourner l'URL normale
+          console.log(`[ToolItem] ✅ Using mediaObj.url:`, mediaUrl);
           return mediaUrl;
         }
       }
 
       // Si c'est une string, la retourner directement
       if (typeof firstMedia === 'string') {
+        console.log(`[ToolItem] ✅ Using firstMedia string:`, firstMedia);
         return firstMedia;
       }
     }
 
     // Si associatedMedia est une string
     if (typeof tool.associatedMedia === 'string') {
+      console.log(`[ToolItem] ✅ Using associatedMedia string:`, tool.associatedMedia);
       return tool.associatedMedia;
     }
 
+    console.log(`[ToolItem] ❌ No thumbnail found`);
     return undefined;
   };
 
