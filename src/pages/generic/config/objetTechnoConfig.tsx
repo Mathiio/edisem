@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
-import { getObjetsTechnoIndustriels, getKeywords } from '@/services/Items';
+import { getObjetsTechnoIndustriels, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
 import { createItemsListView, createScientificReferencesView, createTextView } from '../helpers';
 
 export const objetTechnoConfig: GenericDetailPageConfig = {
@@ -15,6 +15,11 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
 
     // Enrichir les keywords si nécessaire
     const objetKeywords = concepts.filter((c: any) => objet?.keywords?.some((k: any) => String(k.id) === String(c.id)));
+
+    // Résoudre les targets et related des descriptions (annotations)
+    if (objet?.descriptions) {
+      objet.descriptions = await getAnnotationsWithTargets(objet.descriptions);
+    }
 
     return {
       itemDetails: objet,

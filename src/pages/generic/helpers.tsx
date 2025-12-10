@@ -2,6 +2,7 @@ import { ViewOption, SmartRecommendationsStrategy } from './config';
 import { ItemsList, SimpleTextBlock, ToolItemData } from './components';
 import { Bibliographies } from '@/components/features/conference/BibliographyCards';
 import { Mediagraphies } from '@/components/features/conference/MediagraphyCards';
+import { getResourceConfigByTemplateId, getDisplayName, getResourceUrl } from '@/config/resourceTypes';
 
 /**
  * Helpers pour créer des viewOptions communes facilement
@@ -78,9 +79,15 @@ export const createScientificReferencesView = (): ViewOption => {
     renderContent: ({ itemDetails, loading }) => {
       const references = itemDetails?.referencesScient || itemDetails?.references || [];
 
+      // Filtrage mutuellement exclusif : d'abord les médiagraphies, puis le reste en bibliographies
       const mediagraphies = references.filter((ref: any) => ref?.type === 'mediagraphie' || ref?.mediagraphyType);
       const bibliographies = references
-        .filter((ref: any) => ref?.type === 'bibliographie' || ref?.template || ref?.resource_template_id)
+        .filter((ref: any) => {
+          // Exclure les médiagraphies déjà filtrées
+          const isMediagraphie = ref?.type === 'mediagraphie' || ref?.mediagraphyType;
+          const isBibliographie = ref?.type === 'bibliographie' || ref?.template || ref?.resource_template_id;
+          return !isMediagraphie && isBibliographie;
+        })
         .map((ref: any) => ({
           ...ref,
           id: parseInt(ref.id) || ref.id, // Convertir id en number si c'est une string
@@ -121,9 +128,16 @@ export const createCulturalReferencesView = (): ViewOption => {
     title: 'Contenus culturels',
     renderContent: ({ itemDetails, loading }) => {
       const references = itemDetails?.referencesCultu || itemDetails?.bibliographicCitations || [];
+
+      // Filtrage mutuellement exclusif : d'abord les médiagraphies, puis le reste en bibliographies
       const mediagraphies = references.filter((ref: any) => ref?.type === 'mediagraphie' || ref?.mediagraphyType);
       const bibliographies = references
-        .filter((ref: any) => ref?.type === 'bibliographie' || ref?.template || ref?.resource_template_id)
+        .filter((ref: any) => {
+          // Exclure les médiagraphies déjà filtrées
+          const isMediagraphie = ref?.type === 'mediagraphie' || ref?.mediagraphyType;
+          const isBibliographie = ref?.type === 'bibliographie' || ref?.template || ref?.resource_template_id;
+          return !isMediagraphie && isBibliographie;
+        })
         .map((ref: any) => ({
           ...ref,
           id: parseInt(ref.id) || ref.id, // Convertir id en number si c'est une string
@@ -215,7 +229,7 @@ export const createCriticalAnalysisView = (): ViewOption => {
   return createItemsListView({
     key: 'AnalyseCritique',
     title: 'Analyses critiques',
-    getItems: (itemDetails) => itemDetails?.annotations || [],
+    getItems: (itemDetails) => itemDetails?.annotations || itemDetails?.descriptions || itemDetails?.abstract || [],
     annotationType: 'Analyse',
     mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
   });
@@ -260,14 +274,7 @@ export const createAnalysisView = (): ViewOption => {
  * Ensemble complet pour une page Oeuvre
  */
 export const createOeuvreViews = (): ViewOption[] => {
-  return [
-    createCriticalAnalysisView(),
-    createScientificReferencesView(),
-    createCulturalReferencesView(),
-    //createArchivesView(),
-    createNarrativeElementsView(),
-    createAestheticElementsView(),
-  ];
+  return [createCriticalAnalysisView(), createScientificReferencesView(), createCulturalReferencesView(), createNarrativeElementsView(), createAestheticElementsView()];
 };
 
 /**
@@ -400,106 +407,7 @@ export const generateSmartRecommendations = async (itemDetails: any, strategy: S
 // ========================================
 // Target Mapper Configuration
 // ========================================
-
-/**
- * Configuration du mapping template_id -> type d'annotation et URL
- */
-const TARGET_TYPE_MAP: Record<
-  number,
-  {
-    type: string;
-    getUrl?: (target: any) => string;
-  }
-> = {
-  // Médiagraphies (83, 98)
-  83: {
-    type: 'mediagraphie',
-  },
-  98: {
-    type: 'mediagraphie',
-  },
-
-  // Bibliographies (81, 99)
-  81: {
-    type: 'bibliographie',
-  },
-  99: {
-    type: 'bibliographie',
-  },
-
-  // Documentation Scientifique (124)
-  124: {
-    type: 'documentationScientifique',
-  },
-
-  // Oeuvres (103)
-  103: {
-    type: 'oeuvre',
-  },
-
-  // Objets techno-industriels (117)
-  117: {
-    type: 'objetTechnoIndustriel',
-  },
-
-  // Recit citoyen (119)
-  119: {
-    type: 'recitCitoyen',
-  },
-
-  // Recit médiatique (120)
-  120: {
-    type: 'recitMediatique',
-  },
-
-  // Analyse critique (125)
-  125: {
-    type: 'annotation',
-  },
-
-  // Study Day (121)
-  121: {
-    type: 'studyDay',
-  },
-
-  // Seminar (71)
-  71: {
-    type: 'seminar',
-  },
-
-  // Colloque (122)
-  122: {
-    type: 'colloque',
-  },
-
-  // Élément esthétique (104)
-  104: {
-    type: 'elementEsthetique',
-  },
-
-  // Élément narratif (105)
-  105: {
-    type: 'elementNarratif',
-  },
-
-  // Expérimentation (106)
-  106: {
-    type: 'experimentation',
-  },
-
-  // Tool (118)
-  118: {
-    type: 'tool',
-  },
-};
-
-/**
- * Récupère la configuration d'un target selon son template_id
- */
-const getTargetTypeInfo = (templateId: number | string) => {
-  const id = parseInt(String(templateId));
-  return TARGET_TYPE_MAP[id] || null;
-};
+// NOTE: Cette configuration est maintenant centralisée dans @/config/resourceTypes.ts
 
 // ========================================
 // Helper pour créer une vue Target
@@ -525,20 +433,13 @@ export const createTargetView = (options?: { key?: string; title?: string; getTa
         return null;
       }
 
-      const renderer = TARGET_COMPONENT_MAP[firstTarget.type];
-
-      if (!renderer) {
-        return (
-          <div className='p-4 bg-orange-50 border-2 border-orange-200 rounded-12'>
-            <p className='font-semibold text-c5 text-14'>{firstTarget.title}</p>
-          </div>
-        );
-      }
+      // Utiliser le renderer spécial si disponible, sinon le rendu par défaut
+      const renderer = TARGET_COMPONENT_MAP[firstTarget.type] || renderDefaultTarget;
 
       return (
         <div className='space-y-4'>
           <div>
-            <span className='inline-block py-1 text-xs font-medium text-c5 rounded-full'>{firstTarget.type}</span>
+            <span className='inline-block py-1 text-xs font-medium text-c5 rounded-full'>{getDisplayName(firstTarget.type)}</span>
           </div>
 
           {renderer(firstTarget)}
@@ -549,49 +450,45 @@ export const createTargetView = (options?: { key?: string; title?: string; getTa
 };
 
 // Mapping type -> rendu du composant métier correct
+// Note: Certains types (bibliographie, mediagraphie) ont des composants spéciaux
 const TARGET_COMPONENT_MAP: Record<string, (target: any) => JSX.Element> = {
-  elementEsthetique: (t) => <ItemsList items={[t]} annotationType='Élément esthétique' mapUrl={(i) => `/corpus/element-esthetique/${i.id}`} />,
-
-  elementNarratif: (t) => <ItemsList items={[t]} annotationType='Élément narratif' mapUrl={(i) => `/corpus/element-narratif/${i.id}`} />,
-
   bibliographie: (t) => <Bibliographies bibliographies={[t]} loading={false} notitle />,
-
   mediagraphie: (t) => <Mediagraphies items={[t]} loading={false} notitle />,
+};
 
-  documentationScientifique: (t) => <ItemsList items={[t]} annotationType='Documentation scientifique' mapUrl={(i) => `/corpus/documentation/${i.id}`} />,
-
-  studyDay: (t) => <ItemsList items={[t]} annotationType='Conférence Study Day' mapUrl={(i) => `/corpus/journees-etudes/conference/${i.id}`} />,
-
-  seminar: (t) => <ItemsList items={[t]} annotationType='Conférence Séminaire' mapUrl={(i) => `/corpus/seminaires/conference/${i.id}`} />,
-
-  colloque: (t) => <ItemsList items={[t]} annotationType='Conférence Colloque' mapUrl={(i) => `/corpus/colloques/conference/${i.id}`} />,
-
-  objetTechnoIndustriel: (t) => <ItemsList items={[t]} annotationType='Objet techno-industriel' mapUrl={(i) => `/corpus/objet-techno-industriel/${i.id}`} />,
-
-  recitCitoyen: (t) => <ItemsList items={[t]} annotationType='Recit citoyen' mapUrl={(i) => `/corpus/recit-citoyen/${i.id}`} />,
-
-  recitMediatique: (t) => <ItemsList items={[t]} annotationType='Recit médiatique' mapUrl={(i) => `/corpus/recit-mediatique/${i.id}`} />,
-
-  oeuvre: (t) => <ItemsList items={[t]} annotationType='Oeuvre' mapUrl={(i) => `/corpus/oeuvre/${i.id}`} />,
-
-  annotation: (t) => <ItemsList items={[t]} annotationType='Analyse critique' mapUrl={(i) => `/corpus/analyse-critique/${i.id}`} />,
-
-  experimentation: (t) => <ItemsList items={[t]} annotationType='Expérimentation' mapUrl={(i) => `/corpus/experimentation/${i.id}`} />,
+/**
+ * Rendu par défaut pour un target utilisant ItemsList
+ */
+const renderDefaultTarget = (target: any) => {
+  const displayName = getDisplayName(target.type);
+  const url = getResourceUrl(target.type, target.id);
+  return <ItemsList items={[target]} annotationType={displayName} mapUrl={() => url} />;
 };
 
 /**
  * Crée une vue pour afficher plusieurs targets (si l'annotation en a plusieurs)
  */
-export const createTargetsListView = (options?: { key?: string; title?: string; emptyMessage?: string; getTargets?: (itemDetails: any) => any[] }): ViewOption => {
+export const createTargetsListView = (options?: { key?: string; title?: string; emptyMessage?: string; getTargets?: (itemDetails: any) => any }): ViewOption => {
   return {
     key: options?.key || 'targets',
     title: options?.title || 'Ressources liées',
     renderContent: ({ itemDetails }) => {
       let targets = options?.getTargets ? options.getTargets(itemDetails) : itemDetails?.targets || [itemDetails?.target].filter(Boolean);
 
+      // Aplatir les tableaux imbriqués (cas où un target est lui-même un tableau)
+      const flattenTargets = (items: any[]): any[] => {
+        return items.reduce((acc, item) => {
+          if (Array.isArray(item)) {
+            return [...acc, ...flattenTargets(item)];
+          }
+          return [...acc, item];
+        }, []);
+      };
+
       // Filtrer les valeurs null, undefined et autres valeurs falsy
       if (Array.isArray(targets)) {
-        targets = targets.filter((target) => target !== null && target !== undefined && target !== '');
+        targets = flattenTargets(targets);
+        targets = targets.filter((target: any) => target !== null && target !== undefined && target !== '');
       }
 
       console.log('Targets received:', targets);
@@ -605,34 +502,73 @@ export const createTargetsListView = (options?: { key?: string; title?: string; 
         // Debug: afficher les targets pour comprendre la structure
         console.log('Target debug:', target);
 
-        if (!target || (!target.template_id && !target.resource_template_id)) return acc;
-
-        const templateId = target.template_id || target.resource_template_id;
-        const typeInfo = getTargetTypeInfo(templateId);
-        if (!typeInfo) {
-          console.log('No typeInfo found for template_id:', templateId, 'target:', target);
-          // Pour le debug, créons un typeInfo temporaire pour les template_id inconnus
-          const tempTypeInfo = {
-            type: `Type inconnu (${templateId})`,
-            getUrl: undefined, // Pas de getUrl, on utilisera l'URL existante dans les données
-          };
-          if (!acc[tempTypeInfo.type]) {
-            acc[tempTypeInfo.type] = {
-              typeInfo: tempTypeInfo,
+        // Si c'est une URL externe (juste uri + title, sans id), créer un type spécial
+        if (target.uri && !target.id && !target.template_id && !target.resource_template_id) {
+          const externalLinkType = 'Liens externes';
+          if (!acc[externalLinkType]) {
+            acc[externalLinkType] = {
+              typeInfo: {
+                type: externalLinkType,
+                getUrl: (item: any) => item.uri,
+              },
               items: [],
             };
           }
-          acc[tempTypeInfo.type].items.push(target);
+          acc[externalLinkType].items.push(target);
           return acc;
         }
 
-        if (!acc[typeInfo.type]) {
-          acc[typeInfo.type] = {
-            typeInfo,
+        // Si l'objet a un type défini mais pas de template_id (ex: objets déjà enrichis)
+        if (target.type && target.id && !target.template_id && !target.resource_template_id) {
+          const displayName = getDisplayName(target.type);
+
+          if (!acc[displayName]) {
+            acc[displayName] = {
+              typeInfo: {
+                type: displayName,
+                getUrl: (item: any) => getResourceUrl(item.type, item.id),
+              },
+              items: [],
+            };
+          }
+          acc[displayName].items.push(target);
+          return acc;
+        }
+
+        // Ignorer les targets sans template_id et sans type
+        if (!target || (!target.template_id && !target.resource_template_id)) return acc;
+
+        const templateId = target.template_id || target.resource_template_id;
+        const resourceConfig = getResourceConfigByTemplateId(templateId);
+
+        if (!resourceConfig) {
+          console.log('No resource config found for template_id:', templateId, 'target:', target);
+          // Pour le debug, créons une config temporaire pour les template_id inconnus
+          const unknownType = `Type inconnu (${templateId})`;
+          if (!acc[unknownType]) {
+            acc[unknownType] = {
+              typeInfo: {
+                type: unknownType,
+                getUrl: (item: any) => item.url || item.uri || '#',
+              },
+              items: [],
+            };
+          }
+          acc[unknownType].items.push(target);
+          return acc;
+        }
+
+        const displayName = resourceConfig.displayName;
+        if (!acc[displayName]) {
+          acc[displayName] = {
+            typeInfo: {
+              type: displayName,
+              getUrl: (item: any) => resourceConfig.getUrl(item.id),
+            },
             items: [],
           };
         }
-        acc[typeInfo.type].items.push(target);
+        acc[displayName].items.push(target);
         return acc;
       }, {});
 

@@ -336,6 +336,9 @@ export async function getAnnotationsWithTargets(annotations: any) {
 
   console.log('annotations', annotations);
 
+  // Import dynamique pour éviter les imports circulaires
+  const { fetchResourceByTemplateId } = await import('./resourceFetchers');
+
   // Toujours travailler sur un tableau
   const list = Array.isArray(annotations) ? annotations : [annotations];
 
@@ -343,59 +346,11 @@ export async function getAnnotationsWithTargets(annotations: any) {
     if (!target || !target.id || !target.template_id) return target;
 
     const id = parseInt(target.id);
-    const tpl = parseInt(target.template_id);
+    const templateId = parseInt(target.template_id);
 
-    switch (tpl) {
-      case 83:
-      case 98:
-        return await getMediagraphies(id);
-
-      case 81:
-      case 99:
-        return await getBibliographies(id);
-
-      case 119:
-        // return await getRecitCitoyens(id);
-
-      case 120:
-        // return await getRecitMediatiques(id);
-
-      case 103:
-        return await getOeuvres(id);
-
-      case 117:
-        return await getObjetsTechnoIndustriels(id);
-
-      case 124:
-        return await getDocumentationsScientifiques(id);
-
-      case 121:
-        return await getStudyDayConfs(id);
-
-      case 71:
-        return await getSeminarConfs(id);
-
-      case 122:
-        return await getColloqueConfs(id);
-
-      case 125:
-        return await getAnnotations(id);
-
-      case 104:
-        return await getElementEsthetiques(id);
-
-      case 105:
-        return await getElementNarratifs(id);
-
-      case 106:
-        return await getExperimentations(id);
-
-      case 118:
-        return await getTools(id);
-
-      default:
-        return target;
-    }
+    // Utiliser le fetcher centralisé au lieu du switch/case
+    const resolved = await fetchResourceByTemplateId(templateId, id);
+    return resolved || target;
   }
 
   return await Promise.all(list.map(async annotation => {
@@ -1893,17 +1848,33 @@ export async function getRecitsMediatiques(id?: number) {
 
       // Hydrater scientificContent (bibliographies/mediagraphies)
       let scientificContentHydrated = [];
-      if (Array.isArray(recit.scientificContent)) {
-        scientificContentHydrated = recit.scientificContent
-          .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
+      if (Array.isArray(recit.referencesScient)) {
+        scientificContentHydrated = recit.referencesScient
+          .map((id: string) => {
+            const biblio = bibliographiesMap.get(id);
+            const media = mediagraphiesMap.get(id);
+            const result = biblio || media;
+            if (result) {
+              console.log(`📖 referencesScient ID ${id} -> type: ${(result as any).type}, title: ${(result as any).title}`);
+            }
+            return result;
+          })
           .filter(Boolean);
       }
 
       // Hydrater culturalContent (bibliographies/mediagraphies)
       let culturalContentHydrated = [];
-      if (Array.isArray(recit.culturalContent)) {
-        culturalContentHydrated = recit.culturalContent
-          .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
+      if (Array.isArray(recit.referencesCultu)) {
+        culturalContentHydrated = recit.referencesCultu
+          .map((id: string) => {
+            const biblio = bibliographiesMap.get(id);
+            const media = mediagraphiesMap.get(id);
+            const result = biblio || media;
+            if (result) {
+              console.log(`🎨 referencesCultu ID ${id} -> type: ${(result as any).type}, title: ${(result as any).title}`);
+            }
+            return result;
+          })
           .filter(Boolean);
       }
 
@@ -1917,8 +1888,9 @@ export async function getRecitsMediatiques(id?: number) {
         creator: creatorHydrated,
         isRelatedTo: isRelatedToHydrated.length > 0 ? isRelatedToHydrated : [],
         tools: toolsHydrated.length > 0 ? toolsHydrated : [],
-        scientificContent: scientificContentHydrated.length > 0 ? scientificContentHydrated : [],
-        culturalContent: culturalContentHydrated.length > 0 ? culturalContentHydrated : [],
+        referencesScient: scientificContentHydrated.length > 0 ? scientificContentHydrated : [],
+        referencesCultu: culturalContentHydrated.length > 0 ? culturalContentHydrated : [],
+       
       };
     });
 
@@ -1929,6 +1901,120 @@ export async function getRecitsMediatiques(id?: number) {
   } catch (error) {
     console.error('Error fetching recits mediatiques:', error);
     throw new Error('Failed to fetch recits mediatiques');
+  }
+}
+
+export async function getRecitsCitoyens(id?: number) {
+  try {
+    checkAndClearDailyCache();
+    // 1. CACHE : Vérifier sessionStorage
+    const storedDocs = sessionStorage.getItem('recitsCitoyens');
+    if (storedDocs) {
+      const docs = JSON.parse(storedDocs);
+      return id ? docs.find((d: any) => d.id === String(id)) : docs;
+    }
+
+    // 2. FETCH : Récupérer données + dépendances en Promise.all
+    const [rawRecitsCitoyens, keywords, personnes, annotations, bibliographies, mediagraphies] = await Promise.all([
+      getDataByUrl(
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsCitoyens&json=1'
+      ),
+      getKeywords(),
+      getPersonnes(),
+      getAnnotations(),
+      getBibliographies(),
+      getMediagraphies()
+    ]);
+
+    // 3. MAPS : Créer maps pour accès rapide
+    const keywordsMap = new Map(keywords.map((k: any) => [String(k.id), k]));
+    const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
+    const annotationsMap = new Map(annotations.map((a: any) => [String(a.id), a]));
+    const bibliographiesMap = new Map(bibliographies.map((b: any) => [String(b.id), b]));
+    const mediagraphiesMap = new Map(mediagraphies.map((m: any) => [String(m.id), m]));
+    // 4. HYDRATATION : Remplacer IDs par objets complets
+    const recitsCitoyensFull = rawRecitsCitoyens.map((recitCitoyen: any) => {
+      // Hydrater descriptions (items)
+      let descriptionsHydrated = [];
+      if (Array.isArray(recitCitoyen.descriptions)) {
+        descriptionsHydrated = recitCitoyen.descriptions
+          .map((id: any) => annotationsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      // Hydrater keywords
+      let keywordsHydrated = [];
+      if (Array.isArray(recitCitoyen.keywords)) {
+        keywordsHydrated = recitCitoyen.keywords
+          .map((id: any) => keywordsMap.get(String(id)))
+          .filter(Boolean);
+      }
+
+      // Hydrater creator (personne)
+      let creatorHydrated = null;
+      if (recitCitoyen.creator) {
+        creatorHydrated = personnesMap.get(String(recitCitoyen.creator)) || null;
+      }
+
+      // Hydrater associatedMedia (items)
+      let associatedMediaHydrated = [];
+      if (Array.isArray(recitCitoyen.associatedMedia)) {
+        associatedMediaHydrated = recitCitoyen.associatedMedia
+          .filter(Boolean);
+      }
+
+      // Hydrater isRelatedTo (items)
+      let isRelatedToHydrated = [];
+        if (Array.isArray(recitCitoyen.isRelatedTo)) {
+        isRelatedToHydrated = recitCitoyen.isRelatedTo
+          .filter(Boolean);
+      }
+
+      // Hydrater referencesScient (items)
+      let referencesScientHydrated = [];
+      if (Array.isArray(recitCitoyen.referencesScient)) {
+        // Vérifier si c'est déjà des objets complets ou des IDs
+        if (recitCitoyen.referencesScient.length > 0 && typeof recitCitoyen.referencesScient[0] === 'object' && recitCitoyen.referencesScient[0] !== null) {
+          // Déjà des objets complets
+          referencesScientHydrated = recitCitoyen.referencesScient;
+        } else {
+          // Ce sont des IDs, les hydrater
+          referencesScientHydrated = recitCitoyen.referencesScient
+            .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
+            .filter(Boolean);
+        }
+      }
+
+      // Hydrater referencesCultu (items)
+      let referencesCultuHydrated = [];
+      if (Array.isArray(recitCitoyen.referencesCultu)) {
+        referencesCultuHydrated = recitCitoyen.referencesCultu
+          .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
+          .filter(Boolean);
+      }
+
+      
+
+      return {
+        ...recitCitoyen,
+        type: 'recitCitoyen',
+        descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
+        keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
+        creator: creatorHydrated,
+        associatedMedia: associatedMediaHydrated.length > 0 ? associatedMediaHydrated : [],
+        isRelatedTo: isRelatedToHydrated.length > 0 ? isRelatedToHydrated : [],
+        referencesScient: referencesScientHydrated.length > 0 ? referencesScientHydrated : [],
+        referencesCultu: referencesCultuHydrated.length > 0 ? referencesCultuHydrated : [],
+      };
+    });
+
+    // 5. CACHE + RETURN : Stocker et retourner
+    sessionStorage.setItem('recitsCitoyens', JSON.stringify(recitsCitoyensFull));
+    return id ? recitsCitoyensFull.find((d: any) => d.id === String(id)) : recitsCitoyensFull;
+
+  } catch (error) {
+    console.error('Error fetching recits citoyens:', error);
+    throw new Error('Failed to fetch recits citoyens');
   }
 }
 
