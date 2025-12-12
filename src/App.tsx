@@ -21,15 +21,16 @@ import Visualisation from '@/pages/visualisation';
 import { ToastProvider } from '@heroui/react';
 import { HeroUIProvider } from '@heroui/react';
 import { Intervenants } from '@/pages/intervenants';
-import { Colloques } from '@/pages/corpus/Colloques';
-import { PratiqueNarrative } from '@/pages/corpus/PratiqueNarrative';
-import { JourneesEtudes } from '@/pages/corpus/JourneesEtudes';
-import { Seminaires } from '@/pages/corpus/Seminaires';
-import { Experimentations } from '@/pages/corpus/Experimentations';
+import { Colloques } from '@/pages/corpus/colloques';
+import { PratiqueNarrative } from '@/pages/corpus/pratiqueNarrative';
+import { JourneesEtudes } from '@/pages/corpus/journeesEtudes';
+import { Seminaires } from '@/pages/corpus/seminaires';
+import { Experimentations } from '@/pages/corpus/experimentations';
 import { Oeuvres } from '@/pages/corpus/Oeuvres';
 import { Personne } from '@/pages/personne';
 import { GenreDetail } from '@/pages/corpus/genre';
 import { TestPage } from '@/pages/test';
+import { KeywordsDashboard } from '@/pages/analysis/KeywordsDashboard';
 
 // 🆕 NOUVELLE ARCHITECTURE GÉNÉRIQUE - Système principal
 // Toutes les pages de détails utilisent maintenant ConfigurableDetailPage avec une configuration
@@ -142,6 +143,10 @@ function App() {
         <Route path='/corpus/element-esthetique/:id' Component={ElementEsthetique} />
         <Route path='/corpus/analyse-critique/:id' Component={AnalyseCritique} />
         */}
+
+        {/* Keyword Analysis Route */}
+        <Route path='/analysis/keywords' Component={KeywordsDashboard} />
+        
       </Routes>
     </HeroUIProvider>
   );
