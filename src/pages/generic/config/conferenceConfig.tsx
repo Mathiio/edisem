@@ -62,7 +62,14 @@ export const conferenceConfig: GenericDetailPageConfig = {
     {
       key: 'MicroResumes',
       title: 'Micro-résumés',
-      renderContent: ({ viewData, loading, onTimeChange }) => <Microresumes microresumes={viewData.microresumes || []} loading={loading} onTimeChange={onTimeChange} />,
+      renderContent: ({ viewData, loading, onTimeChange }) => {
+        const microresumes = viewData.microresumes || [];
+        // Si pas de microresumes, ne pas afficher la vue
+        if (!loading && microresumes.length === 0) {
+          return null;
+        }
+        return <Microresumes microresumes={microresumes} loading={loading} onTimeChange={onTimeChange} />;
+      },
     },
     {
       key: 'Citations',
