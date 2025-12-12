@@ -1,8 +1,8 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
-import { getDocumentationsScientifiques, getKeywords } from '@/services/Items';
-import { createCulturalReferencesView, createItemsListView, createScientificReferencesView, createTextView } from '../helpers';
+import { getDocumentationsScientifiques, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
+import { createCriticalAnalysisView, createCulturalReferencesView, createScientificReferencesView, createTextView } from '../helpers';
 
 export const documentationScientifiqueConfig: GenericDetailPageConfig = {
   // Data fetching avec enrichissement des keywords
@@ -11,6 +11,11 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
 
     // Enrichir les keywords si nécessaire
     const docKeywords = concepts.filter((c: any) => doc?.keywords?.some((k: any) => String(k.id) === String(c.id)));
+
+    // Résoudre les targets et related des descriptions (annotations)
+    if (doc?.descriptions) {
+      doc.descriptions = await getAnnotationsWithTargets(doc.descriptions);
+    }
 
     return {
       itemDetails: doc,
@@ -56,14 +61,7 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
 
   // ✨ Vues personnalisées pour les documentations scientifiques
   viewOptions: [
-    // Vue 4 : Descriptions / Analyses critiques
-    createItemsListView({
-      key: 'Descriptions',
-      title: 'Analyses détaillées',
-      getItems: (itemDetails) => itemDetails?.descriptions || [],
-      annotationType: 'Analyse',
-      mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
-    }),
+    createCriticalAnalysisView(),
 
     // Vue 3 : Condition initiale / Contexte
     createTextView({
@@ -72,7 +70,6 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
       getText: (itemDetails) => itemDetails?.conditionInitiale,
     }),
 
-    // Vue 5 : Sources
     createScientificReferencesView(),
 
     createCulturalReferencesView(),

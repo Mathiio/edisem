@@ -1,13 +1,13 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
-import { getRecitsMediatiques, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
-import { createCulturalReferencesView, createScientificReferencesView, createItemsListView, createTextView, createCriticalAnalysisView } from '../helpers';
+import { getRecitsMediatiques, getKeywords, getAnnotationsWithTargets, getRecitsCitoyens } from '@/services/Items';
+import { createCulturalReferencesView, createScientificReferencesView, createItemsListView, createTextView } from '../helpers';
 
-export const recitmediatiqueConfig: GenericDetailPageConfig = {
+export const recitcitoyenConfig: GenericDetailPageConfig = {
   // Data fetching avec enrichissement des keywords
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const [recit, concepts] = await Promise.all([getRecitsMediatiques(Number(id)), getKeywords()]);
+    const [recit, concepts] = await Promise.all([getRecitsCitoyens(Number(id)), getKeywords()]);
     console.log('recit', recit);
     // Enrichir les keywords si nécessaire
     const recitKeywords = concepts.filter((c: any) => recit?.keywords?.some((k: any) => String(k.id) === String(c.id)));
@@ -64,7 +64,13 @@ export const recitmediatiqueConfig: GenericDetailPageConfig = {
   // ✨ Vues personnalisées pour les récits médiatiques
   viewOptions: [
     // Vue 2 : Descriptions / Analyses critiques
-    createCriticalAnalysisView(),
+    createItemsListView({
+      key: 'Descriptions',
+      title: 'Analyses détaillées',
+      getItems: (itemDetails) => itemDetails?.descriptions || [],
+      annotationType: 'Analyse',
+      mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
+    }),
 
     // Vue 1 : Citations
     createTextView({
@@ -117,5 +123,5 @@ export const recitmediatiqueConfig: GenericDetailPageConfig = {
   },
 
   // Type à afficher
-  type: 'recitMediatique',
+  type: 'recitCitoyen',
 };

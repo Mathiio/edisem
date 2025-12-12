@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
-import { getOeuvres, getActants, getStudents, getTools, getKeywords } from '@/services/Items';
+import { getOeuvres, getActants, getStudents, getTools, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
 import * as Items from '@/services/Items';
 import { createOeuvreViews } from '../helpers';
 
@@ -131,6 +131,11 @@ export const oeuvreConfig: GenericDetailPageConfig = {
     }
 
     console.log('oeuvre', oeuvre);
+
+    // Résoudre les targets et related des annotations
+    if (oeuvre?.annotations) {
+      oeuvre.annotations = await getAnnotationsWithTargets(oeuvre.annotations);
+    }
 
     return {
       itemDetails: oeuvre,

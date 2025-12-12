@@ -10,7 +10,6 @@ import { IntervenantKeywordCloud } from '@/components/features/intervenants/Inte
 import { IntervenantNetwork } from '@/components/features/intervenants/IntervenantNetwork';
 import { IntervenantInterventions } from '@/components/features/intervenants/IntervenantInterventions';
 
-
 export const Intervenant: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [actant, setActant] = useState<any>(null);
@@ -71,19 +70,19 @@ export const Intervenant: React.FC = () => {
           </div>
         </Link>
 
-          {/* Universités, Écoles, Labos */}
-           <div className="w-full">
-            <IntervenantAffiliations 
-              universities={actant?.universities || []}
-              doctoralSchools={actant?.doctoralSchools || []}
-              laboratories={actant?.laboratories || []}
-              loading={loading}
-            />
-          </div>
+        {/* Universités, Écoles, Labos */}
+        <div className='w-full'>
+          <IntervenantAffiliations
+            universities={actant?.universities || []}
+            doctoralSchools={actant?.doctoralSchools || []}
+            laboratories={actant?.laboratories || []}
+            loading={loading}
+          />
         </div>
-    
+      </div>
+
       <IntervenantKeywordCloud intervenantConfs={conf} />
-      
+
       {/* Proximity Graph */}
       <div className='w-full flex flex-col items-center gap-50'>
         <div className='flex flex-col gap-2 justify-center items-center'>
