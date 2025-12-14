@@ -2,7 +2,7 @@ import React from 'react';
 import { getLinksFromKeywords } from '@/services/Links';
 import { useEffect, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
-import { LgConfCard, LgConfSkeleton } from '@/components/ui/ConfCards';
+import { ConfCard, ConfCardSkeleton } from '@/components/features/conference/ConfCards';
 import { FullCarrousel } from '@/components/ui/Carrousels';
 import { getConfByCitation } from '@/services/api';
 import * as Items from '@/services/Items';
@@ -217,10 +217,10 @@ export const KeywordHighlight: React.FC = () => {
       </div>
       <div className='grid grid-cols-4 w-full gap-25'>
         {loading
-          ? Array.from({ length: 8 }).map((_, index) => <LgConfSkeleton key={index} />)
+          ? Array.from({ length: 8 }).map((_, index) => <ConfCardSkeleton key={index} />)
           : filteredConfs.map((conference, index) => (
               <motion.div key={conference.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                <LgConfCard {...conference} />
+                <ConfCard {...conference} />
               </motion.div>
             ))}
       </div>

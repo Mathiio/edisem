@@ -95,7 +95,6 @@ export const storeSearchHistory = (filterGroups: any[]) => {
     // Mettre à jour le localStorage
     localStorage.setItem('searchHistory', JSON.stringify(existingHistory));
 
-    //console.log("Recherche sauvegardée dans l'historique:", newHistoryItem);
     return newHistoryItem;
   } catch (error) {
     console.error("Erreur lors de la sauvegarde de l'historique de recherche:", error);
@@ -365,9 +364,6 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
   const [activeGroupIndex, setActiveGroupIndex] = useState<number | null>(null);
   const [newGroupName, setNewGroupName] = useState<string>('');
   const [filterGroups, setFilterGroups] = useState<FilterGroup[]>(getInitialFilterGroups());
-
-  // console.log(groupsVisibility);
-  // console.log(updateGroupTypeVisibility);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filterGroups));

@@ -80,7 +80,6 @@ class Omk {
   public getClass = async (prefix: string, cb: ((data: any[]) => void) | false = false): Promise<void> => {
     try {
       const data = await this.syncRequest(this.api + 'resource_classes?per_page=1000&vocabulary_prefix=' + prefix);
-      //console.log('Fetched data:', data); // Log des données reçues
 
       if (data && Array.isArray(data)) {
         // Vérifiez que les données sont un tableau
@@ -286,7 +285,6 @@ class Omk {
   };
 
   public createItem = async (data: any, cb: ((rs: any) => void) | false = false): Promise<any> => {
-    console.log(data);
     let url = this.api + 'items?key_identity=' + this.ident + '&key_credential=' + this.key;
     return await this.postData({ u: url, m: 'POST' }, this.formatData(data)).then((rs: any) => {
       if (cb) cb(rs);
@@ -301,16 +299,12 @@ class Omk {
       if (data) {
         // Récupérer les données actuelles de l'élément
         this.getItem(id).then((oriData: any) => {
-          console.log('Original Data:', JSON.stringify(oriData));
-          console.log('Update Data:', JSON.stringify(data));
 
           // Mettre à jour oriData avec les nouvelles valeurs de data
           this.updateOriDataWithNewValues(oriData, data);
-          console.log('Final Data:', JSON.stringify(oriData));
 
           // Envoyer les données mises à jour à l'API
           this.postData({ u: url, m: m }, fd ? fd : oriData).then((rs: any) => {
-            console.log('Result:', rs);
             if (cb) cb(rs);
           });
         });
@@ -328,7 +322,6 @@ class Omk {
 
       if (data) {
         this.postData({ u: url, m: m }, fd ? fd : data).then((rs: any) => {
-          console.log('Result:', rs);
           if (cb) cb(rs);
         });
       } else {
@@ -341,21 +334,16 @@ class Omk {
 
   public buildObject2 = (existingObject: any, formValues: any): any => {
     let result = { ...existingObject }; // Clone existingObject to avoid modifying it directly
-    console.log('formValues', formValues);
     for (let formValueKey in formValues) {
       if (formValues.hasOwnProperty(formValueKey)) {
         let keys = formValueKey.split('.');
         let term_isolated = keys[0];
 
-        console.log(term_isolated);
-        console.log(this.props);
         let term = this.props?.find((prp: any) => prp['o:term'] === term_isolated);
         if (!term) {
-          console.log('pas trouvé');
           continue;
         }
 
-        console.log('term', term);
         let formValue = formValues[formValueKey];
         result[term['o:term']] = [];
 
@@ -364,7 +352,6 @@ class Omk {
           if (formValue.length === 1 && isArray(formValue[0])) {
             // Si c'est un tableau contenant un seul élément qui est lui-même un tableau
             formValue[0].forEach((value: any) => {
-              console.log('value', value);
               let formattedValue;
               if (term['o:id'] == 1716) {
                 formattedValue = this.formatValue(term, value.values, value.language);
@@ -398,17 +385,13 @@ class Omk {
         }
       }
     }
-    console.log('result', result);
     return result;
   };
 
   private updateOriDataWithNewValues = (oriData: any, data: any): void => {
     const updateValue = (obj: any, path: string[], value: any): void => {
-      console.log(`Current path: ${path.join('.')}`);
-      console.log(`Current object state:`, JSON.stringify(obj));
 
       if (path.length === 1) {
-        console.log(`Updating path: ${path[0]} with value:`, value);
         obj[path[0]] = value;
       } else {
         if (obj.hasOwnProperty(path[0])) {
@@ -421,7 +404,6 @@ class Omk {
 
     for (let key in data) {
       if (data.hasOwnProperty(key)) {
-        console.log('Processing key:', key);
         const path = key.split('.');
         const value = data[key];
 
@@ -492,7 +474,6 @@ class Omk {
     if (p['o:id'] == 1716 && language) {
       baseValue['@language'] = language;
     }
-    console.log('baseValue', baseValue);
     return baseValue;
   };
 
@@ -573,7 +554,6 @@ class Omk {
         bodyData.append('data', JSON.stringify(data));
         bodyData.append('file[1]', file);
       } else {
-        console.log('bodydata', data);
         bodyData = JSON.stringify(data);
 
         options.headers = {
@@ -593,7 +573,6 @@ class Omk {
         throw new Error(`Request failed with status ${response.status}`);
       }
       const responseData = await response.text(); // Lire la réponse comme texte brut
-      //console.log('Raw response:', responseData); // Log de la réponse brute
       const data = JSON.parse(responseData); // Tenter de parser la réponse
       return data;
     } catch (error) {
@@ -853,7 +832,6 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
 export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, activeConfig, itemPropertiesData, propertiesLoading, justView = false }) => {
   const { data: itemDetailsData, loading: detailsLoading, error: detailsError, refetch: refetchItemDetails } = usegetDataByClassDetails(itemUrl);
 
-  //console.log(itemPropertiesData);
   const [itemData, setItemData] = useState<any>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -928,7 +906,6 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
       omks.props = itemPropertiesData;
       if (itemDetailsData) {
         let object = omks.buildObject2(itemDetailsData[0], itemData);
-        console.log('obj', object);
 
         // Créer une promesse pour le toast
         const updatePromise = new Promise((resolve, reject) => {

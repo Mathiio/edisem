@@ -129,8 +129,8 @@ const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string):
         label: itemTitle || `Analyse critique`,
         isLoading: isItemLoading,
       });
-    } else if (segments[1] === 'objet-techno' && params.id) {
-      breadcrumbs.push({ label: 'Objets technologiques' });
+    } else if (segments[1] === 'recit-techno-industriel' && params.id) {
+      breadcrumbs.push({ label: 'Récit techno-industriel' });
       breadcrumbs.push({
         label: itemTitle || `Objet techno`,
         isLoading: isItemLoading,
@@ -141,8 +141,8 @@ const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string):
         label: itemTitle || `Outil`,
         isLoading: isItemLoading,
       });
-    } else if (segments[1] === 'documentation-scientifique' && params.id) {
-      breadcrumbs.push({ label: 'Documentation scientifique' });
+    } else if (segments[1] === 'recit-scientifique' && params.id) {
+      breadcrumbs.push({ label: 'Récit scientifique' });
       breadcrumbs.push({
         label: itemTitle || `Documentation`,
         isLoading: isItemLoading,

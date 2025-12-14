@@ -1,6 +1,7 @@
-import { ExperimentationBaner } from '@/components/features/experimentation/ExpBaner';
-import { LgExpCard, LgExpSkeleton } from '@/components/ui/ExpCards';
+import { ExpCard, ExpCardSkeleton } from '@/components/features/experimentation/ExpCards';
 import { Layouts } from '@/components/layout/Layouts';
+import { ExperimentationIcon } from '@/components/ui/icons';
+import { PageBanner } from '@/components/ui/PageBanner';
 import { getExperimentations, getActants, getStudents } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
 import { useEffect, useState } from 'react';
@@ -97,8 +98,6 @@ export const Experimentations: React.FC = () => {
 
         setExperimentations(experimentationsWithActants);
 
-        console.log('Experimentations originales:', experimentations);
-        console.log('Experimentations enrichies:', experimentationsWithActants);
       } catch (error) {
         console.error('Erreur lors du chargement des expérimentations', error);
       } finally {
@@ -110,13 +109,17 @@ export const Experimentations: React.FC = () => {
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
-      <ExperimentationBaner/>
+      <PageBanner
+        icon={<ExperimentationIcon size={40} />}
+        title="Expérimentations Edisem"
+        description="Plongez au cœur des collections intellectuelles d'EdiSem, une fenêtre ouverte sur la diversité des savoirs et des pratiques qui nourrissent nos événements."
+      />
       <div className='grid grid-cols-4 w-full gap-25'>
         {loading
-          ? Array.from({ length: 8 }).map((_, index) => <LgExpSkeleton key={index} />)
+          ? Array.from({ length: 8 }).map((_, index) => <ExpCardSkeleton key={index} />)
           : experimentations.map((item: any, index: number) => (
               <motion.div key={item.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                <LgExpCard {...item} />
+                <ExpCard {...item} />
               </motion.div>
             ))}
       </div>

@@ -6,11 +6,11 @@ import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
-import { SmConfCard } from '@/components/ui/ConfCards';
+import { SmConfCard } from '@/components/features/conference/ConfCards';
 import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
 import * as Items from '@/services/Items';
-import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
-import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
+import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
+import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { ArrowIcon } from '@/components/ui/icons';
 import CommentSection from '@/components/layout/CommentSection';
@@ -85,7 +85,6 @@ export const Oeuvre: React.FC = () => {
     setLoading(true);
     try {
       const [recitIas, actants, students, tools, keywords] = await Promise.all([getOeuvres(), getActants(), getStudents(), getTools(), getKeywords()]);
-      console.log(recitIas);
       const actantMap = new Map();
       actants.forEach((a: any) => {
         actantMap.set(a.id, a);
@@ -223,7 +222,6 @@ export const Oeuvre: React.FC = () => {
             .filter(Boolean),
         );
 
-        console.log(oeuvreKeywords);
         setOeuvreDetails(oeuvre);
 
         if (oeuvre.recommendations?.length) {

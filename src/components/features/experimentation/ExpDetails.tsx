@@ -26,7 +26,6 @@ type ExpDetailsProps = {
 
 export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({ description, date, actants }) => {
   const [expanded, setExpanded] = useState<boolean>(false);
-  console.log(date);
 
   const toggleExpansion = () => {
     setExpanded(!expanded);

@@ -49,7 +49,6 @@ export const MicroresumeCard: React.FC<MicroresumeCardProps> = ({ title, descrip
     // Convertir en nombre si nécessaire
     const time = typeof startTime === 'string' ? parseInt(startTime, 10) : startTime;
 
-    console.log('⏰ Appel onTimeChange avec:', time);
     onTimeChange(time);
   };
 
@@ -141,8 +140,6 @@ interface MicroresumesProps {
 }
 
 export const Microresumes: React.FC<MicroresumesProps> = ({ microresumes, loading, onTimeChange }) => {
-  console.log('🔍 Microresumes récupérées:', microresumes);
-
   // Si pas de microresumes et pas en chargement, ne rien afficher (cacher la vue)
   if (!loading && (!microresumes || microresumes.length === 0)) {
     return null;

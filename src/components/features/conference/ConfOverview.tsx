@@ -57,19 +57,9 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
   }, [conf.url]);
 
   useEffect(() => {
-    console.log('🎬 ConfOverviewCard - Changement de temps détecté:', {
-      currentTime,
-      confId: conf.id,
-      confTitle: conf.title,
-      iframeExists: !!iframeRef.current,
-      contentWindowExists: !!iframeRef.current?.contentWindow,
-    });
-
     if (iframeRef.current && iframeRef.current.contentWindow) {
       const message = JSON.stringify({ event: 'command', func: 'seekTo', args: [currentTime, true] });
-      console.log('📤 ConfOverviewCard - Envoi message à YouTube:', message);
       iframeRef.current.contentWindow.postMessage(message, '*');
-      console.log('✅ ConfOverviewCard - Message envoyé à YouTube');
     } else {
       console.log('❌ ConfOverviewCard - iframeRef ou contentWindow non disponible');
     }

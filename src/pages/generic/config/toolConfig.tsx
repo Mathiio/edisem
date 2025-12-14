@@ -1,6 +1,6 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
-import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
-import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
+import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
+import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
 import { getTools, getExperimentations, getActants, getStudents, getPersonnes } from '@/services/Items';
 import { ItemsList } from '../components';
 
@@ -229,7 +229,6 @@ export const toolConfig: GenericDetailPageConfig = {
 
         const projet = itemDetails.isPartOf;
         const isExperimentation = projet.type === 'experimentation' || projet.url?.includes('experimentation');
-        console.log(projet);
 
         return (
           <div className='flex flex-col gap-10'>

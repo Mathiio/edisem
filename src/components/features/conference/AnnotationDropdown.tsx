@@ -95,11 +95,6 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
         getStudents(),
       ]);
 
-      console.log(actants);
-      console.log(students);
-      console.log(id);
-      console.log('Filtered annotations for ID:', id, ':', fetchedAnnotations.length);
-
       const annotationsWithContributors = fetchedAnnotations.map((annotation: any) => {
         const contributor =
           actants.find((actant: any) => actant.id.toString() === annotation.contributor.toString()) ||
@@ -111,7 +106,6 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
         };
       });
 
-      console.log(annotationsWithContributors);
       setAnnotations(annotationsWithContributors);
     } catch (error) {
       console.error('Error loading annotations:', error);
@@ -135,11 +129,6 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
     setIsSubmitting(true);
 
     try {
-      console.log('Construction des données brutes');
-      const rawData = {};
-      const response = await omkInstance.createItem(rawData);
-      console.log('Annotation créée:', response);
-
       onAnnotateClose();
       setTitle('');
       setDescription('');

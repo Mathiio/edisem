@@ -1,6 +1,6 @@
 import React from 'react';
 import { Conference } from '@/types/ui';
-import { LgConfCard } from '@/components/ui/ConfCards';
+import { ConfCard } from '@/components/features/conference/ConfCards';
 
 interface IntervenantInterventionsProps {
   interventions: Conference[];
@@ -41,7 +41,7 @@ export const IntervenantInterventions: React.FC<IntervenantInterventionsProps> =
                     <h3 className="text-24 text-c6 font-regular">{category.title}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-25">
                         {category.items.map((item, i) => (
-                            <LgConfCard key={i} {...item} />
+                            <ConfCard key={i} {...item} />
                         ))}
                     </div>
                 </div>

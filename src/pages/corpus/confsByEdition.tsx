@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { getConfByEdition } from '@/services/api';
 import * as Items from '@/services/Items';
-import { LgConfCard, LgConfSkeleton } from '@/components/ui/ConfCards';
+import { ConfCard, ConfCardSkeleton } from '@/components/features/conference/ConfCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
 import { Conference, Actant, Edition as EditionType } from '@/types/ui';
@@ -115,12 +115,12 @@ export const Edition: React.FC = () => {
     <Layouts className='col-span-10 flex flex-col gap-100'>
       <div className='pt-100 justify-center flex items-center flex-col gap-20 relative'>
         <div className='gap-20 justify-between flex items-center flex-col'>
-            <h1 className='z-[12] text-64 text-c6 font-medium flex text-center flex-col items-center max-w-[850px]'>
-              {edition?.title}
-            </h1>
-            <p className='text-c5 text-16 z-[12] text-center max-w-[600px]'>
-              {edition?.editionType ? edition.editionType.charAt(0).toUpperCase() + edition.editionType.slice(1) : ''} Edisem - Édition {edition?.season} {edition?.year}
-            </p>
+          <h1 className='z-[12] text-64 text-c6 font-medium flex text-center flex-col items-center max-w-[850px]'>
+            {edition?.title}
+          </h1>
+          <p className='text-c5 text-16 z-[12] text-center max-w-[600px]'>
+            {edition?.editionType ? edition.editionType.charAt(0).toUpperCase() + edition.editionType.slice(1) : ''} Edisem - Édition {edition?.season} {edition?.year}
+          </p>
           <motion.div
             className='top-[-50px] absolute z-[-1]'
             initial={{ opacity: 0 }}
@@ -135,10 +135,10 @@ export const Edition: React.FC = () => {
       </div>
       <div className='grid grid-cols-4 grid-rows-3 gap-25'>
         {loadingConf
-          ? Array.from({ length: 12 }).map((_, index) => <LgConfSkeleton key={index} />)
+          ? Array.from({ length: 12 }).map((_, index) => <ConfCardSkeleton key={index} />)
           : conf.map((conference, index) => (
               <motion.div initial='hidden' animate='visible' variants={fadeIn} key={conference.id} custom={index}>
-                <LgConfCard {...conference} />
+                <ConfCard {...conference} />
               </motion.div>
             ))}
       </div>

@@ -1,0 +1,73 @@
+import { motion } from 'framer-motion';
+
+interface KeywordData {
+  label: string;
+  value: number;
+}
+
+interface KeywordsBarChartProps {
+  data: KeywordData[];
+  maxHeight?: number;
+}
+
+export const KeywordsBarChart = ({ data, maxHeight = 400 }: KeywordsBarChartProps) => {
+  // Find max value to normalize bars + buffer
+  const maxValue = Math.max(...data.map(d => d.value)) * 1.2;
+  
+  // Y-axis ticks (0, 5, 10, 15, 20, 25...)
+  const step = 5;
+  const ticks: number[] = [];
+  for (let i = 0; i <= maxValue; i += step) {
+    ticks.push(i);
+  }
+  // If max value is distinct from last tick, ensure we cover it or just let it float. 
+  // User screenshot shows 0, 5, 10... 25.
+
+  return (
+    <section className="w-full flex flex-col gap-20 items-center">
+      <h2 className="text-24 font-semibold text-c6">Mots-clés autour des pratiques narratives et l'IA</h2>
+      <div className="w-fit h-[400px]">
+        <div className="w-full flex gap-20 items-end justify-center" style={{ height: maxHeight }}>
+          
+          {/* Y Axis Labels */}
+          <div className="flex flex-col justify-between h-full items-end pb-[55px] text-c5 text-14 font-light">
+            {[...ticks].reverse().map(tick => (
+                <span key={tick}>{tick}</span>
+            ))}
+          </div>
+
+          {/* Chart Area */}
+          <div className="flex-1 flex gap-40 justify-center items-end h-full relative pl-20 border-l-2 border-dashed border-c3/30 text-c6">
+            
+            {data.map((item, index) => {
+                const heightPercent = (item.value / ticks[ticks.length - 1]) * 100;
+                
+                return (
+                    <div key={index} className="flex flex-col items-center gap-15 w-80 max-w-[60px] h-full group">
+                        {/* Bar Container */}
+                        <div className="relative w-full flex-1 bg-c2 border-2 border-c3 rounded-16 overflow-hidden">
+                            {/* Filled Bar */}
+                            <motion.div 
+                                initial={{ height: 0 }}
+                                animate={{ height: `${heightPercent}%` }}
+                                transition={{ duration: 1, delay: index * 0.1, ease: 'easeOut' }}
+                                className="absolute bottom-0 left-0 right-0 w-full rounded-14"
+                                style={{
+                                    background: 'linear-gradient(to top, #291964 0%, #B4A4E5 100%)'
+                                }}
+                            />
+                        </div>
+                        
+                        {/* Label */}
+                        <span className="text-center text-12 text-c6 font-medium leading-tight h-40 flex items-start justify-center">
+                            {item.label}
+                        </span>
+                    </div>
+                );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};

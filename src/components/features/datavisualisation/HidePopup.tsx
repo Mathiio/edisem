@@ -33,7 +33,6 @@ const getInitialMasques = (): Masque[] => {
 };
 
 const updateLocalStorage = (masques: Masque[]) => {
-  console.log('Updating local storage');
   const masquesToSave = masques.map(({ itemType }) => ({ itemType }));
   localStorage.setItem('hideGroups', JSON.stringify(masquesToSave));
 };

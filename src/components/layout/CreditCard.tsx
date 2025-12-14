@@ -35,15 +35,6 @@ export const CreditCard: React.FC<CreditCardProps> = ({ name, job, description }
           )}
         </div>
       </div>
-
-      {/* Optionnel : Code pour l'icône Link */}
-      {/* <div
-        className={`flex min-w-[40px] min-h-[40px] border-2 rounded-12 justify-center items-center transition-transform-colors-opacity 
-        ${isHovered ? 'border-action' : 'bg-c4'} 
-        ${isHovered ? 'text-action' : 'text-c4'}`}
-      >
-        <LinkIcon size={22} />
-      </div> */}
     </div>
   );
 };

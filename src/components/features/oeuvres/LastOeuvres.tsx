@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
-import { LongCard } from './OeuvresCards';
+import { OeuvreCard } from '@/components/features/oeuvres/OeuvresCards';
 import { Pagination } from '@heroui/react';
 
 const fadeIn: Variants = {
@@ -20,7 +20,7 @@ interface LastOeuvresProps {
   showControls?: boolean;
 }
 
-export const LastOeuvres: React.FC<LastOeuvresProps> = ({ oeuvres, loading, itemsPerPage = 5, initialPage = 1, showControls = true }) => {
+export const LastOeuvres: React.FC<LastOeuvresProps> = ({ oeuvres, loading, itemsPerPage = 4, initialPage = 1, showControls = true }) => {
   const [activePage, setActivePage] = React.useState(initialPage);
 
   // Calculate paginated data
@@ -39,7 +39,7 @@ export const LastOeuvres: React.FC<LastOeuvresProps> = ({ oeuvres, loading, item
 
   return (
     <div className='flex flex-col w-full gap-20'>
-      {/* Contenu principal */}
+      {/* Main content */}
       <div className='w-full flex justify-between items-center'>
         <h2 className='text-24 font-medium text-c6'>Toutes nos oeuvres</h2>
         {!loading && oeuvres.length > itemsPerPage && (
@@ -63,9 +63,9 @@ export const LastOeuvres: React.FC<LastOeuvresProps> = ({ oeuvres, loading, item
           </div>
         )}
       </div>
-      <div className='flex flex-col'>
+      <div className='grid grid-cols-4 grid-rows-auto gap-20'>
         {loading
-          ? // Skeleton loading (adapté au nombre d'items par page)
+          ? // Skeleton loading (adapted to the number of items per page)
             Array.from({ length: Math.min(itemsPerPage, 8) }).map((_, index) => (
               <div key={`skeleton-${index}`} className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] h-[280px] border-c3 border-2 p-20 rounded-30 animate-pulse'>
                 <div className='w-full h-40 rounded-15 bg-c2 mb-15'></div>
@@ -74,16 +74,9 @@ export const LastOeuvres: React.FC<LastOeuvresProps> = ({ oeuvres, loading, item
               </div>
             ))
           : // Cards with animations
-            paginatedOeuvres.map((item: any, index: number) => (
-              <motion.div key={`${item.id}-${activePage}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                <LongCard
-                  id={item.id}
-                  title={item.title}
-                  thumbnail={item.thumbnail}
-                  actant={Array.isArray(item.personne) && item.personne.length > 0 ? item.personne[0].name : item.personne?.name || ''}
-                  date={item.date}
-                  universite={item.primaryActant?.universities?.[0]?.name || ''}
-                />
+            paginatedOeuvres.map((oeuvre: any, index: number) => (
+              <motion.div key={`${oeuvre.id}-${activePage}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
+                <OeuvreCard {...oeuvre}/>
               </motion.div>
             ))}
       </div>

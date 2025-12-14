@@ -4,6 +4,7 @@ import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { ProfilDropdown } from '@/components/layout/ProfilDropdown';
 import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
+import { ArrowIcon } from '@/components/ui/icons';
 
 interface DropdownItem {
   to: string;
@@ -55,7 +56,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ trigger, items }) => {
 
       {isOpen && (
         <div
-          className='absolute top-full p-[5px] flex flex-col left-1/2 -translate-x-1/2 mt-2 min-w-[220px] bg-c3 border-2 border-c3 rounded-8 shadow-lg overflow-hidden z-50'
+          className='absolute top-full p-3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] flex flex-col left-1/2 -translate-x-1/2 mt-2 bg-c2 rounded-10 border-2 border-c3 overflow-hidden z-50'
           style={{
             animation: isAnimating ? 'dropdownDisappear 200ms ease-in forwards' : 'dropdownAppear 200ms ease-out forwards',
           }}>
@@ -89,8 +90,8 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ trigger, items }) => {
                 key={to}
                 to={to}
                 className={`
-                  block rounded-8 px-15 py-15 text-14 text-c6 transition-all duration-200
-                  ${isItemActive ? 'bg-c1 text-white' : 'hover:bg-c2 hover:text-white'}
+                  block rounded-8 px-15 py-10 text-14 text-c6 transition-all duration-200
+                  ${isItemActive ? 'bg-c2 text-white' : 'hover:bg-c3 hover:text-white'}
                 `}
                 onClick={() => setIsOpen(false)}>
                 {label}
@@ -102,13 +103,6 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ trigger, items }) => {
     </div>
   );
 };
-
-// Icône chevron personnalisée (pour remplacer lucide-react)
-const ChevronDown = () => (
-  <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
-    <polyline points='6 9 12 15 18 9'></polyline>
-  </svg>
-);
 
 export const Navbar: React.FC = () => {
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -131,7 +125,7 @@ export const Navbar: React.FC = () => {
   );
 
   useEffect(() => {
-    const handleScroll = () => setHasScrolled(window.scrollY > 100);
+    const handleScroll = () => setHasScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -153,7 +147,7 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${hasScrolled ? 'bg-c1/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'}`}>
+      <nav className={`sticky top-0 left-0 right-0 z-40 transition-all duration-300 ${hasScrolled ? 'bg-c1/90 backdrop-blur-sm shadow-lg' : 'bg-transparent'}`}>
         <div className='max-w-screen-2xl mx-auto px-20 py-15'>
           <div className='flex items-center justify-between'>
             <Link to='/' className='flex items-center gap-15'>
@@ -166,7 +160,7 @@ export const Navbar: React.FC = () => {
                 trigger={
                   <div className={`${linkBaseClass} ${isCorpusPathValue ? activeClass : `${hoverClass}`}`}>
                     Corpus
-                    <ChevronDown />
+                    <ArrowIcon className="text-c6 rotate-90" size={14}/>
                   </div>
                 }
                 items={corpusItems}

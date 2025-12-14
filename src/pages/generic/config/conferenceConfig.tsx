@@ -21,8 +21,6 @@ export const conferenceConfig: GenericDetailPageConfig = {
       getConfMediagraphies(Number(id)),
     ]);
 
-    console.log('🔍 Conf récupérée:', conf);
-
     return {
       itemDetails: conf,
       keywords: conf?.motcles || [],
