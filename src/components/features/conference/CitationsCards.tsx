@@ -40,14 +40,6 @@ export const CitationCard: React.FC<CitationCardProps> = ({ id, startTime, endTi
   };
 
   const handleClick = () => {
-    console.log('🎯 CitationCard - Clic sur citation:', {
-      id,
-      actant,
-      startTime,
-      endTime,
-      citation: citation.substring(0, 50) + '...',
-    });
-    console.log('⏰ CitationCard - Appel onTimeChange avec startTime:', startTime);
     onTimeChange(startTime);
   };
 
@@ -126,7 +118,6 @@ interface CitationsProps {
 }
 
 export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTimeChange }) => {
-  console.log('🔍 Citations récupérées:', citations);
 
   return (
     <div className='w-full h-max flex flex-col gap-20'>

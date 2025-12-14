@@ -5,7 +5,7 @@ import * as Items from '@/services/Items';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon } from '@/components/ui/icons';
 import { InfoCard, InfoSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { Link } from '@heroui/react';
-import { LgOeuvreCard, LgOeuvreSkeleton } from '@/components/ui/OeuvreCards';
+import { OeuvreCard, OeuvreCardSkeleton } from '@/components/features/oeuvres/OeuvresCards';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
 
@@ -40,9 +40,7 @@ export const Personne: React.FC = () => {
       setPersonne(personne);
 
       setOeuvres(Array.isArray(oeuvres) ? oeuvres : []);
-      console.log('Personne data:', personne);
-      console.log('Oeuvres data:', oeuvres);
-      console.log('Number of oeuvres found:', oeuvres ? oeuvres.length : 0);
+
     } catch (error) {
       console.error('Error fetching personne data:', error);
     } finally {
@@ -144,10 +142,10 @@ export const Personne: React.FC = () => {
         <h2 className='text-24 font-medium text-c6'>Dernière(s) oeuvre(s)</h2>
         <div className='grid grid-cols-4 grid-rows-2 gap-25'>
           {loading
-            ? Array.from({ length: 8 }).map((_, index) => <LgOeuvreSkeleton key={index} />)
-            : oeuvres.map((item, index) => (
-                <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id} custom={index}>
-                  <LgOeuvreCard {...item} />
+            ? Array.from({ length: 8 }).map((_, index) => <OeuvreCardSkeleton key={index} />)
+            : oeuvres.map((oeuvre, index) => (
+                <motion.div initial='hidden' animate='visible' variants={fadeIn} key={oeuvre.id} custom={index}>
+                  <OeuvreCard {...oeuvre} />
                 </motion.div>
               ))}
         </div>

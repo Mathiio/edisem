@@ -1,13 +1,13 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
-import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
-import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
-import { getDocumentationsScientifiques, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
+import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
+import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
+import { getRecitsScientifiques, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
 import { createCriticalAnalysisView, createCulturalReferencesView, createScientificReferencesView, createTextView } from '../helpers';
 
 export const documentationScientifiqueConfig: GenericDetailPageConfig = {
   // Data fetching avec enrichissement des keywords
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const [doc, concepts] = await Promise.all([getDocumentationsScientifiques(Number(id)), getKeywords()]);
+    const [doc, concepts] = await Promise.all([getRecitsScientifiques(Number(id)), getKeywords()]);
 
     // Enrichir les keywords si nécessaire
     const docKeywords = concepts.filter((c: any) => doc?.keywords?.some((k: any) => String(k.id) === String(c.id)));
@@ -53,7 +53,7 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
   mapRecommendationProps: (doc: any) => ({
     id: doc.id,
     title: doc.title,
-    type: 'documentationScientifique',
+    type: 'recitScientifique',
     url: null, // url est pour YouTube, on ne l'utilise pas ici
     thumbnail: doc.associatedMedia?.[0] || doc.thumbnail || null,
     actant: doc.creator ? [doc.creator] : [],
@@ -85,7 +85,7 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
   smartRecommendations: {
     // Retourne toutes les autres documentations scientifiques comme recommandations
     getRelatedItems: async (itemDetails: any) => {
-      const docs = await getDocumentationsScientifiques();
+      const docs = await getRecitsScientifiques();
       // Retourner toutes les docs sauf celle actuelle
       return docs.filter((doc: any) => String(doc.id) !== String(itemDetails.id));
     },
@@ -94,5 +94,5 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
   },
 
   // Type à afficher
-  type: 'documentationScientifique',
+  type: 'Récit Scientifique',
 };

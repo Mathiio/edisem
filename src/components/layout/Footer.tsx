@@ -5,7 +5,6 @@ import { motion, Variants } from 'framer-motion';
 import { Link as RoutLink } from 'react-router-dom';
 import Logo from '@/assets/svg/logo.svg';
 import { Link } from '@heroui/react';
-import { LocationIcon, MailIcon } from '@/components/ui/icons';
 
 const navbarVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
@@ -62,13 +61,11 @@ export const Footer: React.FC = () => {
           <Link
             href='https://www.youtube.com/channel/UCZT71fTyQaxqf13sNCPZSIA/featured'
             className='flex items-center gap-2'>
-            <MailIcon width={12} className='text-c5' />
             <p className='text-16 text-c5 font-medium'>contact@arcanes.ca</p>
           </Link>
           <Link
             href='https://www.youtube.com/channel/UCZT71fTyQaxqf13sNCPZSIA/featured'
             className='flex items-center gap-2'>
-            <LocationIcon width={14} className='text-c5' />
             <p className='text-16 text-c5 font-medium'>
               295 Boul. Charest <br />
               Laval QC, G1K 3G8

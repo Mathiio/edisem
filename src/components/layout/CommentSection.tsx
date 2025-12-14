@@ -63,7 +63,6 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
       });
 
       if (result.success) {
-        console.log('Commentaire créé avec succès:', result);
 
         // Forcer le rechargement des commentaires depuis l'API
         try {

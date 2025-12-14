@@ -51,7 +51,6 @@ export const LoginPage: React.FC = () => {
       }
     } else {
       const foundStudent = students?.find((student: { mail: string }) => student.mail === email);
-      console.log(foundStudent);
       if (foundStudent) {
         localStorage.setItem('user', JSON.stringify(foundStudent));
         navigate('/');

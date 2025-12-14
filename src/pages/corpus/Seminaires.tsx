@@ -1,20 +1,25 @@
 import { SeminairesCarousel } from "@/components/features/seminaires/SeminairesCarousel";
-import { SeminairesBaner } from "@/components/features/seminaires/SeminairesBaner";
 import { TopKeywords } from "@/components/features/seminaires/TopKeywords";
 import { Layouts } from "@/components/layout/Layouts";
 import * as Items from "@/services/Items";
 import { useEffect, useState } from 'react';
+import { SeminaireIcon } from "@/components/ui/icons";
+import { PageBanner } from "@/components/ui/PageBanner";
+import { Edition } from '@/types/ui';
+
 
 export const Seminaires = () => {
   const [seminaires, setSeminaires] = useState([]);
-  const [seminarEditions, setSeminarEditions] = useState([]);
+  const [seminarEditions, setSeminarEditions] = useState<Edition[]>([]);
   const [loading, setLoading] = useState(true);
+  const totalEditions = seminarEditions.length;
+  const totalConferences = seminarEditions.reduce((acc, ed) => acc + (ed.conferences?.length || 0), 0);
 
   useEffect(() => {
     (async () => {
       try {
         const editions = await Items.getEditions();
-        setSeminarEditions(editions.filter((ed: any) => ed.editionType === 'séminaire'));
+        setSeminarEditions(editions.filter((ed: Edition) => ed.editionType === 'séminaire'));
         setSeminaires(await Items.getSeminarConfs());
       } catch (error) {
         console.error('Error loading seminars & editions', error);
@@ -26,7 +31,15 @@ export const Seminaires = () => {
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
-      <SeminairesBaner editions={seminarEditions} />
+      <PageBanner
+        icon={<SeminaireIcon size={40} />}
+        title="Séminaires Edisem"
+        description="Plongez au cœur des collections intellectuelles d'EdiSem, une fenêtre ouverte sur la diversité des savoirs et des pratiques qui nourrissent nos événements."
+        stats={[
+          { label: 'éditions', value: totalEditions || 0 },
+          { label: 'conférences', value: totalConferences || 0 }
+        ]}
+      />
       <SeminairesCarousel editions={seminarEditions} loading={loading}/>
       <TopKeywords seminaires={seminaires} loading={loading} />
     </Layouts>

@@ -140,12 +140,6 @@ export const Database: React.FC = () => {
     setPreviousTableState([...speakers]);
   };
 
-  // const handleCellClick = (item: any) => {
-  //   console.log(item);
-  //   setSelectedItemForEdit(item);
-  //   setCurrentView('element'); // Changer la vue actuelle pour afficher l'élément
-  // };
-
   const handleReturn = () => {
     if (currentView === 'element') {
       setCurrentView('table'); // Revenir à la vue du tableau si vous étiez sur l'élément

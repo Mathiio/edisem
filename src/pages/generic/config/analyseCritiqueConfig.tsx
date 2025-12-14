@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
-import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
-import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
-import { getAnnotations, getAnnotationsWithTargets, getObjetsTechnoIndustriels, getOeuvres } from '@/services/Items';
+import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
+import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
+import { getAnnotations, getAnnotationsWithTargets, getRecitsTechnoIndustriels, getOeuvres } from '@/services/Items';
 import { createTargetsListView } from '../helpers';
 
 /**
@@ -86,7 +86,7 @@ export const analyseCritiqueConfig: GenericDetailPageConfig = {
     // Récupère les autres analyses critiques du même objet parent
     getRelatedItems: async (itemDetails) => {
       // Essayer de trouver l'objet parent dans les objets techno
-      const objets = await getObjetsTechnoIndustriels();
+      const objets = await getRecitsTechnoIndustriels();
       const parentObjet = objets.find((o: any) => o.descriptions?.some((d: any) => String(d.id) === String(itemDetails.id)));
 
       if (parentObjet) {

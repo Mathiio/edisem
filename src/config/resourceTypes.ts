@@ -15,9 +15,9 @@
 export type ResourceType =
   | 'mediagraphie'
   | 'bibliographie'
-  | 'documentationScientifique'
+  | 'recitScientifique'
   | 'oeuvre'
-  | 'objetTechnoIndustriel'
+  | 'recitTechnoIndustriel'
   | 'recitCitoyen'
   | 'recitMediatique'
   | 'annotation'
@@ -55,9 +55,9 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     getUrl: (id) => `/corpus/bibliographie/${id}`,
   },
 
-  documentationScientifique: {
-    type: 'documentationScientifique',
-    displayName: 'Documentation scientifique',
+  recitScientifique: {
+    type: 'recitScientifique',
+    displayName: 'Récit scientifique',
     templateIds: [124],
     getUrl: (id) => `/corpus/documentation/${id}`,
   },
@@ -69,11 +69,11 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     getUrl: (id) => `/corpus/oeuvre/${id}`,
   },
 
-  objetTechnoIndustriel: {
-    type: 'objetTechnoIndustriel',
-    displayName: 'Objet techno-industriel',
+  recitTechnoIndustriel: {
+    type: 'recitTechnoIndustriel',
+    displayName: 'Récit techno-industriel',
     templateIds: [117],
-    getUrl: (id) => `/corpus/objet-techno-industriel/${id}`,
+    getUrl: (id) => `/corpus/recit-techno-industriel-industriel/${id}`,
   },
 
   recitCitoyen: {

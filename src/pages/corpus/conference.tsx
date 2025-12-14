@@ -12,7 +12,7 @@ import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Bibliographies } from '@/components/features/conference/BibliographyCards';
 import { Mediagraphies } from '@/components/features/conference/MediagraphyCards';
 import { Layouts } from '@/components/layout/Layouts';
-import { SmConfCard } from '@/components/ui/ConfCards';
+import { SmConfCard } from '@/components/features/conference/ConfCards';
 import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
 import { ArrowIcon } from '@/components/ui/icons';
 import { Conference as ConferenceType, Bibliography, Mediagraphy } from '@/types/ui';

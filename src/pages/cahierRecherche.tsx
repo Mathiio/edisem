@@ -144,11 +144,8 @@ export const CahierRecherche: React.FC = () => {
   const user: any | null = userString ? JSON.parse(userString) : null;
 
   if (!user) {
-    console.log('No user found');
     return null; // Empêche le rendu du composant proprement
   }
-
-  console.log(user);
 
   // État pour gérer les recherches
   const [recherches, setRecherches] = useState<Recherche[]>([]);

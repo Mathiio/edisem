@@ -1,6 +1,5 @@
 import { Button, Divider, Select, SelectItem } from '@heroui/react';
 import React from 'react';
-import { useEffect } from 'react';
 import { ExhangeIcon } from '@/components/ui/icons';
 
 interface Node {
@@ -31,12 +30,6 @@ export default function LinkPopup({ firstSelectedNode, secondSelectedNode, onCon
       setSelectedLinkType(selectedArray[0] as string);
     }
   };
-
-  useEffect(() => {
-    if (firstSelectedNode && secondSelectedNode) {
-      console.log('Nœuds sélectionnés:', firstSelectedNode.fullTitle, secondSelectedNode.fullTitle);
-    }
-  }, [firstSelectedNode, secondSelectedNode]);
 
   const handleConnectClick = () => {
     if (firstSelectedNode && secondSelectedNode && selectedLinkType) {

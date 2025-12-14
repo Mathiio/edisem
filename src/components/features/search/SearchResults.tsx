@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, Variants } from 'framer-motion';
 import { SearchResultSection } from './SearchResultSection';
 import { IntervenantLongCard, IntervenantLongCardSkeleton } from '@/components/features/intervenants/IntervenantCards';
-import { ConfCard, ConfSkeleton } from '@/components/layout/ConfCard';
+import { SearchConfCard, ConfCardSkeleton } from '@/components/features/conference/ConfCards';
 import { SearchModalCard } from '@/components/features/oeuvres/OeuvresCards';
 import { SearchFilters } from '@/services/search.ts';
 
@@ -47,26 +47,26 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, 
     <div className='w-full py-20'>
       <div className='w-full flex flex-col gap-50'>
         {/* 🎯 Conférences de séminaires */}
-        <SearchResultSection title='Conférences de séminaires' count={results.conferences.seminars.length} loading={loading.conferences} SkeletonComponent={ConfSkeleton}>
+        <SearchResultSection title='Conférences de séminaires' count={results.conferences.seminars.length} loading={loading.conferences} SkeletonComponent={ConfCardSkeleton}>
           {results.conferences.seminars.map((conference) => (
             <motion.div key={conference.id} initial='hidden' animate='visible' variants={cardVariants} custom={getNextIndex()} onClick={onClose}>
-              <ConfCard {...conference} />
+              <SearchConfCard {...conference} />
             </motion.div>
           ))}
         </SearchResultSection>
 
-        <SearchResultSection title="Conférences de journées d'études" count={results.conferences.studyDays.length} loading={loading.conferences} SkeletonComponent={ConfSkeleton}>
+        <SearchResultSection title="Conférences de journées d'études" count={results.conferences.studyDays.length} loading={loading.conferences} SkeletonComponent={ConfCardSkeleton}>
           {results.conferences.studyDays.map((conference) => (
             <motion.div key={conference.id} initial='hidden' animate='visible' variants={cardVariants} custom={getNextIndex()} onClick={onClose}>
-              <ConfCard {...conference} />
+              <SearchConfCard {...conference} />
             </motion.div>
           ))}
         </SearchResultSection>
 
-        <SearchResultSection title='Conférences de colloques' count={results.conferences.colloques.length} loading={loading.conferences} SkeletonComponent={ConfSkeleton}>
+        <SearchResultSection title='Conférences de colloques' count={results.conferences.colloques.length} loading={loading.conferences} SkeletonComponent={ConfCardSkeleton}>
           {results.conferences.colloques.map((conference) => (
             <motion.div key={conference.id} initial='hidden' animate='visible' variants={cardVariants} custom={getNextIndex()} onClick={onClose}>
-              <ConfCard {...conference} />
+              <SearchConfCard {...conference} />
             </motion.div>
           ))}
         </SearchResultSection>

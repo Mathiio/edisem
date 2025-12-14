@@ -5,7 +5,7 @@ import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/r
 import { LongCarrousel, FullCarrousel } from '@/components/ui/Carrousels';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
-import { SmConfCard } from '@/components/ui/ConfCards';
+import { SmConfCard } from '@/components/features/conference/ConfCards';
 import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
 import { ArrowIcon } from '@/components/ui/icons';
 import CommentSection from '@/components/layout/CommentSection';

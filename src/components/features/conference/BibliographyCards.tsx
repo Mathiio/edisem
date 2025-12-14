@@ -72,29 +72,6 @@ const bibliographyTemplates: { [key: number]: (item: Bibliography) => React.Reac
       {hasContent(item.publisher) && <span>{item.publisher}. </span>}
     </>
   ),
-  // 88: (item) => (
-  //   <>
-  //     {hasContent(item.creator) && <span>{formatAuthors(item.creator)} </span>}
-  //     {hasContent(item.date) && <span>({item.date}). </span>}
-  //     {hasContent(item.title) && <i>{item.title}</i>}
-  //     {(hasContent(item.publisher) || hasContent(item.type)) && (
-  //       <span>
-  //         &nbsp;[{item.type && `${item.type}`}
-  //         {item.type && item.publisher && ', '}
-  //         {item.publisher && `${item.publisher}`}].
-  //       </span>
-  //     )}
-
-  //     {hasContent(item.volume) && (
-  //       <span>
-  //         {' '}
-  //         <i>{item.volume}</i>{' '}
-  //       </span>
-  //     )}
-  //     {hasContent(item.issue) && <span>({item.issue})</span>}
-  //     {hasContent(item.pages) && <span>, {item.pages}</span>}
-  //   </>
-  // ),
 
   88: (item) => (
     <>
@@ -203,7 +180,6 @@ export const BibliographyCard: React.FC<Bibliography & { uniqueKey?: number }> =
   const [isHovered, setIsHovered] = useState(false);
 
   const formatBibliography = (item: Bibliography) => {
-    //console.log(item);
     const template = bibliographyTemplates[item.class];
     return template ? template(item) : item.title || 'Référence non formatée';
   };

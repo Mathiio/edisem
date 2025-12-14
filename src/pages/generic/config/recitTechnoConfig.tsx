@@ -1,13 +1,13 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
-import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
-import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
-import { getObjetsTechnoIndustriels, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
+import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
+import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
+import { getRecitsTechnoIndustriels, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
 import { createItemsListView, createScientificReferencesView, createTextView } from '../helpers';
 
 export const objetTechnoConfig: GenericDetailPageConfig = {
   // Data fetching avec enrichissement des keywords
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const [objets, concepts] = await Promise.all([getObjetsTechnoIndustriels(), getKeywords()]);
+    const [objets, concepts] = await Promise.all([getRecitsTechnoIndustriels(), getKeywords()]);
 
     console.log(objets);
 
@@ -63,7 +63,7 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
   mapRecommendationProps: (objet: any) => ({
     id: objet.id,
     title: objet.title,
-    type: 'objetTechnoIndustriel',
+    type: 'recitTechnoIndustriel',
     url: null, // url est pour YouTube, on ne l'utilise pas ici
     thumbnail: objet.associatedMedia?.[0] || objet.thumbnail || null,
     actant: [],
@@ -127,7 +127,7 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
   smartRecommendations: {
     // Récupère tous les objets techno pour trouver des similaires
     getAllResourcesOfType: async () => {
-      const objets = await getObjetsTechnoIndustriels();
+      const objets = await getRecitsTechnoIndustriels();
       return objets;
     },
 
@@ -140,5 +140,5 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
   },
 
   // Type à afficher
-  type: 'Objet techno-industriel',
+  type: 'Récit techno-industriel',
 };

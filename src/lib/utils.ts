@@ -10,8 +10,8 @@ export const buildConfsRoute = (confType: string, id: number): string => {
       return `/corpus/journees-etudes/conference/${id}`;
     case 'oeuvre':
       return `/corpus/oeuvre/${id}`;
-    case 'objetTechnoIndustriel':
-      return `/corpus/objet-techno/${id}`;
+    case 'recitTechnoIndustriel':
+      return `/corpus/recit-techno-industriel/${id}`;
     case 'experimentation':
       return `/corpus/experimentation/${id}`;
     case 'elementNarratif':
@@ -26,8 +26,8 @@ export const buildConfsRoute = (confType: string, id: number): string => {
       return `/corpus/tool/${id}`;
     case 'miseEnRecit':
       return `/corpus/mise-en-recit/${id}`;
-    case 'documentationScientifique':
-      return `/corpus/documentation-scientifique/${id}`;
+    case 'recitScientifique':
+      return `/corpus/recit-scientifique/${id}`;
     case 'recitMediatique':
       return `/corpus/recit-mediatique/${id}`;
     default:
@@ -46,17 +46,17 @@ export const formatDate = (dateString: string): string => {
   if (typeof dateString !== 'string' || !dateString) {
     return '';
   }
-  
+
   const mois = [
     'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
     'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
   ];
-  
+
   const dateParts = dateString.split('-');
   const year = dateParts[0];
   const monthIndex = parseInt(dateParts[1], 10) - 1;
   const day = parseInt(dateParts[2], 10);
-  
+
   return `${day} ${mois[monthIndex]} ${year}`;
 };
 
@@ -65,7 +65,7 @@ export const formatDateShort = (dateString: string): string => {
   if (typeof dateString !== 'string' || !dateString) {
     return '';
   }
-  
+
   const date = new Date(dateString);
   return date.toLocaleDateString('fr-FR', {
     day: '2-digit',
@@ -79,7 +79,7 @@ export const getYear = (dateString: string): string => {
   if (typeof dateString !== 'string' || !dateString) {
     return '';
   }
-  
+
   return dateString.split('-')[0];
 };
 
@@ -106,7 +106,7 @@ export const getYouTubeThumbnailUrl = (ytb: string): string => {
   if (typeof ytb !== 'string' || !ytb) {
     return '';
   }
-  
+
   const videoId = ytb.match(
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
   )?.[1];
@@ -118,7 +118,7 @@ export const getYouTubeVideoId = (url: string): string | null => {
   if (typeof url !== 'string' || !url) {
     return null;
   }
-  
+
   const match = url.match(
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
   );
@@ -130,7 +130,7 @@ export const isValidYouTubeUrl = (url: string): boolean => {
   if (typeof url !== 'string' || !url) {
     return false;
   }
-  
+
   return getYouTubeVideoId(url) !== null;
 };
 
@@ -146,7 +146,7 @@ export const truncateText = (text: string, maxLength: number): string => {
   if (typeof text !== 'string' || !text) {
     return '';
   }
-  
+
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength).trim() + '...';
 };
@@ -180,6 +180,6 @@ export const capitalizeFirst = (text: string): string => {
   if (typeof text !== 'string' || !text) {
     return '';
   }
-  
+
   return text.charAt(0).toUpperCase() + text.slice(1);
 };

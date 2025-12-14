@@ -19,9 +19,9 @@ type FetcherFunction = (id: number | string) => Promise<any>;
 const RESOURCE_TYPE_FETCHERS: Record<ResourceType, FetcherFunction> = {
   mediagraphie: async (id) => Items.getMediagraphies(typeof id === 'string' ? parseInt(id) : id),
   bibliographie: async (id) => Items.getBibliographies(typeof id === 'string' ? parseInt(id) : id),
-  documentationScientifique: async (id) => Items.getDocumentationsScientifiques(typeof id === 'string' ? parseInt(id) : id),
+  recitScientifique: async (id) => Items.getRecitsScientifiques(typeof id === 'string' ? parseInt(id) : id),
   oeuvre: async (id) => Items.getOeuvres(typeof id === 'string' ? parseInt(id) : id),
-  objetTechnoIndustriel: async (id) => Items.getObjetsTechnoIndustriels(typeof id === 'string' ? parseInt(id) : id),
+  recitTechnoIndustriel: async (id) => Items.getRecitsTechnoIndustriels(typeof id === 'string' ? parseInt(id) : id),
   recitCitoyen: async () => {
     // TODO: implémenter getRecitCitoyens
     console.warn('getRecitCitoyens not implemented yet');
@@ -44,11 +44,11 @@ const RESOURCE_TYPE_FETCHERS: Record<ResourceType, FetcherFunction> = {
 export function getFetcherByTemplateId(templateId: number | string): FetcherFunction | null {
   const id = parseInt(String(templateId));
   const resourceType = TEMPLATE_ID_TO_TYPE[id];
-  
+
   if (!resourceType) {
     return null;
   }
-  
+
   return RESOURCE_TYPE_FETCHERS[resourceType] || null;
 }
 
@@ -64,12 +64,12 @@ export function getFetcherByType(type: ResourceType): FetcherFunction | null {
  */
 export async function fetchResourceByTemplateId(templateId: number | string, id: number | string): Promise<any> {
   const fetcher = getFetcherByTemplateId(templateId);
-  
+
   if (!fetcher) {
     console.warn(`No fetcher found for template_id: ${templateId}`);
     return null;
   }
-  
+
   try {
     return await fetcher(id);
   } catch (error) {

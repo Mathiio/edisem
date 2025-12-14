@@ -5,9 +5,9 @@ import { motion, Variants } from 'framer-motion';
 import { FullCarrousel } from '@/components/ui/Carrousels';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { Layouts } from '@/components/layout/Layouts';
-import { SmConfCard } from '@/components/ui/ConfCards';
-import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/miseEnRecit/RecitiaOverview';
-import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/miseEnRecit/RecitiaDetails';
+import { SmConfCard } from '@/components/features/conference/ConfCards';
+import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
+import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { ArrowIcon } from '@/components/ui/icons';
 import CommentSection from '@/components/layout/CommentSection';
@@ -61,16 +61,13 @@ export const AnalyseCritique: React.FC = () => {
     try {
       // Récupérer directement l'annotation avec cet ID
       const annotation = await getAnnotations(id);
-      console.log('🎯 Annotation data for ID', id, ':', annotation);
 
       if (!annotation || annotation.length === 0) {
-        console.warn('❌ No annotation found for ID:', id);
         setAnalyseCritiqueDetails(null);
       } else {
         // Puisque getAnnotations(id) retourne un tableau, prendre le premier élément
         const annotationData = Array.isArray(annotation) ? annotation[0] : annotation;
         setAnalyseCritiqueDetails(annotationData);
-        console.log('✅ Annotation details loaded:', annotationData.title);
       }
     } catch (error) {
       console.error('Error fetching annotation:', error);

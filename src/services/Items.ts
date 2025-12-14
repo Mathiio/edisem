@@ -28,8 +28,8 @@ const CACHE_KEYS = [
   'elementNarratifs',
   'elementEsthetique',
   'comments',
-  'objetsTechnoIndustriels',
-  'documentationsScientifiques',
+  'recitsTechnoIndustriels',
+  'recitsScientifiques',
   'recitsMediatiques',
 ];
 
@@ -47,7 +47,7 @@ function checkAndClearDailyCache(): void {
     // Si c'est un nouveau jour, vider tous les caches
     if (lastCacheDate !== today) {
       console.log('🗑️ Vidage du cache journalier - Nouveau jour détecté');
-      
+
       // Vider tous les caches
       CACHE_KEYS.forEach((key) => {
         sessionStorage.removeItem(key);
@@ -55,12 +55,9 @@ function checkAndClearDailyCache(): void {
 
       // Mettre à jour le timestamp
       sessionStorage.setItem(CACHE_TIMESTAMP_KEY, today);
-      
-      console.log('✅ Cache vidé avec succès');
     }
   } catch (error) {
     console.error('Erreur lors de la vérification du cache:', error);
-    // En cas d'erreur, on continue quand même pour ne pas bloquer l'application
   }
 }
 
@@ -175,8 +172,6 @@ export const getAllProperties = async (): Promise<any[]> => {
 
 export async function getDataByUrl(url: string) {
   try {
-    //console.log(`Fetching data from: ${url}`);
-
     // Check if this is an AJAX call that should use POST
     const isAjaxCall = url.includes('/ajax?') && url.includes('helper=Query');
 
@@ -189,8 +184,6 @@ export async function getDataByUrl(url: string) {
       response = await fetch(url);
     }
 
-    //console.log(`Response status: ${response.status} ${response.statusText}`);
-
     if (!response.ok) {
       console.error(`Erreur ${response.status} ${response.statusText} pour ${url}`);
       throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
@@ -198,8 +191,6 @@ export async function getDataByUrl(url: string) {
 
     // Check if response has content
     const text = await response.text();
-    //console.log(`Response text length: ${text.length}`);
-    //console.log(`Response text preview: ${text.substring(0, 200)}...`);
 
     if (!text || text.trim() === '') {
       console.warn(`Empty response from ${url}`);
@@ -209,8 +200,6 @@ export async function getDataByUrl(url: string) {
     // Try to parse JSON
     try {
       const data = JSON.parse(text);
-      //console.log(`Parsed data type: ${Array.isArray(data) ? 'array' : typeof data}`);
-      //console.log(`Parsed data length: ${Array.isArray(data) ? data.length : 'N/A'}`);
       return data;
     } catch (jsonError) {
       console.error(`JSON parsing error for ${url}:`, jsonError);
@@ -252,24 +241,20 @@ export async function getCitations() {
 export async function getAnnotations(id?: string | number) {
   try {
     checkAndClearDailyCache();
-    console.log('🚀 getAnnotations() called', id ? `for ID: ${id}` : '(all annotations)');
-    
+
     const storedAnnotations = sessionStorage.getItem('annotations');
 
     // 📦 CACHE : Si les données sont en cache
     if (storedAnnotations) {
-      console.log('📦 Using cached annotations from sessionStorage');
       const allAnnotations = JSON.parse(storedAnnotations);
 
       // Si un ID est spécifié, retourner l'annotation spécifique
       if (id) {
-        console.log(`🎯 Looking for annotation with ID: "${id}" (cached)`);
         const foundAnnotation = allAnnotations.find((annotation: any) =>
           String(annotation.id) === String(id)
         );
 
         if (foundAnnotation) {
-          console.log(`✅ Found annotation with ID: ${id} (cached)`);
           return [foundAnnotation];
         } else {
           console.log(`❌ No cached annotation found with ID: "${id}"`);
@@ -290,9 +275,9 @@ export async function getAnnotations(id?: string | number) {
       getStudents()
     ]);
 
-    
 
-    
+
+
 
     // 🏗️ CONSTRUCTION : Créer les objets annotations de base
     const annotationsFull = annotations.map((annotation: any) => ({
@@ -313,7 +298,6 @@ export async function getAnnotations(id?: string | number) {
 
     // 💾 CACHE : Mettre en cache les annotations avec targets résolus
     sessionStorage.setItem('annotations', JSON.stringify(annotationsFull));
-    console.log('✅ Annotations mises en cache avec targets résolus');
 
     // 🎯 FILTRAGE : Si un ID est spécifié, retourner l'annotation spécifique
     if (id) {
@@ -333,8 +317,6 @@ export async function getAnnotations(id?: string | number) {
 
 export async function getAnnotationsWithTargets(annotations: any) {
   if (!annotations) return annotations;
-
-  console.log('annotations', annotations);
 
   // Import dynamique pour éviter les imports circulaires
   const { fetchResourceByTemplateId } = await import('./resourceFetchers');
@@ -388,7 +370,7 @@ export async function getBibliographies(id?: number) {
     }));
 
     sessionStorage.setItem('bibliographies', JSON.stringify(bibliographiesFull));
-    
+
     // Si un ID est spécifié, retourner la bibliographie spécifique
     return id ? bibliographiesFull.find((b: any) => String(b.id) === String(id)) : bibliographiesFull;
   } catch (error) {
@@ -508,43 +490,43 @@ export async function getActants(actantIds?: string | string[]) {
     const actants = sessionStorage.getItem('actants')
       ? JSON.parse(sessionStorage.getItem('actants')!)
       : await (async () => {
-          const [rawActants, confs, universities, doctoralSchools, laboratories] = await Promise.all([
-            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1'),
-            getAllConfs(),
-            getUniversities(),
-            getDoctoralSchools(),
-            getLaboratories()
-          ]);
+        const [rawActants, confs, universities, doctoralSchools, laboratories] = await Promise.all([
+          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1'),
+          getAllConfs(),
+          getUniversities(),
+          getDoctoralSchools(),
+          getLaboratories()
+        ]);
 
-          const universityMap = new Map(universities.map((u: any) => [u.id, u]));
-          const doctoralSchoolMap = new Map(doctoralSchools.map((s: any) => [s.id, s]));
-          const laboratoryMap = new Map(laboratories.map((l: any) => [l.id, l]));
+        const universityMap = new Map(universities.map((u: any) => [u.id, u]));
+        const doctoralSchoolMap = new Map(doctoralSchools.map((s: any) => [s.id, s]));
+        const laboratoryMap = new Map(laboratories.map((l: any) => [l.id, l]));
 
-          return rawActants.map((actant: any) => {
-            const interventions = confs.filter((c: any) => {
-              if (typeof c.actant === 'string' && c.actant.includes(',')) {
-                const actantIds = c.actant.split(',').map((id: string) => id.trim());
-                return actantIds.includes(String(actant.id));
-              }
-              else if (Array.isArray(c.actant)) {
-                return c.actant.map(String).includes(String(actant.id));
-              }
-              else {
-                return String(c.actant) === String(actant.id);
-              }
-            }).length;
+        return rawActants.map((actant: any) => {
+          const interventions = confs.filter((c: any) => {
+            if (typeof c.actant === 'string' && c.actant.includes(',')) {
+              const actantIds = c.actant.split(',').map((id: string) => id.trim());
+              return actantIds.includes(String(actant.id));
+            }
+            else if (Array.isArray(c.actant)) {
+              return c.actant.map(String).includes(String(actant.id));
+            }
+            else {
+              return String(c.actant) === String(actant.id);
+            }
+          }).length;
 
-            return {
-              ...actant,
-              title: `${actant.firstname} ${actant.lastname}`,
-              type: 'actant',
-              interventions,
-              universities: actant.universities.map((id: string) => universityMap.get(id)),
-              doctoralSchools: actant.doctoralSchools.map((id: string) => doctoralSchoolMap.get(id)),
-              laboratories: actant.laboratories.map((id: string) => laboratoryMap.get(id)),
-            };
-          });
-        })();
+          return {
+            ...actant,
+            title: `${actant.firstname} ${actant.lastname}`,
+            type: 'actant',
+            interventions,
+            universities: actant.universities.map((id: string) => universityMap.get(id)),
+            doctoralSchools: actant.doctoralSchools.map((id: string) => doctoralSchoolMap.get(id)),
+            laboratories: actant.laboratories.map((id: string) => laboratoryMap.get(id)),
+          };
+        });
+      })();
 
     if (!sessionStorage.getItem('actants')) {
       sessionStorage.setItem('actants', JSON.stringify(actants));
@@ -556,12 +538,12 @@ export async function getActants(actantIds?: string | string[]) {
     }
 
     // Normaliser les IDs en tableau de strings
-    const normalizedIds = Array.isArray(actantIds) 
+    const normalizedIds = Array.isArray(actantIds)
       ? actantIds.map(id => String(id))
       : [String(actantIds)];
 
     // Filtrer les actants correspondants
-    const foundActants = actants.filter((a: any) => 
+    const foundActants = actants.filter((a: any) =>
       normalizedIds.includes(String(a.id))
     );
 
@@ -604,16 +586,16 @@ export async function getEditions(editionIds?: string | string[]) {
       return editions;
     }
 
-    const normalizedIds = Array.isArray(editionIds) 
+    const normalizedIds = Array.isArray(editionIds)
       ? editionIds.map(id => String(id))
       : [String(editionIds)];
 
-    const foundEditions = editions.filter((e: any) => 
+    const foundEditions = editions.filter((e: any) =>
       normalizedIds.includes(String(e.id))
     );
 
-    return !Array.isArray(editionIds) && foundEditions.length > 0 
-      ? foundEditions[0] 
+    return !Array.isArray(editionIds) && foundEditions.length > 0
+      ? foundEditions[0]
       : foundEditions;
 
   } catch (error) {
@@ -628,21 +610,21 @@ export async function getSeminarConfs(confId?: number) {
     const confs = sessionStorage.getItem('seminarConfs')
       ? JSON.parse(sessionStorage.getItem('seminarConfs')!)
       : await (async () => {
-          const [rawConfs, keywords] = await Promise.all([
-            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
-            getKeywords()
-          ]);
+        const [rawConfs, keywords] = await Promise.all([
+          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
+          getKeywords()
+        ]);
 
-          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
 
-          return rawConfs.map((conf: any) => ({
-            ...conf,
-            type: 'seminar',
-            motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
-            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
-          }));
-        })();
+        return rawConfs.map((conf: any) => ({
+          ...conf,
+          type: 'seminar',
+          motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
+        }));
+      })();
 
     if (!sessionStorage.getItem('seminarConfs')) {
       sessionStorage.setItem('seminarConfs', JSON.stringify(confs));
@@ -650,12 +632,12 @@ export async function getSeminarConfs(confId?: number) {
 
     return confId
       ? await (async () => {
-          const conf = confs.find((c: any) => c.id === String(confId));
-          if (!conf) throw new Error(`Conference with id ${confId} not found`);
+        const conf = confs.find((c: any) => c.id === String(confId));
+        if (!conf) throw new Error(`Conference with id ${confId} not found`);
 
-          if (conf.actant) conf.actant = await getActants(conf.actant);
-          return conf;
-        })()
+        if (conf.actant) conf.actant = await getActants(conf.actant);
+        return conf;
+      })()
       : confs;
 
   } catch (error) {
@@ -670,21 +652,21 @@ export async function getColloqueConfs(confId?: number) {
     const confs = sessionStorage.getItem('colloqueConfs')
       ? JSON.parse(sessionStorage.getItem('colloqueConfs')!)
       : await (async () => {
-          const [rawConfs, keywords] = await Promise.all([
-            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getColloqueConfs&json=1'),
-            getKeywords()
-          ]);
+        const [rawConfs, keywords] = await Promise.all([
+          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getColloqueConfs&json=1'),
+          getKeywords()
+        ]);
 
-          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
 
-          return rawConfs.map((conf: any) => ({
-            ...conf,
-            type: 'colloque',
-            motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
-            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
-          }));
-        })();
+        return rawConfs.map((conf: any) => ({
+          ...conf,
+          type: 'colloque',
+          motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
+        }));
+      })();
 
     if (!sessionStorage.getItem('colloqueConfs')) {
       sessionStorage.setItem('colloqueConfs', JSON.stringify(confs));
@@ -692,12 +674,12 @@ export async function getColloqueConfs(confId?: number) {
 
     return confId
       ? await (async () => {
-          const conf = confs.find((c: any) => c.id === String(confId));
-          if (!conf) throw new Error(`Conference with id ${confId} not found`);
+        const conf = confs.find((c: any) => c.id === String(confId));
+        if (!conf) throw new Error(`Conference with id ${confId} not found`);
 
-          if (conf.actant) conf.actant = await getActants(conf.actant);
-          return conf;
-        })()
+        if (conf.actant) conf.actant = await getActants(conf.actant);
+        return conf;
+      })()
       : confs;
 
   } catch (error) {
@@ -712,21 +694,21 @@ export async function getStudyDayConfs(confId?: number) {
     const confs = sessionStorage.getItem('studyDayConfs')
       ? JSON.parse(sessionStorage.getItem('studyDayConfs')!)
       : await (async () => {
-          const [rawConfs, keywords] = await Promise.all([
-            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
-            getKeywords()
-          ]);
+        const [rawConfs, keywords] = await Promise.all([
+          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
+          getKeywords()
+        ]);
 
-          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
 
-          return (rawConfs || []).map((conf: any) => ({
-            ...conf,
-            type: 'studyday',
-            motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
-            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
-          }));
-        })();
+        return (rawConfs || []).map((conf: any) => ({
+          ...conf,
+          type: 'studyday',
+          motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
+          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
+        }));
+      })();
 
     if (!sessionStorage.getItem('studyDayConfs')) {
       sessionStorage.setItem('studyDayConfs', JSON.stringify(confs));
@@ -734,12 +716,12 @@ export async function getStudyDayConfs(confId?: number) {
 
     return confId
       ? await (async () => {
-          const conf = confs.find((c: any) => c.id === String(confId));
-          if (!conf) throw new Error(`Conference with id ${confId} not found`);
+        const conf = confs.find((c: any) => c.id === String(confId));
+        if (!conf) throw new Error(`Conference with id ${confId} not found`);
 
-          if (conf.actant) conf.actant = await getActants(conf.actant);
-          return conf;
-        })()
+        if (conf.actant) conf.actant = await getActants(conf.actant);
+        return conf;
+      })()
       : confs;
 
   } catch (error) {
@@ -870,15 +852,15 @@ export async function getAllConfs(id?: number) {
       if (!conf) {
         throw new Error(`Conference with id ${id} not found`);
       }
-      
+
       if (conf.actant) {
         conf.actant = await getActants(conf.actant);
       }
-      
-      return conf; 
+
+      return conf;
     }
 
-    
+
 
     return allConfsWithMicroResumes;
   } catch (error) {
@@ -955,10 +937,10 @@ export async function getOeuvres(id?: number) {
 
       const oeuvres = JSON.parse(storedOeuvres);
 
-      
+
       return id ? oeuvres.find((o: any) => o.id === String(id)) : oeuvres;
     }
-    
+
 
 
     // Use Promise.all to fetch all needed data (can fetch additional data for linking elements)
@@ -973,7 +955,7 @@ export async function getOeuvres(id?: number) {
       getMediagraphies()
     ]);
 
-    
+
 
     // Build maps for fast lookups
     const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
@@ -989,7 +971,7 @@ export async function getOeuvres(id?: number) {
     const keywordsMap = new Map(
       (keywords || []).map((k: any) => [String(k.id), { ...k, type: 'keyword' }])
     );
-    
+
     // Créer aussi une map indexée par titre pour pouvoir chercher par titre
     const keywordsMapByTitle = new Map(
       (keywords || []).map((k: any) => [String(k.title || k.id), { ...k, type: 'keyword' }])
@@ -997,8 +979,8 @@ export async function getOeuvres(id?: number) {
 
     const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
     const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
-    
-  
+
+
 
     const oeuvresFull = oeuvres.map((oeuvre: any) => {
       // Parse les IDs multiples séparés par des virgules pour personne
@@ -1044,7 +1026,7 @@ export async function getOeuvres(id?: number) {
           annotationsIds = oeuvre.annotations.split(',').map((id: string) => id.trim());
         } else if (Array.isArray(oeuvre.annotations)) {
           annotationsIds = oeuvre.annotations.map((id: any) => String(id));
-        } else if (oeuvre.annotations != null) {  
+        } else if (oeuvre.annotations != null) {
           annotationsIds = [String(oeuvre.annotations)];
         }
       }
@@ -1063,10 +1045,10 @@ export async function getOeuvres(id?: number) {
             keywordsIds = oeuvre.keywords.split(',').map((id: string) => id.trim());
           } else if (Array.isArray(oeuvre.keywords)) {
             keywordsIds = oeuvre.keywords.map((id: any) => String(id));
-          } else if (oeuvre.keywords != null) {  
+          } else if (oeuvre.keywords != null) {
             keywordsIds = [String(oeuvre.keywords)];
           }
-          
+
           // Relink objects using the maps (chercher d'abord par ID, puis par titre)
           keywordsLinked = keywordsIds.map((idOrTitle: string) => {
             // Essayer d'abord par ID
@@ -1077,7 +1059,7 @@ export async function getOeuvres(id?: number) {
             }
             return keyword;
           }).filter(Boolean);
-          
+
           // Log pour debug si keywordsIds existe mais keywordsLinked est vide
           if (keywordsIds.length > 0 && keywordsLinked.length === 0) {
             console.log(`⚠️ Oeuvre ${oeuvre.id}: keywordsIds/titres trouvés mais non liés`, { keywordsIds, keywordsMapSize: keywordsMap.size, sampleKeywordId: keywordsIds[0] });
@@ -1131,7 +1113,7 @@ export async function getOeuvres(id?: number) {
       };
     });
 
- 
+
 
     sessionStorage.setItem('oeuvres', JSON.stringify(oeuvresFull));
     return id ? oeuvresFull.find((o: any) => o.id === String(id)) : oeuvresFull;
@@ -1195,12 +1177,12 @@ export async function getCollections() {
 
 export async function getRecherches() {
   try {
-    
+
     const recherches = await getDataByUrl(
       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecherches&json=1',
     );
 
-   
+
     return recherches;
   } catch (error) {
     console.error('Error fetching recherches:', error);
@@ -1219,7 +1201,7 @@ export async function getFeedbacks() {
     const feedbacks = await getDataByUrl(
       'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getFeedbacks&json=1',
     );
-  
+
     feedbacks.forEach((feedback: any) => {
       feedback.url = '/feedback/' + feedback.id;
       feedback.type = 'feedback';
@@ -1305,9 +1287,6 @@ export async function getExperimentations(id?: number) {
       return experimentationWithFeedbacks;
     });
 
-
-    console.log('experimentationsFull', experimentationsFull);
-
     sessionStorage.setItem('experimentations', JSON.stringify(experimentationsFull));
     return id ? experimentationsFull.find((e: any) => String(e.id) || String(e.id) === String(id)) : experimentationsFull;
   } catch (error) {
@@ -1372,7 +1351,7 @@ export async function getElementNarratifs(id?: number): Promise<any> {
     const personnesMap = new Map(personnes.map((item: any) => [String(item.id), item]));
     const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
     const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
-    
+
     const elementNarratifsFull = elementNarratifs.map((element: any) => {
       // Gérer la relation creator (personnes)
       let creator = [];
@@ -1408,10 +1387,10 @@ export async function getElementNarratifs(id?: number): Promise<any> {
         creator,
         references,
         // Gérer associatedMedia comme tableau
-        associatedMedia: Array.isArray(element.associatedMedia) 
-          ? element.associatedMedia 
-          : element.associatedMedia 
-            ? [element.associatedMedia] 
+        associatedMedia: Array.isArray(element.associatedMedia)
+          ? element.associatedMedia
+          : element.associatedMedia
+            ? [element.associatedMedia]
             : []
       };
     });
@@ -1426,7 +1405,7 @@ export async function getElementNarratifs(id?: number): Promise<any> {
 }
 
 
-export async function getElementEsthetiques( id?: number) {
+export async function getElementEsthetiques(id?: number) {
   try {
     checkAndClearDailyCache();
     const storedElementEsthetiques = sessionStorage.getItem('elementEsthetiques');
@@ -1444,9 +1423,6 @@ export async function getElementEsthetiques( id?: number) {
       getPersonnes(),
       getActants()
     ]);
-
-   
-    console.log('personnes', personnes);
 
     // Créer des maps pour un accès rapide par ID
     const personnesMap = new Map(personnes.map((personne: any) => [personne.id.toString(), personne]));
@@ -1514,10 +1490,10 @@ export async function getComments(forceRefresh = false) {
       return JSON.parse(storedComments);
     }
 
-      const [comments, actants] = await Promise.all([
+    const [comments, actants] = await Promise.all([
       getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getComments&json=1',
-    ),getActants()
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getComments&json=1',
+      ), getActants()
     ]);
 
     const actantsMap = new Map(actants.map((actant: any) => [actant.id.toString(), actant]));
@@ -1537,7 +1513,6 @@ export async function getComments(forceRefresh = false) {
 export async function getAnalyseCritiqueById(id: string | number) {
   try {
     checkAndClearDailyCache();
-    console.log('🔍 Searching for analyse critique with ID:', id);
 
     // Try to fetch directly from the API endpoint that might return this specific item
     // Based on the structure shown by the user, it seems like this might be a specific content type
@@ -1556,7 +1531,6 @@ export async function getAnalyseCritiqueById(id: string | number) {
       );
 
       if (analyseCritique) {
-        console.log('✅ Found analyse critique in all items:', analyseCritique);
         return analyseCritique;
       }
     } catch (e) {
@@ -1568,7 +1542,6 @@ export async function getAnalyseCritiqueById(id: string | number) {
     const foundAnalyse = recherches.find((recherche: any) => String(recherche.id) === String(id));
 
     if (foundAnalyse) {
-      console.log('✅ Found analyse critique in recherches:', foundAnalyse);
       return {
         ...foundAnalyse,
         type: 'analyse-critique'
@@ -1582,7 +1555,6 @@ export async function getAnalyseCritiqueById(id: string | number) {
       );
 
       if (directItem && (directItem.id === String(id) || directItem['o:id'] === String(id))) {
-        console.log('✅ Found analyse critique via direct API call:', directItem);
         return {
           ...directItem,
           type: 'analyse-critique'
@@ -1601,11 +1573,11 @@ export async function getAnalyseCritiqueById(id: string | number) {
   }
 }
 
-export async function getObjetsTechnoIndustriels(id?: number) {
+export async function getRecitsTechnoIndustriels(id?: number) {
   try {
     checkAndClearDailyCache();
     // 1. CACHE : Vérifier sessionStorage
-    const storedObjets = sessionStorage.getItem('objetsTechnoIndustriels');
+    const storedObjets = sessionStorage.getItem('recitsTechnoIndustriels');
     if (storedObjets) {
       const objets = JSON.parse(storedObjets);
       return id ? objets.find((o: any) => o.id === String(id)) : objets;
@@ -1614,7 +1586,7 @@ export async function getObjetsTechnoIndustriels(id?: number) {
     // 2. FETCH : Récupérer données + dépendances en Promise.all
     const [rawObjets, annotations, keywords] = await Promise.all([
       getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getObjetsTechnoIndustriels&json=1'
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsTechnoIndustriels&json=1'
       ),
       getAnnotations(),
       getKeywords()
@@ -1644,7 +1616,7 @@ export async function getObjetsTechnoIndustriels(id?: number) {
 
       return {
         ...objet,
-        type: 'objetTechnoIndustriel',
+        type: 'recitTechnoIndustriel',
         descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
         keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
         // tools, reviews, relatedResources sont déjà hydratés dans PHP
@@ -1653,7 +1625,7 @@ export async function getObjetsTechnoIndustriels(id?: number) {
     });
 
     // 5. CACHE + RETURN : Stocker et retourner
-    sessionStorage.setItem('objetsTechnoIndustriels', JSON.stringify(objetsFull));
+    sessionStorage.setItem('recitsTechnoIndustriels', JSON.stringify(objetsFull));
     return id ? objetsFull.find((o: any) => o.id === String(id)) : objetsFull;
 
   } catch (error) {
@@ -1662,11 +1634,11 @@ export async function getObjetsTechnoIndustriels(id?: number) {
   }
 }
 
-export async function getDocumentationsScientifiques(id?: number) {
+export async function getRecitsScientifiques(id?: number) {
   try {
     checkAndClearDailyCache();
     // 1. CACHE : Vérifier sessionStorage
-    const storedDocs = sessionStorage.getItem('documentationsScientifiques');
+    const storedDocs = sessionStorage.getItem('recitsScientifiques');
     if (storedDocs) {
       const docs = JSON.parse(storedDocs);
       return id ? docs.find((d: any) => d.id === String(id)) : docs;
@@ -1675,7 +1647,7 @@ export async function getDocumentationsScientifiques(id?: number) {
     // 2. FETCH : Récupérer données + dépendances en Promise.all
     const [rawDocs, keywords, personnes, annotations, bibliographies, mediagraphies] = await Promise.all([
       getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getDocumentationsScientifiques&json=1'
+        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsScientifiques&json=1'
       ),
       getKeywords(),
       getPersonnes(),
@@ -1751,11 +1723,11 @@ export async function getDocumentationsScientifiques(id?: number) {
           .filter(Boolean);
       }
 
-      
+
 
       return {
         ...doc,
-        type: 'documentationScientifique',
+        type: 'recitScientifique',
         descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
         keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
         creator: creatorHydrated,
@@ -1767,7 +1739,7 @@ export async function getDocumentationsScientifiques(id?: number) {
     });
 
     // 5. CACHE + RETURN : Stocker et retourner
-    sessionStorage.setItem('documentationsScientifiques', JSON.stringify(docsFull));
+    sessionStorage.setItem('recitsScientifiques', JSON.stringify(docsFull));
     return id ? docsFull.find((d: any) => d.id === String(id)) : docsFull;
 
   } catch (error) {
@@ -1890,7 +1862,7 @@ export async function getRecitsMediatiques(id?: number) {
         tools: toolsHydrated.length > 0 ? toolsHydrated : [],
         referencesScient: scientificContentHydrated.length > 0 ? scientificContentHydrated : [],
         referencesCultu: culturalContentHydrated.length > 0 ? culturalContentHydrated : [],
-       
+
       };
     });
 
@@ -1965,7 +1937,7 @@ export async function getRecitsCitoyens(id?: number) {
 
       // Hydrater isRelatedTo (items)
       let isRelatedToHydrated = [];
-        if (Array.isArray(recitCitoyen.isRelatedTo)) {
+      if (Array.isArray(recitCitoyen.isRelatedTo)) {
         isRelatedToHydrated = recitCitoyen.isRelatedTo
           .filter(Boolean);
       }
@@ -1993,7 +1965,7 @@ export async function getRecitsCitoyens(id?: number) {
           .filter(Boolean);
       }
 
-      
+
 
       return {
         ...recitCitoyen,
@@ -2026,7 +1998,7 @@ export async function getMicroResumes(id?: number) {
     if (storedMicroResumes) {
       const microResumes = JSON.parse(storedMicroResumes);
       return id ? microResumes.find((m: any) => m.id === String(id)) : microResumes;
-    } 
+    }
 
     // 2. FETCH : Récupérer données + dépendances en Promise.all
     const [rawMicroResumes, outil] = await Promise.all([
@@ -2048,7 +2020,7 @@ export async function getMicroResumes(id?: number) {
         type: 'microResume',
         outil: outilHydrated,
       };
-    }); 
+    });
 
     sessionStorage.setItem('microResumes', JSON.stringify(microResumesFull));
     return id ? microResumesFull.find((m: any) => m.id === String(id)) : microResumesFull;

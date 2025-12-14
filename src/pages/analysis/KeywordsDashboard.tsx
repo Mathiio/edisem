@@ -29,7 +29,6 @@ export const KeywordsDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Fetching data for Advanced Analysis...");
         const [
           keywords,
           confs,
@@ -45,8 +44,8 @@ export const KeywordsDashboard: React.FC = () => {
           Items.getOeuvres(),
           Items.getCitations(),
           Items.getExperimentations(),
-          Items.getObjetsTechnoIndustriels(),
-          Items.getDocumentationsScientifiques(),
+          Items.getRecitsTechnoIndustriels(),
+          Items.getRecitsScientifiques(),
           Items.getRecitsMediatiques(),
         ]);
 
@@ -170,7 +169,7 @@ export const KeywordsDashboard: React.FC = () => {
   const scatterData = useMemo(() => {
     return metrics
       .filter(m => m.count > 0) // Filter orphans for this chart
-      .map((m, idx) => ({
+      .map((m) => ({
         id: m.id,
         x: m.diversityScore, // Diversity
         y: m.count,         // Frequency
@@ -320,7 +319,7 @@ export const KeywordsDashboard: React.FC = () => {
                         {
                             label: 'Mots-clés',
                             data: scatterData.map(d => ({ x: d.x, y: d.y, id: d.id })),
-                            valueFormatter: (v, { dataIndex }) => scatterData[dataIndex]?.title || 'Keyword',
+                            valueFormatter: (_v, { dataIndex }) => scatterData[dataIndex]?.title || 'Keyword',
                         },
                     ]}
                     xAxis={[{ label: 'Score de Diversité (nb types)', min: 0, max: 8 }]}

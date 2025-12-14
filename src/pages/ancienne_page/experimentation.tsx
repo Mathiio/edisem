@@ -7,7 +7,7 @@ import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
-import { SmConfCard } from '@/components/ui/ConfCards';
+import { SmConfCard } from '@/components/features/conference/ConfCards';
 import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
 import { ExpOverviewCard } from '@/components/features/experimentation/ExpOverview';
 import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/experimentation/ExpDetails';
@@ -172,8 +172,6 @@ export const Experimentation: React.FC = () => {
         setConfConcepts(concepts.filter((c: any) => experimentation.concepts?.includes(String(c.id))));
         setConfDetails(experimentation);
         setRecommendations(experimentations);
-
-        console.log(experimentation);
       }
     } finally {
       setLoading(false);
@@ -235,7 +233,6 @@ export const Experimentation: React.FC = () => {
           </div>
         );
       case 'Feedback':
-        console.log(confDetails.feedbacks);
         return (
           <div className='flex flex-col gap-10'>
             {confDetails.feedbacks.map((feedback: any) => (
