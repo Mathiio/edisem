@@ -164,13 +164,16 @@ interface ItemsListProps {
 }
 
 export const ItemsList: React.FC<ItemsListProps> = ({ items, showAnnotation = true, annotationType = 'Bibliographie', mapUrl }) => {
-  if (!items || items.length === 0) {
+  // Normaliser items pour s'assurer que c'est toujours un tableau
+  const itemsArray = Array.isArray(items) ? items : items ? [items] : [];
+  
+  if (itemsArray.length === 0) {
     return null;
   }
 
   return (
     <div className='flex flex-col gap-10'>
-      {items.map((item) => {
+      {itemsArray.map((item) => {
         // Si mapUrl est fourni, créer un nouvel objet avec l'URL mappée
         const mappedItem = mapUrl ? { ...item, url: mapUrl(item) } : item;
 
