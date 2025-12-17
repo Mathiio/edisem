@@ -2,7 +2,7 @@ import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
 import { getAnnotations, getAnnotationsWithTargets, getRecitsTechnoIndustriels, getOeuvres } from '@/services/Items';
-import { createTargetsListView } from '../helpers';
+import { createTargetsListView, createTextView } from '../helpers';
 
 /**
  * Configuration pour les pages d'analyse critique
@@ -40,7 +40,6 @@ export const analyseCritiqueConfig: GenericDetailPageConfig = {
   mapDetailsProps: (analyse: any) => ({
     actants: analyse.actants,
     date: analyse.date,
-    description: analyse.description,
     genre: analyse.genre,
     medium: analyse.medium,
   }),
@@ -57,6 +56,11 @@ export const analyseCritiqueConfig: GenericDetailPageConfig = {
 
   // Vue unique : Références
   viewOptions: [
+    createTextView({
+      key: 'analyseCritique',
+      title: 'Analyse critique',
+      getText: (itemDetails: { description: string }) => itemDetails?.description,
+    }),
     // Vue principale : afficher le target (la ressource analysée)
     createTargetsListView({
       key: 'target',

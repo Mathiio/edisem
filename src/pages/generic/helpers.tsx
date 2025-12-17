@@ -28,7 +28,13 @@ export const createItemsListView = (options: CreateItemsListViewOptions): ViewOp
     key: options.key,
     title: options.title,
     renderContent: ({ itemDetails }) => {
-      const items = options.getItems(itemDetails);
+      let items = options.getItems(itemDetails);
+      // Normaliser pour s'assurer que c'est toujours un tableau
+      if (!items) {
+        items = [];
+      } else if (!Array.isArray(items)) {
+        items = [items];
+      }
       return <ItemsList items={items} showAnnotation={options.showAnnotation} annotationType={options.annotationType} mapUrl={options.mapUrl} />;
     },
   };
@@ -177,7 +183,13 @@ export const createToolsView = (getTools?: (itemDetails: any, viewData?: any) =>
     key: 'Outils',
     title: 'Outils',
     renderContent: ({ itemDetails, viewData }) => {
-      const items = getTools ? getTools(itemDetails, viewData) : itemDetails?.tools || [];
+      let items = getTools ? getTools(itemDetails, viewData) : itemDetails?.tools || [];
+      // Normaliser pour s'assurer que c'est toujours un tableau
+      if (!items) {
+        items = [];
+      } else if (!Array.isArray(items)) {
+        items = [items];
+      }
       return <ItemsList items={items} annotationType='Outil' mapUrl={mapUrl} />;
     },
   };
@@ -475,6 +487,14 @@ export const createTargetsListView = (options?: { key?: string; title?: string; 
     renderContent: ({ itemDetails }) => {
       let targets = options?.getTargets ? options.getTargets(itemDetails) : itemDetails?.targets || [itemDetails?.target].filter(Boolean);
 
+      // Normaliser pour s'assurer que c'est toujours un tableau
+      if (!targets) {
+        targets = [];
+      } else if (!Array.isArray(targets)) {
+        // Si c'est un objet unique, le mettre dans un tableau
+        targets = [targets];
+      }
+
       // Aplatir les tableaux imbriqués (cas où un target est lui-même un tableau)
       const flattenTargets = (items: any[]): any[] => {
         return items.reduce((acc, item) => {
@@ -486,10 +506,8 @@ export const createTargetsListView = (options?: { key?: string; title?: string; 
       };
 
       // Filtrer les valeurs null, undefined et autres valeurs falsy
-      if (Array.isArray(targets)) {
-        targets = flattenTargets(targets);
-        targets = targets.filter((target: any) => target !== null && target !== undefined && target !== '');
-      }
+      targets = flattenTargets(targets);
+      targets = targets.filter((target: any) => target !== null && target !== undefined && target !== '');
 
       console.log('Targets received:', targets);
 
