@@ -11,13 +11,13 @@ import Visualisation from '@/pages/visualisation';
 import { ToastProvider } from '@heroui/react';
 import { HeroUIProvider } from '@heroui/react';
 import { Intervenants } from '@/pages/intervenants';
-import { Colloques } from '@/pages/corpus/colloques';
+import { Colloques } from '@/pages/corpus/Colloques';
 import { PratiquesNarratives } from '@/pages/corpus/pratiquesNarratives';
-import { JourneesEtudes } from '@/pages/corpus/journeesEtudes';
-import { Seminaires } from '@/pages/corpus/seminaires';
-import { Experimentations } from '@/pages/corpus/experimentations';
+import { JourneesEtudes } from '@/pages/corpus/JourneesEtudes';
+import { Seminaires } from '@/pages/corpus/Seminaires';
+import { Experimentations } from '@/pages/corpus/Experimentations';
 import { MisesEnRecits } from '@/pages/corpus/recits';
-import { Oeuvres } from '@/pages/corpus/oeuvres';
+import { Oeuvres } from '@/pages/corpus/Oeuvres';
 import { Personne } from '@/pages/personne';
 import { GenreDetail } from '@/pages/corpus/oeuvresByGenre';
 import { RecitsByGenre } from '@/pages/corpus/recitsByGenre';
@@ -63,7 +63,7 @@ function App() {
         <Route path='/corpus/experimentations' Component={Experimentations} />
         <Route path='/corpus/oeuvres' Component={Oeuvres} />
         <Route path='/corpus/mises-en-recits' Component={MisesEnRecits} />
-        
+
         {/* Recits by Genre Routes */}
         <Route path='/corpus/recits-scientifiques' Component={RecitsByGenre} />
         <Route path='/corpus/recits-techno-industriels' Component={RecitsByGenre} />
@@ -116,7 +116,6 @@ function App() {
 
         {/* Keyword Analysis Route */}
         <Route path='/analysis/keywords' Component={KeywordsDashboard} />
-        
       </Routes>
     </HeroUIProvider>
   );

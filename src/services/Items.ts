@@ -1683,7 +1683,15 @@ export async function getRecitsScientifiques(id?: number) {
       // Hydrater creator (personne)
       let creatorHydrated = null;
       if (doc.creator) {
-        creatorHydrated = personnesMap.get(String(doc.creator)) || null;
+        // Vérifier si creator est un ID numérique ou une chaîne de caractères
+        const creatorStr = String(doc.creator).trim();
+        // Si c'est un ID numérique (chaîne qui peut être convertie en nombre, ex: "24323")
+        if (creatorStr !== '' && !isNaN(Number(creatorStr)) && /^\d+$/.test(creatorStr)) {
+          creatorHydrated = personnesMap.get(creatorStr) || null;
+        } else {
+          // Si c'est une chaîne de caractères (comme "BBC World Service"), garder la chaîne
+          creatorHydrated = creatorStr;
+        }
       }
 
       // Hydrater associatedMedia (items)
@@ -1800,7 +1808,15 @@ export async function getRecitsMediatiques(id?: number) {
       // Hydrater creator (personne)
       let creatorHydrated = null;
       if (recit.creator) {
-        creatorHydrated = personnesMap.get(String(recit.creator)) || null;
+        // Vérifier si creator est un ID numérique ou une chaîne de caractères
+        const creatorStr = String(recit.creator).trim();
+        // Si c'est un ID numérique (chaîne qui peut être convertie en nombre, ex: "24323")
+        if (creatorStr !== '' && !isNaN(Number(creatorStr)) && /^\d+$/.test(creatorStr)) {
+          creatorHydrated = personnesMap.get(creatorStr);
+        } else {
+          // Si c'est une chaîne de caractères (comme "BBC World Service"), garder la chaîne
+          creatorHydrated = creatorStr;
+        }
       }
 
 
@@ -1887,12 +1903,13 @@ export async function getRecitsCitoyens(id?: number) {
     }
 
     // 2. FETCH : Récupérer données + dépendances en Promise.all
-    const [rawRecitsCitoyens, keywords, personnes, annotations, bibliographies, mediagraphies] = await Promise.all([
+    const [rawRecitsCitoyens, keywords, personnes, actants, annotations, bibliographies, mediagraphies] = await Promise.all([
       getDataByUrl(
         'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsCitoyens&json=1'
       ),
       getKeywords(),
       getPersonnes(),
+      getActants(),
       getAnnotations(),
       getBibliographies(),
       getMediagraphies()
@@ -1901,6 +1918,8 @@ export async function getRecitsCitoyens(id?: number) {
     // 3. MAPS : Créer maps pour accès rapide
     const keywordsMap = new Map(keywords.map((k: any) => [String(k.id), k]));
     const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
+    const actantsMap = new Map(actants.map((a: any) => [String(a.id), a]));
+
     const annotationsMap = new Map(annotations.map((a: any) => [String(a.id), a]));
     const bibliographiesMap = new Map(bibliographies.map((b: any) => [String(b.id), b]));
     const mediagraphiesMap = new Map(mediagraphies.map((m: any) => [String(m.id), m]));
@@ -1922,10 +1941,60 @@ export async function getRecitsCitoyens(id?: number) {
           .filter(Boolean);
       }
 
-      // Hydrater creator (personne)
+      // Hydrater creator - peut être un tableau d'objets (nouveau format), un tableau d'IDs, un ID unique, ou une chaîne avec virgules
       let creatorHydrated = null;
       if (recitCitoyen.creator) {
-        creatorHydrated = personnesMap.get(String(recitCitoyen.creator)) || null;
+        // Si c'est un tableau
+        if (Array.isArray(recitCitoyen.creator)) {
+          // Vérifier si c'est déjà des objets complets (nouveau format PHP avec id, title, thumbnail)
+          if (recitCitoyen.creator.length > 0 && typeof recitCitoyen.creator[0] === 'object' && recitCitoyen.creator[0] !== null && 'id' in recitCitoyen.creator[0]) {
+            // Déjà des objets complets depuis PHP, essayer de les enrichir avec personnes/actants si disponibles
+            const hydratedCreators = recitCitoyen.creator.map((creatorObj: any) => {
+              const creatorId = String(creatorObj.id);
+              // Essayer de trouver dans personnes ou actants pour enrichir l'objet
+              const personneOrActant = personnesMap.get(creatorId) || actantsMap.get(creatorId);
+              if (personneOrActant) {
+                return personneOrActant;
+              }
+              // Sinon, retourner l'objet tel quel (avec id, title, thumbnail)
+              return creatorObj;
+            }).filter(Boolean);
+            
+            if (hydratedCreators.length > 0) {
+              creatorHydrated = hydratedCreators.length === 1 ? hydratedCreators[0] : hydratedCreators;
+            }
+          } else {
+            // C'est un tableau d'IDs, les hydrater
+            const hydratedCreators = recitCitoyen.creator
+              .map((id: any) => {
+                const creatorId = String(id).trim();
+                // Chercher d'abord dans personnes, puis dans actants
+                return personnesMap.get(creatorId) || actantsMap.get(creatorId);
+              })
+              .filter(Boolean);
+            
+            if (hydratedCreators.length > 0) {
+              creatorHydrated = hydratedCreators.length === 1 ? hydratedCreators[0] : hydratedCreators;
+            }
+          }
+        } else {
+          // Format legacy : ID unique ou chaîne avec virgules
+          const creatorStr = String(recitCitoyen.creator).trim();
+          if (creatorStr.includes(',')) {
+            // Plusieurs IDs séparés par des virgules
+            const creatorIds = creatorStr.split(',').map((id: string) => id.trim());
+            const hydratedCreators = creatorIds
+              .map((id: string) => personnesMap.get(id) || actantsMap.get(id))
+              .filter(Boolean);
+            creatorHydrated = hydratedCreators.length === 1 ? hydratedCreators[0] : hydratedCreators;
+          } else if (creatorStr !== '' && !isNaN(Number(creatorStr)) && /^\d+$/.test(creatorStr)) {
+            // Si c'est un ID numérique unique
+            creatorHydrated = personnesMap.get(creatorStr) || actantsMap.get(creatorStr) ;
+          } else {
+            // Si c'est une chaîne de caractères (comme "BBC World Service"), garder la chaîne
+            creatorHydrated = creatorStr;
+          }
+        }
       }
 
       // Hydrater associatedMedia (items)

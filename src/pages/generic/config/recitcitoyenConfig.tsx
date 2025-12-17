@@ -4,6 +4,24 @@ import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/feature
 import { getRecitsMediatiques, getKeywords, getAnnotationsWithTargets, getRecitsCitoyens } from '@/services/Items';
 import { createCulturalReferencesView, createScientificReferencesView, createItemsListView, createTextView } from '../helpers';
 
+// Helper pour normaliser creator (peut être un objet personne ou une chaîne)
+const normalizeCreator = (creator: any): any[] => {
+  if (!creator) return [];
+
+  // Si c'est déjà un tableau, le retourner tel quel
+  if (Array.isArray(creator)) {
+    return creator;
+  }
+
+  // Si c'est une chaîne de caractères (comme "BBC World Service")
+  if (typeof creator === 'string') {
+    return [{ name: creator, id: null }];
+  }
+
+  // Si c'est un objet (personne hydratée), le mettre dans un tableau
+  return [creator];
+};
+
 export const recitcitoyenConfig: GenericDetailPageConfig = {
   // Data fetching avec enrichissement des keywords
   dataFetcher: async (id: string): Promise<FetchResult> => {
@@ -34,7 +52,7 @@ export const recitcitoyenConfig: GenericDetailPageConfig = {
   mapOverviewProps: (recit: any, currentVideoTime: number) => ({
     id: recit.id,
     title: recit.title,
-    personnes: recit.creator ? [recit.creator] : [],
+    personnes: normalizeCreator(recit.creator),
     medias: recit.associatedMedia && recit.associatedMedia.length > 0 ? recit.associatedMedia : recit.thumbnail ? [recit.thumbnail] : [],
     fullUrl: recit.url || recit.source || '#',
     currentTime: currentVideoTime,
@@ -44,7 +62,7 @@ export const recitcitoyenConfig: GenericDetailPageConfig = {
   // Mapper les props pour les détails
   mapDetailsProps: (recit: any) => ({
     date: recit.dateIssued,
-    actants: recit.creator ? [recit.creator] : [],
+    actants: normalizeCreator(recit.creator),
     description:
       [recit.purpose ? `<strong>Objectif:</strong> ${recit.purpose}` : '', recit.application ? `<strong>Résumé:</strong> ${recit.application}` : '']
         .filter(Boolean)
@@ -58,7 +76,7 @@ export const recitcitoyenConfig: GenericDetailPageConfig = {
     type: 'recitMediatique',
     url: null, // url est pour YouTube, on ne l'utilise pas ici
     thumbnail: recit.associatedMedia?.[0] || recit.thumbnail || null,
-    actant: recit.creator ? [recit.creator] : [],
+    actant: normalizeCreator(recit.creator),
   }),
 
   // ✨ Vues personnalisées pour les récits médiatiques
