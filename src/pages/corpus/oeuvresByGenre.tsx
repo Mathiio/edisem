@@ -18,7 +18,7 @@ const fadeIn: Variants = {
 
 export const GenreDetail: React.FC = () => {
   const { slug } = useParams<{ slug?: string }>();
-  const [oeuvres, setOeuvres] = useState<any[]>([]);
+  const [recitsArtistiques, setOeuvres] = useState<any[]>([]);
   const [genreName, setGenreName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const fetchOeuvresByGenre = useCallback(async () => {
@@ -28,10 +28,10 @@ export const GenreDetail: React.FC = () => {
       setLoading(true);
 
       // Get all works (already normalized in the service)
-      const allOeuvres = await Items.getOeuvres();
+      const allOeuvres = await Items.getRecitsArtistiques();
 
       if (!Array.isArray(allOeuvres) || allOeuvres.length === 0) {
-        console.warn('⚠️ No oeuvres found');
+        console.warn('⚠️ No recitsArtistiques found');
         setOeuvres([]);
         return;
       }
@@ -66,7 +66,7 @@ export const GenreDetail: React.FC = () => {
 
       setOeuvres(sortedOeuvres);
     } catch (error) {
-      console.error('❌ Error fetching oeuvres by genre:', error);
+      console.error('❌ Error fetching recitsArtistiques by genre:', error);
       setOeuvres([]);
     } finally {
       setLoading(false);
@@ -89,7 +89,7 @@ export const GenreDetail: React.FC = () => {
             {displayTitle}
           </h1>
           <p className='text-c5 text-16 z-[12] text-center max-w-[600px]'>
-            Découvrez les {oeuvres.length} {oeuvres.length === 1 ? 'œuvre' : 'œuvres'} en lien avec ce thème
+            Découvrez les {recitsArtistiques.length} {recitsArtistiques.length === 1 ? 'œuvre' : 'œuvres'} en lien avec ce thème
           </p>
           {/* Background ellipse */}
           <motion.div
@@ -108,14 +108,14 @@ export const GenreDetail: React.FC = () => {
       <div className='grid grid-cols-4 grid-rows-auto gap-20'>
         {loading
           ? Array.from({ length: 8 }).map((_, index) => <div key={index} />)
-          : oeuvres.map((oeuvre, index) => (
+          : recitsArtistiques.map((oeuvre, index) => (
             <motion.div initial='hidden' animate='visible' variants={fadeIn} key={oeuvre.id} custom={index}>
               <OeuvreCard {...oeuvre} />
             </motion.div>
           ))}
       </div>
       {/* No Oeuvres found message */}
-      {!loading && oeuvres.length === 0 && (
+      {!loading && recitsArtistiques.length === 0 && (
         <div className='flex flex-col items-center justify-center py-100 gap-20'>
           <div className='flex flex-col gap-10 text-center'>
             <h3 className='text-24 font-medium text-c6'>Aucune œuvre trouvée</h3>

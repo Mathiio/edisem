@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
-import { getOeuvres, getActants, getStudents, getTools, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
+import { getRecitsArtistiques, getActants, getStudents, getTools, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
 import * as Items from '@/services/Items';
 import { createOeuvreViews } from '../helpers';
 
@@ -16,7 +16,7 @@ import { createOeuvreViews } from '../helpers';
 export const oeuvreConfig: GenericDetailPageConfig = {
   // Data fetching avec enrichissement complet
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const [recitIas, actants, students, , keywords] = await Promise.all([getOeuvres(), getActants(), getStudents(), getTools(), getKeywords()]);
+    const [recitIas, actants, students, , keywords] = await Promise.all([getRecitsArtistiques(), getActants(), getStudents(), getTools(), getKeywords()]);
 
     // Créer des maps
     const actantMap = new Map();
@@ -193,15 +193,15 @@ export const oeuvreConfig: GenericDetailPageConfig = {
 
   // Smart recommendations
   smartRecommendations: {
-    // Récupère toutes les oeuvres pour trouver des similaires
+    // Récupère toutes les recitsArtistiques pour trouver des similaires
     getAllResourcesOfType: async () => {
-      const oeuvres = await getOeuvres();
-      return oeuvres;
+      const recitsArtistiques = await getRecitsArtistiques();
+      return recitsArtistiques;
     },
 
-    // Pour les oeuvres, on ne veut pas de recommandations liées
+    // Pour les recitsArtistiques, on ne veut pas de recommandations liées
     // Les éléments narratifs/esthétiques sont déjà dans les vues
-    // On veut seulement des oeuvres similaires
+    // On veut seulement des recitsArtistiques similaires
     getRelatedItems: () => [],
 
     maxRecommendations: 5,

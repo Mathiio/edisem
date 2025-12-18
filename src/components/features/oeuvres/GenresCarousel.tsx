@@ -5,14 +5,14 @@ import { motion, Variants } from 'framer-motion';
 import { slugUtils } from '@/lib/utils';
 
 interface GenreCarouselProps {
-  oeuvres: any[];
+  recitsArtistiques: any[];
   loading?: boolean;
 }
 
 interface Genre {
   name: string;
   count: number;
-  oeuvres: any[];
+  recitsArtistiques: any[];
 }
 
 // Card animation configuration
@@ -59,34 +59,34 @@ const GenreCard = ({ genre }: { genre: Genre }) => {
 };
 
 // Main Genre Carousel Component
-export const GenreCarousel = ({ oeuvres, loading = false }: GenreCarouselProps) => {
+export const GenreCarousel = ({ recitsArtistiques, loading = false }: GenreCarouselProps) => {
   const [genres, setGenres] = useState<Genre[]>([]);
 
   useEffect(() => {
-    if (!loading && oeuvres.length > 0) {
-      const genreMap: { [key: string]: { oeuvres: any[] } } = {};
+    if (!loading && recitsArtistiques.length > 0) {
+      const genreMap: { [key: string]: { recitsArtistiques: any[] } } = {};
 
-      oeuvres.forEach((oeuvre: any) => {
+      recitsArtistiques.forEach((oeuvre: any) => {
         const genreName = oeuvre.genre;
         if (!genreName) return;
 
         if (!genreMap[genreName]) {
-          genreMap[genreName] = { oeuvres: [] };
+          genreMap[genreName] = { recitsArtistiques: [] };
         }
-        genreMap[genreName].oeuvres.push(oeuvre);
+        genreMap[genreName].recitsArtistiques.push(oeuvre);
       });
 
       const formattedGenres = Object.entries(genreMap)
-        .map(([name, { oeuvres }]) => ({
+        .map(([name, { recitsArtistiques }]) => ({
           name,
-          count: oeuvres.length,
-          oeuvres: oeuvres.sort((a, b) => b.date - a.date)
+          count: recitsArtistiques.length,
+          recitsArtistiques: recitsArtistiques.sort((a, b) => b.date - a.date)
         }))
         .sort((a, b) => b.count - a.count);
 
       setGenres(formattedGenres);
     }
-  }, [oeuvres, loading]);
+  }, [recitsArtistiques, loading]);
 
   if (loading || genres.length === 0) return null;
 

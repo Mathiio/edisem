@@ -29,10 +29,10 @@ export const KeywordsDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [keywords, confs, oeuvres, citations, experimentations, objetsTechno, docsScientifiques, recitsMediatiques] = await Promise.all([
+        const [keywords, confs, recitsArtistiques, citations, experimentations, objetsTechno, docsScientifiques, recitsMediatiques] = await Promise.all([
           Items.getKeywords(),
           Items.getAllConfs(),
-          Items.getOeuvres(),
+          Items.getRecitsArtistiques(),
           Items.getCitations(),
           Items.getExperimentations(),
           Items.getRecitsTechnoIndustriels(),
@@ -103,7 +103,7 @@ export const KeywordsDashboard: React.FC = () => {
         // --- BATCH PROCESS ---
         const sources = [
           { data: confs, type: 'Conference' },
-          { data: oeuvres, type: 'Oeuvre' },
+          { data: recitsArtistiques, type: 'Oeuvre' },
           { data: citations, type: 'Citation' },
           { data: experimentations, type: 'Experimentation' },
           { data: objetsTechno, type: 'ObjetTechno' },

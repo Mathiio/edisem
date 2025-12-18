@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
-import { getElementNarratifs, getOeuvres } from '@/services/Items';
+import { getElementNarratifs, getRecitsArtistiques } from '@/services/Items';
 import { createItemsListView } from '../helpers';
 
 /**
@@ -75,8 +75,8 @@ export const elementNarratifConfig: GenericDetailPageConfig = {
 
     // Récupère les autres éléments narratifs de la même oeuvre
     getRelatedItems: async (itemDetails) => {
-      const oeuvres = await getOeuvres();
-      const parentOeuvre = oeuvres.find((o: any) => o.elementsNarratifs?.some((e: any) => String(e.id) === String(itemDetails.id)));
+      const recitsArtistiques = await getRecitsArtistiques();
+      const parentOeuvre = recitsArtistiques.find((o: any) => o.elementsNarratifs?.some((e: any) => String(e.id) === String(itemDetails.id)));
 
       if (parentOeuvre) {
         return (parentOeuvre.elementsNarratifs || []).filter((e: any) => String(e.id) !== String(itemDetails.id));

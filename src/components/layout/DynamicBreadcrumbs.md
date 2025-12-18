@@ -47,7 +47,7 @@ Passez le titre de l'item actuel pour un breadcrumb plus précis :
 Accueil > Séminaires > Titre de la conférence
 ```
 
-### `/corpus/oeuvres`
+### `/corpus/recitsArtistiques`
 
 ```
 Accueil > Œuvres

@@ -13,24 +13,24 @@ const fadeIn: Variants = {
 };
 
 interface LastOeuvresProps {
-  oeuvres: any[];
+  recitsArtistiques: any[];
   loading: boolean;
   itemsPerPage?: number;
   initialPage?: number;
   showControls?: boolean;
 }
 
-export const LastOeuvres: React.FC<LastOeuvresProps> = ({ oeuvres, loading, itemsPerPage = 4, initialPage = 1, showControls = true }) => {
+export const LastOeuvres: React.FC<LastOeuvresProps> = ({ recitsArtistiques, loading, itemsPerPage = 4, initialPage = 1, showControls = true }) => {
   const [activePage, setActivePage] = React.useState(initialPage);
 
   // Calculate paginated data
   const paginatedOeuvres = React.useMemo(() => {
     const start = (activePage - 1) * itemsPerPage;
-    return oeuvres.slice(start, start + itemsPerPage);
-  }, [oeuvres, activePage, itemsPerPage]);
+    return recitsArtistiques.slice(start, start + itemsPerPage);
+  }, [recitsArtistiques, activePage, itemsPerPage]);
 
   // Total number of pages
-  const totalPages = Math.ceil(oeuvres.length / itemsPerPage);
+  const totalPages = Math.ceil(recitsArtistiques.length / itemsPerPage);
 
   // Handle page change (with animation reset)
   const handlePageChange = (page: number) => {
@@ -42,7 +42,7 @@ export const LastOeuvres: React.FC<LastOeuvresProps> = ({ oeuvres, loading, item
       {/* Main content */}
       <div className='w-full flex justify-between items-center'>
         <h2 className='text-24 font-medium text-c6'>Toutes nos Récits Artistiques/Oeuvres</h2>
-        {!loading && oeuvres.length > itemsPerPage && (
+        {!loading && recitsArtistiques.length > itemsPerPage && (
           <div className='flex justify-center mt-30'>
             <Pagination
               total={totalPages}

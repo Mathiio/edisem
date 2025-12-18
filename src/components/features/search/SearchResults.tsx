@@ -29,7 +29,7 @@ interface SearchResultsProps {
   loading: {
     actants: boolean;
     conferences: boolean;
-    oeuvres: boolean;
+    recitsArtistiques: boolean;
   };
   hasSearched: boolean;
   totalResults: number;
@@ -71,8 +71,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, 
           ))}
         </SearchResultSection>
 
-        <SearchResultSection title='Récits Artistiques/Oeuvres' count={results.oeuvres.length} loading={loading.oeuvres}>
-          {results.oeuvres.map((oeuvre) => (
+        <SearchResultSection title='Récits Artistiques/Oeuvres' count={results.recitsArtistiques.length} loading={loading.recitsArtistiques}>
+          {results.recitsArtistiques.map((oeuvre) => (
             <motion.div key={oeuvre.id} initial='hidden' animate='visible' variants={cardVariants} custom={getNextIndex()}>
               <SearchModalCard id={oeuvre.id} title={oeuvre.title} date={oeuvre.date} thumbnail={oeuvre.thumbnail} acteurs={oeuvre.acteurs} onClose={onClose} />
             </motion.div>
@@ -91,7 +91,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, 
           ))}
         </SearchResultSection>
 
-        {hasSearched && totalResults === 0 && !loading.actants && !loading.conferences && !loading.oeuvres && (
+        {hasSearched && totalResults === 0 && !loading.actants && !loading.conferences && !loading.recitsArtistiques && (
           <motion.div className='w-full flex justify-center p-50' initial='hidden' animate='visible' variants={cardVariants} custom={0}>
             <p className='text-c6 text-16'>Aucun résultat trouvé</p>
           </motion.div>

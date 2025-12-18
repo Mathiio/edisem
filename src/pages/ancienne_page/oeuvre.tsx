@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getOeuvres, getActants, getTools, getKeywords, getStudents } from '@/services/Items';
+import { getRecitsArtistiques, getActants, getTools, getKeywords, getStudents } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
 import { FullCarrousel, LongCarrousel } from '@/components/ui/Carrousels';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
@@ -79,12 +79,12 @@ export const Oeuvre: React.FC = () => {
     }
   };
 
-  useEffect(() => {}, [currentVideoTime]);
+  useEffect(() => { }, [currentVideoTime]);
 
   const fetchOeuvreData = useCallback(async () => {
     setLoading(true);
     try {
-      const [recitIas, actants, students, tools, keywords] = await Promise.all([getOeuvres(), getActants(), getStudents(), getTools(), getKeywords()]);
+      const [recitIas, actants, students, tools, keywords] = await Promise.all([getRecitsArtistiques(), getActants(), getStudents(), getTools(), getKeywords()]);
       const actantMap = new Map();
       actants.forEach((a: any) => {
         actantMap.set(a.id, a);
@@ -381,9 +381,8 @@ export const Oeuvre: React.FC = () => {
                       {viewOptions.map((option) => (
                         <DropdownItem key={option.key} className={`p-0 ${selected === option.key ? 'bg-action' : ''}`} onClick={() => handleOptionSelect(option.key)}>
                           <div
-                            className={`flex items-center w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 ${
-                              selected === option.key ? 'bg-action text-selected font-medium' : 'text-c6'
-                            }`}>
+                            className={`flex items-center w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 ${selected === option.key ? 'bg-action text-selected font-medium' : 'text-c6'
+                              }`}>
                             <span className='text-16'>{option.title}</span>
                           </div>
                         </DropdownItem>

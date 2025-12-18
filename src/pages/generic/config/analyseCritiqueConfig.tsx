@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
-import { getAnnotations, getAnnotationsWithTargets, getRecitsTechnoIndustriels, getOeuvres } from '@/services/Items';
+import { getAnnotations, getAnnotationsWithTargets, getRecitsTechnoIndustriels, getRecitsArtistiques } from '@/services/Items';
 import { createTargetsListView, createTextView } from '../helpers';
 
 /**
@@ -98,9 +98,9 @@ export const analyseCritiqueConfig: GenericDetailPageConfig = {
         return (parentObjet.descriptions || []).filter((d: any) => String(d.id) !== String(itemDetails.id));
       }
 
-      // Essayer dans les oeuvres
-      const oeuvres = await getOeuvres();
-      const parentOeuvre = oeuvres.find((o: any) => o.annotations?.some((a: any) => String(a.id) === String(itemDetails.id)));
+      // Essayer dans les recitsArtistiques
+      const recitsArtistiques = await getRecitsArtistiques();
+      const parentOeuvre = recitsArtistiques.find((o: any) => o.annotations?.some((a: any) => String(a.id) === String(itemDetails.id)));
 
       if (parentOeuvre) {
         return (parentOeuvre.annotations || []).filter((a: any) => String(a.id) !== String(itemDetails.id));
