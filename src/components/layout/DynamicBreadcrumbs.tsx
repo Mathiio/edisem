@@ -105,8 +105,8 @@ const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string):
           label: params.slug,
         });
       }
-    } else if (segments[1] === 'oeuvre' && params.id) {
-      breadcrumbs.push({ label: 'Récits artistiques', href: '/corpus/recit-artistique' });
+    } else if (segments[1] === 'recit-artistique' && params.id) {
+      breadcrumbs.push({ label: 'Récits artistiques', href: '/corpus/recits-artistiques' });
       breadcrumbs.push({
         label: itemTitle || `Récit artistique`,
         isLoading: isItemLoading,
