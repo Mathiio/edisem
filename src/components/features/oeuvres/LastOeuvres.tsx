@@ -41,7 +41,7 @@ export const LastOeuvres: React.FC<LastOeuvresProps> = ({ oeuvres, loading, item
     <div className='flex flex-col w-full gap-20'>
       {/* Main content */}
       <div className='w-full flex justify-between items-center'>
-        <h2 className='text-24 font-medium text-c6'>Toutes nos Analyses d'Oeuvres</h2>
+        <h2 className='text-24 font-medium text-c6'>Toutes nos Récits Artistiques/Oeuvres</h2>
         {!loading && oeuvres.length > itemsPerPage && (
           <div className='flex justify-center mt-30'>
             <Pagination

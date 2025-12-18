@@ -34,7 +34,7 @@ const GenreCard = ({ genre }: { genre: Genre }) => {
 
   const handleClick = () => {
     const slug = slugUtils.toSlug(genre.name);
-    navigate(`/corpus/oeuvres/genre/${slug}`);
+    navigate(`/corpus/recits-artistiques/genre/${slug}`);
   };
 
 
@@ -93,7 +93,7 @@ export const GenreCarousel = ({ oeuvres, loading = false }: GenreCarouselProps) 
   return (
     <div className="w-full max-w-full">
       <FullCarrousel
-        title="Analyses d'Oeuvres par genre"
+        title="Récits Artistiques/Oeuvres par genre"
         data={genres}
         perPage={3}
         perMove={1}

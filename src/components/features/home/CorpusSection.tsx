@@ -29,20 +29,6 @@ const corpusCards = [
     path: '/corpus/seminaires',
   },
   {
-    id: 'oeuvres',
-    icon: OeuvreIcon,
-    title: 'Œuvres',
-    description: "Collections d'œuvres artistiques et créatives du projet.",
-    path: '/corpus/oeuvres',
-  },
-  {
-    id: 'experimentations',
-    icon: ExperimentationIcon,
-    title: 'Expérimentations',
-    description: 'Explorations interdisciplinaires et démarches expérimentales.',
-    path: '/corpus/experimentations',
-  },
-  {
     id: 'PratiqueNarrative',
     icon: PratiqueNarrativeIcon,
     title: 'IA & Pratiques Narratives',

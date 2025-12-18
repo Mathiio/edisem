@@ -71,7 +71,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, 
           ))}
         </SearchResultSection>
 
-        <SearchResultSection title='Œuvres' count={results.oeuvres.length} loading={loading.oeuvres}>
+        <SearchResultSection title='Récits Artistiques/Oeuvres' count={results.oeuvres.length} loading={loading.oeuvres}>
           {results.oeuvres.map((oeuvre) => (
             <motion.div key={oeuvre.id} initial='hidden' animate='visible' variants={cardVariants} custom={getNextIndex()}>
               <SearchModalCard id={oeuvre.id} title={oeuvre.title} date={oeuvre.date} thumbnail={oeuvre.thumbnail} acteurs={oeuvre.acteurs} onClose={onClose} />

@@ -95,7 +95,7 @@ function App() {
         <Route path='/corpus/journees-etudes/conference/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
 
         {/* Routes pour les items individuels */}
-        <Route path='/corpus/oeuvres/genre/:slug' Component={GenreDetail} />
+        <Route path='/corpus/recits-artistiques/genre/:slug' Component={GenreDetail} />
         <Route path='/corpus/experimentation/:id' element={<ConfigurableDetailPage config={experimentationConfig} />} />
         <Route path='/feedback/:id' element={<ConfigurableDetailPage config={feedbackConfig} />} />
         <Route path='/corpus/element-esthetique/:id' element={<ConfigurableDetailPage config={elementEsthetiqueConfig} />} />
