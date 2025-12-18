@@ -61,7 +61,6 @@ function App() {
         <Route path='/corpus/journees-etudes' Component={JourneesEtudes} />
         <Route path='/corpus/pratiques-narratives' Component={PratiquesNarratives} />
         <Route path='/corpus/experimentations' Component={Experimentations} />
-        <Route path='/corpus/oeuvres' Component={Oeuvres} />
         <Route path='/corpus/mises-en-recits' Component={MisesEnRecits} />
 
         {/* Recits by Genre Routes */}
@@ -69,6 +68,7 @@ function App() {
         <Route path='/corpus/recits-techno-industriels' Component={RecitsByGenre} />
         <Route path='/corpus/recits-citoyens' Component={RecitsByGenre} />
         <Route path='/corpus/recits-mediatiques' Component={RecitsByGenre} />
+        <Route path='/corpus/recits-artistiques' Component={Oeuvres} />
 
         {/* ============================================ */}
         {/* 🆕 NOUVELLE ARCHITECTURE GÉNÉRIQUE - ROUTES PRINCIPALES */}
@@ -97,16 +97,16 @@ function App() {
         {/* Routes pour les items individuels */}
         <Route path='/corpus/oeuvres/genre/:slug' Component={GenreDetail} />
         <Route path='/corpus/experimentation/:id' element={<ConfigurableDetailPage config={experimentationConfig} />} />
-        <Route path='/corpus/oeuvre/:id' element={<ConfigurableDetailPage config={oeuvreConfig} />} />
         <Route path='/feedback/:id' element={<ConfigurableDetailPage config={feedbackConfig} />} />
         <Route path='/corpus/element-esthetique/:id' element={<ConfigurableDetailPage config={elementEsthetiqueConfig} />} />
         <Route path='/corpus/element-narratif/:id' element={<ConfigurableDetailPage config={elementNarratifConfig} />} />
         <Route path='/corpus/analyse-critique/:id' element={<ConfigurableDetailPage config={analyseCritiqueConfig} />} />
-        <Route path='/corpus/recit-techno-industriel/:id' element={<ConfigurableDetailPage config={objetTechnoConfig} />} />
         <Route path='/corpus/tool/:id' element={<ConfigurableDetailPage config={toolConfig} />} />
         <Route path='/corpus/recit-scientifique/:id' element={<ConfigurableDetailPage config={documentationScientifiqueConfig} />} />
         <Route path='/corpus/recit-mediatique/:id' element={<ConfigurableDetailPage config={recitmediatiqueConfig} />} />
         <Route path='/corpus/recit-citoyen/:id' element={<ConfigurableDetailPage config={recitcitoyenConfig} />} />
+        <Route path='/corpus/recit-artistique/:id' element={<ConfigurableDetailPage config={oeuvreConfig} />} />
+        <Route path='/corpus/recit-techno-industriel/:id' element={<ConfigurableDetailPage config={objetTechnoConfig} />} />
 
         {/* Routes pour les personnes/intervenants (toujours utilisées directement) */}
         <Route path='/intervenant/:id' Component={Intervenant} />

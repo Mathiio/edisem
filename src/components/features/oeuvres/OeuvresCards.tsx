@@ -26,7 +26,7 @@ export const SearchModalCard: React.FC<SearchModalProps> = ({ id, title, date, t
   const textRef = useRef<HTMLParagraphElement>(null);
 
   const openOeuvre = () => {
-    navigate(`/corpus/oeuvre/${id}`);
+    navigate(`/corpus/recit-artistique/${id}`);
     onClose();
   };
 
@@ -58,9 +58,8 @@ export const SearchModalCard: React.FC<SearchModalProps> = ({ id, title, date, t
       onClick={openOeuvre}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`cursor-pointer border-2 h-full rounded-12 flex items-center justify-start p-20 gap-20 transition-transform-colors-opacity ${
-        isHovered ? 'border-c4' : 'border-c3'
-      }`}>
+      className={`cursor-pointer border-2 h-full rounded-12 flex items-center justify-start p-20 gap-20 transition-transform-colors-opacity ${isHovered ? 'border-c4' : 'border-c3'
+        }`}>
       {/* Image ou placeholder */}
       <div
         className={`p-50 h-full w-300 rounded-12 justify-center items-center flex ${thumbnail ? 'bg-cover bg-center' : 'bg-gradient-to-br from-200 to-400'}`}
@@ -115,7 +114,7 @@ export const OeuvreCard: React.FC<OeuvreCardProps> = (props) => {
 
   const openOeuvre = () => {
     // Navigation vers la page de l'œuvre
-    navigate(`/corpus/oeuvre/${oeuvre.id}`);
+    navigate(`/corpus/recit-artistique/${oeuvre.id}`);
   };
 
   const formatActantNames = () => {
@@ -152,10 +151,10 @@ export const OeuvreCard: React.FC<OeuvreCardProps> = (props) => {
         <div
           className={`w-full h-150 rounded-12 justify-center items-center flex ${thumbnailUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'}`}
           style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
-            {!thumbnailUrl && <ThumbnailIcon className="text-c4/20" size={40}/>}
+          {!thumbnailUrl && <ThumbnailIcon className="text-c4/20" size={40} />}
         </div>
 
-          {/* Content */}
+        {/* Content */}
         <div className='flex flex-col gap-2 w-full'>
           {/* Title */}
           <div className='flex flex-col gap-1.5 w-full'>
@@ -165,63 +164,63 @@ export const OeuvreCard: React.FC<OeuvreCardProps> = (props) => {
             {/* Date */}
             <p className='text-12 text-c5 font-extralight'>{oeuvre.date ? oeuvre.date : "Aucune date"}</p>
           </div>
-        {hasActants && (
-          <div className='flex items-center gap-5'>
-            {/* Authors avatars */}
-            <div className='flex items-center relative'>
-              {(() => {
-                const people = oeuvre.personne || oeuvre.actant || [];
-                
-                // CASE 1 : One author
-                if (people.length === 1) {
-                  const person = people[0];
+          {hasActants && (
+            <div className='flex items-center gap-5'>
+              {/* Authors avatars */}
+              <div className='flex items-center relative'>
+                {(() => {
+                  const people = oeuvre.personne || oeuvre.actant || [];
+
+                  // CASE 1 : One author
+                  if (people.length === 1) {
+                    const person = people[0];
+                    return (
+                      <div className='w-7 h-7 rounded-8 border-3 border-c1 overflow-hidden'>
+                        {person.picture ? (
+                          <img
+                            src={person.picture}
+                            alt={`${person.firstname || person.firstName} ${person.lastname || person.lastName}`}
+                            className='w-full h-full object-cover'
+                          />
+                        ) : (
+                          <div className='w-full h-full rounded-8 bg-c4 flex items-center justify-center'>
+                            <UserIcon size={12} className='text-c1' />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  // CASE 2 : Multiple authors (2+)
                   return (
-                    <div className='w-7 h-7 rounded-8 border-3 border-c1 overflow-hidden'>
-                      {person.picture ? (
-                        <img 
-                          src={person.picture} 
-                          alt={`${person.firstname || person.firstName} ${person.lastname || person.lastName}`} 
-                          className='w-full h-full object-cover' 
-                        />
-                      ) : (
-                        <div className='w-full h-full rounded-8 bg-c4 flex items-center justify-center'>
-                          <UserIcon size={12} className='text-c1' />
-                        </div>
-                      )}
+                    <div className='w-7 h-7 rounded-8 border-3 border-c3 bg-c3 flex items-center justify-center'>
+                      <p className='text-12 font-bold text-c4'>
+                        +{people.length}
+                      </p>
                     </div>
                   );
-                }
-                
-                // CASE 2 : Multiple authors (2+)
-                return (
-                  <div className='w-7 h-7 rounded-8 border-3 border-c3 bg-c3 flex items-center justify-center'>
-                    <p className='text-12 font-bold text-c4'>
-                      +{people.length}
-                    </p>
-                  </div>
-                );
-              })()}
-            </div>
+                })()}
+              </div>
 
-            {/* Authors info */}
-            <div className='flex flex-col gap-1 w-full'>
-              <p className='text-14 text-c4 font-extralight w-full line-clamp-1'>{formatActantNames()}</p>
+              {/* Authors info */}
+              <div className='flex flex-col gap-1 w-full'>
+                <p className='text-14 text-c4 font-extralight w-full line-clamp-1'>{formatActantNames()}</p>
+              </div>
             </div>
-          </div>
-        )}
-        {!hasActants && 
-          <div className='flex items-center gap-1.5 w-full'>
-            <div className='h-6 w-6 rounded-6 bg-c3 flex items-center justify-center text-12 font-semibold text-c1'>
-              <UserIcon size={12} className='text-c4' />
+          )}
+          {!hasActants &&
+            <div className='flex items-center gap-1.5 w-full'>
+              <div className='h-6 w-6 rounded-6 bg-c3 flex items-center justify-center text-12 font-semibold text-c1'>
+                <UserIcon size={12} className='text-c4' />
+              </div>
+              <p className='text-16 text-c5 font-extralight'>Aucun auteur</p>
             </div>
-            <p className='text-16 text-c5 font-extralight'>Aucun auteur</p>
-          </div>
-        }
+          }
         </div>
       </div>
       <div className="flex gap-1.5 items-center">
         <OeuvreIcon className="text-c4/60" size={14} />
-        <p className='text-14 text-c4/60 font-medium'>Oeuvre</p>
+        <p className='text-14 text-c4/60 font-medium'>Récit Artistique/Oeuvre</p>
       </div>
     </div>
   );

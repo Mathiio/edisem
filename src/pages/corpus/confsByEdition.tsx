@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { getConfByEdition } from '@/services/api';
 import * as Items from '@/services/Items';
@@ -22,7 +22,6 @@ export const Edition: React.FC = () => {
   const [conf, setConf] = useState<Conference[]>([]);
   const [loadingConf, setLoadingConf] = useState(true);
   const [edition, setEdition] = useState<EditionType | null>(null);
-  const dataFetchedRef = useRef(false);
 
   const fetchEdition = useCallback(async () => {
     if (!id) return;
@@ -42,18 +41,18 @@ export const Edition: React.FC = () => {
       conferences.map(async (conference) => {
         try {
           // Si actant est déjà un array d'objets, on le garde
-          if (Array.isArray(conference.actant) && 
-              conference.actant.length > 0 && 
-              typeof conference.actant[0] === 'object' && 
-              conference.actant[0].firstname) {
+          if (Array.isArray(conference.actant) &&
+            conference.actant.length > 0 &&
+            typeof conference.actant[0] === 'object' &&
+            conference.actant[0].firstname) {
             return conference;
           }
 
           // Si actant est un array d'IDs ou une string d'IDs
           let actantIds: string[] = [];
-          
+
           if (typeof conference.actant === 'string') {
-            actantIds = conference.actant.includes(',') 
+            actantIds = conference.actant.includes(',')
               ? conference.actant.split(',').map((id: string) => id.trim())
               : [conference.actant];
           } else if (Array.isArray(conference.actant)) {
@@ -90,8 +89,8 @@ export const Edition: React.FC = () => {
   };
 
   const fetchConf = useCallback(async () => {
-    if (dataFetchedRef.current || !id) return;
-    
+    if (!id) return;
+
     try {
       setLoadingConf(true);
       const conferences = await getConfByEdition(id);
@@ -102,7 +101,6 @@ export const Edition: React.FC = () => {
       setConf([]);
     } finally {
       setLoadingConf(false);
-      dataFetchedRef.current = true;
     }
   }, [id]);
 
@@ -137,10 +135,10 @@ export const Edition: React.FC = () => {
         {loadingConf
           ? Array.from({ length: 12 }).map((_, index) => <ConfCardSkeleton key={index} />)
           : conf.map((conference, index) => (
-              <motion.div initial='hidden' animate='visible' variants={fadeIn} key={conference.id} custom={index}>
-                <ConfCard {...conference} />
-              </motion.div>
-            ))}
+            <motion.div initial='hidden' animate='visible' variants={fadeIn} key={conference.id} custom={index}>
+              <ConfCard {...conference} />
+            </motion.div>
+          ))}
       </div>
     </Layouts>
   );
