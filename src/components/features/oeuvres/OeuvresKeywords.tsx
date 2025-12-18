@@ -131,9 +131,8 @@ const KeywordItem: React.FC<KeywordItemProps> = ({ keyword, description, isTopKe
         <motion.div className='p-1 bg-gradient-to-br from-c4 to-c2 bg-[length:120%] rounded-8 flex' variants={keywordFadeIn} custom={index}>
           <div className='bg-c1 flex px-15 py-10 rounded-8'>
             <p
-              className={`text-16 font-medium transition-all duration-200 ${
-                isTopKeyword ? 'bg-gradient-to-t from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-top' : 'text-c6'
-              }`}>
+              className={`text-16 font-medium transition-all duration-200 ${isTopKeyword ? 'bg-gradient-to-t from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-top' : 'text-c6'
+                }`}>
               {keyword}
             </p>
           </div>
@@ -202,17 +201,17 @@ export const OeuvresKeywords: React.FC<KeywordsCloudProps> = ({ oeuvres, maxKeyw
   }, [keywordMap, topKeywords, maxKeywords]);
 
   // Log keywords to console
-  useEffect(() => {}, [selectedKeywords]);
+  useEffect(() => { }, [selectedKeywords]);
 
   return (
     <motion.section className='flex gap-50 items-end' initial='hidden' animate='visible'>
       <div className='flex-1 flex flex-col justify-center gap-20 max-w-40'>
         <motion.p className='text-c5 text-16 transition-all ease-in-out duration-200 max-w-md' variants={fadeIn} custom={0}>
-          Mots clés les plus abordées dans nos oeuvres.
+          Des analyse centrées sur des thèmes
         </motion.p>
         <motion.h2 className='text-c6 text-64 transition-all ease-in-out duration-200' variants={fadeIn} custom={1}>
-          Les mots-clés <br /> qui Façonnent
-          <br /> Nos œuvres
+          Les mots-clés <br /> autour de nos
+          <br /> Analyses d'Oeuvres
         </motion.h2>
       </div>
 

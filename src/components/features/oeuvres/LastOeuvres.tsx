@@ -41,7 +41,7 @@ export const LastOeuvres: React.FC<LastOeuvresProps> = ({ oeuvres, loading, item
     <div className='flex flex-col w-full gap-20'>
       {/* Main content */}
       <div className='w-full flex justify-between items-center'>
-        <h2 className='text-24 font-medium text-c6'>Toutes nos oeuvres</h2>
+        <h2 className='text-24 font-medium text-c6'>Toutes nos Analyses d'Oeuvres</h2>
         {!loading && oeuvres.length > itemsPerPage && (
           <div className='flex justify-center mt-30'>
             <Pagination
@@ -66,19 +66,19 @@ export const LastOeuvres: React.FC<LastOeuvresProps> = ({ oeuvres, loading, item
       <div className='grid grid-cols-4 grid-rows-auto gap-20'>
         {loading
           ? // Skeleton loading (adapted to the number of items per page)
-            Array.from({ length: Math.min(itemsPerPage, 8) }).map((_, index) => (
-              <div key={`skeleton-${index}`} className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] h-[280px] border-c3 border-2 p-20 rounded-30 animate-pulse'>
-                <div className='w-full h-40 rounded-15 bg-c2 mb-15'></div>
-                <div className='h-6 w-3/4 bg-c2 rounded mb-10'></div>
-                <div className='h-4 w-1/2 bg-c2 rounded'></div>
-              </div>
-            ))
+          Array.from({ length: Math.min(itemsPerPage, 8) }).map((_, index) => (
+            <div key={`skeleton-${index}`} className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] h-[280px] border-c3 border-2 p-20 rounded-30 animate-pulse'>
+              <div className='w-full h-40 rounded-15 bg-c2 mb-15'></div>
+              <div className='h-6 w-3/4 bg-c2 rounded mb-10'></div>
+              <div className='h-4 w-1/2 bg-c2 rounded'></div>
+            </div>
+          ))
           : // Cards with animations
-            paginatedOeuvres.map((oeuvre: any, index: number) => (
-              <motion.div key={`${oeuvre.id}-${activePage}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                <OeuvreCard {...oeuvre}/>
-              </motion.div>
-            ))}
+          paginatedOeuvres.map((oeuvre: any, index: number) => (
+            <motion.div key={`${oeuvre.id}-${activePage}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
+              <OeuvreCard {...oeuvre} />
+            </motion.div>
+          ))}
       </div>
     </div>
   );

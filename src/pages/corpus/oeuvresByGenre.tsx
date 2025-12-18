@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import * as Items from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
@@ -21,20 +21,11 @@ export const GenreDetail: React.FC = () => {
   const [oeuvres, setOeuvres] = useState<any[]>([]);
   const [genreName, setGenreName] = useState<string>('');
   const [loading, setLoading] = useState(true);
-  const dataFetchedRef = useRef(false);
-
   const fetchOeuvresByGenre = useCallback(async () => {
-    if (dataFetchedRef.current || !slug) return;
-    dataFetchedRef.current = true;
+    if (!slug) return;
 
     try {
       setLoading(true);
-
-      // Clear cache to force reload with normalized data
-      sessionStorage.removeItem('oeuvres');
-      sessionStorage.removeItem('personnes');
-      sessionStorage.removeItem('actants');
-      sessionStorage.removeItem('students');
 
       // Get all works (already normalized in the service)
       const allOeuvres = await Items.getOeuvres();
@@ -83,9 +74,7 @@ export const GenreDetail: React.FC = () => {
   }, [slug]);
 
   useEffect(() => {
-    if (!dataFetchedRef.current) {
-      fetchOeuvresByGenre();
-    }
+    fetchOeuvresByGenre();
   }, [fetchOeuvresByGenre]);
 
   const displayTitle = genreName || slugUtils.toTitle(slug || '') || 'Genre';
@@ -120,10 +109,10 @@ export const GenreDetail: React.FC = () => {
         {loading
           ? Array.from({ length: 8 }).map((_, index) => <div key={index} />)
           : oeuvres.map((oeuvre, index) => (
-              <motion.div initial='hidden' animate='visible' variants={fadeIn} key={oeuvre.id} custom={index}>
-                <OeuvreCard {...oeuvre} />
-              </motion.div>
-            ))}
+            <motion.div initial='hidden' animate='visible' variants={fadeIn} key={oeuvre.id} custom={index}>
+              <OeuvreCard {...oeuvre} />
+            </motion.div>
+          ))}
       </div>
       {/* No Oeuvres found message */}
       {!loading && oeuvres.length === 0 && (

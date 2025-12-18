@@ -36,7 +36,7 @@ const GenreCard = ({ genre }: { genre: Genre }) => {
     const slug = slugUtils.toSlug(genre.name);
     navigate(`/corpus/oeuvres/genre/${slug}`);
   };
-  
+
 
   return (
     <motion.div
@@ -62,38 +62,38 @@ const GenreCard = ({ genre }: { genre: Genre }) => {
 export const GenreCarousel = ({ oeuvres, loading = false }: GenreCarouselProps) => {
   const [genres, setGenres] = useState<Genre[]>([]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!loading && oeuvres.length > 0) {
-        const genreMap: { [key: string]: { oeuvres: any[] } } = {};
+      const genreMap: { [key: string]: { oeuvres: any[] } } = {};
 
-        oeuvres.forEach((oeuvre: any) => {
+      oeuvres.forEach((oeuvre: any) => {
         const genreName = oeuvre.genre;
         if (!genreName) return;
 
         if (!genreMap[genreName]) {
-            genreMap[genreName] = { oeuvres: [] };
+          genreMap[genreName] = { oeuvres: [] };
         }
         genreMap[genreName].oeuvres.push(oeuvre);
-        });
+      });
 
-        const formattedGenres = Object.entries(genreMap)
+      const formattedGenres = Object.entries(genreMap)
         .map(([name, { oeuvres }]) => ({
-            name,
-            count: oeuvres.length,
-            oeuvres: oeuvres.sort((a, b) => b.date - a.date)
+          name,
+          count: oeuvres.length,
+          oeuvres: oeuvres.sort((a, b) => b.date - a.date)
         }))
         .sort((a, b) => b.count - a.count);
 
-        setGenres(formattedGenres);
+      setGenres(formattedGenres);
     }
-    }, [oeuvres, loading]);
+  }, [oeuvres, loading]);
 
   if (loading || genres.length === 0) return null;
 
   return (
     <div className="w-full max-w-full">
       <FullCarrousel
-        title='Oeuvres par genre'
+        title="Analyses d'Oeuvres par genre"
         data={genres}
         perPage={3}
         perMove={1}

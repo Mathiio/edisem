@@ -54,11 +54,11 @@ export const Oeuvres: React.FC = () => {
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
       <PageBanner
         icon={<OeuvreIcon size={40} />}
-        title="Œuvres Edisem"
-        description="Découvrez les œuvres scientifiques et intellectuelles qui constituent le patrimoine éditorial d'EdiSem, reflétant la richesse de nos recherches et collaborations académiques."
+        title="Récits Artistiques/Oeuvres"
+        description="Découvrez nos analyses de récits et d'oeuvres artistiques qui constituent le patrimoine éditorial d'Edisem, reflétant la richesse de nos recherches et collaborations académiques."
         stats={[
-          { label: 'œuvres', value: oeuvres.length },
-          { label: "genres d'oeuvres", value: uniqueGenres }
+          { label: "analyses d'œuvres", value: oeuvres.length },
+          { label: "genres d'analyses", value: uniqueGenres }
         ]}
       />
       <GenreCarousel oeuvres={oeuvres} loading={loading} />
