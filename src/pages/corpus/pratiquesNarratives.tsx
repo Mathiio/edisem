@@ -12,7 +12,6 @@ import { PageBanner } from '@/components/ui/PageBanner';
 
 
 export const PratiquesNarratives: React.FC = () => {
-    const [loading, setLoading] = useState(true);
     const [metrics, setMetrics] = useState({
         recits: 0,
         oeuvres: 0,
@@ -90,8 +89,6 @@ export const PratiquesNarratives: React.FC = () => {
 
              } catch (error) {
                  console.error("Failed to load Pratiques Narratives data", error);
-             } finally {
-                 setLoading(false);
              }
         };
         loadData();
