@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
 import { FullCarrousel } from '@/components/ui/Carrousels';
-import { ColloqueIcon, ExperimentationIcon, OeuvreIcon, PratiqueNarrativeIcon, SeminaireIcon, StudyDayIcon } from '@/components/ui/icons';
+import { ColloqueIcon, PratiqueNarrativeIcon, SeminaireIcon, StudyDayIcon } from '@/components/ui/icons';
 
 // Animation variants for cards
 const cardVariants: Variants = {
