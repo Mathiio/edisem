@@ -144,16 +144,16 @@ const KeywordItem: React.FC<KeywordItemProps> = ({ keyword, description, isTopKe
 };
 
 interface KeywordsCloudProps {
-  oeuvres: Array<{ id: string; keywords?: string[] | Array<{ id?: string; title?: string; description?: string; short_resume?: string }> }>;
+  recitsArtistiques: Array<{ id: string; keywords?: string[] | Array<{ id?: string; title?: string; description?: string; short_resume?: string }> }>;
   maxKeywords?: number;
 }
 
-export const OeuvresKeywords: React.FC<KeywordsCloudProps> = ({ oeuvres, maxKeywords = 16 }) => {
+export const OeuvresKeywords: React.FC<KeywordsCloudProps> = ({ recitsArtistiques, maxKeywords = 16 }) => {
   // État pour suivre quel keyword est en hover
   const [hoveredKeyword, setHoveredKeyword] = useState<string | null>(null);
 
-  // Gérer le cas où oeuvres est undefined ou null
-  const safeOeuvres = Array.isArray(oeuvres) ? oeuvres : [];
+  // Gérer le cas où recitsArtistiques est undefined ou null
+  const safeOeuvres = Array.isArray(recitsArtistiques) ? recitsArtistiques : [];
 
   // Extract keywords with their descriptions
   const keywordMap = useMemo(() => {

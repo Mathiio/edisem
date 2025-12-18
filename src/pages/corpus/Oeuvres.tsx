@@ -9,31 +9,31 @@ import { useCallback, useEffect, useState } from 'react';
 
 export const Oeuvres: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const [oeuvres, setOeuvres] = useState<any[]>([]);
+  const [recitsArtistiques, setOeuvres] = useState<any[]>([]);
 
   const fetchOeuvresData = useCallback(async () => {
     setLoading(true);
     try {
       // Clear cache to force reload with normalized data
-      sessionStorage.removeItem('oeuvres');
+      sessionStorage.removeItem('recitsArtistiques');
       sessionStorage.removeItem('personnes');
       sessionStorage.removeItem('actants');
       sessionStorage.removeItem('students');
 
       // Get all works (already normalized in the service)
-      const oeuvres = await Items.getOeuvres();
+      const recitsArtistiques = await Items.getRecitsArtistiques();
 
-      // Verify if oeuvres is a valid array
-      if (!Array.isArray(oeuvres)) {
-        console.warn('⚠️ getOeuvres() did not return an array:', oeuvres);
+      // Verify if recitsArtistiques is a valid array
+      if (!Array.isArray(recitsArtistiques)) {
+        console.warn('⚠️ getRecitsArtistiques() did not return an array:', recitsArtistiques);
         setOeuvres([]);
         return;
       }
 
-      setOeuvres(oeuvres);
+      setOeuvres(recitsArtistiques);
 
     } catch (error) {
-      console.error('❌ Error loading oeuvres:', error);
+      console.error('❌ Error loading recitsArtistiques:', error);
       setOeuvres([]);
     } finally {
       setLoading(false);
@@ -45,7 +45,7 @@ export const Oeuvres: React.FC = () => {
   }, [fetchOeuvresData]);
 
   const uniqueGenres = new Set(
-    oeuvres
+    recitsArtistiques
       .map(oeuvre => oeuvre.genre)
       .filter(genre => genre !== undefined && genre !== null && genre !== '')
   ).size;
@@ -57,13 +57,13 @@ export const Oeuvres: React.FC = () => {
         title="Récits Artistiques/Oeuvres"
         description="Découvrez nos analyses de récits et d'oeuvres artistiques qui constituent le patrimoine éditorial d'Edisem, reflétant la richesse de nos recherches et collaborations académiques."
         stats={[
-          { label: "analyses d'œuvres", value: oeuvres.length },
-          { label: "genres d'analyses", value: uniqueGenres }
+          { label: "récits artistiques", value: recitsArtistiques.length },
+          { label: "genre de récits artistiques", value: uniqueGenres }
         ]}
       />
-      <GenreCarousel oeuvres={oeuvres} loading={loading} />
-      <OeuvresKeywords oeuvres={oeuvres} />
-      <LastOeuvres oeuvres={oeuvres} loading={loading} />
+      <GenreCarousel recitsArtistiques={recitsArtistiques} loading={loading} />
+      <OeuvresKeywords recitsArtistiques={recitsArtistiques} />
+      <LastOeuvres recitsArtistiques={recitsArtistiques} loading={loading} />
     </Layouts>
   );
 };

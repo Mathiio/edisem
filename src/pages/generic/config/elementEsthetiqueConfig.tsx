@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
-import { getElementEsthetiques, getOeuvres } from '@/services/Items';
+import { getElementEsthetiques, getRecitsArtistiques } from '@/services/Items';
 
 /**
  * Configuration pour les pages d'éléments esthétiques
@@ -110,8 +110,8 @@ export const elementEsthetiqueConfig: GenericDetailPageConfig = {
 
     // Récupère les autres éléments esthétiques de la même oeuvre
     getRelatedItems: async (itemDetails) => {
-      const oeuvres = await getOeuvres();
-      const parentOeuvre = oeuvres.find((o: any) => o.elementsEsthetique?.some((e: any) => String(e.id) === String(itemDetails.id)));
+      const recitsArtistiques = await getRecitsArtistiques();
+      const parentOeuvre = recitsArtistiques.find((o: any) => o.elementsEsthetique?.some((e: any) => String(e.id) === String(itemDetails.id)));
 
       if (parentOeuvre) {
         return (parentOeuvre.elementsEsthetique || []).filter((e: any) => String(e.id) !== String(itemDetails.id));

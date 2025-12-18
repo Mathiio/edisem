@@ -22,24 +22,24 @@ export const Personne: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [personne, setPersonne] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [oeuvres, setOeuvres] = useState<any[]>([]);
+  const [recitsArtistiques, setOeuvres] = useState<any[]>([]);
 
   const fetchPersonneData = useCallback(async () => {
     setLoading(true);
     try {
       // Vider le cache pour forcer le rechargement avec les données normalisées
       sessionStorage.removeItem('personnes');
-      sessionStorage.removeItem('oeuvres');
+      sessionStorage.removeItem('recitsArtistiques');
       sessionStorage.removeItem('elementNarratifs');
       sessionStorage.removeItem('elementEsthetique');
       sessionStorage.removeItem('annotations');
 
-      const [personne, oeuvres] = await Promise.all([Items.getPersonnes(Number(id)), getOeuvresByPersonne(Number(id))]);
+      const [personne, recitsArtistiques] = await Promise.all([Items.getPersonnes(Number(id)), getOeuvresByPersonne(Number(id))]);
 
       // Les données sont déjà normalisées dans le service
       setPersonne(personne);
 
-      setOeuvres(Array.isArray(oeuvres) ? oeuvres : []);
+      setOeuvres(Array.isArray(recitsArtistiques) ? recitsArtistiques : []);
 
     } catch (error) {
       console.error('Error fetching personne data:', error);
@@ -143,11 +143,11 @@ export const Personne: React.FC = () => {
         <div className='grid grid-cols-4 grid-rows-2 gap-25'>
           {loading
             ? Array.from({ length: 8 }).map((_, index) => <OeuvreCardSkeleton key={index} />)
-            : oeuvres.map((oeuvre, index) => (
-                <motion.div initial='hidden' animate='visible' variants={fadeIn} key={oeuvre.id} custom={index}>
-                  <OeuvreCard {...oeuvre} />
-                </motion.div>
-              ))}
+            : recitsArtistiques.map((oeuvre, index) => (
+              <motion.div initial='hidden' animate='visible' variants={fadeIn} key={oeuvre.id} custom={index}>
+                <OeuvreCard {...oeuvre} />
+              </motion.div>
+            ))}
         </div>
       </div>
     </Layouts>

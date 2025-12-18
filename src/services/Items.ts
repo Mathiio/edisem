@@ -17,7 +17,7 @@ const CACHE_KEYS = [
   'allItems',
   'tools',
   'personnes',
-  'oeuvres',
+  'recitsArtistiques',
   'keywords',
   'collections',
   'feedbacks',
@@ -756,7 +756,7 @@ export async function getAllItems() {
       recherches,
       tools,
       feedbacks,
-      oeuvres,
+      recitsArtistiques,
       personnes,
       comments,
     ] = await Promise.all([
@@ -777,7 +777,7 @@ export async function getAllItems() {
       getRecherches(),
       getTools(),
       getFeedbacks(),
-      getOeuvres(),
+      getRecitsArtistiques(),
       getPersonnes(),
       getComments(),
     ]);
@@ -798,7 +798,7 @@ export async function getAllItems() {
       ...students,
       ...experimentations,
       ...feedbacks,
-      ...oeuvres,
+      ...recitsArtistiques,
       ...tools,
       ...(Array.isArray(recherches) ? recherches : []),
       ...(Array.isArray(personnes) ? personnes : []),
@@ -928,23 +928,23 @@ export async function getPersonnes(id?: number) {
   }
 }
 
-export async function getOeuvres(id?: number) {
+export async function getRecitsArtistiques(id?: number) {
 
   try {
     checkAndClearDailyCache();
-    const storedOeuvres = sessionStorage.getItem('oeuvres');
-    if (storedOeuvres) {
+    const storedRecitsArtistiques = sessionStorage.getItem('recitsArtistiques');
+    if (storedRecitsArtistiques) {
 
-      const oeuvres = JSON.parse(storedOeuvres);
+      const recitsArtistiques = JSON.parse(storedRecitsArtistiques);
 
 
-      return id ? oeuvres.find((o: any) => o.id === String(id)) : oeuvres;
+      return id ? recitsArtistiques.find((o: any) => o.id === String(id)) : recitsArtistiques;
     }
 
 
 
     // Use Promise.all to fetch all needed data (can fetch additional data for linking elements)
-    const [oeuvres, personnes, elementsNarratifs, elementsEsthetique, annotations, keywords, bibliographies, mediagraphies] = await Promise.all([
+    const [recitsArtistiques, personnes, elementsNarratifs, elementsEsthetique, annotations, keywords, bibliographies, mediagraphies] = await Promise.all([
       getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1'),
       getPersonnes(),
       getElementNarratifs(),
@@ -982,7 +982,7 @@ export async function getOeuvres(id?: number) {
 
 
 
-    const oeuvresFull = oeuvres.map((oeuvre: any) => {
+    const oeuvresFull = recitsArtistiques.map((oeuvre: any) => {
       // Parse les IDs multiples séparés par des virgules pour personne
       let personneIds: string[] = [];
       if (oeuvre.personne) {
@@ -1115,11 +1115,11 @@ export async function getOeuvres(id?: number) {
 
 
 
-    sessionStorage.setItem('oeuvres', JSON.stringify(oeuvresFull));
+    sessionStorage.setItem('recitsArtistiques', JSON.stringify(oeuvresFull));
     return id ? oeuvresFull.find((o: any) => o.id === String(id)) : oeuvresFull;
   } catch (error) {
-    console.error('Error fetching oeuvres:', error);
-    throw new Error('Failed to fetch oeuvres');
+    console.error('Error fetching recitsArtistiques:', error);
+    throw new Error('Failed to fetch recitsArtistiques');
   }
 }
 
@@ -1959,7 +1959,7 @@ export async function getRecitsCitoyens(id?: number) {
               // Sinon, retourner l'objet tel quel (avec id, title, thumbnail)
               return creatorObj;
             }).filter(Boolean);
-            
+
             if (hydratedCreators.length > 0) {
               creatorHydrated = hydratedCreators.length === 1 ? hydratedCreators[0] : hydratedCreators;
             }
@@ -1972,7 +1972,7 @@ export async function getRecitsCitoyens(id?: number) {
                 return personnesMap.get(creatorId) || actantsMap.get(creatorId);
               })
               .filter(Boolean);
-            
+
             if (hydratedCreators.length > 0) {
               creatorHydrated = hydratedCreators.length === 1 ? hydratedCreators[0] : hydratedCreators;
             }
@@ -1989,7 +1989,7 @@ export async function getRecitsCitoyens(id?: number) {
             creatorHydrated = hydratedCreators.length === 1 ? hydratedCreators[0] : hydratedCreators;
           } else if (creatorStr !== '' && !isNaN(Number(creatorStr)) && /^\d+$/.test(creatorStr)) {
             // Si c'est un ID numérique unique
-            creatorHydrated = personnesMap.get(creatorStr) || actantsMap.get(creatorStr) ;
+            creatorHydrated = personnesMap.get(creatorStr) || actantsMap.get(creatorStr);
           } else {
             // Si c'est une chaîne de caractères (comme "BBC World Service"), garder la chaîne
             creatorHydrated = creatorStr;

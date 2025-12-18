@@ -24,7 +24,7 @@ export async function getConfByEdition(editionId: string) {
 
     const allConfs = [...seminarConfs, ...colloqueConfs, ...studyDayConfs];
 
-    const editionConfs = allConfs.filter((conf: any) => 
+    const editionConfs = allConfs.filter((conf: any) =>
       conf.edition === editionId
     );
 
@@ -39,7 +39,7 @@ export async function getConfByEdition(editionId: string) {
           );
           return { ...conf, actant: actantDetails };
         }
-        
+
         if (typeof conf.actant === 'string' || typeof conf.actant === 'number') {
           const actantDetails = await Items.getActants(conf.actant);
           return { ...conf, actant: [actantDetails] };
@@ -67,29 +67,29 @@ export async function getConfByActant(actantId: string) {
 
     const actantConfs = confs.filter((conf: { actant: string | string[] }) => {
       if (typeof conf.actant === 'string') {
-        return conf.actant.includes(',') 
+        return conf.actant.includes(',')
           ? conf.actant.split(',').map(id => id.trim()).includes(actantId)
           : conf.actant === actantId;
       }
       return Array.isArray(conf.actant) && conf.actant.includes(actantId);
     });
 
-  const updatedConfs = await Promise.all(
-    actantConfs.map(async (conf: { actant: string | string[]; }) => {
-      if (conf.actant) {
-        const actantIds = typeof conf.actant === 'string' 
-          ? (conf.actant.includes(',') ? conf.actant.split(',').map(id => id.trim()) : [conf.actant])
-          : conf.actant;
-        
-        const actantDetails = await Promise.all(
-          actantIds.map(id => Items.getActants(id))
-        );
-        
-        return { ...conf, actant: actantDetails.flat() }; 
-      }
-      return conf;
-    })
-  );
+    const updatedConfs = await Promise.all(
+      actantConfs.map(async (conf: { actant: string | string[]; }) => {
+        if (conf.actant) {
+          const actantIds = typeof conf.actant === 'string'
+            ? (conf.actant.includes(',') ? conf.actant.split(',').map(id => id.trim()) : [conf.actant])
+            : conf.actant;
+
+          const actantDetails = await Promise.all(
+            actantIds.map(id => Items.getActants(id))
+          );
+
+          return { ...conf, actant: actantDetails.flat() };
+        }
+        return conf;
+      })
+    );
 
     return updatedConfs;
   } catch (error) {
@@ -103,10 +103,10 @@ export async function getConfByActant(actantId: string) {
 export async function getResearchByActant(actantId: string) {
   try {
     const recherches = await Items.getRecherches();
-    
+
 
     // Filtrer les recherches en fonction du champ creator
-    const recherchesFiltrees = recherches.filter((recherche: { creator: string }) => 
+    const recherchesFiltrees = recherches.filter((recherche: { creator: string }) =>
       recherche.creator === actantId
     );
 
@@ -149,8 +149,8 @@ export async function filterActants(searchQuery: string) {
 
 
 
-export async function getConfCitations(confId: number){
-  try{
+export async function getConfCitations(confId: number) {
+  try {
     const confs = await Items.getAllConfs();
     const citations = await Items.getCitations();
     const actants = await Items.getActants();
@@ -171,7 +171,7 @@ export async function getConfCitations(confId: number){
 
       return confCitations;
     }
- } catch (error) {
+  } catch (error) {
     console.error('Error fetching conferences:', error);
     throw new Error('Failed to fetch conferences');
   }
@@ -182,19 +182,19 @@ export async function getConfByCitation(citationId: string) {
   try {
     const confs = await Items.getAllConfs();
     const citations = await Items.getCitations();
-    
+
     // Vérifie si la citation existe
     const citation = citations.find((citation: { id: string }) => citation.id === citationId);
-    
+
     if (!citation) {
       return null; // Retourne null si la citation n'existe pas
     }
-    
+
     // Recherche la conférence qui contient cet ID de citation
-    const conf = confs.find((conf: { citations: string[] }) => 
+    const conf = confs.find((conf: { citations: string[] }) =>
       conf.citations.includes(citationId)
     );
-    
+
     return conf;
   } catch (error) {
     console.error('Error fetching conference by citation:', error);
@@ -217,8 +217,8 @@ export async function getConfBibliographies(confId: number) {
       throw new Error(`No conference found with id: ${confId}`);
     }
 
-    const filteredBibliographies = bibliographies.filter((bib: { id: number }) => 
-      conf.bibliographies.includes(String(bib.id)) 
+    const filteredBibliographies = bibliographies.filter((bib: { id: number }) =>
+      conf.bibliographies.includes(String(bib.id))
     );
 
     return filteredBibliographies;
@@ -256,11 +256,9 @@ export async function getConfMediagraphies(confId: number) {
 
 
 export async function getOeuvresByPersonne(personneId: number) {
-  const oeuvres = await Items.getOeuvres();
-  console.log('All oeuvres:', oeuvres);
-  console.log('Looking for personneId:', personneId);
+  const recitsArtistiques = await Items.getRecitsArtistiques();
 
-  const filteredOeuvres = oeuvres.filter((oeuvre: any) => {
+  const filteredOeuvres = recitsArtistiques.filter((oeuvre: any) => {
     console.log('Checking oeuvre:', oeuvre.id, 'personne:', oeuvre.personne);
 
     if (!oeuvre.personne) return false;
@@ -282,7 +280,6 @@ export async function getOeuvresByPersonne(personneId: number) {
     return false;
   });
 
-  console.log('Filtered oeuvres:', filteredOeuvres);
   return filteredOeuvres;
 }
 

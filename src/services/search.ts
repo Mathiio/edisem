@@ -4,7 +4,7 @@ import * as Items from "@/services/Items"
 export interface SearchFilters {
   actants: any[];
   conferences: FilteredConfs;
-  oeuvres: any[];
+  recitsArtistiques: any[];
 }
 
 export interface FilteredConfs {
@@ -15,7 +15,7 @@ export interface FilteredConfs {
 
 const SEARCH_TYPE_MAPPING = {
   'journées d\'études': 'studyday',
-  'journée d\'étude': 'studyday', 
+  'journée d\'étude': 'studyday',
   'journées': 'studyday',
   'séminaire': 'seminar',
   'seminaire': 'seminar',
@@ -25,7 +25,7 @@ const SEARCH_TYPE_MAPPING = {
 } as const;
 
 export class SearchService {
-  
+
   static normalizeSearchQuery(query: string): string {
     return query.toLowerCase().trim();
   }
@@ -33,13 +33,13 @@ export class SearchService {
   static getConferenceTypeFromQuery(query: string): string[] {
     const normalizedQuery = this.normalizeSearchQuery(query);
     const matchedTypes: string[] = [];
-    
+
     Object.entries(SEARCH_TYPE_MAPPING).forEach(([keyword, type]) => {
       if (normalizedQuery.includes(keyword)) {
         matchedTypes.push(type);
       }
     });
-    
+
     return matchedTypes.length ? matchedTypes : ['seminar', 'colloque', 'studyday'];
   }
 
@@ -47,7 +47,7 @@ export class SearchService {
     try {
       const [actants, keywords] = await Promise.all([
         Items.getActants(),
-        Items.getKeywords(), 
+        Items.getKeywords(),
       ]);
 
       const normalizedQuery = this.normalizeSearchQuery(query);
@@ -55,7 +55,7 @@ export class SearchService {
       return actants.filter((actant: any) => {
         const basicMatch = this.matchBasicActantFields(actant, normalizedQuery);
         const keywordMatch = this.matchActantKeywords(actant, keywords, normalizedQuery);
-        
+
         return basicMatch || keywordMatch;
       });
     } catch (error) {
@@ -73,19 +73,19 @@ export class SearchService {
       actant.bio
     ].filter(Boolean);
 
-    return searchableFields.some(field => 
+    return searchableFields.some(field =>
       field.toLowerCase().includes(query)
     );
   }
 
   private static matchActantKeywords(actant: any, keywords: any[], query: string): boolean {
     if (!actant.keywords?.length) return false;
-    
-    const actantKeywords = keywords.filter(kw => 
+
+    const actantKeywords = keywords.filter(kw =>
       actant.keywords.includes(kw.id)
     );
-    
-    return actantKeywords.some(kw => 
+
+    return actantKeywords.some(kw =>
       kw.name?.toLowerCase().includes(query)
     );
   }
@@ -94,7 +94,7 @@ export class SearchService {
     try {
       const [allConfs, actants, keywords, editions] = await Promise.all([
         Items.getAllConfs(),
-        Items.getActants(), 
+        Items.getActants(),
         Items.getKeywords(),
         Items.getEditions()
       ]);
@@ -112,7 +112,7 @@ export class SearchService {
         const typeConfs = this.filterConferencesByType(
           allConfs, actants, keywords, editions, normalizedQuery, type
         );
-        
+
         switch (type) {
           case 'seminar':
             results.seminars = typeConfs;
@@ -134,11 +134,11 @@ export class SearchService {
   }
 
   private static filterConferencesByType(
-    allConfs: any[], 
-    actants: any[], 
+    allConfs: any[],
+    actants: any[],
     keywords: any[],
     editions: any[],
-    query: string, 
+    query: string,
     type: string
   ): Conference[] {
     return allConfs
@@ -148,7 +148,7 @@ export class SearchService {
         const actantMatch = this.matchConferenceActants(conf, actants, query);
         const keywordMatch = this.matchConferenceKeywords(conf, keywords, query);
         const editionMatch = this.matchConferenceEditions(conf, editions, query);
-        
+
         return basicMatch || actantMatch || keywordMatch || editionMatch;
       })
       .map(conf => this.enrichConferenceWithActants(conf, actants));
@@ -162,15 +162,15 @@ export class SearchService {
       conf.event
     ].filter(Boolean);
 
-    return searchableFields.some(field => 
+    return searchableFields.some(field =>
       field.toLowerCase().includes(query)
     );
   }
 
   private static matchConferenceActants(conf: any, actants: any[], query: string): boolean {
     const confActants = this.getConferenceActants(conf, actants);
-    
-    return confActants.some(actant => 
+
+    return confActants.some(actant =>
       actant.firstname?.toLowerCase().includes(query) ||
       actant.lastname?.toLowerCase().includes(query) ||
       `${actant.firstname} ${actant.lastname}`.toLowerCase().includes(query) ||
@@ -180,30 +180,30 @@ export class SearchService {
 
   private static matchConferenceKeywords(conf: any, keywords: any[], query: string): boolean {
     if (!conf.keywords) return false;
-    
+
     const confKeywords = this.getConferenceKeywords(conf, keywords);
-    return confKeywords.some(kw => 
+    return confKeywords.some(kw =>
       kw.name?.toLowerCase().includes(query)
     );
   }
 
   private static matchConferenceEditions(conf: any, editions: any[], query: string): boolean {
     if (!conf.edition) return false;
-    
+
     const edition = editions.find(ed => ed.id === conf.edition);
     return edition?.title?.toLowerCase().includes(query) ||
-           edition?.season?.toLowerCase().includes(query) ||
-           edition?.type?.toLowerCase().includes(query);
+      edition?.season?.toLowerCase().includes(query) ||
+      edition?.type?.toLowerCase().includes(query);
   }
 
   private static getConferenceActants(conf: any, actants: any[]): any[] {
     if (!conf.actant) return [];
-    
+
     if (Array.isArray(conf.actant)) {
       if (conf.actant.length > 0 && typeof conf.actant[0] === 'object' && conf.actant[0].firstname) {
         return conf.actant;
       } else {
-        return actants.filter(act => 
+        return actants.filter(act =>
           conf.actant.includes(String(act.id)) || conf.actant.includes(Number(act.id))
         );
       }
@@ -219,48 +219,48 @@ export class SearchService {
       const actant = actants.find(act => Number(act.id) === conf.actant);
       return actant ? [actant] : [];
     }
-    
+
     return [];
   }
 
   private static getConferenceKeywords(conf: any, keywords: any[]): any[] {
     if (!conf.keywords) return [];
-    
+
     if (Array.isArray(conf.keywords)) {
       return keywords.filter(kw => conf.keywords.includes(kw.id));
     } else if (typeof conf.keywords === 'string') {
-      const keywordIds = conf.keywords.includes(',') 
+      const keywordIds = conf.keywords.includes(',')
         ? conf.keywords.split(',').map((id: string) => id.trim())
         : [conf.keywords];
       return keywords.filter(kw => keywordIds.includes(String(kw.id)));
     }
-    
+
     return [];
   }
 
   private static enrichConferenceWithActants(conf: any, actants: any[]): Conference {
-    return { 
-      ...conf, 
+    return {
+      ...conf,
       actant: this.getConferenceActants(conf, actants)
     };
   }
 
   static async searchOeuvres(query: string): Promise<any[]> {
     try {
-      const [oeuvres, actants, keywords] = await Promise.all([
-        Items.getOeuvres(),
+      const [recitsArtistiques, actants, keywords] = await Promise.all([
+        Items.getRecitsArtistiques(),
         Items.getActants(),
         Items.getKeywords()
       ]);
 
       const normalizedQuery = this.normalizeSearchQuery(query);
 
-      return oeuvres.filter((oeuvre: any) => {
+      return recitsArtistiques.filter((oeuvre: any) => {
         const basicMatch = this.matchBasicOeuvreFields(oeuvre, normalizedQuery);
         const genreMatch = this.matchOeuvreGenre(oeuvre, normalizedQuery);
         const actantMatch = this.matchOeuvreActants(oeuvre, actants, normalizedQuery);
         const keywordMatch = this.matchOeuvreKeywords(oeuvre, keywords, normalizedQuery);
-        
+
         return basicMatch || genreMatch || actantMatch || keywordMatch;
       });
     } catch (error) {
@@ -276,26 +276,26 @@ export class SearchService {
       oeuvre.abstract
     ].filter(Boolean);
 
-    return searchableFields.some(field => 
+    return searchableFields.some(field =>
       field.toLowerCase().includes(query)
     );
   }
 
   private static matchOeuvreGenre(oeuvre: any, query: string): boolean {
     if (!oeuvre.genre) return false;
-    
+
     return oeuvre.genre.toLowerCase().includes(query);
   }
 
   private static matchOeuvreActants(oeuvre: any, actants: any[], query: string): boolean {
     if (!oeuvre.actants?.length) return false;
-    
-    const oeuvreActants = actants.filter(actant => 
-      oeuvre.actants.includes(String(actant.id)) || 
+
+    const oeuvreActants = actants.filter(actant =>
+      oeuvre.actants.includes(String(actant.id)) ||
       oeuvre.actants.includes(Number(actant.id))
     );
-    
-    return oeuvreActants.some(actant => 
+
+    return oeuvreActants.some(actant =>
       actant.firstname?.toLowerCase().includes(query) ||
       actant.lastname?.toLowerCase().includes(query) ||
       `${actant.firstname} ${actant.lastname}`.toLowerCase().includes(query)
@@ -304,29 +304,29 @@ export class SearchService {
 
   private static matchOeuvreKeywords(oeuvre: any, keywords: any[], query: string): boolean {
     if (!oeuvre.keywords?.length) return false;
-    
-    const oeuvreKeywords = keywords.filter(kw => 
-      oeuvre.keywords.includes(String(kw.id)) || 
+
+    const oeuvreKeywords = keywords.filter(kw =>
+      oeuvre.keywords.includes(String(kw.id)) ||
       oeuvre.keywords.includes(Number(kw.id))
     );
-    
-    return oeuvreKeywords.some(kw => 
+
+    return oeuvreKeywords.some(kw =>
       kw.name?.toLowerCase().includes(query) ||
       kw.title?.toLowerCase().includes(query)
     );
   }
 
   static async searchAll(query: string): Promise<SearchFilters> {
-    const [actants, conferences, oeuvres] = await Promise.all([
+    const [actants, conferences, recitsArtistiques] = await Promise.all([
       this.searchActants(query),
-      this.searchConferences(query), 
+      this.searchConferences(query),
       this.searchOeuvres(query)
     ]);
 
     return {
       actants,
       conferences,
-      oeuvres,
+      recitsArtistiques,
     };
   }
 }

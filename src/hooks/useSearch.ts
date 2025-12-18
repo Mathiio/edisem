@@ -6,7 +6,7 @@ export interface UseSearchReturn {
   loading: {
     actants: boolean;
     conferences: boolean;
-    oeuvres: boolean;
+    recitsArtistiques: boolean;
   };
   hasSearched: boolean;
   totalResults: number;
@@ -18,13 +18,13 @@ export const useSearch = (): UseSearchReturn => {
   const [searchResults, setSearchResults] = useState<SearchFilters>({
     actants: [],
     conferences: { seminars: [], colloques: [], studyDays: [] },
-    oeuvres: [],
+    recitsArtistiques: [],
   });
 
   const [loading, setLoading] = useState({
     actants: false,
     conferences: false,
-    oeuvres: false,
+    recitsArtistiques: false,
   });
 
   const [hasSearched, setHasSearched] = useState(false);
@@ -36,29 +36,29 @@ export const useSearch = (): UseSearchReturn => {
     }
 
     setHasSearched(true);
-    setLoading({ actants: true, conferences: true, oeuvres: true });
+    setLoading({ actants: true, conferences: true, recitsArtistiques: true });
 
     try {
-      const [actants, conferences, oeuvres] = await Promise.all([
-        SearchService.searchActants(query).finally(() => 
+      const [actants, conferences, recitsArtistiques] = await Promise.all([
+        SearchService.searchActants(query).finally(() =>
           setLoading(prev => ({ ...prev, actants: false }))
         ),
         SearchService.searchConferences(query).finally(() =>
           setLoading(prev => ({ ...prev, conferences: false }))
         ),
         SearchService.searchOeuvres(query).finally(() =>
-          setLoading(prev => ({ ...prev, oeuvres: false }))
+          setLoading(prev => ({ ...prev, recitsArtistiques: false }))
         ),
       ]);
 
       setSearchResults({
         actants,
         conferences,
-        oeuvres,
+        recitsArtistiques,
       });
     } catch (error) {
       console.error('Erreur lors de la recherche:', error);
-      setLoading({ actants: false, conferences: false, oeuvres: false });
+      setLoading({ actants: false, conferences: false, recitsArtistiques: false });
     }
   }, []);
 
@@ -66,18 +66,18 @@ export const useSearch = (): UseSearchReturn => {
     setSearchResults({
       actants: [],
       conferences: { seminars: [], colloques: [], studyDays: [] },
-      oeuvres: [],
+      recitsArtistiques: [],
     });
     setHasSearched(false);
-    setLoading({ actants: false, conferences: false, oeuvres: false });
+    setLoading({ actants: false, conferences: false, recitsArtistiques: false });
   }, []);
 
-  const totalResults = 
+  const totalResults =
     searchResults.actants.length +
     searchResults.conferences.seminars.length +
     searchResults.conferences.colloques.length +
     searchResults.conferences.studyDays.length +
-    searchResults.oeuvres.length;
+    searchResults.recitsArtistiques.length;
 
   return {
     searchResults,
