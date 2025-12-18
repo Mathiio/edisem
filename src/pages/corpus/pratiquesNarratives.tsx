@@ -6,7 +6,6 @@ import { ExperimentationIcon, PratiqueNarrativeIcon } from '@/components/ui/icon
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { KeywordsBarChart } from '@/components/features/pratiquesNarratives/KeywordsBarChart';
-import { OeuvreCard } from '@/components/features/oeuvres/OeuvresCards';
 import { ExpCard } from '@/components/features/experimentation/ExpCards';
 import { PageBanner } from '@/components/ui/PageBanner';
 
