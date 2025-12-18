@@ -97,8 +97,8 @@ const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string):
         label: itemTitle || `Expérimentation #${params.id}`,
         isLoading: isItemLoading,
       });
-    } else if (segments[1] === 'oeuvres') {
-      breadcrumbs.push({ label: 'Œuvres', href: '/corpus/oeuvres' });
+    } else if (segments[1] === 'recits-artistiques') {
+      breadcrumbs.push({ label: 'Récits artistiques', href: '/corpus/recits-artistiques' });
 
       if (segments[2] === 'genre' && params.slug) {
         breadcrumbs.push({
@@ -106,9 +106,9 @@ const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string):
         });
       }
     } else if (segments[1] === 'oeuvre' && params.id) {
-      breadcrumbs.push({ label: 'Œuvres', href: '/corpus/oeuvres' });
+      breadcrumbs.push({ label: 'Récits artistiques', href: '/corpus/recit-artistique' });
       breadcrumbs.push({
-        label: itemTitle || `Œuvre`,
+        label: itemTitle || `Récit artistique`,
         isLoading: isItemLoading,
       });
     } else if (segments[1] === 'element-narratif' && params.id) {

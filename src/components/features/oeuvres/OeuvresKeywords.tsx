@@ -211,7 +211,7 @@ export const OeuvresKeywords: React.FC<KeywordsCloudProps> = ({ oeuvres, maxKeyw
         </motion.p>
         <motion.h2 className='text-c6 text-64 transition-all ease-in-out duration-200' variants={fadeIn} custom={1}>
           Les mots-clés <br /> autour de nos
-          <br /> Analyses d'Oeuvres
+          <br /> Récits Artistiques/Oeuvres
         </motion.h2>
       </div>
 
