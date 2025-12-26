@@ -76,7 +76,6 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
       key: 'Descriptions',
       title: 'Analyses critiques',
       getItems: (itemDetails) => itemDetails?.descriptions || [],
-      annotationType: 'Analyse',
       mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
     }),
     // Vue 1 : Condition initiale / Contexte
@@ -93,7 +92,6 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
       key: 'Reviews',
       title: 'Contenus scientifiques',
       getItems: (itemDetails) => itemDetails?.reviews || [],
-      annotationType: 'Critique',
     }),
 
     // Vue 4 : Ressources liées (articles, autres ressources)
@@ -101,7 +99,6 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
       key: 'RessourcesLiees',
       title: 'Contenus culturels',
       getItems: (itemDetails) => itemDetails?.relatedResources || [],
-      annotationType: 'Ressource',
     }),
 
     // Vue 2 : Outils/Technologies utilisés
@@ -113,7 +110,6 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
           ...tool,
           title: tool.name || tool.title || 'Outil sans nom',
         })),
-      annotationType: 'Outil',
     }),
   ],
 

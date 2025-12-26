@@ -112,6 +112,7 @@ function App() {
         <Route path='/intervenant/:id' Component={Intervenant} />
         <Route path='/personne/:id' Component={Personne} />
 
+        {/* Test Page IA Embeddings Route */}
         <Route path='/test/' Component={TestPage} />
 
         {/* Keyword Analysis Route */}

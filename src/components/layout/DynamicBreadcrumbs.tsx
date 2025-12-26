@@ -209,6 +209,15 @@ export const DynamicBreadcrumbs: React.FC<DynamicBreadcrumbsProps> = ({ itemTitl
 
   const breadcrumbs = generateBreadcrumbs(location.pathname, params, itemTitle);
 
+  // Debug logging
+  console.log('🔍 DynamicBreadcrumbs Debug:', {
+    pathname: location.pathname,
+    params,
+    itemTitle,
+    breadcrumbsCount: breadcrumbs.length,
+    breadcrumbs,
+  });
+
   // Ne rien afficher si on est sur la page d'accueil
   if (location.pathname === '/') {
     return null;

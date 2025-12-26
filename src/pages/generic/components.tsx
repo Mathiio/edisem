@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { getYouTubeThumbnailUrl, isValidYouTubeUrl } from '@/lib/utils';
 
 /**
@@ -25,11 +24,9 @@ export interface ToolItemData {
 
 interface ToolItemProps {
   tool: ToolItemData;
-  showAnnotation?: boolean; // Par défaut true
-  annotationType?: string; // Par défaut 'Bibliographie'
 }
 
-export const ToolItem: React.FC<ToolItemProps> = ({ tool, showAnnotation = true, annotationType = 'Bibliographie' }) => {
+export const ToolItem: React.FC<ToolItemProps> = ({ tool }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   // Récupérer l'URL
@@ -37,9 +34,9 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, showAnnotation = true,
 
   // Récupérer la thumbnail
   const getThumbnail = (): string | undefined => {
-    console.log(`[ToolItem] Getting thumbnail for "${tool.title}" (ID: ${tool.id})`);
-    console.log(`[ToolItem] tool.thumbnail:`, tool.thumbnail);
-    console.log(`[ToolItem] tool.associatedMedia:`, tool.associatedMedia);
+    // console.log(`[ToolItem] Getting thumbnail for "${tool.title}" (ID: ${tool.id})`);
+    // console.log(`[ToolItem] tool.thumbnail:`, tool.thumbnail);
+    // console.log(`[ToolItem] tool.associatedMedia:`, tool.associatedMedia);
 
     if (tool.thumbnail) {
       console.log(`[ToolItem] ✅ Using tool.thumbnail:`, tool.thumbnail);
@@ -49,17 +46,17 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, showAnnotation = true,
     // Si associatedMedia est un tableau, prendre le premier
     if (Array.isArray(tool.associatedMedia) && tool.associatedMedia.length > 0) {
       const firstMedia = tool.associatedMedia[0];
-      console.log(`[ToolItem] firstMedia from array:`, firstMedia);
+      // console.log(`[ToolItem] firstMedia from array:`, firstMedia);
 
       // Si c'est un objet
       if (typeof firstMedia === 'object' && firstMedia !== null) {
         const mediaObj = firstMedia as any; // Type assertion pour éviter les erreurs TS
 
         // Vérifier d'abord si l'objet a une propriété thumbnail
-        if (mediaObj.thumbnail) {
-          console.log(`[ToolItem] ✅ Using mediaObj.thumbnail:`, mediaObj.thumbnail);
-          return mediaObj.thumbnail;
-        }
+        // if (mediaObj.thumbnail) {
+        //   // console.log(`[ToolItem] ✅ Using mediaObj.thumbnail:`, mediaObj.thumbnail);
+        //   return mediaObj.thumbnail;
+        // }
 
         // Sinon vérifier si l'objet a une propriété url
         if (mediaObj.url) {
@@ -67,11 +64,11 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, showAnnotation = true,
           // Si l'URL est YouTube, récupérer la thumbnail
           if (isValidYouTubeUrl(mediaUrl)) {
             const ytThumb = getYouTubeThumbnailUrl(mediaUrl);
-            console.log(`[ToolItem] ✅ Using YouTube thumbnail:`, ytThumb);
+            // console.log(`[ToolItem] ✅ Using YouTube thumbnail:`, ytThumb);
             return ytThumb;
           }
           // Sinon retourner l'URL normale
-          console.log(`[ToolItem] ✅ Using mediaObj.url:`, mediaUrl);
+          // console.log(`[ToolItem] ✅ Using mediaObj.url:`, mediaUrl);
           return mediaUrl;
         }
       }
@@ -113,11 +110,11 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, showAnnotation = true,
           </div>
         </div>
       </Link>
-      {showAnnotation && (
+      {/* {showAnnotation && (
         <div className='flex flex-col h-full py-25 pr-25'>
           <AnnotationDropdown id={Number(tool.id)} content={tool.description} image={thumbnail} type={annotationType} />
         </div>
-      )}
+      )} */}
     </div>
   );
 };
@@ -132,15 +129,8 @@ interface SimpleTextBlockProps {
 }
 
 export const SimpleTextBlock: React.FC<SimpleTextBlockProps> = ({ content, className = '' }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
-    <div
-      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity ${
-        isHovered ? 'border-c6' : 'border-c3'
-      } ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}>
+    <div className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity border-c3 ${className}`}>
       <div className='w-full gap-25 py-25 px-25 flex flex-row justify-between'>
         <div className='flex flex-col gap-4 items-start'>
           <div className='w-full flex flex-col gap-10'>
@@ -158,15 +148,13 @@ export const SimpleTextBlock: React.FC<SimpleTextBlockProps> = ({ content, class
 
 interface ItemsListProps {
   items: ToolItemData[];
-  showAnnotation?: boolean;
-  annotationType?: string;
   mapUrl?: (item: ToolItemData) => string; // Fonction pour générer l'URL
 }
 
-export const ItemsList: React.FC<ItemsListProps> = ({ items, showAnnotation = true, annotationType = 'Bibliographie', mapUrl }) => {
+export const ItemsList: React.FC<ItemsListProps> = ({ items, mapUrl }) => {
   // Normaliser items pour s'assurer que c'est toujours un tableau
   const itemsArray = Array.isArray(items) ? items : items ? [items] : [];
-  
+
   if (itemsArray.length === 0) {
     return null;
   }
@@ -177,7 +165,8 @@ export const ItemsList: React.FC<ItemsListProps> = ({ items, showAnnotation = tr
         // Si mapUrl est fourni, créer un nouvel objet avec l'URL mappée
         const mappedItem = mapUrl ? { ...item, url: mapUrl(item) } : item;
 
-        return <ToolItem key={item.id} tool={mappedItem} showAnnotation={showAnnotation} annotationType={annotationType} />;
+        // return <ToolItem key={item.id} tool={mappedItem} showAnnotation={showAnnotation} annotationType={annotationType} />;
+        return <ToolItem key={item.id} tool={mappedItem} />;
       })}
     </div>
   );

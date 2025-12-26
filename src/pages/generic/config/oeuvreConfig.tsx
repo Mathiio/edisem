@@ -182,7 +182,6 @@ export const oeuvreConfig: GenericDetailPageConfig = {
     actant: oeuvre.personne || [],
   }),
 
-  // ✨ Options de vue simplifiées avec viewHelpers (6 vues en 1 ligne!)
   viewOptions: createOeuvreViews(),
 
   // Sections optionnelles

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Layouts } from "@/components/layout/Layouts";
+import { Layouts } from '@/components/layout/Layouts';
 import * as Items from '@/services/Items';
 import { FullCarrousel } from '@/components/ui/Carrousels';
 import { ExperimentationIcon, PratiqueNarrativeIcon } from '@/components/ui/icons';
@@ -8,7 +8,6 @@ import { motion } from 'framer-motion';
 import { KeywordsBarChart } from '@/components/features/pratiquesNarratives/KeywordsBarChart';
 import { ExpCard } from '@/components/features/experimentation/ExpCards';
 import { PageBanner } from '@/components/ui/PageBanner';
-
 
 export const PratiquesNarratives: React.FC = () => {
   const [metrics, setMetrics] = useState({

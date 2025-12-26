@@ -86,7 +86,6 @@ export const recitcitoyenConfig: GenericDetailPageConfig = {
       key: 'Descriptions',
       title: 'Analyses détaillées',
       getItems: (itemDetails) => itemDetails?.descriptions || [],
-      annotationType: 'Analyse',
       mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
     }),
 
@@ -112,7 +111,6 @@ export const recitcitoyenConfig: GenericDetailPageConfig = {
       key: 'Tools',
       title: 'Outils',
       getItems: (itemDetails) => itemDetails?.tools || [],
-      annotationType: 'Outil',
       mapUrl: (item) => `/corpus/outil/${item.id}`,
     }),
 

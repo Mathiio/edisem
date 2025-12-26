@@ -285,6 +285,9 @@ export const Navbar: React.FC = () => {
               <Link to='/datavisualisation' className={`${linkBaseClass} ${isActive('/datavisualisation') ? activeClass : hoverClass}`}>
                 Datavisualisation
               </Link>
+              <Link to='/espace-etudiant' className={`${linkBaseClass} ${isActive('/espace-etudiant') ? activeClass : hoverClass}`}>
+                Espace étudiant
+              </Link>
             </div>
             <div className='flex items-center gap-10'>
               <SearchModal ref={searchModalRef} />
