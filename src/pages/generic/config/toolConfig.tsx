@@ -200,7 +200,7 @@ export const toolConfig: GenericDetailPageConfig = {
             {programmingLanguages.length > 0 && (
               <div className='flex flex-col gap-10'>
                 <div className='text-c6 font-semibold text-14'>Langage de programmation de l'outil</div>
-                <ItemsList items={programmingLanguages} showAnnotation={false} />
+                <ItemsList items={programmingLanguages} />
               </div>
             )}
 

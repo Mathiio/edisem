@@ -18,8 +18,6 @@ interface CreateItemsListViewOptions {
   key: string;
   title: string;
   getItems: (itemDetails: any) => ToolItemData[];
-  showAnnotation?: boolean;
-  annotationType?: string;
   mapUrl?: (item: ToolItemData) => string;
 }
 
@@ -35,7 +33,7 @@ export const createItemsListView = (options: CreateItemsListViewOptions): ViewOp
       } else if (!Array.isArray(items)) {
         items = [items];
       }
-      return <ItemsList items={items} showAnnotation={options.showAnnotation} annotationType={options.annotationType} mapUrl={options.mapUrl} />;
+      return <ItemsList items={items} mapUrl={options.mapUrl} />;
     },
   };
 };
@@ -190,7 +188,7 @@ export const createToolsView = (getTools?: (itemDetails: any, viewData?: any) =>
       } else if (!Array.isArray(items)) {
         items = [items];
       }
-      return <ItemsList items={items} annotationType='Outil' mapUrl={mapUrl} />;
+      return <ItemsList items={items} mapUrl={mapUrl} />;
     },
   };
 };
@@ -203,8 +201,6 @@ export const createArchivesView = (): ViewOption => {
     key: 'Archives',
     title: 'Archives',
     getItems: (itemDetails) => itemDetails?.archives || [],
-
-    annotationType: 'Archive',
   });
 };
 
@@ -216,7 +212,6 @@ export const createNarrativeElementsView = (): ViewOption => {
     key: 'ElementsNarratifs',
     title: 'Éléments narratifs',
     getItems: (itemDetails) => itemDetails?.elementsNarratifs || [],
-    annotationType: 'Élément narratif',
     mapUrl: (item) => `/corpus/element-narratif/${item.id}`,
   });
 };
@@ -229,7 +224,6 @@ export const createAestheticElementsView = (): ViewOption => {
     key: 'ElementsEsthetique',
     title: 'Éléments esthétiques',
     getItems: (itemDetails) => itemDetails?.elementsEsthetique || [],
-    annotationType: 'Élément esthétique',
     mapUrl: (item) => `/corpus/element-esthetique/${item.id}`,
   });
 };
@@ -242,7 +236,6 @@ export const createCriticalAnalysisView = (): ViewOption => {
     key: 'AnalyseCritique',
     title: 'Analyses critiques',
     getItems: (itemDetails) => itemDetails?.annotations || itemDetails?.descriptions || itemDetails?.abstract || [],
-    annotationType: 'Analyse',
     mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
   });
 };
@@ -255,7 +248,6 @@ export const createFeedbacksView = (): ViewOption => {
     key: 'Feedback',
     title: "Retours d'expérience",
     getItems: (itemDetails) => itemDetails?.feedbacks || [],
-    annotationType: 'Feedback',
     mapUrl: (item) => `/feedback/${item.id}`,
   });
 };
@@ -472,9 +464,8 @@ const TARGET_COMPONENT_MAP: Record<string, (target: any) => JSX.Element> = {
  * Rendu par défaut pour un target utilisant ItemsList
  */
 const renderDefaultTarget = (target: any) => {
-  const displayName = getDisplayName(target.type);
   const url = getResourceUrl(target.type, target.id);
-  return <ItemsList items={[target]} annotationType={displayName} mapUrl={() => url} />;
+  return <ItemsList items={[target]} mapUrl={() => url} />;
 };
 
 /**
@@ -601,12 +592,7 @@ export const createTargetsListView = (options?: { key?: string; title?: string; 
                 <h3 className='text-lg font-semibold text-c5 flex items-center gap-2'>
                   <span className='inline-block  py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full'>{typeName}</span>
                 </h3>
-                <ItemsList
-                  items={items}
-                  showAnnotation={true}
-                  annotationType={typeName}
-                  mapUrl={(item) => (typeInfo.getUrl ? typeInfo.getUrl(item) : item.url || item.uri || '#')}
-                />
+                <ItemsList items={items} mapUrl={(item) => (typeInfo.getUrl ? typeInfo.getUrl(item) : item.url || item.uri || '#')} />
               </div>
             );
           })}

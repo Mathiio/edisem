@@ -440,7 +440,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config }) 
             </div>
 
             {/* Contenu de la vue sélectionnée */}
-            <div className='flex-grow min-h-0 overflow-auto'>{renderedContent}</div>
+            <div className='flex-grow min-h-0 overflow-auto pr-25'>{renderedContent}</div>
           </div>
         </motion.div>
       )}

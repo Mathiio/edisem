@@ -106,7 +106,6 @@ export const recitmediatiqueConfig: GenericDetailPageConfig = {
       key: 'Tools',
       title: 'Outils',
       getItems: (itemDetails) => itemDetails?.tools || [],
-      annotationType: 'Outil',
       mapUrl: (item) => `/corpus/outil/${item.id}`,
     }),
 
