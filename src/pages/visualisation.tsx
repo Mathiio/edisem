@@ -3,22 +3,122 @@ import * as d3 from 'd3';
 import { getAllItems } from '@/services/Items';
 
 import { motion, Variants } from 'framer-motion';
-import { Toolbar } from '@/components/features/datavisualisation/Toolbar';
 import ZoomControl from '@/components/features/datavisualisation/ZoomControl';
 
-import { images } from '@/components/features/datavisualisation/images';
-import { compareValues, FilterGroup, getDataByType, getPropertyValue, ITEM_TYPES, storeSearchHistory } from '@/components/features/datavisualisation/FilterPopup';
-import OverlaySelector, { PredefinedFilter } from '@/components/features/datavisualisation/OverlaySelector';
+import { compareValues, FilterGroup, getDataByType, getPropertyValue, storeSearchHistory, NodePosition } from '@/components/features/datavisualisation/FilterPopup';
+import VisualFilterOverlay, { VISUAL_TYPES, OverlayState } from '@/components/features/datavisualisation/VisualFilterOverlay';
+import TypeFilterDropdown from '@/components/features/datavisualisation/TypeFilterDropdown';
+import HeaderImportButton from '@/components/features/datavisualisation/HeaderImportButton';
+import HeaderExportButton from '@/components/features/datavisualisation/HeaderExportButton';
 import { getLinksFromType } from '@/services/Links';
-import { Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, useDisclosure } from '@heroui/react';
-import { FileIcon, SearchIcon, Sidebar } from '@/components/ui/icons';
+import {
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+  useDisclosure,
+  Breadcrumbs,
+  BreadcrumbItem,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Slider,
+  Select,
+  SelectItem,
+} from '@heroui/react';
+import { ArrowIcon, SearchIcon } from '@/components/ui/icons';
+import { SidebarProvider, useSidebar } from '@/components/ui/AppSidebar';
+import { PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight, LibraryBig, Settings } from 'lucide-react';
 import SearchHistory from '@/components/features/datavisualisation/SearchHistory';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { EditModal } from '@/components/features/database/EditModal';
 import { useLocalStorageProperties } from './database';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { CreateModal } from '@/components/features/database/CreateModal';
 import { Layouts } from '@/components/layout/Layouts';
+import { BGPattern } from '@/components/ui/bg-pattern';
+
+// Nouveaux composants extraits
+import { DatavisSidebar } from './visualisation/components/DatavisSidebar';
+import { CahiersView } from './visualisation/components/CahiersView';
+import { CreateView } from './visualisation/components/CreateView';
+import { RadialClusterView } from './visualisation/components/RadialClusterView';
+import { OeuvresClusterView } from './visualisation/components/OeuvresClusterView';
+import { getConfigKey, getImageForType, getRadiusForType, getSizeForType } from './visualisation/utils/nodeHelpers';
+
+// Configuration des couleurs et labels pour les types de relations
+const RELATION_CONFIG: Record<string, { color: string; label: string }> = {
+  // Relations impliquant des actants
+  'actant-colloque': { color: '#FF6B6B', label: 'intervient dans' },
+  'actant-seminar': { color: '#FF6B6B', label: 'intervient dans' },
+  'actant-studyday': { color: '#FF6B6B', label: 'intervient dans' },
+  'actant-citation': { color: '#4ECDC4', label: 'cité par' },
+  'actant-keyword': { color: '#95E1D3', label: 'associé à' },
+  'actant-bibliography': { color: '#F38181', label: 'auteur de' },
+  'actant-mediagraphie': { color: '#F38181', label: 'auteur de' },
+  'actant-university': { color: '#AA96DA', label: 'affilié à' },
+  'actant-laboratory': { color: '#AA96DA', label: 'affilié à' },
+  'actant-doctoralschool': { color: '#AA96DA', label: 'affilié à' },
+
+  // Relations impliquant des conférences
+  'colloque-keyword': { color: '#FFE66D', label: 'traite de' },
+  'colloque-citation': { color: '#4ECDC4', label: 'contient' },
+  'colloque-bibliography': { color: '#C9B1FF', label: 'référence' },
+  'colloque-mediagraphie': { color: '#C9B1FF', label: 'référence' },
+  'colloque-collection': { color: '#88D8B0', label: 'fait partie de' },
+
+  'seminar-keyword': { color: '#FFE66D', label: 'traite de' },
+  'seminar-citation': { color: '#4ECDC4', label: 'contient' },
+  'seminar-bibliography': { color: '#C9B1FF', label: 'référence' },
+  'seminar-mediagraphie': { color: '#C9B1FF', label: 'référence' },
+  'seminar-collection': { color: '#88D8B0', label: 'fait partie de' },
+
+  'studyday-keyword': { color: '#FFE66D', label: 'traite de' },
+  'studyday-citation': { color: '#4ECDC4', label: 'contient' },
+  'studyday-bibliography': { color: '#C9B1FF', label: 'référence' },
+  'studyday-mediagraphie': { color: '#C9B1FF', label: 'référence' },
+  'studyday-collection': { color: '#88D8B0', label: 'fait partie de' },
+
+  // Relations impliquant des mots-clés
+  'keyword-citation': { color: '#95E1D3', label: 'associé à' },
+  'keyword-bibliography': { color: '#95E1D3', label: 'associé à' },
+  'keyword-mediagraphie': { color: '#95E1D3', label: 'associé à' },
+
+  // Relations impliquant des citations
+  'citation-bibliography': { color: '#FFEAA7', label: 'extrait de' },
+  'citation-mediagraphie': { color: '#FFEAA7', label: 'extrait de' },
+
+  // Relations institutionnelles
+  'university-laboratory': { color: '#DDA0DD', label: 'héberge' },
+  'university-doctoralschool': { color: '#DDA0DD', label: 'héberge' },
+
+  // Défaut
+  default: { color: 'hsl(var(--heroui-c6))', label: 'lié à' },
+};
+
+// Fonction pour obtenir la configuration d'une relation
+const getRelationConfig = (sourceType: string, targetType: string): { color: string; label: string } => {
+  // Essayer dans les deux sens
+  const key1 = `${sourceType}-${targetType}`;
+  const key2 = `${targetType}-${sourceType}`;
+
+  if (RELATION_CONFIG[key1]) {
+    return RELATION_CONFIG[key1];
+  }
+  if (RELATION_CONFIG[key2]) {
+    // Inverser le label si on utilise la relation inverse
+    const config = RELATION_CONFIG[key2];
+    return { color: config.color, label: config.label };
+  }
+
+  return RELATION_CONFIG['default'];
+};
+
+// Composants Analytics
+import { CoverageMatrix } from './visualisation/components/analytics/CoverageMatrix';
+import { ActivityHeatmap } from './visualisation/components/analytics/ActivityHeatmap';
+import { Dashboard, type DashboardView } from './visualisation/components/analytics/Dashboard';
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
@@ -37,145 +137,160 @@ export interface GeneratedImage {
   height: number;
 }
 
-// Fonction de mapping des types de nœud aux configurations
-const getConfigKey = (nodeType: string): string | null => {
-  const typeMap: Record<string, string> = {
-    conference: 'conferences',
-    studyday: 'conferences',
-    colloque: 'conferences',
-    seminar: 'conferences',
-    citation: 'citations',
-    actant: 'conferenciers',
-    bibliography: 'bibliography',
-    mediagraphie: 'mediagraphie',
-    pays: 'pays',
-    laboratory: 'laboratoire',
-    school: 'ecolesdoctorales',
-    university: 'universites',
-    keyword: 'motcles',
-    collection: 'collection',
-  };
-  return typeMap[nodeType] || null;
+// Header unifié qui s'étend sur toute la largeur (sidebar + zone principale)
+// Composant boutons navigation
+const NavigationButtons = ({ canGoBack, canGoForward, onBack, onForward }: { canGoBack: boolean; canGoForward: boolean; onBack: () => void; onForward: () => void }) => {
+  return (
+    <div className='flex items-center bg-c1  rounded-[100px]'>
+      <button
+        onClick={onBack}
+        disabled={!canGoBack}
+        className={`w-22 h-22 flex items-center justify-center rounded-full transition-all duration-200 rounded-[100px] p-[5px] ${
+          canGoBack ? 'text-c5 hover:text-c6 hover:bg-c3 cursor-pointer' : 'text-c4/30 cursor-not-allowed'
+        }`}>
+        <ChevronLeft size={16} />
+      </button>
+      <button
+        onClick={onForward}
+        disabled={!canGoForward}
+        className={`w-22 h-22 flex items-center justify-center rounded-full transition-all duration-200 rounded-[100px] p-[5px] ${
+          canGoForward ? 'text-c5 hover:text-c6 hover:bg-c3 cursor-pointer' : 'text-c4/30 cursor-not-allowed'
+        }`}>
+        <ChevronRight size={16} />
+      </button>
+    </div>
+  );
 };
 
-const predefinedFilters: PredefinedFilter[] = [
-  {
-    label: 'Rechercher tous les actants liés au mot clés “trucage”',
-    groups: [
-      {
-        // Changé de group à groups (tableau)
-        name: 'Mots clés liés à "trucage"',
-        isExpanded: true,
-        itemType: 'keyword',
-        conditions: [
-          {
-            property: 'title',
-            operator: 'contains',
-            value: 'trucage',
-          },
-        ],
-        visibleTypes: ['keyword'],
-      },
-    ],
-  },
-  {
-    label: 'Rechercher toutes les conférences liés au “art trompeur” ',
-    groups: [
-      {
-        name: 'Conférences liées à "art trompeur"',
-        isExpanded: false,
-        itemType: 'conference',
-        conditions: [
-          {
-            property: 'mot-clé',
-            operator: 'contains',
-            value: 'art trompeur',
-          },
-        ],
-        visibleTypes: Object.values(ITEM_TYPES),
-      },
-    ],
-  },
-  {
-    label: 'Rechercher tous les mots clés liés à “Renée Bourassa”',
-    groups: [
-      {
-        name: 'Mots-clés liés à "Renée Bourassa"',
-        isExpanded: false,
-        itemType: 'mot-clé',
-        conditions: [
-          {
-            property: 'lié à',
-            operator: 'contains',
-            value: 'Renée Bourassa',
-          },
-        ],
-        visibleTypes: Object.values(ITEM_TYPES),
-      },
-    ],
-  },
-  {
-    label: 'Rechercher tous les items liés à “Jean Marc Larrue”',
-    groups: [
-      {
-        name: 'Items liés à "Jean Marc Larrue"',
-        isExpanded: false,
-        itemType: 'item',
-        conditions: [
-          {
-            property: 'lié à',
-            operator: 'contains',
-            value: 'Jean Marc Larrue',
-          },
-        ],
-        visibleTypes: Object.values(ITEM_TYPES),
-      },
-    ],
-  },
-  {
-    label: 'Rechercher toutes les bibliographies liées au mot clés “tromperie” ',
-    groups: [
-      {
-        name: 'Bibliographies liées à "tromperie"',
-        isExpanded: false,
-        itemType: 'bibliographie',
-        conditions: [
-          {
-            property: 'mot-clé',
-            operator: 'contains',
-            value: 'tromperie',
-          },
-        ],
-        visibleTypes: Object.values(ITEM_TYPES),
-      },
-    ],
-  },
-  {
-    label: "Rechercher toutes les citations lié à l'intelligence artificiel",
-    groups: [
-      {
-        name: "Citations liées à l'intelligence artificielle",
-        isExpanded: false,
-        itemType: 'citation',
-        conditions: [
-          {
-            property: 'mot-clé',
-            operator: 'contains',
-            value: 'intelligence artificielle',
-          },
-        ],
-        visibleTypes: Object.values(ITEM_TYPES),
-      },
-    ],
-  },
-];
+interface UnifiedHeaderProps {
+  nodeCount: number;
+  breadcrumb?: React.ReactNode;
+  filterDropdown?: React.ReactNode;
+  rightActions?: React.ReactNode;
+  canGoBack?: boolean;
+  canGoForward?: boolean;
+  onBack?: () => void;
+  onForward?: () => void;
+  showNavigationButtons?: boolean;
+}
+
+const UnifiedHeader = ({
+  nodeCount,
+  breadcrumb,
+  filterDropdown,
+  rightActions,
+  canGoBack = false,
+  canGoForward = false,
+  onBack,
+  onForward,
+  showNavigationButtons = false,
+}: UnifiedHeaderProps) => {
+  const { isCollapsed, toggleSidebar } = useSidebar();
+
+  return (
+    <div className='flex items-center w-full h-[62px] border-b-2 border-c3 bg-c2 shadow-[inset_0_0px_15px_rgba(255,255,255,0.03)]'>
+      {/* Partie Sidebar */}
+      <div
+        className={`flex items-center justify-between px-15 border-r-2 border-c3 h-full transition-all ease-in-out duration-300 ${
+          isCollapsed ? 'w-[72px] min-w-[72px]' : 'w-[280px] min-w-[280px]'
+        }`}>
+        {!isCollapsed && <p className='text-c6'>Datavisualisation</p>}
+        <button onClick={toggleSidebar} className='p-2 rounded-6 text-c5 hover:text-c6 hover:bg-c3 transition-all ease-in-out duration-200'>
+          {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+        </button>
+      </div>
+
+      {/* Partie zone principale */}
+      <div className='flex-1 flex items-center justify-between px-15 h-full'>
+        <div className='flex items-center gap-[12px]'>
+          {showNavigationButtons && <NavigationButtons canGoBack={canGoBack} canGoForward={canGoForward} onBack={onBack || (() => {})} onForward={onForward || (() => {})} />}
+          {breadcrumb}
+        </div>
+        <div className='flex items-center gap-10'>
+          {rightActions}
+          {filterDropdown}
+          {nodeCount > 0 && <span className='text-14 text-c4'>{nodeCount} noeuds</span>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Fonction helper pour obtenir l'URL de la page capsule selon le type
+const getNodePageUrl = (type: string, id: string | number): string | null => {
+  switch (type) {
+    case 'actant':
+      return `/intervenant/${id}`;
+    case 'colloque':
+      return `/corpus/colloques/conference/${id}`;
+    case 'seminar':
+      return `/corpus/seminaires/conference/${id}`;
+    case 'studyday':
+      return `/corpus/journees-etudes/conference/${id}`;
+    default:
+      return null; // Pas de page capsule pour ce type
+  }
+};
 
 const Visualisation = () => {
+  const navigate = useNavigate();
   const [itemsDataviz, setItemsDataviz] = useState<any[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [filteredNodes, setFilteredNodes] = useState<any[]>([]);
   const [filteredLinks, setFilteredLinks] = useState<any[]>([]);
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
   const [showOverlay, setShowOverlay] = useState(true);
+  const [activeView, setActiveView] = useState<'datavis' | 'cahiers' | 'create' | 'radialTree' | 'oeuvres' | 'coverageMatrix' | 'activityHeatmap' | 'dashboard'>('datavis');
+  const [dashboardView, setDashboardView] = useState<DashboardView>('overview');
+  const [coverageTopKeywords, setCoverageTopKeywords] = useState(200);
+  const [heatmapYear, setHeatmapYear] = useState(new Date().getFullYear());
+  const [heatmapAvailableYears] = useState(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 10 }, (_, i) => currentYear - i);
+  });
+
+  // Navigation overlay interne (étapes dans l'overlay)
+  const [overlayNav, setOverlayNav] = useState<{ canGoBack: boolean; canGoForward: boolean; onBack: () => void; onForward: () => void }>({
+    canGoBack: false,
+    canGoForward: false,
+    onBack: () => {},
+    onForward: () => {},
+  });
+
+  // Historique de navigation global (overlay <-> canvas)
+  const [navigationHistory, setNavigationHistory] = useState<Array<{ showOverlay: boolean; overlayStep?: string }>>([{ showOverlay: true }]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  // État de l'overlay pour restauration
+  const [overlayState, setOverlayState] = useState<OverlayState | undefined>(undefined);
+
+  // Navigation globale back/forward
+  const globalCanGoBack = showOverlay ? overlayNav.canGoBack : historyIndex > 0;
+  const globalCanGoForward = showOverlay ? overlayNav.canGoForward : historyIndex < navigationHistory.length - 1;
+
+  const handleGlobalBack = useCallback(() => {
+    if (showOverlay) {
+      // Si on est dans l'overlay, utiliser la navigation interne de l'overlay
+      overlayNav.onBack();
+    } else if (historyIndex > 0) {
+      // Si on est sur le canvas, revenir à l'overlay
+      setHistoryIndex((prev) => prev - 1);
+      setShowOverlay(true);
+    }
+  }, [showOverlay, overlayNav, historyIndex]);
+
+  const handleGlobalForward = useCallback(() => {
+    if (showOverlay) {
+      // Si on est dans l'overlay, utiliser la navigation interne de l'overlay
+      overlayNav.onForward();
+    } else if (historyIndex < navigationHistory.length - 1) {
+      // Aller vers l'avant dans l'historique
+      const nextIndex = historyIndex + 1;
+      setHistoryIndex(nextIndex);
+      setShowOverlay(navigationHistory[nextIndex].showOverlay);
+    }
+  }, [showOverlay, overlayNav, historyIndex, navigationHistory]);
+
   const resetActiveIconFunc = useRef<(() => void) | null>(null);
   const [exportEnabled, setExportEnabled] = useState(false);
   const [searchParams] = useSearchParams();
@@ -186,19 +301,31 @@ const Visualisation = () => {
   const { itemPropertiesData, propertiesLoading } = useLocalStorageProperties();
 
   const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
-  const { isOpen: isOpenDrawer, onOpen: onOpenDrawer, onOpenChange: onOpenChangeDrawer } = useDisclosure();
+  const { isOpen: isOpenDrawer, onOpenChange: onOpenChangeDrawer } = useDisclosure();
   const { isOpen: isOpenAnnote, onOpen: onOpenAnnote, onClose: onCloseAnnote } = useDisclosure();
   const { isOpen: isOpenCreate, onOpen: onOpenCreate, onClose: onCloseCreate } = useDisclosure();
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLinkMode, setIsLinkMode] = useState(false);
-  const [isAddMode, setIsAddMode] = useState(false);
   const [isAnnoteMode, setisAnnoteMode] = useState(false);
 
   const [viewAnnotationMode, setviewAnnotationMode] = useState(false);
 
-  const [firstSelectedNode, setFirstSelectedNode] = useState<any>(null);
-  const [secondSelectedNode, setSecondSelectedNode] = useState<any>(null);
+  const [_firstSelectedNode, setFirstSelectedNode] = useState<any>(null);
+  const [_secondSelectedNode, setSecondSelectedNode] = useState<any>(null);
+  const [overlayBreadcrumb, setOverlayBreadcrumb] = useState<React.ReactNode>(null);
+  const [visibleTypes, setVisibleTypes] = useState<string[]>([]);
+  const [typesInUse, setTypesInUse] = useState<string[]>([]);
+  const [searchedTypes, setSearchedTypes] = useState<string[]>([]);
+  const [lastSearchInfo, setLastSearchInfo] = useState<{ groups: FilterGroup[]; isImport?: boolean } | null>(null);
+  const [isFullWidth, setIsFullWidth] = useState(false);
+  const [noResultsFound, setNoResultsFound] = useState(false);
+
+  // Positions des nodes à restaurer (depuis l'historique ou l'import)
+  // Utiliser useRef au lieu de useState pour éviter les re-renders en cascade
+  const pendingNodePositionsRef = useRef<NodePosition[]>([]);
+  // Référence aux nodes actuels de la simulation pour pouvoir capturer leurs positions
+  const simulationNodesRef = useRef<any[]>([]);
 
   const [createItemId, setCreateItemId] = useState<number | null>(null);
 
@@ -224,13 +351,19 @@ const Visualisation = () => {
     setIsLinkMode(isActive);
   }, []);
 
-  const handleAddModeChange = useCallback((isActive: boolean) => {
-    setIsAddMode(isActive);
-  }, []);
-
   const handleAnnoteModeChange = useCallback((isActive: boolean) => {
     setisAnnoteMode(isActive);
   }, []);
+
+  // Navigation simple entre vues
+  const navigateToView = useCallback(
+    (view: 'datavis' | 'cahiers' | 'create' | 'radialTree' | 'oeuvres' | 'coverageMatrix' | 'activityHeatmap' | 'dashboard') => {
+      if (view !== activeView) {
+        setActiveView(view);
+      }
+    },
+    [activeView],
+  );
 
   const handleCreateItem = useCallback(
     (num: number, config: string) => {
@@ -244,9 +377,20 @@ const Visualisation = () => {
 
   // Gestionnaire de clic sur un nœud
   const handleNodeClick = (d: any) => {
+    console.log('Nœud cliqué:', d);
+
+    // En mode normal (pas édition, pas liaison, pas annotation) → rediriger vers la page capsule si disponible
+    if (!isEditMode && !isLinkMode && !isAnnoteMode) {
+      const pageUrl = getNodePageUrl(d.type, d.id);
+      if (pageUrl) {
+        navigate(pageUrl);
+        return;
+      }
+    }
+
+    // Sinon, comportement par défaut : ouvrir le modal d'édition/visualisation
     const apiBase = 'https://tests.arcanes.ca/omk/api/';
     const itemUrl = `${apiBase}items/${d.id}`;
-    console.log('Nœud cliqué:', d);
     setCurrentItemUrl(itemUrl);
     setSelectedConfigKey(getConfigKey(d.type));
     setSelectedConfig(d.type);
@@ -316,7 +460,7 @@ const Visualisation = () => {
 
   // Fonction helper pour ajouter un cercle animé à un nœud
   const addAnimatedCircleToNode = (node: any) => {
-    const validTypes = ['keyword', 'university', 'school', 'laboratory', 'conference', 'citation', 'actant'];
+    const validTypes = ['keyword', 'university', 'school', 'laboratory', 'colloque', 'seminar', 'studyday', 'citation', 'actant'];
 
     if (!validTypes.includes(node.type)) return;
 
@@ -346,29 +490,6 @@ const Visualisation = () => {
       });
   };
 
-  function CancelLink() {
-    // Nettoyer tous les éléments visuels de la liaison
-    d3.select(svgRef.current).selectAll('.node-animated-circle').remove();
-    d3.select(svgRef.current).selectAll('.temp-link').remove();
-
-    // Supprimer les event listeners de suivi de la souris
-    d3.select(svgRef.current).on('mousemove', null);
-
-    // Réinitialiser les états du mode liaison
-    linkModeRef.current.isSelecting = false;
-    linkModeRef.current.firstNode = null;
-    linkModeRef.current.secondNode = null;
-
-    // Réinitialiser les états React
-    setFirstSelectedNode(null);
-    setSecondSelectedNode(null);
-
-    // Optionnel : réinitialiser le style des nœuds
-    d3.select(svgRef.current).selectAll('.node-circle').attr('stroke', null).attr('stroke-width', null);
-
-    console.log('Mode liaison annulé');
-  }
-
   // Réinitialiser les états quand le mode lien est désactivé
   useEffect(() => {
     if (!isLinkMode) {
@@ -383,9 +504,15 @@ const Visualisation = () => {
     }
   }, [isLinkMode]);
 
-  // Fonction pour enregistrer la référence à setActiveIcon(null)
-  const setResetActiveIconRef = useCallback((resetFunc: () => void) => {
-    resetActiveIconFunc.current = resetFunc;
+  // Fonction pour capturer les positions actuelles des nodes
+  const getNodePositions = useCallback((): NodePosition[] => {
+    return simulationNodesRef.current.map((node) => ({
+      id: node.id,
+      x: node.x ?? 0,
+      y: node.y ?? 0,
+      fx: node.fx ?? null,
+      fy: node.fy ?? null,
+    }));
   }, []);
 
   const [dimensions, setDimensions] = useState({
@@ -397,14 +524,11 @@ const Visualisation = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<d3.Simulation<any, any> | null>(null);
 
-  // Effet séparé pour gérer le resize sans recréer le graphe
   useEffect(() => {
     const container = containerRef.current;
 
     const resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
-        console.log('📐 ResizeObserver triggered:', entry.contentRect.width, 'x', entry.contentRect.height);
-        // Juste mettre à jour la taille du SVG, sans relancer la simulation
         setDimensions({
           width: entry.contentRect.width,
           height: entry.contentRect.height,
@@ -425,8 +549,15 @@ const Visualisation = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getAllItems();
-      setItemsDataviz(data);
+      try {
+        setIsLoadingData(true);
+        const data = await getAllItems();
+        setItemsDataviz(data);
+      } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+      } finally {
+        setIsLoadingData(false);
+      }
     };
     fetchData();
   }, []);
@@ -444,6 +575,7 @@ const Visualisation = () => {
 
   const applyFiltersAndPrepareVisualization = async (groups: FilterGroup[]) => {
     console.log('Début de filtrage avec groupes:', groups);
+    console.log('itemsDataviz chargés:', itemsDataviz?.length || 0, 'items');
 
     if (!groups || groups.length === 0) {
       console.warn('Aucun groupe de filtres fourni');
@@ -551,6 +683,11 @@ const Visualisation = () => {
     const links = new Set();
     const typesInUse = new Set<string>();
 
+    // Plus besoin de normaliser les types car colloque, seminar, studyday sont maintenant des types à part entière
+    const normalizeType = (type: string) => {
+      return type;
+    };
+
     // Créer une map des groupes pour un accès facile
     const groupsMap = new Map<string, FilterGroup>();
     groups.forEach((group) => groupsMap.set(group.name, group));
@@ -558,7 +695,8 @@ const Visualisation = () => {
     // Ajouter d'abord tous les nœuds principaux (résultats directs de la recherche)
     allFilteredItems.forEach((item) => {
       const group = groupsMap.get(item.groupId);
-      if (!group || !group.visibleTypes?.includes(item.type)) {
+      const normalizedItemType = normalizeType(item.type);
+      if (!group || !group.visibleTypes?.includes(normalizedItemType)) {
         return;
       }
 
@@ -578,7 +716,7 @@ const Visualisation = () => {
           groupId: item.groupId,
         });
 
-        typesInUse.add(item.type);
+        typesInUse.add(normalizedItemType);
         //console.log(`Nœud principal ajouté: ${title} (${item.id})`);
       }
     });
@@ -606,14 +744,17 @@ const Visualisation = () => {
 
         let linkedItem;
 
+        // Convertir linkedId en string pour la comparaison (peut être number ou string)
+        const linkedIdStr = String(linkedId);
+
         // Essayer de trouver l'item lié dans itemsDataviz
         if (itemsDataviz && Array.isArray(itemsDataviz)) {
-          linkedItem = itemsDataviz.find((d) => d.id === linkedId);
+          linkedItem = itemsDataviz.find((d) => String(d.id) === linkedIdStr);
         }
 
         // Si pas trouvé et que l'ID est dans nos résultats filtrés, utiliser celui-ci
         if (!linkedItem) {
-          linkedItem = allFilteredItems.find((d) => d.id === linkedId);
+          linkedItem = allFilteredItems.find((d) => String(d.id) === linkedIdStr);
         }
 
         if (!linkedItem) {
@@ -622,7 +763,7 @@ const Visualisation = () => {
         }
 
         // Vérifier si le type de l'élément lié est visible dans le groupe de l'item principal
-        const normalizedType = ['colloque', 'seminar', 'studyday'].includes(linkedItem.type) ? 'conference' : linkedItem.type;
+        const normalizedType = linkedItem.type;
 
         if (!linkedItem.type || !group.visibleTypes.includes(normalizedType)) {
           return;
@@ -649,13 +790,15 @@ const Visualisation = () => {
             groupId: linkedItem.groupId || item.groupId,
           });
 
-          typesInUse.add(linkedItem.type);
+          typesInUse.add(normalizedType);
           //console.log(`Nœud lié ajouté: ${linkedTitle} (${linkedId})`);
         }
 
         const linkObject = JSON.stringify({
           source: item.id,
           target: linkedId,
+          sourceType: item.type,
+          targetType: linkedItem.type,
           groupId: item.groupId,
         });
 
@@ -679,6 +822,25 @@ const Visualisation = () => {
       setExportEnabled(true);
     }
 
+    // Mettre à jour les types en usage et les types visibles
+    const typesInUseArray = Array.from(typesInUse);
+    console.log('Types in use:', typesInUseArray);
+    setTypesInUse(typesInUseArray);
+
+    // Récupérer les visibleTypes de la config importée (union de tous les groupes)
+    const configVisibleTypes = groups.flatMap((g) => g.visibleTypes || []);
+    const uniqueConfigVisibleTypes = [...new Set(configVisibleTypes)];
+
+    // Utiliser les visibleTypes de la config, filtrés par les types réellement présents
+    const finalVisibleTypes = uniqueConfigVisibleTypes.length > 0 ? typesInUseArray.filter((t) => uniqueConfigVisibleTypes.includes(t)) : typesInUseArray;
+
+    console.log('Config visible types:', uniqueConfigVisibleTypes);
+    console.log('Final visible types:', finalVisibleTypes);
+
+    const searchedTypesArray = groups.map((g) => g.itemType).filter(Boolean);
+    setSearchedTypes(searchedTypesArray);
+    setVisibleTypes(finalVisibleTypes);
+
     // Stocker l'historique de recherche si la fonction existe
     if (typeof storeSearchHistory === 'function') {
       storeSearchHistory(groups);
@@ -687,7 +849,7 @@ const Visualisation = () => {
     const result = {
       allFilteredItems,
       groupResults,
-      typesInUse: Array.from(typesInUse),
+      typesInUse: typesInUseArray,
       visualizationData: {
         nodes: nodesArray,
         links: linksArray,
@@ -698,14 +860,18 @@ const Visualisation = () => {
     return result;
   };
 
-  const handleSearch = (groups: FilterGroup[]) => {
-    const res = applyFiltersAndPrepareVisualization(groups);
+  const handleSearch = async (groups: FilterGroup[]) => {
+    setNoResultsFound(false);
+    const res = await applyFiltersAndPrepareVisualization(groups);
     console.log(res);
-    setShowOverlay(false);
+
+    // Vérifier si la recherche n'a retourné aucun résultat
+    if (res && res.visualizationData && res.visualizationData.nodes.length === 0) {
+      setNoResultsFound(true);
+    }
   };
 
   useEffect(() => {
-    console.log('🔄 useEffect graph triggered - dependencies changed');
     if (!filteredNodes.length) return;
     clearSvg();
     const svg = d3.select(svgRef.current);
@@ -713,8 +879,17 @@ const Visualisation = () => {
 
     const defs = zoomGroup.append('defs');
 
+    // Filtrer les nœuds selon les types visibles
+    // Si typesInUse est défini (recherche effectuée), on filtre selon visibleTypes
+    // Sinon on affiche tout (état initial)
+    const displayedNodes = typesInUse.length > 0 ? filteredNodes.filter((node) => visibleTypes.includes(node.type)) : filteredNodes;
+
+    // Filtrer les liens pour ne garder que ceux dont les deux extrémités sont visibles
+    const displayedNodeIds = new Set(displayedNodes.map((n) => n.id));
+    const displayedLinks = filteredLinks.filter((link: any) => displayedNodeIds.has(link.source) && displayedNodeIds.has(link.target));
+
     // Définitions des patterns pour les nœuds
-    filteredNodes.forEach((node) => {
+    displayedNodes.forEach((node) => {
       const patternId = `node-pattern-${node.type}`;
 
       if (!defs.select(`#${patternId}`).node()) {
@@ -733,19 +908,60 @@ const Visualisation = () => {
     });
 
     // Créer des copies fraîches des nœuds pour la simulation
-    const simulationNodes = filteredNodes.map((node: any) => ({
-      ...node,
-      x: node.x || dimensions.width / 2 + (Math.random() - 0.5) * 100,
-      y: node.y || dimensions.height / 2 + (Math.random() - 0.5) * 100,
-      fx: node.fx,
-      fy: node.fy,
-    }));
+    // Restaurer les positions sauvegardées si disponibles (depuis la ref, pas le state)
+    const pendingPositions = pendingNodePositionsRef.current;
+    console.log('[D3 Effect] pendingNodePositions disponibles (ref):', pendingPositions.length);
+    console.log('[D3 Effect] displayedNodes:', displayedNodes.length);
+
+    const simulationNodes = displayedNodes.map((node: any) => {
+      // Chercher une position sauvegardée pour ce node
+      const savedPosition = pendingPositions.find((p) => String(p.id) === String(node.id));
+
+      if (savedPosition) {
+        console.log('[D3 Effect] Position trouvée pour node', node.id);
+        // Restaurer les positions sauvegardées
+        // On fixe TOUS les nodes à leurs positions sauvegardées pour préserver le layout
+        return {
+          ...node,
+          x: savedPosition.x,
+          y: savedPosition.y,
+          fx: savedPosition.x, // Fixer à la position X sauvegardée
+          fy: savedPosition.y, // Fixer à la position Y sauvegardée
+        };
+      }
+
+      // Sinon, utiliser les positions par défaut
+      return {
+        ...node,
+        x: node.x || dimensions.width / 2 + (Math.random() - 0.5) * 100,
+        y: node.y || dimensions.height / 2 + (Math.random() - 0.5) * 100,
+        fx: node.fx,
+        fy: node.fy,
+      };
+    });
+
+    // Sauvegarder la référence aux nodes pour pouvoir capturer leurs positions plus tard
+    simulationNodesRef.current = simulationNodes;
+
+    // Nettoyer les positions en attente après les avoir utilisées (dans la ref, pas de re-render)
+    if (pendingPositions.length > 0) {
+      console.log('[D3 Effect] Nettoyage des positions en attente (ref)');
+      pendingNodePositionsRef.current = [];
+    }
 
     // Créer des copies fraîches des liens avec référence directe aux objets nœuds
-    const simulationLinks = filteredLinks.map((link: any) => {
+    const simulationLinks = displayedLinks.map((link: any) => {
       const sourceNode = simulationNodes.find((node: any) => node.id === link.source);
       const targetNode = simulationNodes.find((node: any) => node.id === link.target);
-      return { source: sourceNode, target: targetNode };
+      const relationConfig = getRelationConfig(link.sourceType || sourceNode?.type, link.targetType || targetNode?.type);
+      return {
+        source: sourceNode,
+        target: targetNode,
+        sourceType: link.sourceType || sourceNode?.type,
+        targetType: link.targetType || targetNode?.type,
+        color: relationConfig.color,
+        label: relationConfig.label,
+      };
     });
 
     const simulation = d3
@@ -761,7 +977,69 @@ const Visualisation = () => {
       .force('center', d3.forceCenter(dimensions.width / 2, dimensions.height / 2))
       .force('collision', d3.forceCollide().radius(100));
 
-    const link = zoomGroup.append('g').selectAll('line').data(simulationLinks).join('line').attr('stroke', 'hsl(var(--heroui-c6))').attr('stroke-width', 1);
+    // Créer un groupe pour le tooltip
+    const tooltip = d3
+      .select('body')
+      .selectAll('.link-tooltip')
+      .data([null])
+      .join('div')
+      .attr('class', 'link-tooltip')
+      .style('position', 'fixed')
+      .style('pointer-events', 'none')
+      .style('background', 'rgba(0, 0, 0, 0.85)')
+      .style('color', 'white')
+      .style('padding', '8px 12px')
+      .style('border-radius', '6px')
+      .style('font-size', '12px')
+      .style('font-family', 'Inter, sans-serif')
+      .style('z-index', '9999')
+      .style('opacity', '0')
+      .style('transition', 'opacity 0.15s ease-in-out')
+      .style('white-space', 'nowrap')
+      .style('box-shadow', '0 4px 12px rgba(0, 0, 0, 0.3)');
+
+    // Créer les liens avec couleurs par type de relation
+    const linkGroup = zoomGroup.append('g').attr('class', 'links-group');
+
+    const link = linkGroup
+      .selectAll('line')
+      .data(simulationLinks)
+      .join('line')
+      .attr('stroke', (d: any) => d.color || 'hsl(var(--heroui-c6))')
+      .attr('stroke-width', 1.5)
+      .attr('stroke-opacity', 0.6)
+      .style('cursor', 'pointer')
+      .on('mouseover', function (event: any, d: any) {
+        // Augmenter l'opacité et l'épaisseur au survol
+        d3.select(this).attr('stroke-width', 3).attr('stroke-opacity', 1);
+
+        // Afficher le tooltip
+        const sourceTitle = d.source?.fullTitle || d.source?.title || 'Source';
+        const targetTitle = d.target?.fullTitle || d.target?.title || 'Cible';
+
+        tooltip
+          .html(
+            `
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: ${d.color}; display: inline-block;"></span>
+              <span><strong>${sourceTitle}</strong> ${d.label} <strong>${targetTitle}</strong></span>
+            </div>
+          `,
+          )
+          .style('left', `${event.clientX + 15}px`)
+          .style('top', `${event.clientY - 10}px`)
+          .style('opacity', '1');
+      })
+      .on('mousemove', function (event: any) {
+        tooltip.style('left', `${event.clientX + 15}px`).style('top', `${event.clientY - 10}px`);
+      })
+      .on('mouseout', function () {
+        // Restaurer l'apparence normale
+        d3.select(this).attr('stroke-width', 1.5).attr('stroke-opacity', 0.6);
+
+        // Cacher le tooltip
+        tooltip.style('opacity', '0');
+      });
 
     // Créer des groupes de nœuds
     const nodeGroup = zoomGroup.append('g').selectAll('g').data(simulationNodes).join('g');
@@ -784,7 +1062,7 @@ const Visualisation = () => {
       .text((d: any) => d.title)
       .attr('class', 'node-text')
       .attr('font-size', (d: any) => getSizeForType(d.type))
-      .attr('fill', 'hsl(var(--heroui-c6))')
+      .attr('fill', 'white')
       .attr('font-family', 'Inter, sans-serif')
       .style('user-select', 'none')
       .style('pointer-events', 'none');
@@ -792,10 +1070,13 @@ const Visualisation = () => {
     // Gestion du hover sur les groupes
     nodeGroup
       .on('mouseover', function (_event, d) {
-        const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'conference', 'citation', 'actant'];
+        const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'colloque', 'seminar', 'studyday', 'citation', 'actant'];
 
         // Si le mode annotation est activé, filtrer les types autorisés
-        if ((!isAnnoteMode && allowedTypes.includes(d.type)) || (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'conference'].includes(d.type))) {
+        if (
+          (!isAnnoteMode && allowedTypes.includes(d.type)) ||
+          (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'colloque', 'seminar', 'studyday'].includes(d.type))
+        ) {
           const currentRadius = getRadiusForType(d.type) / 2;
           let offset = -2;
 
@@ -832,9 +1113,12 @@ const Visualisation = () => {
         d3.select(this).selectAll('.inner-stroke').remove();
       })
       .on('click', function (_event, d) {
-        const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'conference', 'citation', 'actant'];
+        const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'colloque', 'seminar', 'studyday', 'citation', 'actant'];
 
-        if ((!isAnnoteMode && allowedTypes.includes(d.type)) || (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'conference'].includes(d.type))) {
+        if (
+          (!isAnnoteMode && allowedTypes.includes(d.type)) ||
+          (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'colloque', 'seminar', 'studyday'].includes(d.type))
+        ) {
           handleNodeClick(d);
         }
       });
@@ -873,50 +1157,16 @@ const Visualisation = () => {
       nodeGroup.attr('transform', (d: any) => `translate(${d.x ?? 0},${d.y ?? 0})`);
     });
 
-    // Stocker la simulation dans le ref pour le resize
+    // Stocker la simulation dans le ref pour pouvoir y accéder depuis le ResizeObserver
     simulationRef.current = simulation;
 
     return () => {
       if (simulation) simulation.stop();
       simulationRef.current = null;
+      // Nettoyer le tooltip
+      d3.select('body').selectAll('.link-tooltip').remove();
     };
-  }, [filteredNodes, filteredLinks, isEditMode, isLinkMode, isAnnoteMode]);
-
-  const getImageForType = (type: string) => {
-    return images[type] || images['conf'];
-  };
-
-  const getRadiusForType = (type: string) => {
-    const radii: { [key: string]: number } = {
-      conf: 250,
-      bibliography: 200,
-      actant: 250,
-      mediagraphie: 200,
-      citation: 200,
-      keyword: 150,
-      university: 150,
-      school: 150,
-      laboratory: 150,
-      collection: 250,
-    };
-    return radii[type] || 250;
-  };
-
-  const getSizeForType = (type: string) => {
-    const sizes: { [key: string]: string } = {
-      conf: '18px',
-      bibliography: '16px',
-      actant: '18px',
-      mediagraphie: '16px',
-      citation: '16px',
-      keyword: '14px',
-      university: '14px',
-      school: '14px',
-      laboratory: '14px',
-      collection: '18px',
-    };
-    return sizes[type] || '16px';
-  };
+  }, [filteredNodes, filteredLinks, isEditMode, isLinkMode, isAnnoteMode, visibleTypes, typesInUse]);
 
   const generateVisualizationImage = async (): Promise<GeneratedImage> => {
     const svg = svgRef.current;
@@ -993,32 +1243,80 @@ const Visualisation = () => {
     }
   };
 
-  // Fonction pour gérer la connexion entre deux nœuds
-  const handleConnect = () => {
-    console.log(`Connexion entre tototoototot`);
-
-    // Réinitialiser les nœuds sélectionnés après connexion
-    setFirstSelectedNode('');
-    setSecondSelectedNode('');
-
-    // Désactiver le mode lien après connexion
-    setIsLinkMode(false);
-  };
-
-  const saveFilterGroups = (filterGroups: FilterGroup[]): void => {
+  const saveFilterGroups = (filterGroups: FilterGroup[], nodePositions?: NodePosition[]): void => {
     try {
-      const serializedData = JSON.stringify(filterGroups);
+      // Sauvegarder les filtres et les positions ensemble
+      const dataToSave = {
+        filters: filterGroups,
+        nodePositions: nodePositions || [],
+      };
+      const serializedData = JSON.stringify(dataToSave);
       localStorage.setItem('filterGroups', serializedData);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde des filtres:', error);
     }
   };
 
-  const handleOverlaySelect = (groups: FilterGroup[]) => {
+  const handleOverlaySelect = (groups: FilterGroup[], isImport = false, nodePositions?: NodePosition[]) => {
+    console.log('[handleOverlaySelect] nodePositions reçues:', nodePositions?.length || 0, nodePositions);
+
+    // Si des positions sont fournies (depuis l'historique ou l'import), les stocker pour restauration
+    if (nodePositions && nodePositions.length > 0) {
+      console.log('[handleOverlaySelect] Stockage de', nodePositions.length, 'positions dans ref');
+      pendingNodePositionsRef.current = nodePositions;
+    } else {
+      pendingNodePositionsRef.current = [];
+    }
+
+    // Lancer la recherche APRES avoir stocké les positions
     handleSearch(groups);
-    saveFilterGroups(groups);
-    storeSearchHistory(groups);
+
+    // Sauvegarder les filtres (sans positions pour l'instant, elles seront ajoutées lors de l'export)
+    saveFilterGroups(groups, nodePositions);
+
+    // Ne pas stocker dans l'historique ici - on le fera lors de l'export/sauvegarde avec les positions
+    // storeSearchHistory est appelé séparément quand l'utilisateur sauvegarde explicitement
+
+    setLastSearchInfo({ groups, isImport });
+
     setShowOverlay(false);
+
+    // Ajouter au historique de navigation (on passe de l'overlay au canvas)
+    setNavigationHistory((prev) => {
+      const newHistory = prev.slice(0, historyIndex + 1);
+      return [...newHistory, { showOverlay: false }];
+    });
+    setHistoryIndex((prev) => prev + 1);
+  };
+
+  // Fonction pour revenir à l'overlay à une étape spécifique
+  const navigateToOverlayStep = useCallback((step: 'type' | 'search' | 'advanced', selectedType?: string, importedGroups?: FilterGroup[]) => {
+    console.log('navigateToOverlayStep called:', { step, selectedType, importedGroups });
+    const newState: OverlayState = {
+      step,
+      selectedType: selectedType || null,
+      searchValue: '',
+      importedGroups,
+    };
+    console.log('Setting overlay state:', newState);
+    setOverlayState(newState);
+    setShowOverlay(true);
+  }, []);
+
+  // Fonction pour gérer l'import
+  const handleImport = useCallback((groups: FilterGroup[], nodePositions?: NodePosition[]) => {
+    handleOverlaySelect(groups, true, nodePositions);
+  }, []);
+
+  // Toggle un type visible/invisible
+  const handleToggleVisibleType = (type: string) => {
+    setVisibleTypes((prev) => {
+      if (prev.includes(type)) {
+        return prev.filter((t) => t !== type);
+      } else {
+        return [...prev, type];
+      }
+    });
   };
 
   const clearSvg = () => {
@@ -1044,43 +1342,356 @@ const Visualisation = () => {
   }, [searchParams]);
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
-      <div className='relative h-screen bg-c1 overflow-y-hidden'>
-        <motion.main className='mx-auto h-full w-full transition-all ease-in-out duration-200' initial='hidden' animate='visible' variants={containerVariants}>
-          <div className='mt-0 z-100'>
-            <Button onPress={onOpenDrawer} size='lg' className='absolute px-4 py-4 flex justify-between bg-c2 gap-2 hover:bg-c3 hover:opacity-100 text-c6 rounded-8 z-50'>
-              <Sidebar size={26} />
-            </Button>
-          </div>
-          <motion.div
-            className='relative w-full h-full'
-            variants={containerVariants}
-            ref={containerRef}
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'relative',
-            }}
-            initial='hidden'
-            animate='visible'>
-            {showOverlay && <OverlaySelector filters={predefinedFilters} onSelect={handleOverlaySelect} />}
-            <svg
-              className='rounded-12'
-              ref={svgRef}
-              xmlns='http://www.w3.org/2000/svg'
-              width={dimensions.width}
-              height={dimensions.height}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-              }}
-              viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}></svg>
-            <div className='absolute bottom-[100px] right-0 z-[50]'>
-              <ZoomControl availableControl={!showOverlay} svgRef={svgRef} />
+    <Layouts className='col-span-10' fullWidth={isFullWidth} noFooter noPadding={isFullWidth}>
+      <div className={`relative w-full bg-c1 overflow-hidden ${isFullWidth ? 'h-[calc(100vh-80px)]' : 'h-[calc(100vh-130px)] rounded-12'}`}>
+        <SidebarProvider>
+          <div className='h-full w-full flex flex-col overflow-hidden'>
+            {/* Header unifié sur toute la largeur */}
+            <UnifiedHeader
+              nodeCount={activeView === 'datavis' && !showOverlay ? filteredNodes.length : 0}
+              breadcrumb={
+                activeView === 'cahiers' ? (
+                  <Breadcrumbs underline='hover' size='sm'>
+                    <BreadcrumbItem isCurrent>
+                      <span className='text-c6'>Cahiers de recherche</span>
+                    </BreadcrumbItem>
+                  </Breadcrumbs>
+                ) : activeView === 'radialTree' ? (
+                  <Breadcrumbs underline='hover' size='sm'>
+                    <BreadcrumbItem isCurrent>
+                      <span className='text-c6'>Vue hiérarchique</span>
+                    </BreadcrumbItem>
+                  </Breadcrumbs>
+                ) : activeView === 'oeuvres' ? (
+                  <Breadcrumbs underline='hover' size='sm'>
+                    <BreadcrumbItem isCurrent>
+                      <span className='text-c6'>Mises en récits de l'IA</span>
+                    </BreadcrumbItem>
+                  </Breadcrumbs>
+                ) : activeView === 'create' ? (
+                  <Breadcrumbs underline='hover' size='sm'>
+                    <BreadcrumbItem isCurrent>
+                      <span className='text-c6'>Créer un élément</span>
+                    </BreadcrumbItem>
+                  </Breadcrumbs>
+                ) : activeView === 'coverageMatrix' ? (
+                  <Breadcrumbs underline='hover' size='sm'>
+                    <BreadcrumbItem isCurrent>
+                      <span className='text-c6'>Matrice de couverture</span>
+                    </BreadcrumbItem>
+                  </Breadcrumbs>
+                ) : activeView === 'activityHeatmap' ? (
+                  <Breadcrumbs underline='hover' size='sm'>
+                    <BreadcrumbItem isCurrent>
+                      <span className='text-c6'>Calendrier d'activité</span>
+                    </BreadcrumbItem>
+                  </Breadcrumbs>
+                ) : activeView === 'dashboard' && dashboardView !== 'overview' ? (
+                  <Breadcrumbs underline='hover' size='sm'>
+                    <BreadcrumbItem>
+                      <button onClick={() => setDashboardView('overview')} className='text-c4 hover:text-c6 transition-colors'>
+                        Tableau de bord
+                      </button>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem isCurrent>
+                      <span className='text-c6'>
+                        {dashboardView === 'distribution' && 'Distribution'}
+                        {dashboardView === 'completeness' && 'Complétude'}
+                        {dashboardView === 'orphans' && 'Ressources isolées'}
+                      </span>
+                    </BreadcrumbItem>
+                  </Breadcrumbs>
+                ) : activeView === 'dashboard' ? (
+                  <Breadcrumbs underline='hover' size='sm'>
+                    <BreadcrumbItem isCurrent>
+                      <span className='text-c6'>Tableau de bord</span>
+                    </BreadcrumbItem>
+                  </Breadcrumbs>
+                ) : activeView === 'datavis' && !showOverlay && lastSearchInfo ? (
+                  <Breadcrumbs underline='hover' size='sm'>
+                    <BreadcrumbItem>
+                      <button onClick={() => navigateToOverlayStep('type')} className='text-c4 hover:text-c6 transition-colors'>
+                        Recherche
+                      </button>
+                    </BreadcrumbItem>
+                    {lastSearchInfo.isImport
+                      ? [
+                          <BreadcrumbItem key='import-type'>
+                            <button onClick={() => navigateToOverlayStep('search', lastSearchInfo.groups[0]?.itemType)} className='text-c4 hover:text-c6 transition-colors'>
+                              {VISUAL_TYPES.find((t) => t.key === lastSearchInfo.groups[0]?.itemType)?.label || lastSearchInfo.groups[0]?.itemType}
+                            </button>
+                          </BreadcrumbItem>,
+                          <BreadcrumbItem key='import-advanced' isCurrent>
+                            <button
+                              onClick={() => navigateToOverlayStep('advanced', lastSearchInfo.groups[0]?.itemType, lastSearchInfo.groups)}
+                              className='text-c4 hover:text-c6 transition-colors'>
+                              Filtrage avancé
+                            </button>
+                          </BreadcrumbItem>,
+                        ]
+                      : lastSearchInfo.groups.flatMap((group, groupIndex) => {
+                          const typeLabel = VISUAL_TYPES.find((t) => t.key === group.itemType)?.label || group.itemType;
+                          const searchTerm = group.conditions?.find((c) => c.value)?.value;
+                          const items = [];
+
+                          items.push(
+                            <BreadcrumbItem key={`type-${groupIndex}`}>
+                              <button onClick={() => navigateToOverlayStep('search', group.itemType)} className='text-c4 hover:text-c6 transition-colors'>
+                                {typeLabel}
+                              </button>
+                            </BreadcrumbItem>,
+                          );
+
+                          if (searchTerm) {
+                            items.push(
+                              <BreadcrumbItem key={`term-${groupIndex}`} isCurrent={groupIndex === lastSearchInfo.groups.length - 1}>
+                                <span className='text-c6'>"{searchTerm}"</span>
+                              </BreadcrumbItem>,
+                            );
+                          }
+
+                          return items;
+                        })}
+                  </Breadcrumbs>
+                ) : activeView === 'datavis' && showOverlay ? (
+                  overlayBreadcrumb || (
+                    <Breadcrumbs underline='hover' size='sm'>
+                      <BreadcrumbItem isCurrent>
+                        <span className='text-c6'>Recherche</span>
+                      </BreadcrumbItem>
+                    </Breadcrumbs>
+                  )
+                ) : activeView === 'datavis' ? null : (
+                  overlayBreadcrumb
+                )
+              }
+              rightActions={
+                activeView === 'datavis' && showOverlay ? (
+                  <HeaderImportButton onImport={handleImport} />
+                ) : activeView === 'datavis' && !showOverlay && filteredNodes.length > 0 ? (
+                  <HeaderExportButton
+                    handleExportClick={handleExportClick}
+                    generatedImage={generatedImage}
+                    exportEnabled={exportEnabled}
+                    filterGroups={lastSearchInfo?.groups}
+                    onNavigateToCahiers={() => navigateToView('cahiers')}
+                    getNodePositions={getNodePositions}
+                  />
+                ) : activeView === 'coverageMatrix' ? (
+                  <Popover placement='bottom-end'>
+                    <PopoverTrigger>
+                      <Button size='sm' variant='light' className='text-c5 gap-4'>
+                        <Settings size={16} />
+                        <span className='text-xs'>Top {coverageTopKeywords}</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className='bg-c2 border border-c3 p-15 w-220'>
+                      <div className='flex flex-col gap-4'>
+                        <span className='text-c5 text-xs font-medium'>Nombre de mots-clés</span>
+                        <Slider
+                          size='sm'
+                          step={5}
+                          minValue={5}
+                          maxValue={400}
+                          defaultValue={coverageTopKeywords}
+                          onChangeEnd={(val) => setCoverageTopKeywords(val as number)}
+                          showTooltip={true}
+                          disableThumbScale={true}
+                          classNames={{
+                            base: 'w-full',
+                            filler: 'bg-[#fff]',
+                            thumb:
+                              'w-[16px] h-[16px] after:w-[16px] after:h-[16px] bg-[#fff] after:bg-[#fff] !rounded-[50%] after:!rounded-[50%] focus:ring-0 focus:ring-offset-0 data-[focus-visible=true]:ring-0 data-[focus-visible=true]:ring-offset-0',
+                            track: 'bg-c3',
+                            trackWrapper: 'focus:ring-0',
+                          }}
+                          tooltipProps={{
+                            offset: 8,
+                            placement: 'bottom',
+                            classNames: {
+                              base: 'before:bg-[#fff]',
+                              content: 'py-1 px-2 text-xs text-c1 bg-[#fff]',
+                            },
+                          }}
+                        />
+                        <div className='flex justify-between text-[#fff] text-[10px]'>
+                          <span>5</span>
+
+                          <span>400</span>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                ) : activeView === 'activityHeatmap' ? (
+                  <Select
+                    size='sm'
+                    selectedKeys={[String(heatmapYear)]}
+                    onChange={(e) => setHeatmapYear(Number(e.target.value))}
+                    className='w-100 !text-c6'
+                    aria-label='Année'
+                    classNames={{
+                      trigger: 'bg-c2 border border-c3',
+                      value: 'text-c6',
+                    }}>
+                    {heatmapAvailableYears.map((year) => (
+                      <SelectItem className='!text-c6' key={year} textValue={String(year)}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                ) : null
+              }
+              filterDropdown={
+                activeView === 'datavis' && !showOverlay && filteredNodes.length > 0 ? (
+                  <TypeFilterDropdown visibleTypes={visibleTypes} onToggleType={handleToggleVisibleType} typesInUse={typesInUse} searchedTypes={searchedTypes} />
+                ) : null
+              }
+              canGoBack={activeView === 'dashboard' && dashboardView !== 'overview' ? true : globalCanGoBack}
+              canGoForward={globalCanGoForward}
+              onBack={activeView === 'dashboard' && dashboardView !== 'overview' ? () => setDashboardView('overview') : handleGlobalBack}
+              onForward={handleGlobalForward}
+              showNavigationButtons={activeView === 'datavis' || activeView === 'dashboard'}
+            />
+
+            {/* Contenu principal : Sidebar + Zone de travail */}
+            <div className='flex-1 flex overflow-hidden'>
+              {/* Sidebar gauche collapsible */}
+              <DatavisSidebar
+                activeView={activeView}
+                onShowDatavis={() => navigateToView('datavis')}
+                onShowCahiers={() => navigateToView('cahiers')}
+                onShowCreate={() => navigateToView('create')}
+                onShowRadialTree={() => navigateToView('radialTree')}
+                onShowOeuvres={() => navigateToView('oeuvres')}
+                onShowCoverageMatrix={() => navigateToView('coverageMatrix')}
+                onShowActivityHeatmap={() => navigateToView('activityHeatmap')}
+                onShowDashboard={() => navigateToView('dashboard')}
+                isEditMode={isEditMode}
+                isLinkMode={isLinkMode}
+                isAnnoteMode={isAnnoteMode}
+                annotationViewMode={viewAnnotationMode}
+                onEditToggle={handleEditModeChange}
+                onLinkToggle={handleLinkModeChange}
+                onAnnoteToggle={(active, viewMode) => {
+                  handleAnnoteModeChange(active);
+                  setviewAnnotationMode(viewMode);
+                }}
+                toolsEnabled={activeView === 'datavis' && !showOverlay && filteredNodes.length > 0}
+                isFullWidth={isFullWidth}
+                onFullWidthToggle={setIsFullWidth}
+              />
+              {/* Zone principale : Canvas + Footer en colonne */}
+              <div className='flex-1 min-w-0 h-full flex flex-col'>
+                {/* Zone de contenu - Cahiers et Create en overlay, Datavis toujours monté */}
+                {activeView === 'cahiers' && (
+                  <CahiersView
+                    onSelectConfig={(filters, nodePositions) => {
+                      handleOverlaySelect(filters, false, nodePositions);
+                      navigateToView('datavis');
+                    }}
+                  />
+                )}
+                {activeView === 'create' && <CreateView onCreateItem={handleCreateItem} />}
+                {activeView === 'radialTree' && (
+                  <RadialClusterView
+                    externalData={itemsDataviz.length > 0 ? itemsDataviz : undefined}
+                    onNodeClick={(node) => {
+                      const apiBase = 'https://tests.arcanes.ca/omk/api/';
+                      const itemUrl = `${apiBase}items/${node.id}`;
+                      setCurrentItemUrl(itemUrl);
+                      setSelectedConfigKey(getConfigKey(node.type));
+                      setSelectedConfig(node.type);
+                      onOpenEdit();
+                    }}
+                    visibleTypes={visibleTypes.length > 0 ? visibleTypes : undefined}
+                  />
+                )}
+                {activeView === 'oeuvres' && (
+                  <OeuvresClusterView
+                    onNodeClick={(node) => {
+                      const apiBase = 'https://tests.arcanes.ca/omk/api/';
+                      const itemUrl = `${apiBase}items/${node.id}`;
+                      setCurrentItemUrl(itemUrl);
+                      setSelectedConfigKey(getConfigKey(node.type));
+                      setSelectedConfig(node.type);
+                      onOpenEdit();
+                    }}
+                  />
+                )}
+                {/* Vues Analytics */}
+                {activeView === 'coverageMatrix' && <CoverageMatrix topKeywordsCount={coverageTopKeywords} onTopKeywordsCountChange={setCoverageTopKeywords} />}
+                {activeView === 'activityHeatmap' && <ActivityHeatmap selectedYear={heatmapYear} />}
+                {activeView === 'dashboard' && <Dashboard currentView={dashboardView} onViewChange={setDashboardView} />}
+                <motion.div
+                  className='relative flex-1 overflow-hidden bg-c1'
+                  variants={containerVariants}
+                  ref={containerRef}
+                  initial='hidden'
+                  animate='visible'
+                  style={{ display: activeView === 'datavis' ? 'flex' : 'none' }}>
+                  {!showOverlay && filteredNodes.length > 0 && (
+                    <BGPattern variant='grid' mask='fade-edges' size={40} fill='rgba(255, 255, 255, 0.15)' className='absolute inset-0 z-0 pointer-events-none' />
+                  )}
+                  {!showOverlay && noResultsFound && filteredNodes.length === 0 && (
+                    <div className='absolute inset-0 flex items-center justify-center z-10'>
+                      <div className='text-center p-8 rounded-12 bg-c2/50 border-2 border-c3 max-w-md'>
+                        <div className='text-c4 mb-4'>
+                          <svg className='w-16 h-16 mx-auto' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' />
+                          </svg>
+                        </div>
+                        <h3 className='text-c6 text-lg font-medium mb-2'>Aucun résultat trouvé</h3>
+                        <p className='text-c4 text-sm mb-4'>Votre recherche n'a retourné aucun élément. Essayez de modifier vos critères de recherche.</p>
+                        <button
+                          onClick={() => {
+                            setShowOverlay(true);
+                            setNoResultsFound(false);
+                          }}
+                          className='px-4 py-2 bg-c3 hover:bg-c4 text-c6 rounded-8 transition-colors text-sm'>
+                          Nouvelle recherche
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {showOverlay && (
+                    <>
+                      {isLoadingData && (
+                        <div className='absolute inset-0 flex items-center justify-center bg-c1/80 z-50'>
+                          <div className='text-c6 text-center'>
+                            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-c6 mx-auto mb-4'></div>
+                            <p>Chargement des données...</p>
+                          </div>
+                        </div>
+                      )}
+                      <VisualFilterOverlay
+                        onSelect={handleOverlaySelect}
+                        renderBreadcrumb={setOverlayBreadcrumb}
+                        onNavigationChange={setOverlayNav}
+                        initialState={overlayState}
+                        onStateChange={setOverlayState}
+                      />
+                    </>
+                  )}
+                  <svg
+                    ref={svgRef}
+                    xmlns='http://www.w3.org/2000/svg'
+                    width={dimensions.width}
+                    height={dimensions.height}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                    }}
+                    viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}></svg>
+                  <div className='absolute bottom-4 right-4 z-[50]'>
+                    <ZoomControl availableControl={!showOverlay} svgRef={svgRef} />
+                  </div>
+                </motion.div>
+                {/* Footer - aligné avec SidebarFooter */}
+              </div>
             </div>
-          </motion.div>
-        </motion.main>
+          </div>
+        </SidebarProvider>
         {/* Drawer à gauche */}
         <Drawer isOpen={isOpenDrawer} hideCloseButton placement='left' onOpenChange={onOpenChangeDrawer}>
           <DrawerContent className='bg-c1 z-[52] flex flex-col gap-4'>
@@ -1088,7 +1699,7 @@ const Visualisation = () => {
               <>
                 <DrawerHeader className='flex flex-row items-center justify-between text-c6'>
                   <Button onPress={onClose} size='lg' className='px-4 py-4 flex justify-between  bg-c2 text-c6 rounded-8 hover:bg-c3 '>
-                    <Sidebar size={28} />
+                    <ArrowIcon size={16} transform='rotate(180deg)' />
                   </Button>
                   <Button
                     onPress={() => {
@@ -1109,12 +1720,12 @@ const Visualisation = () => {
                 </DrawerHeader>
                 <DrawerBody className='text-c6 flex flex-col gap-8'>
                   <a href='/recherche' className='text-c6 flex flex-row gap-4 border-2 border-c3  hover:border-c4 rounded-12 transition w-fit p-3'>
-                    <FileIcon size={20} />
+                    <LibraryBig size={20} />
                     <div>Cahier de recherche</div>
                   </a>
                   <SearchHistory
-                    onSelectSearch={(filters) => {
-                      handleOverlaySelect(filters);
+                    onSelectSearch={(filters, nodePositions) => {
+                      handleOverlaySelect(filters, false, nodePositions);
                     }}
                     onClose={onClose}
                   />
@@ -1150,30 +1761,6 @@ const Visualisation = () => {
           isOpen={isOpenAnnote}
           onClose={() => onCloseAnnote()}
         />
-        <div className='fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50'>
-          <Toolbar
-            onSearch={handleSearch}
-            handleExportClick={handleExportClick}
-            generatedImage={generatedImage}
-            resetActiveIconRef={setResetActiveIconRef}
-            onSelect={handleOverlaySelect}
-            exportEnabled={exportEnabled}
-            isEditMode={isEditMode}
-            isLinkMode={isLinkMode}
-            isAddMode={isAddMode}
-            isAnnoteMode={isAnnoteMode}
-            onViewToggle={setviewAnnotationMode}
-            firstSelectedNode={firstSelectedNode}
-            secondSelectedNode={secondSelectedNode}
-            onConnect={handleConnect}
-            onCancel={CancelLink}
-            onEditToggle={handleEditModeChange}
-            onLinkToggle={handleLinkModeChange}
-            onAddToggle={handleAddModeChange}
-            onAnnoteToggle={handleAnnoteModeChange}
-            onCreateItem={handleCreateItem}
-          />
-        </div>
       </div>
     </Layouts>
   );

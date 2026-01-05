@@ -8,8 +8,6 @@ import { LoginPage } from '@/pages/login';
 import { CahierRecherche } from '@/pages/cahierRecherche';
 import { withAuth } from '@/pages/withAuth';
 import Visualisation from '@/pages/visualisation';
-import VisualisationTest from '@/pages/visualisation-test';
-import VisualisationCopy from '@/pages/visualisation-copy';
 import { ToastProvider } from '@heroui/react';
 import { HeroUIProvider } from '@heroui/react';
 import { Intervenants } from '@/pages/intervenants';
@@ -73,8 +71,6 @@ function App() {
           <Route path='/database' Component={ProtectedDatabase} />
           <Route path='/intervenants' Component={Intervenants} />
           <Route path='/visualisation' Component={Visualisation} />
-          <Route path='/visualisation-test' Component={VisualisationTest} />
-          <Route path='/visualisation-copy' Component={VisualisationCopy} />
           <Route path='/recherche/' Component={CahierRecherche} />
           <Route path='/espace-etudiant' Component={EspaceEtudiant} />
           <Route path='/mon-espace' Component={MonEspace} />

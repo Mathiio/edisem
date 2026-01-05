@@ -6,12 +6,13 @@ interface AnimatedBackgroundProps {
   opacity?: number;
   darkOpacity?: number;
   top?: string;
+  color?: string;
 }
 
-export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '', opacity = 20, darkOpacity = 30, top = '-100px' }) => (
+export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '', opacity = 20, darkOpacity = 30, top = '-100px', color }) => (
   <motion.div className={`absolute z-[-1]  ${className}`} style={{ top }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, ease: 'easeIn' }}>
     <div className={`opacity-${opacity} dark:opacity-${darkOpacity}`}>
-      <BackgroundEllipse />
+      <BackgroundEllipse color={color} />
     </div>
   </motion.div>
 );

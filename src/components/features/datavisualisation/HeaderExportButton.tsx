@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, Popover, PopoverTrigger, PopoverContent, Input, Checkbox, addToast, cn } from '@heroui/react';
 import { ExportIcon, ShareIcon } from '@/components/ui/icons';
-import { GeneratedImage } from '@/pages/visualisation-copy';
+import { GeneratedImage } from '@/pages/visualisation';
 import { saveResearch } from '@/services/StudentSpace';
 import { FilterGroup, NodePosition } from '@/components/features/datavisualisation/FilterPopup';
 

@@ -24,6 +24,14 @@ export const experimentationStudentConfigSimplified: SimplifiedDetailConfig = {
       zone: 'overview',
       sourceProperties: ['schema:agent', 'cito:credits'],
     },
+    keywords: {
+      property: 'jdc:hasConcept',
+      type: 'resource',
+      label: 'Mots-clés',
+      resourceTemplateId: 34,
+      multiSelect: true,
+      zone: 'header',
+    },
     externalLink: { property: 'schema:url', type: 'url', label: 'Lien externe', placeholder: 'https://...', zone: 'details' },
   },
 
