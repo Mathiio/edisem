@@ -2,7 +2,7 @@ import { ExpCard, ExpCardSkeleton } from '@/components/features/experimentation/
 import { Layouts } from '@/components/layout/Layouts';
 import { ExperimentationIcon } from '@/components/ui/icons';
 import { PageBanner } from '@/components/ui/PageBanner';
-import { getExperimentations, getActants, getStudents } from '@/services/Items';
+import { getExperimentations } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
@@ -24,80 +24,9 @@ export const Experimentations: React.FC = () => {
     const fetchAndProcessData = async () => {
       try {
         // Récupérer les expérimentations, actants ET students
-        const [experimentations, actants, students] = await Promise.all([getExperimentations(), getActants(), getStudents()]);
+        const [experimentations] = await Promise.all([getExperimentations()]);
 
-        // Créer un map des actants
-        const actantMap = new Map();
-        actants.forEach((actant: any) => {
-          actantMap.set(actant.id, actant);
-          actantMap.set(String(actant.id), actant);
-          actantMap.set(Number(actant.id), actant);
-        });
-
-        // Créer un map des students
-        const studentMap = new Map();
-        students.forEach((student: any) => {
-          studentMap.set(student.id, student);
-          studentMap.set(String(student.id), student);
-          studentMap.set(Number(student.id), student);
-        });
-
-        // Enrichir avec les données complètes des actants
-        const experimentationsWithActants = experimentations.map((experimentation: any) => {
-          // Traiter le tableau actants pour récupérer les infos complètes
-          const enrichedActants = experimentation.actants
-            ? experimentation.actants
-                .map((actant: any) => {
-                  // Si l'actant est déjà une chaîne (nom + organisation), on la garde telle quelle
-                  if (typeof actant === 'string' && !/^\d{5}$/.test(actant)) {
-                    return { displayName: actant };
-                  }
-                  const actantId = actant;
-                  return (
-                    actantMap.get(actantId) ||
-                    actantMap.get(Number(actantId)) ||
-                    actantMap.get(String(actantId)) ||
-                    studentMap.get(actantId) ||
-                    studentMap.get(Number(actantId)) ||
-                    studentMap.get(String(actantId)) ||
-                    null
-                  );
-                })
-                .filter(Boolean)
-            : [];
-
-          // Traiter le tableau acteurs pour récupérer les infos complètes (même logique)
-          const enrichedActeurs = experimentation.acteurs
-            ? experimentation.acteurs
-                .map((acteur: any) => {
-                  if (typeof acteur === 'string' && !/^\d{5}$/.test(acteur)) {
-                    return { displayName: acteur };
-                  }
-                  const acteurId = acteur;
-                  return (
-                    actantMap.get(acteurId) ||
-                    actantMap.get(Number(acteurId)) ||
-                    actantMap.get(String(acteurId)) ||
-                    studentMap.get(acteurId) ||
-                    studentMap.get(Number(acteurId)) ||
-                    studentMap.get(String(acteurId)) ||
-                    null
-                  );
-                })
-                .filter(Boolean)
-            : [];
-
-          return {
-            ...experimentation,
-            enrichedActants,
-            enrichedActeurs,
-            // Pour compatibilité, garder le premier actant comme "actant principal"
-            primaryActant: enrichedActants.length > 0 ? enrichedActants[0] : null,
-          };
-        });
-
-        setExperimentations(experimentationsWithActants);
-
+        setExperimentations(experimentations);
       } catch (error) {
         console.error('Erreur lors du chargement des expérimentations', error);
       } finally {
@@ -111,7 +40,7 @@ export const Experimentations: React.FC = () => {
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
       <PageBanner
         icon={<ExperimentationIcon size={40} />}
-        title="Expérimentations Edisem"
+        title='Expérimentations Edisem'
         description="Plongez au cœur des collections intellectuelles d'EdiSem, une fenêtre ouverte sur la diversité des savoirs et des pratiques qui nourrissent nos événements."
       />
       <div className='grid grid-cols-4 w-full gap-25'>

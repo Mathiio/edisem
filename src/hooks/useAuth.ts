@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 
-interface UserData {
+export interface UserData {
+  id: number;
   firstname?: string;
   lastname?: string;
   picture?: string;
-  type?: 'actant' | 'etudiant' | string;
+  type?: 'actant' | 'student'  | string;
+  omekaUserId?: number | null;  // ID utilisateur Omeka S (table user) pour o:owner
 }
 
 export const useAuth = () => {
@@ -48,15 +50,22 @@ export const useAuth = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('userId');
     localStorage.removeItem('userType');
+    localStorage.removeItem('omekaUserId');
     setIsAuthenticated(false);
     setUserData(null);
   }, []);
 
-  const login = useCallback((user: UserData, userId: string) => {
-    localStorage.setItem('user', JSON.stringify(user));
+  const login = useCallback((user: UserData, userId: string, omekaUserId?: number | null) => {
+    // Stocker l'omekaUserId dans l'objet user
+    const userWithOmekaId = { ...user, omekaUserId };
+    localStorage.setItem('user', JSON.stringify(userWithOmekaId));
     localStorage.setItem('userId', userId);
+    // Stocker l'omekaUserId séparément pour un accès rapide
+    if (omekaUserId) {
+      localStorage.setItem('omekaUserId', String(omekaUserId));
+    }
     setIsAuthenticated(true);
-    setUserData(user);
+    setUserData(userWithOmekaId);
   }, []);
 
   useEffect(() => {

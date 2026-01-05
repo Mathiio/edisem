@@ -3,36 +3,44 @@ import { useEffect, useRef } from 'react';
 
 interface AutoResizingFieldProps {
   value: string;
-  textareaProps?: Omit<TextAreaProps, 'value'>;
-  inputProps?: Omit<InputProps, 'value' | 'isReadOnly'>;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  placeholder?: string;
+  textareaProps?: Omit<TextAreaProps, 'value' | 'onChange' | 'placeholder'>;
+  inputProps?: Omit<InputProps, 'value' | 'isReadOnly' | 'onChange' | 'placeholder'>;
   isReadOnly?: boolean;
 }
 
 export default function AutoResizingField({
   value,
+  onChange,
+  placeholder,
   textareaProps = {},
   inputProps = {},
   isReadOnly = true,
 }: AutoResizingFieldProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Add safety check for value
-  const safeValue = value || '';
-  const hasMultipleLines = safeValue.split('\n').length > 1 || safeValue.length > 50;
+  // Add safety check for value - ensure it's always a string
+  const safeValue = typeof value === 'string' ? value : String(value || '');
+
+  // Always use Textarea when editable, Input only when read-only and short
+  const shouldUseTextarea = !isReadOnly || safeValue.split('\n').length > 1 || safeValue.length > 50;
 
   useEffect(() => {
-    if (textareaRef.current && hasMultipleLines) {
+    if (textareaRef.current && shouldUseTextarea) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [safeValue, hasMultipleLines]);
+  }, [safeValue, shouldUseTextarea]);
 
-  if (hasMultipleLines) {
+  if (shouldUseTextarea) {
     return (
       <Textarea
         ref={textareaRef}
         value={safeValue}
         isReadOnly={isReadOnly}
+        onChange={onChange}
+        placeholder={placeholder}
         {...textareaProps}
         style={{ overflow: 'hidden', ...textareaProps.style }}
       />
@@ -43,6 +51,8 @@ export default function AutoResizingField({
     <Input
       value={safeValue}
       isReadOnly={isReadOnly}
+      onChange={onChange}
+      placeholder={placeholder}
       type='text'
       {...inputProps}
       className={`min-h-[50px] ${inputProps.className || ''}`}

@@ -3,7 +3,9 @@ import { useState } from 'react';
 
 export const ITEM_TYPES = {
   Citations: { type: 80, image: 'citation', config: 'citations' },
-  Conférences: { type: 71, image: 'conference', config: 'conferences' },
+  Colloques: { type: 71, image: 'conference', config: 'conferences' },
+  Séminaires: { type: 75, image: 'conference', config: 'conferences' },
+  'Journées d\'étude': { type: 76, image: 'conference', config: 'conferences' },
   Conférencier: { type: 72, image: 'actant', config: 'conferenciers' },
   'Mots clés': { type: 34, image: 'keyword', config: 'motcles' },
   Pays: { type: 94, image: 'university', config: 'pays' },

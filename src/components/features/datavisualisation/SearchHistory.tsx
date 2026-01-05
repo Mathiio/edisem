@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import { FilterGroup } from './FilterPopup';
+import { FilterGroup, NodePosition } from './FilterPopup';
 import { Button } from '@heroui/react';
 
 interface SearchHistoryItem {
@@ -8,14 +8,16 @@ interface SearchHistoryItem {
   title: string;
   timestamp: string;
   filters: FilterGroup[];
+  nodePositions?: NodePosition[];
 }
 
 interface SearchHistoryProps {
-  onSelectSearch: (filters: FilterGroup[]) => void;
+  onSelectSearch: (filters: FilterGroup[], nodePositions?: NodePosition[]) => void;
   onClose: () => void;
+  isCollapsed?: boolean;
 }
 
-const SearchHistory: React.FC<SearchHistoryProps> = ({ onSelectSearch, onClose }) => {
+const SearchHistory: React.FC<SearchHistoryProps> = ({ onSelectSearch, onClose, isCollapsed = false }) => {
   const [historyItems, setHistoryItems] = useState<SearchHistoryItem[]>([]);
 
   // Charger l'historique depuis le localStorage au chargement du composant
@@ -53,8 +55,8 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ onSelectSearch, onClose }
   };
 
   // Réexécuter une recherche
-  const handleRerunSearch = (filters: any[]) => {
-    onSelectSearch(filters);
+  const handleRerunSearch = (item: SearchHistoryItem) => {
+    onSelectSearch(item.filters, item.nodePositions);
     onClose();
   };
 
@@ -74,6 +76,10 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ onSelectSearch, onClose }
   //   }
   // };
 
+  if (isCollapsed) {
+    return null;
+  }
+
   return (
     <div className='flex flex-col gap-4 w-full'>
       <div className='flex flex-row items-center justify-between mb-4'>
@@ -92,7 +98,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ onSelectSearch, onClose }
           {historyItems.map((item) => (
             <li
               key={item.id}
-              onClick={() => handleRerunSearch(item.filters)}
+              onClick={() => handleRerunSearch(item)}
               className='p-4 bg-c2 rounded-12 cursor-pointer hover:bg-c3 transition-colors flex justify-between items-center'>
               <div className='flex flex-col gap-2'>
                 <span className='font-medium'>{item.title}</span>

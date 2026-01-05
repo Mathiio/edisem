@@ -1,26 +1,33 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, Tab, Input, Button } from '@heroui/react';
-import { getActants, getStudents } from '@/services/Items';
+import { getActants } from '@/services/Items';
+import { getStudentsForLogin, Student } from '@/services/StudentSpace';
+import { useAuth } from '@/hooks/useAuth';
 
 import { Layouts } from '@/components/layout/Layouts';
 
 export const LoginPage: React.FC = () => {
   const [actants, setActants] = useState<any>(null);
   const [selected, setSelected] = useState('Etudiant');
-  const [students, setStudents] = useState<any>(null);
+  const [students, setStudents] = useState<Student[] | null>(null);
   const [email, setEmail] = useState('');
+  const [studentNumber, setStudentNumber] = useState('');
   const [password, setPassword] = useState('');
   const [, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [actants, students] = await Promise.all([getActants(), getStudents()]);
+      // Utiliser getStudentsForLogin qui retourne aussi l'omekaUserId
+      const [actantsData, studentsData] = await Promise.all([getActants(), getStudentsForLogin()]);
 
-      setActants(actants);
-      setStudents(students);
+      setActants(actantsData);
+      // S'assurer que c'est un tableau
+      setStudents(Array.isArray(studentsData) ? studentsData : []);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -36,27 +43,55 @@ export const LoginPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
 
-    if (selected === 'Actant') {
-      const foundActant = actants?.find((actant: { mail: string }) => actant.mail === email);
-      if (foundActant && password === apiKey) {
-        localStorage.setItem('user', JSON.stringify(foundActant));
-        navigate('/');
-      } else {
-        if (!foundActant) {
-          alert('Email non reconnu');
+    try {
+      if (selected === 'Actant') {
+        const foundActant = actants?.find((actant: { mail: string }) => actant.mail === email);
+        if (foundActant && password === apiKey) {
+          // Les actants n'ont pas d'omekaUserId pour l'instant
+          login(foundActant, String(foundActant.id));
+          navigate('/');
         } else {
-          alert('Mot de passe incorrect');
+          if (!foundActant) {
+            alert('Email non reconnu');
+          } else {
+            alert('Mot de passe incorrect');
+          }
+          setSubmitting(false);
+        }
+      } else {
+        // Rechercher l'étudiant par email ET numéro étudiant
+        const foundStudent = students?.find(
+          (student) => student.mail === email && student.studentNumber === studentNumber
+        );
+        if (foundStudent) {
+          // Mapper Student vers UserData et passer l'omekaUserId pour que o:owner soit correctement défini
+          const userData = {
+            id: foundStudent.id,
+            firstname: foundStudent.firstname,
+            lastname: foundStudent.lastname,
+            picture: foundStudent.picture || undefined,
+            type: 'student' as const,
+            omekaUserId: foundStudent.omekaUserId,
+          };
+          login(userData, String(foundStudent.id), foundStudent.omekaUserId);
+          navigate('/');
+        } else {
+          // Vérifier si c'est l'email ou le numéro qui ne correspond pas
+          const studentByEmail = students?.find((student) => student.mail === email);
+          if (!studentByEmail) {
+            alert('Email non reconnu');
+          } else {
+            alert('Numéro étudiant incorrect');
+          }
+          setSubmitting(false);
         }
       }
-    } else {
-      const foundStudent = students?.find((student: { mail: string }) => student.mail === email);
-      if (foundStudent) {
-        localStorage.setItem('user', JSON.stringify(foundStudent));
-        navigate('/');
-      } else {
-        alert('Email non reconnu');
-      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Erreur lors de la connexion');
+      setSubmitting(false);
     }
   };
 
@@ -95,8 +130,24 @@ export const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
+              <Input
+                size='lg'
+                classNames={{
+                  label: 'text-semibold !text-c6 text-24',
+                  inputWrapper: 'bg-c2 shadow-none border-1 border-200',
+                  input: 'h-[50px]',
+                  mainWrapper: 'w-full',
+                }}
+                className='min-h-[50px]'
+                type='text'
+                label='Numéro étudiant'
+                labelPlacement='outside'
+                placeholder='Entrez votre numéro étudiant'
+                value={studentNumber}
+                onChange={(e) => setStudentNumber(e.target.value)}
+              />
               <div className='flex w-full flex-col pt-4 justify-center items-center'>
-                <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected '>
+                <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected' isLoading={submitting}>
                   Se connecter
                 </Button>
               </div>
@@ -138,7 +189,7 @@ export const LoginPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
               <div className='flex w-full flex-col pt-4 justify-center items-center'>
-                <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected '>
+                <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected' isLoading={submitting}>
                   Se connecter
                 </Button>
               </div>

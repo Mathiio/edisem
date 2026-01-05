@@ -22,11 +22,11 @@ export const Intervenant: React.FC = () => {
 
     setLoading(true);
     try {
-      const [actant, confs] = await Promise.all([Items.getActants(id), getConfByActant(id)]);
+      const [actant, confs, students] = await Promise.all([Items.getActants(id), getConfByActant(id), Items.getStudents(Number(id))]);
 
       setActant(actant);
       setConf(confs);
-
+      setActant(students);
       // Mettre à jour le titre du breadcrumb avec le nom de l'actant
       const firstName = actant?.firstname || actant?.first_name;
       const lastName = actant?.lastname || actant?.last_name;
@@ -36,6 +36,7 @@ export const Intervenant: React.FC = () => {
       }
     } finally {
       setLoading(false);
+      console.log('actant', actant);
     }
   }, [id]);
 

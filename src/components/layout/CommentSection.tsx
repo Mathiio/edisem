@@ -63,7 +63,6 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
       });
 
       if (result.success) {
-
         // Forcer le rechargement des commentaires depuis l'API
         try {
           const updatedComments = await getComments(true); // Force refresh
@@ -113,8 +112,8 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
   };
 
   return (
-    <div className='w-full flex flex-col gap-6'>
-      <h2 className='text-24 font-medium text-c6'>Commentaires</h2>
+    <div className='w-full flex flex-col gap-25'>
+      <h2 className='text-24 font-medium text-c6 min-h-[32px]'>Commentaires</h2>
 
       {/* Zone de saisie */}
       <div className='w-full p-5 md:p-6 bg-c2 text-c6 rounded-12 flex flex-col gap-4'>

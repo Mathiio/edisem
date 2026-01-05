@@ -1,6 +1,5 @@
-import * as Items from "@/services/Items";
+import * as Items from '@/services/Items';
 // import { Actant } from "@/types/ui";
-
 
 export async function getItemByID(id: string): Promise<any | null> {
   try {
@@ -13,9 +12,6 @@ export async function getItemByID(id: string): Promise<any | null> {
   }
 }
 
-
-
-
 export async function getConfByEdition(editionId: string) {
   try {
     const seminarConfs = await Items.getSeminarConfs();
@@ -24,33 +20,30 @@ export async function getConfByEdition(editionId: string) {
 
     const allConfs = [...seminarConfs, ...colloqueConfs, ...studyDayConfs];
 
-    const editionConfs = allConfs.filter((conf: any) =>
-      conf.edition === editionId
+    const editionConfs = allConfs.filter((conf: any) => conf.edition === editionId);
+
+    const updatedConfs = await Promise.all(
+      editionConfs.map(async (conf: any) => {
+        if (!conf.actant) return conf;
+
+        try {
+          if (typeof conf.actant === 'string' && conf.actant.includes(',')) {
+            const actantIds = conf.actant.split(',').map((id: string) => parseInt(id.trim()));
+            const actantDetails = await Promise.all(actantIds.map((id: string) => Items.getActants(id)));
+            return { ...conf, actant: actantDetails };
+          }
+
+          if (typeof conf.actant === 'string' || typeof conf.actant === 'number') {
+            const actantDetails = await Items.getActants(conf.actant);
+            return { ...conf, actant: [actantDetails] };
+          }
+          return conf;
+        } catch (error) {
+          console.error(`Error fetching actant for conf ${conf.id}:`, error);
+          return { ...conf, actant: [] };
+        }
+      }),
     );
-
-    const updatedConfs = await Promise.all(editionConfs.map(async (conf: any) => {
-      if (!conf.actant) return conf;
-
-      try {
-        if (typeof conf.actant === 'string' && conf.actant.includes(',')) {
-          const actantIds = conf.actant.split(',').map((id: string) => parseInt(id.trim()));
-          const actantDetails = await Promise.all(
-            actantIds.map((id: string) => Items.getActants(id))
-          );
-          return { ...conf, actant: actantDetails };
-        }
-
-        if (typeof conf.actant === 'string' || typeof conf.actant === 'number') {
-          const actantDetails = await Items.getActants(conf.actant);
-          return { ...conf, actant: [actantDetails] };
-        }
-        return conf;
-
-      } catch (error) {
-        console.error(`Error fetching actant for conf ${conf.id}:`, error);
-        return { ...conf, actant: [] };
-      }
-    }));
 
     return updatedConfs;
   } catch (error) {
@@ -59,8 +52,6 @@ export async function getConfByEdition(editionId: string) {
   }
 }
 
-
-
 export async function getConfByActant(actantId: string) {
   try {
     const confs = await Items.getAllConfs();
@@ -68,27 +59,26 @@ export async function getConfByActant(actantId: string) {
     const actantConfs = confs.filter((conf: { actant: string | string[] }) => {
       if (typeof conf.actant === 'string') {
         return conf.actant.includes(',')
-          ? conf.actant.split(',').map(id => id.trim()).includes(actantId)
+          ? conf.actant
+              .split(',')
+              .map((id) => id.trim())
+              .includes(actantId)
           : conf.actant === actantId;
       }
       return Array.isArray(conf.actant) && conf.actant.includes(actantId);
     });
 
     const updatedConfs = await Promise.all(
-      actantConfs.map(async (conf: { actant: string | string[]; }) => {
+      actantConfs.map(async (conf: { actant: string | string[] }) => {
         if (conf.actant) {
-          const actantIds = typeof conf.actant === 'string'
-            ? (conf.actant.includes(',') ? conf.actant.split(',').map(id => id.trim()) : [conf.actant])
-            : conf.actant;
+          const actantIds = typeof conf.actant === 'string' ? (conf.actant.includes(',') ? conf.actant.split(',').map((id) => id.trim()) : [conf.actant]) : conf.actant;
 
-          const actantDetails = await Promise.all(
-            actantIds.map(id => Items.getActants(id))
-          );
+          const actantDetails = await Promise.all(actantIds.map((id) => Items.getActants(id)));
 
           return { ...conf, actant: actantDetails.flat() };
         }
         return conf;
-      })
+      }),
     );
 
     return updatedConfs;
@@ -98,56 +88,68 @@ export async function getConfByActant(actantId: string) {
   }
 }
 
-
-
 export async function getResearchByActant(actantId: string) {
   try {
     const recherches = await Items.getRecherches();
 
-
     // Filtrer les recherches en fonction du champ creator
-    const recherchesFiltrees = recherches.filter((recherche: { creator: string }) =>
-      recherche.creator === actantId
+    const recherchesFiltrees = recherches.filter((recherche: { creator: string }) => recherche.creator === actantId);
+
+    // Enrichir avec les URLs des médias via l'API Omeka S
+    const enrichedRecherches = await Promise.all(
+      recherchesFiltrees.map(async (recherche: any) => {
+        try {
+          // Récupérer les médias de l'item
+          const mediaResponse = await fetch(`https://tests.arcanes.ca/omk/api/media?item_id=${recherche.id}`);
+          if (mediaResponse.ok) {
+            const mediaData = await mediaResponse.json();
+            if (mediaData && mediaData.length > 0) {
+              // Prendre le premier média (l'image de la visualisation)
+              const firstMedia = mediaData[0];
+              const thumbnailUrl = firstMedia['o:thumbnail_urls']?.square || firstMedia['o:thumbnail_urls']?.medium || firstMedia['o:original_url'];
+              return {
+                ...recherche,
+                imageUrl: thumbnailUrl || null,
+              };
+            }
+          }
+        } catch (e) {
+          console.warn(`Erreur récupération média pour recherche ${recherche.id}:`, e);
+        }
+        return { ...recherche, imageUrl: null };
+      }),
     );
 
-    return recherchesFiltrees;
+    return enrichedRecherches;
   } catch (error) {
     console.error('Erreur lors de la récupération des recherches par actant :', error);
     throw new Error('Impossible de récupérer les recherches');
   }
 }
 
-
-
-
 export async function filterActants(searchQuery: string) {
   try {
     const actants = await Items.getActants();
     const normalizedQuery = searchQuery.toLowerCase();
 
-    const filteredActants = actants.filter((actant: { firstname: string; lastname: string; universities: any[] | null; doctoralSchools: any[] | null; laboratories: any[] | null; }) => {
-      return (
-        (actant.firstname && actant.firstname.toLowerCase().includes(normalizedQuery)) ||
-        (actant.lastname && actant.lastname.toLowerCase().includes(normalizedQuery)) ||
-        (actant.universities?.some((university: { name: string; }) => university && university.name.toLowerCase().includes(normalizedQuery))) ||
-        (actant.doctoralSchools?.some((school: { name: string; }) => school && school.name.toLowerCase().includes(normalizedQuery))) ||
-        (actant.laboratories?.some((laboratory: { name: string; }) => laboratory && laboratory.name.toLowerCase().includes(normalizedQuery)))
-      );
-    });
+    const filteredActants = actants.filter(
+      (actant: { firstname: string; lastname: string; universities: any[] | null; doctoralSchools: any[] | null; laboratories: any[] | null }) => {
+        return (
+          (actant.firstname && actant.firstname.toLowerCase().includes(normalizedQuery)) ||
+          (actant.lastname && actant.lastname.toLowerCase().includes(normalizedQuery)) ||
+          actant.universities?.some((university: { name: string }) => university && university.name.toLowerCase().includes(normalizedQuery)) ||
+          actant.doctoralSchools?.some((school: { name: string }) => school && school.name.toLowerCase().includes(normalizedQuery)) ||
+          actant.laboratories?.some((laboratory: { name: string }) => laboratory && laboratory.name.toLowerCase().includes(normalizedQuery))
+        );
+      },
+    );
 
     return filteredActants;
-
   } catch (error) {
     console.error('Error fetching actants:', error);
     throw new Error('Failed to fetch actants');
   }
 }
-
-
-
-
-
-
 
 export async function getConfCitations(confId: number) {
   try {
@@ -165,7 +167,7 @@ export async function getConfCitations(confId: number) {
 
           return {
             ...citation,
-            actant: actantObj ? actantObj : citation.actant
+            actant: actantObj ? actantObj : citation.actant,
           };
         });
 
@@ -176,7 +178,6 @@ export async function getConfCitations(confId: number) {
     throw new Error('Failed to fetch conferences');
   }
 }
-
 
 export async function getConfByCitation(citationId: string) {
   try {
@@ -191,9 +192,7 @@ export async function getConfByCitation(citationId: string) {
     }
 
     // Recherche la conférence qui contient cet ID de citation
-    const conf = confs.find((conf: { citations: string[] }) =>
-      conf.citations.includes(citationId)
-    );
+    const conf = confs.find((conf: { citations: string[] }) => conf.citations.includes(citationId));
 
     return conf;
   } catch (error) {
@@ -201,11 +200,6 @@ export async function getConfByCitation(citationId: string) {
     throw new Error('Failed to fetch conference by citation');
   }
 }
-
-
-
-
-
 
 export async function getConfBibliographies(confId: number) {
   try {
@@ -217,20 +211,14 @@ export async function getConfBibliographies(confId: number) {
       throw new Error(`No conference found with id: ${confId}`);
     }
 
-    const filteredBibliographies = bibliographies.filter((bib: { id: number }) =>
-      conf.bibliographies.includes(String(bib.id))
-    );
+    const filteredBibliographies = bibliographies.filter((bib: { id: number }) => conf.bibliographies.includes(String(bib.id)));
 
     return filteredBibliographies;
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error fetching bibliographies:', error);
     throw new Error('Failed to fetch bibliographies');
   }
 }
-
-
-
 
 export async function getConfMediagraphies(confId: number) {
   try {
@@ -243,9 +231,7 @@ export async function getConfMediagraphies(confId: number) {
       throw new Error(`No conference found with id: ${confId}`);
     }
 
-    const filteredMediagraphies = mediagraphies.filter((media: { id: number }) =>
-      conf.mediagraphies.includes(String(media.id))
-    );
+    const filteredMediagraphies = mediagraphies.filter((media: { id: number }) => conf.mediagraphies.includes(String(media.id)));
 
     return filteredMediagraphies;
   } catch (error) {
@@ -253,7 +239,6 @@ export async function getConfMediagraphies(confId: number) {
     throw new Error('Failed to fetch mediagraphies');
   }
 }
-
 
 export async function getOeuvresByPersonne(personneId: number) {
   const recitsArtistiques = await Items.getRecitsArtistiques();
@@ -283,7 +268,6 @@ export async function getOeuvresByPersonne(personneId: number) {
   return filteredOeuvres;
 }
 
-
 /**
  * Créer un commentaire Edisem
  *
@@ -309,18 +293,18 @@ export async function createEdisemComment(commentaireData: {
       {
         property_id: 1, // dcterms:title - ENVOYÉ EN PREMIER pour générer o:title
         value: titre,
-        type: 'literal'
+        type: 'literal',
       },
       {
         property_id: 561, // schema:commentText
         value: commentaireData.contenu,
-        type: 'literal'
+        type: 'literal',
       },
       {
         property_id: 562, // schema:commentTime
         value: new Date().toISOString(),
-        type: 'literal'
-      }
+        type: 'literal',
+      },
     ];
 
     console.log('Values to insert:', values);
@@ -333,7 +317,7 @@ export async function createEdisemComment(commentaireData: {
       values.push({
         property_id: 2095, // jdc:hasActant
         value_resource_id: parseInt(currentUser.id),
-        type: 'resource'
+        type: 'resource',
       });
     }
 
@@ -342,7 +326,7 @@ export async function createEdisemComment(commentaireData: {
       values.push({
         property_id: 1794,
         value_resource_id: commentaireData.relatedResourceId,
-        type: 'resource'
+        type: 'resource',
       });
     }
 
@@ -354,7 +338,7 @@ export async function createEdisemComment(commentaireData: {
       template_id: '123',
       owner_id: String(finalOwnerId),
       class_id: String(commentaireData.class_id || ''),
-      values: JSON.stringify(values)
+      values: JSON.stringify(values),
     });
 
     console.log('Sending request params:', params.toString());
@@ -389,9 +373,8 @@ export async function createEdisemComment(commentaireData: {
     return {
       success: true,
       commentaireId: result.id,
-      message: 'Commentaire créé avec succès'
+      message: 'Commentaire créé avec succès',
     };
-
   } catch (error) {
     console.error('Erreur lors de la création du commentaire Edisem:', error);
     throw new Error('Impossible de créer le commentaire');
@@ -413,8 +396,8 @@ export async function getEdisemComments(): Promise<any[]> {
       body: new URLSearchParams({
         helper: 'Query',
         action: 'getEdisemComments',
-        json: '1'
-      }).toString()
+        json: '1',
+      }).toString(),
     });
 
     if (!response.ok) {
@@ -430,7 +413,6 @@ export async function getEdisemComments(): Promise<any[]> {
     }
 
     return result;
-
   } catch (error) {
     console.error('Erreur lors de la récupération des commentaires:', error);
     throw error;
@@ -476,8 +458,8 @@ export async function deleteEdisemComment(commentaireId: number): Promise<any> {
         helper: 'Query',
         action: 'deleteResource',
         json: '1',
-        id: commentaireId.toString()
-      }).toString()
+        id: commentaireId.toString(),
+      }).toString(),
     });
 
     if (!response.ok) {
@@ -492,12 +474,10 @@ export async function deleteEdisemComment(commentaireId: number): Promise<any> {
 
     return {
       success: true,
-      message: 'Commentaire supprimé avec succès'
+      message: 'Commentaire supprimé avec succès',
     };
-
   } catch (error) {
     console.error('Erreur lors de la suppression du commentaire Edisem:', error);
     throw new Error('Impossible de supprimer le commentaire');
   }
 }
-

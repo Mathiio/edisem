@@ -2,15 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FilterPopup, { FilterGroup } from './FilterPopup';
 import { Button, Divider } from '@heroui/react';
-import {
-  SearchIcon,
-  ImportIcon,
-  NewItemIcon,
-  AssociateIcon,
-  ExportIcon,
-  EditItemIcon,
-  AnnotateIcon,
-} from '@/components/ui/icons';
+import { SearchIcon, ImportIcon, NewItemIcon, AssociateIcon, ExportIcon, EditItemIcon, AnnotateIcon } from '@/components/ui/icons';
 import { IconSvgProps } from '@/types/ui';
 import { GeneratedImage } from '@/pages/visualisation';
 import { ExportPopup } from './ExportPopup';
@@ -143,26 +135,13 @@ export const Toolbar: React.FC<ItemsProps> = ({
       case 'import':
         return <ImportPopup onSelect={onSelect} />;
       case 'link':
-        return (
-          <LinkPopup
-            firstSelectedNode={firstSelectedNode}
-            secondSelectedNode={secondSelectedNode}
-            onConnect={onConnect}
-            onCancel={onCancel}
-          />
-        );
+        return <LinkPopup firstSelectedNode={firstSelectedNode} secondSelectedNode={secondSelectedNode} onConnect={onConnect} onCancel={onCancel} />;
       case 'annotate':
         return <AnnotatePopup onViewToggle={onViewToggle} />;
       case 'add':
         return <AddPopup onCreateItem={onCreateItem} />;
       case 'export':
-        return (
-          <ExportPopup
-            generatedImage={generatedImage}
-            handleExportClick={handleExportClick}
-            exportEnabled={exportEnabled}
-          />
-        );
+        return <ExportPopup generatedImage={generatedImage} handleExportClick={handleExportClick} exportEnabled={exportEnabled} />;
       default:
         return null;
     }
@@ -170,12 +149,7 @@ export const Toolbar: React.FC<ItemsProps> = ({
 
   const renderButton = (key: string, IconComponent: React.FC<IconSvgProps>) => {
     // Déterminer si ce bouton est actif (soit via activeIcon, soit via son mode spécifique)
-    const isActive =
-      activeIcon === key ||
-      (key === 'edit' && isEditMode) ||
-      (key === 'link' && isLinkMode) ||
-      (key === 'add' && isAddMode) ||
-      (key === 'annotate' && isAnnoteMode);
+    const isActive = activeIcon === key || (key === 'edit' && isEditMode) || (key === 'link' && isLinkMode) || (key === 'add' && isAddMode) || (key === 'annotate' && isAnnoteMode);
 
     // Déterminer la couleur de fond en fonction du bouton actif
     const getBackgroundColor = () => {
@@ -209,11 +183,7 @@ export const Toolbar: React.FC<ItemsProps> = ({
 
           if (key === 'link' || key === 'add' || key === 'annotate') {
             // Si le mode est déjà actif, on le désactive
-            if (
-              (key === 'link' && isLinkMode) ||
-              (key === 'add' && isAddMode) ||
-              (key === 'annotate' && isAnnoteMode)
-            ) {
+            if ((key === 'link' && isLinkMode) || (key === 'add' && isAddMode) || (key === 'annotate' && isAnnoteMode)) {
               setActiveIcon(null);
               if (key === 'link') onLinkToggle(false);
               if (key === 'add') onAddToggle(false);
@@ -244,16 +214,13 @@ export const Toolbar: React.FC<ItemsProps> = ({
 
           setActiveIcon((prev) => (prev === key ? null : key));
         }}>
-        <IconComponent
-          className={`${isActive ? 'text-selected' : 'text-c6 hover:text-c6'} transition-all ease-in-out duration-200`}
-          size={18}
-        />
+        <IconComponent className={`${isActive ? 'text-selected' : 'text-c6 hover:text-c6'} transition-all ease-in-out duration-200`} size={18} />
       </Button>
     );
   };
 
   return (
-    <div className='fixed bottom-0 left-0 right-0 p-25 gap-2 flex flex-col justify-center items-center z-[10]'>
+    <div className='w-full p-4 gap-2 flex flex-col justify-center items-center'>
       <AnimatePresence mode='popLayout'>
         {showPopup && (
           <motion.div

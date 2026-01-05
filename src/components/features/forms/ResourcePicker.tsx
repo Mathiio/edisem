@@ -1,0 +1,598 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  Input,
+  Spinner,
+  Chip,
+  Checkbox,
+  Tabs,
+  Tab,
+} from '@heroui/react';
+import { SearchIcon, SortIcon, ThumbnailIcon, UserIcon } from '@/components/ui/icons';
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
+import { usegetDataByClass } from '@/hooks/useFetchData';
+
+export interface ResourcePickerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelect: (resources: any[]) => void;
+  title: string;
+  resourceClassId?: number;           // ID de classe Omeka S pour filtrer les ressources (obsolète, utilisez resourceTemplateId)
+  resourceTemplateId?: number;        // ID de template Omeka S pour filtrer les ressources (recommandé)
+  resourceTemplateIds?: number[];     // IDs de templates multiples (pour bibliographies/médiagraphies)
+  multiSelect?: boolean;              // Autoriser la sélection multiple
+  selectedIds?: (string | number)[];  // IDs déjà sélectionnés
+  displayProperty?: string;           // Propriété à afficher (default: 'dcterms:title')
+  filterFn?: (resource: any) => boolean; // Fonction de filtre personnalisée
+  maxSelection?: number;              // Nombre max de sélections
+}
+
+/**
+ * Composant popup réutilisable pour sélectionner des ressources
+ * Utilisé pour : keywords, actants, feedbacks, outils, etc.
+ */
+// Helper function to load resources by template ID (from Omeka S API)
+const API_BASE = '/omk/api/';
+
+// Charger les infos d'un template pour avoir son label
+const loadTemplateInfo = async (templateId: number): Promise<string> => {
+  try {
+    const response = await fetch(`${API_BASE}resource_templates/${templateId}`);
+    if (!response.ok) return `Template ${templateId}`;
+    const data = await response.json();
+    return data['o:label'] || `Template ${templateId}`;
+  } catch {
+    return `Template ${templateId}`;
+  }
+};
+
+const loadResourcesByTemplateId = async (templateId: number): Promise<{ resources: any[]; templateLabel: string }> => {
+  try {
+    // Charger jusqu'à 500 items par template (pagination)
+    const allResources: any[] = [];
+    let page = 1;
+    const perPage = 100;
+    let hasMore = true;
+
+    // Charger le label du template en parallèle
+    const templateLabelPromise = loadTemplateInfo(templateId);
+
+    while (hasMore && page <= 5) { // Max 5 pages = 500 items par template
+      const url = `${API_BASE}items?resource_template_id=${templateId}&per_page=${perPage}&page=${page}`;
+      console.log('[ResourcePicker] Fetching:', url);
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        console.error('[ResourcePicker] Erreur chargement ressources par template', response.status);
+        break;
+      }
+
+      const data = await response.json();
+      console.log(`[ResourcePicker] Template ${templateId} - Page ${page}: ${data.length} items`);
+
+      allResources.push(...data);
+      hasMore = data.length === perPage;
+      page++;
+    }
+
+    const templateLabel = await templateLabelPromise;
+    console.log(`[ResourcePicker] Template ${templateId} (${templateLabel}) - Total: ${allResources.length} items`);
+
+    return { resources: allResources, templateLabel };
+  } catch (err) {
+    console.error('[ResourcePicker] Erreur chargement ressources:', err);
+    return { resources: [], templateLabel: `Template ${templateId}` };
+  }
+};
+
+// Structure pour stocker les ressources par template
+interface TemplateData {
+  templateId: number;
+  templateLabel: string;
+  resources: any[];
+}
+
+// Helper function to load resources from multiple template IDs
+const loadResourcesByMultipleTemplateIds = async (templateIds: number[]): Promise<TemplateData[]> => {
+  try {
+    console.log('[ResourcePicker] Chargement multiple templates:', templateIds);
+    const results = await Promise.all(
+      templateIds.map(async (templateId) => {
+        const { resources, templateLabel } = await loadResourcesByTemplateId(templateId);
+        return { templateId, templateLabel, resources };
+      })
+    );
+
+    const total = results.reduce((sum, t) => sum + t.resources.length, 0);
+    console.log('[ResourcePicker] Total ressources chargées:', total);
+    return results;
+  } catch (err) {
+    console.error('[ResourcePicker] Erreur chargement ressources multiples:', err);
+    return [];
+  }
+};
+
+export const ResourcePicker: React.FC<ResourcePickerProps> = ({
+  isOpen,
+  onClose,
+  onSelect,
+  title,
+  resourceClassId,
+  resourceTemplateId,
+  resourceTemplateIds,
+  multiSelect = false,
+  selectedIds = [],
+  displayProperty = 'dcterms:title',
+  filterFn,
+  maxSelection,
+}) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [localSelectedIds, setLocalSelectedIds] = useState<Set<string | number>>(
+    new Set(selectedIds)
+  );
+  const [activeTab, setActiveTab] = useState<string>('all');
+
+  // État pour les ressources chargées par template ID (nouvelle structure avec onglets)
+  const [templateDataList, setTemplateDataList] = useState<TemplateData[]>([]);
+  const [templateLoading, setTemplateLoading] = useState(false);
+
+  // Fetch resources (ancien système avec resourceClassId)
+  const { data: classResources, loading: classLoading } = usegetDataByClass(resourceClassId || 0);
+
+  // Charger les ressources par template ID(s) quand le modal s'ouvre
+  useEffect(() => {
+    if (isOpen) {
+      // Priorité aux resourceTemplateIds multiples
+      if (resourceTemplateIds && resourceTemplateIds.length > 0) {
+        setTemplateLoading(true);
+        setActiveTab('all'); // Reset to "all" tab
+        loadResourcesByMultipleTemplateIds(resourceTemplateIds).then((res) => {
+          setTemplateDataList(res);
+          setTemplateLoading(false);
+        });
+      } else if (resourceTemplateId) {
+        setTemplateLoading(true);
+        setActiveTab('all');
+        loadResourcesByTemplateId(resourceTemplateId).then(({ resources, templateLabel }) => {
+          setTemplateDataList([{ templateId: resourceTemplateId, templateLabel, resources }]);
+          setTemplateLoading(false);
+        });
+      }
+    }
+  }, [isOpen, resourceTemplateId, resourceTemplateIds]);
+
+  // Calculer les ressources plates (pour la compatibilité avec le reste du code)
+  const allTemplateResources = useMemo(() => {
+    return templateDataList.flatMap(t => t.resources);
+  }, [templateDataList]);
+
+  // Choisir la source de données appropriée
+  const resources = (resourceTemplateId || resourceTemplateIds) ? allTemplateResources : classResources;
+  const loading = (resourceTemplateId || resourceTemplateIds) ? templateLoading : classLoading;
+
+  // Ressources filtrées par onglet actif
+  const resourcesForActiveTab = useMemo(() => {
+    if (!resources) return [];
+    if (activeTab === 'all') return resources;
+
+    const templateId = parseInt(activeTab, 10);
+    const templateData = templateDataList.find(t => t.templateId === templateId);
+    return templateData?.resources || [];
+  }, [resources, activeTab, templateDataList]);
+
+  // Reset local selection when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setLocalSelectedIds(new Set(selectedIds));
+      setSearchTerm('');
+    }
+  }, [isOpen, selectedIds]);
+
+  // Extract display value from resource
+  const getDisplayValue = (resource: any): string => {
+    // Handle nested path like 'dcterms:title.0.@value'
+    if (displayProperty.includes('.')) {
+      const parts = displayProperty.split('.');
+      let value = resource;
+      for (const part of parts) {
+        if (value === undefined || value === null) return '';
+        value = value[part];
+      }
+      return String(value || '');
+    }
+
+    // Handle standard Omeka S format
+    const prop = resource[displayProperty];
+    if (Array.isArray(prop) && prop[0]) {
+      return prop[0]['@value'] || prop[0]['display_title'] || '';
+    }
+    if (typeof prop === 'string') return prop;
+
+    // Fallback to o:title or display_title
+    return resource['o:title'] || resource['display_title'] || resource['title'] || '';
+  };
+
+  // Extract thumbnail URL from resource
+  const getThumbnailUrl = (resource: any): string | null => {
+    return (
+      resource['thumbnail_display_urls']?.medium ||
+      resource['thumbnail_display_urls']?.square ||
+      resource['thumbnail_display_urls']?.large ||
+      resource['o:thumbnail']?.['@id'] ||
+      resource['o:primary_media']?.['thumbnail_display_urls']?.medium ||
+      null
+    );
+  };
+
+  // Extract actant/author name from resource
+  const getActantName = (resource: any): string | null => {
+    const actant = resource['jdc:hasActant']?.[0];
+    return actant?.['display_title'] || actant?.['@value'] || null;
+  };
+
+  // Get resource class/template label
+  const getResourceLabel = (resource: any): string | null => {
+    return resource['o:resource_class']?.['o:label'] || resource['o:resource_template']?.['o:label'] || null;
+  };
+
+  // Get resource ID
+  const getResourceId = (resource: any): string | number => {
+    return resource['o:id'] || resource['id'] || resource['@id'];
+  };
+
+  // Filter and sort resources
+  const filteredResources = useMemo(() => {
+    if (!resourcesForActiveTab || !Array.isArray(resourcesForActiveTab)) return [];
+
+    let result = [...resourcesForActiveTab];
+
+    // Apply custom filter
+    if (filterFn) {
+      result = result.filter(filterFn);
+    }
+
+    // Apply search filter
+    if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
+      result = result.filter((r) => {
+        const displayValue = getDisplayValue(r).toLowerCase();
+        return displayValue.includes(lowerSearch);
+      });
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      const aValue = getDisplayValue(a);
+      const bValue = getDisplayValue(b);
+      return sortOrder === 'asc'
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    });
+
+    return result;
+  }, [resourcesForActiveTab, searchTerm, sortOrder, filterFn]);
+
+  // Toggle selection
+  const toggleSelection = (resource: any) => {
+    const id = getResourceId(resource);
+    const newSelected = new Set(localSelectedIds);
+
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      if (!multiSelect) {
+        newSelected.clear();
+      }
+      if (!maxSelection || newSelected.size < maxSelection) {
+        newSelected.add(id);
+      }
+    }
+
+    setLocalSelectedIds(newSelected);
+  };
+
+  // Check if resource is selected
+  const isSelected = (resource: any): boolean => {
+    const id = getResourceId(resource);
+    return localSelectedIds.has(id);
+  };
+
+  // Handle confirm
+  const handleConfirm = () => {
+    if (!resources) return;
+
+    const selectedResources = resources.filter((r) =>
+      localSelectedIds.has(getResourceId(r))
+    );
+    onSelect(selectedResources);
+    onClose();
+  };
+
+  // Handle sort order change
+  const handleSortOrderChange = (key: any) => {
+    const selectedKey = Array.from(key)[0];
+    if (selectedKey === 'asc' || selectedKey === 'desc') {
+      setSortOrder(selectedKey);
+    }
+  };
+
+  // Truncate text
+  const truncate = (text: string, maxLength = 50) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + '...';
+  };
+
+  // Composant carte pour une ressource
+  const ResourceCard: React.FC<{ resource: any }> = ({ resource }) => {
+    const selected = isSelected(resource);
+    const thumbnailUrl = getThumbnailUrl(resource);
+    const actantName = getActantName(resource);
+    const resourceLabel = getResourceLabel(resource);
+
+    return (
+      <div
+        onClick={() => toggleSelection(resource)}
+        className={`
+          relative cursor-pointer rounded-12 border-2 transition-all ease-in-out duration-200
+          ${selected
+            ? 'border-primary bg-primary/10 shadow-[inset_0_0px_30px_rgba(var(--primary-rgb),0.1)]'
+            : 'border-c3 hover:border-c4 hover:bg-c2 shadow-[inset_0_0px_30px_rgba(255,255,255,0.04)]'
+          }
+        `}
+      >
+        {/* Checkbox en haut à gauche */}
+        <div className='absolute top-2 left-2 z-10'>
+          <Checkbox
+            isSelected={selected}
+            onValueChange={() => toggleSelection(resource)}
+            classNames={{
+              wrapper: 'before:border-c4',
+            }}
+          />
+        </div>
+
+        <div className='p-3 flex flex-col gap-2'>
+          {/* Thumbnail ou placeholder */}
+          <div
+            className={`w-full h-[80px] rounded-8 flex justify-center items-center overflow-hidden ${
+              thumbnailUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'
+            }`}
+            style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}
+          >
+            {!thumbnailUrl && <ThumbnailIcon className='text-c4/30' size={28} />}
+          </div>
+
+          {/* Contenu */}
+          <div className='flex flex-col gap-1'>
+            {/* Titre */}
+            <p className='text-13 text-c6 font-medium line-clamp-2 leading-tight'>{getDisplayValue(resource)}</p>
+
+            {/* Actant ou classe */}
+            {(actantName || resourceLabel) && (
+              <div className='flex gap-1.5 items-center'>
+                <div className='w-5 h-5 flex items-center justify-center bg-c3 rounded-6'>
+                  <UserIcon className='text-c4' size={10} />
+                </div>
+                <p className='text-11 text-c4 font-extralight truncate'>
+                  {actantName || resourceLabel}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="4xl"
+      scrollBehavior="inside"
+      classNames={{
+        base: 'bg-c1 border-2 border-c3',
+        header: 'border-b border-c3',
+        body: 'py-4',
+        footer: 'border-t border-c3',
+      }}
+    >
+      <ModalContent>
+        <ModalHeader className="flex flex-col gap-1">
+          <h2 className="text-c6 text-xl font-semibold">{title}</h2>
+          <p className="text-c4 text-sm font-normal">
+            {localSelectedIds.size} sélectionné(s) sur {filteredResources.length} disponibles
+            {maxSelection && ` (max: ${maxSelection})`}
+          </p>
+        </ModalHeader>
+
+        <ModalBody>
+          {/* Onglets par type de ressource */}
+          {templateDataList.length > 1 && (
+            <div className="mb-4">
+              <Tabs
+                aria-label="Types de ressources"
+                selectedKey={activeTab}
+                onSelectionChange={(key) => setActiveTab(String(key))}
+                classNames={{
+                  tabList: 'bg-c2 border-2 border-c3 rounded-12 p-1 gap-1',
+                  cursor: 'bg-primary rounded-8',
+                  tab: 'px-4 py-2 text-c5 data-[selected=true]:text-white',
+                  tabContent: 'group-data-[selected=true]:text-white',
+                }}
+              >
+                <Tab
+                  key="all"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <span>Tous</span>
+                      <span className="text-xs bg-c3 group-data-[selected=true]:bg-white/20 px-2 py-0.5 rounded-full">
+                        {resources?.length || 0}
+                      </span>
+                    </div>
+                  }
+                />
+                {templateDataList.map((template) => (
+                  <Tab
+                    key={String(template.templateId)}
+                    title={
+                      <div className="flex items-center gap-2">
+                        <span>{template.templateLabel}</span>
+                        <span className="text-xs bg-c3 group-data-[selected=true]:bg-white/20 px-2 py-0.5 rounded-full">
+                          {template.resources.length}
+                        </span>
+                      </div>
+                    }
+                  />
+                ))}
+              </Tabs>
+            </div>
+          )}
+
+          {/* Search and Sort */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            <Input
+              classNames={{
+                mainWrapper: 'flex-1',
+                input: 'text-c6 text-16',
+                inputWrapper: 'bg-c2 border-2 border-c3 hover:bg-c3 rounded-8',
+              }}
+              placeholder="Rechercher..."
+              startContent={<SearchIcon size={16} className="text-c5" />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              type="search"
+              isClearable
+              onClear={() => setSearchTerm('')}
+            />
+
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  startContent={<SortIcon size={16} className="text-c6" />}
+                  className="px-4 bg-c2 border-2 border-c3 hover:bg-c3 rounded-8 text-c6"
+                >
+                  Trier
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Sort order selection"
+                variant="flat"
+                disallowEmptySelection
+                selectedKeys={new Set([sortOrder])}
+                onSelectionChange={handleSortOrderChange}
+                selectionMode="single"
+                className="bg-c2 border-2 border-c3 rounded-8"
+              >
+                <DropdownItem key="asc" className="text-c6 hover:bg-c3">
+                  A - Z
+                </DropdownItem>
+                <DropdownItem key="desc" className="text-c6 hover:bg-c3">
+                  Z - A
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+
+            {multiSelect && (
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="flat"
+                  onPress={() => {
+                    // Sélectionner uniquement les ressources de l'onglet actif
+                    const allIds = new Set(filteredResources.map((r) => getResourceId(r)));
+                    setLocalSelectedIds((prev) => new Set([...prev, ...allIds]));
+                  }}
+                  className='bg-c2 border-2 border-c3 text-c5 hover:bg-c3'
+                >
+                  Tout sélectionner
+                </Button>
+                <Button
+                  size="sm"
+                  variant="flat"
+                  onPress={() => setLocalSelectedIds(new Set())}
+                  className='bg-c2 border-2 border-c3 text-c5 hover:bg-c3'
+                >
+                  Tout désélectionner
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Selected chips */}
+          {localSelectedIds.size > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4 p-3 bg-c2 rounded-8 border-2 border-c3">
+              <span className="text-c5 text-sm mr-2">Sélection :</span>
+              {Array.from(localSelectedIds).map((id) => {
+                const resource = resources?.find((r) => getResourceId(r) === id);
+                if (!resource) return null;
+                return (
+                  <Chip
+                    key={String(id)}
+                    onClose={() => toggleSelection(resource)}
+                    variant="flat"
+                    classNames={{
+                      base: 'bg-primary/20 text-primary',
+                      closeButton: 'text-primary hover:text-white',
+                    }}
+                  >
+                    {truncate(getDisplayValue(resource), 30)}
+                  </Chip>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Loading state */}
+          {loading && (
+            <div className="flex justify-center items-center py-12">
+              <Spinner size="lg" />
+              <span className="ml-3 text-c5">Chargement...</span>
+            </div>
+          )}
+
+          {/* Resource grid */}
+          {!loading && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[450px] overflow-y-auto pr-1">
+              {filteredResources.length === 0 ? (
+                <div className='col-span-full text-center py-12'>
+                  <ThumbnailIcon className='text-c4/30 mx-auto mb-3' size={40} />
+                  <p className="text-c5 text-sm">Aucun résultat trouvé</p>
+                </div>
+              ) : (
+                filteredResources.map((resource) => (
+                  <ResourceCard key={String(getResourceId(resource))} resource={resource} />
+                ))
+              )}
+            </div>
+          )}
+        </ModalBody>
+
+        <ModalFooter>
+          <Button
+            variant="light"
+            onPress={onClose}
+            className="text-c5 hover:text-c6"
+          >
+            Annuler
+          </Button>
+          <Button
+            onPress={handleConfirm}
+            className="bg-primary hover:bg-primary/80 text-white"
+            isDisabled={localSelectedIds.size === 0}
+          >
+            Confirmer ({localSelectedIds.size})
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
+
+export default ResourcePicker;

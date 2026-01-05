@@ -77,9 +77,7 @@ export const getDataByClass = async (resourceClassId: number): Promise<Data[]> =
 
   while (morePages) {
     try {
-      const response = await fetch(
-        `${API_URL}/items?resource_template_id=${resourceClassId}&page=${page}&per_page=${perPage}`,
-      );
+      const response = await fetch(`${API_URL}/items?resource_template_id=${resourceClassId}&page=${page}&per_page=${perPage}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -107,9 +105,7 @@ export const getDataByRT = async (resourceTemplateId: number): Promise<Data[]> =
 
   while (morePages) {
     try {
-      const response = await fetch(
-        `${API_URL}/items?resource_template_id=${resourceTemplateId}&page=${page}&per_page=${perPage}`,
-      );
+      const response = await fetch(`${API_URL}/items?resource_template_id=${resourceTemplateId}&page=${page}&per_page=${perPage}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -170,6 +166,32 @@ export const getAllProperties = async (): Promise<any[]> => {
   return allProperties;
 };
 
+/**
+ * Récupère le mapping term → id pour un template spécifique
+ * Utilise l'endpoint PHP custom pour une seule requête SQL rapide
+ * Cache par template dans sessionStorage
+ */
+export const getTemplatePropertiesMap = async (templateId: number): Promise<Record<string, number>> => {
+  const cacheKey = `template_properties_${templateId}`;
+  const cached = sessionStorage.getItem(cacheKey);
+
+  if (cached) {
+    return JSON.parse(cached);
+  }
+
+  const response = await fetch(`${API_URL.replace('/api', '')}/s/edisem/page/ajax?helper=Query&action=getTemplateProperties&template_id=${templateId}&json=1`);
+  const map = await response.json();
+
+  if (map.error) {
+    console.error('[getTemplatePropertiesMap] Error:', map.error);
+    return {};
+  }
+
+  sessionStorage.setItem(cacheKey, JSON.stringify(map));
+  console.log(`[getTemplatePropertiesMap] Template ${templateId}: ${Object.keys(map).length} properties`);
+  return map;
+};
+
 export async function getDataByUrl(url: string) {
   try {
     // Check if this is an AJAX call that should use POST
@@ -221,9 +243,7 @@ export async function getCitations() {
       return JSON.parse(storedCitations);
     }
 
-    const citations = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCitations&json=1',
-    );
+    const citations = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCitations&json=1');
     const citationsFull = citations.map((citation: any) => ({
       ...citation,
       title: citation.citation,
@@ -250,9 +270,7 @@ export async function getAnnotations(id?: string | number) {
 
       // Si un ID est spécifié, retourner l'annotation spécifique
       if (id) {
-        const foundAnnotation = allAnnotations.find((annotation: any) =>
-          String(annotation.id) === String(id)
-        );
+        const foundAnnotation = allAnnotations.find((annotation: any) => String(annotation.id) === String(id));
 
         if (foundAnnotation) {
           return [foundAnnotation];
@@ -267,17 +285,11 @@ export async function getAnnotations(id?: string | number) {
 
     // 🌐 FETCH : Récupérer les données depuis l'API
     const [annotations, personnes, actants, students] = await Promise.all([
-      getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAnnotations&json=1',
-      ),
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAnnotations&json=1'),
       getPersonnes(),
       getActants(),
-      getStudents()
+      getStudents(),
     ]);
-
-
-
-
 
     // 🏗️ CONSTRUCTION : Créer les objets annotations de base
     const annotationsFull = annotations.map((annotation: any) => ({
@@ -291,24 +303,20 @@ export async function getAnnotations(id?: string | number) {
       annotation.actant = [
         ...personnes.filter((personne: any) => personne.id === contributorId),
         ...actants.filter((actant: any) => actant.id === contributorId),
-        ...students.filter((student: any) => student.id === contributorId)
+        ...students.filter((student: any) => student.id === contributorId),
       ];
     });
-
 
     // 💾 CACHE : Mettre en cache les annotations avec targets résolus
     sessionStorage.setItem('annotations', JSON.stringify(annotationsFull));
 
     // 🎯 FILTRAGE : Si un ID est spécifié, retourner l'annotation spécifique
     if (id) {
-      const foundAnnotation = annotationsFull.find((annotation: any) =>
-        String(annotation.id) === String(id)
-      );
+      const foundAnnotation = annotationsFull.find((annotation: any) => String(annotation.id) === String(id));
       return foundAnnotation ? [foundAnnotation] : [];
     }
 
     return annotationsFull;
-
   } catch (error) {
     console.error('❌ Error fetching annotations:', error);
     throw new Error('Failed to fetch annotations');
@@ -335,20 +343,19 @@ export async function getAnnotationsWithTargets(annotations: any) {
     return resolved || target;
   }
 
-  return await Promise.all(list.map(async annotation => {
-    if (annotation.target && Array.isArray(annotation.target)) {
-      annotation.target = await Promise.all(annotation.target.map(resolveTarget));
-    }
+  return await Promise.all(
+    list.map(async (annotation) => {
+      if (annotation.target && Array.isArray(annotation.target)) {
+        annotation.target = await Promise.all(annotation.target.map(resolveTarget));
+      }
 
-    if (annotation.related && Array.isArray(annotation.related)) {
-      annotation.related = await Promise.all(annotation.related.map(resolveTarget));
-    }
-    return annotation;
-  }));
+      if (annotation.related && Array.isArray(annotation.related)) {
+        annotation.related = await Promise.all(annotation.related.map(resolveTarget));
+      }
+      return annotation;
+    }),
+  );
 }
-
-
-
 
 export async function getBibliographies(id?: number) {
   try {
@@ -361,9 +368,7 @@ export async function getBibliographies(id?: number) {
       return id ? bibliographies.find((b: any) => String(b.id) === String(id)) : bibliographies;
     }
 
-    const bibliographies = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getBibliographies&json=1',
-    );
+    const bibliographies = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getBibliographies&json=1');
     const bibliographiesFull = bibliographies.map((bibliographie: any) => ({
       ...bibliographie,
       type: 'bibliographie',
@@ -388,9 +393,7 @@ export async function getMediagraphies(id?: number) {
       return id ? mediagraphies.find((m: any) => String(m.id) === String(id)) : mediagraphies;
     }
 
-    const mediagraphies = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMediagraphies&json=1',
-    );
+    const mediagraphies = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMediagraphies&json=1');
     const mediagraphiesFull = mediagraphies.map((mediagraphie: any) => ({
       ...mediagraphie,
       type: 'mediagraphie',
@@ -413,9 +416,7 @@ export async function getDoctoralSchools() {
       return JSON.parse(storedDoctoralSchools);
     }
 
-    const doctoralSchools = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getDoctoralSchools&json=1',
-    );
+    const doctoralSchools = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getDoctoralSchools&json=1');
     const doctoralSchoolsFull = doctoralSchools.map((doctoralSchool: any) => ({
       ...doctoralSchool,
       title: doctoralSchool.name,
@@ -439,9 +440,7 @@ export async function getLaboratories() {
       return JSON.parse(storedLaboritories);
     }
 
-    const laboratories = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getLaboratories&json=1',
-    );
+    const laboratories = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getLaboratories&json=1');
     const laboratoriesFull = laboratories.map((laboritory: any) => ({
       ...laboritory,
       title: laboritory.name,
@@ -465,9 +464,7 @@ export async function getUniversities() {
       return JSON.parse(storedUniversities);
     }
 
-    const universities = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getUniversities&json=1',
-    );
+    const universities = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getUniversities&json=1');
 
     const universitiesFull = universities.map((university: any) => ({
       ...university,
@@ -490,43 +487,41 @@ export async function getActants(actantIds?: string | string[]) {
     const actants = sessionStorage.getItem('actants')
       ? JSON.parse(sessionStorage.getItem('actants')!)
       : await (async () => {
-        const [rawActants, confs, universities, doctoralSchools, laboratories] = await Promise.all([
-          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1'),
-          getAllConfs(),
-          getUniversities(),
-          getDoctoralSchools(),
-          getLaboratories()
-        ]);
+          const [rawActants, confs, universities, doctoralSchools, laboratories] = await Promise.all([
+            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1'),
+            getAllConfs(),
+            getUniversities(),
+            getDoctoralSchools(),
+            getLaboratories(),
+          ]);
 
-        const universityMap = new Map(universities.map((u: any) => [u.id, u]));
-        const doctoralSchoolMap = new Map(doctoralSchools.map((s: any) => [s.id, s]));
-        const laboratoryMap = new Map(laboratories.map((l: any) => [l.id, l]));
+          const universityMap = new Map(universities.map((u: any) => [u.id, u]));
+          const doctoralSchoolMap = new Map(doctoralSchools.map((s: any) => [s.id, s]));
+          const laboratoryMap = new Map(laboratories.map((l: any) => [l.id, l]));
 
-        return rawActants.map((actant: any) => {
-          const interventions = confs.filter((c: any) => {
-            if (typeof c.actant === 'string' && c.actant.includes(',')) {
-              const actantIds = c.actant.split(',').map((id: string) => id.trim());
-              return actantIds.includes(String(actant.id));
-            }
-            else if (Array.isArray(c.actant)) {
-              return c.actant.map(String).includes(String(actant.id));
-            }
-            else {
-              return String(c.actant) === String(actant.id);
-            }
-          }).length;
+          return rawActants.map((actant: any) => {
+            const interventions = confs.filter((c: any) => {
+              if (typeof c.actant === 'string' && c.actant.includes(',')) {
+                const actantIds = c.actant.split(',').map((id: string) => id.trim());
+                return actantIds.includes(String(actant.id));
+              } else if (Array.isArray(c.actant)) {
+                return c.actant.map(String).includes(String(actant.id));
+              } else {
+                return String(c.actant) === String(actant.id);
+              }
+            }).length;
 
-          return {
-            ...actant,
-            title: `${actant.firstname} ${actant.lastname}`,
-            type: 'actant',
-            interventions,
-            universities: actant.universities.map((id: string) => universityMap.get(id)),
-            doctoralSchools: actant.doctoralSchools.map((id: string) => doctoralSchoolMap.get(id)),
-            laboratories: actant.laboratories.map((id: string) => laboratoryMap.get(id)),
-          };
-        });
-      })();
+            return {
+              ...actant,
+              title: `${actant.firstname} ${actant.lastname}`,
+              type: 'actant',
+              interventions,
+              universities: actant.universities.map((id: string) => universityMap.get(id)),
+              doctoralSchools: actant.doctoralSchools.map((id: string) => doctoralSchoolMap.get(id)),
+              laboratories: actant.laboratories.map((id: string) => laboratoryMap.get(id)),
+            };
+          });
+        })();
 
     if (!sessionStorage.getItem('actants')) {
       sessionStorage.setItem('actants', JSON.stringify(actants));
@@ -538,14 +533,10 @@ export async function getActants(actantIds?: string | string[]) {
     }
 
     // Normaliser les IDs en tableau de strings
-    const normalizedIds = Array.isArray(actantIds)
-      ? actantIds.map(id => String(id))
-      : [String(actantIds)];
+    const normalizedIds = Array.isArray(actantIds) ? actantIds.map((id) => String(id)) : [String(actantIds)];
 
     // Filtrer les actants correspondants
-    const foundActants = actants.filter((a: any) =>
-      normalizedIds.includes(String(a.id))
-    );
+    const foundActants = actants.filter((a: any) => normalizedIds.includes(String(a.id)));
 
     // Si un seul ID était demandé (pas un tableau), retourner l'objet unique
     if (!Array.isArray(actantIds) && foundActants.length > 0) {
@@ -554,7 +545,6 @@ export async function getActants(actantIds?: string | string[]) {
 
     // Sinon retourner le tableau (même si vide)
     return foundActants;
-
   } catch (error) {
     console.error('Error fetching actants:', error);
     throw new Error('Failed to fetch actants');
@@ -568,9 +558,7 @@ export async function getEditions(editionIds?: string | string[]) {
     const storedEditions = sessionStorage.getItem('editions');
 
     if (!storedEditions) {
-      const rawEditions = await getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getEditions&json=1',
-      );
+      const rawEditions = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getEditions&json=1');
 
       editions = rawEditions.map((edition: any) => ({
         ...edition,
@@ -586,18 +574,11 @@ export async function getEditions(editionIds?: string | string[]) {
       return editions;
     }
 
-    const normalizedIds = Array.isArray(editionIds)
-      ? editionIds.map(id => String(id))
-      : [String(editionIds)];
+    const normalizedIds = Array.isArray(editionIds) ? editionIds.map((id) => String(id)) : [String(editionIds)];
 
-    const foundEditions = editions.filter((e: any) =>
-      normalizedIds.includes(String(e.id))
-    );
+    const foundEditions = editions.filter((e: any) => normalizedIds.includes(String(e.id)));
 
-    return !Array.isArray(editionIds) && foundEditions.length > 0
-      ? foundEditions[0]
-      : foundEditions;
-
+    return !Array.isArray(editionIds) && foundEditions.length > 0 ? foundEditions[0] : foundEditions;
   } catch (error) {
     console.error('Error fetching editions:', error);
     throw new Error('Failed to fetch editions');
@@ -610,21 +591,21 @@ export async function getSeminarConfs(confId?: number) {
     const confs = sessionStorage.getItem('seminarConfs')
       ? JSON.parse(sessionStorage.getItem('seminarConfs')!)
       : await (async () => {
-        const [rawConfs, keywords] = await Promise.all([
-          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
-          getKeywords()
-        ]);
+          const [rawConfs, keywords] = await Promise.all([
+            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
+            getKeywords(),
+          ]);
 
-        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
 
-        return rawConfs.map((conf: any) => ({
-          ...conf,
-          type: 'seminar',
-          motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
-          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
-        }));
-      })();
+          return rawConfs.map((conf: any) => ({
+            ...conf,
+            type: 'seminar',
+            motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
+          }));
+        })();
 
     if (!sessionStorage.getItem('seminarConfs')) {
       sessionStorage.setItem('seminarConfs', JSON.stringify(confs));
@@ -632,14 +613,13 @@ export async function getSeminarConfs(confId?: number) {
 
     return confId
       ? await (async () => {
-        const conf = confs.find((c: any) => c.id === String(confId));
-        if (!conf) throw new Error(`Conference with id ${confId} not found`);
+          const conf = confs.find((c: any) => c.id === String(confId));
+          if (!conf) throw new Error(`Conference with id ${confId} not found`);
 
-        if (conf.actant) conf.actant = await getActants(conf.actant);
-        return conf;
-      })()
+          if (conf.actant) conf.actant = await getActants(conf.actant);
+          return conf;
+        })()
       : confs;
-
   } catch (error) {
     console.error('Error fetching confs:', error);
     throw new Error('Failed to fetch confs');
@@ -652,21 +632,21 @@ export async function getColloqueConfs(confId?: number) {
     const confs = sessionStorage.getItem('colloqueConfs')
       ? JSON.parse(sessionStorage.getItem('colloqueConfs')!)
       : await (async () => {
-        const [rawConfs, keywords] = await Promise.all([
-          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getColloqueConfs&json=1'),
-          getKeywords()
-        ]);
+          const [rawConfs, keywords] = await Promise.all([
+            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getColloqueConfs&json=1'),
+            getKeywords(),
+          ]);
 
-        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
 
-        return rawConfs.map((conf: any) => ({
-          ...conf,
-          type: 'colloque',
-          motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
-          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
-        }));
-      })();
+          return rawConfs.map((conf: any) => ({
+            ...conf,
+            type: 'colloque',
+            motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
+          }));
+        })();
 
     if (!sessionStorage.getItem('colloqueConfs')) {
       sessionStorage.setItem('colloqueConfs', JSON.stringify(confs));
@@ -674,14 +654,13 @@ export async function getColloqueConfs(confId?: number) {
 
     return confId
       ? await (async () => {
-        const conf = confs.find((c: any) => c.id === String(confId));
-        if (!conf) throw new Error(`Conference with id ${confId} not found`);
+          const conf = confs.find((c: any) => c.id === String(confId));
+          if (!conf) throw new Error(`Conference with id ${confId} not found`);
 
-        if (conf.actant) conf.actant = await getActants(conf.actant);
-        return conf;
-      })()
+          if (conf.actant) conf.actant = await getActants(conf.actant);
+          return conf;
+        })()
       : confs;
-
   } catch (error) {
     console.error('Error fetching confs:', error);
     throw new Error('Failed to fetch confs');
@@ -694,21 +673,21 @@ export async function getStudyDayConfs(confId?: number) {
     const confs = sessionStorage.getItem('studyDayConfs')
       ? JSON.parse(sessionStorage.getItem('studyDayConfs')!)
       : await (async () => {
-        const [rawConfs, keywords] = await Promise.all([
-          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
-          getKeywords()
-        ]);
+          const [rawConfs, keywords] = await Promise.all([
+            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
+            getKeywords(),
+          ]);
 
-        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
 
-        return (rawConfs || []).map((conf: any) => ({
-          ...conf,
-          type: 'studyday',
-          motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
-          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl
-        }));
-      })();
+          return (rawConfs || []).map((conf: any) => ({
+            ...conf,
+            type: 'studyday',
+            motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
+            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
+          }));
+        })();
 
     if (!sessionStorage.getItem('studyDayConfs')) {
       sessionStorage.setItem('studyDayConfs', JSON.stringify(confs));
@@ -716,14 +695,13 @@ export async function getStudyDayConfs(confId?: number) {
 
     return confId
       ? await (async () => {
-        const conf = confs.find((c: any) => c.id === String(confId));
-        if (!conf) throw new Error(`Conference with id ${confId} not found`);
+          const conf = confs.find((c: any) => c.id === String(confId));
+          if (!conf) throw new Error(`Conference with id ${confId} not found`);
 
-        if (conf.actant) conf.actant = await getActants(conf.actant);
-        return conf;
-      })()
+          if (conf.actant) conf.actant = await getActants(conf.actant);
+          return conf;
+        })()
       : confs;
-
   } catch (error) {
     console.error('Error fetching confs:', error);
     return []; // Return an empty array instead of throwing an error
@@ -757,6 +735,10 @@ export async function getAllItems() {
       tools,
       feedbacks,
       recitsArtistiques,
+      recitsScientifiques,
+      recitsTechnoIndustriels,
+      recitsCitoyens,
+      recitsMediatiques,
       personnes,
       comments,
     ] = await Promise.all([
@@ -778,6 +760,10 @@ export async function getAllItems() {
       getTools(),
       getFeedbacks(),
       getRecitsArtistiques(),
+      getRecitsScientifiques(),
+      getRecitsTechnoIndustriels(),
+      getRecitsCitoyens(),
+      getRecitsMediatiques(),
       getPersonnes(),
       getComments(),
     ]);
@@ -799,12 +785,21 @@ export async function getAllItems() {
       ...experimentations,
       ...feedbacks,
       ...recitsArtistiques,
+      ...(Array.isArray(recitsScientifiques) ? recitsScientifiques : []),
+      ...(Array.isArray(recitsTechnoIndustriels) ? recitsTechnoIndustriels : []),
+      ...(Array.isArray(recitsCitoyens) ? recitsCitoyens : []),
+      ...(Array.isArray(recitsMediatiques) ? recitsMediatiques : []),
       ...tools,
       ...(Array.isArray(recherches) ? recherches : []),
       ...(Array.isArray(personnes) ? personnes : []),
       ...(Array.isArray(comments) ? comments : []),
     ];
-    sessionStorage.setItem('allItems', JSON.stringify(allItems));
+    // Essayer de mettre en cache, mais ne pas bloquer si quota dépassé
+    try {
+      sessionStorage.setItem('allItems', JSON.stringify(allItems));
+    } catch (e) {
+      console.warn('Cache allItems ignoré (quota dépassé):', e);
+    }
 
     return allItems;
   } catch (error) {
@@ -816,12 +811,7 @@ export async function getAllItems() {
 export async function getAllConfs(id?: number) {
   try {
     checkAndClearDailyCache();
-    const [seminarConfs, colloqueConfs, studyDayConfs, microResumes] = await Promise.all([
-      getSeminarConfs(),
-      getColloqueConfs(),
-      getStudyDayConfs(),
-      getMicroResumes()
-    ]);
+    const [seminarConfs, colloqueConfs, studyDayConfs, microResumes] = await Promise.all([getSeminarConfs(), getColloqueConfs(), getStudyDayConfs(), getMicroResumes()]);
 
     // Créer une map des micro-résumés indexée par relatedResource (ID de conférence)
     const microResumesByConfId = new Map<string, any[]>();
@@ -848,7 +838,7 @@ export async function getAllConfs(id?: number) {
     });
 
     if (id !== undefined) {
-      const conf = allConfsWithMicroResumes.find(conf => String(conf.id) === String(id));
+      const conf = allConfsWithMicroResumes.find((conf) => String(conf.id) === String(id));
       if (!conf) {
         throw new Error(`Conference with id ${id} not found`);
       }
@@ -860,15 +850,12 @@ export async function getAllConfs(id?: number) {
       return conf;
     }
 
-
-
     return allConfsWithMicroResumes;
   } catch (error) {
     console.error('Error fetching all confs:', error);
     throw new Error('Failed to fetch all confs');
   }
 }
-
 
 export async function getTools(id?: number): Promise<any> {
   try {
@@ -881,9 +868,7 @@ export async function getTools(id?: number): Promise<any> {
     }
 
     // 2. FETCH : Récupérer les données (pas d'hydratation nécessaire car PHP fait déjà les maps)
-    const rawTools = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getTools&json=1',
-    );
+    const rawTools = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getTools&json=1');
 
     // 3. TRANSFORMATION : Ajouter le type et s'assurer que tout est correct
     const toolsFull = rawTools.map((tool: any) => ({
@@ -911,9 +896,7 @@ export async function getPersonnes(id?: number) {
       return id ? personnes.find((p: any) => p.id === String(id)) : personnes;
     }
 
-    const personnes = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getPersonnes&json=1',
-    );
+    const personnes = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getPersonnes&json=1');
 
     personnes.forEach((personne: any) => {
       personne.type = 'personne';
@@ -921,27 +904,21 @@ export async function getPersonnes(id?: number) {
 
     sessionStorage.setItem('personnes', JSON.stringify(personnes));
     return id ? personnes.find((p: any) => p.id === String(id)) : personnes;
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error fetching personnes:', error);
     throw new Error('Failed to fetch personnes');
   }
 }
 
 export async function getRecitsArtistiques(id?: number) {
-
   try {
     checkAndClearDailyCache();
     const storedRecitsArtistiques = sessionStorage.getItem('recitsArtistiques');
     if (storedRecitsArtistiques) {
-
       const recitsArtistiques = JSON.parse(storedRecitsArtistiques);
-
 
       return id ? recitsArtistiques.find((o: any) => o.id === String(id)) : recitsArtistiques;
     }
-
-
 
     // Use Promise.all to fetch all needed data (can fetch additional data for linking elements)
     const [recitsArtistiques, personnes, elementsNarratifs, elementsEsthetique, annotations, keywords, bibliographies, mediagraphies] = await Promise.all([
@@ -952,35 +929,21 @@ export async function getRecitsArtistiques(id?: number) {
       getAnnotations(),
       getKeywords(),
       getBibliographies(),
-      getMediagraphies()
+      getMediagraphies(),
     ]);
-
-
 
     // Build maps for fast lookups
     const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
-    const elementsNarratifsMap = new Map(
-      (elementsNarratifs || []).map((e: any) => [String(e.id), { ...e, type: 'elementNarratif' }])
-    );
-    const elementsEsthetiqueMap = new Map(
-      (elementsEsthetique || []).map((e: any) => [String(e.id), { ...e, type: 'elementEsthetique' }])
-    );
-    const annotationsMap = new Map(
-      (annotations || []).map((a: any) => [String(a.id), { ...a, type: 'annotation' }])
-    );
-    const keywordsMap = new Map(
-      (keywords || []).map((k: any) => [String(k.id), { ...k, type: 'keyword' }])
-    );
+    const elementsNarratifsMap = new Map((elementsNarratifs || []).map((e: any) => [String(e.id), { ...e, type: 'elementNarratif' }]));
+    const elementsEsthetiqueMap = new Map((elementsEsthetique || []).map((e: any) => [String(e.id), { ...e, type: 'elementEsthetique' }]));
+    const annotationsMap = new Map((annotations || []).map((a: any) => [String(a.id), { ...a, type: 'annotation' }]));
+    const keywordsMap = new Map((keywords || []).map((k: any) => [String(k.id), { ...k, type: 'keyword' }]));
 
     // Créer aussi une map indexée par titre pour pouvoir chercher par titre
-    const keywordsMapByTitle = new Map(
-      (keywords || []).map((k: any) => [String(k.title || k.id), { ...k, type: 'keyword' }])
-    );
+    const keywordsMapByTitle = new Map((keywords || []).map((k: any) => [String(k.title || k.id), { ...k, type: 'keyword' }]));
 
     const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
     const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
-
-
 
     const oeuvresFull = recitsArtistiques.map((oeuvre: any) => {
       // Parse les IDs multiples séparés par des virgules pour personne
@@ -1050,15 +1013,17 @@ export async function getRecitsArtistiques(id?: number) {
           }
 
           // Relink objects using the maps (chercher d'abord par ID, puis par titre)
-          keywordsLinked = keywordsIds.map((idOrTitle: string) => {
-            // Essayer d'abord par ID
-            let keyword = keywordsMap.get(idOrTitle);
-            if (!keyword) {
-              // Si pas trouvé par ID, essayer par titre
-              keyword = keywordsMapByTitle.get(idOrTitle);
-            }
-            return keyword;
-          }).filter(Boolean);
+          keywordsLinked = keywordsIds
+            .map((idOrTitle: string) => {
+              // Essayer d'abord par ID
+              let keyword = keywordsMap.get(idOrTitle);
+              if (!keyword) {
+                // Si pas trouvé par ID, essayer par titre
+                keyword = keywordsMapByTitle.get(idOrTitle);
+              }
+              return keyword;
+            })
+            .filter(Boolean);
 
           // Log pour debug si keywordsIds existe mais keywordsLinked est vide
           if (keywordsIds.length > 0 && keywordsLinked.length === 0) {
@@ -1099,7 +1064,6 @@ export async function getRecitsArtistiques(id?: number) {
       const referencesScientLinked = referencesScientIds.map((id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id)).filter(Boolean);
       const referencesCultuLinked = referencesCultuIds.map((id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id)).filter(Boolean);
 
-
       return {
         ...oeuvre,
         type: 'oeuvre',
@@ -1112,8 +1076,6 @@ export async function getRecitsArtistiques(id?: number) {
         referencesCultu: referencesCultuLinked.length > 0 ? referencesCultuLinked : null,
       };
     });
-
-
 
     sessionStorage.setItem('recitsArtistiques', JSON.stringify(oeuvresFull));
     return id ? oeuvresFull.find((o: any) => o.id === String(id)) : oeuvresFull;
@@ -1132,9 +1094,7 @@ export async function getKeywords() {
       return JSON.parse(storedKeywords);
     }
 
-    const keywords = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getKeywords&json=1',
-    );
+    const keywords = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getKeywords&json=1');
 
     // Add null check and default to empty array if no keywords
     const keywordsFull = (keywords || []).map((keyword: any) => ({
@@ -1159,9 +1119,7 @@ export async function getCollections() {
       return JSON.parse(storedCollections);
     }
 
-    const collections = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCollections&json=1',
-    );
+    const collections = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCollections&json=1');
 
     collections.forEach((collection: any) => {
       collection.type = 'collection';
@@ -1177,11 +1135,7 @@ export async function getCollections() {
 
 export async function getRecherches() {
   try {
-
-    const recherches = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecherches&json=1',
-    );
-
+    const recherches = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecherches&json=1');
 
     return recherches;
   } catch (error) {
@@ -1198,21 +1152,16 @@ export async function getFeedbacks() {
       return JSON.parse(storedFeedbacks);
     }
 
-    const feedbacks = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getFeedbacks&json=1',
-    );
+    const feedbacks = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getFeedbacks&json=1');
 
     feedbacks.forEach((feedback: any) => {
       feedback.url = '/feedback/' + feedback.id;
       feedback.type = 'feedback';
     });
 
-
-
     sessionStorage.setItem('feedbacks', JSON.stringify(feedbacks));
     return feedbacks;
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error fetching feedbacks:', error);
     throw new Error('Failed to fetch feedbacks');
   }
@@ -1225,35 +1174,57 @@ export async function getExperimentations(id?: number) {
 
     if (storedExperimentations) {
       const experimentations = JSON.parse(storedExperimentations);
-      return id ? experimentations.find((e: any) => String(e.id) || String(e.id) === String(id)) : experimentations;
+      return id ? experimentations.find((e: any) => String(e.id) === String(id)) : experimentations;
     }
 
     // Récupérer les expérimentations et les feedbacks en parallèle
-    const [experimentations, feedbacks, bibliographies, mediagraphies] = await Promise.all([
-      getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getExperimentations&json=1',
-      ),
+    const [experimentations, feedbacks, bibliographies, mediagraphies, students, actants, tools, keywords] = await Promise.all([
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getExperimentations&json=1'),
       getFeedbacks(),
       getBibliographies(),
-      getMediagraphies()
+      getMediagraphies(),
+      getStudents(),
+      getActants(),
+      getTools(),
+      getKeywords(),
     ]);
+    const toolsMap = new Map(tools.map((item: any) => [String(item.id), item]));
     const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
     const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
+    const studentsMap = new Map(students.map((item: any) => [String(item.id), item]));
+    const actantsMap = new Map(actants.map((item: any) => [String(item.id), item]));
+    const keywordsMap = new Map(keywords.map((item: any) => [String(item.id), item]));
     // Créer un map des feedbacks pour un accès rapide par ID
     const feedbacksMap = new Map(feedbacks.map((feedback: any) => [feedback.id.toString(), feedback]));
 
     // Fusionner les feedbacks dans chaque expérimentation
     const experimentationsFull = experimentations.map((experimentation: any) => {
+      // Traiter les actants (maintenant tous les crédits sont déjà dans actants comme IDs de strings)
+      const actantsMapped = experimentation.actants
+        ? experimentation.actants
+            .map((actantId: string) => {
+              // Chercher d'abord dans actants, puis dans students pour les crédits techniques
+              let mappedActant = actantsMap.get(actantId);
+              if (!mappedActant) {
+                mappedActant = studentsMap.get(actantId);
+              }
+              return mappedActant;
+            })
+            .filter(Boolean)
+        : [];
+
       const experimentationWithFeedbacks = {
         ...experimentation,
         type: 'experimentation',
+        students: experimentation.students ? experimentation.students.map((studentId: string) => studentsMap.get(studentId)).filter(Boolean) : [],
+        actants: actantsMapped, // Tous les crédits mappés
+        keywords: experimentation.keywords ? experimentation.keywords.map((keywordId: string) => keywordsMap.get(keywordId)).filter(Boolean) : [],
+        tools: experimentation.technicalCredits ? experimentation.technicalCredits.map((toolId: string) => toolsMap.get(toolId)).filter(Boolean) : [],
       };
 
       // Si l'expérimentation a un tableau de feedbacks, remplacer les IDs par les objets complets
       if (experimentation.feedbacks && Array.isArray(experimentation.feedbacks)) {
-        experimentationWithFeedbacks.feedbacks = experimentation.feedbacks
-          .map((feedbackId: string) => feedbacksMap.get(feedbackId))
-          .filter(Boolean); // Enlever les feedbacks non trouvés
+        experimentationWithFeedbacks.feedbacks = experimentation.feedbacks.map((feedbackId: string) => feedbacksMap.get(feedbackId)).filter(Boolean); // Enlever les feedbacks non trouvés
       }
 
       // Gérer la relation references (mediagraphies et bibliographies)
@@ -1288,49 +1259,132 @@ export async function getExperimentations(id?: number) {
     });
 
     sessionStorage.setItem('experimentations', JSON.stringify(experimentationsFull));
-    return id ? experimentationsFull.find((e: any) => String(e.id) || String(e.id) === String(id)) : experimentationsFull;
+    return id ? experimentationsFull.find((e: any) => String(e.id) === String(id)) : experimentationsFull;
   } catch (error) {
     console.error('Error fetching experimentations:', error);
     throw new Error('Failed to fetch experimentations');
   }
 }
 
-export async function getStudents() {
+export async function getExperimentationsStudents(id?: number) {
+  try {
+    // Pas de cache pour les expérimentations étudiantes - toujours récupérer les données fraîches
+    // Récupérer les expérimentations et les feedbacks en parallèle
+    const [experimentationsStudents, feedbacks, bibliographies, mediagraphies, students, actants, tools, keywords] = await Promise.all([
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getExperimentationsStudents&json=1'),
+      getFeedbacks(),
+      getBibliographies(),
+      getMediagraphies(),
+      getStudents(),
+      getActants(),
+      getTools(),
+      getKeywords(),
+    ]);
+    const keywordsMap = new Map(keywords.map((item: any) => [String(item.id), item]));
+    const toolsMap = new Map(tools.map((item: any) => [String(item.id), item]));
+    const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
+    const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
+    const studentsMap = new Map(students.map((item: any) => [String(item.id), item]));
+    const actantsMap = new Map(actants.map((item: any) => [String(item.id), item]));
+
+    // Créer un map des feedbacks pour un accès rapide par ID
+    const feedbacksMap = new Map(feedbacks.map((feedback: any) => [feedback.id.toString(), feedback]));
+
+    // Fusionner les feedbacks dans chaque expérimentation
+    const experimentationsStudentsFull = experimentationsStudents.map((experimentationStudents: any) => {
+      // Traiter les actants (maintenant tous les crédits sont déjà dans actants comme IDs de strings)
+      const actantsMapped = experimentationStudents.actants
+        ? experimentationStudents.actants
+            .map((actantId: string) => {
+              // Chercher d'abord dans actants, puis dans students pour les crédits techniques
+              let mappedActant = actantsMap.get(actantId);
+              if (!mappedActant) {
+                mappedActant = studentsMap.get(actantId);
+              }
+              return mappedActant;
+            })
+            .filter(Boolean)
+        : [];
+
+      const experimentationWithFeedbacks = {
+        ...experimentationStudents,
+        type: 'experimentationStudents',
+        actants: actantsMapped, // Tous les crédits mappés
+        keywords: experimentationStudents.keywords ? experimentationStudents.keywords.map((keywordId: string) => keywordsMap.get(keywordId)).filter(Boolean) : [],
+        tools: experimentationStudents.technicalCredits ? experimentationStudents.technicalCredits.map((toolId: string) => toolsMap.get(toolId)).filter(Boolean) : [],
+      };
+
+      // Si l'expérimentation a un tableau de feedbacks, remplacer les IDs par les objets complets
+      if (experimentationStudents.feedbacks && Array.isArray(experimentationStudents.feedbacks)) {
+        experimentationWithFeedbacks.feedbacks = experimentationStudents.feedbacks.map((feedbackId: string) => feedbacksMap.get(feedbackId)).filter(Boolean); // Enlever les feedbacks non trouvés
+      }
+
+      // Gérer la relation references (mediagraphies et bibliographies)
+      if (experimentationStudents.references) {
+        const getReference = (id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id);
+
+        if (typeof experimentationStudents.references === 'string' && experimentationStudents.references.includes(',')) {
+          const referencesIds = experimentationStudents.references.split(',').map((id: string) => id.trim());
+          experimentationWithFeedbacks.references = referencesIds.map((id: string) => getReference(id)).filter(Boolean);
+        } else if (Array.isArray(experimentationStudents.references)) {
+          experimentationWithFeedbacks.references = experimentationStudents.references.map((id: any) => getReference(String(id))).filter(Boolean);
+        } else {
+          experimentationWithFeedbacks.references = getReference(String(experimentationStudents.references));
+        }
+      }
+
+      // Gérer la relation bibliographicCitations (mediagraphies et bibliographies)
+      if (experimentationStudents.bibliographicCitations) {
+        const getCitation = (id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id);
+
+        if (typeof experimentationStudents.bibliographicCitations === 'string' && experimentationStudents.bibliographicCitations.includes(',')) {
+          const citationsIds = experimentationStudents.bibliographicCitations.split(',').map((id: string) => id.trim());
+          experimentationWithFeedbacks.bibliographicCitations = citationsIds.map((id: string) => getCitation(id)).filter(Boolean);
+        } else if (Array.isArray(experimentationStudents.bibliographicCitations)) {
+          experimentationWithFeedbacks.bibliographicCitations = experimentationStudents.bibliographicCitations.map((id: any) => getCitation(String(id))).filter(Boolean);
+        } else {
+          experimentationWithFeedbacks.bibliographicCitations = getCitation(String(experimentationStudents.bibliographicCitations));
+        }
+      }
+
+      return experimentationWithFeedbacks;
+    });
+
+    console.log('experimentationsStudentsFull', experimentationsStudentsFull);
+
+    return id ? experimentationsStudentsFull.find((e: any) => String(e.id) === String(id)) : experimentationsStudentsFull;
+  } catch (error) {
+    console.error('Error fetching experimentationsStudents:', error);
+    throw new Error('Failed to fetch experimentationsStudents');
+  }
+}
+export async function getStudents(id?: number) {
   try {
     checkAndClearDailyCache();
     const storedStudents = sessionStorage.getItem('student');
 
     if (storedStudents) {
-      return JSON.parse(storedStudents);
+      const parsedStudents = JSON.parse(storedStudents);
+      return id ? parsedStudents.find((e: any) => String(e.id) === String(id)) : parsedStudents;
     }
 
-    const students = await getDataByUrl(
-      'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudents&json=1',
-    );
+    const students = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudents&json=1');
 
-    const updatedStudents = students.map(
-      (student: {
-        firstname: string;
-        lastname: string;
-        id: number;
-      }) => {
-
-        return {
-          ...student,
-          title: student.firstname + ' ' + student.lastname,
-          type: 'student',
-        };
-      },
-    );
+    const updatedStudents = students.map((student: { firstname: string; lastname: string; id: number }) => {
+      return {
+        ...student,
+        title: student.firstname + ' ' + student.lastname,
+        type: 'student',
+      };
+    });
 
     sessionStorage.setItem('students', JSON.stringify(updatedStudents));
-    return updatedStudents;
+    return id ? updatedStudents.find((e: any) => String(e.id) === String(id)) : updatedStudents;
   } catch (error) {
     console.error('Error fetching students:', error);
     throw new Error('Failed to fetch students');
   }
 }
-
 
 export async function getElementNarratifs(id?: number): Promise<any> {
   try {
@@ -1345,7 +1399,7 @@ export async function getElementNarratifs(id?: number): Promise<any> {
       getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getElementNarratifs&json=1'),
       getPersonnes(),
       getMediagraphies(),
-      getBibliographies()
+      getBibliographies(),
     ]);
 
     const personnesMap = new Map(personnes.map((item: any) => [String(item.id), item]));
@@ -1387,23 +1441,17 @@ export async function getElementNarratifs(id?: number): Promise<any> {
         creator,
         references,
         // Gérer associatedMedia comme tableau
-        associatedMedia: Array.isArray(element.associatedMedia)
-          ? element.associatedMedia
-          : element.associatedMedia
-            ? [element.associatedMedia]
-            : []
+        associatedMedia: Array.isArray(element.associatedMedia) ? element.associatedMedia : element.associatedMedia ? [element.associatedMedia] : [],
       };
     });
 
     sessionStorage.setItem('elementNarratifs', JSON.stringify(elementNarratifsFull));
     return id ? elementNarratifsFull.find((e: any) => e.id === String(id)) : elementNarratifsFull;
-
   } catch (error) {
     console.error('Error fetching elementNarratifs:', error);
     throw new Error('Failed to fetch elementNarratifs');
   }
 }
-
 
 export async function getElementEsthetiques(id?: number) {
   try {
@@ -1417,11 +1465,9 @@ export async function getElementEsthetiques(id?: number) {
 
     // Récupérer elementEsthetique et les personnes, actants en parallèle
     const [elementEsthetiques, personnes, actants] = await Promise.all([
-      getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getElementEsthetique&json=1',
-      ),
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getElementEsthetique&json=1'),
       getPersonnes(),
-      getActants()
+      getActants(),
     ]);
 
     // Créer des maps pour un accès rapide par ID
@@ -1441,9 +1487,7 @@ export async function getElementEsthetiques(id?: number) {
       // Si elementEsthetique a des creator, remplacer les IDs par les objets complets
       if (elementEsthetique.creator) {
         if (Array.isArray(elementEsthetique.creator)) {
-          elementWithRelations.creator = elementEsthetique.creator
-            .map((creatoId: string) => personnesMap.get(creatoId))
-            .filter(Boolean);
+          elementWithRelations.creator = elementEsthetique.creator.map((creatoId: string) => personnesMap.get(creatoId)).filter(Boolean);
         } else {
           const creatorObj = personnesMap.get(elementEsthetique.creator);
           elementWithRelations.creator = creatorObj ? [creatorObj] : [];
@@ -1454,9 +1498,7 @@ export async function getElementEsthetiques(id?: number) {
       // Si elementEsthetique a des contributor, remplacer les IDs par les objets complets
       if (elementEsthetique.contributor) {
         if (Array.isArray(elementEsthetique.contributor)) {
-          elementWithRelations.contributor = elementEsthetique.contributor
-            .map((contributoId: string) => actantsMap.get(contributoId))
-            .filter(Boolean);
+          elementWithRelations.contributor = elementEsthetique.contributor.map((contributoId: string) => actantsMap.get(contributoId)).filter(Boolean);
         } else {
           elementWithRelations.contributor = actantsMap.get(elementEsthetique.contributor);
         }
@@ -1464,9 +1506,7 @@ export async function getElementEsthetiques(id?: number) {
       // Si elementEsthetique a des relatedResource, remplacer les IDs par les objets complets
       if (elementEsthetique.relatedResource) {
         if (Array.isArray(elementEsthetique.relatedResource)) {
-          elementWithRelations.relatedResource = elementEsthetique.relatedResource
-            .map((resourceId: string) => elementEsthetiquesMap.get(resourceId))
-            .filter(Boolean);
+          elementWithRelations.relatedResource = elementEsthetique.relatedResource.map((resourceId: string) => elementEsthetiquesMap.get(resourceId)).filter(Boolean);
         } else {
           elementWithRelations.relatedResource = elementEsthetiquesMap.get(elementEsthetique.relatedResource);
         }
@@ -1490,17 +1530,12 @@ export async function getComments(forceRefresh = false) {
       return JSON.parse(storedComments);
     }
 
-    const [comments, actants] = await Promise.all([
-      getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getComments&json=1',
-      ), getActants()
-    ]);
+    const [comments, actants] = await Promise.all([getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getComments&json=1'), getActants()]);
 
     const actantsMap = new Map(actants.map((actant: any) => [actant.id.toString(), actant]));
     comments.forEach((comment: any) => {
       comment.actant = actantsMap.get(comment.actant);
     });
-
 
     sessionStorage.setItem('comments', JSON.stringify(comments));
     return comments;
@@ -1519,15 +1554,15 @@ export async function getAnalyseCritiqueById(id: string | number) {
     try {
       // Try to get it from all items if cached first
       const allItems = await getAllItems();
-      const analyseCritique = allItems.find((item: any) =>
-        item.id === String(id) && (
-          item.type === 'analyse-critique' ||
-          item.type === 'analyse_critique' ||
-          item.type === 'recherche' ||
-          item.title?.toLowerCase().includes('analyse') ||
-          item.description?.toLowerCase().includes('analyse') ||
-          item.id === String(id) // Also try to find by ID alone
-        )
+      const analyseCritique = allItems.find(
+        (item: any) =>
+          item.id === String(id) &&
+          (item.type === 'analyse-critique' ||
+            item.type === 'analyse_critique' ||
+            item.type === 'recherche' ||
+            item.title?.toLowerCase().includes('analyse') ||
+            item.description?.toLowerCase().includes('analyse') ||
+            item.id === String(id)), // Also try to find by ID alone
       );
 
       if (analyseCritique) {
@@ -1544,20 +1579,18 @@ export async function getAnalyseCritiqueById(id: string | number) {
     if (foundAnalyse) {
       return {
         ...foundAnalyse,
-        type: 'analyse-critique'
+        type: 'analyse-critique',
       };
     }
 
     // Try to fetch directly from API if it's a specific content type
     try {
-      const directItem = await getDataByUrl(
-        `https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getItem&id=${id}&json=1`
-      );
+      const directItem = await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getItem&id=${id}&json=1`);
 
       if (directItem && (directItem.id === String(id) || directItem['o:id'] === String(id))) {
         return {
           ...directItem,
-          type: 'analyse-critique'
+          type: 'analyse-critique',
         };
       }
     } catch (e) {
@@ -1566,7 +1599,6 @@ export async function getAnalyseCritiqueById(id: string | number) {
 
     console.log('❌ Analyse critique not found with ID:', id);
     return null;
-
   } catch (error) {
     console.error('Error fetching analyse critique:', error);
     throw new Error('Failed to fetch analyse critique');
@@ -1585,11 +1617,9 @@ export async function getRecitsTechnoIndustriels(id?: number) {
 
     // 2. FETCH : Récupérer données + dépendances en Promise.all
     const [rawObjets, annotations, keywords] = await Promise.all([
-      getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsTechnoIndustriels&json=1'
-      ),
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsTechnoIndustriels&json=1'),
       getAnnotations(),
-      getKeywords()
+      getKeywords(),
     ]);
 
     // 3. MAPS : Créer maps pour accès rapide
@@ -1601,17 +1631,13 @@ export async function getRecitsTechnoIndustriels(id?: number) {
       // Hydrater descriptions (annotations)
       let descriptionsHydrated = [];
       if (Array.isArray(objet.descriptions)) {
-        descriptionsHydrated = objet.descriptions
-          .map((id: any) => annotationsMap.get(String(id)))
-          .filter(Boolean);
+        descriptionsHydrated = objet.descriptions.map((id: any) => annotationsMap.get(String(id))).filter(Boolean);
       }
 
       // Hydrater keywords
       let keywordsHydrated = [];
       if (Array.isArray(objet.keywords)) {
-        keywordsHydrated = objet.keywords
-          .map((id: any) => keywordsMap.get(String(id)))
-          .filter(Boolean);
+        keywordsHydrated = objet.keywords.map((id: any) => keywordsMap.get(String(id))).filter(Boolean);
       }
 
       return {
@@ -1627,7 +1653,6 @@ export async function getRecitsTechnoIndustriels(id?: number) {
     // 5. CACHE + RETURN : Stocker et retourner
     sessionStorage.setItem('recitsTechnoIndustriels', JSON.stringify(objetsFull));
     return id ? objetsFull.find((o: any) => o.id === String(id)) : objetsFull;
-
   } catch (error) {
     console.error('Error fetching objets techno-industriels:', error);
     throw new Error('Failed to fetch objets techno-industriels');
@@ -1646,14 +1671,12 @@ export async function getRecitsScientifiques(id?: number) {
 
     // 2. FETCH : Récupérer données + dépendances en Promise.all
     const [rawDocs, keywords, personnes, annotations, bibliographies, mediagraphies] = await Promise.all([
-      getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsScientifiques&json=1'
-      ),
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsScientifiques&json=1'),
       getKeywords(),
       getPersonnes(),
       getAnnotations(),
       getBibliographies(),
-      getMediagraphies()
+      getMediagraphies(),
     ]);
 
     // 3. MAPS : Créer maps pour accès rapide
@@ -1667,17 +1690,13 @@ export async function getRecitsScientifiques(id?: number) {
       // Hydrater descriptions (items)
       let descriptionsHydrated = [];
       if (Array.isArray(doc.descriptions)) {
-        descriptionsHydrated = doc.descriptions
-          .map((id: any) => annotationsMap.get(String(id)))
-          .filter(Boolean);
+        descriptionsHydrated = doc.descriptions.map((id: any) => annotationsMap.get(String(id))).filter(Boolean);
       }
 
       // Hydrater keywords
       let keywordsHydrated = [];
       if (Array.isArray(doc.keywords)) {
-        keywordsHydrated = doc.keywords
-          .map((id: any) => keywordsMap.get(String(id)))
-          .filter(Boolean);
+        keywordsHydrated = doc.keywords.map((id: any) => keywordsMap.get(String(id))).filter(Boolean);
       }
 
       // Hydrater creator (personne)
@@ -1697,15 +1716,13 @@ export async function getRecitsScientifiques(id?: number) {
       // Hydrater associatedMedia (items)
       let associatedMediaHydrated = [];
       if (Array.isArray(doc.associatedMedia)) {
-        associatedMediaHydrated = doc.associatedMedia
-          .filter(Boolean);
+        associatedMediaHydrated = doc.associatedMedia.filter(Boolean);
       }
 
       // Hydrater isRelatedTo (items)
       let isRelatedToHydrated = [];
       if (Array.isArray(doc.isRelatedTo)) {
-        isRelatedToHydrated = doc.isRelatedTo
-          .filter(Boolean);
+        isRelatedToHydrated = doc.isRelatedTo.filter(Boolean);
       }
 
       // Hydrater referencesScient (items)
@@ -1717,21 +1734,15 @@ export async function getRecitsScientifiques(id?: number) {
           referencesScientHydrated = doc.referencesScient;
         } else {
           // Ce sont des IDs, les hydrater
-          referencesScientHydrated = doc.referencesScient
-            .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
-            .filter(Boolean);
+          referencesScientHydrated = doc.referencesScient.map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id)).filter(Boolean);
         }
       }
 
       // Hydrater referencesCultu (items)
       let referencesCultuHydrated = [];
       if (Array.isArray(doc.referencesCultu)) {
-        referencesCultuHydrated = doc.referencesCultu
-          .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
-          .filter(Boolean);
+        referencesCultuHydrated = doc.referencesCultu.map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id)).filter(Boolean);
       }
-
-
 
       return {
         ...doc,
@@ -1749,7 +1760,6 @@ export async function getRecitsScientifiques(id?: number) {
     // 5. CACHE + RETURN : Stocker et retourner
     sessionStorage.setItem('recitsScientifiques', JSON.stringify(docsFull));
     return id ? docsFull.find((d: any) => d.id === String(id)) : docsFull;
-
   } catch (error) {
     console.error('Error fetching documentations scientifiques:', error);
     throw new Error('Failed to fetch documentations scientifiques');
@@ -1768,15 +1778,13 @@ export async function getRecitsMediatiques(id?: number) {
 
     // 2. FETCH : Récupérer données + dépendances en Promise.all
     const [rawRecits, keywords, personnes, annotations, bibliographies, mediagraphies, tools] = await Promise.all([
-      getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsMediatiques&json=1'
-      ),
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsMediatiques&json=1'),
       getKeywords(),
       getPersonnes(),
       getAnnotations(),
       getBibliographies(),
       getMediagraphies(),
-      getTools()
+      getTools(),
     ]);
     console.log('rawRecits', rawRecits);
     // 3. MAPS : Créer maps pour accès rapide
@@ -1792,17 +1800,13 @@ export async function getRecitsMediatiques(id?: number) {
       // Hydrater descriptions (annotations)
       let descriptionsHydrated = [];
       if (Array.isArray(recit.descriptions)) {
-        descriptionsHydrated = recit.descriptions
-          .map((id: any) => annotationsMap.get(String(id)))
-          .filter(Boolean);
+        descriptionsHydrated = recit.descriptions.map((id: any) => annotationsMap.get(String(id))).filter(Boolean);
       }
 
       // Hydrater keywords
       let keywordsHydrated = [];
       if (Array.isArray(recit.keywords)) {
-        keywordsHydrated = recit.keywords
-          .map((id: any) => keywordsMap.get(String(id)))
-          .filter(Boolean);
+        keywordsHydrated = recit.keywords.map((id: any) => keywordsMap.get(String(id))).filter(Boolean);
       }
 
       // Hydrater creator (personne)
@@ -1819,7 +1823,6 @@ export async function getRecitsMediatiques(id?: number) {
         }
       }
 
-
       // Hydrater isRelatedTo (objets avec id, title, thumbnail - déjà complets depuis le PHP)
       let isRelatedToHydrated = [];
       if (Array.isArray(recit.isRelatedTo)) {
@@ -1829,9 +1832,7 @@ export async function getRecitsMediatiques(id?: number) {
       // Hydrater tools
       let toolsHydrated = [];
       if (Array.isArray(recit.tools)) {
-        toolsHydrated = recit.tools
-          .map((id: any) => toolsMap.get(String(id)))
-          .filter(Boolean);
+        toolsHydrated = recit.tools.map((id: any) => toolsMap.get(String(id))).filter(Boolean);
       }
 
       // Hydrater scientificContent (bibliographies/mediagraphies)
@@ -1866,8 +1867,6 @@ export async function getRecitsMediatiques(id?: number) {
           .filter(Boolean);
       }
 
-
-
       return {
         ...recit,
         type: 'recitMediatique',
@@ -1878,14 +1877,12 @@ export async function getRecitsMediatiques(id?: number) {
         tools: toolsHydrated.length > 0 ? toolsHydrated : [],
         referencesScient: scientificContentHydrated.length > 0 ? scientificContentHydrated : [],
         referencesCultu: culturalContentHydrated.length > 0 ? culturalContentHydrated : [],
-
       };
     });
 
     // 5. CACHE + RETURN : Stocker et retourner
     sessionStorage.setItem('recitsMediatiques', JSON.stringify(recitsFull));
     return id ? recitsFull.find((r: any) => r.id === String(id)) : recitsFull;
-
   } catch (error) {
     console.error('Error fetching recits mediatiques:', error);
     throw new Error('Failed to fetch recits mediatiques');
@@ -1904,15 +1901,13 @@ export async function getRecitsCitoyens(id?: number) {
 
     // 2. FETCH : Récupérer données + dépendances en Promise.all
     const [rawRecitsCitoyens, keywords, personnes, actants, annotations, bibliographies, mediagraphies] = await Promise.all([
-      getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsCitoyens&json=1'
-      ),
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsCitoyens&json=1'),
       getKeywords(),
       getPersonnes(),
       getActants(),
       getAnnotations(),
       getBibliographies(),
-      getMediagraphies()
+      getMediagraphies(),
     ]);
 
     // 3. MAPS : Créer maps pour accès rapide
@@ -1928,17 +1923,13 @@ export async function getRecitsCitoyens(id?: number) {
       // Hydrater descriptions (items)
       let descriptionsHydrated = [];
       if (Array.isArray(recitCitoyen.descriptions)) {
-        descriptionsHydrated = recitCitoyen.descriptions
-          .map((id: any) => annotationsMap.get(String(id)))
-          .filter(Boolean);
+        descriptionsHydrated = recitCitoyen.descriptions.map((id: any) => annotationsMap.get(String(id))).filter(Boolean);
       }
 
       // Hydrater keywords
       let keywordsHydrated = [];
       if (Array.isArray(recitCitoyen.keywords)) {
-        keywordsHydrated = recitCitoyen.keywords
-          .map((id: any) => keywordsMap.get(String(id)))
-          .filter(Boolean);
+        keywordsHydrated = recitCitoyen.keywords.map((id: any) => keywordsMap.get(String(id))).filter(Boolean);
       }
 
       // Hydrater creator - peut être un tableau d'objets (nouveau format), un tableau d'IDs, un ID unique, ou une chaîne avec virgules
@@ -1949,16 +1940,18 @@ export async function getRecitsCitoyens(id?: number) {
           // Vérifier si c'est déjà des objets complets (nouveau format PHP avec id, title, thumbnail)
           if (recitCitoyen.creator.length > 0 && typeof recitCitoyen.creator[0] === 'object' && recitCitoyen.creator[0] !== null && 'id' in recitCitoyen.creator[0]) {
             // Déjà des objets complets depuis PHP, essayer de les enrichir avec personnes/actants si disponibles
-            const hydratedCreators = recitCitoyen.creator.map((creatorObj: any) => {
-              const creatorId = String(creatorObj.id);
-              // Essayer de trouver dans personnes ou actants pour enrichir l'objet
-              const personneOrActant = personnesMap.get(creatorId) || actantsMap.get(creatorId);
-              if (personneOrActant) {
-                return personneOrActant;
-              }
-              // Sinon, retourner l'objet tel quel (avec id, title, thumbnail)
-              return creatorObj;
-            }).filter(Boolean);
+            const hydratedCreators = recitCitoyen.creator
+              .map((creatorObj: any) => {
+                const creatorId = String(creatorObj.id);
+                // Essayer de trouver dans personnes ou actants pour enrichir l'objet
+                const personneOrActant = personnesMap.get(creatorId) || actantsMap.get(creatorId);
+                if (personneOrActant) {
+                  return personneOrActant;
+                }
+                // Sinon, retourner l'objet tel quel (avec id, title, thumbnail)
+                return creatorObj;
+              })
+              .filter(Boolean);
 
             if (hydratedCreators.length > 0) {
               creatorHydrated = hydratedCreators.length === 1 ? hydratedCreators[0] : hydratedCreators;
@@ -1983,9 +1976,7 @@ export async function getRecitsCitoyens(id?: number) {
           if (creatorStr.includes(',')) {
             // Plusieurs IDs séparés par des virgules
             const creatorIds = creatorStr.split(',').map((id: string) => id.trim());
-            const hydratedCreators = creatorIds
-              .map((id: string) => personnesMap.get(id) || actantsMap.get(id))
-              .filter(Boolean);
+            const hydratedCreators = creatorIds.map((id: string) => personnesMap.get(id) || actantsMap.get(id)).filter(Boolean);
             creatorHydrated = hydratedCreators.length === 1 ? hydratedCreators[0] : hydratedCreators;
           } else if (creatorStr !== '' && !isNaN(Number(creatorStr)) && /^\d+$/.test(creatorStr)) {
             // Si c'est un ID numérique unique
@@ -2000,15 +1991,13 @@ export async function getRecitsCitoyens(id?: number) {
       // Hydrater associatedMedia (items)
       let associatedMediaHydrated = [];
       if (Array.isArray(recitCitoyen.associatedMedia)) {
-        associatedMediaHydrated = recitCitoyen.associatedMedia
-          .filter(Boolean);
+        associatedMediaHydrated = recitCitoyen.associatedMedia.filter(Boolean);
       }
 
       // Hydrater isRelatedTo (items)
       let isRelatedToHydrated = [];
       if (Array.isArray(recitCitoyen.isRelatedTo)) {
-        isRelatedToHydrated = recitCitoyen.isRelatedTo
-          .filter(Boolean);
+        isRelatedToHydrated = recitCitoyen.isRelatedTo.filter(Boolean);
       }
 
       // Hydrater referencesScient (items)
@@ -2020,21 +2009,15 @@ export async function getRecitsCitoyens(id?: number) {
           referencesScientHydrated = recitCitoyen.referencesScient;
         } else {
           // Ce sont des IDs, les hydrater
-          referencesScientHydrated = recitCitoyen.referencesScient
-            .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
-            .filter(Boolean);
+          referencesScientHydrated = recitCitoyen.referencesScient.map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id)).filter(Boolean);
         }
       }
 
       // Hydrater referencesCultu (items)
       let referencesCultuHydrated = [];
       if (Array.isArray(recitCitoyen.referencesCultu)) {
-        referencesCultuHydrated = recitCitoyen.referencesCultu
-          .map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id))
-          .filter(Boolean);
+        referencesCultuHydrated = recitCitoyen.referencesCultu.map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id)).filter(Boolean);
       }
-
-
 
       return {
         ...recitCitoyen,
@@ -2052,7 +2035,6 @@ export async function getRecitsCitoyens(id?: number) {
     // 5. CACHE + RETURN : Stocker et retourner
     sessionStorage.setItem('recitsCitoyens', JSON.stringify(recitsCitoyensFull));
     return id ? recitsCitoyensFull.find((d: any) => d.id === String(id)) : recitsCitoyensFull;
-
   } catch (error) {
     console.error('Error fetching recits citoyens:', error);
     throw new Error('Failed to fetch recits citoyens');
@@ -2070,12 +2052,7 @@ export async function getMicroResumes(id?: number) {
     }
 
     // 2. FETCH : Récupérer données + dépendances en Promise.all
-    const [rawMicroResumes, outil] = await Promise.all([
-      getDataByUrl(
-        'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMicroResumes&json=1'
-      ),
-      getTools()
-    ]);
+    const [rawMicroResumes, outil] = await Promise.all([getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMicroResumes&json=1'), getTools()]);
 
     const outilMap = new Map(outil.map((o: any) => [String(o.id), o]));
     const microResumesFull = rawMicroResumes.map((microResume: any) => {
@@ -2098,7 +2075,6 @@ export async function getMicroResumes(id?: number) {
     throw new Error('Failed to fetch micro resumes');
   }
 }
-
 
 export function generateThumbnailUrl(mediaId: string | number): string {
   // Assuming the API endpoint for media thumbnails follows this pattern

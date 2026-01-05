@@ -1,9 +1,10 @@
 import React from 'react';
 import { GenericDetailPage } from './GenericDetailPage';
-import { GenericDetailPageConfig } from './config';
+import { GenericDetailPageConfig, PageMode } from './config';
 
 interface ConfigurableDetailPageProps {
   config: GenericDetailPageConfig;
+  initialMode?: PageMode;
 }
 
 /**
@@ -12,7 +13,8 @@ interface ConfigurableDetailPageProps {
  *
  * Usage dans App.tsx:
  * <Route path='/conference/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
+ * <Route path='/add-resource/experimentation' element={<ConfigurableDetailPage config={experimentationConfig} initialMode="create" />} />
  */
-export const ConfigurableDetailPage: React.FC<ConfigurableDetailPageProps> = ({ config }) => {
-  return <GenericDetailPage config={config} />;
+export const ConfigurableDetailPage: React.FC<ConfigurableDetailPageProps> = ({ config, initialMode = 'view' }) => {
+  return <GenericDetailPage config={config} initialMode={initialMode} />;
 };

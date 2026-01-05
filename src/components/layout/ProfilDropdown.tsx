@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCallback, useMemo } from 'react';
-import { UserIcon, VisualisationIcon, DataIcon, Logout, SunIcon, MoonIcon } from '@/components/ui/icons';
+import { UserIcon, VisualisationIcon, Logout, SunIcon, MoonIcon } from '@/components/ui/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem, User } from '@heroui/react';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { useAuth } from '@/hooks/useAuth';
@@ -41,7 +41,7 @@ export const ProfilDropdown = () => {
     switch (userTypeValue) {
       case 'actant':
         return 'Actant';
-      case 'etudiant':
+      case 'student':
         return 'Étudiant';
       default:
         return 'Type non spécifié';
@@ -92,34 +92,40 @@ export const ProfilDropdown = () => {
             </DropdownSection>
 
             <DropdownSection>
-              {/* Link to the data visualization page */}
-              <DropdownItem key='visualisation' className='p-0 hover:text-c6 text-c5'>
-                <Link to='/visualisation' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
-                  <VisualisationIcon size={14} />
-                  <p className='text-16 text-extralight'>Datavisualisation</p>
-                </Link>
-              </DropdownItem>
+              {userTypeValue === 'actant' ? (
+                <>
+                  <DropdownItem key='visualisation' className='p-0 hover:text-c6 text-c5'>
+                    <Link to='/visualisation' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
+                      <VisualisationIcon size={16} />
+                      <p className='text-16 text-extralight'>Datavisualisation</p>
+                    </Link>
+                  </DropdownItem>
+                  <DropdownItem key='adminStudent' className='p-0 hover:text-c6 text-c5'>
+                    <Link to='/admin' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
+                      <UserIcon size={16} />
+                      <p className='text-16 text-extralight'>Administration</p>
+                    </Link>
+                  </DropdownItem>
+                </>
+              ) : userTypeValue === 'student' ? (
+                <DropdownItem key='mon-espace' className='p-0 hover:text-c6 text-c5'>
+                  <Link to='/mon-espace' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
+                    <UserIcon size={16} />
+                    <p className='text-16 text-extralight'>Mon espace</p>
+                  </Link>
+                </DropdownItem>
+              ) : null}
 
-              {/* Link to the OmekaS page */}
-              <DropdownItem key='database' className='p-0 hover:text-c6 text-c5'>
-                <Link to='/database' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
-                  <DataIcon size={14} />
-                  <p className='text-16 text-extralight'>Données</p>
-                </Link>
-              </DropdownItem>
-
-              {/* Theme toggle button */}
               <DropdownItem key='theme' className='p-0 hover:text-c6 text-c5'>
                 <button onClick={toggleThemeMode} className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
-                  {isDark ? <SunIcon size={14} /> : <MoonIcon size={15} />}
+                  {isDark ? <SunIcon size={16} /> : <MoonIcon size={16} />}
                   <span className='text-16 text-extralight'>{isDark ? 'Thème clair' : 'Thème sombre'}</span>
                 </button>
               </DropdownItem>
 
-              {/* Logout button */}
               <DropdownItem key='logout' className='p-0 hover:text-c6 text-c5'>
                 <button onClick={handleLogout} className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
-                  <Logout size={14} />
+                  <Logout size={16} />
                   <p className='text-16 text-extralight'>Se déconnecter</p>
                 </button>
               </DropdownItem>
@@ -131,7 +137,7 @@ export const ProfilDropdown = () => {
             {/* Link to Login page */}
             <DropdownItem key='login' className='p-0 hover:text-c6 text-c5'>
               <Link to='/login' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
-                <UserIcon size={14} />
+                <UserIcon size={16} />
                 <p className='text-16 text-extralight'>Connexion</p>
               </Link>
             </DropdownItem>
@@ -139,7 +145,7 @@ export const ProfilDropdown = () => {
             {/* Theme toggle for unauthenticated users */}
             <DropdownItem key='theme' className='p-0 hover:text-c6 text-c5'>
               <button onClick={toggleThemeMode} className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
-                {isDark ? <SunIcon size={14} /> : <MoonIcon size={15} />}
+                {isDark ? <SunIcon size={16} /> : <MoonIcon size={16} />}
                 <span className='text-16 text-extralight'>{isDark ? 'Thème clair' : 'Thème sombre'}</span>
               </button>
             </DropdownItem>

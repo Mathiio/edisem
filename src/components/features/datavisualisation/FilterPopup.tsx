@@ -68,7 +68,7 @@ const generateSearchTitle = (filterGroups: any[]): string => {
   }
 };
 
-export const storeSearchHistory = (filterGroups: any[]) => {
+export const storeSearchHistory = (filterGroups: any[], nodePositions?: NodePosition[]) => {
   try {
     // Récupérer l'historique existant ou initialiser un nouveau tableau
     const existingHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
@@ -87,6 +87,7 @@ export const storeSearchHistory = (filterGroups: any[]) => {
       title: searchTitle,
       timestamp: new Date().toISOString(),
       filters: filterGroups, // Stocker les filtres pour pouvoir les réutiliser
+      nodePositions: nodePositions || [], // Stocker les positions des nodes
     };
 
     // Ajouter la nouvelle recherche au début de l'historique
@@ -122,7 +123,57 @@ export const ITEM_PROPERTIES: any = {
       transform: (universities: any[]) => universities.map((uni) => uni.title).join(', '),
     },
   ],
-  conference: [
+  colloque: [
+    { key: 'title', label: 'Nom' },
+    {
+      key: 'actant',
+      label: 'Actant',
+      transform: async (id: any) => {
+        const item = await getItemByID(id);
+        return item?.title || 'Inconnu';
+      },
+    },
+    {
+      key: 'motcles',
+      label: 'Mot clé',
+      transform: async (ids: any) => {
+        const titles = await Promise.all(
+          ids.map(async (id: any) => {
+            const item = await getItemByID(id);
+            return item?.title || 'Inconnu';
+          }),
+        );
+        return titles.join(', ');
+      },
+    },
+    { key: 'date', label: 'Date' },
+  ],
+  seminar: [
+    { key: 'title', label: 'Nom' },
+    {
+      key: 'actant',
+      label: 'Actant',
+      transform: async (id: any) => {
+        const item = await getItemByID(id);
+        return item?.title || 'Inconnu';
+      },
+    },
+    {
+      key: 'motcles',
+      label: 'Mot clé',
+      transform: async (ids: any) => {
+        const titles = await Promise.all(
+          ids.map(async (id: any) => {
+            const item = await getItemByID(id);
+            return item?.title || 'Inconnu';
+          }),
+        );
+        return titles.join(', ');
+      },
+    },
+    { key: 'date', label: 'Date' },
+  ],
+  studyday: [
     { key: 'title', label: 'Nom' },
     {
       key: 'actant',
@@ -188,7 +239,9 @@ export const ITEM_PROPERTIES: any = {
 
 export const ITEM_TYPES = {
   citations: 'citation',
-  conférences: 'conference',
+  colloques: 'colloque',
+  séminaires: 'seminar',
+  'journées d\'étude': 'studyday',
   actants: 'actant',
   'mots clés': 'keyword',
   bibliographies: 'bibliography',
@@ -227,6 +280,15 @@ export type FilterGroup = {
   itemType: string;
   conditions: FilterCondition[];
   visibleTypes: string[];
+};
+
+// Position sauvegardée d'un node
+export type NodePosition = {
+  id: string | number;
+  x: number;
+  y: number;
+  fx: number | null;
+  fy: number | null;
 };
 
 const STORAGE_KEY = 'filterGroups';
@@ -306,10 +368,8 @@ export const getDataByType = async (type: string): Promise<any[]> => {
     case 'studyday':
     case 'colloque':
       const confs = (await Items.getAllConfs()) || [];
-      return confs.map((conf: any) => ({
-        ...conf,
-        type: 'conference' 
-      }));
+      // Filtrer par le type spécifique demandé
+      return confs.filter((conf: any) => conf.type === type);
     case 'actant':
       return (await Items.getActants()) || [];
     case 'keyword':

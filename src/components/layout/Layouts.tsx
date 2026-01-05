@@ -25,25 +25,42 @@ const itemVariants: Variants = {
 interface LayoutsProps {
   children: ReactNode;
   className?: string;
+  fullWidth?: boolean;
+  noPadding?: boolean;
+  noFooter?: boolean;
 }
 
-export const Layouts: React.FC<LayoutsProps> = ({ children, className }) => {
+export const Layouts: React.FC<LayoutsProps> = ({ children, className, fullWidth, noPadding, noFooter }) => {
   return (
-    <div className='relative bg-c1'>
+    <div className={`relative bg-c1 overflow-x-hidden ${noFooter ? 'h-screen overflow-hidden' : ''}`}>
       <Navbar />
-      <motion.main
-        className='mx-auto max-w-screen-2xl w-full max-w-xl grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200'
-        initial='hidden'
-        animate='visible'
-        variants={containerVariants}>
-        <motion.div className={className} variants={itemVariants}>
-          {children}
-        </motion.div>
+      {fullWidth ? (
+        <motion.main
+          className={`w-full  overflow-hidden transition-all ease-in-out duration-200 ${noFooter ? 'h-[calc(100vh-80px)]' : ''}`}
+          initial='hidden'
+          animate='visible'
+          variants={containerVariants}>
+          <motion.div className={`${className} w-full h-full ${noPadding ? '' : 'p-25'}`} variants={itemVariants}>
+            {children}
+          </motion.div>
+        </motion.main>
+      ) : (
+        <motion.main
+          className={`mx-auto max-w-screen-2xl w-full grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200 ${noFooter ? 'h-[calc(100vh-80px)] overflow-hidden' : ''}`}
+          initial='hidden'
+          animate='visible'
+          variants={containerVariants}>
+          <motion.div className={className} variants={itemVariants}>
+            {children}
+          </motion.div>
 
-        <motion.div className='col-span-10' variants={itemVariants}>
-          <Footer />
-        </motion.div>
-      </motion.main>
+          {!noFooter && (
+            <motion.div className='col-span-10' variants={itemVariants}>
+              <Footer />
+            </motion.div>
+          )}
+        </motion.main>
+      )}
     </div>
   );
 };
