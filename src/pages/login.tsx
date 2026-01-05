@@ -147,7 +147,11 @@ export const LoginPage: React.FC = () => {
                 onChange={(e) => setStudentNumber(e.target.value)}
               />
               <div className='flex w-full flex-col pt-4 justify-center items-center'>
-                <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected' isLoading={submitting}>
+                <Button
+                  type='submit'
+                  className='w-fit px-3 h-[40px] bg-action text-selected'
+                  isLoading={submitting}
+                  isDisabled={submitting}>
                   Se connecter
                 </Button>
               </div>
@@ -189,7 +193,11 @@ export const LoginPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
               <div className='flex w-full flex-col pt-4 justify-center items-center'>
-                <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected' isLoading={submitting}>
+                <Button
+                  type='submit'
+                  className='w-fit px-3 h-[40px] bg-action text-selected'
+                  isLoading={submitting}
+                  isDisabled={submitting}>
                   Se connecter
                 </Button>
               </div>

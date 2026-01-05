@@ -40,15 +40,17 @@ const getPersonRoute = (person: any): string => {
 export const getPersonDisplayName = (person: any): string => {
   if (!person) return '';
 
-  switch (person.type) {
-    case 'personne':
-      return person.name || `${person.firstName || ''} ${person.lastName || ''}`.trim();
-    case 'actant':
-    case 'student':
-      return `${person.firstname || ''} ${person.lastname || ''}`.trim();
-    default:
-      return person.name || person.title || 'Nom inconnu';
-  }
+  // Essayer d'abord le titre ou nom complet (plus fiable)
+  if (person.title && person.title.trim()) return person.title;
+  if (person.name && person.name.trim()) return person.name;
+
+  // Sinon essayer de construire depuis prénom/nom
+  const firstname = person.firstname || person.firstName || '';
+  const lastname = person.lastname || person.lastName || '';
+  const fullName = `${firstname} ${lastname}`.trim();
+  if (fullName) return fullName;
+
+  return 'Nom inconnu';
 };
 
 // Helper function to get job title based on person type
@@ -70,7 +72,7 @@ const getPersonJobTitle = (person: any): string | null => {
 // Helper function to get picture URL
 export const getPersonPicture = (person: any): string | null => {
   if (!person) return null;
-  return person.picture || null;
+  return person.picture || person.thumbnailUrl || person.thumbnail || null;
 };
 
 const itemVariants: Variants = {

@@ -3,7 +3,7 @@ import { PageBanner } from '@/components/ui/PageBanner';
 import { motion, Variants } from 'framer-motion';
 import { ExpCard, ExpCardSkeleton } from '@/components/features/experimentation/ExpCards';
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { getExperimentationsStudents } from '@/services/Items';
+import { getAllStudentResources, type StudentResourceCard } from '@/services/StudentSpace';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, addToast } from '@heroui/react';
 import { ExperimentationIcon, UniversityIcon, TrashIcon, PlusIcon } from '@/components/ui/icons';
 import { useNavigate } from 'react-router-dom';
@@ -83,25 +83,31 @@ export const MonEspace: React.FC = () => {
   const fetchExperimentations = useCallback(async () => {
     try {
       setLoading(true);
-      const allExperimentations = await getExperimentationsStudents();
+      const allResources = await getAllStudentResources();
 
       // Récupérer l'ID de l'utilisateur connecté depuis le localStorage
       const userId = localStorage.getItem('userId');
 
-      // Filtrer les expérimentations où l'utilisateur fait partie des actants
-      const filteredExperimentations = allExperimentations.filter((experimentation: any) => {
+      // Combiner toutes les ressources (expérimentations, outils, feedbacks)
+      const allItems: StudentResourceCard[] = [...allResources.experimentations, ...allResources.tools, ...allResources.feedbacks];
+
+      // Filtrer les ressources où l'utilisateur fait partie des actants
+      const filteredResources = allItems.filter((resource) => {
         if (!userId) return false;
 
-        // Vérifier si l'utilisateur est dans les actants de l'expérimentation
-        return experimentation.actants?.some((actant: any) => {
+        // Vérifier si l'utilisateur est dans les actants de la ressource
+        return resource.actants?.some((actant) => {
           // Comparer l'ID de l'actant avec l'ID de l'utilisateur
           return String(actant.id) === String(userId);
         });
       });
 
-      setExperimentationsStudents(filteredExperimentations);
+      // Trier par date de création (plus récent en premier)
+      filteredResources.sort((a, b) => new Date(b.created || 0).getTime() - new Date(a.created || 0).getTime());
+
+      setExperimentationsStudents(filteredResources);
     } catch (error) {
-      console.error('Error loading experimentationsStudents:', error);
+      console.error('Error loading student resources:', error);
     } finally {
       setLoading(false);
     }
@@ -236,9 +242,22 @@ export const MonEspace: React.FC = () => {
         <div className='grid grid-cols-4 w-full gap-25'>
           {loading
             ? Array.from({ length: 8 }).map((_, index) => <ExpCardSkeleton key={index} />)
-            : experimentationsStudents.map((item: any, index: number) => (
-                <motion.div key={item.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                  <ExpCard {...item} type='experimentationStudents' showActions onEdit={handleEdit} onDelete={handleDeleteClick} />
+            : experimentationsStudents.map((item, index) => (
+                <motion.div key={`${item.type}-${item.id}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
+                  <ExpCard
+                    id={String(item.id)}
+                    title={item.title}
+                    thumbnail={item.thumbnail ? (item.thumbnail.startsWith('http') ? item.thumbnail : `https://tests.arcanes.ca/omk${item.thumbnail}`) : undefined}
+                    actants={item.actants?.map((a: { id: number | string; title: string; picture: string | null }) => ({
+                      id: String(a.id),
+                      title: a.title,
+                      picture: a.picture ? (a.picture.startsWith('http') ? a.picture : `https://tests.arcanes.ca/omk${a.picture}`) : undefined,
+                    }))}
+                    type={item.type === 'experimentation' ? 'experimentationStudents' : item.type}
+                    showActions
+                    onEdit={handleEdit}
+                    onDelete={handleDeleteClick}
+                  />
                 </motion.div>
               ))}
         </div>

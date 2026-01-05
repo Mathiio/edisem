@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button, Spinner, addToast } from '@heroui/react';
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Spinner, addToast } from '@heroui/react';
 import { LongCarrousel, FullCarrousel } from '@/components/ui/Carrousels';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { SmConfCard } from '@/components/features/conference/ConfCards';
 import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
-import { ArrowIcon, PlusIcon, UserIcon } from '@/components/ui/icons';
+import { ArrowIcon, CrossIcon, EditIcon } from '@/components/ui/icons';
 import { EditSaveBar } from '@/components/ui/EditSaveBar';
+import { PageBanner } from '@/components/ui/PageBanner';
 import { getPersonDisplayName, getPersonPicture } from '@/components/features/experimentation/ExpOverview';
 import CommentSection from '@/components/layout/CommentSection';
 import { DynamicBreadcrumbs } from '@/components/layout/DynamicBreadcrumbs';
@@ -32,9 +33,6 @@ const fadeIn: Variants = {
     transition: { duration: 0.6, delay: index * 0.15 },
   }),
 };
-
-// Animation de sortie pour la section droite (slide vers la gauche + fade out)
-const NAVIGATION_ANIMATION_DURATION = 300; // ms - doit correspondre au délai dans ToolItem
 
 interface GenericDetailPageProps {
   config: GenericDetailPageConfig;
@@ -343,7 +341,68 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
   // Initialize form data when itemDetails changes or entering edit mode
   useEffect(() => {
     if (itemDetails && mode === 'edit') {
-      setFormData(itemDetails);
+      // Extraire les valeurs depuis itemDetails en utilisant le dataPath de chaque formField
+      const extractedData: Record<string, any> = { ...itemDetails };
+
+      // Pour chaque formField, extraire la valeur depuis itemDetails
+      config.formFields?.forEach((field) => {
+        if (field.dataPath) {
+          // Parse le dataPath (ex: "dcterms:title.0.@value")
+          const pathParts = field.dataPath.split('.');
+          let value: any = itemDetails;
+
+          for (const part of pathParts) {
+            if (value === undefined || value === null) break;
+            value = value[part];
+          }
+
+          // Si on a trouvé une valeur, l'assigner à la clé du champ
+          if (value !== undefined && value !== null) {
+            extractedData[field.key] = value;
+          }
+        }
+
+        // Pour les champs de type multiselection (ressources liées comme contributeurs, keywords, etc.),
+        // chercher les données dans le resourceCache ou directement dans itemDetails
+        if (field.type === 'multiselection' && field.selectionConfig) {
+          const property = field.dataPath?.split('.')[0]; // Ex: "schema:agent", "jdc:hasConcept"
+          if (property) {
+            // Chercher les ressources liées dans itemDetails
+            const linkedResources = itemDetails[property];
+            if (Array.isArray(linkedResources) && linkedResources.length > 0) {
+              // Hydrater les ressources depuis le resourceCache si disponible
+              const resourceCache = itemDetails.resourceCache || {};
+              const hydratedResources = linkedResources
+                .map((ref: any) => {
+                  const resourceId = ref.value_resource_id || ref['o:id'] || ref.id;
+                  if (resourceId && resourceCache[resourceId]) {
+                    return { id: resourceId, ...resourceCache[resourceId] };
+                  }
+                  return ref;
+                })
+                .filter(Boolean);
+
+              // Assigner à la clé du champ de formulaire (field.key)
+              extractedData[field.key] = hydratedResources;
+
+              // Pour les champs de type contributeur/actant, assigner aussi aux clés legacy
+              // (personnes, actants) utilisées par certains composants
+              const contributorProperties = ['schema:agent', 'jdc:hasActant', 'dcterms:contributor', 'schema:contributor', 'cito:credits'];
+              if (contributorProperties.includes(property)) {
+                extractedData.personnes = hydratedResources;
+                extractedData.actants = hydratedResources;
+              }
+            }
+          }
+        }
+      });
+
+      // Copier les keywords existants dans formData pour l'édition
+      if (keywords && Array.isArray(keywords) && keywords.length > 0) {
+        extractedData.keywords = keywords;
+      }
+
+      setFormData(extractedData);
       // Reset media files to empty - existing medias are now handled separately via existingMedias prop
       setMediaFiles([]);
       // Reset removed media indexes
@@ -353,7 +412,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
       setMediaFiles([]);
       setRemovedMediaIndexes([]);
     }
-  }, [itemDetails, mode, setFormData]);
+  }, [itemDetails, mode, setFormData, config.formFields, keywords]);
 
   // Handle removing an existing media by its index
   const handleRemoveExistingMedia = useCallback((index: number) => {
@@ -399,7 +458,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
       addToast({
         title: 'Erreur de validation',
         description: 'Veuillez corriger les erreurs avant de sauvegarder.',
-        classNames: { base: 'bg-danger text-white' },
+        classNames: { base: 'bg-danger', title: 'text-c6', description: 'text-c5', icon: 'text-c6' },
       });
       return;
     }
@@ -429,7 +488,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
         addToast({
           title: 'Ressource créée',
           description: 'La ressource a été créée avec succès.',
-          classNames: { base: 'bg-success text-white' },
+          classNames: { base: 'bg-success', title: 'text-c6', description: 'text-c6', icon: 'text-c6' },
         });
         // La redirection est gérée dans createInOmekaS
         return;
@@ -443,7 +502,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
       addToast({
         title: 'Sauvegardé',
         description: 'Les modifications ont été enregistrées.',
-        classNames: { base: 'bg-success text-white' },
+        classNames: { base: 'bg-success', title: 'text-c6', description: 'text-c6', icon: 'text-c6' },
       });
 
       setMode('view');
@@ -454,7 +513,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
       addToast({
         title: 'Erreur',
         description: 'Une erreur est survenue lors de la sauvegarde.',
-        classNames: { base: 'bg-danger text-white' },
+        classNames: { base: 'bg-danger', title: 'text-c6', description: 'text-c6', icon: 'text-c6' },
       });
     } finally {
       setIsSubmitting(false);
@@ -474,6 +533,10 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
     const rawItem = await rawResponse.json();
     console.log('[saveToOmekaS] Raw item fetched, id:', rawItem['o:id']);
 
+    // 1b. Charger les propriétés du template (comme en mode création) pour avoir toutes les propriétés disponibles
+    const templateId = rawItem['o:resource_template']?.['o:id'] || config.resourceTemplateId;
+    const templatePropMap = templateId ? await getTemplatePropertiesMap(templateId) : {};
+
     // 2. Créer une copie avec les modifications
     const updatedItem = { ...rawItem };
 
@@ -482,48 +545,37 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
       // Si c'est un tableau de ressources liées (objets avec id)
       if (Array.isArray(value) && value.length > 0 && (value as any[])[0]?.id !== undefined) {
         // Chercher la propriété Omeka correspondante
-        const omekaPropertyKey = findOmekaPropertyKey(updatedItem, key);
+        let omekaPropertyKey = findOmekaPropertyKey(updatedItem, key);
+        let propertyId: number | null = null;
 
+        // Si la propriété existe dans l'item, récupérer le propertyId
         if (omekaPropertyKey && updatedItem[omekaPropertyKey] && Array.isArray(updatedItem[omekaPropertyKey])) {
           const firstOriginal = updatedItem[omekaPropertyKey][0];
-          const propertyId = firstOriginal?.property_id;
-
-          if (propertyId) {
-            // Pour les keywords, on doit fusionner avec les existants
-            if (key === 'keywords') {
-              // Récupérer les IDs existants depuis rawItem
-              const existingIds = updatedItem[omekaPropertyKey].filter((v: any) => v.value_resource_id !== undefined).map((v: any) => v.value_resource_id);
-
-              // Ajouter les nouveaux IDs (ceux de formData.keywords)
-              const newIds = (value as any[]).map((item: any) => item.id);
-
-              // Fusionner sans doublons
-              const allIds = [...new Set([...existingIds, ...newIds])];
-
-              console.log('[saveToOmekaS] Keywords - existingIds:', existingIds);
-              console.log('[saveToOmekaS] Keywords - newIds:', newIds);
-              console.log('[saveToOmekaS] Keywords - allIds merged:', allIds);
-              console.log('[saveToOmekaS] Keywords - propertyId:', propertyId);
-
-              // Reconstruire le tableau complet
-              updatedItem[omekaPropertyKey] = allIds.map((resourceId: number) => ({
-                type: 'resource',
-                property_id: propertyId,
-                value_resource_id: resourceId,
-                is_public: true,
-              }));
-
-              console.log('[saveToOmekaS] Keywords - updated value:', updatedItem[omekaPropertyKey]);
-            } else {
-              // Pour les autres ressources, remplacer complètement
-              updatedItem[omekaPropertyKey] = (value as any[]).map((item: any) => ({
-                type: 'resource',
-                property_id: propertyId,
-                value_resource_id: item.id,
-                is_public: true,
-              }));
-            }
+          propertyId = firstOriginal?.property_id;
+        }
+        // Sinon, chercher dans le template (pour les nouvelles propriétés comme keywords)
+        else {
+          // Mapping des clés vers les propriétés Omeka
+          const keyToOmekaProp: Record<string, string> = {
+            keywords: 'jdc:hasConcept',
+            personnes: 'schema:agent',
+            actants: 'jdc:hasActant',
+          };
+          const fallbackProp = keyToOmekaProp[key];
+          if (fallbackProp && templatePropMap[fallbackProp]) {
+            omekaPropertyKey = fallbackProp;
+            propertyId = templatePropMap[fallbackProp];
           }
+        }
+
+        if (omekaPropertyKey && propertyId) {
+          // Remplacer complètement les ressources liées (permet ajouts ET suppressions)
+          updatedItem[omekaPropertyKey] = (value as any[]).map((item: any) => ({
+            type: 'resource',
+            property_id: propertyId,
+            value_resource_id: item.id,
+            is_public: true,
+          }));
         }
       }
       // Si c'est une valeur texte simple
@@ -786,17 +838,30 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
       }
     }
 
-    // Mapper les mots-clés (jdc:hasConcept ou autre)
+    // Mapper les mots-clés (jdc:hasConcept ou autre) - même logique que les personnes
     if (data.keywords && Array.isArray(data.keywords) && data.keywords.length > 0) {
-      const conceptProp = propMap['jdc:hasConcept'] ? 'jdc:hasConcept' : 'dcterms:subject';
+      // Ordre de priorité : jdc:hasConcept, dcterms:subject
+      let conceptProp = 'jdc:hasConcept';
+      if (!propMap['jdc:hasConcept'] && propMap['dcterms:subject']) {
+        conceptProp = 'dcterms:subject';
+      }
       const propertyId = getPropertyId(conceptProp, propMap);
       if (propertyId) {
-        itemData[conceptProp] = data.keywords.map((keyword: any) => ({
-          type: 'resource',
-          property_id: propertyId,
-          value_resource_id: keyword.id || keyword['o:id'],
-          is_public: true,
-        }));
+        // Récupérer les keywords existants
+        const existingKeywords = itemData[conceptProp] || [];
+        const existingIds = existingKeywords.map((k: any) => k.value_resource_id);
+
+        // Ajouter les nouveaux keywords sans doublons
+        const newKeywords = data.keywords
+          .filter((keyword: any) => !existingIds.includes(keyword.id || keyword['o:id']))
+          .map((keyword: any) => ({
+            type: 'resource',
+            property_id: propertyId,
+            value_resource_id: keyword.id || keyword['o:id'],
+            is_public: true,
+          }));
+
+        itemData[conceptProp] = [...existingKeywords, ...newKeywords];
       }
     }
 
@@ -1132,11 +1197,18 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
         }
       }
 
+      // Récupérer l'image/thumbnail
+      const thumbnailUrl = r['thumbnail_display_urls']?.square || r.thumbnailUrl || r.thumbnail || r.picture || null;
+
       return {
         id: r['o:id'] || r.id,
         title: title,
         name: title, // Pour les personnes/actants
         short_resume: r['dcterms:description']?.[0]?.['@value'] || r.short_resume || '',
+        // Image/thumbnail pour l'affichage
+        picture: thumbnailUrl,
+        thumbnail: thumbnailUrl,
+        thumbnailUrl: thumbnailUrl,
         // Conserver les données brutes Omeka S pour la sauvegarde
         '@id': r['@id'],
         'o:id': r['o:id'] || r.id,
@@ -1481,15 +1553,15 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
   const selectedOption = availableViews.find((option) => option.key === selected);
 
   // Sort keywords by popularity (descending order)
-  // En mode édition, on combine les keywords existants avec ceux ajoutés via formData
+  // En mode édition, formData.keywords est la source de vérité (permet ajouts et suppressions)
   const sortedKeywords = useMemo(() => {
-    let allKeywords = keywords || [];
+    let allKeywords: any[];
 
-    // En mode édition, fusionner avec formData.keywords si présent
-    if (isEditing && formData.keywords && Array.isArray(formData.keywords)) {
-      const existingIds = new Set(allKeywords.map((k: any) => k.id));
-      const newKeywords = formData.keywords.filter((k: any) => !existingIds.has(k.id));
-      allKeywords = [...allKeywords, ...newKeywords];
+    // En mode édition, utiliser formData.keywords comme source de vérité s'il est défini
+    if (isEditing && formData.keywords !== undefined) {
+      allKeywords = Array.isArray(formData.keywords) ? formData.keywords : [];
+    } else {
+      allKeywords = keywords || [];
     }
 
     if (allKeywords.length === 0) return [];
@@ -1498,7 +1570,14 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
 
   return (
     <>
-      <Layouts className='grid grid-cols-10 col-span-10 gap-50'>
+      <Layouts className='grid grid-cols-10 col-span-10 gap-50 overflow-visible z-0'>
+        {/* Edit Mode Banner */}
+        {isEditing && (
+          <div className='col-span-10 overflow-visible'>
+            <PageBanner title={mode === 'create' ? 'Mode création' : 'Mode édition'} icon={<EditIcon />} description={`${config.type || 'Ressource'}`} edition />
+          </div>
+        )}
+
         {/* Colonne principale */}
         <motion.div ref={firstDivRef} className={`${leftColumnSpan} flex flex-col gap-25 h-fit`} variants={fadeIn}>
           {/* Header avec breadcrumbs et boutons d'édition */}
@@ -1516,24 +1595,57 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
               </div>
             ) : (
               (sortedKeywords?.length > 0 || isEditing) && (
-                <div className='flex items-center gap-10 overflow-hidden'>
-                  <div className='flex-1 min-w-0 overflow-hidden'>
-                    {sortedKeywords?.length > 0 && (
-                      <LongCarrousel
-                        perPage={3}
-                        perMove={1}
-                        autowidth={true}
-                        data={sortedKeywords}
-                        renderSlide={(item) => <KeywordsCard key={item.id || item.title} onSearchClick={handleKeywordClick} word={item.title} description={item.short_resume} />}
-                      />
+                <div className='flex flex-col gap-2'>
+                  {isEditing && <label className='text-14 text-c5 font-medium'>Mots-clés</label>}
+                  <div className='flex items-center gap-10 overflow-hidden'>
+                    <div className='flex-1 min-w-0 overflow-hidden'>
+                      {isEditing ? (
+                        /* Mode édition: afficher les keywords comme des chips avec bouton de suppression */
+                        <div className='flex flex-wrap gap-2 items-center'>
+                          {sortedKeywords?.map((keyword: any) => (
+                            <div key={keyword.id || keyword.title} className='flex items-center gap-2 px-3 py-1.5 h-[40px] bg-c2 border border-c3 text-c6 rounded-8 text-14'>
+                              <span>{keyword.title}</span>
+                              {/* Bouton de suppression */}
+                              <button
+                                type='button'
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Supprimer de formData.keywords
+                                  const currentKeywords = formData.keywords || [];
+                                  const updatedKeywords = currentKeywords.filter((k: any) => k.id !== keyword.id);
+                                  setValue('keywords', updatedKeywords);
+                                }}
+                                className='ml-1 p-0.5 hover:bg-red-500/20 rounded-full transition-colors'>
+                                <CrossIcon size={12} className='text-c4 hover:text-red-500' />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        /* Mode lecture: carrousel */
+                        sortedKeywords?.length > 0 && (
+                          <LongCarrousel
+                            perPage={3}
+                            perMove={1}
+                            autowidth={true}
+                            data={sortedKeywords}
+                            renderSlide={(item) => (
+                              <KeywordsCard key={item.id || item.title} onSearchClick={handleKeywordClick} word={item.title} description={item.short_resume} />
+                            )}
+                          />
+                        )
+                      )}
+                    </div>
+                    {/* Search keyword button in edit mode */}
+                    {isEditing && (
+                      <button
+                        type='button'
+                        onClick={() => handleLinkExisting('keywords')}
+                        className='px-4 py-2 border-2 border-dashed border-c4 rounded-8 text-c5 text-14 hover:border-action hover:bg-c2 transition-all duration-200'>
+                        Ajouter un mot clé
+                      </button>
                     )}
                   </div>
-                  {/* Search keyword button in edit mode */}
-                  {isEditing && (
-                    <Button size='sm' isIconOnly className='bg-c3 text-c6 hover:bg-action hover:text-selected rounded-full' onPress={() => handleLinkExisting('keywords')}>
-                      <PlusIcon size={14} />
-                    </Button>
-                  )}
                 </div>
               )
             ))}
@@ -1684,20 +1796,29 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
                   <label className='text-14 text-c5 font-medium'>Contributeurs</label>
                   <div className='flex flex-wrap gap-2 items-center'>
                     {(formData.personnes || itemDetails?.personnes || itemDetails?.actants || []).map((person: any, index: number) => (
-                      <div key={person.id || index} className='flex items-center gap-2 px-3 py-2 bg-c3 rounded-8'>
-                        {getPersonPicture(person) ? (
-                          <img src={getPersonPicture(person) ?? ''} alt='Avatar' className='w-8 h-8 rounded-full object-cover' />
-                        ) : (
-                          <div className='w-8 h-8 rounded-full bg-c4 flex items-center justify-center'>
-                            <UserIcon size={16} className='text-c5' />
-                          </div>
-                        )}
+                      <div key={person.id || index} className='flex items-center gap-2 px-6 h-[60px] bg-c3 rounded-8'>
+                        {getPersonPicture(person) && <img src={getPersonPicture(person) ?? ''} alt='Avatar' className='w-6 h-6 rounded-full object-cover rounded-[4px]' />}
                         <span className='text-c6 text-14'>{getPersonDisplayName(person)}</span>
+                        {/* Bouton de suppression */}
+                        <button
+                          type='button'
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const currentPersonnes = formData.personnes || itemDetails?.personnes || itemDetails?.actants || [];
+                            const updatedPersonnes = currentPersonnes.filter((p: any) => p.id !== person.id);
+                            setValue('personnes', updatedPersonnes);
+                          }}
+                          className='ml-1 p-0.5 hover:bg-red-500/20 rounded-full transition-colors'>
+                          <CrossIcon size={12} className='text-c4 hover:text-red-500' />
+                        </button>
                       </div>
                     ))}
-                    <Button size='sm' isIconOnly className='bg-c3 text-c6 hover:bg-action hover:text-selected rounded-full' onPress={() => handleLinkExisting('personnes')}>
-                      <PlusIcon size={14} />
-                    </Button>
+                    <button
+                      type='button'
+                      onClick={() => handleLinkExisting('personnes')}
+                      className='px-4 py-2 border-2 border-dashed border-c4 h-[56px] rounded-8 text-c5 text-14 hover:border-action hover:bg-c2 transition-all duration-200'>
+                      Ajouter un contributeur
+                    </button>
                   </div>
                 </div>
               </div>

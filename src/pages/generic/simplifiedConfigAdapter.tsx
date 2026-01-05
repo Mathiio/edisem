@@ -405,10 +405,88 @@ const createProgressiveOmekaDataFetcher = (config: SimplifiedDetailConfig, field
       }
       enrichedData.associatedMedia = associatedMedia;
 
-      // AFFICHAGE IMMÉDIAT
+      // ÉTAPE 2b : Charger les contributeurs EN PRIORITÉ (avant l'affichage)
+      const contributorProperties = ['schema:agent', 'jdc:hasActant', 'dcterms:contributor', 'schema:contributor', 'cito:credits'];
+      const contributorIds = new Set<number>();
+      contributorProperties.forEach((prop) => {
+        const ids = getResourceIds(data, prop);
+        ids.forEach((id) => contributorIds.add(id));
+      });
+
+      const resourceCache: { [id: number]: any } = {};
+
+      // Charger tous les contributeurs en parallèle
+      if (contributorIds.size > 0) {
+        const contributorPromises = Array.from(contributorIds).map(async (resourceId) => {
+          try {
+            const res = await fetchWithRetry(`${API_BASE}items/${resourceId}`, 1, 300);
+            if (!res || !res.ok) return;
+
+            const resourceData = await res.json();
+
+            let thumbnailUrl: string | undefined;
+            // Essayer d'abord thumbnail_display_urls
+            if (resourceData['thumbnail_display_urls']?.square) {
+              thumbnailUrl = resourceData['thumbnail_display_urls'].square;
+            }
+            // Sinon essayer o:thumbnail
+            else if (resourceData['o:thumbnail']?.['o:id']) {
+              try {
+                const thumbRes = await fetchWithRetry(`${API_BASE}media/${resourceData['o:thumbnail']['o:id']}`, 1, 300);
+                if (thumbRes && thumbRes.ok) {
+                  const thumbData = await thumbRes.json();
+                  thumbnailUrl = thumbData['o:thumbnail_urls']?.square || thumbData['o:original_url'];
+                }
+              } catch (e) {
+                console.error('Erreur chargement thumbnail:', e);
+              }
+            }
+            // Sinon essayer le premier média
+            else if (resourceData['o:media']?.[0]?.['o:id']) {
+              try {
+                const mediaRes = await fetchWithRetry(`${API_BASE}media/${resourceData['o:media'][0]['o:id']}`, 1, 300);
+                if (mediaRes && mediaRes.ok) {
+                  const mediaData = await mediaRes.json();
+                  thumbnailUrl = mediaData['o:thumbnail_urls']?.square || mediaData['o:original_url'];
+                }
+              } catch (e) {
+                console.error('Erreur chargement média:', e);
+              }
+            }
+
+            const templateId = resourceData['o:resource_template']?.['o:id'];
+
+            // Extraire prénom/nom pour les actants
+            const firstname = resourceData['foaf:firstName']?.[0]?.['@value'] || resourceData['schema:givenName']?.[0]?.['@value'] || '';
+            const lastname = resourceData['foaf:familyName']?.[0]?.['@value'] || resourceData['schema:familyName']?.[0]?.['@value'] || '';
+
+            resourceCache[resourceId] = {
+              id: resourceId,
+              title: resourceData['o:title'] || `${firstname} ${lastname}`.trim() || `Item #${resourceId}`,
+              name: resourceData['o:title'] || `${firstname} ${lastname}`.trim(),
+              firstname,
+              lastname,
+              picture: thumbnailUrl,
+              thumbnail: thumbnailUrl,
+              thumbnailUrl,
+              type: templateId === 96 ? 'actant' : templateId === 72 ? 'student' : 'personne',
+              template: templateId,
+              resource_template_id: templateId,
+            };
+          } catch (err) {
+            console.error(`Erreur chargement contributeur ${resourceId}:`, err);
+          }
+        });
+
+        await Promise.all(contributorPromises);
+      }
+
+      enrichedData.resourceCache = resourceCache;
+
+      // AFFICHAGE IMMÉDIAT (avec les contributeurs déjà chargés)
       onProgress({
         itemDetails: enrichedData,
-        viewData: { rawData: data, resourceCache: {} },
+        viewData: { rawData: data, resourceCache },
       });
 
       // ÉTAPE 3 : Charger les keywords
@@ -457,7 +535,7 @@ const createProgressiveOmekaDataFetcher = (config: SimplifiedDetailConfig, field
         }
       });
 
-      // ÉTAPE 5 : Charger les ressources liées par batches
+      // ÉTAPE 5 : Charger les autres ressources liées par batches (sauf contributeurs déjà chargés)
       const allResourceIds = new Set<number>();
       Object.entries(data).forEach(([, value]) => {
         if (Array.isArray(value)) {
@@ -469,8 +547,10 @@ const createProgressiveOmekaDataFetcher = (config: SimplifiedDetailConfig, field
         }
       });
 
-      const resourceIds = Array.from(allResourceIds).slice(0, 30);
-      const resourceCache: { [id: number]: any } = {};
+      // Filtrer les IDs déjà chargés (contributeurs)
+      const resourceIds = Array.from(allResourceIds)
+        .filter((id) => !resourceCache[id])
+        .slice(0, 30);
       const batchSize = 5;
 
       for (let i = 0; i < resourceIds.length; i += batchSize) {

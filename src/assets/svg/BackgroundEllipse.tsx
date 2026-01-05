@@ -1,10 +1,14 @@
 import React from 'react';
 
-export const BackgroundEllipse: React.FC = () => {
+interface BackgroundEllipseProps {
+  color?: string;
+}
+
+export const BackgroundEllipse: React.FC<BackgroundEllipseProps> = ({ color }) => {
   return (
     <svg className='w-full h-full' xmlns='http://www.w3.org/2000/svg' width='1722' height='1000' viewBox='0 0 1722 855' fill='none'>
       <g filter='url(#filter0_nf_3326_2067)'>
-        <ellipse cx='868' cy='346' rx='481' ry='122' className='fill-action' />
+        <ellipse cx='868' cy='346' rx='481' ry='122' className={color ? undefined : 'fill-action'} fill={color} />
       </g>
       <defs>
         <filter id='filter0_nf_3326_2067' x='0.5' y='-162.5' width='3000' height='2000' filterUnits='userSpaceOnUse' colorInterpolationFilters='sRGB'>

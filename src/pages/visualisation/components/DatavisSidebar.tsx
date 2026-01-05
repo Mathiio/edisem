@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { SearchIcon } from '@/components/ui/icons';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarSeparator, useSidebar } from '@/components/ui/AppSidebar';
+import { useAuth } from '@/hooks/useAuth';
 
 interface DatavisSidebarProps {
   activeView: 'datavis' | 'cahiers' | 'create' | 'radialTree' | 'oeuvres' | 'coverageMatrix' | 'activityHeatmap' | 'dashboard';
@@ -67,6 +68,9 @@ export const DatavisSidebar = ({
 }: DatavisSidebarProps) => {
   const [annotationMenuOpen, setAnnotationMenuOpen] = useState(false);
   const { isCollapsed } = useSidebar();
+  const { userData } = useAuth();
+
+  const isActant = userData?.type === 'actant';
 
   const handleModeToggle = (mode: 'edit' | 'link') => {
     // Désactiver tous les autres modes quand on en active un
@@ -112,13 +116,15 @@ export const DatavisSidebar = ({
                     onClick={onShowCreate}
                     isActive={activeView === 'create'}
                   />
-                  <SidebarMenuItem
-                    icon={<Pencil size={14} className={isEditMode ? 'text-datavisOrange' : ''} />}
-                    label='Mode édition'
-                    onClick={() => handleModeToggle('edit')}
-                    isActive={isEditMode}
-                    disabled={!toolsEnabled}
-                  />
+                  {isActant && (
+                    <SidebarMenuItem
+                      icon={<Pencil size={14} className={isEditMode ? 'text-datavisOrange' : ''} />}
+                      label='Mode édition'
+                      onClick={() => handleModeToggle('edit')}
+                      isActive={isEditMode}
+                      disabled={!toolsEnabled}
+                    />
+                  )}
                   {/* Sous-menu Annotations */}
                   <div className='flex flex-col'>
                     <SidebarMenuItem

@@ -11,7 +11,7 @@ import { Skeleton, Spinner, Input, Textarea, Slider, Button, Link, Dropdown, Dro
 import { DatePicker } from '@heroui/react';
 import { parseDate, type DateValue } from '@internationalized/date';
 import { Splide, SplideTrack, SplideSlide } from '@splidejs/react-splide';
-import { CameraIcon, UserIcon, ShareIcon, MovieIcon, ArrowIcon, PlusIcon } from '@/components/ui/icons';
+import { CameraIcon, UserIcon, ShareIcon, MovieIcon, ArrowIcon, PlusIcon, CrossIcon } from '@/components/ui/icons';
 import MediaViewer from '@/components/features/conference/MediaViewer';
 import { MediaDropzone, MediaFile } from '@/components/features/forms/MediaDropzone';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
@@ -82,6 +82,7 @@ interface SimpleDetailsProps {
   onFieldChange?: (property: string, value: any) => void;
   onAddResource?: (property: string) => void;
   onResourcesSelected?: (property: string, resources: any[]) => void;
+  onRemoveContributor?: (personId: number) => void;
   contributorTemplateIds?: number[];
   type?: string;
 }
@@ -107,15 +108,18 @@ const getPersonRoute = (person: any): string => {
 
 const getPersonDisplayName = (person: any): string => {
   if (!person) return '';
-  switch (person.type) {
-    case 'personne':
-      return person.name || `${person.firstName || ''} ${person.lastName || ''}`.trim();
-    case 'actant':
-    case 'student':
-      return `${person.firstname || ''} ${person.lastname || ''}`.trim();
-    default:
-      return person.name || person.title || 'Nom inconnu';
-  }
+
+  // Essayer d'abord le titre ou nom complet (plus fiable)
+  if (person.title && person.title.trim()) return person.title;
+  if (person.name && person.name.trim()) return person.name;
+
+  // Sinon essayer de construire depuis prénom/nom
+  const firstname = person.firstname || person.firstName || '';
+  const lastname = person.lastname || person.lastName || '';
+  const fullName = `${firstname} ${lastname}`.trim();
+  if (fullName) return fullName;
+
+  return 'Nom inconnu';
 };
 
 const getPersonPicture = (person: any): string | null => {
@@ -400,6 +404,7 @@ export const SimpleDetailsCard: React.FC<SimpleDetailsProps> = ({
   onFieldChange,
   onAddResource,
   onResourcesSelected,
+  onRemoveContributor,
   contributorTemplateIds = [96, 72],
   type,
 }) => {
@@ -524,22 +529,29 @@ export const SimpleDetailsCard: React.FC<SimpleDetailsProps> = ({
               <label className='text-14 text-c5 font-medium'>{overviewResourceField.label || 'Contributeurs'}</label>
               <div className='flex flex-wrap gap-2 items-center'>
                 {personnes.map((person, index) => (
-                  <span key={person.id || index} className='flex items-center gap-2 px-3 py-1.5 bg-c3 text-c6 rounded-8 text-14'>
-                    {getPersonPicture(person) ? (
-                      <img src={getPersonPicture(person) ?? ''} alt='Avatar' className='w-6 h-6 rounded-full object-cover' />
-                    ) : (
-                      <UserIcon size={16} className='text-c5' />
-                    )}
+                  <span key={person.id || index} className='flex items-center gap-2 px-3 min-h-[60px] py-1.5 bg-c3 text-c6 rounded-8 text-14'>
+                    {getPersonPicture(person) && <img src={getPersonPicture(person) ?? ''} alt='Avatar' className='w-6 h-6 rounded-full object-cover' />}
                     {getPersonDisplayName(person)}
+                    {/* Bouton de suppression */}
+                    <button
+                      type='button'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (person.id && onRemoveContributor) {
+                          onRemoveContributor(person.id);
+                        }
+                      }}
+                      className='ml-1 p-0.5 hover:bg-red-500/20 rounded-full transition-colors'>
+                      <CrossIcon size={12} className='text-c4 hover:text-red-500' />
+                    </button>
                   </span>
                 ))}
-                <Button
-                  size='sm'
-                  isIconOnly
-                  className='bg-c3 text-c6 hover:bg-action hover:text-selected rounded-full min-w-[32px] min-h-[32px]'
-                  onPress={() => setIsContributorModalOpen(true)}>
-                  <PlusIcon size={14} />
-                </Button>
+                <button
+                  type='button'
+                  onClick={() => setIsContributorModalOpen(true)}
+                  className='px-4 py-2 border-2 border-dashed border-c4 rounded-12 text-c5 text-14 hover:border-action hover:bg-c2 transition-all duration-200'>
+                  Ajouter un contributeur
+                </button>
               </div>
             </div>
           )}
