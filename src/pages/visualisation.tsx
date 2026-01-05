@@ -395,12 +395,16 @@ const Visualisation = () => {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const simulationRef = useRef<d3.Simulation<any, any> | null>(null);
 
+  // Effet séparé pour gérer le resize sans recréer le graphe
   useEffect(() => {
     const container = containerRef.current;
 
     const resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
+        console.log('📐 ResizeObserver triggered:', entry.contentRect.width, 'x', entry.contentRect.height);
+        // Juste mettre à jour la taille du SVG, sans relancer la simulation
         setDimensions({
           width: entry.contentRect.width,
           height: entry.contentRect.height,
@@ -701,6 +705,7 @@ const Visualisation = () => {
   };
 
   useEffect(() => {
+    console.log('🔄 useEffect graph triggered - dependencies changed');
     if (!filteredNodes.length) return;
     clearSvg();
     const svg = d3.select(svgRef.current);
@@ -868,19 +873,14 @@ const Visualisation = () => {
       nodeGroup.attr('transform', (d: any) => `translate(${d.x ?? 0},${d.y ?? 0})`);
     });
 
-    // Fonction pour réajuster la simulation lors de redimensionnements
-    const handleResize = () => {
-      simulation.force('center', d3.forceCenter(dimensions.width / 2, dimensions.height / 2));
-      simulation.alpha(0.3).restart(); // Redémarrer avec une force alpha modérée
-    };
-
-    // Appliquer immédiatement et quand les dimensions changent
-    handleResize();
+    // Stocker la simulation dans le ref pour le resize
+    simulationRef.current = simulation;
 
     return () => {
       if (simulation) simulation.stop();
+      simulationRef.current = null;
     };
-  }, [filteredNodes, filteredLinks, dimensions, isEditMode, isLinkMode, isAnnoteMode]);
+  }, [filteredNodes, filteredLinks, isEditMode, isLinkMode, isAnnoteMode]);
 
   const getImageForType = (type: string) => {
     return images[type] || images['conf'];
@@ -1150,29 +1150,30 @@ const Visualisation = () => {
           isOpen={isOpenAnnote}
           onClose={() => onCloseAnnote()}
         />
-        ;
-        <Toolbar
-          onSearch={handleSearch}
-          handleExportClick={handleExportClick}
-          generatedImage={generatedImage}
-          resetActiveIconRef={setResetActiveIconRef}
-          onSelect={handleOverlaySelect}
-          exportEnabled={exportEnabled}
-          isEditMode={isEditMode}
-          isLinkMode={isLinkMode}
-          isAddMode={isAddMode}
-          isAnnoteMode={isAnnoteMode}
-          onViewToggle={setviewAnnotationMode}
-          firstSelectedNode={firstSelectedNode}
-          secondSelectedNode={secondSelectedNode}
-          onConnect={handleConnect}
-          onCancel={CancelLink}
-          onEditToggle={handleEditModeChange}
-          onLinkToggle={handleLinkModeChange}
-          onAddToggle={handleAddModeChange}
-          onAnnoteToggle={handleAnnoteModeChange}
-          onCreateItem={handleCreateItem}
-        />
+        <div className='fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50'>
+          <Toolbar
+            onSearch={handleSearch}
+            handleExportClick={handleExportClick}
+            generatedImage={generatedImage}
+            resetActiveIconRef={setResetActiveIconRef}
+            onSelect={handleOverlaySelect}
+            exportEnabled={exportEnabled}
+            isEditMode={isEditMode}
+            isLinkMode={isLinkMode}
+            isAddMode={isAddMode}
+            isAnnoteMode={isAnnoteMode}
+            onViewToggle={setviewAnnotationMode}
+            firstSelectedNode={firstSelectedNode}
+            secondSelectedNode={secondSelectedNode}
+            onConnect={handleConnect}
+            onCancel={CancelLink}
+            onEditToggle={handleEditModeChange}
+            onLinkToggle={handleLinkModeChange}
+            onAddToggle={handleAddModeChange}
+            onAnnoteToggle={handleAnnoteModeChange}
+            onCreateItem={handleCreateItem}
+          />
+        </div>
       </div>
     </Layouts>
   );

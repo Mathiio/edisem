@@ -2,6 +2,7 @@ import { ViewOption, SmartRecommendationsStrategy } from './config';
 import { ItemsList, SimpleTextBlock, ToolItemData } from './components';
 import { Bibliographies } from '@/components/features/conference/BibliographyCards';
 import { Mediagraphies } from '@/components/features/conference/MediagraphyCards';
+import { AddResourceCard } from '@/components/features/forms/AddResourceCard';
 import { getResourceConfigByTemplateId, getDisplayName, getResourceUrl } from '@/config/resourceTypes';
 
 /**
@@ -19,13 +20,19 @@ interface CreateItemsListViewOptions {
   title: string;
   getItems: (itemDetails: any) => ToolItemData[];
   mapUrl?: (item: ToolItemData) => string;
+  resourceLabel?: string; // Label pour le bouton "Ajouter [label]"
+  resourceTemplateId?: number; // Template ID pour créer une nouvelle ressource
+  editable?: boolean; // Si cette vue est éditable (default: true)
 }
 
 export const createItemsListView = (options: CreateItemsListViewOptions): ViewOption => {
   return {
     key: options.key,
     title: options.title,
-    renderContent: ({ itemDetails }) => {
+    resourceLabel: options.resourceLabel,
+    resourceTemplateId: options.resourceTemplateId,
+    editable: options.editable !== false,
+    renderContent: ({ itemDetails, isEditing, onLinkExisting, onCreateNew, onRemoveItem, onNavigate }) => {
       let items = options.getItems(itemDetails);
       // Normaliser pour s'assurer que c'est toujours un tableau
       if (!items) {
@@ -33,7 +40,32 @@ export const createItemsListView = (options: CreateItemsListViewOptions): ViewOp
       } else if (!Array.isArray(items)) {
         items = [items];
       }
-      return <ItemsList items={items} mapUrl={options.mapUrl} />;
+
+      // En mode édition, vérifier aussi les ressources ajoutées via formData (clé = options.key)
+      if (isEditing && itemDetails[options.key] && Array.isArray(itemDetails[options.key])) {
+        const formDataItems = itemDetails[options.key];
+        const existingIds = items.map((r: any) => r.id || r['o:id']);
+        const newItems = formDataItems.filter((item: any) => {
+          const itemId = item.id || item['o:id'];
+          return itemId && !existingIds.includes(itemId);
+        });
+        if (newItems.length > 0) {
+          items = [...items, ...newItems];
+        }
+      }
+
+      return (
+        <ItemsList
+          items={items}
+          mapUrl={options.mapUrl}
+          isEditing={isEditing && options.editable !== false}
+          resourceLabel={options.resourceLabel || options.title}
+          onLinkExisting={onLinkExisting ? () => onLinkExisting(options.key) : undefined}
+          onCreateNew={onCreateNew ? () => onCreateNew(options.key) : undefined}
+          onRemoveItem={onRemoveItem ? (id) => onRemoveItem(options.key, id) : undefined}
+          onNavigate={onNavigate}
+        />
+      );
     },
   };
 };
@@ -47,15 +79,36 @@ interface CreateTextViewOptions {
   title: string;
   getText: (itemDetails: any) => string | undefined;
   emptyMessage?: string;
+  editable?: boolean;
+  dataPath?: string; // Chemin Omeka S pour la modification
+  placeholder?: string;
 }
 
 export const createTextView = (options: CreateTextViewOptions): ViewOption => {
   return {
     key: options.key,
     title: options.title,
-    renderContent: ({ itemDetails }) => {
-      const text = options.getText(itemDetails);
+    editable: options.editable !== false,
+    renderContent: ({ itemDetails, isEditing, onItemsChange, formData }) => {
+      // En mode édition, utiliser formData si disponible, sinon itemDetails
+      const textFromData = options.getText(itemDetails);
+      const text = formData?.[options.key] !== undefined ? formData[options.key] : textFromData;
 
+      // Mode édition
+      if (isEditing && options.editable !== false) {
+        return (
+          <div className='w-full'>
+            <textarea
+              className='w-full min-h-[150px] p-20 bg-c1 border-2 border-c3 rounded-12 text-c6 text-16 resize-y focus:outline-none focus:border-action'
+              value={text || ''}
+              onChange={(e) => onItemsChange?.(options.key, [{ value: e.target.value, dataPath: options.dataPath }])}
+              placeholder={options.placeholder || options.emptyMessage || 'Saisissez du contenu...'}
+            />
+          </div>
+        );
+      }
+
+      // Mode affichage
       if (!text || text.trim() === '') {
         return (
           <div className='p-20 bg-c2 rounded-12 border-2 border-c3 text-center'>
@@ -70,18 +123,167 @@ export const createTextView = (options: CreateTextViewOptions): ViewOption => {
 };
 
 // ========================================
+// createFormFieldsView - Vue avec champs de formulaire automatiques
+// ========================================
+
+import { FormFieldConfig } from './config';
+
+interface CreateFormFieldsViewOptions {
+  key: string;
+  title: string;
+  fields: FormFieldConfig[]; // Champs à afficher dans cette vue
+  emptyMessage?: string; // Message si aucune donnée en mode lecture
+}
+
+/**
+ * Crée une vue qui génère automatiquement les inputs en mode édition
+ * basée sur la config des formFields.
+ *
+ * En mode lecture, affiche les valeurs des champs.
+ * En mode édition, affiche les inputs correspondants.
+ */
+export const createFormFieldsView = (options: CreateFormFieldsViewOptions): ViewOption => {
+  return {
+    key: options.key,
+    title: options.title,
+    editable: true,
+    renderContent: ({ itemDetails, isEditing, onItemsChange, formData }) => {
+      // Mode édition : afficher les inputs
+      if (isEditing) {
+        return (
+          <div className='flex flex-col gap-15'>
+            {options.fields.map((field) => {
+              const value = formData?.[field.key] ?? itemDetails?.[field.key] ?? '';
+
+              return (
+                <div key={field.key} className='flex flex-col gap-2'>
+                  <label className='text-c6 font-semibold text-14'>
+                    {field.label}
+                    {field.required && <span className='text-danger ml-1'>*</span>}
+                  </label>
+                  {renderFormField(field, value, (newValue) => onItemsChange?.(field.key, newValue))}
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+
+      // Mode lecture : afficher les valeurs
+      const fieldsWithValues = options.fields
+        .map((field) => ({
+          label: field.label,
+          value: itemDetails?.[field.key] ?? '',
+        }))
+        .filter((item) => item.value);
+
+      if (fieldsWithValues.length === 0) {
+        return <div className='p-20 bg-c2 rounded-12 border-2 border-c3 text-c4 text-center'>{options.emptyMessage || 'Aucune donnée disponible'}</div>;
+      }
+
+      return (
+        <div className='flex flex-col gap-10'>
+          {fieldsWithValues.map((item) => (
+            <div key={item.label} className='flex flex-col gap-10'>
+              <div className='text-c6 font-semibold text-14'>{item.label}</div>
+              <div className='bg-c1 rounded-8 p-15 border-2 border-c3'>
+                <p className='text-c5 text-14 leading-[125%]'>{item.value}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    },
+  };
+};
+
+/**
+ * Render un champ de formulaire selon son type
+ */
+const renderFormField = (field: FormFieldConfig, value: any, onChange: (value: any) => void): JSX.Element => {
+  const baseInputClass = 'bg-c1 border border-c3 rounded-8 px-15 py-10 text-c6 text-14 focus:outline-none focus:border-action';
+
+  switch (field.type) {
+    case 'textarea':
+      return <textarea className={`${baseInputClass} resize-none`} value={value} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder} rows={3} />;
+
+    case 'url':
+      return <input type='url' className={baseInputClass} value={value} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder} />;
+
+    case 'number':
+      return (
+        <input
+          type='number'
+          className={baseInputClass}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder}
+          min={field.min}
+          max={field.max}
+          step={field.step}
+        />
+      );
+
+    case 'date':
+      return <input type='date' className={baseInputClass} value={value} onChange={(e) => onChange(e.target.value)} />;
+
+    case 'slider':
+      return (
+        <div className='flex items-center gap-10'>
+          <input
+            type='range'
+            className='flex-1'
+            value={value || field.min || 0}
+            onChange={(e) => onChange(Number(e.target.value))}
+            min={field.min || 0}
+            max={field.max || 100}
+            step={field.step || 1}
+          />
+          <span className='text-c5 text-14 w-40 text-right'>{value || 0}%</span>
+        </div>
+      );
+
+    case 'text':
+    default:
+      return <input type='text' className={baseInputClass} value={value} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder} />;
+  }
+};
+
+// ========================================
 // Helpers prédéfinis pour cas courants
 // ========================================
 
 /**
  * Vue pour les références scientifiques
+ * @param options Options de configuration (resourceTemplateIds pour les bibliographies/médiagraphies)
  */
-export const createScientificReferencesView = (): ViewOption => {
+export const createScientificReferencesView = (options?: { resourceTemplateIds?: number[]; editable?: boolean }): ViewOption => {
+  // Template IDs par défaut pour bibliographies/médiagraphies : 81, 99, 98, 83
+  const defaultTemplateIds = [81, 99, 98, 83];
+
   return {
     key: 'ContentScient',
     title: 'Contenus scientifiques',
-    renderContent: ({ itemDetails, loading }) => {
-      const references = itemDetails?.referencesScient || itemDetails?.references || [];
+    editable: options?.editable !== false,
+    resourceTemplateIds: options?.resourceTemplateIds || defaultTemplateIds,
+    renderContent: ({ itemDetails, loading, isEditing, onLinkExisting, onCreateNew }) => {
+      console.log('🔍 [createScientificReferencesView] itemDetails:', itemDetails);
+      console.log('🔍 [createScientificReferencesView] referencesScient:', itemDetails?.referencesScient);
+      console.log('🔍 [createScientificReferencesView] references:', itemDetails?.references);
+      let references = itemDetails?.referencesScient || itemDetails?.references || [];
+
+      // En mode édition, vérifier aussi les ressources ajoutées via formData
+      if (isEditing && itemDetails['ContentScient'] && Array.isArray(itemDetails['ContentScient'])) {
+        const formDataItems = itemDetails['ContentScient'];
+        const existingIds = references.map((r: any) => r.id || r['o:id']);
+        const newRefs = formDataItems.filter((item: any) => {
+          const itemId = item.id || item['o:id'];
+          return itemId && !existingIds.includes(itemId);
+        });
+        if (newRefs.length > 0) {
+          references = [...references, ...newRefs];
+        }
+      }
 
       // Filtrage mutuellement exclusif : d'abord les médiagraphies, puis le reste en bibliographies
       const mediagraphies = references.filter((ref: any) => ref?.type === 'mediagraphie' || ref?.mediagraphyType);
@@ -98,8 +300,11 @@ export const createScientificReferencesView = (): ViewOption => {
           creator: Array.isArray(ref.creator) && ref.creator.length > 0 && typeof ref.creator[0] === 'object' ? ref.creator : [], // Garder le creator tel quel s'il est déjà au bon format, sinon tableau vide
         }));
 
-      // Si aucune référence, ne rien afficher du tout
-      if (references.length === 0) {
+      const hasContent = mediagraphies.length > 0 || bibliographies.length > 0;
+      const canEdit = isEditing && options?.editable !== false;
+
+      // Si aucune référence et pas en mode édition, ne rien afficher du tout
+      if (!hasContent && !canEdit) {
         return null;
       }
 
@@ -116,6 +321,11 @@ export const createScientificReferencesView = (): ViewOption => {
               <h3 className='text-lg text-c5 font-semibold mb-4'>Bibliographies</h3>
               <Bibliographies sections={[{ title: 'Bibliographies', bibliographies }]} loading={loading} notitle />
             </div>
+          )}
+
+          {/* Carte "Ajouter" en mode édition */}
+          {canEdit && onLinkExisting && (
+            <AddResourceCard resourceLabel='une référence scientifique' onLinkExisting={() => onLinkExisting('ContentScient')} onCreateNew={() => onCreateNew?.('ContentScient')} />
           )}
         </div>
       );
@@ -125,13 +335,35 @@ export const createScientificReferencesView = (): ViewOption => {
 
 /**
  * Vue pour les références culturelles
+ * @param options Options de configuration (resourceTemplateIds pour les bibliographies/médiagraphies)
  */
-export const createCulturalReferencesView = (): ViewOption => {
+export const createCulturalReferencesView = (options?: { resourceTemplateIds?: number[]; editable?: boolean }): ViewOption => {
+  // Template IDs par défaut pour bibliographies/médiagraphies : 81, 99, 98, 83
+  const defaultTemplateIds = [81, 99, 98, 83];
+
   return {
     key: 'ContentCultu',
     title: 'Contenus culturels',
-    renderContent: ({ itemDetails, loading }) => {
-      const references = itemDetails?.referencesCultu || itemDetails?.bibliographicCitations || [];
+    editable: options?.editable !== false,
+    resourceTemplateIds: options?.resourceTemplateIds || defaultTemplateIds,
+    renderContent: ({ itemDetails, loading, isEditing, onLinkExisting, onCreateNew }) => {
+      console.log('🔍 [createCulturalReferencesView] itemDetails:', itemDetails);
+      console.log('🔍 [createCulturalReferencesView] referencesCultu:', itemDetails?.referencesCultu);
+      console.log('🔍 [createCulturalReferencesView] bibliographicCitations:', itemDetails?.bibliographicCitations);
+      let references = itemDetails?.referencesCultu || itemDetails?.bibliographicCitations || [];
+
+      // En mode édition, vérifier aussi les ressources ajoutées via formData
+      if (isEditing && itemDetails['ContentCultu'] && Array.isArray(itemDetails['ContentCultu'])) {
+        const formDataItems = itemDetails['ContentCultu'];
+        const existingIds = references.map((r: any) => r.id || r['o:id']);
+        const newRefs = formDataItems.filter((item: any) => {
+          const itemId = item.id || item['o:id'];
+          return itemId && !existingIds.includes(itemId);
+        });
+        if (newRefs.length > 0) {
+          references = [...references, ...newRefs];
+        }
+      }
 
       // Filtrage mutuellement exclusif : d'abord les médiagraphies, puis le reste en bibliographies
       const mediagraphies = references.filter((ref: any) => ref?.type === 'mediagraphie' || ref?.mediagraphyType);
@@ -148,8 +380,11 @@ export const createCulturalReferencesView = (): ViewOption => {
           creator: Array.isArray(ref.creator) && ref.creator.length > 0 && typeof ref.creator[0] === 'object' ? ref.creator : [], // Garder le creator tel quel s'il est déjà au bon format, sinon tableau vide
         }));
 
-      // Si aucune référence, ne rien afficher du tout
-      if (references.length === 0) {
+      const hasContent = mediagraphies.length > 0 || bibliographies.length > 0;
+      const canEdit = isEditing && options?.editable !== false;
+
+      // Si aucune référence et pas en mode édition, ne rien afficher du tout
+      if (!hasContent && !canEdit) {
         return null;
       }
 
@@ -166,6 +401,11 @@ export const createCulturalReferencesView = (): ViewOption => {
               <h3 className='text-lg text-c5 font-semibold mb-4'>Bibliographies</h3>
               <Bibliographies sections={[{ title: 'Bibliographies', bibliographies }]} loading={loading} notitle />
             </div>
+          )}
+
+          {/* Carte "Ajouter" en mode édition */}
+          {canEdit && onLinkExisting && (
+            <AddResourceCard resourceLabel='une référence culturelle' onLinkExisting={() => onLinkExisting('ContentCultu')} onCreateNew={() => onCreateNew?.('ContentCultu')} />
           )}
         </div>
       );
@@ -176,11 +416,19 @@ export const createCulturalReferencesView = (): ViewOption => {
 /**
  * Vue pour les outils
  */
-export const createToolsView = (getTools?: (itemDetails: any, viewData?: any) => ToolItemData[], mapUrl?: (item: ToolItemData) => string): ViewOption => {
+export const createToolsView = (
+  getTools?: (itemDetails: any, viewData?: any) => ToolItemData[],
+  mapUrl?: (item: ToolItemData) => string,
+  options?: { resourceLabel?: string; resourceTemplateId?: number; editable?: boolean },
+): ViewOption => {
+  const defaultTemplateId = 114; // Template Omeka S pour les outils
   return {
     key: 'Outils',
     title: 'Outils',
-    renderContent: ({ itemDetails, viewData }) => {
+    resourceLabel: options?.resourceLabel || 'un outil',
+    resourceTemplateId: options?.resourceTemplateId || defaultTemplateId,
+    editable: options?.editable !== false,
+    renderContent: ({ itemDetails, viewData, isEditing, onLinkExisting, onCreateNew, onRemoveItem, onNavigate }) => {
       let items = getTools ? getTools(itemDetails, viewData) : itemDetails?.tools || [];
       // Normaliser pour s'assurer que c'est toujours un tableau
       if (!items) {
@@ -188,7 +436,32 @@ export const createToolsView = (getTools?: (itemDetails: any, viewData?: any) =>
       } else if (!Array.isArray(items)) {
         items = [items];
       }
-      return <ItemsList items={items} mapUrl={mapUrl} />;
+
+      // En mode édition, vérifier aussi les ressources ajoutées via formData (clé 'Outils')
+      if (isEditing && itemDetails['Outils'] && Array.isArray(itemDetails['Outils'])) {
+        const formDataItems = itemDetails['Outils'];
+        const existingIds = items.map((r: any) => r.id || r['o:id']);
+        const newItems = formDataItems.filter((item: any) => {
+          const itemId = item.id || item['o:id'];
+          return itemId && !existingIds.includes(itemId);
+        });
+        if (newItems.length > 0) {
+          items = [...items, ...newItems];
+        }
+      }
+
+      return (
+        <ItemsList
+          items={items}
+          mapUrl={mapUrl}
+          isEditing={isEditing && options?.editable !== false}
+          resourceLabel={options?.resourceLabel || 'un outil'}
+          onLinkExisting={onLinkExisting ? () => onLinkExisting('Outils') : undefined}
+          onCreateNew={onCreateNew ? () => onCreateNew('Outils') : undefined}
+          onRemoveItem={onRemoveItem ? (id) => onRemoveItem('Outils', id) : undefined}
+          onNavigate={onNavigate}
+        />
+      );
     },
   };
 };
@@ -243,23 +516,30 @@ export const createCriticalAnalysisView = (): ViewOption => {
 /**
  * Vue pour les feedbacks
  */
-export const createFeedbacksView = (): ViewOption => {
+export const createFeedbacksView = (options?: { resourceTemplateId?: number }): ViewOption => {
+  const defaultTemplateId = 110; // Template Omeka S pour les feedbacks
   return createItemsListView({
     key: 'Feedback',
     title: "Retours d'expérience",
     getItems: (itemDetails) => itemDetails?.feedbacks || [],
     mapUrl: (item) => `/feedback/${item.id}`,
+    resourceLabel: "un retour d'expérience",
+    resourceTemplateId: options?.resourceTemplateId || defaultTemplateId,
+    editable: true,
   });
 };
 
 /**
  * Vue pour une hypothèse/abstract
  */
-export const createHypothesisView = (): ViewOption => {
+export const createHypothesisView = (options?: { editable?: boolean; dataPath?: string }): ViewOption => {
   return createTextView({
     key: 'Hypothese',
     title: 'Hypothèse à expérimenter',
     getText: (itemDetails) => itemDetails?.abstract,
+    editable: options?.editable !== false,
+    dataPath: options?.dataPath || 'dcterms:abstract.0.@value',
+    placeholder: "Décrivez l'hypothèse à expérimenter...",
   });
 };
 
@@ -285,7 +565,7 @@ export const createOeuvreViews = (): ViewOption[] => {
  * Ensemble complet pour une page Experimentation
  */
 export const createExperimentationViews = (toolsGetter?: (itemDetails: any, viewData?: any) => ToolItemData[], toolsMapUrl?: (item: ToolItemData) => string): ViewOption[] => {
-  return [createFeedbacksView(), createHypothesisView(), createScientificReferencesView(), createCulturalReferencesView(), createToolsView(toolsGetter, toolsMapUrl)];
+  return [createHypothesisView(), createFeedbacksView(), createScientificReferencesView(), createCulturalReferencesView(), createToolsView(toolsGetter, toolsMapUrl)];
 };
 
 // ========================================

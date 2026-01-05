@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Spinner } from '@heroui/react';
 import { getYouTubeThumbnailUrl, isValidYouTubeUrl } from '@/lib/utils';
+import { AddResourceCard } from '@/components/features/forms/AddResourceCard';
 
 /**
  * Composants réutilisables pour les viewOptions
@@ -24,13 +26,43 @@ export interface ToolItemData {
 
 interface ToolItemProps {
   tool: ToolItemData;
+  onNavigate?: (url: string) => void; // Callback pour navigation avec animation
+  animationDelay?: number; // Délai en ms avant navigation (pour laisser l'animation jouer)
 }
 
-export const ToolItem: React.FC<ToolItemProps> = ({ tool }) => {
+export const ToolItem: React.FC<ToolItemProps> = ({ tool, onNavigate, animationDelay = 450 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const navigate = useNavigate();
 
   // Récupérer l'URL
   const itemUrl = tool.url || tool.uri || '#';
+
+  // Gestion du clic avec animation
+  const handleClick = (e: React.MouseEvent) => {
+    // Si c'est un lien externe, laisser le comportement par défaut
+    if (itemUrl.startsWith('http')) {
+      return;
+    }
+
+    // Empêcher la navigation immédiate
+    e.preventDefault();
+
+    console.log('[ToolItem] handleClick - onNavigate:', !!onNavigate, 'url:', itemUrl);
+
+    // Signaler que la navigation commence (pour déclencher l'animation)
+    setIsNavigating(true);
+    if (onNavigate) {
+      console.log('[ToolItem] Calling onNavigate');
+      onNavigate(itemUrl);
+    }
+
+    // Naviguer après le délai d'animation
+    setTimeout(() => {
+      console.log('[ToolItem] Navigating after delay');
+      navigate(itemUrl);
+    }, animationDelay);
+  };
 
   // Récupérer la thumbnail
   const getThumbnail = (): string | undefined => {
@@ -39,7 +71,7 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool }) => {
     // console.log(`[ToolItem] tool.associatedMedia:`, tool.associatedMedia);
 
     if (tool.thumbnail) {
-      console.log(`[ToolItem] ✅ Using tool.thumbnail:`, tool.thumbnail);
+      // console.log(`[ToolItem] ✅ Using tool.thumbnail:`, tool.thumbnail);
       return tool.thumbnail;
     }
 
@@ -94,10 +126,10 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool }) => {
 
   return (
     <div
-      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
+      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'} ${isNavigating ? 'opacity-50 pointer-events-none' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
-      <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={itemUrl} target={itemUrl.startsWith('http') ? '_blank' : undefined}>
+      <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={itemUrl} target={itemUrl.startsWith('http') ? '_blank' : undefined} onClick={handleClick}>
         <div className='flex flex-row gap-4 items-start'>
           {thumbnail && (
             <div className='flex-shrink-0'>
@@ -132,9 +164,11 @@ export const SimpleTextBlock: React.FC<SimpleTextBlockProps> = ({ content, class
   return (
     <div className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity border-c3 ${className}`}>
       <div className='w-full gap-25 py-25 px-25 flex flex-row justify-between'>
-        <div className='flex flex-col gap-4 items-start'>
+        <div className='flex flex-col gap-4 items-start w-full'>
           <div className='w-full flex flex-col gap-10'>
-            <p className='text-c6 text-16'>{content}</p>
+            <p className='text-c6 text-16 h-full' style={{ whiteSpace: 'pre-line', wordBreak: 'break-word' }}>
+              {content}
+            </p>
           </div>
         </div>
       </div>
@@ -149,13 +183,42 @@ export const SimpleTextBlock: React.FC<SimpleTextBlockProps> = ({ content, class
 interface ItemsListProps {
   items: ToolItemData[];
   mapUrl?: (item: ToolItemData) => string; // Fonction pour générer l'URL
+  loading?: boolean; // État de chargement
+  // Props pour le mode édition
+  isEditing?: boolean;
+  resourceLabel?: string; // Label pour la carte "Ajouter [label]"
+  onLinkExisting?: () => void;
+  onCreateNew?: () => void;
+  onRemoveItem?: (id: string | number) => void;
+  onNavigate?: (url: string) => void; // Callback pour animation avant navigation
 }
 
-export const ItemsList: React.FC<ItemsListProps> = ({ items, mapUrl }) => {
+export const ItemsList: React.FC<ItemsListProps> = ({
+  items,
+  mapUrl,
+  loading = false,
+  isEditing = false,
+  resourceLabel = 'ressource',
+  onLinkExisting,
+  onCreateNew,
+  onRemoveItem,
+  onNavigate,
+}) => {
   // Normaliser items pour s'assurer que c'est toujours un tableau
   const itemsArray = Array.isArray(items) ? items : items ? [items] : [];
 
-  if (itemsArray.length === 0) {
+  // Afficher un spinner si en cours de chargement
+  if (loading) {
+    return (
+      <div className='flex items-center justify-center py-8'>
+        <Spinner size='lg' />
+        <span className='ml-3 text-c5'>Chargement des ressources...</span>
+      </div>
+    );
+  }
+
+  // En mode non-édition, ne rien afficher si pas d'items
+  if (!isEditing && itemsArray.length === 0) {
     return null;
   }
 
@@ -165,9 +228,24 @@ export const ItemsList: React.FC<ItemsListProps> = ({ items, mapUrl }) => {
         // Si mapUrl est fourni, créer un nouvel objet avec l'URL mappée
         const mappedItem = mapUrl ? { ...item, url: mapUrl(item) } : item;
 
-        // return <ToolItem key={item.id} tool={mappedItem} showAnnotation={showAnnotation} annotationType={annotationType} />;
-        return <ToolItem key={item.id} tool={mappedItem} />;
+        return (
+          <div key={item.id} className='relative group'>
+            <ToolItem tool={mappedItem} onNavigate={onNavigate} />
+            {/* Bouton de suppression en mode édition */}
+            {isEditing && onRemoveItem && (
+              <button
+                onClick={() => onRemoveItem(item.id)}
+                className='absolute top-2 right-2 w-6 h-6 bg-danger text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-sm'
+                title='Supprimer'>
+                ×
+              </button>
+            )}
+          </div>
+        );
       })}
+
+      {/* Carte "Ajouter" en mode édition */}
+      {isEditing && onLinkExisting && onCreateNew && <AddResourceCard resourceLabel={resourceLabel} onLinkExisting={onLinkExisting} onCreateNew={onCreateNew} />}
     </div>
   );
 };

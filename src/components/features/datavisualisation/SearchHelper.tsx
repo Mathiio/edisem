@@ -40,12 +40,12 @@ const SEARCH_CONFIGURATIONS = [
     ],
   },
   {
-    title: 'Rechercher toutes les conférences liés au "art trompeur"',
+    title: 'Rechercher tous les colloques liés au "art trompeur"',
     config: [
       {
         name: 'Groupe 1',
         isExpanded: true,
-        itemType: 'conference',
+        itemType: 'colloque',
         conditions: [
           {
             property: 'title',

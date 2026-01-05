@@ -4,14 +4,7 @@ import { Image } from '@/theme/components';
 import Logo from '@/assets/svg/logo.svg';
 import { ProfilDropdown } from '@/components/layout/ProfilDropdown';
 import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
-import {
-  ArrowIcon,
-  SeminaireIcon,
-  StudyDayIcon,
-  PratiqueNarrativeIcon,
-  ColloqueIcon,
-  ExperimentationIcon,
-} from '@/components/ui/icons';
+import { ArrowIcon, SeminaireIcon, StudyDayIcon, PratiqueNarrativeIcon, ColloqueIcon, ExperimentationIcon } from '@/components/ui/icons';
 
 interface DropdownItem {
   to: string;
@@ -27,9 +20,10 @@ interface DropdownSection {
 interface CustomDropdownProps {
   trigger: React.ReactNode;
   sections: DropdownSection[];
+  listMode?: boolean;
 }
 
-const CustomDropdown: React.FC<CustomDropdownProps> = ({ trigger, sections }) => {
+export const CustomDropdown: React.FC<CustomDropdownProps> = ({ trigger, sections, listMode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -67,7 +61,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ trigger, sections }) =>
 
       {isOpen && (
         <div
-          className='shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] absolute top-full columns-3 gap-40 p-25 shadow-2xl left-1/2 -translate-x-1/2 mt-2 bg-c2 rounded-20 border-2 border-c3 z-50 min-w-max'
+          className={`shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] absolute top-full columns-3 gap-40 p-25 shadow-2xl left-1/2 -translate-x-1/2 mt-2 bg-c2 rounded-20 border-2 border-c3 z-50 ${listMode ? 'min-w-fit' : 'min-w-max'}    `}
           style={{
             animation: isAnimating ? 'dropdownDisappear 200ms ease-in forwards' : 'dropdownAppear 200ms ease-out forwards',
           }}>
@@ -83,31 +77,22 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ trigger, sections }) =>
           `}</style>
 
           {sections.map((section, sIdx) => (
-            <div key={sIdx} className="break-inside-avoid mb-25 flex flex-col gap-5 max-w-[240px]">
-              <div className="flex flex-col">
+            <div key={sIdx} className={`break-inside-avoid mb-25 flex flex-col gap-5 ${listMode ? 'max-w-[60px]' : ' max-w-[240px] '}  `}>
+              <div className='flex flex-col'>
                 {section.items.map(({ to, label, icon: Icon, variant = 'simple' }) => {
-                  let linkClasses = "flex items-center gap-10 rounded-8 transition-all duration-200 outline-none ";
+                  let linkClasses = 'flex items-center gap-10 rounded-8 transition-all duration-200 outline-none ';
                   if (variant === 'main') {
-                    linkClasses += "text-16 font-medium text-c6 mb-1.5 px-3 py-2 hover:bg-c3 ";
+                    linkClasses += 'text-16 font-medium text-c6 mb-1.5 px-3 py-2 hover:bg-c3 ';
                   } else if (variant === 'secondary') {
-                    linkClasses += "text-16 font-normal text-c6 px-3 py-2 hover:bg-c3 ";
+                    linkClasses += 'text-16 font-normal text-c6 px-3 py-2 hover:bg-c3 ';
                   } else {
-                    linkClasses += "text-14 font-normal text-c4 px-3 py-2 hover:bg-c3 ";
+                    linkClasses += 'text-14 font-normal text-c4 px-3 py-2 hover:bg-c3 ';
                   }
 
                   return (
-                    <Link
-                      key={to}
-                      to={to}
-                      className={linkClasses}
-                      onClick={() => setIsOpen(false)}>
-                      {Icon && (
-                        <Icon
-                          size={variant === 'main' ? 18 : 12}
-                          className={variant === 'simple' ? 'text-c4' : 'text-c5'}
-                        />
-                      )}
-                      <span className="flex-1">{label}</span>
+                    <Link key={to} to={to} className={linkClasses} onClick={() => setIsOpen(false)}>
+                      {Icon && <Icon size={variant === 'main' ? 18 : 12} className={variant === 'simple' ? 'text-c4' : 'text-c5'} />}
+                      <span className='flex-1'>{label}</span>
                     </Link>
                   );
                 })}
@@ -134,25 +119,10 @@ export const Navbar: React.FC = () => {
   // Fixed link generation without top-level await in map
   useEffect(() => {
     const loadData = async () => {
-      const {
-        getEditions,
-        getSeminarConfs,
-        getColloqueConfs,
-        getStudyDayConfs
-      } = await import('@/services/Items');
+      const { getEditions, getSeminarConfs, getColloqueConfs, getStudyDayConfs } = await import('@/services/Items');
 
       try {
-        const [
-          allEditions,
-          seminarConfs,
-          colloqueConfs,
-          studyDayConfs
-        ] = await Promise.all([
-          getEditions(),
-          getSeminarConfs(),
-          getColloqueConfs(),
-          getStudyDayConfs()
-        ]);
+        const [allEditions, seminarConfs, colloqueConfs, studyDayConfs] = await Promise.all([getEditions(), getSeminarConfs(), getColloqueConfs(), getStudyDayConfs()]);
 
         const allConfs = [...seminarConfs, ...colloqueConfs, ...studyDayConfs];
         const editionConferencesCount = new Map<string, number>();
@@ -160,7 +130,6 @@ export const Navbar: React.FC = () => {
           const edId = String(c.edition);
           editionConferencesCount.set(edId, (editionConferencesCount.get(edId) || 0) + 1);
         });
-
 
         // Filter editions that have at least one conference
         const filteredEditions = allEditions.filter((e: any) => (editionConferencesCount.get(String(e.id)) || 0) > 0);
@@ -174,7 +143,7 @@ export const Navbar: React.FC = () => {
           const item = {
             to: '',
             // label: e.title,
-            label: `Édition ${e.season} ${e.year}`
+            label: `Édition ${e.season} ${e.year}`,
           };
 
           if (type.includes('colloque')) {
@@ -217,19 +186,19 @@ export const Navbar: React.FC = () => {
       {
         items: [
           { to: '/corpus/seminaires', label: 'Séminaires', icon: SeminaireIcon, variant: 'main' as const },
-          ...seminarEditions.map(e => ({ ...e, variant: 'simple' as const })),
+          ...seminarEditions.map((e) => ({ ...e, variant: 'simple' as const })),
         ],
       },
       {
         items: [
           { to: '/corpus/journees-etudes', label: "Journées d'études", icon: StudyDayIcon, variant: 'main' as const },
-          ...studyDayEditions.map(e => ({ ...e, variant: 'simple' as const })),
+          ...studyDayEditions.map((e) => ({ ...e, variant: 'simple' as const })),
         ],
       },
       {
         items: [
           { to: '/corpus/colloques', label: 'Colloques', icon: ColloqueIcon, variant: 'main' as const },
-          ...colloqueEditions.map(e => ({ ...e, variant: 'simple' as const })),
+          ...colloqueEditions.map((e) => ({ ...e, variant: 'simple' as const })),
         ],
       },
     ],
@@ -272,7 +241,7 @@ export const Navbar: React.FC = () => {
                 trigger={
                   <div className={`${linkBaseClass} ${isCorpusPathValue ? activeClass : `${hoverClass}`}`}>
                     Corpus
-                    <ArrowIcon className="text-c6 rotate-90" size={14} />
+                    <ArrowIcon className='text-c6 rotate-90' size={14} />
                   </div>
                 }
                 sections={corpusSections}
@@ -282,7 +251,7 @@ export const Navbar: React.FC = () => {
                 Intervenants
               </Link>
 
-              <Link to='/datavisualisation' className={`${linkBaseClass} ${isActive('/datavisualisation') ? activeClass : hoverClass}`}>
+              <Link to='/visualisation' className={`${linkBaseClass} ${isActive('/visualisation') ? activeClass : hoverClass}`}>
                 Datavisualisation
               </Link>
               <Link to='/espace-etudiant' className={`${linkBaseClass} ${isActive('/espace-etudiant') ? activeClass : hoverClass}`}>

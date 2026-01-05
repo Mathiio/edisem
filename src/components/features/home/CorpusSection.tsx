@@ -38,7 +38,7 @@ const corpusCards = [
   {
     id: 'StudyDayIcon',
     icon: StudyDayIcon,
-    title: 'Journées d\'études',
+    title: "Journées d'études",
     description: 'Journées de recherche et de présentation de travaux académiques.',
     path: '/corpus/journees-etudes',
   },

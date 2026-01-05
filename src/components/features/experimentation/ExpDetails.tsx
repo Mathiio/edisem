@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Skeleton } from '@heroui/react';
+import { Skeleton, Textarea, Slider, Button } from '@heroui/react';
+import { DatePicker } from '@heroui/react';
 import { motion, Variants } from 'framer-motion';
+import { parseDate } from '@internationalized/date';
+import { PlusIcon } from '@/components/ui/icons';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -22,23 +25,153 @@ type ExpDetailsProps = {
   description: string;
   date: string;
   actants: any;
+  // Props pour le mode édition
+  isEditing?: boolean;
+  percentage?: number;
+  status?: string;
+  onDescriptionChange?: (value: string) => void;
+  onDateChange?: (value: string) => void;
+  onPercentageChange?: (value: number) => void;
+  onStatusChange?: (value: string) => void;
+  onAddActant?: () => void;
 };
 
-export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({ description, date, actants }) => {
+export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
+  description = '',
+  date = '',
+  actants = [],
+  isEditing = false,
+  percentage = 0,
+  status: _status = '',
+  onDescriptionChange,
+  onDateChange,
+  onPercentageChange,
+  onStatusChange: _onStatusChange,
+  onAddActant,
+}) => {
   const [expanded, setExpanded] = useState<boolean>(false);
 
   const toggleExpansion = () => {
-    setExpanded(!expanded);
+    if (!isEditing) {
+      setExpanded(!expanded);
+    }
   };
 
-  // Check if there's any content to display
-  const hasContent = date || description || (actants && actants.length > 0);
+  // Parse date for DatePicker
+  const parsedDate = date
+    ? (() => {
+        try {
+          // Try to parse ISO format date
+          const d = new Date(date);
+          if (!isNaN(d.getTime())) {
+            return parseDate(d.toISOString().split('T')[0]);
+          }
+          return null;
+        } catch {
+          return null;
+        }
+      })()
+    : null;
 
-  // Don't render if there's no content
+  // Handle date change from DatePicker
+  const handleDateChange = (value: any) => {
+    if (value && onDateChange) {
+      onDateChange(value.toString());
+    }
+  };
+
+  // Check if there's any content to display (in edit mode, always show)
+  const hasContent = isEditing || date || description || (actants && actants.length > 0);
+
+  // Don't render if there's no content (except in edit mode)
   if (!hasContent) {
     return null;
   }
 
+  // Mode édition
+  if (isEditing) {
+    return (
+      <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
+        <motion.div variants={itemVariants} className='flex flex-col bg-c2 p-25 rounded-8 gap-20'>
+          {/* Date */}
+          <div className='flex flex-col gap-2'>
+            <label className='text-14 text-c5 font-medium'>Date</label>
+            <DatePicker
+              aria-label="Date de l'expérimentation"
+              value={parsedDate as any}
+              onChange={handleDateChange}
+              classNames={{
+                base: 'w-full',
+                inputWrapper: 'bg-c1 border border-c3 rounded-8',
+                input: 'text-c6',
+              }}
+            />
+          </div>
+
+          {/* Description */}
+          <div className='flex flex-col gap-2'>
+            <label className='text-14 text-c5 font-medium'>Description</label>
+            <Textarea
+              aria-label="Description de l'expérimentation"
+              value={description || ''}
+              onValueChange={(value) => onDescriptionChange?.(value)}
+              placeholder='Décrivez votre expérimentation...'
+              minRows={4}
+              classNames={{
+                inputWrapper: 'bg-c1 border border-c3 rounded-8',
+                input: 'text-c6 text-16',
+              }}
+            />
+          </div>
+
+          {/* Slider d'avancement */}
+          <div className='flex flex-col gap-2'>
+            <div className='flex justify-between items-center'>
+              <label className='text-14 text-c5 font-medium'>Avancement</label>
+              <span className='text-14 text-c6 font-semibold'>{percentage}%</span>
+            </div>
+            <Slider
+              aria-label="Pourcentage d'avancement"
+              size='md'
+              step={5}
+              minValue={0}
+              maxValue={100}
+              value={percentage}
+              onChange={(value) => onPercentageChange?.(value as number)}
+              classNames={{
+                track: 'bg-c3',
+                filler: 'bg-action',
+                thumb: 'bg-action',
+              }}
+            />
+            <div className='flex justify-between text-12 text-c4'>
+              <span>0%</span>
+              <span>50%</span>
+              <span>100%</span>
+            </div>
+          </div>
+
+          {/* Actants */}
+          <div className='flex flex-col gap-2'>
+            <label className='text-14 text-c5 font-medium'>Contributeurs</label>
+            <div className='flex flex-wrap gap-2 items-center'>
+              {actants &&
+                actants.map((actant: any, index: number) => (
+                  <span key={actant.id || index} className='px-3 py-1 bg-c3 text-c6 rounded-8 text-14'>
+                    {actant.name || actant.firstname + ' ' + actant.lastname}
+                  </span>
+                ))}
+              <Button size='sm' isIconOnly className='bg-c3 text-c6 hover:bg-action hover:text-selected rounded-full' onPress={onAddActant}>
+                <PlusIcon size={14} />
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    );
+  }
+
+  // Mode affichage (inchangé)
   return (
     <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
       <motion.div

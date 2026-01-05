@@ -12,4 +12,27 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  server: {
+    watch: {
+      // Activer le polling pour WSL (nécessaire quand les fichiers sont sur /mnt/c/)
+      usePolling: true,
+      interval: 1000, // Vérifier les changements toutes les 3 secondes (moins agressif)
+    },
+    hmr: true,
+    proxy: {
+      // Proxy pour l'API Omeka S - contourne CORS en dev
+      '/omk/api': {
+        target: 'https://edisem.arcanes.ca',
+        changeOrigin: true,
+        secure: true,
+      },
+      // Proxy pour l'API Omeka S tests - contourne CORS en dev
+      '/tests-api': {
+        target: 'https://tests.arcanes.ca',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/tests-api/, '/omk/api'),
+      },
+    },
+  },
 });

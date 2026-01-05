@@ -56,7 +56,6 @@ export const elementNarratifConfig: GenericDetailPageConfig = {
       key: 'References',
       title: 'Références',
       getItems: (itemDetails) => itemDetails?.references || [],
-      annotationType: 'Bibliographie',
     }),
   ],
 

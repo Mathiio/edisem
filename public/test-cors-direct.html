@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Test CORS Direct - Omeka S</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; margin-top: 0; }
+        .input-group {
+            margin: 20px 0;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.success:hover { background: #1e7e34; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 13px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .status-ok { color: #28a745; font-weight: bold; }
+        .status-fail { color: #dc3545; font-weight: bold; }
+        .test-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test CORS Direct - Serveur Omeka S</h1>
+
+        <div class="info result">
+            <strong>📋 Ce test vérifie directement votre API Omeka S</strong><br><br>
+            Pas besoin d'uploader de fichier PHP ! Ce test vérifie directement si CORS fonctionne avec votre API Omeka S.
+        </div>
+
+        <div class="input-group">
+            <label for="itemId"><strong>ID d'un item à tester :</strong></label>
+            <input type="number" id="itemId" placeholder="Ex: 21004" value="21004">
+        </div>
+
+        <div class="step">
+            <button onclick="runAllTests()" class="success" style="font-size: 18px; padding: 15px 30px;">
+                🚀 Lancer tous les tests CORS
+            </button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://edisem.arcanes.ca/omk/api/';
+        const API_KEY = 'AEqkdEaz7HLW9AIZZTZsFzR2IorGYgbg';
+        const API_IDENT = 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj';
+
+        let testResults = {
+            get: { success: false, details: '' },
+            getCors: { success: false, details: '' },
+            options: { success: false, details: '' },
+            put: { success: false, details: '' }
+        };
+
+        function getItemId() {
+            return document.getElementById('itemId').value || '21004';
+        }
+
+        function showResult(title, success, message, details = '') {
+            const resultsDiv = document.getElementById('results');
+            const className = success ? 'success' : 'error';
+            const icon = success ? '✅' : '❌';
+
+            resultsDiv.innerHTML += `
+                <div class="result ${className}">
+                    <strong>${icon} ${title}</strong><br><br>
+                    ${message}
+                    ${details ? `<pre style="margin-top: 15px; font-size: 12px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 4px;">${details}</pre>` : ''}
+                </div>
+            `;
+        }
+
+        function showWarning(title, message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `
+                <div class="result warning">
+                    <strong>⚠️ ${title}</strong><br><br>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            testResults = {
+                get: { success: false, details: '' },
+                getCors: { success: false, details: '' },
+                options: { success: false, details: '' },
+                put: { success: false, details: '' }
+            };
+        }
+
+        async function testGET() {
+            const itemId = getItemId();
+            const url = `${API_BASE}items/${itemId}`;
+
+            try {
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                testResults.get.success = true;
+                testResults.get.details = `Item ${itemId} chargé\nTitre: ${data['dcterms:title']?.[0]?.['@value'] || 'N/A'}`;
+
+                showResult(
+                    'Test 1 : GET Request (Lecture)',
+                    true,
+                    `L'API Omeka S est accessible et l'item ${itemId} existe.`,
+                    testResults.get.details
+                );
+            } catch (error) {
+                testResults.get.details = error.message;
+                showResult(
+                    'Test 1 : GET Request (Lecture)',
+                    false,
+                    'Impossible d\'accéder à l\'API Omeka S',
+                    `Erreur: ${error.message}\n\nVérifiez:\n• L'item ${itemId} existe\n• L'API est accessible\n• Pas de problème réseau`
+                );
+            }
+        }
+
+        async function testGETWithCORS() {
+            const itemId = getItemId();
+            const url = `${API_BASE}items/${itemId}`;
+
+            try {
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+                    'Access-Control-Max-Age': response.headers.get('Access-Control-Max-Age'),
+                };
+
+                const hasCors = corsHeaders['Access-Control-Allow-Origin'] !== null;
+
+                testResults.getCors.success = hasCors;
+                testResults.getCors.details = JSON.stringify(corsHeaders, null, 2);
+
+                if (hasCors) {
+                    showResult(
+                        'Test 2 : Headers CORS (GET)',
+                        true,
+                        'Les headers CORS sont présents ! Le .htaccess fonctionne.',
+                        `Headers CORS reçus:\n${testResults.getCors.details}`
+                    );
+                } else {
+                    showResult(
+                        'Test 2 : Headers CORS (GET)',
+                        false,
+                        'Les headers CORS sont ABSENTS',
+                        `Headers reçus:\n${testResults.getCors.details}\n\n❌ PROBLÈME: Le .htaccess n'a pas été uploadé ou mod_headers n'est pas activé`
+                    );
+                }
+            } catch (error) {
+                testResults.getCors.details = error.message;
+                showResult(
+                    'Test 2 : Headers CORS (GET)',
+                    false,
+                    'Erreur lors de la vérification CORS',
+                    error.message
+                );
+            }
+        }
+
+        async function testOPTIONS() {
+            const itemId = getItemId();
+            const url = `${API_BASE}items/${itemId}?key_identity=${API_IDENT}&key_credential=${API_KEY}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'PUT',
+                        'Access-Control-Request-Headers': 'Content-Type',
+                    }
+                });
+
+                testResults.options.success = response.ok || response.status === 200;
+                testResults.options.details = `Status: ${response.status} ${response.statusText}`;
+
+                if (testResults.options.success) {
+                    showResult(
+                        'Test 3 : OPTIONS (Preflight)',
+                        true,
+                        'OPTIONS fonctionne ! Les requêtes PUT/POST peuvent passer.',
+                        testResults.options.details
+                    );
+                } else {
+                    throw new Error(`Status ${response.status}`);
+                }
+            } catch (error) {
+                testResults.options.details = error.message;
+                showResult(
+                    'Test 3 : OPTIONS (Preflight)',
+                    false,
+                    'OPTIONS échoue - PUT/POST ne fonctionneront PAS',
+                    `${error.message}\n\n❌ PROBLÈME: La section RewriteRule OPTIONS dans .htaccess ne fonctionne pas\n\nCause possible:\n• mod_rewrite non activé\n• .htaccess incomplet`
+                );
+            }
+        }
+
+        async function testPUT() {
+            const itemId = getItemId();
+            const url = `${API_BASE}items/${itemId}?key_identity=${API_IDENT}&key_credential=${API_KEY}`;
+
+            try {
+                // D'abord charger l'item
+                const getResponse = await fetch(`${API_BASE}items/${itemId}`);
+                if (!getResponse.ok) {
+                    throw new Error(`Impossible de charger l'item ${itemId}`);
+                }
+                const itemData = await getResponse.json();
+
+                // Tenter un PUT (sans modification)
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(itemData),
+                });
+
+                testResults.put.success = response.ok;
+                testResults.put.details = `Status: ${response.status}`;
+
+                if (response.ok) {
+                    showResult(
+                        'Test 4 : PUT (Écriture)',
+                        true,
+                        'PUT fonctionne ! Vous pouvez modifier des données Omeka S.',
+                        `Item ${itemId} mis à jour (test à blanc, aucune donnée modifiée)`
+                    );
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`HTTP ${response.status}: ${errorData.errors?.[0]?.message || response.statusText}`);
+                }
+            } catch (error) {
+                testResults.put.details = error.message;
+                showResult(
+                    'Test 4 : PUT (Écriture)',
+                    false,
+                    'PUT échoue',
+                    `${error.message}\n\nSi OPTIONS échoue aussi, c'est normal.\nCorriger OPTIONS corrigera PUT.`
+                );
+            }
+        }
+
+        function showSummary() {
+            const allSuccess = Object.values(testResults).every(t => t.success);
+            const someSuccess = Object.values(testResults).some(t => t.success);
+
+            let diagnosis = '';
+            let recommendations = [];
+
+            if (allSuccess) {
+                diagnosis = '🎉 <strong>TOUT FONCTIONNE PARFAITEMENT !</strong><br><br>CORS est correctement configuré. Votre page de test Omeka S devrait fonctionner.';
+            } else if (!testResults.get.success) {
+                diagnosis = '❌ <strong>L\'API Omeka S n\'est pas accessible</strong><br><br>Vérifiez que l\'item existe et que l\'API fonctionne.';
+                recommendations.push('Vérifier l\'ID de l\'item (essayez un autre)');
+                recommendations.push('Vérifier que l\'API Omeka S fonctionne');
+                recommendations.push('Vérifier la connexion réseau');
+            } else if (!testResults.getCors.success) {
+                diagnosis = '❌ <strong>Headers CORS manquants</strong><br><br>Le .htaccess n\'a pas été uploadé ou mod_headers n\'est pas activé.';
+                recommendations.push('✅ UPLOADER .htaccess-omeka-secure vers /omk/.htaccess via FTP');
+                recommendations.push('Vérifier que mod_headers est activé (contacter hébergeur)');
+                recommendations.push('Vérifier que le .htaccess est lu par Apache');
+            } else if (!testResults.options.success) {
+                diagnosis = '⚠️ <strong>GET fonctionne mais OPTIONS échoue</strong><br><br>Le .htaccess est incomplet ou mod_rewrite n\'est pas activé.';
+                recommendations.push('Vérifier la section RewriteRule OPTIONS dans .htaccess');
+                recommendations.push('Vérifier que mod_rewrite est activé');
+                recommendations.push('Ré-uploader le .htaccess complet');
+            } else if (!testResults.put.success) {
+                diagnosis = '⚠️ <strong>GET et OPTIONS OK mais PUT échoue</strong><br><br>Problème avec les credentials ou permissions Omeka S.';
+                recommendations.push('Vérifier les credentials API (key_identity et key_credential)');
+                recommendations.push('Vérifier les permissions utilisateur dans Omeka S');
+            }
+
+            const summary = `
+                <div class="test-summary">
+                    <h2 style="margin-top: 0;">📊 Résumé des tests</h2>
+
+                    <table>
+                        <tr>
+                            <th>Test</th>
+                            <th>Résultat</th>
+                            <th>Détails</th>
+                        </tr>
+                        <tr>
+                            <td>1. GET (Lecture)</td>
+                            <td class="${testResults.get.success ? 'status-ok' : 'status-fail'}">
+                                ${testResults.get.success ? '✅ OK' : '❌ ÉCHEC'}
+                            </td>
+                            <td>${testResults.get.success ? 'API accessible' : 'API inaccessible'}</td>
+                        </tr>
+                        <tr>
+                            <td>2. Headers CORS</td>
+                            <td class="${testResults.getCors.success ? 'status-ok' : 'status-fail'}">
+                                ${testResults.getCors.success ? '✅ OK' : '❌ ÉCHEC'}
+                            </td>
+                            <td>${testResults.getCors.success ? 'Headers présents' : '.htaccess manquant'}</td>
+                        </tr>
+                        <tr>
+                            <td>3. OPTIONS (Preflight)</td>
+                            <td class="${testResults.options.success ? 'status-ok' : 'status-fail'}">
+                                ${testResults.options.success ? '✅ OK' : '❌ ÉCHEC'}
+                            </td>
+                            <td>${testResults.options.success ? 'Preflight OK' : 'RewriteRule manquante'}</td>
+                        </tr>
+                        <tr>
+                            <td>4. PUT (Écriture)</td>
+                            <td class="${testResults.put.success ? 'status-ok' : 'status-fail'}">
+                                ${testResults.put.success ? '✅ OK' : '❌ ÉCHEC'}
+                            </td>
+                            <td>${testResults.put.success ? 'Modification OK' : 'Écriture bloquée'}</td>
+                        </tr>
+                    </table>
+
+                    <div class="result ${allSuccess ? 'success' : 'error'}" style="margin-top: 20px;">
+                        ${diagnosis}
+                    </div>
+
+                    ${recommendations.length > 0 ? `
+                        <div class="result info" style="margin-top: 20px;">
+                            <strong>🔧 Actions recommandées :</strong><br><br>
+                            ${recommendations.map((r, i) => `${i + 1}. ${r}`).join('<br>')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('results').innerHTML += summary;
+        }
+
+        async function runAllTests() {
+            clearResults();
+
+            showResult('🚀 Tests CORS', true, 'Lancement de tous les tests...');
+
+            await new Promise(r => setTimeout(r, 500));
+            await testGET();
+
+            await new Promise(r => setTimeout(r, 1000));
+            await testGETWithCORS();
+
+            await new Promise(r => setTimeout(r, 1000));
+            await testOPTIONS();
+
+            await new Promise(r => setTimeout(r, 1000));
+            await testPUT();
+
+            await new Promise(r => setTimeout(r, 1000));
+            showSummary();
+        }
+
+        // Info au chargement
+        window.addEventListener('DOMContentLoaded', () => {
+            const info = `
+                <div class="result info">
+                    <strong>ℹ️ Informations</strong><br><br>
+                    <strong>Origin actuel :</strong> ${window.location.origin}<br>
+                    <strong>API cible :</strong> ${API_BASE}<br>
+                    <strong>Item par défaut :</strong> ${document.getElementById('itemId').value}<br><br>
+                    Ce test vérifie directement votre API Omeka S sans fichier PHP intermédiaire.
+                </div>
+            `;
+            document.getElementById('results').innerHTML = info;
+        });
+    </script>
+</body>
+</html>

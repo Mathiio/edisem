@@ -2,7 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Désactiver le ring de focus blanc par défaut de HeroUI */
+*:focus {
+  outline: none !important;
+}
 
+*:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Override HeroUI focus ring styles */
+[data-focus-visible='true'],
+[data-focused='true'] {
+  outline: none !important;
+  --tw-ring-color: transparent !important;
+  --tw-ring-shadow: none !important;
+}
+
+/* Pour les inputs HeroUI */
+.group[data-focus-visible='true'] [data-slot='input-wrapper'],
+.group[data-focused='true'] [data-slot='input-wrapper'],
+[data-slot='input-wrapper']:focus-within {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: var(--c4) !important;
+}
+
+/* Pour les selects */
+[data-slot='trigger']:focus,
+[data-slot='trigger']:focus-visible,
+[data-slot='trigger'][data-focus-visible='true'] {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: var(--c4) !important;
+}
+
+/* Remove focus ring from all HeroUI components */
+.outline-none:focus,
+.outline-none:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 0 transparent !important;
+}
+
+/* Curseur de texte (caret) en c6 */
+input,
+textarea,
+[contenteditable='true'] {
+  caret-color: var(--c6) !important;
+}
 
 ::-webkit-scrollbar {
   width: 0.8em;
@@ -27,8 +75,8 @@
 
 .scroll-container {
   overflow-y: auto;
-  padding-right: 1em; 
-  box-sizing: content-box; 
+  padding-right: 1em;
+  box-sizing: content-box;
 }
 
 .button-transition {
@@ -131,8 +179,12 @@ pre {
   background: #0f0f0f;
   z-index: 1000;
 }
-.slide-in { transform-origin: bottom; }
-.slide-out { transform-origin: top; }
+.slide-in {
+  transform-origin: bottom;
+}
+.slide-out {
+  transform-origin: top;
+}
 .pointer-cursor {
   cursor: pointer !important;
 }
@@ -165,13 +217,31 @@ pre {
   animation: l5 1s infinite linear alternate;
 }
 @keyframes l5 {
-    0%  {box-shadow: 16px 0 #fff, -16px 0 #fff2;background: #fff }
-    33% {box-shadow: 16px 0 #fff, -16px 0 #fff2;background: #fff2}
-    66% {box-shadow: 16px 0 #fff2,-16px 0 #fff; background: #fff2}
-    100%{box-shadow: 16px 0 #fff2,-16px 0 #fff; background: #fff }
+  0% {
+    box-shadow:
+      16px 0 #fff,
+      -16px 0 #fff2;
+    background: #fff;
+  }
+  33% {
+    box-shadow:
+      16px 0 #fff,
+      -16px 0 #fff2;
+    background: #fff2;
+  }
+  66% {
+    box-shadow:
+      16px 0 #fff2,
+      -16px 0 #fff;
+    background: #fff2;
+  }
+  100% {
+    box-shadow:
+      16px 0 #fff2,
+      -16px 0 #fff;
+    background: #fff;
+  }
 }
-
-
 
 @keyframes scrollLogos {
   0% {
@@ -185,7 +255,6 @@ pre {
 .animate-scrollLogos {
   animation: scrollLogos 30s linear infinite;
 }
-
 
 .fade-left {
   background: linear-gradient(to right, var(--c1) 0%, transparent 100%);
@@ -203,7 +272,6 @@ pre {
   background: linear-gradient(to bottom, var(--c1) 0%, transparent 100%);
 }
 
-
 @layer utilities {
   .translate-up {
     transform: translateY(-110px); /* Ajuste en fonction de la hauteur des cards */
@@ -211,15 +279,15 @@ pre {
 }
 
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
 
-.MuiChartsAxis-tickLabel tspan{
+.MuiChartsAxis-tickLabel tspan {
   fill: var(--c5) !important;
   font-size: 14px !important;
   transform: 'translateY(10px)' !important;

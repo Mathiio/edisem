@@ -12,7 +12,7 @@ type OverlaySelectorProps = {
 
 export default function OverlaySelector({ filters, onSelect }: OverlaySelectorProps) {
   return (
-    <div className='absolute z-[9] left-0 w-full h-[80%] bg-c1 flex flex-col items-center justify-center gap-20'>
+    <div className='absolute z-[9] left-0 w-full h-full bg-c1 flex flex-col items-center justify-center gap-20'>
       <div className='flex flex-col gap-5 justify-center items-center'>
         <p className='text-14 text-c4'>Edisem - Datavisualisation</p>
         <h1 className='text-32 text-c6'>Que recherchez vous ?</h1>

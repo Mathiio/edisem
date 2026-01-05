@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Diagnostic CORS</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; margin-top: 0; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover { background: #0056b3; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 13px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        .code {
+            background: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        ul { padding-left: 20px; }
+        li { margin: 8px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnostic CORS - Serveur Omeka S</h1>
+
+        <div class="info result">
+            <strong>📋 Instructions</strong><br><br>
+            <strong>1. Uploadez d'abord le fichier test PHP :</strong><br>
+            • Fichier local : <code>docs/omeka-edit/test-cors-simple.php</code><br>
+            • Destination serveur : <code>/omk/test-cors-simple.php</code><br>
+            • Via FTP (FileZilla, WinSCP, etc.)<br><br>
+
+            <strong>2. Cliquez sur les boutons ci-dessous pour tester</strong>
+        </div>
+
+        <div class="step">
+            <strong>Test 1 : Vérifier que PHP fonctionne</strong>
+            <button onclick="testPHP()">▶️ Tester PHP basique</button>
+            <p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">
+                Ce test vérifie si le fichier PHP est accessible et retourne des données.
+            </p>
+        </div>
+
+        <div class="step">
+            <strong>Test 2 : Vérifier CORS depuis JavaScript</strong>
+            <button onclick="testCORS()">▶️ Tester CORS</button>
+            <p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">
+                Ce test vérifie si les headers CORS permettent les requêtes cross-origin.
+            </p>
+        </div>
+
+        <div class="step">
+            <strong>Test 3 : Tester OPTIONS (Preflight)</strong>
+            <button onclick="testOPTIONS()">▶️ Tester OPTIONS</button>
+            <p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">
+                Ce test vérifie si les requêtes OPTIONS fonctionnent (nécessaire pour PUT/POST).
+            </p>
+        </div>
+
+        <div class="step">
+            <strong>Test 4 : Tester PUT</strong>
+            <button onclick="testPUT()">▶️ Tester PUT</button>
+            <p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">
+                Ce test vérifie si les requêtes PUT passent (modification de données).
+            </p>
+        </div>
+
+        <button onclick="runAllTests()" style="background: #28a745; font-size: 18px; padding: 15px 30px;">
+            🚀 Lancer tous les tests
+        </button>
+
+        <div id="results"></div>
+
+        <div class="info result" style="margin-top: 30px;">
+            <strong>🎯 Interprétation des résultats</strong><br><br>
+            <strong>Si Test 1 échoue :</strong> Le fichier PHP n'est pas uploadé ou l'URL est incorrecte<br>
+            <strong>Si Test 2 échoue :</strong> CORS ne fonctionne pas (mod_headers désactivé ou .htaccess incorrect)<br>
+            <strong>Si Test 3 échoue :</strong> OPTIONS ne fonctionne pas (problème .htaccess)<br>
+            <strong>Si Test 4 échoue :</strong> PUT bloqué (CORS ou OPTIONS)<br><br>
+
+            <strong>✅ Tous les tests passent ?</strong> Le problème est ailleurs (vérifier votre code)<br>
+            <strong>❌ Certains tests échouent ?</strong> Voir les recommandations ci-dessous
+        </div>
+    </div>
+
+    <script>
+        const PHP_URL = 'https://edisem.arcanes.ca/omk/test-cors-simple.php';
+
+        function showResult(title, success, message, details = '') {
+            const resultsDiv = document.getElementById('results');
+            const className = success ? 'success' : 'error';
+            const icon = success ? '✅' : '❌';
+
+            resultsDiv.innerHTML += `
+                <div class="result ${className}">
+                    <strong>${icon} ${title}</strong><br><br>
+                    ${message}
+                    ${details ? `<pre style="margin-top: 15px; font-size: 12px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 4px;">${details}</pre>` : ''}
+                </div>
+            `;
+        }
+
+        function showWarning(title, message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `
+                <div class="result warning">
+                    <strong>⚠️ ${title}</strong><br><br>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testPHP() {
+            clearResults();
+            try {
+                const response = await fetch(PHP_URL);
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResult(
+                        'Test PHP',
+                        true,
+                        'Le fichier PHP est accessible et fonctionne !',
+                        JSON.stringify(data, null, 2)
+                    );
+
+                    // Analyser les informations
+                    if (!data.server_info?.mod_headers_enabled) {
+                        showWarning(
+                            'mod_headers probablement désactivé',
+                            'Le module mod_headers ne semble pas activé.<br>' +
+                            'Contactez votre hébergeur pour l\'activer.<br>' +
+                            'Sans ce module, CORS ne peut pas fonctionner via .htaccess.'
+                        );
+                    }
+
+                    if (!data.htaccess_check?.file_exists) {
+                        showWarning(
+                            '.htaccess non trouvé',
+                            'Le fichier .htaccess n\'a pas été trouvé dans /omk/<br>' +
+                            'Assurez-vous de l\'avoir uploadé au bon endroit.'
+                        );
+                    } else if (data.htaccess_check?.file_size < 2000) {
+                        showWarning(
+                            '.htaccess trop petit',
+                            `Taille actuelle : ${data.htaccess_check.file_size} octets<br>` +
+                            'Le fichier semble trop petit. Vérifiez son contenu.'
+                        );
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult(
+                    'Test PHP',
+                    false,
+                    'Impossible d\'accéder au fichier PHP',
+                    `Erreur: ${error.message}\n\n` +
+                    `Vérifiez que le fichier test-cors-simple.php est bien uploadé sur:\n` +
+                    `${PHP_URL}`
+                );
+            }
+        }
+
+        async function testCORS() {
+            clearResults();
+            try {
+                const response = await fetch(PHP_URL, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+                };
+
+                if (corsHeaders['Access-Control-Allow-Origin']) {
+                    showResult(
+                        'Test CORS',
+                        true,
+                        'CORS fonctionne ! Les headers sont présents.',
+                        `Headers reçus:\n${JSON.stringify(corsHeaders, null, 2)}`
+                    );
+                } else {
+                    showWarning(
+                        'Headers CORS manquants',
+                        'Les requêtes passent mais les headers CORS ne sont pas présents.<br>' +
+                        'Cela peut causer des problèmes avec PUT/POST.<br><br>' +
+                        'Solutions possibles:<br>' +
+                        '• mod_headers n\'est pas activé<br>' +
+                        '• .htaccess n\'est pas lu<br>' +
+                        '• Configuration incorrecte'
+                    );
+                }
+            } catch (error) {
+                showResult(
+                    'Test CORS',
+                    false,
+                    'Erreur CORS détectée',
+                    `${error.message}\n\n` +
+                    `Cette erreur indique que le navigateur bloque la requête.\n` +
+                    `Les headers CORS ne sont pas correctement configurés.`
+                );
+            }
+        }
+
+        async function testOPTIONS() {
+            clearResults();
+            try {
+                const response = await fetch(PHP_URL, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'PUT',
+                        'Access-Control-Request-Headers': 'Content-Type',
+                    }
+                });
+
+                if (response.ok || response.status === 200) {
+                    showResult(
+                        'Test OPTIONS (Preflight)',
+                        true,
+                        'OPTIONS fonctionne ! Les requêtes PUT/POST devraient passer.',
+                        `Status: ${response.status}\n` +
+                        `Les requêtes préflight sont autorisées.`
+                    );
+                } else {
+                    throw new Error(`Status ${response.status}`);
+                }
+            } catch (error) {
+                showResult(
+                    'Test OPTIONS (Preflight)',
+                    false,
+                    'OPTIONS échoue - PUT/POST ne fonctionneront pas',
+                    `${error.message}\n\n` +
+                    `Le serveur doit gérer les requêtes OPTIONS.\n` +
+                    `Vérifiez la section RewriteRule dans .htaccess.`
+                );
+            }
+        }
+
+        async function testPUT() {
+            clearResults();
+            try {
+                const response = await fetch(PHP_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ test: 'data' })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResult(
+                        'Test PUT',
+                        true,
+                        'PUT fonctionne ! Vous pouvez modifier des données.',
+                        JSON.stringify(data, null, 2)
+                    );
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                showResult(
+                    'Test PUT',
+                    false,
+                    'PUT échoue',
+                    `${error.message}\n\n` +
+                    `Si OPTIONS échoue aussi, c'est normal.\n` +
+                    `Corriger OPTIONS devrait corriger PUT.`
+                );
+            }
+        }
+
+        async function runAllTests() {
+            clearResults();
+            showResult('Tests en cours', true, 'Lancement de tous les tests...');
+
+            await new Promise(r => setTimeout(r, 500));
+            await testPHP();
+
+            await new Promise(r => setTimeout(r, 1000));
+            await testCORS();
+
+            await new Promise(r => setTimeout(r, 1000));
+            await testOPTIONS();
+
+            await new Promise(r => setTimeout(r, 1000));
+            await testPUT();
+
+            showResult('Tests terminés', true, 'Tous les tests sont terminés. Analysez les résultats ci-dessus.');
+        }
+    </script>
+</body>
+</html>

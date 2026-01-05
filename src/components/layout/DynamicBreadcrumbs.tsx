@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useParams, Link } from 'react-router-dom';
 import { Breadcrumbs, BreadcrumbItem, Spinner } from '@heroui/react';
+import { useNavigationTrail } from '@/hooks/useNavigationTrail';
+import { HomeIcon } from '@/components/ui/icons';
 
 interface LoadingBreadcrumbItemProps {
   label: string;
@@ -18,161 +20,8 @@ interface BreadcrumbConfig {
   label: string;
   href?: string;
   isLoading?: boolean;
+  isHome?: boolean;
 }
-
-/**
- * Génère les breadcrumbs en fonction de l'URL actuelle
- */
-const generateBreadcrumbs = (pathname: string, params: any, itemTitle?: string): BreadcrumbConfig[] => {
-  const isItemLoading = !itemTitle;
-  const breadcrumbs: BreadcrumbConfig[] = [{ label: 'Accueil', href: '/' }];
-
-  // Découpe le chemin en segments
-  const segments = pathname.split('/').filter(Boolean);
-
-  // Gestion des différentes routes
-  if (segments[0] === 'corpus') {
-    // Ne pas ajouter "Corpus" car ce n'est pas une page
-
-    // Routes de collection (séminaires, colloques, etc.)
-    if (segments[1] === 'seminaires') {
-      breadcrumbs.push({ label: 'Séminaires', href: '/corpus/seminaires' });
-
-      if (segments[2] === 'conference' && params.id) {
-        breadcrumbs.push({
-          label: itemTitle || `Conférence`,
-          href: `/corpus/seminaires/conference/${params.id}`,
-          isLoading: isItemLoading,
-        });
-      }
-    } else if (segments[1] === 'colloques') {
-      breadcrumbs.push({ label: 'Colloques', href: '/corpus/colloques' });
-
-      if (segments[2] === 'conference' && params.id) {
-        breadcrumbs.push({
-          label: itemTitle || `Conférence`,
-          href: `/corpus/colloques/conference/${params.id}`,
-          isLoading: isItemLoading,
-        });
-      }
-    } else if (segments[1] === 'journees-etudes') {
-      breadcrumbs.push({ label: "Journées d'études", href: '/corpus/journees-etudes' });
-
-      if (segments[2] === 'conference' && params.id) {
-        breadcrumbs.push({
-          label: itemTitle || `Conférence`,
-          href: `/corpus/journees-etudes/conference/${params.id}`,
-          isLoading: isItemLoading,
-        });
-      }
-    } else if (segments[1] === 'pratiques-narratives') {
-      breadcrumbs.push({ label: 'Pratiques narratives', href: '/corpus/pratiques-narratives' });
-    } else if (segments[1] === 'mise-en-recits') {
-      breadcrumbs.push({ label: 'Mise en récits', href: '/corpus/mise-en-recits' });
-
-      if (segments[2] === 'mise-en-recit' && params.id) {
-        breadcrumbs.push({
-          label: itemTitle || `Mise en récit`,
-          isLoading: isItemLoading,
-        });
-      }
-    } else if (segments[1] === 'mise-en-recit' && params.id) {
-      breadcrumbs.push({ label: 'Mise en récits', href: '/corpus/mise-en-recits' });
-      breadcrumbs.push({
-        label: itemTitle || `Mise en récit`,
-        isLoading: isItemLoading,
-      });
-    } else if (segments[1] === 'experimentations') {
-      breadcrumbs.push({ label: 'Expérimentations', href: '/corpus/experimentations' });
-
-      if (segments[2] === 'experimentation' && params.id) {
-        breadcrumbs.push({
-          label: itemTitle || `Expérimentation`,
-          isLoading: isItemLoading,
-        });
-      }
-    } else if (segments[1] === 'experimentation' && params.id) {
-      breadcrumbs.push({ label: 'Expérimentations', href: '/corpus/experimentations' });
-      breadcrumbs.push({
-        label: itemTitle || `Expérimentation #${params.id}`,
-        isLoading: isItemLoading,
-      });
-    } else if (segments[1] === 'recits-artistiques') {
-      breadcrumbs.push({ label: 'Récits artistiques', href: '/corpus/recits-artistiques' });
-
-      if (segments[2] === 'genre' && params.slug) {
-        breadcrumbs.push({
-          label: params.slug,
-        });
-      }
-    } else if (segments[1] === 'recit-artistique' && params.id) {
-      breadcrumbs.push({ label: 'Récits artistiques', href: '/corpus/recits-artistiques' });
-      breadcrumbs.push({
-        label: itemTitle || `Récit artistique`,
-        isLoading: isItemLoading,
-      });
-    } else if (segments[1] === 'element-narratif' && params.id) {
-      breadcrumbs.push({ label: 'Éléments narratifs' });
-      breadcrumbs.push({
-        label: itemTitle || `Élément narratif`,
-        isLoading: isItemLoading,
-      });
-    } else if (segments[1] === 'element-esthetique' && params.id) {
-      breadcrumbs.push({ label: 'Éléments esthétiques' });
-      breadcrumbs.push({
-        label: itemTitle || `Élément esthétique`,
-        isLoading: isItemLoading,
-      });
-    } else if (segments[1] === 'analyse-critique' && params.id) {
-      breadcrumbs.push({ label: 'Analyses critiques' });
-      breadcrumbs.push({
-        label: itemTitle || `Analyse critique`,
-        isLoading: isItemLoading,
-      });
-    } else if (segments[1] === 'recit-techno-industriel' && params.id) {
-      breadcrumbs.push({ label: 'Récit techno-industriel' });
-      breadcrumbs.push({
-        label: itemTitle || `Objet techno`,
-        isLoading: isItemLoading,
-      });
-    } else if (segments[1] === 'tool' && params.id) {
-      breadcrumbs.push({ label: 'Outils' });
-      breadcrumbs.push({
-        label: itemTitle || `Outil`,
-        isLoading: isItemLoading,
-      });
-    } else if (segments[1] === 'recit-scientifique' && params.id) {
-      breadcrumbs.push({ label: 'Récit scientifique' });
-      breadcrumbs.push({
-        label: itemTitle || `Documentation`,
-        isLoading: isItemLoading,
-      });
-    }
-  } else if (segments[0] === 'intervenant' || segments[0] === 'intervenants') {
-    breadcrumbs.push({ label: 'Intervenants', href: '/intervenants' });
-
-    if (params.id) {
-      breadcrumbs.push({
-        label: itemTitle || `Intervenant #${params.id}`,
-        isLoading: isItemLoading,
-      });
-    }
-  } else if (segments[0] === 'visualisation') {
-    breadcrumbs.push({ label: 'Visualisation' });
-  } else if (segments[0] === 'database') {
-    breadcrumbs.push({ label: 'Base de données' });
-  } else if (segments[0] === 'recherche') {
-    breadcrumbs.push({ label: 'Recherche' });
-  } else if (segments[0] === 'feedback' && params.id) {
-    breadcrumbs.push({ label: 'Feedbacks' });
-    breadcrumbs.push({
-      label: itemTitle || `Feedback #${params.id}`,
-      isLoading: isItemLoading,
-    });
-  }
-
-  return breadcrumbs;
-};
 
 interface DynamicBreadcrumbsProps {
   /**
@@ -193,7 +42,12 @@ interface DynamicBreadcrumbsProps {
 }
 
 /**
- * Composant Breadcrumbs dynamique qui s'adapte automatiquement à la route actuelle
+ * Composant Breadcrumbs dynamique qui affiche le chemin de navigation parcouru
+ *
+ * Ce composant utilise le NavigationTrailContext pour afficher le chemin
+ * de navigation de l'utilisateur. Le trail s'accumule quand l'utilisateur
+ * navigue entre des pages de détail et se réinitialise quand il visite
+ * une page de liste/grille ou la page d'accueil.
  *
  * @example
  * // Usage basique
@@ -206,27 +60,65 @@ interface DynamicBreadcrumbsProps {
 export const DynamicBreadcrumbs: React.FC<DynamicBreadcrumbsProps> = ({ itemTitle, underline = 'hover', className = '' }) => {
   const location = useLocation();
   const params = useParams();
+  const { trail, updateCurrentTitle } = useNavigationTrail();
 
-  const breadcrumbs = generateBreadcrumbs(location.pathname, params, itemTitle);
-
-  // Debug logging
-  console.log('🔍 DynamicBreadcrumbs Debug:', {
-    pathname: location.pathname,
-    params,
-    itemTitle,
-    breadcrumbsCount: breadcrumbs.length,
-    breadcrumbs,
-  });
+  // Mettre à jour le titre de la page courante quand il est chargé
+  useEffect(() => {
+    if (itemTitle) {
+      updateCurrentTitle(itemTitle);
+    }
+  }, [itemTitle, updateCurrentTitle]);
 
   // Ne rien afficher si on est sur la page d'accueil
   if (location.pathname === '/') {
     return null;
   }
 
+  // Construire les breadcrumbs à partir du trail
+  const breadcrumbs: BreadcrumbConfig[] = [{ label: '', href: '/', isHome: true }];
+
+  // Ajouter chaque élément du trail
+  trail.forEach((item) => {
+    const isCurrentPage = item.path === location.pathname;
+    const displayLabel = item.title || item.label;
+    // Ne pas afficher le spinner pour les pages de grille (elles ont déjà un label fixe)
+    // Le spinner s'affiche seulement pour les pages de détail en attente de titre
+    const isLoading = isCurrentPage && !itemTitle && !item.isGridPage;
+
+    breadcrumbs.push({
+      label: displayLabel,
+      href: isCurrentPage ? undefined : item.path,
+      isLoading: isLoading,
+    });
+  });
+
+  // Si le trail est vide mais qu'on est sur une page de détail,
+  // ajouter un breadcrumb basique (fallback)
+  // Note: On vérifie si la page courante n'est pas déjà dans le trail
+  const currentPageInTrail = trail.some((item) => item.path === location.pathname);
+  if (!currentPageInTrail && params.id) {
+    const isLoading = !itemTitle;
+    breadcrumbs.push({
+      label: itemTitle || 'Chargement...',
+      isLoading: isLoading,
+    });
+  }
+
   return (
     <Breadcrumbs underline={underline} className={className}>
       {breadcrumbs.map((crumb, index) => {
         const isLast = index === breadcrumbs.length - 1;
+
+        // Rendu spécial pour l'icône maison
+        if (crumb.isHome) {
+          return (
+            <BreadcrumbItem key='home' isCurrent={isLast}>
+              <Link to='/' className='flex items-center hover:opacity-80 transition-opacity '>
+                <HomeIcon size={18} />
+              </Link>
+            </BreadcrumbItem>
+          );
+        }
 
         return (
           <BreadcrumbItem key={`${crumb.href || crumb.label}-${index}`} isCurrent={isLast}>
