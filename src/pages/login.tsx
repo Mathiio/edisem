@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, Tab, Input, Button } from '@heroui/react';
+import { Tabs, Tab, Input, Button, Spinner } from '@heroui/react';
 import { getActants } from '@/services/Items';
 import { getStudentsForLogin, Student } from '@/services/StudentSpace';
 import { useAuth } from '@/hooks/useAuth';
@@ -45,54 +45,56 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     setSubmitting(true);
 
-    try {
-      if (selected === 'Actant') {
-        const foundActant = actants?.find((actant: { mail: string }) => actant.mail === email);
-        if (foundActant && password === apiKey) {
-          // Les actants n'ont pas d'omekaUserId pour l'instant
-          login(foundActant, String(foundActant.id));
-          navigate('/');
-        } else {
-          if (!foundActant) {
-            alert('Email non reconnu');
+    // Utiliser requestAnimationFrame pour forcer le rendu du loader avant d'exécuter la logique
+    requestAnimationFrame(() => {
+      requestAnimationFrame(async () => {
+        try {
+          if (selected === 'Actant') {
+            const foundActant = actants?.find((actant: { mail: string }) => actant.mail === email);
+            if (foundActant && password === apiKey) {
+              login(foundActant, String(foundActant.id));
+              navigate('/');
+            } else {
+              if (!foundActant) {
+                alert('Email non reconnu');
+              } else {
+                alert('Mot de passe incorrect');
+              }
+              setSubmitting(false);
+            }
           } else {
-            alert('Mot de passe incorrect');
+            // Rechercher l'étudiant par email ET numéro étudiant
+            const foundStudent = students?.find((student) => student.mail === email && student.studentNumber === studentNumber);
+            if (foundStudent) {
+              // Mapper Student vers UserData et passer l'omekaUserId pour que o:owner soit correctement défini
+              const userData = {
+                id: foundStudent.id,
+                firstname: foundStudent.firstname,
+                lastname: foundStudent.lastname,
+                picture: foundStudent.picture || undefined,
+                type: 'student' as const,
+                omekaUserId: foundStudent.omekaUserId,
+              };
+              login(userData, String(foundStudent.id), foundStudent.omekaUserId);
+              navigate('/');
+            } else {
+              // Vérifier si c'est l'email ou le numéro qui ne correspond pas
+              const studentByEmail = students?.find((student) => student.mail === email);
+              if (!studentByEmail) {
+                alert('Email non reconnu');
+              } else {
+                alert('Numéro étudiant incorrect');
+              }
+              setSubmitting(false);
+            }
           }
+        } catch (error) {
+          console.error('Login error:', error);
+          alert('Erreur lors de la connexion');
           setSubmitting(false);
         }
-      } else {
-        // Rechercher l'étudiant par email ET numéro étudiant
-        const foundStudent = students?.find(
-          (student) => student.mail === email && student.studentNumber === studentNumber
-        );
-        if (foundStudent) {
-          // Mapper Student vers UserData et passer l'omekaUserId pour que o:owner soit correctement défini
-          const userData = {
-            id: foundStudent.id,
-            firstname: foundStudent.firstname,
-            lastname: foundStudent.lastname,
-            picture: foundStudent.picture || undefined,
-            type: 'student' as const,
-            omekaUserId: foundStudent.omekaUserId,
-          };
-          login(userData, String(foundStudent.id), foundStudent.omekaUserId);
-          navigate('/');
-        } else {
-          // Vérifier si c'est l'email ou le numéro qui ne correspond pas
-          const studentByEmail = students?.find((student) => student.mail === email);
-          if (!studentByEmail) {
-            alert('Email non reconnu');
-          } else {
-            alert('Numéro étudiant incorrect');
-          }
-          setSubmitting(false);
-        }
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      alert('Erreur lors de la connexion');
-      setSubmitting(false);
-    }
+      });
+    });
   };
 
   return (
@@ -147,12 +149,8 @@ export const LoginPage: React.FC = () => {
                 onChange={(e) => setStudentNumber(e.target.value)}
               />
               <div className='flex w-full flex-col pt-4 justify-center items-center'>
-                <Button
-                  type='submit'
-                  className='w-fit px-3 h-[40px] bg-action text-selected'
-                  isLoading={submitting}
-                  isDisabled={submitting}>
-                  Se connecter
+                <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected' isLoading={submitting} spinner={<Spinner size='sm' color='current' />}>
+                  {submitting ? 'Connexion...' : 'Se connecter'}
                 </Button>
               </div>
             </form>
@@ -193,12 +191,8 @@ export const LoginPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
               <div className='flex w-full flex-col pt-4 justify-center items-center'>
-                <Button
-                  type='submit'
-                  className='w-fit px-3 h-[40px] bg-action text-selected'
-                  isLoading={submitting}
-                  isDisabled={submitting}>
-                  Se connecter
+                <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected' isLoading={submitting} spinner={<Spinner size='sm' color='current' />}>
+                  {submitting ? 'Connexion...' : 'Se connecter'}
                 </Button>
               </div>
             </form>
