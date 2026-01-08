@@ -4,7 +4,7 @@ import { UniversityIcon, ExperimentationIcon, SettingsIcon, CitationIcon, School
 import { motion, Variants } from 'framer-motion';
 import { ExpCard, ExpCardSkeleton } from '@/components/features/experimentation/ExpCards';
 import { useEffect, useState } from 'react';
-import { getCourses, getResourcesByCourse, type AllStudentResources, type StudentResourceCard, type Course } from '@/services/StudentSpace';
+import { getCourses, getResourcesByCourse, getTeacherResources, type AllStudentResources, type StudentResourceCard, type Course } from '@/services/StudentSpace';
 import { CorpusSection } from '@/components/features/home/CorpusSection';
 
 const fadeIn: Variants = {
@@ -41,6 +41,11 @@ export const EspaceEtudiant: React.FC = () => {
   const [coursesWithResources, setCoursesWithResources] = useState<CourseWithResources[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [filters, setFilters] = useState<Record<number, 'all' | 'experimentation' | 'tool' | 'feedback'>>({});
+
+  // État pour les ressources enseignantes
+  const [teacherResources, setTeacherResources] = useState<AllStudentResources | null>(null);
+  const [loadingTeacher, setLoadingTeacher] = useState(true);
+  const [teacherFilter, setTeacherFilter] = useState<'all' | 'experimentation' | 'tool' | 'feedback'>('all');
 
   // Charger les cours et leurs ressources
   useEffect(() => {
@@ -91,6 +96,24 @@ export const EspaceEtudiant: React.FC = () => {
     fetchCoursesAndResources();
   }, []);
 
+  // Charger les ressources enseignantes
+  useEffect(() => {
+    const fetchTeacherResources = async () => {
+      setLoadingTeacher(true);
+      try {
+        const resources = await getTeacherResources();
+        setTeacherResources(resources);
+      } catch (error) {
+        console.error('Error loading teacher resources:', error);
+        setTeacherResources(null);
+      } finally {
+        setLoadingTeacher(false);
+      }
+    };
+
+    fetchTeacherResources();
+  }, []);
+
   // Obtenir les ressources filtrées d'un cours
   const getFilteredResourcesForCourse = (courseId: number, resources: AllStudentResources | null): StudentResourceCard[] => {
     if (!resources) return [];
@@ -117,6 +140,28 @@ export const EspaceEtudiant: React.FC = () => {
     setFilters((prev) => ({ ...prev, [courseId]: filter }));
   };
 
+  // Obtenir les ressources enseignantes filtrées
+  const getFilteredTeacherResources = (): StudentResourceCard[] => {
+    if (!teacherResources) return [];
+
+    if (teacherFilter === 'all') {
+      return [...teacherResources.experimentations, ...teacherResources.tools, ...teacherResources.feedbacks].sort(
+        (a, b) => new Date(b.created || 0).getTime() - new Date(a.created || 0).getTime(),
+      );
+    }
+
+    switch (teacherFilter) {
+      case 'experimentation':
+        return teacherResources.experimentations;
+      case 'tool':
+        return teacherResources.tools;
+      case 'feedback':
+        return teacherResources.feedbacks;
+      default:
+        return [];
+    }
+  };
+
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
       <PageBanner
@@ -128,6 +173,73 @@ export const EspaceEtudiant: React.FC = () => {
         icon={<UniversityIcon />}
         description="Un espace collaboratif dédié au partage d'expérimentations, de retours d'expérience et d'outils, afin de nourrir une dynamique collective d'apprentissage et d'innovation."
       />
+
+      {/* Section Ressources Enseignantes */}
+      {!loadingTeacher && teacherResources && teacherResources.total > 0 && (
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className='flex flex-col gap-50'>
+          {/* En-tête de la section enseignants */}
+          <div className='flex justify-between items-start gap-15 h-full'>
+            <div className='flex items-start gap-15 bg-action/10 px-25 py-15 rounded-20 border-2 border-action/30 h-full'>
+              <div className='pt-2'>
+                <UniversityIcon size={20} className='text-action' />
+              </div>
+              <div className='flex flex-col gap-10'>
+                <h2 className='text-20 font-semibold text-c6'>Ressources enseignantes</h2>
+                <span className='text-c4 text-14'>Ressources partagées par les enseignants et chercheurs</span>
+              </div>
+            </div>
+
+            {/* Filtres par type */}
+            <div className='flex gap-15'>
+              {(['all', 'experimentation', 'tool', 'feedback'] as const).map((type) => {
+                const isActive = teacherFilter === type;
+                const Icon = type !== 'all' ? resourceTypeConfig[type].icon : null;
+                const count = (() => {
+                  if (!teacherResources) return 0;
+                  if (type === 'all') return teacherResources.total;
+                  if (type === 'experimentation') return teacherResources.experimentations.length;
+                  if (type === 'tool') return teacherResources.tools.length;
+                  if (type === 'feedback') return teacherResources.feedbacks.length;
+                  return 0;
+                })();
+
+                return (
+                  <motion.button
+                    key={type}
+                    onClick={() => setTeacherFilter(type)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`px-15 py-10 rounded-8 border-2 transition-all ease-in-out duration-200 flex items-center gap-10
+                      ${isActive ? 'shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-action/50 bg-action/10 text-c6' : 'border-c3 text-c5 hover:bg-c2 hover:border-c4'}`}>
+                    {Icon && <Icon className='w-[14px] h-[14px]' />}
+                    <span className='text-16 font-medium'>{type === 'all' ? 'Tout' : resourceTypeConfig[type].label}</span>
+                    <span className='text-14 text-c4 font-light'>{count}</span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Grille des ressources enseignantes */}
+          <div className='grid grid-cols-4 w-full gap-25'>
+            {getFilteredTeacherResources().map((item, index) => (
+              <motion.div key={`teacher-${item.type}-${item.id}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
+                <ExpCard
+                  id={String(item.id)}
+                  title={item.title}
+                  thumbnail={item.thumbnail ? `https://tests.arcanes.ca/omk${item.thumbnail}` : undefined}
+                  actants={item.actants?.map((a) => ({
+                    id: String(a.id),
+                    title: a.title,
+                    picture: a.picture ? `https://tests.arcanes.ca/omk${a.picture}` : undefined,
+                  }))}
+                  type={item.type === 'experimentation' ? 'experimentationStudents' : item.type}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+      )}
 
       {/* Sections par cours */}
       {loadingCourses ? (

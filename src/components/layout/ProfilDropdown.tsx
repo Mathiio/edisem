@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCallback, useMemo } from 'react';
-import { UserIcon, VisualisationIcon, Logout, SunIcon, MoonIcon } from '@/components/ui/icons';
+import { UserIcon, Logout, SunIcon, MoonIcon } from '@/components/ui/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem, User } from '@heroui/react';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { useAuth } from '@/hooks/useAuth';
@@ -94,10 +94,10 @@ export const ProfilDropdown = () => {
             <DropdownSection>
               {userTypeValue === 'actant' ? (
                 <>
-                  <DropdownItem key='visualisation' className='p-0 hover:text-c6 text-c5'>
-                    <Link to='/visualisation' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
-                      <VisualisationIcon size={16} />
-                      <p className='text-16 text-extralight'>Datavisualisation</p>
+                  <DropdownItem key='mon-espace' className='p-0 hover:text-c6 text-c5'>
+                    <Link to='/mon-espace' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
+                      <UserIcon size={16} />
+                      <p className='text-16 text-extralight'>Mon espace</p>
                     </Link>
                   </DropdownItem>
                   <DropdownItem key='adminStudent' className='p-0 hover:text-c6 text-c5'>

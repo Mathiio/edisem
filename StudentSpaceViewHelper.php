@@ -18,7 +18,8 @@ class StudentSpaceViewHelper extends AbstractHelper
         'experimentation' => 127,  // Expérimentation étudiante
         'feedback' => 128,         // Retour d'expérience
         'tool' => 129,             // Outil
-        'student' => 96,           // Étudiant (actant)
+        'student' => 96,           // Étudiant
+        'actant' => 72,            // Actant (enseignant/chercheur)
         'course' => 130,           // Cours
     ];
 
@@ -47,6 +48,18 @@ class StudentSpaceViewHelper extends AbstractHelper
     {
         $this->api = $api;
         $this->conn = $conn;
+    }
+
+    /**
+     * Normalise l'extension d'image (jpeg -> jpg)
+     * Omeka S stocke 'jpeg' dans la DB mais les fichiers utilisent 'jpg'
+     */
+    private function normalizeExtension($extension)
+    {
+        if (strtolower($extension) === 'jpeg') {
+            return 'jpg';
+        }
+        return $extension;
     }
 
     public function __invoke($params = [])
@@ -216,6 +229,48 @@ class StudentSpaceViewHelper extends AbstractHelper
             case 'getResourcesByCourse':
                 $courseId = isset($params['courseId']) ? (int)$params['courseId'] : 0;
                 $result = $this->getResourcesByCourse($courseId);
+                break;
+
+            // ========== ACTANT ACTIONS ==========
+
+            // Liste des actants avec leur ID utilisateur Omeka S
+            case 'getActants':
+                $result = $this->getActantsWithOmekaId();
+                break;
+
+            // Lier un actant à un utilisateur Omeka S
+            case 'linkActantToUser':
+                $actantId = isset($params['actantId']) ? (int)$params['actantId'] : 0;
+                $userId = isset($params['userId']) ? (int)$params['userId'] : 0;
+                $result = $this->linkActantToUser($actantId, $userId);
+                break;
+
+            // Récupérer les ressources enseignantes (créées par les actants)
+            case 'getTeacherResources':
+                $result = $this->getTeacherResources();
+                break;
+
+            // Créer un utilisateur Omeka S pour un actant
+            case 'createOmekaUserForActant':
+                $actantId = isset($params['actantId']) ? (int)$params['actantId'] : 0;
+                $email = isset($params['email']) ? $params['email'] : '';
+                $name = isset($params['name']) ? $params['name'] : '';
+                $role = isset($params['role']) ? $params['role'] : 'author';
+                $result = $this->createOmekaUserForActant($actantId, $email, $name, $role);
+                break;
+
+            // ========== RESOURCE MANAGEMENT ACTIONS ==========
+
+            // Récupérer toutes les ressources avec leur cours associé (pour admin)
+            case 'getAllResourcesAdmin':
+                $result = $this->getAllResourcesAdmin();
+                break;
+
+            // Mettre à jour le cours d'une ressource
+            case 'updateResourceCourse':
+                $resourceId = isset($params['resourceId']) ? (int)$params['resourceId'] : 0;
+                $courseId = isset($params['courseId']) && $params['courseId'] !== '' ? (int)$params['courseId'] : null;
+                $result = $this->updateResourceCourse($resourceId, $courseId);
                 break;
 
             default:
@@ -737,7 +792,7 @@ class StudentSpaceViewHelper extends AbstractHelper
                             break;
                         case 1701: // foaf:depiction (picture)
                             if ($value['storage_id'] && $value['extension']) {
-                                $student['picture'] = 'https://tests.arcanes.ca/omk/files/square/' . $value['storage_id'] . '.' . $value['extension'];
+                                $student['picture'] = 'https://tests.arcanes.ca/omk/files/original/' . $value['storage_id'] . '.' . $this->normalizeExtension($value['extension']);
                             }
                             break;
                         default:
@@ -782,7 +837,12 @@ class StudentSpaceViewHelper extends AbstractHelper
         $media = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($media && $media['storage_id'] && $media['extension']) {
-            return 'https://tests.arcanes.ca/omk/files/square/' . $media['storage_id'] . '.' . $media['extension'];
+            $ext = $this->normalizeExtension($media['extension']);
+            $baseUrl = 'https://tests.arcanes.ca/omk/files/';
+            $filename = $media['storage_id'] . '.' . $ext;
+
+            // Utiliser original car square n'existe pas toujours (notamment pour les PNG)
+            return $baseUrl . 'original/' . $filename;
         }
 
         return null;
@@ -886,7 +946,7 @@ class StudentSpaceViewHelper extends AbstractHelper
                             break;
                         case 1701:
                             if ($value['storage_id'] && $value['extension']) {
-                                $student['picture'] = 'https://tests.arcanes.ca/omk/files/square/' . $value['storage_id'] . '.' . $value['extension'];
+                                $student['picture'] = 'https://tests.arcanes.ca/omk/files/original/' . $value['storage_id'] . '.' . $this->normalizeExtension($value['extension']);
                             }
                             break;
                         default:
@@ -1736,7 +1796,8 @@ class StudentSpaceViewHelper extends AbstractHelper
     }
 
     /**
-     * Récupérer les ressources (expérimentations, outils, feedbacks) des étudiants d'un cours
+     * Récupérer les ressources (expérimentations, outils, feedbacks) liées à un cours
+     * Utilise dcterms:isPartOf (property_id: 33) pour lier les ressources aux cours
      */
     private function getResourcesByCourse($courseId)
     {
@@ -1744,23 +1805,10 @@ class StudentSpaceViewHelper extends AbstractHelper
             return ['error' => 'courseId requis'];
         }
 
-        // D'abord, récupérer les étudiants du cours
-        $students = $this->getCourseStudents($courseId);
-        if (empty($students) || isset($students['error'])) {
-            return [
-                'experimentations' => [],
-                'tools' => [],
-                'feedbacks' => [],
-                'total' => 0
-            ];
-        }
-
-        $studentIds = array_column($students, 'id');
-
-        // Récupérer les ressources créées par ces étudiants (via owner_id ou contributor)
-        $experimentations = $this->getResourcesByStudents($studentIds, 'experimentation');
-        $tools = $this->getResourcesByStudents($studentIds, 'tool');
-        $feedbacks = $this->getResourcesByStudents($studentIds, 'feedback');
+        // Récupérer les ressources liées au cours via dcterms:isPartOf (property_id = 33)
+        $experimentations = $this->getResourcesByCourseAndType($courseId, 'experimentation');
+        $tools = $this->getResourcesByCourseAndType($courseId, 'tool');
+        $feedbacks = $this->getResourcesByCourseAndType($courseId, 'feedback');
 
         return [
             'experimentations' => $experimentations,
@@ -1771,7 +1819,41 @@ class StudentSpaceViewHelper extends AbstractHelper
     }
 
     /**
-     * Récupérer les ressources d'un type créées par une liste d'étudiants
+     * Récupérer les ressources d'un type liées à un cours via dcterms:isPartOf
+     */
+    private function getResourcesByCourseAndType($courseId, $type)
+    {
+        $templateId = $this->templates[$type];
+
+        // Filtrer par dcterms:isPartOf (property_id = 33)
+        $sql = "
+            SELECT DISTINCT r.id, r.title, r.created
+            FROM resource r
+            JOIN value v ON v.resource_id = r.id
+            WHERE r.resource_template_id = :templateId
+            AND r.is_public = 1
+            AND v.property_id = 33
+            AND v.value_resource_id = :courseId
+            ORDER BY r.created DESC
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['templateId' => $templateId, 'courseId' => $courseId]);
+        $items = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($items as &$item) {
+            $item['type'] = $type;
+            $item['actants'] = $type === 'experimentation'
+                ? $this->getFirstActant($item['id'])
+                : $this->getFirstContributor($item['id']);
+            $item['thumbnail'] = $this->getThumbnail($item['id']);
+        }
+
+        return $items;
+    }
+
+    /**
+     * Récupérer les ressources d'un type créées par une liste d'étudiants (LEGACY - pour rétrocompatibilité)
      */
     private function getResourcesByStudents($studentIds, $type)
     {
@@ -1810,5 +1892,441 @@ class StudentSpaceViewHelper extends AbstractHelper
         }
 
         return $items;
+    }
+
+    // ========== ACTANT METHODS ==========
+
+    /**
+     * Récupère tous les actants (items template 72) avec leur liaison utilisateur Omeka S
+     */
+    private function getActantsWithOmekaId()
+    {
+        $templateId = $this->templates['actant']; // Template 72
+
+        // Récupérer tous les items actants (template 72)
+        $sql = "
+            SELECT r.id, r.title, r.owner_id, r.created
+            FROM resource r
+            WHERE r.resource_template_id = :templateId
+            ORDER BY r.title ASC
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['templateId' => $templateId]);
+        $resources = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (empty($resources)) {
+            return [];
+        }
+
+        $resourceIds = array_column($resources, 'id');
+
+        // Récupérer les valeurs des propriétés pour tous les actants
+        // 139 = foaf:givenName (firstname)
+        // 140 = foaf:familyName (lastname)
+        // 724 = schema:email (mail)
+        $valueSql = "
+            SELECT v.resource_id, v.value, v.property_id
+            FROM value v
+            WHERE v.resource_id IN (" . implode(',', $resourceIds) . ")
+            AND v.property_id IN (139, 140, 724)
+        ";
+
+        $stmt = $this->conn->prepare($valueSql);
+        $stmt->execute();
+        $values = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Récupérer tous les utilisateurs Omeka S pour le mapping
+        $userSql = "SELECT id, email, name, role FROM user WHERE is_active = 1";
+        $stmt = $this->conn->prepare($userSql);
+        $stmt->execute();
+        $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Créer des mappings pour recherche rapide
+        $usersByEmail = [];
+        $usersById = [];
+        foreach ($users as $user) {
+            $usersByEmail[strtolower($user['email'])] = $user;
+            $usersById[$user['id']] = $user;
+        }
+
+        // Construire le résultat
+        $result = [];
+        foreach ($resources as $resource) {
+            $actant = [
+                'id' => $resource['id'],
+                'firstname' => '',
+                'lastname' => '',
+                'mail' => '',
+                'title' => $resource['title'] ?: '',
+                'picture' => null,
+                'omekaUserId' => null,
+                'omekaUserName' => null,
+                'omekaUserRole' => null,
+                'created' => $resource['created'],
+                'type' => 'actant'
+            ];
+
+            // Extraire les propriétés
+            foreach ($values as $value) {
+                if ($value['resource_id'] == $resource['id']) {
+                    switch ($value['property_id']) {
+                        case 139: // foaf:givenName
+                            $actant['firstname'] = $value['value'];
+                            break;
+                        case 140: // foaf:familyName
+                            $actant['lastname'] = $value['value'];
+                            break;
+                        case 724: // schema:email
+                            $actant['mail'] = $value['value'];
+                            break;
+                    }
+                }
+            }
+
+            // Construire le titre si vide
+            if (empty($actant['title']) && ($actant['firstname'] || $actant['lastname'])) {
+                $actant['title'] = trim($actant['firstname'] . ' ' . $actant['lastname']);
+            }
+
+            // Chercher l'utilisateur Omeka S lié par email
+            if ($actant['mail']) {
+                $emailLower = strtolower($actant['mail']);
+                if (isset($usersByEmail[$emailLower])) {
+                    $linkedUser = $usersByEmail[$emailLower];
+                    $actant['omekaUserId'] = (int)$linkedUser['id'];
+                    $actant['omekaUserName'] = $linkedUser['name'];
+                    $actant['omekaUserRole'] = $linkedUser['role'];
+                }
+            }
+
+            // Fallback: vérifier via owner_id
+            if (!$actant['omekaUserId'] && $resource['owner_id'] && isset($usersById[$resource['owner_id']])) {
+                $linkedUser = $usersById[$resource['owner_id']];
+                $actant['omekaUserId'] = (int)$linkedUser['id'];
+                $actant['omekaUserName'] = $linkedUser['name'];
+                $actant['omekaUserRole'] = $linkedUser['role'];
+            }
+
+            // Récupérer la photo
+            $actant['picture'] = $this->getItemThumbnail($resource['id']);
+
+            $result[] = $actant;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Lier un actant (item) à un utilisateur Omeka S
+     */
+    private function linkActantToUser($actantId, $userId)
+    {
+        if (!$actantId || !$userId) {
+            return ['error' => 'actantId et userId requis'];
+        }
+
+        // Vérifier que l'actant (item template 72) existe
+        $checkSql = "SELECT id FROM resource WHERE id = :id AND resource_template_id = :templateId";
+        $stmt = $this->conn->prepare($checkSql);
+        $stmt->execute(['id' => $actantId, 'templateId' => $this->templates['actant']]);
+        if (!$stmt->fetch()) {
+            return ['error' => 'Actant non trouvé'];
+        }
+
+        // Vérifier que l'utilisateur existe
+        $checkUserSql = "SELECT id, email FROM user WHERE id = :id";
+        $stmt = $this->conn->prepare($checkUserSql);
+        $stmt->execute(['id' => $userId]);
+        $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if (!$user) {
+            return ['error' => 'Utilisateur non trouvé'];
+        }
+
+        // Mettre à jour l'email de l'actant pour correspondre à l'utilisateur
+        $this->updatePropertyValue($actantId, 724, $user['email']);
+
+        // Mettre à jour le owner_id de la ressource
+        $updateSql = "UPDATE resource SET owner_id = :userId, modified = NOW() WHERE id = :id";
+        $stmt = $this->conn->prepare($updateSql);
+        $stmt->execute(['userId' => $userId, 'id' => $actantId]);
+
+        return ['success' => true, 'actantId' => $actantId, 'userId' => $userId];
+    }
+
+    /**
+     * Créer un utilisateur Omeka S pour un actant et le lier automatiquement
+     */
+    private function createOmekaUserForActant($actantId, $email, $name, $role = 'author')
+    {
+        if (!$actantId) {
+            return ['error' => 'actantId requis'];
+        }
+        if (empty($email)) {
+            return ['error' => 'Email requis'];
+        }
+        if (empty($name)) {
+            return ['error' => 'Nom requis'];
+        }
+
+        // Vérifier que l'actant existe
+        $checkSql = "SELECT id, title FROM resource WHERE id = :id AND resource_template_id = :templateId";
+        $stmt = $this->conn->prepare($checkSql);
+        $stmt->execute(['id' => $actantId, 'templateId' => $this->templates['actant']]);
+        $actant = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if (!$actant) {
+            return ['error' => 'Actant non trouvé'];
+        }
+
+        // Vérifier si un utilisateur avec cet email existe déjà
+        $checkUserSql = "SELECT id FROM user WHERE email = :email";
+        $stmt = $this->conn->prepare($checkUserSql);
+        $stmt->execute(['email' => $email]);
+        $existingUser = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($existingUser) {
+            return ['error' => 'Un utilisateur avec cet email existe déjà'];
+        }
+
+        try {
+            // Créer l'utilisateur Omeka S
+            $tempPassword = password_hash('temp_' . time() . '_' . $actantId, PASSWORD_DEFAULT);
+            $insertUserSql = "
+                INSERT INTO user (email, name, role, is_active, created, modified, password_hash)
+                VALUES (:email, :name, :role, 1, NOW(), NOW(), :password)
+            ";
+            $stmt = $this->conn->prepare($insertUserSql);
+            $stmt->execute([
+                'email' => $email,
+                'name' => $name,
+                'role' => $role,
+                'password' => $tempPassword
+            ]);
+            $newUserId = $this->conn->lastInsertId();
+
+            // Mettre à jour l'email de l'actant pour correspondre
+            $this->updatePropertyValue($actantId, 724, $email);
+
+            // Mettre à jour le owner_id de l'actant
+            $updateSql = "UPDATE resource SET owner_id = :userId, modified = NOW() WHERE id = :id";
+            $stmt = $this->conn->prepare($updateSql);
+            $stmt->execute(['userId' => $newUserId, 'id' => $actantId]);
+
+            return [
+                'success' => true,
+                'userId' => (int)$newUserId,
+                'actantId' => $actantId,
+                'email' => $email,
+                'name' => $name,
+                'role' => $role
+            ];
+        } catch (\Exception $e) {
+            return ['error' => 'Erreur lors de la création: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Récupérer les ressources enseignantes (créées par les actants, visibles par tous)
+     * Ces ressources n'ont pas de cours spécifique (pas de dcterms:isPartOf)
+     */
+    private function getTeacherResources()
+    {
+        // Récupérer les ressources créées par des utilisateurs avec rôle admin/author
+        $experimentations = $this->getTeacherResourcesByType('experimentation');
+        $tools = $this->getTeacherResourcesByType('tool');
+        $feedbacks = $this->getTeacherResourcesByType('feedback');
+
+        return [
+            'experimentations' => $experimentations,
+            'tools' => $tools,
+            'feedbacks' => $feedbacks,
+            'total' => count($experimentations) + count($tools) + count($feedbacks)
+        ];
+    }
+
+    /**
+     * Récupérer les ressources enseignantes d'un type
+     * Ces ressources sont créées par des actants et n'ont PAS de cours associé (pas de dcterms:isPartOf vers un cours)
+     */
+    private function getTeacherResourcesByType($type)
+    {
+        $templateId = $this->templates[$type];
+        $courseTemplateId = $this->templates['course'];
+
+        // Ressources créées par des admins/auteurs (rôle actant) SANS cours associé
+        $sql = "
+            SELECT DISTINCT r.id, r.title, r.created
+            FROM resource r
+            JOIN user u ON r.owner_id = u.id
+            WHERE r.resource_template_id = :templateId
+            AND r.is_public = 1
+            AND u.role IN ('admin', 'global_admin', 'author', 'editor')
+            AND NOT EXISTS (
+                SELECT 1 FROM value v
+                JOIN resource course ON v.value_resource_id = course.id
+                WHERE v.resource_id = r.id
+                AND v.property_id = 33
+                AND course.resource_template_id = :courseTemplateId
+            )
+            ORDER BY r.created DESC
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['templateId' => $templateId, 'courseTemplateId' => $courseTemplateId]);
+        $items = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($items as &$item) {
+            $item['type'] = $type;
+            $item['actants'] = $type === 'experimentation'
+                ? $this->getFirstActant($item['id'])
+                : $this->getFirstContributor($item['id']);
+            $item['thumbnail'] = $this->getThumbnail($item['id']);
+        }
+
+        return $items;
+    }
+
+    /**
+     * Récupérer toutes les ressources étudiantes avec leur cours associé (pour l'administration)
+     */
+    private function getAllResourcesAdmin()
+    {
+        $templateIds = [
+            $this->templates['experimentation'],
+            $this->templates['feedback'],
+            $this->templates['tool']
+        ];
+
+        // Récupérer toutes les ressources des templates concernés
+        $sql = "
+            SELECT r.id, r.title, r.created, r.resource_template_id
+            FROM resource r
+            WHERE r.resource_template_id IN (" . implode(',', $templateIds) . ")
+            ORDER BY r.created DESC
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $resources = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (empty($resources)) {
+            return [];
+        }
+
+        $resourceIds = array_column($resources, 'id');
+
+        // Récupérer les liens vers les cours (dcterms:isPartOf = property_id 33)
+        $courseLinks = [];
+        $courseLinkSql = "
+            SELECT v.resource_id, v.value_resource_id as course_id
+            FROM value v
+            WHERE v.resource_id IN (" . implode(',', $resourceIds) . ")
+            AND v.property_id = 33
+            AND v.value_resource_id IS NOT NULL
+        ";
+        $stmt = $this->conn->prepare($courseLinkSql);
+        $stmt->execute();
+        foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $link) {
+            $courseLinks[$link['resource_id']] = $link['course_id'];
+        }
+
+        // Récupérer les titres des cours
+        $courseIds = array_unique(array_values($courseLinks));
+        $courseTitles = [];
+        if (!empty($courseIds)) {
+            $courseTitleSql = "
+                SELECT r.id, r.title
+                FROM resource r
+                WHERE r.id IN (" . implode(',', $courseIds) . ")
+            ";
+            $stmt = $this->conn->prepare($courseTitleSql);
+            $stmt->execute();
+            foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $course) {
+                $courseTitles[$course['id']] = $course['title'];
+            }
+        }
+
+        // Construire le résultat
+        $result = [];
+        foreach ($resources as $resource) {
+            $resourceId = $resource['id'];
+            $courseId = isset($courseLinks[$resourceId]) ? $courseLinks[$resourceId] : null;
+
+            // Déterminer le type
+            $type = 'experimentation';
+            if ($resource['resource_template_id'] == $this->templates['feedback']) {
+                $type = 'feedback';
+            } elseif ($resource['resource_template_id'] == $this->templates['tool']) {
+                $type = 'tool';
+            }
+
+            $result[] = [
+                'id' => $resourceId,
+                'title' => $resource['title'],
+                'type' => $type,
+                'created' => $resource['created'],
+                'courseId' => $courseId,
+                'courseTitle' => $courseId ? (isset($courseTitles[$courseId]) ? $courseTitles[$courseId] : null) : null,
+                'thumbnail' => $this->getThumbnail($resourceId),
+                'actants' => $type === 'experimentation'
+                    ? $this->getFirstActant($resourceId)
+                    : $this->getFirstContributor($resourceId),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Mettre à jour le cours associé à une ressource
+     * Utilise dcterms:isPartOf (property_id: 33)
+     */
+    private function updateResourceCourse($resourceId, $courseId)
+    {
+        if (!$resourceId) {
+            return ['error' => 'resourceId requis'];
+        }
+
+        $propertyId = 33; // dcterms:isPartOf
+
+        try {
+            // Supprimer l'ancien lien de cours s'il existe
+            $deleteSql = "
+                DELETE FROM `value`
+                WHERE `resource_id` = :resourceId
+                AND `property_id` = :propertyId
+            ";
+            $stmt = $this->conn->prepare($deleteSql);
+            $stmt->execute([
+                'resourceId' => $resourceId,
+                'propertyId' => $propertyId
+            ]);
+
+            // Si un nouveau cours est spécifié, créer le lien
+            if ($courseId !== null) {
+                // Vérifier que le cours existe
+                $checkSql = "SELECT id FROM resource WHERE id = :id AND resource_template_id = :templateId";
+                $stmt = $this->conn->prepare($checkSql);
+                $stmt->execute(['id' => $courseId, 'templateId' => $this->templates['course']]);
+                if (!$stmt->fetch()) {
+                    return ['error' => 'Cours non trouvé'];
+                }
+
+                // Créer le nouveau lien
+                $insertSql = "
+                    INSERT INTO `value` (`resource_id`, `property_id`, `value_resource_id`, `type`, `is_public`)
+                    VALUES (:resourceId, :propertyId, :courseId, 'resource', 1)
+                ";
+                $stmt = $this->conn->prepare($insertSql);
+                $stmt->execute([
+                    'resourceId' => $resourceId,
+                    'propertyId' => $propertyId,
+                    'courseId' => $courseId
+                ]);
+            }
+
+            return ['success' => true, 'resourceId' => $resourceId, 'courseId' => $courseId];
+        } catch (\Exception $e) {
+            return ['error' => 'Erreur SQL: ' . $e->getMessage()];
+        }
     }
 }

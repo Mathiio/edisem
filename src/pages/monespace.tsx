@@ -3,9 +3,9 @@ import { PageBanner } from '@/components/ui/PageBanner';
 import { motion, Variants } from 'framer-motion';
 import { ExpCard, ExpCardSkeleton } from '@/components/features/experimentation/ExpCards';
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { getAllStudentResources, type StudentResourceCard } from '@/services/StudentSpace';
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, addToast } from '@heroui/react';
-import { ExperimentationIcon, UniversityIcon, TrashIcon, PlusIcon } from '@/components/ui/icons';
+import { getAllStudentResources, getStudentCourses, getCourses, type StudentResourceCard, type Course } from '@/services/StudentSpace';
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, addToast, Select, SelectItem } from '@heroui/react';
+import { ExperimentationIcon, UniversityIcon, TrashIcon, PlusIcon, WarningIcon } from '@/components/ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { experimentationStudentConfigSimplified } from '@/pages/generic/config/experimentationStudentConfig';
 import { feedbackStudentConfigSimplified } from '@/pages/generic/config/feedbackStudentConfig';
@@ -54,6 +54,30 @@ export const MonEspace: React.FC = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ id: string; title: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // États pour la gestion des cours
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState<number | string | null>(null);
+  const [loadingCourses, setLoadingCourses] = useState(true);
+
+  // Option spéciale pour les ressources enseignantes (sans cours)
+  const TEACHER_RESOURCES_OPTION = 'teacher-resources';
+
+  // Vérifier si l'utilisateur est un actant
+  const isActant = userData?.type === 'actant';
+
+  // Pré-sélectionner "Ressources enseignantes" pour les actants
+  useEffect(() => {
+    if (isActant) {
+      setSelectedCourseId(TEACHER_RESOURCES_OPTION);
+    }
+  }, [isActant]);
+
+  // Vérifier si l'utilisateur peut créer des ressources
+  const canCreate = useMemo(() => {
+    if (isActant) return true; // Les actants peuvent toujours créer
+    return courses.length > 0; // Les étudiants doivent avoir au moins un cours
+  }, [isActant, courses.length]);
 
   // Informations utilisateur dérivées (kept for future use)
   const _fullName = useMemo(() => {
@@ -116,6 +140,64 @@ export const MonEspace: React.FC = () => {
   useEffect(() => {
     fetchExperimentations();
   }, [fetchExperimentations]);
+
+  // Charger les cours de l'utilisateur
+  useEffect(() => {
+    const loadCourses = async () => {
+      setLoadingCourses(true);
+      try {
+        const userId = localStorage.getItem('userId');
+
+        if (isActant) {
+          // Les actants voient tous les cours
+          const allCourses = await getCourses();
+          console.log('[MonEspace] Actant - allCourses:', allCourses);
+          const coursesArray = Array.isArray(allCourses) ? allCourses : [];
+          console.log('[MonEspace] Setting courses:', coursesArray.length, 'courses');
+          setCourses(coursesArray);
+        } else if (userId) {
+          // Les étudiants ne voient que leurs cours
+          const studentCourses = await getStudentCourses(parseInt(userId));
+          setCourses(Array.isArray(studentCourses) ? studentCourses : []);
+
+          // Si un seul cours, le sélectionner automatiquement
+          if (studentCourses.length === 1) {
+            setSelectedCourseId(studentCourses[0].id);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading courses:', error);
+        setCourses([]);
+      } finally {
+        setLoadingCourses(false);
+      }
+    };
+
+    loadCourses();
+  }, [isActant]);
+
+  // Handler pour créer une ressource avec le cours sélectionné
+  const handleCreateResource = useCallback(
+    (route: string) => {
+      // Pour les actants, une sélection est obligatoire (cours ou ressources enseignantes)
+      if (isActant && !selectedCourseId) {
+        addToast({
+          title: 'Sélection requise',
+          description: 'Veuillez sélectionner un cours ou "Ressources enseignantes" avant de créer une ressource.',
+          color: 'warning',
+        });
+        return;
+      }
+
+      // Déterminer le courseId à utiliser
+      // Si "Ressources enseignantes" est sélectionné, pas de courseId
+      const courseId = selectedCourseId === TEACHER_RESOURCES_OPTION ? null : selectedCourseId || (courses.length === 1 ? courses[0].id : null);
+
+      // Naviguer avec le courseId en query param (ou sans pour ressources enseignantes)
+      navigate(`${route}${courseId ? `?courseId=${courseId}` : ''}`);
+    },
+    [selectedCourseId, courses, isActant, navigate, TEACHER_RESOURCES_OPTION],
+  );
 
   // Handler pour modifier une ressource - navigue vers la page de détail en mode édition
   const handleEdit = useCallback(
@@ -211,31 +293,100 @@ export const MonEspace: React.FC = () => {
         </div>
       </motion.div>*/}
 
-      <div className='flex justify-center w-full'>
-        <Dropdown>
-          <DropdownTrigger>
-            <div className={dropdownButtonClass}>
-              Ajouter une ressource
-              <PlusIcon className='text-c6 rotate-90' size={14} />
+      {/* Avertissement si étudiant sans cours */}
+      {!isActant && !loadingCourses && courses.length === 0 && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className='flex justify-center w-full'>
+          <div className='flex items-center gap-15 bg-warning/10 border-2 border-warning/30 rounded-12 px-20 py-15 max-w-xl'>
+            <WarningIcon size={24} className='text-warning flex-shrink-0' />
+            <div className='flex flex-col gap-5'>
+              <span className='text-c6 font-medium'>Inscription requise</span>
+              <span className='text-c5 text-14'>Vous devez être inscrit à au moins un cours pour créer des ressources. Contactez votre enseignant pour vous inscrire.</span>
             </div>
-          </DropdownTrigger>
-          <DropdownMenu
-            aria-label="Actions d'ajout"
-            className='bg-c2 rounded-20 border-2 border-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] p-4 min-w-[200px]'
-            onAction={(key: Key) => {
-              const config = createableConfigs.find((c) => String(c.config.templateId) === String(key));
-              if (config) navigate(config.route);
+          </div>
+        </motion.div>
+      )}
+
+      {/* Sélecteur de cours et bouton d'ajout */}
+      <div className='flex justify-center w-full gap-15 items-end'>
+        {/* Sélecteur de cours pour les actants ou étudiants multi-cours */}
+        {canCreate && (isActant || courses.length > 1) && (
+          <Select
+            label='Destination'
+            placeholder='Sélectionnez une destination'
+            selectedKeys={selectedCourseId ? [String(selectedCourseId)] : []}
+            onSelectionChange={(keys) => {
+              const id = Array.from(keys)[0];
+              if (id === TEACHER_RESOURCES_OPTION) {
+                setSelectedCourseId(TEACHER_RESOURCES_OPTION);
+              } else {
+                setSelectedCourseId(id ? parseInt(String(id)) : null);
+              }
+            }}
+            isLoading={loadingCourses}
+            isRequired={isActant}
+            className='max-w-xs'
+            classNames={{
+              trigger: 'bg-c2 border-2 border-c3 hover:bg-c3',
+              label: 'text-c5',
+              value: 'text-c6',
+              popoverContent: 'bg-c2 border-2 border-c3',
             }}>
-            {createableConfigs.map(({ config, icon: Icon }) => (
-              <DropdownItem
-                key={String(config.templateId)}
-                className='hover:bg-c3 text-c6 px-3 py-2 rounded-8 transition-all duration-200'
-                startContent={<Icon size={16} className='text-c5' />}>
-                {config.resourceType}
-              </DropdownItem>
+            {(() => {
+              const options = [
+                // Option Ressources enseignantes pour les actants
+                ...(isActant
+                  ? [
+                      {
+                        id: TEACHER_RESOURCES_OPTION,
+                        label: 'Ressources enseignantes',
+                        isTeacher: true,
+                      },
+                    ]
+                  : []),
+                // Liste des cours
+                ...courses.map((course) => ({
+                  id: String(course.id),
+                  label: `${course.title}${course.code ? ` (${course.code})` : ''}`,
+                  isTeacher: false,
+                })),
+              ];
+              console.log('[MonEspace] Select options:', options);
+              return options;
+            })().map((option) => (
+              <SelectItem key={option.id} className={option.isTeacher ? 'text-action font-medium hover:bg-c3' : 'text-c6 hover:bg-c3'}>
+                {option.label}
+              </SelectItem>
             ))}
-          </DropdownMenu>
-        </Dropdown>
+          </Select>
+        )}
+
+        {/* Dropdown d'ajout de ressource */}
+        {canCreate && (
+          <Dropdown>
+            <DropdownTrigger>
+              <div className={dropdownButtonClass}>
+                Ajouter une ressource
+                <PlusIcon className='text-c6 rotate-90' size={14} />
+              </div>
+            </DropdownTrigger>
+            <DropdownMenu
+              aria-label="Actions d'ajout"
+              className='bg-c2 rounded-20 border-2 border-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] p-4 min-w-[200px]'
+              onAction={(key: Key) => {
+                const config = createableConfigs.find((c) => String(c.config.templateId) === String(key));
+                if (config) handleCreateResource(config.route);
+              }}>
+              {createableConfigs.map(({ config, icon: Icon }) => (
+                <DropdownItem
+                  key={String(config.templateId)}
+                  className='hover:bg-c3 text-c6 px-3 py-2 rounded-8 transition-all duration-200'
+                  startContent={<Icon size={16} className='text-c5' />}>
+                  {config.resourceType}
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          </Dropdown>
+        )}
       </div>
       <div className='flex flex-col gap-8 justify-center'>
         <h1 className='text-64 text-c6 font-medium flex flex-col items-center text-center'>Mes ressources</h1>

@@ -83,7 +83,8 @@ textarea,
   transition: background-color 200ms ease-in-out;
 }
 
-[role='tablist'] span {
+/* Curseur des tabs - utiliser la classe bg-c4 définie dans les composants */
+[role='tablist'] span:not([data-slot='cursor']) {
   background-color: hsl(var(--nextui-action)) !important;
 }
 
@@ -291,4 +292,31 @@ pre {
   fill: var(--c5) !important;
   font-size: 14px !important;
   transform: 'translateY(10px)' !important;
+}
+
+/* Animation pulse border pour highlight */
+@keyframes pulse-border {
+  0%,
+  100% {
+    background-color: var(--c4) !important;
+    box-shadow: inset 0 0 0 3px var(--c5) !important;
+  }
+  50% {
+    background-color: var(--c3) !important;
+    box-shadow: inset 0 0 0 4px var(--c6) !important;
+  }
+}
+
+.animate-pulse-border,
+.animate-pulse-border > td,
+tr.animate-pulse-border,
+tr.animate-pulse-border > td {
+  animation: pulse-border 1s ease-in-out infinite !important;
+  background-color: var(--c4) !important;
+}
+
+[data-slot='tr'].animate-pulse-border,
+[data-slot='tr'].animate-pulse-border td {
+  background-color: var(--c4) !important;
+  animation: pulse-border 1s ease-in-out infinite !important;
 }
