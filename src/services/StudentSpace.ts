@@ -594,3 +594,103 @@ export async function deleteResearch(id: number): Promise<{ success: boolean }> 
 
   return { success: true };
 }
+
+// ========== ACTANT TYPES & FUNCTIONS ==========
+
+/**
+ * Type pour un actant (item template 72) avec sa liaison utilisateur Omeka S
+ */
+export interface Actant {
+  id: number; // ID de l'item actant (template 72)
+  omekaUserId: number | null; // ID utilisateur Omeka S (null si non lié)
+  omekaUserName: string | null; // Nom de l'utilisateur Omeka S
+  omekaUserRole: string | null; // Rôle de l'utilisateur Omeka S
+  mail: string;
+  firstname: string;
+  lastname: string;
+  title: string;
+  picture: string | null;
+  created?: string;
+  type: 'actant';
+}
+
+/**
+ * Récupère les actants avec leur omekaUserId
+ * Les actants sont les utilisateurs avec un rôle admin/author dans Omeka S
+ */
+export async function getActantsForLogin(): Promise<Actant[]> {
+  try {
+    const response = await fetch(`${API_BASE}&action=getActants&json=1`);
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la récupération des actants');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching actants:', error);
+    throw error;
+  }
+}
+
+/**
+ * Lier un actant (item) à un utilisateur Omeka S
+ */
+export async function linkActantToUser(actantId: number, userId: number): Promise<{ success: boolean }> {
+  const response = await fetch(`${API_BASE}&action=linkActantToUser&actantId=${actantId}&userId=${userId}&json=1`, {
+    method: 'POST',
+  });
+  const result = await response.json();
+
+  if (result.error) {
+    throw new Error(result.error);
+  }
+
+  return result;
+}
+
+/**
+ * Créer un utilisateur Omeka S pour un actant et le lier automatiquement
+ */
+export async function createOmekaUserForActant(
+  actantId: number,
+  email: string,
+  name: string,
+  role: string = 'author',
+): Promise<{ success: boolean; userId: number; actantId: number }> {
+  const params = new URLSearchParams({
+    actantId: String(actantId),
+    email,
+    name,
+    role,
+  });
+
+  const response = await fetch(`${API_BASE}&action=createOmekaUserForActant&json=1&${params.toString()}`, {
+    method: 'POST',
+  });
+  const result = await response.json();
+
+  if (result.error) {
+    throw new Error(result.error);
+  }
+
+  return result;
+}
+
+/**
+ * Récupérer les ressources enseignantes (créées par les actants, visibles par tous)
+ */
+export async function getTeacherResources(): Promise<AllStudentResources> {
+  try {
+    const response = await fetch(`${API_BASE}&action=getTeacherResources&json=1`);
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la récupération des ressources enseignantes');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching teacher resources:', error);
+    throw error;
+  }
+}

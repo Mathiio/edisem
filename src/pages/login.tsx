@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, Tab, Input, Button, Spinner } from '@heroui/react';
-import { getActants } from '@/services/Items';
-import { getStudentsForLogin, Student } from '@/services/StudentSpace';
+import { getStudentsForLogin, getActantsForLogin, Student, Actant } from '@/services/StudentSpace';
 import { useAuth } from '@/hooks/useAuth';
 
 import { Layouts } from '@/components/layout/Layouts';
 
 export const LoginPage: React.FC = () => {
-  const [actants, setActants] = useState<any>(null);
+  const [actants, setActants] = useState<Actant[] | null>(null);
   const [selected, setSelected] = useState('Etudiant');
   const [students, setStudents] = useState<Student[] | null>(null);
   const [email, setEmail] = useState('');
@@ -22,11 +21,11 @@ export const LoginPage: React.FC = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      // Utiliser getStudentsForLogin qui retourne aussi l'omekaUserId
-      const [actantsData, studentsData] = await Promise.all([getActants(), getStudentsForLogin()]);
+      // Utiliser getActantsForLogin et getStudentsForLogin qui retournent aussi l'omekaUserId
+      const [actantsData, studentsData] = await Promise.all([getActantsForLogin(), getStudentsForLogin()]);
 
-      setActants(actantsData);
       // S'assurer que c'est un tableau
+      setActants(Array.isArray(actantsData) ? actantsData : []);
       setStudents(Array.isArray(studentsData) ? studentsData : []);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -50,9 +49,28 @@ export const LoginPage: React.FC = () => {
       requestAnimationFrame(async () => {
         try {
           if (selected === 'Actant') {
-            const foundActant = actants?.find((actant: { mail: string }) => actant.mail === email);
+            const foundActant = actants?.find((actant) => actant.mail === email);
             if (foundActant && password === apiKey) {
-              login(foundActant, String(foundActant.id));
+              // Extraire prénom/nom du titre si firstname/lastname sont vides
+              let firstname = foundActant.firstname;
+              let lastname = foundActant.lastname;
+              if (!firstname && !lastname && foundActant.title) {
+                // Le title contient généralement "Prénom Nom" depuis Omeka S user.name
+                const nameParts = foundActant.title.split(' ');
+                firstname = nameParts[0] || '';
+                lastname = nameParts.slice(1).join(' ') || '';
+              }
+
+              // Créer userData avec omekaUserId pour que o:owner soit correctement défini
+              const userData = {
+                id: foundActant.id, // ID de l'item actant (template 72)
+                firstname,
+                lastname,
+                picture: foundActant.picture || undefined,
+                type: 'actant' as const,
+                omekaUserId: foundActant.omekaUserId,
+              };
+              login(userData, String(foundActant.id), foundActant.omekaUserId);
               navigate('/');
             } else {
               if (!foundActant) {

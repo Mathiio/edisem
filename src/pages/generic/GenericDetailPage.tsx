@@ -714,6 +714,23 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
       console.log('[createInOmekaS] Set o:owner to Omeka S user:', omekaUserId);
     }
 
+    // Lier la ressource au cours via dcterms:isPartOf (property_id: 33)
+    // Le courseId est passé via query param depuis Mon Espace
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseId = urlParams.get('courseId');
+    if (courseId) {
+      const coursePropertyId = propMap['dcterms:isPartOf'] || 33; // Fallback à 33 si pas dans le template
+      itemData['dcterms:isPartOf'] = [
+        {
+          type: 'resource',
+          property_id: coursePropertyId,
+          value_resource_id: parseInt(courseId, 10),
+          is_public: true,
+        },
+      ];
+      console.log('[createInOmekaS] Linked to course:', courseId);
+    }
+
     // Ajouter l'utilisateur connecté comme créateur/contributeur
     if (userId) {
       // Chercher la bonne propriété pour le créateur selon le template

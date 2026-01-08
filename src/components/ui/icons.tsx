@@ -1062,3 +1062,17 @@ export const TrashIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ..
     <path d='M9.5 12.5H14.5' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
   </svg>
 );
+
+export const WarningIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+  <svg width={size || width} height={size || height} viewBox='0 0 24 24' fill='none' {...props}>
+    <path d='M12 9V14' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
+    <path
+      d='M12 21.41H5.94C2.47 21.41 1.02 18.93 2.7 15.9L5.82 10.28L8.76 5.00003C10.54 1.79003 13.46 1.79003 15.24 5.00003L18.18 10.29L21.3 15.91C22.98 18.94 21.52 21.42 18.06 21.42H12V21.41Z'
+      stroke='currentColor'
+      strokeWidth='1.5'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
+    <path d='M11.995 17H12.004' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+  </svg>
+);

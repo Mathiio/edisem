@@ -995,7 +995,6 @@ const Visualisation = () => {
       .style('z-index', '9999')
       .style('opacity', '0')
       .style('transition', 'opacity 0.15s ease-in-out')
-      .style('white-space', 'nowrap')
       .style('box-shadow', '0 4px 12px rgba(0, 0, 0, 0.3)');
 
     // Créer les liens avec couleurs par type de relation
@@ -1069,8 +1068,30 @@ const Visualisation = () => {
 
     // Gestion du hover sur les groupes
     nodeGroup
-      .on('mouseover', function (_event, d) {
+      .on('mouseover', function (event, d) {
         const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'colloque', 'seminar', 'studyday', 'citation', 'actant'];
+
+        // Afficher le tooltip avec le type et le titre
+        const typeInfo = VISUAL_TYPES.find((t) => t.key === d.type);
+        const typeLabel = typeInfo?.label || d.type;
+        const typeImage = typeInfo?.image || '';
+        const nodeTitle = d.fullTitle || d.title || 'Sans titre';
+
+        tooltip
+          .html(
+            `
+            <div style="display: flex; align-items: flex-start; gap: 10px; max-width: 300px;">
+              ${typeImage ? `<img src="${typeImage}" alt="${typeLabel}" style="width: 32px; height: 32px; object-fit: contain; flex-shrink: 0;" />` : ''}
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="color: #888; font-size: 10px; text-transform: uppercase;">${typeLabel}</span>
+                <span style="font-weight: 500; word-wrap: break-word; white-space: normal;">${nodeTitle}</span>
+              </div>
+            </div>
+          `,
+          )
+          .style('left', `${event.clientX + 15}px`)
+          .style('top', `${event.clientY - 10}px`)
+          .style('opacity', '1');
 
         // Si le mode annotation est activé, filtrer les types autorisés
         if (
@@ -1109,8 +1130,12 @@ const Visualisation = () => {
             .attr('cursor', 'pointer');
         }
       })
+      .on('mousemove', function (event) {
+        tooltip.style('left', `${event.clientX + 15}px`).style('top', `${event.clientY - 10}px`);
+      })
       .on('mouseout', function () {
         d3.select(this).selectAll('.inner-stroke').remove();
+        tooltip.style('opacity', '0');
       })
       .on('click', function (_event, d) {
         const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'colloque', 'seminar', 'studyday', 'citation', 'actant'];

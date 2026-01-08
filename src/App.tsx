@@ -46,15 +46,19 @@ import TestOmekaEdit from './pages/test-omeka-edit';
 import TestConfigurableView from './pages/test-configurable-view';
 import { StudentManagement } from './pages/admin/StudentManagement';
 import { CourseManagement } from './pages/admin/CourseManagement';
+import { ActantManagement } from './pages/admin/ActantManagement';
+import ResourceManagement from './pages/admin/ResourceManagement';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 const ProtectedStudentManagement = withAuth(StudentManagement, { requiredRole: 'actant' });
 const ProtectedCourseManagement = withAuth(CourseManagement, { requiredRole: 'actant' });
+const ProtectedActantManagement = withAuth(ActantManagement, { requiredRole: 'actant' });
+const ProtectedResourceManagement = withAuth(ResourceManagement, { requiredRole: 'actant' });
 const ProtectedAdminDashboard = withAuth(AdminDashboard, { requiredRole: 'actant' });
 
-// Wrapper pour protéger ConfigurableDetailPage en mode création
-const ProtectedConfigurableDetailPage = withAuth(ConfigurableDetailPage, { requiredRole: 'student' });
+// Wrapper pour protéger ConfigurableDetailPage en mode création (actants et étudiants)
+const ProtectedConfigurableDetailPage = withAuth(ConfigurableDetailPage, { requiredRole: 'any' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
 
 function App() {
@@ -81,6 +85,8 @@ function App() {
           <Route path='/admin' Component={ProtectedAdminDashboard} />
           <Route path='/admin/etudiants' Component={ProtectedStudentManagement} />
           <Route path='/admin/cours' Component={ProtectedCourseManagement} />
+          <Route path='/admin/actants' Component={ProtectedActantManagement} />
+          <Route path='/admin/ressources' Component={ProtectedResourceManagement} />
 
           <Route path='/espace-etudiant/experimentation/:id' element={<ConfigurableDetailPage config={experimentationStudentConfig} />} />
           <Route path='/espace-etudiant/outil/:id' element={<ConfigurableDetailPage config={toolStudentConfig} />} />
