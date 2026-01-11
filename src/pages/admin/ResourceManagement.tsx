@@ -23,9 +23,6 @@ import { TrashIcon, EditIcon, ExperimentationIcon, UserIcon } from '@/components
 import { getCourses, type Course, type StudentResourceCard } from '@/services/StudentSpace';
 
 const API_BASE = 'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=StudentSpace';
-const API_URL = 'https://tests.arcanes.ca/omk/api';
-const API_KEY = import.meta.env.VITE_API_KEY;
-const API_IDENT = 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj';
 
 // Types
 interface ResourceWithCourse extends StudentResourceCard {
@@ -175,15 +172,20 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
     setDeleteModalOpen(true);
   };
 
-  // Confirmer la suppression
+  // Confirmer la suppression (soft delete via API PHP)
   const handleConfirmDelete = async () => {
     if (!resourceToDelete) return;
 
     setIsDeleting(true);
     try {
-      const response = await fetch(`${API_URL}/items/${resourceToDelete.id}?key_identity=${API_IDENT}&key_credential=${API_KEY}`, { method: 'DELETE' });
+      const url = `${API_BASE}&action=deleteResource&id=${resourceToDelete.id}&json=1`;
+      console.log('[ResourceManagement] Delete URL:', url);
+      const response = await fetch(url);
+      console.log('[ResourceManagement] Delete response status:', response.status);
+      const result = await response.json();
+      console.log('[ResourceManagement] Delete result:', result);
 
-      if (response.ok || response.status === 404) {
+      if (result.success) {
         addToast({
           title: 'Succès',
           description: 'La ressource a été supprimée',
@@ -191,13 +193,13 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
         });
         await loadData();
       } else {
-        throw new Error('Erreur lors de la suppression');
+        throw new Error(result.message || 'Erreur lors de la suppression');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting resource:', error);
       addToast({
         title: 'Erreur',
-        description: 'Impossible de supprimer la ressource',
+        description: error.message || 'Impossible de supprimer la ressource',
         color: 'danger',
       });
     } finally {
@@ -426,7 +428,7 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
             <Button variant='flat' onPress={() => setDeleteModalOpen(false)} className='bg-c3 text-c6'>
               Annuler
             </Button>
-            <Button onPress={handleConfirmDelete} isLoading={isDeleting} className='bg-red-500 text-white'>
+            <Button onPress={handleConfirmDelete} isLoading={isDeleting} className='bg-[#FF0000] text-white'>
               Supprimer
             </Button>
           </ModalFooter>

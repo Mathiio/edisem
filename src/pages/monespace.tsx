@@ -14,9 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import type { Key } from 'react';
 import { Button } from '@/theme/components/button';
 
-const API_URL = 'https://tests.arcanes.ca/omk/api';
-const API_KEY = import.meta.env.VITE_API_KEY;
-const API_IDENT = 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj';
+const API_BASE = 'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=StudentSpace';
 
 // Registre des configs créables avec leurs routes et icônes
 const createableConfigs = [
@@ -219,37 +217,27 @@ export const MonEspace: React.FC = () => {
     [experimentationsStudents],
   );
 
-  // Handler pour confirmer la suppression
+  // Handler pour confirmer la suppression (soft delete via API PHP)
   const handleConfirmDelete = useCallback(async () => {
     if (!itemToDelete) return;
 
     setIsDeleting(true);
     try {
-      const response = await fetch(`${API_URL}/items/${itemToDelete.id}?key_identity=${API_IDENT}&key_credential=${API_KEY}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(`${API_BASE}&action=deleteResource&id=${itemToDelete.id}&json=1`);
 
-      if (response.ok) {
+      const result = await response.json();
+
+      if (result.success) {
         addToast({
           title: 'Succès',
           description: 'La ressource a été supprimée avec succès.',
           color: 'success',
         });
-        // Rafraîchir la liste
-        await fetchExperimentations();
-      } else if (response.status === 404) {
-        addToast({
-          title: 'Ressource introuvable',
-          description: "Cette ressource n'existe plus ou a déjà été supprimée.",
-          color: 'warning',
-        });
-        // Rafraîchir la liste
         await fetchExperimentations();
       } else {
-        const errorData = await response.json().catch(() => ({}));
         addToast({
           title: 'Erreur',
-          description: errorData.message || 'Une erreur est survenue lors de la suppression.',
+          description: result.message || 'Une erreur est survenue lors de la suppression.',
           color: 'danger',
         });
       }
