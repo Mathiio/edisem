@@ -273,6 +273,12 @@ class StudentSpaceViewHelper extends AbstractHelper
                 $result = $this->updateResourceCourse($resourceId, $courseId);
                 break;
 
+            // Supprimer une ressource (soft delete - met is_public à 0)
+            case 'deleteResource':
+                $id = isset($params['id']) ? (int)$params['id'] : 0;
+                $result = $this->deleteResource($id);
+                break;
+
             default:
                 $result = ['error' => 'Action inconnue: ' . $action];
         }
@@ -2197,11 +2203,12 @@ class StudentSpaceViewHelper extends AbstractHelper
             $this->templates['tool']
         ];
 
-        // Récupérer toutes les ressources des templates concernés
+        // Récupérer toutes les ressources des templates concernés (exclure les supprimées)
         $sql = "
             SELECT r.id, r.title, r.created, r.resource_template_id
             FROM resource r
             WHERE r.resource_template_id IN (" . implode(',', $templateIds) . ")
+            AND r.is_public = 1
             ORDER BY r.created DESC
         ";
         $stmt = $this->conn->prepare($sql);
@@ -2325,6 +2332,30 @@ class StudentSpaceViewHelper extends AbstractHelper
             }
 
             return ['success' => true, 'resourceId' => $resourceId, 'courseId' => $courseId];
+        } catch (\Exception $e) {
+            return ['error' => 'Erreur SQL: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Supprimer une ressource (soft delete - met is_public à 0)
+     *
+     * @param int $id ID de la ressource
+     * @return array
+     */
+    function deleteResource($id)
+    {
+        if (!$id) {
+            return ['error' => 'ID de ressource requis'];
+        }
+
+        try {
+            // Soft delete : mettre is_public à 0
+            $updateSql = "UPDATE resource SET is_public = 0, modified = NOW() WHERE id = :id";
+            $stmt = $this->conn->prepare($updateSql);
+            $stmt->execute(['id' => $id]);
+
+            return ['success' => true, 'message' => 'Ressource supprimée avec succès'];
         } catch (\Exception $e) {
             return ['error' => 'Erreur SQL: ' . $e->getMessage()];
         }
