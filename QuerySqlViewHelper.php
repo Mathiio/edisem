@@ -3961,6 +3961,7 @@ class QuerySqlViewHelper extends AbstractHelper
             SELECT r.id
             FROM `resource` r
             WHERE r.resource_template_id = 127
+            AND r.is_public = 1
             ORDER BY r.created DESC
         ";
 

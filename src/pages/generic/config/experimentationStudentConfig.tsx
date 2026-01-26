@@ -1,6 +1,6 @@
 import { SimplifiedDetailConfig } from '../simplifiedConfig';
 import { convertToGenericConfig } from '../simplifiedConfigAdapter';
-import { getExperimentationsStudents } from '@/services/Items';
+import { getSameCourseExperimentations } from '@/services/StudentSpace';
 
 /**
  * Configuration simplifiée pour les expérimentations étudiantes
@@ -79,17 +79,30 @@ export const experimentationStudentConfigSimplified: SimplifiedDetailConfig = {
   showKeywords: true,
   showRecommendations: true,
   showComments: true,
-  recommendationsTitle: 'Expérimentations similaires',
+  recommendationsTitle: 'Expérimentations du même cours',
+  recommendationType: 'experimentationStudents',
   defaultView: 'bibo:abstract',
   formEnabled: true,
 
   smartRecommendations: {
-    getAllResourcesOfType: async () => {
-      const experimentationsStudents = await getExperimentationsStudents();
-      return experimentationsStudents;
+    // Pas de getAllResourcesOfType - on n'affiche que les expérimentations du même cours
+    // Si aucune expérimentation du même cours, la section sera masquée
+    getRelatedItems: async (itemDetails: any) => {
+      // Récupérer les expérimentations du même cours uniquement
+      // L'ID peut être dans 'id' ou 'o:id' selon le format Omeka S
+      const itemId = itemDetails?.id || itemDetails?.['o:id'];
+      if (itemId) {
+        try {
+          const sameCourseItems = await getSameCourseExperimentations(Number(itemId), 4);
+          return sameCourseItems;
+        } catch (error) {
+          console.error('Error fetching same course experimentations:', error);
+          return [];
+        }
+      }
+      return [];
     },
-    getRelatedItems: () => [],
-    maxRecommendations: 5,
+    maxRecommendations: 4,
   },
 };
 

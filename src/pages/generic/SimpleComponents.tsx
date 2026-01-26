@@ -18,6 +18,7 @@ import { AnnotationDropdown } from '@/components/features/conference/AnnotationD
 import { ResourceSelectionModal } from '@/components/features/forms/ResourceSelectionModal';
 import { InternalFieldConfig, getOverviewFields, getDetailsFields, getHeaderFields } from './simplifiedConfig';
 import { getOmekaValue, getResourceIds } from './simplifiedConfigAdapter';
+import { isValidYouTubeUrl, getYouTubeThumbnailUrl } from '@/lib/utils';
 
 // ========================================
 // Animation variants
@@ -66,6 +67,8 @@ interface SimpleOverviewProps {
   resourceCache?: Record<number, ResourceInfo>;
   isEditing?: boolean;
   onMediasChange?: (files: MediaFile[]) => void;
+  youtubeUrls?: string[];
+  onYouTubeUrlsChange?: (urls: string[]) => void;
   mediaFiles?: MediaFile[];
   type?: string;
   loadingMedia?: boolean;
@@ -137,6 +140,8 @@ export const SimpleOverviewCard: React.FC<SimpleOverviewProps> = ({
   resourceCache: propResourceCache,
   isEditing = false,
   onMediasChange,
+  youtubeUrls = [],
+  onYouTubeUrlsChange,
   mediaFiles = [],
   type,
   loadingMedia = false,
@@ -150,6 +155,7 @@ export const SimpleOverviewCard: React.FC<SimpleOverviewProps> = ({
 
   const headerFields = getHeaderFields(fields);
   const overviewFields = getOverviewFields(fields);
+  const detailsFields = getDetailsFields(fields);
 
   // Extraire les données des champs
   const titleField = headerFields.find((f) => f.type === 'title');
@@ -189,6 +195,10 @@ export const SimpleOverviewCard: React.FC<SimpleOverviewProps> = ({
   const statusField = overviewFields.find((f) => f.type === 'status');
   const status = statusField ? (getOmekaValue(itemDetails, statusField.property) as string) : itemDetails?.status || '';
 
+  // URL field for "Voir plus" button (from details zone)
+  const urlField = detailsFields.find((f) => f.type === 'url');
+  const fullUrl = urlField ? (getOmekaValue(itemDetails, urlField.property) as string) : itemDetails?.fullUrl || itemDetails?.url || '';
+
   const copyToClipboard = () => {
     if (medias && medias[currentMediaIndex]) {
       navigator.clipboard.writeText(medias[currentMediaIndex]);
@@ -207,6 +217,8 @@ export const SimpleOverviewCard: React.FC<SimpleOverviewProps> = ({
           <MediaDropzone
             value={mediaFiles}
             onChange={(files) => onMediasChange?.(files)}
+            youtubeUrls={youtubeUrls}
+            onYouTubeUrlsChange={onYouTubeUrlsChange}
             height='450px'
             maxFiles={10}
             acceptedTypes={['image/*', 'video/*']}
@@ -233,7 +245,7 @@ export const SimpleOverviewCard: React.FC<SimpleOverviewProps> = ({
               src={medias[currentMediaIndex]}
               alt={`Média ${currentMediaIndex + 1}`}
               className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] rounded-12 overflow-hidden'
-              isVideo={medias[currentMediaIndex]?.includes('.mov') || medias[currentMediaIndex]?.includes('.mp4')}
+              isVideo={medias[currentMediaIndex]?.includes('.mov') || medias[currentMediaIndex]?.includes('.mp4') || isValidYouTubeUrl(medias[currentMediaIndex])}
             />
             {medias.length > 1 && (
               <Splide
@@ -249,21 +261,37 @@ export const SimpleOverviewCard: React.FC<SimpleOverviewProps> = ({
                 aria-label='Galerie de médias'
                 className='flex w-full justify-between items-center gap-25'>
                 <SplideTrack className='w-full'>
-                  {medias.map((media, index) => (
-                    <SplideSlide key={index}>
-                      <button
-                        onClick={() => setCurrentMediaIndex(index)}
-                        className={`flex-shrink-0 w-[136px] h-[70px] rounded-12 overflow-hidden transition-all duration-200 ${
-                          index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
-                        }`}>
-                        {media.includes('.mov') || media.includes('.mp4') ? (
-                          <video src={media} className='w-full h-full object-cover' />
-                        ) : (
-                          <img src={media} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
-                        )}
-                      </button>
-                    </SplideSlide>
-                  ))}
+                  {medias.map((media, index) => {
+                    const isYouTube = isValidYouTubeUrl(media);
+                    const thumbnailSrc = isYouTube ? getYouTubeThumbnailUrl(media) : media;
+                    const isVideoFile = media.includes('.mov') || media.includes('.mp4');
+
+                    return (
+                      <SplideSlide key={index}>
+                        <div className='relative'>
+                          <button
+                            onClick={() => setCurrentMediaIndex(index)}
+                            className={`flex-shrink-0 w-[136px] h-[70px] rounded-12 overflow-hidden transition-all duration-200 ${
+                              index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
+                            }`}>
+                            {isVideoFile ? (
+                              <video src={media} className='w-full h-full object-cover' />
+                            ) : isYouTube ? (
+                              <div className='relative w-full h-full'>
+                                <img src={thumbnailSrc} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
+                                <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
+                                  <MovieIcon size={20} className='text-white' />
+                                </div>
+                              </div>
+                            ) : (
+                              <img src={media} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
+                            )}
+                          </button>
+                          {isYouTube && <span className='absolute bottom-1 right-1 bg-red-600 text-white text-[8px] px-1 rounded z-10'>YT</span>}
+                        </div>
+                      </SplideSlide>
+                    );
+                  })}
                 </SplideTrack>
                 <div className='flex justify-between items-center'>
                   <div className='splide__arrows relative flex gap-10'>
@@ -354,6 +382,16 @@ export const SimpleOverviewCard: React.FC<SimpleOverviewProps> = ({
                   <ShareIcon size={12} />
                   Partager
                 </Button>
+                {fullUrl && (
+                  <Button
+                    as={Link}
+                    href={fullUrl}
+                    isExternal
+                    size='md'
+                    className='text-16 h-auto px-10 py-5 rounded-8 text-c6 gap-2 bg-c2 hover:bg-c3'>
+                    Voir plus
+                  </Button>
+                )}
                 {itemDetails?.id && (
                   <AnnotationDropdown id={itemDetails.id} content='Contenu' image={medias?.[0] || ''} actant={getPersonDisplayName(personnes?.[0])} type={resourceType} />
                 )}

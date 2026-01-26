@@ -16,6 +16,7 @@ import { DynamicBreadcrumbs } from '@/components/layout/DynamicBreadcrumbs';
 import { GenericDetailPageConfig, PageMode, FetchResult } from './config';
 import { generateSmartRecommendations } from './helpers';
 import { ResourcePicker } from '@/components/features/forms/ResourcePicker';
+import { ResourceFormTabs, ResourceTabInfo } from '@/components/features/forms/ResourceFormTabs';
 import { getTemplatePropertiesMap } from '@/services/Items';
 import { useFormState } from '@/hooks/useFormState';
 import { MediaFile } from '@/components/features/forms/MediaDropzone';
@@ -34,6 +35,12 @@ const fadeIn: Variants = {
   }),
 };
 
+interface PendingLink {
+  linkedField: string;
+  resourceId: string | number;
+  resourceTitle?: string; // Titre de la ressource pour l'affichage
+}
+
 interface GenericDetailPageProps {
   config: GenericDetailPageConfig;
   initialMode?: PageMode;
@@ -41,6 +48,15 @@ interface GenericDetailPageProps {
   onSave?: (data: any) => Promise<void>;
   onCancel?: () => void;
   onCreateNewResource?: (viewKey: string, resourceTemplateId?: number) => void;
+  onSaveComplete?: (savedItemId: string | number, savedItemTitle?: string) => void; // Callback après sauvegarde réussie
+  onDirtyChange?: (isDirty: boolean) => void; // Callback quand l'état dirty change
+  pendingLinks?: PendingLink[]; // Ressources à lier automatiquement (créées dans un onglet enfant)
+  onPendingLinksProcessed?: () => void; // Callback après avoir traité les pendingLinks
+  // Props pour le système d'onglets (rendus à l'intérieur après PageBanner)
+  tabs?: ResourceTabInfo[];
+  activeTabId?: string;
+  onTabChange?: (tabId: string) => void;
+  onTabClose?: (tabId: string) => void;
 }
 
 /**
@@ -56,25 +72,45 @@ interface GenericDetailPageProps {
  * - Les sections optionnelles (keywords, recommendations, comments)
  */
 
-export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, initialMode = 'view', itemId: propItemId, onSave, onCancel, onCreateNewResource }) => {
+export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
+  config,
+  initialMode = 'view',
+  itemId: propItemId,
+  onSave,
+  onCancel,
+  onCreateNewResource,
+  onSaveComplete,
+  onDirtyChange,
+  pendingLinks,
+  onPendingLinksProcessed,
+  tabs,
+  activeTabId,
+  onTabChange,
+  onTabClose,
+}) => {
   const { id: paramId } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const id = propItemId || paramId; // Priorité au prop, sinon useParams
+  // En mode create sans itemId, ne pas utiliser l'ID de l'URL
+  // propItemId peut être undefined explicitement (nouvel item) ou une string (édition)
+  const id = initialMode === 'create' && propItemId === undefined ? undefined : propItemId || paramId;
   const navigate = useNavigate();
 
   // Check URL for mode parameter (e.g., ?mode=edit)
   const urlMode = searchParams.get('mode') as PageMode | null;
 
-  // Mode state
-  const [mode, setMode] = useState<PageMode>(urlMode === 'edit' ? 'edit' : initialMode);
+  // Mode state - initialMode has priority over URL mode
+  // This is important when creating a new resource tab while editing another resource:
+  // the URL still has ?mode=edit but the new tab should be in create mode
+  const [mode, setMode] = useState<PageMode>(initialMode !== 'view' ? initialMode : urlMode === 'edit' ? 'edit' : 'view');
   const isEditing = mode === 'edit' || mode === 'create';
 
   // Sync mode with URL parameter when it changes (e.g., navigating with ?mode=edit)
+  // Only apply URL mode if initialMode was 'view' (not overridden by props)
   useEffect(() => {
-    if (urlMode === 'edit' && mode !== 'edit') {
+    if (initialMode === 'view' && urlMode === 'edit' && mode !== 'edit') {
       setMode('edit');
     }
-  }, [urlMode]);
+  }, [urlMode, initialMode]);
 
   // Sync URL parameter with mode state (keep ?mode=edit while editing)
   useEffect(() => {
@@ -105,6 +141,62 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
   const { data: formData, isDirty, isSubmitting } = formState;
   const { setFieldValue: setValue, setMultipleValues: setFormData, resetForm: reset, validateForm: validate } = formActions;
 
+  // Notify parent when dirty state changes (for tab management)
+  // Use a ref to store the callback to avoid infinite loops
+  const onDirtyChangeRef = useRef(onDirtyChange);
+  onDirtyChangeRef.current = onDirtyChange;
+
+  const prevIsDirtyRef = useRef(isDirty);
+  useEffect(() => {
+    // Only call if isDirty actually changed
+    if (prevIsDirtyRef.current !== isDirty) {
+      prevIsDirtyRef.current = isDirty;
+      onDirtyChangeRef.current?.(isDirty);
+    }
+  }, [isDirty]);
+
+  // Process pending links from child tabs (resources created in other tabs that need to be linked)
+  // Use a ref to track processed links and avoid reprocessing
+  const processedLinksRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (pendingLinks && pendingLinks.length > 0) {
+      let hasProcessedNew = false;
+
+      pendingLinks.forEach((link) => {
+        // Create a unique key to track this specific link
+        const linkKey = `${link.linkedField}-${link.resourceId}`;
+
+        // Skip if already processed
+        if (processedLinksRef.current.has(linkKey)) {
+          return;
+        }
+
+        const currentItems = formData[link.linkedField] || [];
+        const newItem = {
+          id: link.resourceId,
+          'o:id': link.resourceId,
+          title: link.resourceTitle || `Item #${link.resourceId}`,
+        };
+        // Avoid duplicates
+        const alreadyLinked = currentItems.some((item: any) => item.id === link.resourceId || item['o:id'] === link.resourceId);
+        if (!alreadyLinked) {
+          setValue(link.linkedField, [...currentItems, newItem]);
+          console.log('[GenericDetailPage] Added pending link:', link.linkedField, link.resourceId, link.resourceTitle);
+        }
+
+        // Mark as processed
+        processedLinksRef.current.add(linkKey);
+        hasProcessedNew = true;
+      });
+
+      // Notify parent that links were processed
+      if (hasProcessedNew && onPendingLinksProcessed) {
+        onPendingLinksProcessed();
+      }
+    }
+  }, [pendingLinks, formData, setValue, onPendingLinksProcessed]);
+
   // Get changed fields (for save)
   const getChangedFields = useCallback(() => {
     return formData;
@@ -124,6 +216,9 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
 
   // Media files state for edit mode
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
+
+  // YouTube URLs to create as media
+  const [youtubeUrls, setYoutubeUrls] = useState<string[]>([]);
 
   // Track removed existing media indexes
   const [removedMediaIndexes, setRemovedMediaIndexes] = useState<number[]>([]);
@@ -150,17 +245,19 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
     setCurrentVideoTime(newTime);
     console.log('✅ GenericDetailPage - currentVideoTime mis à jour:', newTime);
   };
-  const [itemDetails, setItemDetails] = useState<any>(null);
+  // En mode create, initialiser directement avec des données vides (pas de chargement nécessaire)
+  const isCreateMode = initialMode === 'create';
+  const [itemDetails, setItemDetails] = useState<any>(isCreateMode ? {} : null);
   const [keywords, setKeywords] = useState<any[]>([]);
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [viewData, setViewData] = useState<Record<string, any>>({});
-  const [loading, setLoading] = useState(true);
-  const [loadingRecommendations, setLoadingRecommendations] = useState(true);
+  const [loading, setLoading] = useState(!isCreateMode);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(!isCreateMode);
 
   // États de loading progressif pour chaque zone
-  const [loadingMedia, setLoadingMedia] = useState(true);
-  const [loadingKeywords, setLoadingKeywords] = useState(true);
-  const [loadingViews, setLoadingViews] = useState(true);
+  const [loadingMedia, setLoadingMedia] = useState(!isCreateMode);
+  const [loadingKeywords, setLoadingKeywords] = useState(!isCreateMode);
+  const [loadingViews, setLoadingViews] = useState(!isCreateMode);
   const [selected, setSelected] = useState(config.defaultView || config.viewOptions[0]?.key || '');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [equalHeight, setEqualHeight] = useState<number | null>(null);
@@ -312,7 +409,14 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
   }, [id, config, mode]);
 
   // Reset all states when ID changes (important for browser back/forward navigation)
+  // En mode create sans ID, on ne reset pas car les états sont déjà initialisés correctement
   useEffect(() => {
+    // En mode create, pas besoin de reset - les états sont déjà bons
+    if (mode === 'create' && !id) {
+      setSelected(config.defaultView || config.viewOptions[0]?.key || '');
+      return;
+    }
+
     // Reset states to trigger fresh loading
     setItemDetails(null);
     setKeywords([]);
@@ -328,7 +432,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
 
     // Reset selected view to default
     setSelected(config.defaultView || config.viewOptions[0]?.key || '');
-  }, [id, config.defaultView, config.viewOptions]);
+  }, [id, config.defaultView, config.viewOptions, mode]);
 
   useEffect(() => {
     fetchData();
@@ -402,6 +506,12 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
         extractedData.keywords = keywords;
       }
 
+      // Map URL type fields to fullUrl for compatibility with hardcoded form
+      const urlField = config.formFields?.find((f) => f.type === 'url');
+      if (urlField && extractedData[urlField.key]) {
+        extractedData.fullUrl = extractedData[urlField.key];
+      }
+
       setFormData(extractedData);
       // Reset media files to empty - existing medias are now handled separately via existingMedias prop
       setMediaFiles([]);
@@ -468,6 +578,8 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
       const changedData = getChangedFields();
       // Add media files to the data
       changedData.mediaFiles = mediaFiles;
+      // Add YouTube URLs to create as media
+      changedData.youtubeUrls = youtubeUrls;
 
       // Add media IDs to delete based on removedMediaIndexes
       if (removedMediaIndexes.length > 0 && itemDetails?.['o:media']) {
@@ -494,9 +606,19 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
         return;
       } else if (onSave) {
         await onSave(changedData);
+        // Notify parent of successful save (for tab management)
+        if (id) {
+          const savedTitle = changedData.title || formData.title;
+          onSaveComplete?.(id, savedTitle);
+        }
       } else {
         // Sauvegarde par défaut vers Omeka S
-        await saveToOmekaS(changedData);
+        const result = await saveToOmekaS(changedData);
+        // Notify parent of successful save (for tab management)
+        if (result?.['o:id']) {
+          const savedTitle = changedData.title || result?.['o:title'] || result?.['dcterms:title']?.[0]?.['@value'];
+          onSaveComplete?.(result['o:id'], savedTitle);
+        }
       }
 
       addToast({
@@ -504,6 +626,11 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
         description: 'Les modifications ont été enregistrées.',
         classNames: { base: 'bg-success', title: 'text-c6', description: 'text-c6', icon: 'text-c6' },
       });
+
+      // Réinitialiser les états après sauvegarde
+      setYoutubeUrls([]);
+      setMediaFiles([]);
+      setRemovedMediaIndexes([]);
 
       setMode('view');
       // Refresh data
@@ -560,8 +687,15 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
             keywords: 'jdc:hasConcept',
             personnes: 'schema:agent',
             actants: 'jdc:hasActant',
+            // Propriétés pour les ressources liées (outils, feedbacks, etc.)
+            'theatre:credit': 'theatre:credit',
+            'schema:description': 'schema:description',
+            // Propriétés pour les bibliographies/références
+            references: 'dcterms:references',
+            'dcterms:references': 'dcterms:references',
+            'dcterms:bibliographicCitation': 'dcterms:bibliographicCitation',
           };
-          const fallbackProp = keyToOmekaProp[key];
+          const fallbackProp = keyToOmekaProp[key] || key; // Utiliser la clé directement si pas de mapping
           if (fallbackProp && templatePropMap[fallbackProp]) {
             omekaPropertyKey = fallbackProp;
             propertyId = templatePropMap[fallbackProp];
@@ -570,10 +704,11 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
 
         if (omekaPropertyKey && propertyId) {
           // Remplacer complètement les ressources liées (permet ajouts ET suppressions)
+          // Note: utiliser item.id || item['o:id'] car certaines ressources ont seulement 'o:id'
           updatedItem[omekaPropertyKey] = (value as any[]).map((item: any) => ({
             type: 'resource',
             property_id: propertyId,
-            value_resource_id: item.id,
+            value_resource_id: item.id || item['o:id'],
             is_public: true,
           }));
         }
@@ -581,9 +716,48 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
       // Si c'est une valeur texte simple
       else if (typeof value === 'string') {
         const omekaPropertyKey = findOmekaPropertyKey(updatedItem, key);
-        if (omekaPropertyKey && updatedItem[omekaPropertyKey] && Array.isArray(updatedItem[omekaPropertyKey])) {
-          if (updatedItem[omekaPropertyKey].length > 0) {
-            updatedItem[omekaPropertyKey][0]['@value'] = value;
+        if (omekaPropertyKey) {
+          // Détecter si c'est une propriété URL (schema:url, etc.)
+          const isUrlProperty = omekaPropertyKey === 'schema:url' || key === 'fullUrl' || key === 'externalLink' || key === 'url';
+
+          if (updatedItem[omekaPropertyKey] && Array.isArray(updatedItem[omekaPropertyKey]) && updatedItem[omekaPropertyKey].length > 0) {
+            // La propriété existe, mettre à jour
+            if (isUrlProperty) {
+              // Pour les URLs, utiliser @id au lieu de @value
+              updatedItem[omekaPropertyKey][0]['@id'] = value;
+              updatedItem[omekaPropertyKey][0]['type'] = 'uri';
+              delete updatedItem[omekaPropertyKey][0]['@value'];
+            } else {
+              updatedItem[omekaPropertyKey][0]['@value'] = value;
+            }
+          } else if (value.trim() !== '') {
+            // La propriété n'existe pas, la créer (seulement si valeur non vide)
+            const propertyId = getPropertyId(omekaPropertyKey, templatePropMap);
+            if (propertyId) {
+              if (isUrlProperty) {
+                // Créer comme type URI
+                updatedItem[omekaPropertyKey] = [
+                  {
+                    type: 'uri',
+                    property_id: propertyId,
+                    '@id': value,
+                    is_public: true,
+                  },
+                ];
+                console.log(`[saveToOmekaS] Created new URI property: ${omekaPropertyKey}`);
+              } else {
+                // Créer comme type literal
+                updatedItem[omekaPropertyKey] = [
+                  {
+                    type: 'literal',
+                    property_id: propertyId,
+                    '@value': value,
+                    is_public: true,
+                  },
+                ];
+                console.log(`[saveToOmekaS] Created new string property: ${omekaPropertyKey}`);
+              }
+            }
           }
         }
       }
@@ -629,6 +803,85 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
 
     const result = await saveResponse.json();
     console.log('[saveToOmekaS] Save successful, response:', result['o:id']);
+
+    // 5. Créer les médias YouTube (si présents)
+    const youtubeUrlsToCreate = data.youtubeUrls || [];
+    if (Array.isArray(youtubeUrlsToCreate) && youtubeUrlsToCreate.length > 0) {
+      console.log('[saveToOmekaS] Creating', youtubeUrlsToCreate.length, 'YouTube media');
+      for (const ytUrl of youtubeUrlsToCreate) {
+        try {
+          // Extraire l'ID de la vidéo YouTube
+          const videoIdMatch = ytUrl.match(/(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+          const videoId = videoIdMatch ? videoIdMatch[1] : null;
+
+          if (!videoId) {
+            console.error('[saveToOmekaS] Invalid YouTube URL:', ytUrl);
+            continue;
+          }
+
+          const mediaUrl = `${API_BASE}media?key_identity=${API_IDENT}&key_credential=${API_KEY}`;
+          const mediaResponse = await fetch(mediaUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              'o:ingester': 'youtube',
+              'o:renderer': 'youtube',
+              'o:source': ytUrl,
+              'o:item': { 'o:id': id },
+              data: { id: videoId },
+              is_public: true,
+            }),
+          });
+
+          if (!mediaResponse.ok) {
+            console.error('[saveToOmekaS] YouTube media creation failed:', await mediaResponse.text());
+          } else {
+            console.log('[saveToOmekaS] YouTube media created successfully');
+          }
+        } catch (err) {
+          console.error('[saveToOmekaS] YouTube media creation error:', err);
+        }
+      }
+    }
+
+    // 6. Upload des nouveaux fichiers médias (images/vidéos)
+    const mediaFilesToUpload = data.mediaFiles || [];
+    if (Array.isArray(mediaFilesToUpload) && mediaFilesToUpload.length > 0) {
+      console.log('[saveToOmekaS] Uploading', mediaFilesToUpload.length, 'media files');
+      for (const mediaFile of mediaFilesToUpload) {
+        const file = mediaFile.file || mediaFile;
+        if (file instanceof File) {
+          try {
+            const formData = new FormData();
+            // Format correct pour Omeka S : data avec file_index AVANT file[0]
+            formData.append(
+              'data',
+              JSON.stringify({
+                'o:ingester': 'upload',
+                'o:item': { 'o:id': id },
+                file_index: '0',
+              }),
+            );
+            formData.append('file[0]', file);
+
+            const mediaUrl = `${API_BASE}media?key_identity=${API_IDENT}&key_credential=${API_KEY}`;
+            const mediaResponse = await fetch(mediaUrl, {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (!mediaResponse.ok) {
+              console.error('[saveToOmekaS] Media upload failed:', await mediaResponse.text());
+            } else {
+              console.log('[saveToOmekaS] Media uploaded successfully');
+            }
+          } catch (err) {
+            console.error('[saveToOmekaS] Media upload error:', err);
+          }
+        }
+      }
+    }
+
     return result;
   };
 
@@ -640,9 +893,15 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
       title: ['dcterms:title'],
       description: ['dcterms:description'],
       date: ['dcterms:date'],
-      personnes: ['jdc:hasActant', 'dcterms:contributor'],
-      actants: ['jdc:hasActant'],
+      personnes: ['schema:agent', 'jdc:hasActant', 'dcterms:contributor', 'schema:contributor'],
+      actants: ['jdc:hasActant', 'schema:agent'],
       percentage: ['schema:ratingValue'],
+      fullUrl: ['schema:url'],
+      externalLink: ['schema:url'],
+      url: ['schema:url'],
+      references: ['dcterms:references'],
+      'dcterms:references': ['dcterms:references'],
+      'dcterms:bibliographicCitation': ['dcterms:bibliographicCitation'],
     };
 
     const possibleKeys = keyMappings[simpleKey] || [simpleKey];
@@ -1110,7 +1369,55 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
       }
     }
 
-    // Déterminer le chemin de redirection basé sur le type de config
+    // Créer les médias YouTube
+    const youtubeUrlsToCreate = data.youtubeUrls || [];
+    if (Array.isArray(youtubeUrlsToCreate) && youtubeUrlsToCreate.length > 0) {
+      console.log('[createInOmekaS] Creating', youtubeUrlsToCreate.length, 'YouTube media');
+      for (const ytUrl of youtubeUrlsToCreate) {
+        try {
+          // Extraire l'ID de la vidéo YouTube
+          const videoIdMatch = ytUrl.match(/(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+          const videoId = videoIdMatch ? videoIdMatch[1] : null;
+
+          if (!videoId) {
+            console.error('[createInOmekaS] Invalid YouTube URL:', ytUrl);
+            continue;
+          }
+
+          const mediaUrl = `${API_BASE}media?key_identity=${API_IDENT}&key_credential=${API_KEY}`;
+          const mediaResponse = await fetch(mediaUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              'o:ingester': 'youtube',
+              'o:renderer': 'youtube',
+              'o:source': ytUrl,
+              'o:item': { 'o:id': newItemId },
+              data: { id: videoId },
+              is_public: true,
+            }),
+          });
+
+          if (!mediaResponse.ok) {
+            console.error('[createInOmekaS] YouTube media creation failed:', await mediaResponse.text());
+          } else {
+            console.log('[createInOmekaS] YouTube media created successfully');
+          }
+        } catch (err) {
+          console.error('[createInOmekaS] YouTube media creation error:', err);
+        }
+      }
+    }
+
+    // Si onSaveComplete est défini (mode onglets), notifier et ne pas naviguer
+    if (onSaveComplete) {
+      // Récupérer le titre depuis les données ou le résultat
+      const savedTitle = data.title || result?.['o:title'] || result?.['dcterms:title']?.[0]?.['@value'];
+      onSaveComplete(newItemId, savedTitle);
+      return result;
+    }
+
+    // Sinon, rediriger comme avant
     let redirectPath = `/espace-etudiant/`;
     // if (config.type?.includes('Expérimentation')) {
     //   redirectPath = `/espace-etudiant/experimentation/${newItemId}`;
@@ -1585,6 +1892,23 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
     return [...allKeywords].sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
   }, [keywords, isEditing, formData.keywords]);
 
+  // Bug 3 fix: Si mode édition mais données pas encore chargées, afficher skeleton
+  if (isEditing && !itemDetails && loading) {
+    return (
+      <Layouts className='grid grid-cols-10 col-span-10 gap-50 overflow-visible z-0'>
+        <div className='col-span-10 overflow-visible'>
+          <PageBanner title={mode === 'create' ? 'Mode création' : 'Mode édition'} icon={<EditIcon />} description={`${config.type || 'Ressource'}`} edition />
+        </div>
+        {/* Onglets toujours visibles même pendant le chargement */}
+        {tabs && activeTabId && onTabChange && onTabClose && <ResourceFormTabs tabs={tabs} activeTabId={activeTabId} onTabChange={onTabChange} onTabClose={onTabClose} />}
+        <div className='col-span-10 lg:col-span-6 flex flex-col gap-25'>
+          {OverviewSkeleton && <OverviewSkeleton />}
+          {DetailsSkeleton && <DetailsSkeleton />}
+        </div>
+      </Layouts>
+    );
+  }
+
   return (
     <>
       <Layouts className='grid grid-cols-10 col-span-10 gap-50 overflow-visible z-0'>
@@ -1593,6 +1917,11 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
           <div className='col-span-10 overflow-visible'>
             <PageBanner title={mode === 'create' ? 'Mode création' : 'Mode édition'} icon={<EditIcon />} description={`${config.type || 'Ressource'}`} edition />
           </div>
+        )}
+
+        {/* Onglets de ressources (toujours visible en mode édition si tabs est fourni) */}
+        {isEditing && tabs && activeTabId && onTabChange && onTabClose && (
+          <ResourceFormTabs tabs={tabs} activeTabId={activeTabId} onTabChange={onTabChange} onTabClose={onTabClose} />
         )}
 
         {/* Colonne principale */}
@@ -1690,6 +2019,8 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
                   setValue('personnes', [...currentPersonnes, ...mappedResources]);
                 }}
                 onLinkChange={(value: string) => setValue('fullUrl', value)}
+                youtubeUrls={youtubeUrls}
+                onYouTubeUrlsChange={(urls: string[]) => setYoutubeUrls(urls)}
                 mediaFiles={mediaFiles}
                 removedMediaIndexes={removedMediaIndexes}
                 onRemoveExistingMedia={handleRemoveExistingMedia}
@@ -1966,6 +2297,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({ config, in
           resourceTemplateIds={pickerState.resourceTemplateIds}
           multiSelect={pickerState.multiSelect}
           selectedIds={[]}
+          displayMode={pickerState.viewKey === 'keywords' ? 'alphabetic' : 'grid'}
         />
       </Layouts>
 

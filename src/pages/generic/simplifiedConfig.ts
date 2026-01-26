@@ -221,6 +221,9 @@ export interface SimplifiedDetailConfig {
   /** Titre des recommandations */
   recommendationsTitle?: string;
 
+  /** Type pour les liens du carousel de recommandations (ex: 'experimentationStudents') */
+  recommendationType?: string;
+
   /** Smart recommendations */
   smartRecommendations?: SmartRecommendationsStrategy;
 

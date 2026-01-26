@@ -227,11 +227,11 @@ export const EspaceEtudiant: React.FC = () => {
                 <ExpCard
                   id={String(item.id)}
                   title={item.title}
-                  thumbnail={item.thumbnail ? `https://tests.arcanes.ca/omk${item.thumbnail}` : undefined}
+                  thumbnail={item.thumbnail || undefined}
                   actants={item.actants?.map((a) => ({
                     id: String(a.id),
                     title: a.title,
-                    picture: a.picture ? `https://tests.arcanes.ca/omk${a.picture}` : undefined,
+                    picture: a.picture || undefined,
                   }))}
                   type={item.type === 'experimentation' ? 'experimentationStudents' : item.type}
                 />
@@ -326,11 +326,11 @@ export const EspaceEtudiant: React.FC = () => {
                         <ExpCard
                           id={String(item.id)}
                           title={item.title}
-                          thumbnail={item.thumbnail ? `https://tests.arcanes.ca/omk${item.thumbnail}` : undefined}
+                          thumbnail={item.thumbnail || undefined}
                           actants={item.actants?.map((a) => ({
                             id: String(a.id),
                             title: a.title,
-                            picture: a.picture ? `https://tests.arcanes.ca/omk${a.picture}` : undefined,
+                            picture: a.picture || undefined,
                           }))}
                           type={item.type === 'experimentation' ? 'experimentationStudents' : item.type}
                         />

@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Input,
-  Spinner,
-  Checkbox,
-} from '@heroui/react';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Spinner, Checkbox } from '@heroui/react';
 import { ThumbnailIcon, UserIcon } from '@/components/ui/icons';
 
 const API_BASE = '/omk/api/';
@@ -38,15 +28,7 @@ interface ResourceSelectionModalProps {
  * Modal réutilisable pour sélectionner des ressources Omeka S
  * Supporte plusieurs resourceTemplateIds et la multi-sélection
  */
-export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
-  isOpen,
-  onClose,
-  onSelect,
-  title,
-  resourceTemplateIds,
-  excludeIds = [],
-  multiSelect = true,
-}) => {
+export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ isOpen, onClose, onSelect, title, resourceTemplateIds, excludeIds = [], multiSelect = true }) => {
   const [resources, setResources] = useState<ResourceItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,7 +75,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
         }
 
         const data = await response.json();
-        console.log('[ResourceSelectionModal] Nombre d\'items reçus:', data.length);
+        console.log("[ResourceSelectionModal] Nombre d'items reçus:", data.length);
 
         // Debug: afficher les données brutes de l'API
         console.log(`[ResourceSelectionModal] Données brutes pour template ${templateId}:`, data);
@@ -130,9 +112,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
       }
 
       // Dédupliquer par ID
-      const uniqueResources = allResources.filter(
-        (resource, index, self) => index === self.findIndex((r) => r.id === resource.id)
-      );
+      const uniqueResources = allResources.filter((resource, index, self) => index === self.findIndex((r) => r.id === resource.id));
 
       setResources(uniqueResources);
     } catch (err) {
@@ -146,9 +126,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
   // Filtrer les ressources (exclure celles déjà sélectionnées et appliquer la recherche)
   const availableResources = resources.filter((r) => !excludeIds.includes(r.id));
 
-  const filteredResources = availableResources.filter((r) =>
-    r.title.toLowerCase().includes(searchFilter.toLowerCase())
-  );
+  const filteredResources = availableResources.filter((r) => r.title.toLowerCase().includes(searchFilter.toLowerCase()));
 
   const handleToggleSelect = (id: number) => {
     setSelectedIds((prev) => {
@@ -189,19 +167,20 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
         onClick={() => handleToggleSelect(item.id)}
         className={`
           relative cursor-pointer rounded-12 border-2 transition-all ease-in-out duration-200
-          ${isSelected
-            ? 'border-primary bg-primary/10 shadow-[inset_0_0px_30px_rgba(var(--primary-rgb),0.1)]'
-            : 'border-c3 hover:border-c4 hover:bg-c2 shadow-[inset_0_0px_30px_rgba(255,255,255,0.04)]'
+          ${
+            isSelected
+              ? 'border-primary bg-primary/10 shadow-[inset_0_0px_30px_rgba(var(--primary-rgb),0.1)]'
+              : 'border-c3 hover:border-c4 hover:bg-c2 shadow-[inset_0_0px_30px_rgba(255,255,255,0.04)]'
           }
-        `}
-      >
+        `}>
         {/* Checkbox en haut à gauche */}
         <div className='absolute top-2 left-2 z-10'>
           <Checkbox
             isSelected={isSelected}
             onValueChange={() => handleToggleSelect(item.id)}
             classNames={{
-              wrapper: 'before:border-c4',
+              wrapper: 'w-6 h-6 before:border-c4 before:border-2 after:bg-primary',
+              icon: 'w-4 h-4',
             }}
           />
         </div>
@@ -209,11 +188,8 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
         <div className='p-3 flex flex-col gap-2'>
           {/* Thumbnail ou placeholder */}
           <div
-            className={`w-full h-[80px] rounded-8 flex justify-center items-center overflow-hidden ${
-              item.thumbnailUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'
-            }`}
-            style={item.thumbnailUrl ? { backgroundImage: `url(${item.thumbnailUrl})` } : {}}
-          >
+            className={`w-full h-[80px] rounded-8 flex justify-center items-center overflow-hidden ${item.thumbnailUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'}`}
+            style={item.thumbnailUrl ? { backgroundImage: `url(${item.thumbnailUrl})` } : {}}>
             {!item.thumbnailUrl && <ThumbnailIcon className='text-c4/30' size={28} />}
           </div>
 
@@ -228,9 +204,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
                 <div className='w-5 h-5 flex items-center justify-center bg-c3 rounded-6'>
                   <UserIcon className='text-c4' size={10} />
                 </div>
-                <p className='text-11 text-c4 font-extralight truncate'>
-                  {item.actantName || item.resourceClass}
-                </p>
+                <p className='text-11 text-c4 font-extralight truncate'>{item.actantName || item.resourceClass}</p>
               </div>
             )}
           </div>
@@ -243,35 +217,34 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="4xl"
-      scrollBehavior="inside"
+      size='4xl'
+      scrollBehavior='inside'
       classNames={{
         base: 'bg-c1 border-2 border-c3',
         header: 'border-b border-c3',
         body: 'py-4',
         footer: 'border-t border-c3',
-      }}
-    >
+      }}>
       <ModalContent>
         {(onModalClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1">
+            <ModalHeader className='flex flex-col gap-1'>
               <span className='text-c6'>{title}</span>
-              <span className="text-sm font-normal text-c5">
+              <span className='text-sm font-normal text-c5'>
                 {selectedIds.size} sélectionné(s) sur {availableResources.length} disponibles
               </span>
             </ModalHeader>
 
             <ModalBody>
               {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Spinner size="lg" />
-                  <span className="ml-3 text-c5">Chargement des ressources...</span>
+                <div className='flex items-center justify-center py-12'>
+                  <Spinner size='lg' />
+                  <span className='ml-3 text-c5'>Chargement des ressources...</span>
                 </div>
               ) : error ? (
-                <div className="text-center py-12">
-                  <p className="text-red-500">{error}</p>
-                  <Button size="sm" className="mt-4" onPress={loadResources}>
+                <div className='text-center py-12'>
+                  <p className='text-red-500'>{error}</p>
+                  <Button size='sm' className='mt-4' onPress={loadResources}>
                     Réessayer
                   </Button>
                 </div>
@@ -280,13 +253,13 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
                   {/* Barre de recherche et boutons */}
                   <div className='flex flex-col sm:flex-row gap-3 mb-4'>
                     <Input
-                      placeholder="Rechercher..."
+                      placeholder='Rechercher...'
                       value={searchFilter}
                       onValueChange={setSearchFilter}
-                      size="sm"
-                      className="flex-1"
+                      size='md'
+                      className='flex-1'
                       classNames={{
-                        inputWrapper: 'bg-c2 border-c3 border-2 hover:bg-c3',
+                        inputWrapper: 'bg-c3 border-2 border-c3 hover:bg-c4 hover:border-c4 rounded-8 min-h-[40px]',
                         input: 'text-c6',
                       }}
                       isClearable
@@ -295,21 +268,17 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
 
                     {/* Boutons de sélection rapide */}
                     {multiSelect && (
-                      <div className="flex gap-2">
+                      <div className='flex gap-2'>
                         <Button
-                          size="sm"
-                          variant="flat"
+                          size='md'
                           onPress={handleSelectAll}
-                          className='bg-c2 border-2 border-c3 text-c5 hover:bg-c3'
-                        >
+                          className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-4 min-h-[40px] font-medium'>
                           Tout sélectionner
                         </Button>
                         <Button
-                          size="sm"
-                          variant="flat"
+                          size='md'
                           onPress={handleDeselectAll}
-                          className='bg-c2 border-2 border-c3 text-c5 hover:bg-c3'
-                        >
+                          className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-4 min-h-[40px] font-medium'>
                           Tout désélectionner
                         </Button>
                       </div>
@@ -317,16 +286,14 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
                   </div>
 
                   {/* Grille de cartes */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[450px] overflow-y-auto pr-1">
+                  <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[450px] overflow-y-auto pr-1'>
                     {filteredResources.length === 0 ? (
                       <div className='col-span-full text-center py-12'>
                         <ThumbnailIcon className='text-c4/30 mx-auto mb-3' size={40} />
-                        <p className="text-c5 text-sm">Aucune ressource trouvée</p>
+                        <p className='text-c5 text-sm'>Aucune ressource trouvée</p>
                       </div>
                     ) : (
-                      filteredResources.map((item) => (
-                        <ResourceCard key={item.id} item={item} />
-                      ))
+                      filteredResources.map((item) => <ResourceCard key={item.id} item={item} />)
                     )}
                   </div>
                 </>
@@ -334,19 +301,10 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({
             </ModalBody>
 
             <ModalFooter>
-              <Button
-                variant="light"
-                onPress={onModalClose}
-                className='text-c5 hover:text-c6'
-              >
+              <Button onPress={onModalClose} className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-6 min-h-[40px] font-medium'>
                 Annuler
               </Button>
-              <Button
-                color="primary"
-                onPress={handleConfirm}
-                isDisabled={selectedIds.size === 0}
-                className='bg-primary hover:bg-primary/80'
-              >
+              <Button onPress={handleConfirm} isDisabled={selectedIds.size === 0} className='bg-primary hover:bg-primary/80 text-white rounded-8 px-6 min-h-[40px] font-medium'>
                 Valider ({selectedIds.size})
               </Button>
             </ModalFooter>

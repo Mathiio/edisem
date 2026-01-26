@@ -181,10 +181,10 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
                 stiffness: 300,
                 damping: 20,
               }}>
-              <img className='w-[45px] h-[45px] rounded-6 flex-shrink-0' src={comment.actant.picture} alt={comment.author || 'Avatar'} />
+              <img className='w-[45px] h-[45px] rounded-6 flex-shrink-0' src={comment.actant?.picture || '/default-avatar.png'} alt={comment.author || 'Avatar'} />
               <div className='flex-1 flex flex-col gap-2'>
                 <div className='flex items-center gap-2'>
-                  <span className='text-c4 text-14 font-regular'>{comment.actant.title || 'Anonyme'}</span>
+                  <span className='text-c4 text-14 font-regular'>{comment.actant?.title || 'Anonyme'}</span>
                   <span className='text-[#adadad] text-12'>{comment.commentTime ? formatDate(comment.commentTime) : "À l'instant"}</span>
                 </div>
                 <div className='flex flex-col gap-1'>
