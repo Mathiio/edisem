@@ -124,10 +124,12 @@ const fieldTypeToFormType: Record<FieldType, FormFieldType> = {
 };
 
 export const fieldToFormField = (field: InternalFieldConfig): FormFieldConfig => {
+  // For URL type fields, use @id instead of @value (Omeka S stores URIs in @id)
+  const dataPath = field.type === 'url' ? `${field.property}.0.@id` : `${field.property}.0.@value`;
   return {
     key: field.key,
     label: field.label,
-    dataPath: `${field.property}.0.@value`,
+    dataPath,
     type: fieldTypeToFormType[field.type] || 'text',
     required: field.required,
     placeholder: field.placeholder,
@@ -391,6 +393,11 @@ const createProgressiveOmekaDataFetcher = (config: SimplifiedDetailConfig, field
               const res = await fetchWithRetry(`${API_BASE}media/${mediaId}`, 1, 300);
               if (res && res.ok) {
                 const mediaData = await res.json();
+                // Pour les médias YouTube, utiliser o:source (URL YouTube)
+                if (mediaData['o:ingester'] === 'youtube' && mediaData['o:source']) {
+                  return mediaData['o:source'];
+                }
+                // Pour les autres médias, utiliser o:original_url
                 return mediaData['o:original_url'];
               }
             } catch (err) {
@@ -660,6 +667,11 @@ const createOmekaDataFetcher = (config: SimplifiedDetailConfig, fields: Internal
               const res = await fetchWithRetry(`${API_BASE}media/${mediaId}`, 1, 300);
               if (res && res.ok) {
                 const mediaData = await res.json();
+                // Pour les médias YouTube, utiliser o:source (URL YouTube)
+                if (mediaData['o:ingester'] === 'youtube' && mediaData['o:source']) {
+                  return mediaData['o:source'];
+                }
+                // Pour les autres médias, utiliser o:original_url
                 return mediaData['o:original_url'];
               }
             } catch (err) {
@@ -1211,6 +1223,18 @@ export const convertToGenericConfig = (config: SimplifiedDetailConfig): GenericD
     mapDetailsProps: (itemDetails: any) => ({
       itemDetails,
     }),
+
+    // Mapper pour les recommandations (carousel "similaires")
+    mapRecommendationProps: config.recommendationType
+      ? (item: any) => ({
+          id: item.id || item['o:id'],
+          title: item.title || item['o:title'] || item['dcterms:title']?.[0]?.['@value'],
+          type: config.recommendationType,
+          url: null,
+          thumbnail: item.associatedMedia?.[0] || item.thumbnail || null,
+          personnes: item.actants || [],
+        })
+      : undefined,
 
     // Options de vue
     viewOptions,

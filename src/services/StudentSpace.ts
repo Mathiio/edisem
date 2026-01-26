@@ -218,6 +218,7 @@ export const STUDENT_TEMPLATES = {
   feedback: 128,
   tool: 129,
   course: 130,
+  bibliography: 81,
 } as const;
 
 // ========== COURSE TYPES & FUNCTIONS ==========
@@ -396,6 +397,21 @@ export async function getResourcesByCourse(courseId: number): Promise<AllStudent
   }
 
   return result;
+}
+
+/**
+ * Récupérer les expérimentations du même cours qu'une expérimentation donnée
+ * Pour les recommandations "Expérimentations similaires"
+ */
+export async function getSameCourseExperimentations(experimentationId: number, limit: number = 4): Promise<StudentResourceCard[]> {
+  const response = await fetch(`${API_BASE}&action=getSameCourseExperimentations&experimentationId=${experimentationId}&limit=${limit}&json=1`);
+  const result = await response.json();
+
+  if (result.error) {
+    throw new Error(result.error);
+  }
+
+  return Array.isArray(result) ? result : [];
 }
 
 // ========== RESEARCH PROJECT (SAVED SEARCHES) ==========
@@ -666,6 +682,53 @@ export async function createOmekaUserForActant(
   });
 
   const response = await fetch(`${API_BASE}&action=createOmekaUserForActant&json=1&${params.toString()}`, {
+    method: 'POST',
+  });
+  const result = await response.json();
+
+  if (result.error) {
+    throw new Error(result.error);
+  }
+
+  return result;
+}
+
+/**
+ * Supprimer un actant (et optionnellement son utilisateur Omeka S)
+ */
+export async function deleteActant(actantId: number, deleteUser: boolean = false): Promise<{ success: boolean; actantId: number; actantTitle: string; userDeleted: boolean }> {
+  const params = new URLSearchParams({
+    actantId: String(actantId),
+    deleteUser: String(deleteUser),
+  });
+
+  const response = await fetch(`${API_BASE}&action=deleteActant&json=1&${params.toString()}`, {
+    method: 'POST',
+  });
+  const result = await response.json();
+
+  if (result.error) {
+    throw new Error(result.error);
+  }
+
+  return result;
+}
+
+/**
+ * Créer un actant avec son utilisateur Omeka S (pour import batch)
+ */
+export async function createActantWithUser(
+  email: string,
+  name: string,
+  role: string = 'author',
+): Promise<{ success: boolean; userId: number; actantId: number; email: string; name: string; role: string }> {
+  const params = new URLSearchParams({
+    email,
+    name,
+    role,
+  });
+
+  const response = await fetch(`${API_BASE}&action=createActantWithUser&json=1&${params.toString()}`, {
     method: 'POST',
   });
   const result = await response.json();

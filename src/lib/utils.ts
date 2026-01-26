@@ -1,4 +1,3 @@
-
 // Navigation utilities
 export const buildConfsRoute = (confType: string, id: number): string => {
   switch (confType) {
@@ -14,6 +13,8 @@ export const buildConfsRoute = (confType: string, id: number): string => {
       return `/corpus/recit-techno-industriel/${id}`;
     case 'experimentation':
       return `/corpus/experimentation/${id}`;
+    case 'experimentationStudents':
+      return `/espace-etudiant/experimentation/${id}`;
     case 'elementNarratif':
       return `/corpus/element-narratif/${id}`;
     case 'elementEsthetique':
@@ -35,8 +36,6 @@ export const buildConfsRoute = (confType: string, id: number): string => {
   }
 };
 
-
-
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////////    DATE UTILITIES    ///////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -47,10 +46,7 @@ export const formatDate = (dateString: string): string => {
     return '';
   }
 
-  const mois = [
-    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
-  ];
+  const mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 
   const dateParts = dateString.split('-');
   const year = dateParts[0];
@@ -70,7 +66,7 @@ export const formatDateShort = (dateString: string): string => {
   return date.toLocaleDateString('fr-FR', {
     day: '2-digit',
     month: '2-digit',
-    year: 'numeric'
+    year: 'numeric',
   });
 };
 
@@ -85,17 +81,13 @@ export const getYear = (dateString: string): string => {
 
 export const getSeasonOrder = (season: string) => {
   const seasonOrder: Record<string, number> = {
-    'automne': 3,
-    'été': 2,
-    'printemps': 1,
-    'hiver': 0
+    automne: 3,
+    été: 2,
+    printemps: 1,
+    hiver: 0,
   };
   return seasonOrder[season] || 0;
 };
-
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////
 //////////////////////////    MEDIA UTILITIES    ///////////////////////////
@@ -107,9 +99,7 @@ export const getYouTubeThumbnailUrl = (ytb: string): string => {
     return '';
   }
 
-  const videoId = ytb.match(
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
-  )?.[1];
+  const videoId = ytb.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
   return videoId ? `http://img.youtube.com/vi/${videoId}/0.jpg` : '';
 };
 
@@ -119,9 +109,7 @@ export const getYouTubeVideoId = (url: string): string | null => {
     return null;
   }
 
-  const match = url.match(
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
-  );
+  const match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   return match ? match[1] : null;
 };
 
@@ -133,9 +121,6 @@ export const isValidYouTubeUrl = (url: string): boolean => {
 
   return getYouTubeVideoId(url) !== null;
 };
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////
 //////////////////////////    STRING UTILITIES    //////////////////////////
@@ -166,13 +151,13 @@ export const slugUtils = {
   toTitle: (slug: string): string => {
     return slug
       .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   },
 
   matches: (text: string, slug: string): boolean => {
     return slugUtils.toSlug(text) === slug;
-  }
+  },
 };
 
 export const capitalizeFirst = (text: string): string => {

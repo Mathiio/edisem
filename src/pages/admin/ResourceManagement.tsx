@@ -317,7 +317,7 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
                         onNavigateToCourse ? 'text-c6 border-2 border-c4 hover:text-c1 cursor-pointer transition-colors px-4 py-1.5 bg-c3 hover:bg-c4 rounded-8 ' : 'text-c6'
                       }
                       onClick={() => onNavigateToCourse?.(resource.courseId as number)}>
-                      {resource.courseTitle}
+                      {courses.find((c) => c.id === resource.courseId)?.code || resource.courseTitle}
                     </span>
                   ) : (
                     <span className='text-c5'>Ressource enseignante</span>

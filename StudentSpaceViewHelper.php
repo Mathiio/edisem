@@ -21,6 +21,7 @@ class StudentSpaceViewHelper extends AbstractHelper
         'student' => 96,           // Étudiant
         'actant' => 72,            // Actant (enseignant/chercheur)
         'course' => 130,           // Cours
+        'bibliography' => 81,      // Bibliographie
     ];
 
     // IDs des propriétés pour les cours
@@ -259,6 +260,31 @@ class StudentSpaceViewHelper extends AbstractHelper
                 $result = $this->createOmekaUserForActant($actantId, $email, $name, $role);
                 break;
 
+            // Créer un actant avec son utilisateur Omeka S (pour import batch)
+            case 'createActantWithUser':
+                $email = isset($params['email']) ? trim($params['email']) : '';
+                $name = isset($params['name']) ? trim($params['name']) : '';
+                $role = isset($params['role']) ? $params['role'] : 'author';
+                $result = $this->createActantWithUser($email, $name, $role);
+                break;
+
+            // Supprimer un actant (et optionnellement son utilisateur Omeka S)
+            case 'deleteActant':
+                $actantId = isset($params['actantId']) ? (int)$params['actantId'] : 0;
+                $deleteUser = isset($params['deleteUser']) && $params['deleteUser'] === 'true';
+                $result = $this->deleteActant($actantId, $deleteUser);
+                break;
+
+            // Modifier un actant (email, nom, prénom, nom de famille)
+            case 'updateActant':
+                $actantId = isset($params['actantId']) ? (int)$params['actantId'] : 0;
+                $email = isset($params['email']) ? trim($params['email']) : '';
+                $name = isset($params['name']) ? trim($params['name']) : '';
+                $firstname = isset($params['firstname']) ? trim($params['firstname']) : '';
+                $lastname = isset($params['lastname']) ? trim($params['lastname']) : '';
+                $result = $this->updateActant($actantId, $email, $name, $firstname, $lastname);
+                break;
+
             // ========== RESOURCE MANAGEMENT ACTIONS ==========
 
             // Récupérer toutes les ressources avec leur cours associé (pour admin)
@@ -277,6 +303,13 @@ class StudentSpaceViewHelper extends AbstractHelper
             case 'deleteResource':
                 $id = isset($params['id']) ? (int)$params['id'] : 0;
                 $result = $this->deleteResource($id);
+                break;
+
+            // Récupérer les expérimentations du même cours (pour recommandations)
+            case 'getSameCourseExperimentations':
+                $experimentationId = isset($params['experimentationId']) ? (int)$params['experimentationId'] : 0;
+                $limit = isset($params['limit']) ? (int)$params['limit'] : 4;
+                $result = $this->getSameCourseExperimentations($experimentationId, $limit);
                 break;
 
             default:
@@ -409,11 +442,12 @@ class StudentSpaceViewHelper extends AbstractHelper
             SELECT
                 vr.id,
                 vr.title,
-                m.storage_id as picture
+                m.storage_id as picture,
+                m.extension as picture_ext
             FROM value v
             JOIN resource vr ON v.value_resource_id = vr.id
             LEFT JOIN (
-                SELECT item_id, storage_id FROM media WHERE id IN (
+                SELECT item_id, storage_id, extension FROM media WHERE id IN (
                     SELECT MIN(id) FROM media GROUP BY item_id
                 )
             ) m ON m.item_id = vr.id
@@ -429,10 +463,13 @@ class StudentSpaceViewHelper extends AbstractHelper
         $actant = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($actant) {
-            // Construire l'URL de l'image si disponible
+            // Construire l'URL complète de l'image si disponible
             if ($actant['picture']) {
-                $actant['picture'] = '/files/original/' . $actant['picture'];
+                $baseUrl = 'https://tests.arcanes.ca/omk/files/';
+                $ext = $actant['picture_ext'] ? '.' . $this->normalizeExtension($actant['picture_ext']) : '';
+                $actant['picture'] = $baseUrl . 'original/' . $actant['picture'] . $ext;
             }
+            unset($actant['picture_ext']);
             return [$actant];
         }
 
@@ -448,11 +485,12 @@ class StudentSpaceViewHelper extends AbstractHelper
             SELECT
                 vr.id,
                 vr.title,
-                m.storage_id as picture
+                m.storage_id as picture,
+                m.extension as picture_ext
             FROM value v
             JOIN resource vr ON v.value_resource_id = vr.id
             LEFT JOIN (
-                SELECT item_id, storage_id FROM media WHERE id IN (
+                SELECT item_id, storage_id, extension FROM media WHERE id IN (
                     SELECT MIN(id) FROM media GROUP BY item_id
                 )
             ) m ON m.item_id = vr.id
@@ -468,9 +506,13 @@ class StudentSpaceViewHelper extends AbstractHelper
         $contributor = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($contributor) {
+            // Construire l'URL complète de l'image si disponible
             if ($contributor['picture']) {
-                $contributor['picture'] = '/files/original/' . $contributor['picture'];
+                $baseUrl = 'https://tests.arcanes.ca/omk/files/';
+                $ext = $contributor['picture_ext'] ? '.' . $this->normalizeExtension($contributor['picture_ext']) : '';
+                $contributor['picture'] = $baseUrl . 'original/' . $contributor['picture'] . $ext;
             }
+            unset($contributor['picture_ext']);
             return [$contributor];
         }
 
@@ -479,11 +521,13 @@ class StudentSpaceViewHelper extends AbstractHelper
 
     /**
      * Récupère la thumbnail d'une ressource
+     * Utilise le dossier 'square' car Omeka S génère les thumbnails en .jpg
+     * même si l'original est en .jpeg, et le serveur bloque les .jpeg cross-origin
      */
     private function getThumbnail($resourceId)
     {
         $sql = "
-            SELECT storage_id
+            SELECT storage_id, extension
             FROM media
             WHERE item_id = :resourceId
             ORDER BY position ASC
@@ -495,7 +539,9 @@ class StudentSpaceViewHelper extends AbstractHelper
         $media = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($media && $media['storage_id']) {
-            return '/files/square/' . $media['storage_id'];
+            $baseUrl = 'https://tests.arcanes.ca/omk/files/';
+            // Utiliser 'square' avec extension .jpg car Omeka S génère les thumbnails en jpg
+            return $baseUrl . 'square/' . $media['storage_id'] . '.jpg';
         }
 
         return null;
@@ -604,6 +650,7 @@ class StudentSpaceViewHelper extends AbstractHelper
             SELECT
                 id,
                 storage_id,
+                extension,
                 media_type,
                 source
             FROM media
@@ -615,10 +662,12 @@ class StudentSpaceViewHelper extends AbstractHelper
         $stmt->execute(['resourceId' => $resourceId]);
         $medias = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
+        $baseUrl = 'https://tests.arcanes.ca/omk/files/';
         foreach ($medias as &$media) {
             if ($media['storage_id']) {
-                $media['url'] = '/files/original/' . $media['storage_id'];
-                $media['thumbnail'] = '/files/square/' . $media['storage_id'];
+                $ext = $media['extension'] ? '.' . $this->normalizeExtension($media['extension']) : '';
+                $media['url'] = $baseUrl . 'original/' . $media['storage_id'] . $ext;
+                $media['thumbnail'] = $baseUrl . 'square/' . $media['storage_id'] . $ext;
             }
         }
 
@@ -635,12 +684,13 @@ class StudentSpaceViewHelper extends AbstractHelper
                 vr.id,
                 vr.title,
                 m.storage_id as picture,
+                m.extension as picture_ext,
                 p.local_name as role
             FROM value v
             JOIN property p ON v.property_id = p.id
             JOIN resource vr ON v.value_resource_id = vr.id
             LEFT JOIN (
-                SELECT item_id, storage_id FROM media WHERE id IN (
+                SELECT item_id, storage_id, extension FROM media WHERE id IN (
                     SELECT MIN(id) FROM media GROUP BY item_id
                 )
             ) m ON m.item_id = vr.id
@@ -652,10 +702,13 @@ class StudentSpaceViewHelper extends AbstractHelper
         $stmt->execute(['resourceId' => $resourceId]);
         $actants = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
+        $baseUrl = 'https://tests.arcanes.ca/omk/files/';
         foreach ($actants as &$actant) {
             if ($actant['picture']) {
-                $actant['picture'] = '/files/original/' . $actant['picture'];
+                $ext = $actant['picture_ext'] ? '.' . $this->normalizeExtension($actant['picture_ext']) : '';
+                $actant['picture'] = $baseUrl . 'original/' . $actant['picture'] . $ext;
             }
+            unset($actant['picture_ext']);
         }
 
         return $actants;
@@ -842,13 +895,10 @@ class StudentSpaceViewHelper extends AbstractHelper
         $stmt->execute(['itemId' => $itemId]);
         $media = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        if ($media && $media['storage_id'] && $media['extension']) {
-            $ext = $this->normalizeExtension($media['extension']);
+        if ($media && $media['storage_id']) {
             $baseUrl = 'https://tests.arcanes.ca/omk/files/';
-            $filename = $media['storage_id'] . '.' . $ext;
-
-            // Utiliser original car square n'existe pas toujours (notamment pour les PNG)
-            return $baseUrl . 'original/' . $filename;
+            // Utiliser 'square' avec extension .jpg car Omeka S génère les thumbnails en jpg
+            return $baseUrl . 'square/' . $media['storage_id'] . '.jpg';
         }
 
         return null;
@@ -1859,6 +1909,70 @@ class StudentSpaceViewHelper extends AbstractHelper
     }
 
     /**
+     * Récupérer les expérimentations du même cours qu'une expérimentation donnée
+     * Pour les recommandations "Expérimentations similaires"
+     */
+    private function getSameCourseExperimentations($experimentationId, $limit = 4)
+    {
+        if (!$experimentationId) {
+            return [];
+        }
+
+        // 1. Trouver le cours auquel appartient cette expérimentation via dcterms:isPartOf (property_id = 33)
+        $courseQuery = "
+            SELECT v.value_resource_id as course_id
+            FROM value v
+            WHERE v.resource_id = :experimentationId
+            AND v.property_id = 33
+            LIMIT 1
+        ";
+
+        $stmt = $this->conn->prepare($courseQuery);
+        $stmt->execute(['experimentationId' => $experimentationId]);
+        $courseResult = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$courseResult || !$courseResult['course_id']) {
+            // Pas de cours associé, retourner une liste vide
+            return [];
+        }
+
+        $courseId = $courseResult['course_id'];
+
+        // 2. Récupérer les autres expérimentations du même cours (exclure l'expérimentation courante)
+        $sql = "
+            SELECT DISTINCT r.id, r.title, r.created
+            FROM resource r
+            JOIN value v ON v.resource_id = r.id
+            WHERE r.resource_template_id = :templateId
+            AND r.is_public = 1
+            AND v.property_id = 33
+            AND v.value_resource_id = :courseId
+            AND r.id != :experimentationId
+            ORDER BY r.created DESC
+            LIMIT :limit
+        ";
+
+        $templateId = $this->templates['experimentation']; // 127
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(':templateId', $templateId, \PDO::PARAM_INT);
+        $stmt->bindValue(':courseId', $courseId, \PDO::PARAM_INT);
+        $stmt->bindValue(':experimentationId', $experimentationId, \PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        $items = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // 3. Enrichir les données avec actants et thumbnail
+        foreach ($items as &$item) {
+            $item['type'] = 'experimentation';
+            $item['actants'] = $this->getFirstActant($item['id']);
+            $item['thumbnail'] = $this->getThumbnail($item['id']);
+        }
+
+        return $items;
+    }
+
+    /**
      * Récupérer les ressources d'un type créées par une liste d'étudiants (LEGACY - pour rétrocompatibilité)
      */
     private function getResourcesByStudents($studentIds, $type)
@@ -2129,6 +2243,270 @@ class StudentSpaceViewHelper extends AbstractHelper
         } catch (\Exception $e) {
             return ['error' => 'Erreur lors de la création: ' . $e->getMessage()];
         }
+    }
+
+    /**
+     * Créer un actant (item template 72) avec son utilisateur Omeka S
+     * Pour l'import batch d'actants
+     */
+    private function createActantWithUser($email, $name, $role = 'author')
+    {
+        if (empty($email)) {
+            return ['error' => 'Email requis'];
+        }
+        if (empty($name)) {
+            return ['error' => 'Nom requis'];
+        }
+
+        // Vérifier si un utilisateur avec cet email existe déjà
+        $checkUserSql = "SELECT id, name FROM user WHERE email = :email";
+        $stmt = $this->conn->prepare($checkUserSql);
+        $stmt->execute(['email' => $email]);
+        $existingUser = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // Vérifier si un actant avec cet email existe déjà
+        $checkActantSql = "
+            SELECT r.id, r.title
+            FROM resource r
+            JOIN `value` v ON v.resource_id = r.id AND v.property_id = 724
+            WHERE r.resource_template_id = :templateId
+            AND v.`value` = :email
+        ";
+        $stmt = $this->conn->prepare($checkActantSql);
+        $stmt->execute(['templateId' => $this->templates['actant'], 'email' => $email]);
+        $existingActant = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($existingActant) {
+            return ['error' => 'Un actant avec cet email existe déjà: ' . $existingActant['title']];
+        }
+
+        try {
+            $newUserId = null;
+
+            // Si l'utilisateur existe, vérifier s'il a un actant lié
+            if ($existingUser) {
+                $newUserId = $existingUser['id'];
+
+                // Vérifier si cet utilisateur a déjà un actant (resource avec owner_id = user.id et template actant)
+                $checkUserActantSql = "
+                    SELECT id, title FROM resource
+                    WHERE owner_id = :userId
+                    AND resource_template_id = :templateId
+                ";
+                $stmt = $this->conn->prepare($checkUserActantSql);
+                $stmt->execute(['userId' => $newUserId, 'templateId' => $this->templates['actant']]);
+                $userActant = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+                if ($userActant) {
+                    return ['error' => 'Cet utilisateur a déjà un actant: ' . $userActant['title']];
+                }
+                // L'utilisateur existe mais n'a pas d'actant, on va en créer un
+            } else {
+                // Créer l'utilisateur Omeka S
+                $tempPassword = password_hash('temp_' . time() . '_' . rand(1000, 9999), PASSWORD_DEFAULT);
+                $insertUserSql = "
+                    INSERT INTO user (email, name, role, is_active, created, modified, password_hash)
+                    VALUES (:email, :name, :role, 1, NOW(), NOW(), :password)
+                ";
+                $stmt = $this->conn->prepare($insertUserSql);
+                $stmt->execute([
+                    'email' => $email,
+                    'name' => $name,
+                    'role' => $role,
+                    'password' => $tempPassword
+                ]);
+                $newUserId = $this->conn->lastInsertId();
+            }
+
+            // 2. Créer l'item actant (resource template 72)
+            // Parser le nom pour extraire prénom et nom de famille
+            $nameParts = explode(' ', $name, 2);
+            $firstname = $nameParts[0];
+            $lastname = isset($nameParts[1]) ? $nameParts[1] : '';
+
+            $insertResourceSql = "
+                INSERT INTO resource (owner_id, resource_class_id, resource_template_id, is_public, created, modified, title)
+                VALUES (:ownerId, NULL, :templateId, 1, NOW(), NOW(), :title)
+            ";
+            $stmt = $this->conn->prepare($insertResourceSql);
+            $stmt->execute([
+                'ownerId' => $newUserId,
+                'templateId' => $this->templates['actant'],
+                'title' => $name
+            ]);
+            $newActantId = $this->conn->lastInsertId();
+
+            // Créer l'entrée dans item
+            $insertItemSql = "INSERT INTO item (id) VALUES (:id)";
+            $stmt = $this->conn->prepare($insertItemSql);
+            $stmt->execute(['id' => $newActantId]);
+
+            // 3. Ajouter les propriétés de l'actant
+            // dcterms:title (property 1)
+            $this->insertPropertyValue($newActantId, 1, $name);
+            // foaf:givenName (property 139)
+            if ($firstname) {
+                $this->insertPropertyValue($newActantId, 139, $firstname);
+            }
+            // foaf:familyName (property 140)
+            if ($lastname) {
+                $this->insertPropertyValue($newActantId, 140, $lastname);
+            }
+            // schema:email (property 724)
+            $this->insertPropertyValue($newActantId, 724, $email);
+
+            return [
+                'success' => true,
+                'userId' => (int)$newUserId,
+                'actantId' => (int)$newActantId,
+                'email' => $email,
+                'name' => $name,
+                'role' => $role
+            ];
+        } catch (\Exception $e) {
+            return ['error' => 'Erreur lors de la création: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Mettre à jour les informations d'un actant
+     */
+    private function updateActant($actantId, $email, $name, $firstname, $lastname)
+    {
+        if (!$actantId) {
+            return ['error' => 'actantId requis'];
+        }
+
+        // Vérifier que l'actant existe
+        $checkSql = "SELECT id, title, owner_id FROM resource WHERE id = :id AND resource_template_id = :templateId";
+        $stmt = $this->conn->prepare($checkSql);
+        $stmt->execute(['id' => $actantId, 'templateId' => $this->templates['actant']]);
+        $actant = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$actant) {
+            return ['error' => 'Actant non trouvé'];
+        }
+
+        try {
+            // Mettre à jour le titre de la resource
+            if (!empty($name)) {
+                $updateTitleSql = "UPDATE resource SET title = :title, modified = NOW() WHERE id = :id";
+                $stmt = $this->conn->prepare($updateTitleSql);
+                $stmt->execute(['title' => $name, 'id' => $actantId]);
+
+                // Mettre à jour dcterms:title (property 1)
+                $this->updatePropertyValue($actantId, 1, $name);
+            }
+
+            // Mettre à jour foaf:givenName (property 139)
+            if ($firstname !== '') {
+                $this->updatePropertyValue($actantId, 139, $firstname);
+            }
+
+            // Mettre à jour foaf:familyName (property 140)
+            if ($lastname !== '') {
+                $this->updatePropertyValue($actantId, 140, $lastname);
+            }
+
+            // Mettre à jour schema:email (property 724)
+            if ($email !== '') {
+                $this->updatePropertyValue($actantId, 724, $email);
+            }
+
+            return [
+                'success' => true,
+                'actantId' => $actantId,
+                'name' => $name,
+                'email' => $email,
+                'firstname' => $firstname,
+                'lastname' => $lastname
+            ];
+        } catch (\Exception $e) {
+            return ['error' => 'Erreur lors de la mise à jour: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Supprimer un actant et optionnellement son utilisateur Omeka S
+     */
+    private function deleteActant($actantId, $deleteUser = false)
+    {
+        if (!$actantId) {
+            return ['error' => 'actantId requis'];
+        }
+
+        // Vérifier que l'actant existe
+        $checkSql = "SELECT id, title, owner_id FROM resource WHERE id = :id AND resource_template_id = :templateId";
+        $stmt = $this->conn->prepare($checkSql);
+        $stmt->execute(['id' => $actantId, 'templateId' => $this->templates['actant']]);
+        $actant = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$actant) {
+            return ['error' => 'Actant non trouvé'];
+        }
+
+        $ownerId = $actant['owner_id'];
+
+        try {
+            // Supprimer les valeurs de propriétés
+            $deleteValuesSql = "DELETE FROM `value` WHERE resource_id = :id";
+            $stmt = $this->conn->prepare($deleteValuesSql);
+            $stmt->execute(['id' => $actantId]);
+
+            // Supprimer l'entrée dans item
+            $deleteItemSql = "DELETE FROM item WHERE id = :id";
+            $stmt = $this->conn->prepare($deleteItemSql);
+            $stmt->execute(['id' => $actantId]);
+
+            // Supprimer la ressource
+            $deleteResourceSql = "DELETE FROM resource WHERE id = :id";
+            $stmt = $this->conn->prepare($deleteResourceSql);
+            $stmt->execute(['id' => $actantId]);
+
+            $userDeleted = false;
+
+            // Supprimer l'utilisateur si demandé et s'il existe
+            if ($deleteUser && $ownerId) {
+                // Vérifier que l'utilisateur n'a pas d'autres ressources
+                $checkResourcesSql = "SELECT COUNT(*) as count FROM resource WHERE owner_id = :userId";
+                $stmt = $this->conn->prepare($checkResourcesSql);
+                $stmt->execute(['userId' => $ownerId]);
+                $resourceCount = $stmt->fetch(\PDO::FETCH_ASSOC)['count'];
+
+                if ($resourceCount == 0) {
+                    $deleteUserSql = "DELETE FROM user WHERE id = :id";
+                    $stmt = $this->conn->prepare($deleteUserSql);
+                    $stmt->execute(['id' => $ownerId]);
+                    $userDeleted = true;
+                }
+            }
+
+            return [
+                'success' => true,
+                'actantId' => $actantId,
+                'actantTitle' => $actant['title'],
+                'userDeleted' => $userDeleted
+            ];
+        } catch (\Exception $e) {
+            return ['error' => 'Erreur lors de la suppression: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Insère une valeur de propriété pour une ressource
+     */
+    private function insertPropertyValue($resourceId, $propertyId, $val)
+    {
+        $sql = "
+            INSERT INTO `value` (resource_id, property_id, type, `value`, is_public)
+            VALUES (:resourceId, :propertyId, 'literal', :val, 1)
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([
+            'resourceId' => $resourceId,
+            'propertyId' => $propertyId,
+            'val' => $val
+        ]);
     }
 
     /**

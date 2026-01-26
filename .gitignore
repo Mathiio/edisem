@@ -40,3 +40,4 @@ plans/
 CLAUDE.md
 .claude/
 docs/
+temp_api_response.json

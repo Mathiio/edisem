@@ -1,18 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Input,
-  Spinner,
-  Chip,
-  Checkbox,
-  Tabs,
-  Tab,
-} from '@heroui/react';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Spinner, Chip, Checkbox, Tabs, Tab } from '@heroui/react';
 import { SearchIcon, SortIcon, ThumbnailIcon, UserIcon } from '@/components/ui/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { usegetDataByClass } from '@/hooks/useFetchData';
@@ -22,14 +9,15 @@ export interface ResourcePickerProps {
   onClose: () => void;
   onSelect: (resources: any[]) => void;
   title: string;
-  resourceClassId?: number;           // ID de classe Omeka S pour filtrer les ressources (obsolète, utilisez resourceTemplateId)
-  resourceTemplateId?: number;        // ID de template Omeka S pour filtrer les ressources (recommandé)
-  resourceTemplateIds?: number[];     // IDs de templates multiples (pour bibliographies/médiagraphies)
-  multiSelect?: boolean;              // Autoriser la sélection multiple
-  selectedIds?: (string | number)[];  // IDs déjà sélectionnés
-  displayProperty?: string;           // Propriété à afficher (default: 'dcterms:title')
+  resourceClassId?: number; // ID de classe Omeka S pour filtrer les ressources (obsolète, utilisez resourceTemplateId)
+  resourceTemplateId?: number; // ID de template Omeka S pour filtrer les ressources (recommandé)
+  resourceTemplateIds?: number[]; // IDs de templates multiples (pour bibliographies/médiagraphies)
+  multiSelect?: boolean; // Autoriser la sélection multiple
+  selectedIds?: (string | number)[]; // IDs déjà sélectionnés
+  displayProperty?: string; // Propriété à afficher (default: 'dcterms:title')
   filterFn?: (resource: any) => boolean; // Fonction de filtre personnalisée
-  maxSelection?: number;              // Nombre max de sélections
+  maxSelection?: number; // Nombre max de sélections
+  displayMode?: 'grid' | 'alphabetic'; // Mode d'affichage: grille (défaut) ou alphabétique (pour mots-clés)
 }
 
 /**
@@ -62,7 +50,8 @@ const loadResourcesByTemplateId = async (templateId: number): Promise<{ resource
     // Charger le label du template en parallèle
     const templateLabelPromise = loadTemplateInfo(templateId);
 
-    while (hasMore && page <= 5) { // Max 5 pages = 500 items par template
+    while (hasMore && page <= 5) {
+      // Max 5 pages = 500 items par template
       const url = `${API_BASE}items?resource_template_id=${templateId}&per_page=${perPage}&page=${page}`;
       console.log('[ResourcePicker] Fetching:', url);
       const response = await fetch(url);
@@ -105,7 +94,7 @@ const loadResourcesByMultipleTemplateIds = async (templateIds: number[]): Promis
       templateIds.map(async (templateId) => {
         const { resources, templateLabel } = await loadResourcesByTemplateId(templateId);
         return { templateId, templateLabel, resources };
-      })
+      }),
     );
 
     const total = results.reduce((sum, t) => sum + t.resources.length, 0);
@@ -130,12 +119,11 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
   displayProperty = 'dcterms:title',
   filterFn,
   maxSelection,
+  displayMode = 'grid',
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [localSelectedIds, setLocalSelectedIds] = useState<Set<string | number>>(
-    new Set(selectedIds)
-  );
+  const [localSelectedIds, setLocalSelectedIds] = useState<Set<string | number>>(new Set(selectedIds));
   const [activeTab, setActiveTab] = useState<string>('all');
 
   // État pour les ressources chargées par template ID (nouvelle structure avec onglets)
@@ -169,12 +157,12 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
 
   // Calculer les ressources plates (pour la compatibilité avec le reste du code)
   const allTemplateResources = useMemo(() => {
-    return templateDataList.flatMap(t => t.resources);
+    return templateDataList.flatMap((t) => t.resources);
   }, [templateDataList]);
 
   // Choisir la source de données appropriée
-  const resources = (resourceTemplateId || resourceTemplateIds) ? allTemplateResources : classResources;
-  const loading = (resourceTemplateId || resourceTemplateIds) ? templateLoading : classLoading;
+  const resources = resourceTemplateId || resourceTemplateIds ? allTemplateResources : classResources;
+  const loading = resourceTemplateId || resourceTemplateIds ? templateLoading : classLoading;
 
   // Ressources filtrées par onglet actif
   const resourcesForActiveTab = useMemo(() => {
@@ -182,7 +170,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
     if (activeTab === 'all') return resources;
 
     const templateId = parseInt(activeTab, 10);
-    const templateData = templateDataList.find(t => t.templateId === templateId);
+    const templateData = templateDataList.find((t) => t.templateId === templateId);
     return templateData?.resources || [];
   }, [resources, activeTab, templateDataList]);
 
@@ -270,9 +258,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
     result.sort((a, b) => {
       const aValue = getDisplayValue(a);
       const bValue = getDisplayValue(b);
-      return sortOrder === 'asc'
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
+      return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
     });
 
     return result;
@@ -307,9 +293,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
   const handleConfirm = () => {
     if (!resources) return;
 
-    const selectedResources = resources.filter((r) =>
-      localSelectedIds.has(getResourceId(r))
-    );
+    const selectedResources = resources.filter((r) => localSelectedIds.has(getResourceId(r)));
     onSelect(selectedResources);
     onClose();
   };
@@ -340,19 +324,20 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
         onClick={() => toggleSelection(resource)}
         className={`
           relative cursor-pointer rounded-12 border-2 transition-all ease-in-out duration-200
-          ${selected
-            ? 'border-primary bg-primary/10 shadow-[inset_0_0px_30px_rgba(var(--primary-rgb),0.1)]'
-            : 'border-c3 hover:border-c4 hover:bg-c2 shadow-[inset_0_0px_30px_rgba(255,255,255,0.04)]'
+          ${
+            selected
+              ? 'border-primary bg-primary/10 shadow-[inset_0_0px_30px_rgba(var(--primary-rgb),0.1)]'
+              : 'border-c3 hover:border-c4 hover:bg-c2 shadow-[inset_0_0px_30px_rgba(255,255,255,0.04)]'
           }
-        `}
-      >
+        `}>
         {/* Checkbox en haut à gauche */}
         <div className='absolute top-2 left-2 z-10'>
           <Checkbox
             isSelected={selected}
             onValueChange={() => toggleSelection(resource)}
             classNames={{
-              wrapper: 'before:border-c4',
+              wrapper: 'w-6 h-6 before:border-c4 before:border-2 after:bg-primary',
+              icon: 'w-4 h-4',
             }}
           />
         </div>
@@ -360,11 +345,8 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
         <div className='p-3 flex flex-col gap-2'>
           {/* Thumbnail ou placeholder */}
           <div
-            className={`w-full h-[80px] rounded-8 flex justify-center items-center overflow-hidden ${
-              thumbnailUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'
-            }`}
-            style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}
-          >
+            className={`w-full h-[80px] rounded-8 flex justify-center items-center overflow-hidden ${thumbnailUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'}`}
+            style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
             {!thumbnailUrl && <ThumbnailIcon className='text-c4/30' size={28} />}
           </div>
 
@@ -379,9 +361,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                 <div className='w-5 h-5 flex items-center justify-center bg-c3 rounded-6'>
                   <UserIcon className='text-c4' size={10} />
                 </div>
-                <p className='text-11 text-c4 font-extralight truncate'>
-                  {actantName || resourceLabel}
-                </p>
+                <p className='text-11 text-c4 font-extralight truncate'>{actantName || resourceLabel}</p>
               </div>
             )}
           </div>
@@ -394,19 +374,18 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="4xl"
-      scrollBehavior="inside"
+      size='4xl'
+      scrollBehavior='inside'
       classNames={{
         base: 'bg-c1 border-2 border-c3',
         header: 'border-b border-c3',
         body: 'py-4',
         footer: 'border-t border-c3',
-      }}
-    >
+      }}>
       <ModalContent>
-        <ModalHeader className="flex flex-col gap-1">
-          <h2 className="text-c6 text-xl font-semibold">{title}</h2>
-          <p className="text-c4 text-sm font-normal">
+        <ModalHeader className='flex flex-col gap-1'>
+          <h2 className='text-c6 text-xl font-semibold'>{title}</h2>
+          <p className='text-c4 text-sm font-normal'>
             {localSelectedIds.size} sélectionné(s) sur {filteredResources.length} disponibles
             {maxSelection && ` (max: ${maxSelection})`}
           </p>
@@ -415,9 +394,9 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
         <ModalBody>
           {/* Onglets par type de ressource */}
           {templateDataList.length > 1 && (
-            <div className="mb-4">
+            <div className='mb-4'>
               <Tabs
-                aria-label="Types de ressources"
+                aria-label='Types de ressources'
                 selectedKey={activeTab}
                 onSelectionChange={(key) => setActiveTab(String(key))}
                 classNames={{
@@ -425,16 +404,13 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                   cursor: 'bg-primary rounded-8',
                   tab: 'px-4 py-2 text-c5 data-[selected=true]:text-white',
                   tabContent: 'group-data-[selected=true]:text-white',
-                }}
-              >
+                }}>
                 <Tab
-                  key="all"
+                  key='all'
                   title={
-                    <div className="flex items-center gap-2">
+                    <div className='flex items-center gap-2'>
                       <span>Tous</span>
-                      <span className="text-xs bg-c3 group-data-[selected=true]:bg-white/20 px-2 py-0.5 rounded-full">
-                        {resources?.length || 0}
-                      </span>
+                      <span className='text-xs bg-c3 group-data-[selected=true]:bg-white/20 px-2 py-0.5 rounded-full'>{resources?.length || 0}</span>
                     </div>
                   }
                 />
@@ -442,11 +418,9 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                   <Tab
                     key={String(template.templateId)}
                     title={
-                      <div className="flex items-center gap-2">
+                      <div className='flex items-center gap-2'>
                         <span>{template.templateLabel}</span>
-                        <span className="text-xs bg-c3 group-data-[selected=true]:bg-white/20 px-2 py-0.5 rounded-full">
-                          {template.resources.length}
-                        </span>
+                        <span className='text-xs bg-c3 group-data-[selected=true]:bg-white/20 px-2 py-0.5 rounded-full'>{template.resources.length}</span>
                       </div>
                     }
                   />
@@ -456,18 +430,18 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
           )}
 
           {/* Search and Sort */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <div className='flex flex-col sm:flex-row gap-3 mb-4'>
             <Input
               classNames={{
                 mainWrapper: 'flex-1',
                 input: 'text-c6 text-16',
-                inputWrapper: 'bg-c2 border-2 border-c3 hover:bg-c3 rounded-8',
+                inputWrapper: 'bg-c3 border-2 border-c3 hover:bg-c4 hover:border-c4 rounded-8 min-h-[40px]',
               }}
-              placeholder="Rechercher..."
-              startContent={<SearchIcon size={16} className="text-c5" />}
+              placeholder='Rechercher...'
+              startContent={<SearchIcon size={16} className='text-c5' />}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              type="search"
+              type='search'
               isClearable
               onClear={() => setSearchTerm('')}
             />
@@ -475,50 +449,44 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
             <Dropdown>
               <DropdownTrigger>
                 <Button
-                  startContent={<SortIcon size={16} className="text-c6" />}
-                  className="px-4 bg-c2 border-2 border-c3 hover:bg-c3 rounded-8 text-c6"
-                >
+                  startContent={<SortIcon size={16} className='text-c6' />}
+                  className='px-4 min-h-[40px] bg-c3 border-2 border-c3 hover:bg-c4 hover:border-c4 rounded-8 text-c6 font-medium'>
                   Trier
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
-                aria-label="Sort order selection"
-                variant="flat"
+                aria-label='Sort order selection'
+                variant='flat'
                 disallowEmptySelection
                 selectedKeys={new Set([sortOrder])}
                 onSelectionChange={handleSortOrderChange}
-                selectionMode="single"
-                className="bg-c2 border-2 border-c3 rounded-8"
-              >
-                <DropdownItem key="asc" className="text-c6 hover:bg-c3">
+                selectionMode='single'
+                className='bg-c2 border-2 border-c3 rounded-8'>
+                <DropdownItem key='asc' className='text-c6 hover:bg-c3'>
                   A - Z
                 </DropdownItem>
-                <DropdownItem key="desc" className="text-c6 hover:bg-c3">
+                <DropdownItem key='desc' className='text-c6 hover:bg-c3'>
                   Z - A
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
 
             {multiSelect && (
-              <div className="flex gap-2">
+              <div className='flex gap-2'>
                 <Button
-                  size="sm"
-                  variant="flat"
+                  size='md'
                   onPress={() => {
                     // Sélectionner uniquement les ressources de l'onglet actif
                     const allIds = new Set(filteredResources.map((r) => getResourceId(r)));
                     setLocalSelectedIds((prev) => new Set([...prev, ...allIds]));
                   }}
-                  className='bg-c2 border-2 border-c3 text-c5 hover:bg-c3'
-                >
+                  className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-4 min-h-[40px] font-medium'>
                   Tout sélectionner
                 </Button>
                 <Button
-                  size="sm"
-                  variant="flat"
+                  size='md'
                   onPress={() => setLocalSelectedIds(new Set())}
-                  className='bg-c2 border-2 border-c3 text-c5 hover:bg-c3'
-                >
+                  className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-4 min-h-[40px] font-medium'>
                   Tout désélectionner
                 </Button>
               </div>
@@ -527,8 +495,8 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
 
           {/* Selected chips */}
           {localSelectedIds.size > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4 p-3 bg-c2 rounded-8 border-2 border-c3">
-              <span className="text-c5 text-sm mr-2">Sélection :</span>
+            <div className='flex flex-wrap gap-2 mb-4 p-3 bg-c2 rounded-8 border-2 border-c3'>
+              <span className='text-c5 text-sm mr-2'>Sélection :</span>
               {Array.from(localSelectedIds).map((id) => {
                 const resource = resources?.find((r) => getResourceId(r) === id);
                 if (!resource) return null;
@@ -536,12 +504,12 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                   <Chip
                     key={String(id)}
                     onClose={() => toggleSelection(resource)}
-                    variant="flat"
+                    variant='flat'
                     classNames={{
-                      base: 'bg-primary/20 text-primary',
-                      closeButton: 'text-primary hover:text-white',
-                    }}
-                  >
+                      base: 'bg-c6 text-white px-2 py-1 rounded-8',
+                      content: 'text-white font-medium px-3',
+                      closeButton: 'text-white/70 hover:text-white',
+                    }}>
                     {truncate(getDisplayValue(resource), 30)}
                   </Chip>
                 );
@@ -551,42 +519,90 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
 
           {/* Loading state */}
           {loading && (
-            <div className="flex justify-center items-center py-12">
-              <Spinner size="lg" />
-              <span className="ml-3 text-c5">Chargement...</span>
+            <div className='flex justify-center items-center py-12'>
+              <Spinner size='lg' />
+              <span className='ml-3 text-c5'>Chargement...</span>
             </div>
           )}
 
-          {/* Resource grid */}
+          {/* Resource grid ou liste alphabétique */}
           {!loading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[450px] overflow-y-auto pr-1">
+            <>
               {filteredResources.length === 0 ? (
-                <div className='col-span-full text-center py-12'>
+                <div className='text-center py-12'>
                   <ThumbnailIcon className='text-c4/30 mx-auto mb-3' size={40} />
-                  <p className="text-c5 text-sm">Aucun résultat trouvé</p>
+                  <p className='text-c5 text-sm'>Aucun résultat trouvé</p>
+                </div>
+              ) : displayMode === 'alphabetic' ? (
+                // Affichage alphabétique pour les mots-clés
+                <div className='max-h-[450px] overflow-y-auto pr-1'>
+                  <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-1'>
+                    {(() => {
+                      // Grouper les ressources par première lettre
+                      const grouped = filteredResources.reduce(
+                        (acc, resource) => {
+                          const name = getDisplayValue(resource);
+                          const letter = name.charAt(0).toUpperCase();
+                          if (!acc[letter]) acc[letter] = [];
+                          acc[letter].push(resource);
+                          return acc;
+                        },
+                        {} as Record<string, any[]>,
+                      );
+
+                      // Trier les lettres
+                      const sortedLetters = Object.keys(grouped).sort();
+
+                      return sortedLetters.map((letter) => (
+                        <div key={letter} className='mb-4'>
+                          <div className='text-primary font-bold text-lg mb-2 border-b border-c3 pb-1'>{letter}</div>
+                          <div className='flex flex-col gap-1'>
+                            {grouped[letter].map((resource: any) => {
+                              const selected = isSelected(resource);
+                              return (
+                                <div
+                                  key={String(getResourceId(resource))}
+                                  onClick={() => toggleSelection(resource)}
+                                  className={`
+                                    flex items-center gap-2 px-2 py-1.5 rounded-8 cursor-pointer transition-all
+                                    ${selected ? 'bg-primary/20 text-primary' : 'hover:bg-c2 text-c6'}
+                                  `}>
+                                  <Checkbox
+                                    isSelected={selected}
+                                    onValueChange={() => toggleSelection(resource)}
+                                    size='sm'
+                                    classNames={{
+                                      wrapper: 'w-5 h-5 before:border-c4 before:border-2 after:bg-primary',
+                                      icon: 'w-3 h-3',
+                                    }}
+                                  />
+                                  <span className='text-sm'>{getDisplayValue(resource)}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
                 </div>
               ) : (
-                filteredResources.map((resource) => (
-                  <ResourceCard key={String(getResourceId(resource))} resource={resource} />
-                ))
+                // Affichage en grille standard
+                <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[450px] overflow-y-auto pr-1'>
+                  {filteredResources.map((resource) => (
+                    <ResourceCard key={String(getResourceId(resource))} resource={resource} />
+                  ))}
+                </div>
               )}
-            </div>
+            </>
           )}
         </ModalBody>
 
         <ModalFooter>
-          <Button
-            variant="light"
-            onPress={onClose}
-            className="text-c5 hover:text-c6"
-          >
+          <Button onPress={onClose} className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-6 min-h-[40px] font-medium'>
             Annuler
           </Button>
-          <Button
-            onPress={handleConfirm}
-            className="bg-primary hover:bg-primary/80 text-white"
-            isDisabled={localSelectedIds.size === 0}
-          >
+          <Button onPress={handleConfirm} className='bg-primary hover:bg-primary/80 text-c6 rounded-8 px-6 min-h-[40px] font-medium' isDisabled={localSelectedIds.size === 0}>
             Confirmer ({localSelectedIds.size})
           </Button>
         </ModalFooter>

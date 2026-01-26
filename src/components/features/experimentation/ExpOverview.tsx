@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CameraIcon, UserIcon, ShareIcon, MovieIcon, ArrowIcon, PlusIcon, CrossIcon, UploadIcon } from '@/components/ui/icons';
+import { CameraIcon, UserIcon, ShareIcon, ArrowIcon, PlusIcon, CrossIcon, UploadIcon, LinkIcon } from '@/components/ui/icons';
+import { isValidYouTubeUrl } from '@/lib/utils';
 import { motion, Variants } from 'framer-motion';
 import { addToast, Skeleton, Link, Button, cn, DropdownMenu, Dropdown, DropdownItem, DropdownTrigger } from '@heroui/react';
 import { AnnotationDropdown } from '../conference/AnnotationDropdown';
@@ -108,6 +109,7 @@ type ExpOverviewProps = {
   onMediasChange?: (files: MediaFile[]) => void;
   onAddPerson?: () => void;
   onLinkChange?: (value: string) => void;
+  onYouTubeAdd?: (youtubeUrl: string) => void; // Callback pour ajouter une vidéo YouTube
   mediaFiles?: MediaFile[]; // Fichiers médias en mode édition
   removedMediaIndexes?: number[]; // Indexes des médias existants supprimés
   onRemoveExistingMedia?: (index: number) => void; // Callback pour supprimer un média existant
@@ -128,6 +130,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
   onMediasChange,
   onAddPerson: _onAddPerson,
   onLinkChange: _onLinkChange,
+  onYouTubeAdd,
   mediaFiles = [],
   removedMediaIndexes = [],
   onRemoveExistingMedia,
@@ -135,6 +138,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState<string>('');
 
   const navigate = useNavigate();
 
@@ -303,16 +307,48 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
               ) : (
                 /* Zone vide - invitation à ajouter */
                 <div
-                  className={`flex flex-col items-center justify-center w-full h-full bg-c3 rounded-12 border-2 border-dashed ${
-                    isDragging ? 'border-action' : 'border-c4'
-                  } cursor-pointer`}
-                  onClick={() => fileInputRef.current?.click()}>
+                  className={`flex flex-col items-center justify-center w-full h-full bg-c3 rounded-12 border-2 border-dashed ${isDragging ? 'border-action' : 'border-c4'}`}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}>
                   <CameraIcon size={48} className='text-c4 mb-4' />
                   <p className='text-c5 text-16 font-medium mb-2'>Glissez-déposez vos médias ici</p>
                   <p className='text-c4 text-14 mb-4'>ou</p>
-                  <Button className='bg-action text-selected rounded-8' startContent={<UploadIcon size={16} />} onPress={() => fileInputRef.current?.click()}>
-                    Charger des fichiers
-                  </Button>
+                  <div className='flex flex-col gap-10 items-center'>
+                    <Button className='bg-action text-selected rounded-8' startContent={<UploadIcon size={16} />} onPress={() => fileInputRef.current?.click()}>
+                      Charger des fichiers
+                    </Button>
+
+                    {/* Section YouTube */}
+                    {onYouTubeAdd && (
+                      <div className='flex flex-col gap-5 items-center mt-10'>
+                        <p className='text-c4 text-14'>ou ajouter une vidéo YouTube</p>
+                        <div className='flex gap-5 items-center'>
+                          <input
+                            type='url'
+                            placeholder='https://www.youtube.com/watch?v=...'
+                            value={youtubeUrl}
+                            onChange={(e) => setYoutubeUrl(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            className='bg-c1 border border-c3 rounded-8 px-10 py-5 text-c6 text-14 w-[280px] focus:outline-none focus:border-action'
+                          />
+                          <Button
+                            size='sm'
+                            className='bg-action text-selected rounded-8 px-10'
+                            isDisabled={!isValidYouTubeUrl(youtubeUrl)}
+                            onPress={() => {
+                              if (isValidYouTubeUrl(youtubeUrl)) {
+                                onYouTubeAdd(youtubeUrl);
+                                setYoutubeUrl('');
+                              }
+                            }}>
+                            Ajouter
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -375,6 +411,32 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                   </div>
                 </div>
               </Splide>
+            )}
+
+            {/* Section YouTube - visible quand il y a déjà des médias */}
+            {onYouTubeAdd && allMediaItems.length > 0 && (
+              <div className='flex items-center gap-10 p-10 bg-c2 rounded-12 border border-c3'>
+                <span className='text-c5 text-14 whitespace-nowrap'>Ajouter YouTube :</span>
+                <input
+                  type='url'
+                  placeholder='https://www.youtube.com/watch?v=...'
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  className='flex-1 bg-c1 border border-c3 rounded-8 px-10 py-5 text-c6 text-14 focus:outline-none focus:border-action'
+                />
+                <Button
+                  size='sm'
+                  className='bg-action text-selected rounded-8 px-15'
+                  isDisabled={!isValidYouTubeUrl(youtubeUrl)}
+                  onPress={() => {
+                    if (isValidYouTubeUrl(youtubeUrl)) {
+                      onYouTubeAdd(youtubeUrl);
+                      setYoutubeUrl('');
+                    }
+                  }}>
+                  Ajouter
+                </Button>
+              </div>
             )}
 
             {/* Input fichier caché */}
@@ -450,6 +512,15 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
           <UnloadedCard />
         )}
       </motion.div>
+
+      {/* Section YouTube intégrée - affichée si fullUrl est une URL YouTube */}
+      {!isEditing && fullUrl && isValidYouTubeUrl(fullUrl) && (
+        <motion.div variants={itemVariants} className='w-full'>
+          <div className='w-full aspect-video rounded-12 overflow-hidden'>
+            <MediaViewer src={fullUrl} alt='Vidéo YouTube' className='w-full h-full' isVideo={true} />
+          </div>
+        </motion.div>
+      )}
 
       {/* Section titre/personnes/liens - masquée en mode edit car dans la section unifiée */}
       {!isEditing && (
@@ -544,12 +615,13 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                   Partager
                 </Button>
 
-                {fullUrl !== '' && (
+                {/* Lien externe (non-YouTube) */}
+                {fullUrl !== '' && !isValidYouTubeUrl(fullUrl) && (
                   <Button
                     size='md'
                     className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
                     onPress={() => window.open(fullUrl, '_blank')}>
-                    <MovieIcon size={12} />
+                    <LinkIcon size={12} />
                     {buttonText}
                   </Button>
                 )}
