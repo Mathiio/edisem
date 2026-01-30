@@ -146,6 +146,9 @@ class QuerySqlViewHelper extends AbstractHelper
             case 'getEditions':
                 $result = $this->getEditions();
                 break;
+            case 'getNavbarEditions':
+                $result = $this->getNavbarEditions();
+                break;
             case 'getElementEsthetique':
                 $result = $this->getElementEsthetique();
                 break;
@@ -5620,6 +5623,82 @@ class QuerySqlViewHelper extends AbstractHelper
             }
 
             $result[] = $actant;
+        }
+
+        return $result;
+    }
+
+
+    function getNavbarEditions()
+    {
+        // Select editions (template 77) that have at least one conference (property 937)
+        // and order by year (property 7) DESC
+        // We join with value table to check for property 937 (hasConference)
+        $sql = "
+            SELECT DISTINCT r.id
+            FROM resource r
+            INNER JOIN value v_conf ON r.id = v_conf.resource_id AND v_conf.property_id = 937
+            LEFT JOIN value v_year ON r.id = v_year.resource_id AND v_year.property_id = 7
+            WHERE r.resource_template_id = 77
+            ORDER BY v_year.value DESC
+            LIMIT 300
+        ";
+
+        $resources = $this->conn->executeQuery($sql)->fetchAllAssociative();
+
+        if (empty($resources)) {
+            return [];
+        }
+
+        $resourceIds = array_column($resources, 'id');
+
+        // Fetch properties: Title (1), Year (7), Type (8), Season (1662)
+        // For Type and Season, we need the display title (value of the linked resource)
+        $valueQuery = "
+            SELECT
+                v.resource_id,
+                v.value,
+                v.property_id,
+                v.value_resource_id,
+                v_linked.value as linked_title
+            FROM value v
+            LEFT JOIN value v_linked ON v.value_resource_id = v_linked.resource_id AND v_linked.property_id = 1
+            WHERE v.resource_id IN (" . implode(',', $resourceIds) . ")
+            AND v.property_id IN (1, 7, 8, 1662)
+        ";
+
+        $values = $this->conn->executeQuery($valueQuery)->fetchAllAssociative();
+
+        $result = [];
+        foreach ($resources as $resource) {
+            $edition = [
+                'id' => $resource['id'],
+                'season' => '',
+                'year' => '',
+                'editionType' => '',
+                'editionTypeId' => 0,
+            ];
+
+            foreach ($values as $value) {
+                if ($value['resource_id'] == $resource['id']) {
+                    switch ($value['property_id']) {
+                        case 1:
+                             // $edition['title'] = $value['value'];
+                             break;
+                        case 1662: // Season
+                            $edition['season'] = $value['linked_title'] ?: '';
+                            break;
+                        case 7: // Year
+                            $edition['year'] = $value['value'];
+                            break;
+                        case 8: // Type
+                            $edition['editionType'] = $value['linked_title'] ?: '';
+                            $edition['editionTypeId'] = $value['value_resource_id'];
+                            break;
+                    }
+                }
+            }
+            $result[] = $edition;
         }
 
         return $result;
