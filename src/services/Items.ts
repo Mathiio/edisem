@@ -487,41 +487,41 @@ export async function getActants(actantIds?: string | string[]) {
     const actants = sessionStorage.getItem('actants')
       ? JSON.parse(sessionStorage.getItem('actants')!)
       : await (async () => {
-          const [rawActants, confs, universities, doctoralSchools, laboratories] = await Promise.all([
-            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1'),
-            getAllConfs(),
-            getUniversities(),
-            getDoctoralSchools(),
-            getLaboratories(),
-          ]);
+        const [rawActants, confs, universities, doctoralSchools, laboratories] = await Promise.all([
+          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1'),
+          getAllConfs(),
+          getUniversities(),
+          getDoctoralSchools(),
+          getLaboratories(),
+        ]);
 
-          const universityMap = new Map(universities.map((u: any) => [u.id, u]));
-          const doctoralSchoolMap = new Map(doctoralSchools.map((s: any) => [s.id, s]));
-          const laboratoryMap = new Map(laboratories.map((l: any) => [l.id, l]));
+        const universityMap = new Map(universities.map((u: any) => [u.id, u]));
+        const doctoralSchoolMap = new Map(doctoralSchools.map((s: any) => [s.id, s]));
+        const laboratoryMap = new Map(laboratories.map((l: any) => [l.id, l]));
 
-          return rawActants.map((actant: any) => {
-            const interventions = confs.filter((c: any) => {
-              if (typeof c.actant === 'string' && c.actant.includes(',')) {
-                const actantIds = c.actant.split(',').map((id: string) => id.trim());
-                return actantIds.includes(String(actant.id));
-              } else if (Array.isArray(c.actant)) {
-                return c.actant.map(String).includes(String(actant.id));
-              } else {
-                return String(c.actant) === String(actant.id);
-              }
-            }).length;
+        return rawActants.map((actant: any) => {
+          const interventions = confs.filter((c: any) => {
+            if (typeof c.actant === 'string' && c.actant.includes(',')) {
+              const actantIds = c.actant.split(',').map((id: string) => id.trim());
+              return actantIds.includes(String(actant.id));
+            } else if (Array.isArray(c.actant)) {
+              return c.actant.map(String).includes(String(actant.id));
+            } else {
+              return String(c.actant) === String(actant.id);
+            }
+          }).length;
 
-            return {
-              ...actant,
-              title: `${actant.firstname} ${actant.lastname}`,
-              type: 'actant',
-              interventions,
-              universities: actant.universities.map((id: string) => universityMap.get(id)),
-              doctoralSchools: actant.doctoralSchools.map((id: string) => doctoralSchoolMap.get(id)),
-              laboratories: actant.laboratories.map((id: string) => laboratoryMap.get(id)),
-            };
-          });
-        })();
+          return {
+            ...actant,
+            title: `${actant.firstname} ${actant.lastname}`,
+            type: 'actant',
+            interventions,
+            universities: actant.universities.map((id: string) => universityMap.get(id)),
+            doctoralSchools: actant.doctoralSchools.map((id: string) => doctoralSchoolMap.get(id)),
+            laboratories: actant.laboratories.map((id: string) => laboratoryMap.get(id)),
+          };
+        });
+      })();
 
     if (!sessionStorage.getItem('actants')) {
       sessionStorage.setItem('actants', JSON.stringify(actants));
@@ -585,27 +585,39 @@ export async function getEditions(editionIds?: string | string[]) {
   }
 }
 
+export async function getNavbarEditions() {
+  try {
+    // We don't necessarily cache this heavily in session storage as it's lightweight and critical for nav
+    // But we could if we wanted to.
+    const editions = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getNavbarEditions&json=1');
+    return editions;
+  } catch (error) {
+    console.error('Error fetching navbar editions:', error);
+    return [];
+  }
+}
+
 export async function getSeminarConfs(confId?: number) {
   try {
     checkAndClearDailyCache();
     const confs = sessionStorage.getItem('seminarConfs')
       ? JSON.parse(sessionStorage.getItem('seminarConfs')!)
       : await (async () => {
-          const [rawConfs, keywords] = await Promise.all([
-            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
-            getKeywords(),
-          ]);
+        const [rawConfs, keywords] = await Promise.all([
+          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
+          getKeywords(),
+        ]);
 
-          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
 
-          return rawConfs.map((conf: any) => ({
-            ...conf,
-            type: 'seminar',
-            motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
-            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
-          }));
-        })();
+        return rawConfs.map((conf: any) => ({
+          ...conf,
+          type: 'seminar',
+          motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
+        }));
+      })();
 
     if (!sessionStorage.getItem('seminarConfs')) {
       sessionStorage.setItem('seminarConfs', JSON.stringify(confs));
@@ -613,12 +625,12 @@ export async function getSeminarConfs(confId?: number) {
 
     return confId
       ? await (async () => {
-          const conf = confs.find((c: any) => c.id === String(confId));
-          if (!conf) throw new Error(`Conference with id ${confId} not found`);
+        const conf = confs.find((c: any) => c.id === String(confId));
+        if (!conf) throw new Error(`Conference with id ${confId} not found`);
 
-          if (conf.actant) conf.actant = await getActants(conf.actant);
-          return conf;
-        })()
+        if (conf.actant) conf.actant = await getActants(conf.actant);
+        return conf;
+      })()
       : confs;
   } catch (error) {
     console.error('Error fetching confs:', error);
@@ -632,21 +644,21 @@ export async function getColloqueConfs(confId?: number) {
     const confs = sessionStorage.getItem('colloqueConfs')
       ? JSON.parse(sessionStorage.getItem('colloqueConfs')!)
       : await (async () => {
-          const [rawConfs, keywords] = await Promise.all([
-            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getColloqueConfs&json=1'),
-            getKeywords(),
-          ]);
+        const [rawConfs, keywords] = await Promise.all([
+          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getColloqueConfs&json=1'),
+          getKeywords(),
+        ]);
 
-          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
 
-          return rawConfs.map((conf: any) => ({
-            ...conf,
-            type: 'colloque',
-            motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
-            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
-          }));
-        })();
+        return rawConfs.map((conf: any) => ({
+          ...conf,
+          type: 'colloque',
+          motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
+        }));
+      })();
 
     if (!sessionStorage.getItem('colloqueConfs')) {
       sessionStorage.setItem('colloqueConfs', JSON.stringify(confs));
@@ -654,12 +666,12 @@ export async function getColloqueConfs(confId?: number) {
 
     return confId
       ? await (async () => {
-          const conf = confs.find((c: any) => c.id === String(confId));
-          if (!conf) throw new Error(`Conference with id ${confId} not found`);
+        const conf = confs.find((c: any) => c.id === String(confId));
+        if (!conf) throw new Error(`Conference with id ${confId} not found`);
 
-          if (conf.actant) conf.actant = await getActants(conf.actant);
-          return conf;
-        })()
+        if (conf.actant) conf.actant = await getActants(conf.actant);
+        return conf;
+      })()
       : confs;
   } catch (error) {
     console.error('Error fetching confs:', error);
@@ -673,21 +685,21 @@ export async function getStudyDayConfs(confId?: number) {
     const confs = sessionStorage.getItem('studyDayConfs')
       ? JSON.parse(sessionStorage.getItem('studyDayConfs')!)
       : await (async () => {
-          const [rawConfs, keywords] = await Promise.all([
-            getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
-            getKeywords(),
-          ]);
+        const [rawConfs, keywords] = await Promise.all([
+          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
+          getKeywords(),
+        ]);
 
-          const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
 
-          return (rawConfs || []).map((conf: any) => ({
-            ...conf,
-            type: 'studyday',
-            motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
-            url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-            fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
-          }));
-        })();
+        return (rawConfs || []).map((conf: any) => ({
+          ...conf,
+          type: 'studyday',
+          motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
+          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
+        }));
+      })();
 
     if (!sessionStorage.getItem('studyDayConfs')) {
       sessionStorage.setItem('studyDayConfs', JSON.stringify(confs));
@@ -695,12 +707,12 @@ export async function getStudyDayConfs(confId?: number) {
 
     return confId
       ? await (async () => {
-          const conf = confs.find((c: any) => c.id === String(confId));
-          if (!conf) throw new Error(`Conference with id ${confId} not found`);
+        const conf = confs.find((c: any) => c.id === String(confId));
+        if (!conf) throw new Error(`Conference with id ${confId} not found`);
 
-          if (conf.actant) conf.actant = await getActants(conf.actant);
-          return conf;
-        })()
+        if (conf.actant) conf.actant = await getActants(conf.actant);
+        return conf;
+      })()
       : confs;
   } catch (error) {
     console.error('Error fetching confs:', error);
@@ -1202,15 +1214,15 @@ export async function getExperimentations(id?: number) {
       // Traiter les actants (maintenant tous les crédits sont déjà dans actants comme IDs de strings)
       const actantsMapped = experimentation.actants
         ? experimentation.actants
-            .map((actantId: string) => {
-              // Chercher d'abord dans actants, puis dans students pour les crédits techniques
-              let mappedActant = actantsMap.get(actantId);
-              if (!mappedActant) {
-                mappedActant = studentsMap.get(actantId);
-              }
-              return mappedActant;
-            })
-            .filter(Boolean)
+          .map((actantId: string) => {
+            // Chercher d'abord dans actants, puis dans students pour les crédits techniques
+            let mappedActant = actantsMap.get(actantId);
+            if (!mappedActant) {
+              mappedActant = studentsMap.get(actantId);
+            }
+            return mappedActant;
+          })
+          .filter(Boolean)
         : [];
 
       const experimentationWithFeedbacks = {
@@ -1295,15 +1307,15 @@ export async function getExperimentationsStudents(id?: number) {
       // Traiter les actants (maintenant tous les crédits sont déjà dans actants comme IDs de strings)
       const actantsMapped = experimentationStudents.actants
         ? experimentationStudents.actants
-            .map((actantId: string) => {
-              // Chercher d'abord dans actants, puis dans students pour les crédits techniques
-              let mappedActant = actantsMap.get(actantId);
-              if (!mappedActant) {
-                mappedActant = studentsMap.get(actantId);
-              }
-              return mappedActant;
-            })
-            .filter(Boolean)
+          .map((actantId: string) => {
+            // Chercher d'abord dans actants, puis dans students pour les crédits techniques
+            let mappedActant = actantsMap.get(actantId);
+            if (!mappedActant) {
+              mappedActant = studentsMap.get(actantId);
+            }
+            return mappedActant;
+          })
+          .filter(Boolean)
         : [];
 
       const experimentationWithFeedbacks = {

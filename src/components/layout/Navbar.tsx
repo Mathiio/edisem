@@ -119,41 +119,32 @@ export const Navbar: React.FC = () => {
   // Fixed link generation without top-level await in map
   useEffect(() => {
     const loadData = async () => {
-      const { getEditions, getSeminarConfs, getColloqueConfs, getStudyDayConfs } = await import('@/services/Items');
+      const { getNavbarEditions } = await import('@/services/Items');
 
       try {
-        const [allEditions, seminarConfs, colloqueConfs, studyDayConfs] = await Promise.all([getEditions(), getSeminarConfs(), getColloqueConfs(), getStudyDayConfs()]);
+        const sortedEditions = await getNavbarEditions();
 
-        const allConfs = [...seminarConfs, ...colloqueConfs, ...studyDayConfs];
-        const editionConferencesCount = new Map<string, number>();
-        allConfs.forEach((c: any) => {
-          const edId = String(c.edition);
-          editionConferencesCount.set(edId, (editionConferencesCount.get(edId) || 0) + 1);
-        });
-
-        // Filter editions that have at least one conference
-        const filteredEditions = allEditions.filter((e: any) => (editionConferencesCount.get(String(e.id)) || 0) > 0);
-        const sortedEditions = [...filteredEditions].sort((a: any, b: any) => parseInt(b.year) - parseInt(a.year));
         const seminars: { to: string; label: string }[] = [];
         const colloques: { to: string; label: string }[] = [];
         const studyDays: { to: string; label: string }[] = [];
 
         sortedEditions.forEach((e: any) => {
           const type = e.editionType?.toLowerCase() || '';
+          const typeId = Number(e.editionTypeId);
+          
           const item = {
             to: '',
-            // label: e.title,
             label: `Édition ${e.season} ${e.year}`,
           };
 
-          if (type.includes('colloque')) {
+          if (typeId === 19394 || type.includes('colloque')) {
             item.to = `/corpus/colloques/edition/${e.id}`;
             colloques.push(item);
-          } else if (type.includes('journée')) {
+          } else if (typeId === 19393 || type.includes('journée')) {
             item.to = `/corpus/journees-etudes/edition/${e.id}`;
             studyDays.push(item);
-          } else {
-            // Assume seminar by default or if explicitly named
+          } else if (typeId === 19395 || type.includes('séminaire')) {
+            // Explicitly check for seminar type
             item.to = `/corpus/seminaires/edition/${e.id}`;
             seminars.push(item);
           }
