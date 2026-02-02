@@ -3,12 +3,13 @@ import { useParams } from 'react-router-dom';
 import { getConfByActant } from '@/services/api';
 import * as Items from '@/services/Items';
 import { IntervenantAffiliations } from '@/components/features/intervenants/IntervenantAffiliations';
-import { Link } from '@heroui/react';
+import { Link, Skeleton } from '@heroui/react';
 import { Layouts } from '@/components/layout/Layouts';
 import { DynamicBreadcrumbs } from '@/components/layout/DynamicBreadcrumbs';
 import { IntervenantKeywordCloud } from '@/components/features/intervenants/IntervenantKeywordCloud';
 import { IntervenantNetwork } from '@/components/features/intervenants/IntervenantNetwork';
 import { IntervenantInterventions } from '@/components/features/intervenants/IntervenantInterventions';
+import { UserIcon } from '@/components/ui/icons';
 
 export const Intervenant: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,21 +23,27 @@ export const Intervenant: React.FC = () => {
 
     setLoading(true);
     try {
-      const [actant, confs, students] = await Promise.all([Items.getActants(id), getConfByActant(id), Items.getStudents(Number(id))]);
+      const [actantData, confs] = await Promise.all([
+          Items.getActantDetails(id), 
+          getConfByActant(id)
+      ]);
 
-      setActant(actant);
+      setActant(actantData);
       setConf(confs);
-      setActant(students);
+      
       // Mettre à jour le titre du breadcrumb avec le nom de l'actant
-      const firstName = actant?.firstname || actant?.first_name;
-      const lastName = actant?.lastname || actant?.last_name;
+      const firstName = actantData?.firstname;
+      const lastName = actantData?.lastname;
 
       if (firstName && lastName) {
         setBreadcrumbTitle(`${firstName} ${lastName} - Intervenant`);
+      } else if (actantData?.title) {
+        setBreadcrumbTitle(`${actantData.title} - Intervenant`);
       }
+    } catch(e) {
+        console.error("Error fetching actant details", e);
     } finally {
       setLoading(false);
-      console.log('actant', actant);
     }
   }, [id]);
 
@@ -48,28 +55,35 @@ export const Intervenant: React.FC = () => {
     <Layouts className='col-span-10 flex flex-col gap-100'>
       <DynamicBreadcrumbs itemTitle={breadcrumbTitle} />
       <div className='flex flex-col items-center gap-75'>
-        <Link isExternal className='gap-20 text-c6 w-fit flex flex-col items-center' href={!loading ? actant?.url : '#'}>
-          {actant?.picture ? (
-            <img className='w-100 h-100 object-cover rounded-18' src={actant.picture} alt='' />
-          ) : (
-            <div className='w-100 h-100 rounded-18 object-cover flex items-center justify-center bg-c3'>
-              <svg width='26' height='38' viewBox='0 0 32 44' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                <path
-                  d='M15.999 0C10.397 0 5.8427 4.6862 5.8427 10.4504C5.8427 16.1047 10.1404 20.6809 15.7424 20.8789C15.9135 20.8569 16.0845 20.8569 16.2128 20.8789C16.2556 20.8789 16.2769 20.8789 16.3197 20.8789C16.3411 20.8789 16.3411 20.8789 16.3625 20.8789C21.8362 20.6809 26.1339 16.1047 26.1553 10.4504C26.1553 4.6862 21.601 0 15.999 0Z'
-                  fill='#A1A1AA'
-                />
-                <path
-                  d='M26.8617 26.7293C20.8962 22.6371 11.1677 22.6371 5.15945 26.7293C2.44398 28.5993 0.947266 31.1295 0.947266 33.8356C0.947266 36.5417 2.44398 39.0498 5.13807 40.8979C8.1315 42.966 12.0656 44 15.9999 44C19.9341 44 23.8683 42.966 26.8617 40.8979C29.5558 39.0278 31.0525 36.5197 31.0525 33.7916C31.0311 31.0854 29.5558 28.5773 26.8617 26.7293Z'
-                  fill='#A1A1AA'
-                />
-              </svg>
+        {loading ? (
+          <div className='gap-20 w-full flex flex-col items-center'>
+            <Skeleton className="rounded-18">
+              <div className='w-100 h-100 rounded-18 bg-c3' />
+            </Skeleton>
+            <div className='flex flex-col items-center gap-10 w-full'>
+              <Skeleton className="w-[400px] rounded-10">
+                <div className="h-60 bg-c3" />
+              </Skeleton>
+              <Skeleton className="rounded-10 w-[200px]">
+                <div className="h-6 bg-c3" />
+              </Skeleton>
             </div>
-          )}
-          <div className='flex flex-col items-center gap-1.5'>
-            <h1 className='text-64 font-medium text-c6'>{loading ? '' : actant?.firstname + ' ' + actant?.lastname}</h1>
-            <p className='text-16 text-c6'>{actant?.interventions} participations</p>
           </div>
-        </Link>
+        ) : (
+          <Link isExternal className='gap-20 text-c6 w-full flex flex-col items-center' href={actant?.url || '#'}>
+            {actant?.picture ? (
+              <img className='w-100 h-100 object-cover rounded-18' src={actant.picture} alt='' />
+            ) : (
+              <div className='w-100 h-100 rounded-18 object-cover flex items-center justify-center bg-c3'>
+                <UserIcon size={40} className='text-c6' />
+              </div>
+            )}
+            <div className='flex flex-col items-center gap-10'>
+              <h1 className='text-64 font-medium text-c6'>{actant?.firstname} {actant?.lastname}</h1>
+              <p className='text-16 text-c6'>{actant?.interventions} participations</p>
+            </div>
+          </Link>
+        )}
 
         {/* Universités, Écoles, Labos */}
         <div className='w-full'>

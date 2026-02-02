@@ -551,6 +551,42 @@ export async function getActants(actantIds?: string | string[]) {
   }
 }
 
+export async function getActantGlobalStats() {
+  try {
+    return await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActantGlobalStats&json=1');
+  } catch (error) {
+    console.error('Error fetching global stats:', error);
+    return null;
+  }
+}
+
+export async function getRandomActants(limit = 12) {
+  try {
+    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRandomActants&limit=${limit}&json=1`);
+  } catch (error) {
+    console.error('Error fetching random actants:', error);
+    return [];
+  }
+}
+
+export async function getActantDetails(id: string | number) {
+  try {
+    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActantDetails&id=${id}&json=1`);
+  } catch (error) {
+    console.error(`Error fetching actant details for ${id}:`, error);
+    return null;
+  }
+}
+
+export async function getActantsByCountry() {
+  try {
+    return await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActantsByCountry&json=1');
+  } catch (error) {
+    console.error('Error fetching actants by country:', error);
+    return [];
+  }
+}
+
 export async function getEditions(editionIds?: string | string[]) {
   try {
     checkAndClearDailyCache();

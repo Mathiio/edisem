@@ -1,26 +1,89 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { WorldMapVisualization } from '@/components/features/intervenants/WorldMapVisualization.tsx';
-import { useCountryData } from '@/components/features/intervenants/CountryUtils';
+import { translateCountries, getOriginalCountryName, getFrCountryName } from '@/components/features/intervenants/CountryUtils';
 import { CountryModal } from '@/components/features/intervenants/CountryModal';
 import { Actant, University } from '@/types/ui';
 
-
+interface CountryData {
+    name: string;
+    count: number;
+    universities: {
+        id: string;
+        name: string;
+        logo: string | null;
+        actants: {
+            id: string;
+            name: string;
+            picture: string | null;
+            interventions: number;
+        }[];
+    }[];
+}
 
 interface IntervenantsWorldMapProps {
-  universities: University[]; // University metadata
-  intervenants: Actant[]; // List of intervenants for the university
+  countriesData: CountryData[] | null;
+  loading: boolean;
 }
 
 export const IntervenantsWorldMap: React.FC<IntervenantsWorldMapProps> = ({
-  intervenants,
-  universities,
+  countriesData,
+  loading
 }) => {
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null); // Country selected by user
-  const {translatedCountriesSet, getIntervenantsByUniv} = useCountryData(universities, intervenants);// Countries to highlight & Intervenants by university
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null); // Country selected by user (English Name)
 
-  const handleCloseModal = () => setSelectedCountry(null); // Close the modal
+  // Extract French names and Translate to English for Map
+  const { translatedCountriesSet, frenchNamesMap } = useMemo(() => {
+      if (!countriesData) return { translatedCountriesSet: new Set<string>(), frenchNamesMap: [] };
+      
+      const frenchNames = countriesData.map(c => c.name);
+      return {
+          translatedCountriesSet: new Set(translateCountries(frenchNames)),
+          frenchNamesMap: frenchNames
+      };
+  }, [countriesData]);
 
-  const universityGroups = selectedCountry ? getIntervenantsByUniv(selectedCountry) : []; // Get data for selected country
+  const handleCloseModal = () => setSelectedCountry(null);
+
+  // Get data for selected country
+  const universityGroups = useMemo(() => {
+      if (!selectedCountry || !countriesData) return [];
+
+      // Resolve English selection back to French name(s)
+      const possibleFrenchNames = getOriginalCountryName(selectedCountry, frenchNamesMap);
+      
+      // Find the matching country entry
+      const countryEntry = countriesData.find(c => possibleFrenchNames.includes(c.name));
+      
+      if (!countryEntry) return [];
+
+      // Map to CountryModal expected format
+      return countryEntry.universities.map(uni => {
+          const uniObj = {
+              id: uni.id,
+              name: uni.name,
+              shortName: uni.name, // Use full name as shortname fallback
+              logo: uni.logo || '',
+              url: '', // Not in stats payload
+              country: countryEntry.name
+          } as University;
+
+          return {
+              university: uniObj,
+              intervenants: uni.actants.map(act => ({
+                  id: act.id,
+                  firstname: act.name ? act.name.split(' ')[0] : '',
+                  lastname: act.name ? act.name.split(' ').slice(1).join(' ') : '',
+                  picture: act.picture || '',
+                  interventions: act.interventions || 0,
+                  universities: [uniObj], // Pass the current university context
+                  doctoralSchools: [],
+                  laboratories: [],
+                  mail: '',
+                  url: ''
+              } as Actant))
+          };
+      });
+  }, [selectedCountry, countriesData, frenchNamesMap]);
 
   return (
     <div className='flex flex-col gap-50'>
@@ -37,11 +100,12 @@ export const IntervenantsWorldMap: React.FC<IntervenantsWorldMapProps> = ({
       <WorldMapVisualization
         highlightedCountries={translatedCountriesSet}
         onCountryClick={setSelectedCountry}
+        loading={loading}
       />
 
       {/* Modal showing intervenants grouped by university for selected country */}
       <CountryModal
-        selectedCountry={selectedCountry}
+        selectedCountry={selectedCountry ? getFrCountryName(selectedCountry) : null}
         universityGroups={universityGroups}
         onClose={handleCloseModal}
       />

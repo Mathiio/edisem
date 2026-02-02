@@ -16,12 +16,18 @@ module.exports = {
     extend: {
       animation: {
         'fade-in-delayed': 'fadeIn 3s ease-in-out 3s forwards', // 0.3s est le délai
+        'pulse': 'pulse 1.5s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: 0 },
           '100%': { opacity: 1 },
         },
+        pulse: {
+          '0%': { opacity: 0.4 },
+          '50%': { opacity: 1 },
+          '100%': { opacity: 0.4 },
+        }
       },
     },
     screens: {

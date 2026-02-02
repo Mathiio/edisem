@@ -1,21 +1,24 @@
 import React from 'react';
 import { Geography } from 'react-simple-maps';
 
-
 type MapGeographyProps = {
-  geography: any; // GeoJSON data for the country shape
-  isHighlighted: boolean; // The country should be visually highlighted
-  onClick?: (countryName: string) => void; // Callback when a country is clicked
+  geography: any;
+  isHighlighted: boolean;
+  onClick?: (countryName: string) => void;
+  loading: boolean;
 };
 
 export const MapGeography = React.memo<MapGeographyProps>(
-  ({ geography, isHighlighted, onClick }) => {
+  ({ geography, isHighlighted, onClick, loading }) => {
     return (
       <Geography
         key={geography.rsmKey}
         geography={geography}
         onClick={() => onClick?.(geography.properties.name)}
-        className={`${!isHighlighted ? 'fill-c3' : 'fill-action2'} stroke-c1 cursor-pointer`}
+        className={`
+          ${!isHighlighted ? (loading ? 'animate-pulse fill-c3' : 'fill-c3') : 'fill-action2'} 
+          stroke-c1 cursor-pointer
+        `}
         strokeWidth={0.5}
         style={{
           default: { outline: 'none' },
