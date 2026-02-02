@@ -28,8 +28,8 @@ const AffiliationCard: React.FC<AffiliationCardProps> = ({ title, icon, items, e
       <div className='flex flex-col gap-10'>
         {loading ? (
            <div className="flex flex-col gap-10">
-              <Skeleton className="h-20 w-3/4 rounded-lg" />
-              <Skeleton className="h-20 w-1/2 rounded-lg" />
+              <Skeleton className="h-6 w-3/4 rounded-8" />
+              <Skeleton className="h-6 w-1/2 rounded-8" />
            </div>
         ) : items && items.length > 0 ? (
           items.map((item, index) => (

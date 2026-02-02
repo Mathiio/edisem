@@ -1,5 +1,5 @@
 import { Layouts } from "@/components/layout/Layouts";
-import { getActants, getUniversities } from "@/services/Items";
+import { getActantGlobalStats, getRandomActants, getActantsByCountry } from "@/services/Items";
 import { useEffect, useState } from "react";
 import { IntervenantsCarousel } from "@/components/features/intervenants/IntervenantsCarousel"; 
 import { IntervenantsWorldMap } from "@/components/features/intervenants/IntervenantsWorldMap";
@@ -8,15 +8,54 @@ import KeywordUsageChart from "@/components/features/intervenants/KeywordUsageCh
 import TopIntervenants from "@/components/features/intervenants/TopIntervenants";
 import { PageBanner } from "@/components/ui/PageBanner";
 
+type LoadingState = {
+    stats: boolean;
+    randomActants: boolean;
+    countriesData: boolean;
+};
 
 
 export const Intervenants: React.FC = () => {
-    const [intervenants, setIntervenants] = useState<any[]>([]);
-    const [universities, setUniversities] = useState<any[]>([]);
+    const [stats, setStats] = useState<any>(null);
+    const [randomActants, setRandomActants] = useState<any[]>([]);
+    const [countriesData, setCountriesData] = useState<any[]>([]);
+    
+    const [loading, setLoading] = useState<LoadingState>({
+        stats: true,
+        randomActants: true,
+        countriesData: true,
+    });
 
     useEffect(() => {
-        getActants().then(setIntervenants);
-        getUniversities().then(setUniversities);
+        const fetchAll = async () => {
+            // Reset tous les loading à true
+            setLoading({
+                stats: true,
+                randomActants: true,
+                countriesData: true,
+            });
+
+            const promises = [
+                getActantGlobalStats().then(data => {
+                    setStats(data);
+                    setLoading(prev => ({ ...prev, stats: false }));
+                }),
+                
+                getRandomActants(15).then(data => {
+                    setRandomActants(data);
+                    setLoading(prev => ({ ...prev, randomActants: false }));
+                }),
+                
+                getActantsByCountry().then(data => {
+                    setCountriesData(data);
+                    setLoading(prev => ({ ...prev, countriesData: false }));
+                }),
+            ];
+
+            await Promise.all(promises);
+        };
+
+        fetchAll();
     }, []);
 
     return (
@@ -32,20 +71,15 @@ export const Intervenants: React.FC = () => {
                 }
                 description="Retrouvez ici les chercheur·euses, artistes, doctorant·es et penseur·euses qui façonnent la réflexion autour des arts, du design, des humanités numériques et de l'intelligence artificielle."
             />
-            <div>
-                {intervenants.length > 0 ? (
-                <IntervenantsCarousel intervenants={intervenants} />
-                ) : (
-                <p className="text-c6">Chargement des intervenants...</p>
-                )}
-            </div>
-            <IntervenantsWorldMap
-                intervenants={intervenants}
-                universities={universities}
-            />
-            <IntervenantsStats intervenants={intervenants}/>
-            <KeywordUsageChart/>
-            <TopIntervenants intervenants={intervenants}/>
+            <IntervenantsCarousel intervenants={randomActants} loading={loading.randomActants}/>
+            
+            <IntervenantsWorldMap countriesData={countriesData || null} loading={loading.countriesData}/>
+            
+            <IntervenantsStats counts={stats?.counts || null} loading={true}/>
+            
+            <KeywordUsageChart keywordsStats={stats?.keywords || null}/>
+            
+            <TopIntervenants actants={stats?.topActants || []}/>
         </Layouts>
     );
 };

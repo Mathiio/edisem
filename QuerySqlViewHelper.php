@@ -185,14 +185,24 @@ class QuerySqlViewHelper extends AbstractHelper
             case 'getRecitsCitoyens':
                 $result = $this->getRecitsCitoyens();
                 break;
-            case 'blabla':
-                $result = $this->getRecitsCitoyens();
-                break;
             case 'generateEmbeddings':
                 $result = $this->generateEmbeddings($params);
                 break;
             case 'searchEmbeddings':
                 $result = $this->searchEmbeddings($params);
+                break;
+            case 'getActantGlobalStats':
+                $result = $this->getActantGlobalStats();
+                break;
+            case 'getActantsByCountry':
+                $result = $this->getActantsByCountry();
+                break;
+            case 'getActantDetails':
+                $result = $this->getActantDetails($params['id']);
+                break;
+            case 'getRandomActants':
+                $limit = isset($params['limit']) ? (int)$params['limit'] : 10;
+                $result = $this->getRandomActants($limit);
                 break;
             default:
                 error_log('QuerySqlViewHelper: Unknown action: ' . ($params['action'] ?? 'null'));
@@ -207,6 +217,402 @@ class QuerySqlViewHelper extends AbstractHelper
         }
 
         return $result;
+    }
+
+    /**
+     * Helper paramétrable pour récupérer la base des actants
+     */
+    private function getActantBasicInfo($ids = [], $limit = null, $orderBy = 'r.title', $random = false)
+    {
+        $idFilter = '';
+        if (!empty($ids)) {
+            $idFilter = "AND r.id IN (" . implode(',', array_map('intval', $ids)) . ")";
+        }
+
+        $orderClause = $random ? "ORDER BY RAND()" : "ORDER BY $orderBy";
+        $limitClause = $limit ? "LIMIT " . intval($limit) : "";
+
+        $resourceQuery = "
+            SELECT r.id
+            FROM `resource` r
+            WHERE r.resource_template_id IN (72)
+            $idFilter
+            $orderClause
+            $limitClause
+        ";
+
+        $resources = $this->conn->executeQuery($resourceQuery)->fetchAllAssociative();
+
+        if (empty($resources)) {
+            return [];
+        }
+
+        $resourceIds = array_column($resources, 'id');
+        $idList = implode(',', $resourceIds);
+        
+        // 1. Récupérer toutes les valeurs raw pour ces actants
+        // Propriétés NEW: 1 (Title), 139 (Fn), 140 (Ln), 73 (Uni), 91 (Lab), 94 (Country), 12 (Bio), 11 (Image), 74 (DocSchool)
+        // Propriétés LEGACY: 3038 (Uni), 3044 (Lab), 3043 (DocSchool)
+        $valueQuery = "
+            SELECT 
+                v.resource_id, 
+                v.property_id, 
+                v.value, 
+                v.value_resource_id, 
+                v.uri,
+                m.id as media_id, m.storage_id, m.extension
+            FROM `value` v
+            LEFT JOIN `media` m ON v.value_resource_id = m.id
+            WHERE v.resource_id IN ($idList)
+            AND v.property_id IN (1, 139, 140, 73, 91, 74, 94, 12, 11, 3038, 3044, 3043)
+        ";
+        $values = $this->conn->fetchAllAssociative($valueQuery);
+
+        // 2. Récupérer les détails des affiliations (Univ, Labo, École Doc)
+        // On collecte tous les IDs d'affiliation
+        $affilIds = [];
+        foreach ($values as $v) {
+            // University (73/3038), Lab (91/3044), DocSchool (74/3043)
+            if (in_array($v['property_id'], [73, 3038, 91, 3044, 74, 3043]) && $v['value_resource_id']) {
+                $affilIds[] = $v['value_resource_id'];
+            }
+        }
+        
+        $affilNames = [];
+        $affilLogos = [];
+        $affilUrls = []; // Optional, if they have websites
+
+        if (!empty($affilIds)) {
+            $affilIdsUnique = implode(',', array_unique($affilIds));
+            // Fetch name (Prop 1), Shortname (Prop 17), Logo, and URL (Prop 1517)
+            $affilQuery = "
+                SELECT 
+                    r.id, 
+                    MAX(CASE WHEN v.property_id = 1 THEN v.value END) as name,
+                    MAX(CASE WHEN v.property_id = 17 THEN v.value END) as shortName,
+                    MAX(CASE WHEN v.property_id = 1517 THEN v.uri END) as url,
+                    MAX(CONCAT(m.storage_id, '.', m.extension)) as logo
+                FROM resource r
+                LEFT JOIN value v ON r.id = v.resource_id AND v.property_id IN (1, 17, 1517)
+                LEFT JOIN media m ON r.id = m.item_id AND m.position = 1
+                WHERE r.id IN ($affilIdsUnique)
+                GROUP BY r.id
+            ";
+            $affilData = $this->conn->fetchAllAssociative($affilQuery);
+            foreach($affilData as $a) {
+                 $affilNames[$a['id']] = $a['shortName'] ?: $a['name']; // Prefer shortname if available
+                 if ($a['logo']) {
+                     $affilLogos[$a['id']] = "https://tests.arcanes.ca/omk/files/original/" . $a['logo'];
+                 }
+                 if ($a['url']) {
+                     $affilUrls[$a['id']] = $a['url'];
+                 }
+            }
+        }
+
+        // 3. Récupérer le nombre d'interventions pour ces actants
+        $countQuery = "
+            SELECT v.value_resource_id as actant_id, COUNT(DISTINCT r.id) as count 
+            FROM value v
+            JOIN resource r ON v.resource_id = r.id
+            WHERE v.property_id IN (2095, 386)
+            AND r.resource_template_id IN (71, 121, 122)
+            AND v.value_resource_id IN ($idList)
+            GROUP BY v.value_resource_id
+        ";
+        $counts = $this->conn->fetchAllAssociative($countQuery);
+        $countMap = [];
+        foreach($counts as $c) {
+            $countMap[$c['actant_id']] = $c['count'];
+        }
+        
+        // 4. Actant Thumbnails directly linked
+        $imgQuery = "
+            SELECT item_id, CONCAT(storage_id, '.', extension) AS logo
+            FROM `media`
+            WHERE item_id IN ($idList)
+        ";
+        $imgs = $this->conn->fetchAllAssociative($imgQuery);
+        $imgMap = [];
+        foreach($imgs as $img) {
+             $imgMap[$img['item_id']] = "https://tests.arcanes.ca/omk/files/original/" . $img['logo'];
+        }
+
+        // Build Result
+        $results = [];
+        foreach($resources as $res) {
+             $actant = [
+                 'id' => $res['id'],
+                 'title' => '',
+                 'firstname' => '',
+                 'lastname' => '',
+                 'picture' => $imgMap[$res['id']] ?? null, 
+                 'interventions' => $countMap[$res['id']] ?? 0,
+                 'universities' => [],
+                 'laboratories' => [],
+                 'doctoralSchools' => [],
+                 'countries' => [],
+                 'bio' => ''
+             ];
+             
+             foreach($values as $val) {
+                 if ($val['resource_id'] != $res['id']) continue;
+                 
+                 switch($val['property_id']) {
+                     case 1: $actant['title'] = $val['value']; break;
+                     case 139: $actant['firstname'] = $val['value']; break;
+                     case 140: $actant['lastname'] = $val['value']; break;
+                     case 12: $actant['bio'] = $val['value']; break;
+                     
+                     // Gestion de l'image
+                     case 11: 
+                         if ($val['storage_id']) {
+                              $actant['picture'] = "https://tests.arcanes.ca/omk/files/original/" . $val['storage_id'] . "." . $val['extension'];
+                         } else {
+                             if (!$actant['picture']) $actant['picture'] = $val['uri'] ?? $val['value']; 
+                         }
+                         break;
+
+                     case 73: // University
+                     case 3038: // Legacy University
+                         if ($val['value_resource_id']) {
+                             $uid = $val['value_resource_id'];
+                             $actant['universities'][] = [
+                                 'id' => $uid,
+                                 'name' => $affilNames[$uid] ?? '',
+                                 'shortName' => $affilNames[$uid] ?? '',
+                                 'logo' => $affilLogos[$uid] ?? null,
+                                 'url' => $affilUrls[$uid] ?? ''
+                             ];
+                         }
+                         break;
+                     
+                     case 91: // Property 91 can be Lastname OR Laboratory
+                     case 3044: // Legacy Laboratory
+                         if ($val['value_resource_id']) {
+                             $lid = $val['value_resource_id'];
+                             $actant['laboratories'][] = [
+                                 'id' => $lid,
+                                 'name' => $affilNames[$lid] ?? 'Laboratoire',
+                                 'logo' => $affilLogos[$lid] ?? null,
+                                 'url' => $affilUrls[$lid] ?? ''
+                             ];
+                         } elseif ($val['property_id'] == 91) {
+                             if (!$actant['lastname']) $actant['lastname'] = $val['value'];
+                         }
+                         break;
+                    
+                     case 74: // École doctorale
+                     case 3043: // Legacy Doc School
+                         if ($val['value_resource_id']) {
+                            $did = $val['value_resource_id'];
+                            $actant['doctoralSchools'][] = [
+                                'id' => $did,
+                                'name' => $affilNames[$did] ?? 'École Doctorale',
+                                'logo' => $affilLogos[$did] ?? null,
+                                'url' => $affilUrls[$did] ?? ''
+                            ];
+                        }
+                        break;
+
+                     case 94: // Pays
+                        if ($val['value']) $actant['countries'][] = $val['value'];
+                        break;
+                 }
+             }
+
+             // Fallback names
+             if (!$actant['title'] && $actant['firstname'] && $actant['lastname']) {
+                 $actant['title'] = $actant['firstname'] . ' ' . $actant['lastname'];
+             }
+             if ($actant['title'] && (!$actant['firstname'] || !$actant['lastname'])) {
+                 $parts = explode(' ', $actant['title']);
+                 if (!$actant['firstname']) $actant['firstname'] = $parts[0];
+                 if (!$actant['lastname']) $actant['lastname'] = isset($parts[1]) ? end($parts) : '';
+             }
+
+             $results[] = $actant;
+        }
+
+        return $results;
+    }
+
+    /**
+     * Retrieves actants grouped by country and affiliation (University/Laboratory)
+     * Used for the World Map visualization.
+     */
+    function getActantsByCountry() {
+        // Le Pays est lié à l'Université/Labo via la property 377 (qui pointe vers une ressource Pays)
+        // On doit faire: Actant -> (Prop 73/3038/91/3044) -> Affiliation -> (Prop 377) -> Pays Resource -> (Prop 1) -> Nom Pays
+        
+        $structureSql = "
+            SELECT 
+                r.id as actant_id,
+                r.title as actant_name,
+                v_country_name.value as country,
+                affil.id as affil_id,
+                affil.title as affil_name,
+                m.storage_id as affil_logo_id,
+                m.extension as affil_logo_ext,
+                -- Image Actant via Property 11 or Media
+                (SELECT CONCAT(media.storage_id, '.', media.extension) FROM media WHERE media.item_id = r.id LIMIT 1) as actant_picture,
+                -- Compte Interventions (Filtré par Template Conférence 71, 121, 122)
+                (SELECT COUNT(DISTINCT r_conf.id) 
+                 FROM value v_conf 
+                 JOIN resource r_conf ON v_conf.resource_id = r_conf.id 
+                 WHERE v_conf.value_resource_id = r.id 
+                 AND v_conf.property_id IN (386, 2095)
+                 AND r_conf.resource_template_id IN (71, 121, 122)
+                ) as intervention_count
+            FROM resource r
+            
+            -- 1. Lien Actant -> Affiliation (Université ou Labo)
+            -- Props: 73 (Uni), 3038 (Legacy Uni), 91 (Lab), 3044 (Legacy Lab)
+            JOIN value v_affil ON r.id = v_affil.resource_id AND v_affil.property_id IN (73, 3038, 91, 3044)
+            JOIN resource affil ON v_affil.value_resource_id = affil.id
+            
+            -- 2. Lien Affiliation -> Pays (Prop 377)
+            JOIN value v_country_ref ON affil.id = v_country_ref.resource_id AND v_country_ref.property_id = 377
+            
+            -- 3. Lien Pays Resource -> Nom du Pays (Prop 1)
+            JOIN value v_country_name ON v_country_ref.value_resource_id = v_country_name.resource_id AND v_country_name.property_id = 1
+            
+            -- 4. Logo de l'affiliation (pour l'affichage)
+            LEFT JOIN media m ON (affil.id = m.item_id AND m.position = 1)
+            
+            WHERE r.resource_template_id IN (72)
+            ORDER BY country ASC, affil_name ASC
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($structureSql);
+        $countriesData = [];
+
+        foreach($rows as $row) {
+             $c = $row['country'];
+             if (!$c) continue;
+             
+             if (!isset($countriesData[$c])) {
+                 $countriesData[$c] = ['name' => $c, 'count' => 0, 'universities' => []];
+             }
+             
+             // Group by Affiliation (University or Lab)
+             $affilKey = $row['affil_id'];
+             
+             if (!isset($countriesData[$c]['universities'][$affilKey])) {
+                 $countriesData[$c]['universities'][$affilKey] = [
+                     'id' => $row['affil_id'],
+                     'name' => $row['affil_name'] ?? 'Institution inconnue',
+                     'logo' => $row['affil_logo_id'] ? "https://tests.arcanes.ca/omk/files/original/" . $row['affil_logo_id'] . "." . $row['affil_logo_ext'] : null,
+                     'actants' => []
+                 ];
+             }
+
+             // Avoid duplicate actants in same institution (defensive)
+             $actantExists = false;
+             foreach ($countriesData[$c]['universities'][$affilKey]['actants'] as $a) {
+                 if ($a['id'] === $row['actant_id']) { $actantExists = true; break; }
+             }
+             
+             if (!$actantExists) {
+                 $countriesData[$c]['universities'][$affilKey]['actants'][] = [
+                     'id' => $row['actant_id'],
+                     'name' => $row['actant_name'],
+                     // Use fallback picture logic if needed, but SQL should catch media linked to Actant item
+                     'picture' => $row['actant_picture'] ? "https://tests.arcanes.ca/omk/files/original/" . $row['actant_picture'] : null,
+                     'interventions' => (int)$row['intervention_count']
+                 ];
+                 $countriesData[$c]['count']++;
+             }
+        }
+
+        // Clean up keys
+        foreach($countriesData as &$data) {
+             $data['universities'] = array_values($data['universities']);
+        }
+        
+        return array_values($countriesData);
+    }
+
+    function getActantGlobalStats() {
+        // 1. Global Counts
+        $counts = [
+            'actants' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id IN (72)"),
+            'universities' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 73"),
+            'laboratories' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 91"),
+            'doctoralSchools' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 74"),
+            'countries' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 94"),
+        ];
+
+        // 2. Top Actants (Interventions count)
+        $topActantsQuery = "
+            SELECT 
+                v.value_resource_id as actant_id,
+                COUNT(DISTINCT r.id) as intervention_count
+            FROM value v
+            JOIN resource r ON v.resource_id = r.id
+            WHERE v.property_id IN (386, 2095)
+            AND r.resource_template_id IN (71, 121, 122)
+            GROUP BY v.value_resource_id
+            ORDER BY intervention_count DESC
+            LIMIT 3
+        ";
+        $topIds = $this->conn->fetchAllAssociative($topActantsQuery);
+        $topActantDetails = $this->getActantBasicInfo(array_column($topIds, 'actant_id'));
+
+        $topActantsMap = [];
+        foreach ($topActantDetails as &$actant) {
+            $topActantsMap[$actant['id']] = $actant;
+        }
+        
+        // Merge counts
+        $topActantsSorted = [];
+        foreach ($topIds as $top) {
+            if (isset($topActantsMap[$top['actant_id']])) {
+                $actant = $topActantsMap[$top['actant_id']];
+                $actant['intervention_count'] = $top['intervention_count'];
+                $topActantsSorted[] = $actant;
+            }
+        }
+
+        // 3. Keywords Stats
+        $keywordsQuery = "
+            SELECT 
+                kw.id as keyword_id,
+                kw.title as keyword_label,
+                COUNT(*) as count
+            FROM value v_act
+            JOIN value v_kw ON v_act.resource_id = v_kw.resource_id 
+            JOIN resource kw ON v_kw.value_resource_id = kw.id
+            WHERE v_act.property_id IN (386, 2095) -- Actant connection
+            AND v_kw.property_id = 2097 -- Keyword connection
+            GROUP BY kw.id, kw.title
+            ORDER BY count DESC
+            LIMIT 7
+        ";
+        
+        $keywordsStats = $this->conn->fetchAllAssociative($keywordsQuery);
+
+        return [
+            'counts' => $counts,
+            'topActants' => $topActantsSorted,
+            'keywords' => $keywordsStats
+        ];
+    }
+
+    function getRandomActants($limit = 10) {
+        return $this->getActantBasicInfo([], $limit, null, true);
+    }
+
+    function getActantDetails($id) {
+         $basic = $this->getActantBasicInfo([$id]);
+         if (empty($basic)) return null;
+         
+         $actant = $basic[0];
+         
+         // Ajouter stats mots clés spécifiques
+         // ... implementation keywords stats ...
+
+         return $actant;
     }
 
 

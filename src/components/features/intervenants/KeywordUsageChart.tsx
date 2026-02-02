@@ -1,82 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { getSeminarConfs, getKeywords } from '@/services/Items';
 
-const KeywordUsageChart: React.FC = () => {
-    const [dataset, setDataset] = useState<{ keyword: string; count: number }[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+interface KeywordsStats {
+    keyword_id: string;
+    keyword_label: string;
+    count: number;
+}
 
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-            setLoading(true);
+interface KeywordUsageChartProps {
+    keywordsStats: KeywordsStats[] | null;
+}
 
-            const [confs, keywords] = await Promise.all([
-              getSeminarConfs(),
-              getKeywords(),
-            ]);
-
-            const keywordTitles = new Map<string, string>();
-            keywords.forEach((kw: any) => {
-              keywordTitles.set(kw.id, kw.title);
-            });
-
-            const keywordCount = new Map<string, number>();
-            confs.forEach((conf: any) => {
-              if (Array.isArray(conf.motcles)) {
-                conf.motcles.forEach((motcle: any) => {
-                  const keywordId =
-                    typeof motcle === 'object' && motcle !== null && 'id' in motcle
-                      ? motcle.id
-                      : motcle;
-                  if (keywordId) {
-                    keywordCount.set(keywordId, (keywordCount.get(keywordId) || 0) + 1);
-                  }
-                });
-              }
-            });
-
-            const sortedKeywords = Array.from(keywordCount.entries())
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 7);
-
-            const transformedDataset = sortedKeywords
-                .map(([keywordId, count]) => ({
-                    keyword: keywordTitles.get(keywordId) || keywordId,
-                    count,
-                }));
-                // Removed random sort to show top keywords consistently
-
-            setDataset(transformedDataset);
-          } catch (err) {
-            console.error('Erreur lors du chargement des données:', err);
-          } finally {
-            setLoading(false);
-          }
-        };
-    
-        fetchData();
-    }, []);
-
+const KeywordUsageChart: React.FC<KeywordUsageChartProps> = ({ keywordsStats }) => {
     // Chart logic
-    const data = dataset.map(d => ({ label: d.keyword, value: d.count }));
+    // Transform backend data to chart format
+    // If stats are empty, use empty array
+    const data = (keywordsStats || []).map(d => ({ 
+        label: d.keyword_label || d.keyword_id, 
+        value: Number(d.count) // ensure number
+    }));
+
     const maxHeight = 400;
 
     // Find max value to normalize bars + buffer
     const maxValue = data.length > 0 ? Math.max(...data.map(d => d.value)) * 1.2 : 10;
   
     // Y-axis ticks
-    const step = 5;
+    const step = 10;
     const ticks: number[] = [];
     for (let i = 0; i <= maxValue; i += step) {
         ticks.push(i);
     }
-
-  if (loading) {
-    return (
-        <p className="text-c6 w-full text-center">Chargement des données...</p>
-    );
-  }
 
   return (
     <section className="w-full flex flex-col gap-20 items-center">

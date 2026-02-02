@@ -1,10 +1,9 @@
 import { TopIcon } from '@/components/ui/icons';
 import { Actant } from '@/types/ui';
-import { useMemo } from 'react';
 
 // Props for main component
 interface TopIntervenantsProps {
-  intervenants: Actant[];
+  actants: Actant[];
 }
 
 // Props for individual speaker cards
@@ -49,15 +48,9 @@ const IntervenantCard = ({ intervenant, position }: IntervenantCardProps) => {
 };
 
 // Main component
-export default function TopIntervenants({ intervenants }: TopIntervenantsProps) {
-  // Get top 3 speakers sorted by interventions
-  const topIntervenants = useMemo(() => {
-    if (!intervenants?.length) return [];
-
-    const sorted = [...intervenants];
-    sorted.sort((a, b) => b.interventions - a.interventions);
-    return sorted.slice(0, 3);
-  }, [intervenants]);
+export default function TopIntervenants({ actants }: TopIntervenantsProps) {
+  // Use the pre-sorted actants directly
+  const topIntervenants = actants;
 
   return (
     <section className='flex flex-col items-center justify-center gap-40 p-20'>

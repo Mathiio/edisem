@@ -1,14 +1,22 @@
+import { Skeleton } from '@heroui/react';
 import { useMemo } from 'react';
-import { Actant } from '@/types/ui';
+
 
 
 interface IntervenantsStatisticsProps {
-  intervenants: Actant[];
+  counts: {
+    actants: string | number;
+    universities: string | number;
+    laboratories: string | number;
+    countries: string | number;
+    doctoralSchools: string | number;
+  } | null;
+  loading: boolean;
 }
 
-export default function IntervenantsStats({ intervenants }: IntervenantsStatisticsProps) {
+export default function IntervenantsStats({ counts, loading }: IntervenantsStatisticsProps) {
   const statistics = useMemo(() => {
-    if (!intervenants?.length) {
+    if (!counts) {
       return {
         intervenantsCount: '0+',
         universitiesCount: 0,
@@ -17,48 +25,19 @@ export default function IntervenantsStats({ intervenants }: IntervenantsStatisti
       };
     }
 
-    // Round number of actants down to the nearest 10 (e.g., 93 -> "90+")
-    const totalIntervenants = intervenants.length;
+    // Round number of actants down to the nearest 10 if number (e.g., 93 -> "90+")
+    // If it's came as string from PHP? DB returns string or int.
+    const totalIntervenants = Number(counts.actants);
     const intervenantsRounded = Math.floor(totalIntervenants / 10) * 10;
     const intervenantsCount = intervenantsRounded === 0 ? totalIntervenants.toString() : `${intervenantsRounded}+`;
 
-    // Count of unique universities (by ID)
-    const universitiesSet = new Set<string>();
-    intervenants.forEach(intervenant => {
-      if (intervenant.universities?.length) {
-        intervenant.universities.forEach(uni => {
-          if (uni?.id) universitiesSet.add(uni.id);
-        });
-      }
-    });
-
-    // Count of unique laboratories (by ID)
-    const laboratoriesSet = new Set<string>();
-    intervenants.forEach(intervenant => {
-      if (intervenant.laboratories?.length) {
-        intervenant.laboratories.forEach(lab => {
-          if (lab?.id) laboratoriesSet.add(lab.id);
-        });
-      }
-    });
-
-    // Count of unique countries (based on university.country field)
-    const countriesSet = new Set<string>();
-    intervenants.forEach(intervenant => {
-      if (intervenant.universities?.length) {
-        intervenant.universities.forEach(uni => {
-          if (uni?.country) countriesSet.add(uni.country);
-        });
-      }
-    });
-
     return {
       intervenantsCount,
-      universitiesCount: universitiesSet.size,
-      laboratoriesCount: laboratoriesSet.size,
-      countriesCount: countriesSet.size
+      universitiesCount: counts.universities,
+      laboratoriesCount: counts.laboratories,
+      countriesCount: counts.countries
     };
-  }, [intervenants]);
+  }, [counts]);
 
   // Small card component for displaying one stat
   const StatCard = ({ title, value, description }: {
@@ -67,7 +46,7 @@ export default function IntervenantsStats({ intervenants }: IntervenantsStatisti
     description: string;
   }) => (
     <div className="flex flex-col gap-10">
-      <h3 className="text-64 text-c6 font-bold text-gray-900">{value}</h3>
+      <h3 className="text-64 text-c6 font-bold">{loading ? value : '0'}</h3>
       <div className="py-5 px-10 flex bg-c2 w-fit rounded-8">
         <p className="text-16 font-medium text-c5">{title}</p>
       </div>

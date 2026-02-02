@@ -23,6 +23,7 @@ const MAP_CONFIG = {
 type WorldMapVisualizationProps = {
   highlightedCountries: Set<string>;
   onCountryClick?: (countryName: string) => void;
+  loading: boolean;
 };
 
 
@@ -31,6 +32,7 @@ type WorldMapVisualizationProps = {
 export const WorldMapVisualization: React.FC<WorldMapVisualizationProps> = ({ 
   highlightedCountries,
   onCountryClick,
+  loading
 }) => {
   // Memoized function to render the geographies (countries) on the map
   const renderGeographies = useCallback((geographies: any[]) => {
@@ -41,17 +43,18 @@ export const WorldMapVisualization: React.FC<WorldMapVisualizationProps> = ({
     
     // Map over the remaining geographies and determine if each one should be highlighted
     return filteredGeos.map(geo => {
-      const isHighlighted = highlightedCountries.has(geo.properties.name);
+      const isHighlighted = loading ? false : highlightedCountries.has(geo.properties.name);
       return (
         <MapGeography
           key={geo.rsmKey}
           geography={geo}
           isHighlighted={isHighlighted}
           onClick={onCountryClick}
+          loading={loading}
         />
       );
     });
-  }, [highlightedCountries, onCountryClick]);
+  }, [highlightedCountries, onCountryClick, loading]);
 
   return (
     <div className="w-full h-auto">
