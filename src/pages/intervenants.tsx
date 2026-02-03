@@ -75,7 +75,7 @@ export const Intervenants: React.FC = () => {
             
             <IntervenantsWorldMap countriesData={countriesData || null} loading={loading.countriesData}/>
             
-            <IntervenantsStats counts={stats?.counts || null} loading={true}/>
+            <IntervenantsStats counts={stats?.counts || null} loading={loading.stats}/>
             
             <KeywordUsageChart keywordsStats={stats?.keywords || null}/>
             

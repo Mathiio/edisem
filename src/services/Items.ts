@@ -630,6 +630,15 @@ export async function getEditions(editionIds?: string | string[]) {
   }
 }
 
+export async function getEditionDetails(id: string | number) {
+  try {
+    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getEditionDetails&id=${id}&json=1`);
+  } catch (error) {
+    console.error(`Error fetching edition details for ${id}:`, error);
+    return null;
+  }
+}
+
 export async function getNavbarEditions() {
   try {
     // We don't necessarily cache this heavily in session storage as it's lightweight and critical for nav

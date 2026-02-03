@@ -203,6 +203,9 @@ class QuerySqlViewHelper extends AbstractHelper
             case 'getActantNetwork':
                 $result = $this->getActantNetwork($params['id']);
                 break;
+            case 'getEditionDetails':
+                $result = $this->getEditionDetails($params['id']);
+                break;
             case 'getRandomActants':
                 $limit = isset($params['limit']) ? (int)$params['limit'] : 10;
                 $result = $this->getRandomActants($limit);
@@ -752,6 +755,140 @@ class QuerySqlViewHelper extends AbstractHelper
         }
         
         return $result;
+    }
+
+    /**
+     * Récupère les détails d'une édition et ses conférences enrichies.
+     * Remplace la logique frontend de ConfsByEdition.tsx.
+     */
+    public function getEditionDetails($editionId) {
+        $editionId = (int)$editionId;
+
+        // 1. Fetch Edition Metadata
+        // Template 77
+        // Props: 1 (Title), 7 (Year), 1662 (Season), 8 (Type)
+        
+        $editionSql = "
+            SELECT 
+                r.id, 
+                r.title,
+                MAX(CASE WHEN v.property_id = 7 THEN v.value END) as year,
+                MAX(CASE WHEN v.property_id = 1662 THEN v.value END) as season,
+                MAX(CASE WHEN v.property_id = 8 THEN v.value_resource_id END) as type_id
+            FROM resource r
+            LEFT JOIN value v ON r.id = v.resource_id AND v.property_id IN (7, 1662, 8)
+            WHERE r.id = ? AND r.resource_template_id = 77
+            GROUP BY r.id
+        ";
+        $editionRaw = $this->conn->fetchAssociative($editionSql, [$editionId]);
+        
+        if (!$editionRaw) {
+             error_log("getEditionDetails: Edition not found or wrong template for ID $editionId");
+             return null;
+        }
+        
+        // Resolve Edition Type Name
+        $editionType = "";
+        if ($editionRaw['type_id']) {
+            $typeSql = "SELECT title FROM resource WHERE id = ?";
+            $typeRes = $this->conn->fetchOne($typeSql, [$editionRaw['type_id']]);
+            $editionType = strtolower($typeRes);
+        }
+
+        $edition = [
+            'id' => (string)$editionRaw['id'],
+            'title' => $editionRaw['title'],
+            'year' => $editionRaw['year'],
+            'season' => $editionRaw['season'],
+            'editionType' => $editionType
+        ];
+
+        // 2. Fetch Conferences
+        // Link: Edition --(937)--> Conference
+        // So we search for values where resource_id = editionId AND property_id = 937
+        
+        $confsSql = "
+            SELECT 
+                r.id, 
+                r.title,
+                r.resource_template_id,
+                (SELECT value FROM value WHERE resource_id = r.id AND property_id = 561 LIMIT 1) as description, 
+                (SELECT value FROM value WHERE resource_id = r.id AND property_id = 1457 LIMIT 1) as date,
+                (SELECT uri FROM value WHERE resource_id = r.id AND property_id = 1517 LIMIT 1) as url,
+                (SELECT CONCAT(m.storage_id, '.', m.extension) FROM media m WHERE m.item_id = r.id LIMIT 1) as media_logo
+            FROM value v_link
+            JOIN resource r ON v_link.value_resource_id = r.id
+            WHERE v_link.resource_id = ?
+            AND v_link.property_id = 937
+            ORDER BY r.id ASC
+        ";
+        $confsRaw = $this->conn->fetchAllAssociative($confsSql, [$editionId]);
+        
+        $conferences = [];
+        $confIds = array_column($confsRaw, 'id');
+        
+        // Define Template Map
+        $typeMap = [
+            121 => 'studyday',
+            122 => 'colloque',
+            71 => 'seminar'
+        ];
+        
+        if (!empty($confIds)) {
+            // Fetch Contributors (Actants) for all these conferences
+            // Prop 2095 (Has Actant) or 386 (Creator)
+            $confIdsStr = implode(',', $confIds);
+            
+            $contribSql = "
+                SELECT 
+                    v.resource_id as conf_id,
+                    v.value_resource_id as actant_id
+                FROM value v
+                WHERE v.resource_id IN ($confIdsStr)
+                AND v.property_id IN (2095, 386)
+                AND v.value_resource_id IS NOT NULL
+            ";
+            $contribsRaw = $this->conn->fetchAllAssociative($contribSql);
+            
+            $actantIds = array_unique(array_column($contribsRaw, 'actant_id'));
+            
+            $actantsData = [];
+            if (!empty($actantIds)) {
+                $basicInfos = $this->getActantBasicInfo($actantIds);
+                foreach($basicInfos as $info) {
+                    $actantsData[$info['id']] = $info;
+                }
+            }
+            
+            $confContributors = [];
+            foreach($contribsRaw as $row) {
+                if (isset($actantsData[$row['actant_id']])) {
+                    $confContributors[$row['conf_id']][] = $actantsData[$row['actant_id']];
+                }
+            }
+            
+            foreach($confsRaw as $cRow) {
+                $cid = $cRow['id'];
+                
+                // Resolve Type
+                $type = $typeMap[$cRow['resource_template_id']] ?? 'default';
+
+                $conferences[] = [
+                    'id' => (string)$cid,
+                    'title' => $cRow['title'],
+                    'description' => $cRow['description'],
+                    'date' => $cRow['date'], 
+                    'type' => $type,
+                    'url' => $cRow['url'],
+                    'actant' => $confContributors[$cid] ?? []
+                ];
+            }
+        }
+
+        return [
+            'edition' => $edition,
+            'conferences' => $conferences
+        ];
     }
 
     function getActantGlobalStats() {
