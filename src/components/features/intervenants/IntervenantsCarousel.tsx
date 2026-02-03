@@ -10,7 +10,7 @@ type IntervenantsCarouselProps = {
 
 export const IntervenantsCarousel: React.FC<IntervenantsCarouselProps> = ({ 
   intervenants, 
-  loading = false 
+  loading
 }) => {
 
   return (

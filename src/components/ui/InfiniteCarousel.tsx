@@ -194,12 +194,18 @@ export function InfiniteCarousel<T>({
 
   if (loading) {
     return (
-      <div className="flex gap-6 overflow-hidden">
+      <div className="flex gap-6 overflow-hidden relative">
+        {fade && (
+            <>
+                <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-80 bg-gradient-to-r from-c1 to-transparent" />
+                <div className="pointer-events-none absolute top-0 right-0 z-10 h-full w-80 bg-gradient-to-l from-c1 to-transparent" />
+            </>
+        )}
         {Array.from({ length: skeletonCount }).map((_, i) => (
           <div
             key={i}
-            className="shrink-0 rounded-lg bg-c3"
-            style={{ width: itemWidth ?? 160, height: 80 }}
+            className="shrink-0"
+            style={{ width: itemWidth ?? 160, height: 'auto' }}
           >
             {renderSkeleton?.()}
           </div>
