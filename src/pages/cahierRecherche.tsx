@@ -108,16 +108,10 @@ const RechercheCard: React.FC<RechercheCardProps> = ({ recherche }) => {
 export const RechercheSkeletonCard: React.FC = () => {
   return (
     <Card className='h-full w-full space-y-3 p-0 overflow-hidden' radius='lg'>
-      <Skeleton className='rounded-t-12'>
-        <div className='h-48 rounded-t-12 bg-default-300' />
-      </Skeleton>
+      <Skeleton className='rounded-t-12 h-48' />
       <div className='p-4 space-y-3'>
-        <Skeleton className='w-4/5 rounded-12'>
-          <div className='h-20 w-4/5 rounded-12 bg-default-200' />
-        </Skeleton>
-        <Skeleton className='w-2/5 rounded-12'>
-          <div className='h-3 w-2/5 rounded-12 bg-default-200' />
-        </Skeleton>
+        <Skeleton className='w-4/5 h-20 rounded-12' />
+        <Skeleton className='w-2/5 h-3 rounded-12' />
       </div>
     </Card>
   );

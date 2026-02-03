@@ -210,6 +210,10 @@ class QuerySqlViewHelper extends AbstractHelper
                 $limit = isset($params['limit']) ? (int)$params['limit'] : 10;
                 $result = $this->getRandomActants($limit);
                 break;
+            case 'getEditionsByType':
+                $type = isset($params['type']) ? $params['type'] : 'seminar';
+                $result = $this->getEditionsByType($type);
+                break;
             default:
                 error_log('QuerySqlViewHelper: Unknown action: ' . ($params['action'] ?? 'null'));
                 $result = [];
@@ -898,10 +902,24 @@ class QuerySqlViewHelper extends AbstractHelper
             'universities' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 73"),
             'laboratories' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 91"),
             'doctoralSchools' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 74"),
-            'countries' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 94"),
+            'countries' => $this->conn->fetchOne("SELECT COUNT(DISTINCT value) FROM value WHERE property_id = 94"),
         ];
 
-        // 2. Top Actants (Interventions count)
+        // 2. Intervention Counts over Years
+        $heatmapSql = "
+            SELECT 
+                SUBSTRING(v.value, 1, 4) as year, 
+                COUNT(*) as count
+            FROM value v
+            JOIN resource r ON v.resource_id = r.id
+            WHERE r.resource_template_id IN (71, 121, 122)
+            AND v.property_id = 1457 -- Date
+            GROUP BY year
+            ORDER BY year ASC
+        ";
+        $heatmap = $this->conn->fetchAllAssociative($heatmapSql);
+
+        // 3. Top Actants (Interventions count)
         $topActantsQuery = "
             SELECT 
                 v.value_resource_id as actant_id,
@@ -918,8 +936,8 @@ class QuerySqlViewHelper extends AbstractHelper
         $topActantDetails = $this->getActantBasicInfo(array_column($topIds, 'actant_id'));
 
         $topActantsMap = [];
-        foreach ($topActantDetails as &$actant) {
-            $topActantsMap[$actant['id']] = $actant;
+        foreach ($topActantDetails as $actant) {
+             $topActantsMap[$actant['id']] = $actant;
         }
         
         // Merge counts
@@ -955,6 +973,66 @@ class QuerySqlViewHelper extends AbstractHelper
             'topActants' => $topActantsSorted,
             'keywords' => $keywordsStats
         ];
+    }
+
+    /**
+     * Récupère les éditions filtrées par type (seminar, colloque, studyday).
+     */
+    public function getEditionsByType($typeKey) {
+        // Mapping key -> DB Title (lowercase checks)
+        $map = [
+            'seminar' => 'séminaire',
+            'colloque' => 'colloque',
+            'studyday' => 'journée d’études'
+        ];
+        
+        $targetType = $map[$typeKey] ?? null;
+        if (!$targetType) return [];
+        
+        // 1. Find Editions (Template 77) of this type
+        // Link: Edition --(Prop 8)--> Type Resource --(Prop 1)--> Title
+        $sql = "
+            SELECT 
+                r.id, 
+                r.title,
+                MAX(CASE WHEN v.property_id = 7 THEN v.value END) as year,
+                MAX(CASE WHEN v.property_id = 1662 THEN v_linked.value END) as season,
+                 -- Count conferences (Prop 937 on Edition)
+                (SELECT COUNT(*) 
+                 FROM value v_conf 
+                 WHERE v_conf.resource_id = r.id 
+                 AND v_conf.property_id = 937) as conf_count
+            FROM resource r
+            -- Join Type
+            JOIN value v_type ON r.id = v_type.resource_id AND v_type.property_id = 8
+            JOIN resource r_type ON v_type.value_resource_id = r_type.id
+            LEFT JOIN value v ON r.id = v.resource_id AND v.property_id IN (7, 1662)
+            LEFT JOIN value v_linked ON v.value_resource_id = v_linked.resource_id AND v_linked.property_id = 1
+            WHERE r.resource_template_id = 77
+            AND LOWER(r_type.title) LIKE ?
+            GROUP BY r.id
+            ORDER BY year DESC
+        ";
+        
+        // Use LIKE for safer string matching
+        $searchParam = $targetType;
+        if ($typeKey === 'studyday') $searchParam = 'journée d%';
+        
+        $rows = $this->conn->fetchAllAssociative($sql, [$searchParam]);
+        
+        $results = [];
+        foreach($rows as $row) {
+            $results[] = [
+                'id' => (string)$row['id'],
+                'title' => $row['title'],
+                'year' => $row['year'],
+                'season' => $row['season'],
+                'editionType' => $targetType,
+                'conferences' => array_fill(0, (int)$row['conf_count'], null) // Dummy array to satisfy length check
+            ];
+        }
+        
+        return $results;
     }
 
     function getRandomActants($limit = 10) {

@@ -70,26 +70,15 @@ export const ConfDetailsSkeleton: React.FC = () => {
   return (
     <div className="flex w-full p-20 bg-c1 rounded-14">
         <div className="flex w-full flex-col gap-10">
-            <Skeleton className="w-[40%] rounded-8">
-                <p className="font-semibold text-14">_</p>
-            </Skeleton>
+            <Skeleton className="w-[40%] h-4 rounded-8"/>
             <div className="flex flex-col gap-5">
-                <Skeleton className="w-[100%] rounded-8">
-                    <p className="font-semibold text-14">_</p>
-                </Skeleton>
-                <Skeleton className="w-[100%] rounded-8">
-                    <p className="font-semibold text-14">_</p>
-                </Skeleton>
-                <Skeleton className="w-[100%] rounded-8">
-                    <p className="font-semibold text-14">_</p>
-                </Skeleton>
-                <Skeleton className="w-[100%] rounded-8">
-                    <p className="font-semibold text-14">_</p>
-                </Skeleton>
+                <Skeleton className="w-[100%] h-4 rounded-8"/>
+                <Skeleton className="w-[100%] h-4 rounded-8"/>
+                <Skeleton className="w-[100%] h-4 rounded-8"/>
+                <Skeleton className="w-[100%] h-4 rounded-8"/>
+                <Skeleton className="w-[100%] h-4 rounded-8"/>
             </div>
-            <Skeleton className="w-[15%] rounded-8">
-                <p className="font-semibold text-14">_</p>
-            </Skeleton>
+            <Skeleton className="w-[15%] h-4 rounded-8"/>
         </div>
     </div>
   );

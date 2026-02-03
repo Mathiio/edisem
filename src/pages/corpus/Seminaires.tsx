@@ -1,4 +1,4 @@
-import { SeminairesCarousel } from "@/components/features/seminaires/SeminairesCarousel";
+import { CorpusCarousel } from "@/components/features/corpus/CorpusCarousel";
 import { TopKeywords } from "@/components/features/seminaires/TopKeywords";
 import { Layouts } from "@/components/layout/Layouts";
 import * as Items from "@/services/Items";
@@ -18,8 +18,8 @@ export const Seminaires = () => {
   useEffect(() => {
     (async () => {
       try {
-        const editions = await Items.getEditions();
-        setSeminarEditions(editions.filter((ed: Edition) => ed.editionType === 'séminaire'));
+        const editions = await Items.getEditionsByType('seminar');
+        setSeminarEditions(editions);
         setSeminaires(await Items.getSeminarConfs());
       } catch (error) {
         console.error('Error loading seminars & editions', error);
@@ -40,7 +40,7 @@ export const Seminaires = () => {
           { label: 'conférences', value: totalConferences || 0 }
         ]}
       />
-      <SeminairesCarousel editions={seminarEditions} loading={loading}/>
+      <CorpusCarousel editions={seminarEditions} loading={loading} title="Tous nos séminaires" />
       <TopKeywords seminaires={seminaires} loading={loading} />
     </Layouts>
   );

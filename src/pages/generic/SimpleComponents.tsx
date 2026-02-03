@@ -765,20 +765,12 @@ export const SimpleOverviewSkeleton: React.FC = () => (
     <Skeleton className='rounded-14 lg:w-full lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]' />
     <div className='flex flex-col gap-20'>
       <div className='flex flex-col gap-5'>
-        <Skeleton className='w-[100%] rounded-8'>
-          <p className='font-semibold text-24'>_</p>
-        </Skeleton>
-        <Skeleton className='w-[80%] rounded-8'>
-          <p className='font-semibold text-24'>_</p>
-        </Skeleton>
+        <Skeleton className='w-[100%] h-6 rounded-8' />
+        <Skeleton className='w-[80%] h-6 rounded-8' />
       </div>
       <div className='flex justify-between items-center'>
-        <Skeleton className='w-[50%] rounded-8'>
-          <p className='font-semibold text-16'>_</p>
-        </Skeleton>
-        <Skeleton className='w-[30%] rounded-8'>
-          <p className='font-semibold text-24'>_</p>
-        </Skeleton>
+        <Skeleton className='w-[50%] h-4 rounded-8' />
+        <Skeleton className='w-[30%] h-4 rounded-8' />
       </div>
     </div>
   </div>
@@ -787,23 +779,13 @@ export const SimpleOverviewSkeleton: React.FC = () => (
 export const SimpleDetailsSkeleton: React.FC = () => (
   <div className='flex w-full p-20 bg-c3 rounded-14'>
     <div className='flex w-full flex-col gap-10'>
-      <Skeleton className='w-[35%] rounded-8'>
-        <p className='font-semibold text-14'>_</p>
-      </Skeleton>
+      <Skeleton className='w-[35%] h-4 rounded-8' />
       <div className='flex flex-col gap-5'>
-        <Skeleton className='w-[100%] rounded-8'>
-          <p className='font-semibold text-14'>_</p>
-        </Skeleton>
-        <Skeleton className='w-[100%] rounded-8'>
-          <p className='font-semibold text-14'>_</p>
-        </Skeleton>
-        <Skeleton className='w-[100%] rounded-8'>
-          <p className='font-semibold text-14'>_</p>
-        </Skeleton>
+        <Skeleton className='w-[100%] h-4 rounded-8' />
+        <Skeleton className='w-[100%] h-4 rounded-8' />
+        <Skeleton className='w-[100%] h-4 rounded-8' />
       </div>
-      <Skeleton className='w-[20%] rounded-8'>
-        <p className='font-semibold text-14'>_</p>
-      </Skeleton>
+      <Skeleton className='w-[20%] h-4 rounded-8' />
     </div>
   </div>
 );

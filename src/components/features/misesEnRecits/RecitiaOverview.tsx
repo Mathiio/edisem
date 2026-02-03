@@ -355,20 +355,12 @@ export const RecitiaOverviewSkeleton: React.FC = () => {
       <Skeleton className='rounded-14 lg:w-full lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'></Skeleton>
       <div className='flex flex-col gap-20'>
         <div className='flex flex-col gap-5'>
-          <Skeleton className='w-[100%] rounded-8'>
-            <p className='font-semibold text-24'>_</p>
-          </Skeleton>
-          <Skeleton className='w-[80%] rounded-8'>
-            <p className='font-semibold text-24'>_</p>
-          </Skeleton>
+          <Skeleton className='w-[100%] h-6 rounded-8' />
+          <Skeleton className='w-[80%] h-6 rounded-8' />
         </div>
         <div className='flex justify-between items-center'>
-          <Skeleton className='w-[50%] rounded-8'>
-            <p className='font-semibold text-16'>_</p>
-          </Skeleton>
-          <Skeleton className='w-[30%] rounded-8'>
-            <p className='font-semibold text-24'>_</p>
-          </Skeleton>
+          <Skeleton className='w-[50%] h-4 rounded-8' />
+          <Skeleton className='w-[30%] h-6 rounded-8' />
         </div>
       </div>
     </div>

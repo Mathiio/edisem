@@ -1,4 +1,3 @@
-import { Skeleton } from '@heroui/react';
 import { useMemo } from 'react';
 
 
@@ -46,7 +45,7 @@ export default function IntervenantsStats({ counts, loading }: IntervenantsStati
     description: string;
   }) => (
     <div className="flex flex-col gap-10">
-      <h3 className="text-64 text-c6 font-bold">{loading ? value : '0'}</h3>
+      <h3 className="text-64 text-c6 font-bold">{loading ? '0' : value}</h3>
       <div className="py-5 px-10 flex bg-c2 w-fit rounded-8">
         <p className="text-16 font-medium text-c5">{title}</p>
       </div>

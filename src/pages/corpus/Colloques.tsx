@@ -1,4 +1,4 @@
-import { ColloquesCarousel } from "@/components/features/colloques/ColloquesCarousel";
+import { CorpusCarousel } from "@/components/features/corpus/CorpusCarousel";
 import { Layouts } from "@/components/layout/Layouts";
 import * as Items from "@/services/Items";
 import { useEffect, useState } from 'react';
@@ -14,8 +14,8 @@ export const Colloques = () => {
   useEffect(() => {
     (async () => {
       try {
-        const editions = await Items.getEditions();
-        setColloqueEditions(editions.filter((ed: Edition) => ed.editionType === "colloque"));
+        const editions = await Items.getEditionsByType('colloque');
+        setColloqueEditions(editions);
       } catch (error) {
         console.error('Error loading colloques editions', error);
       } finally {
@@ -38,7 +38,7 @@ export const Colloques = () => {
           { label: 'conférences', value: totalConferences || 0 }
         ]}
       />
-      <ColloquesCarousel editions={colloqueEditions} loading={loading}/>
+      <CorpusCarousel editions={colloqueEditions} loading={loading} title="Tous nos colloques"/>
     </Layouts>
   );
 };

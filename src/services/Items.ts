@@ -639,6 +639,15 @@ export async function getEditionDetails(id: string | number) {
   }
 }
 
+export async function getEditionsByType(type: string) {
+  try {
+    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getEditionsByType&type=${type}&json=1`);
+  } catch (error) {
+    console.error(`Error fetching editions by type ${type}:`, error);
+    return [];
+  }
+}
+
 export async function getNavbarEditions() {
   try {
     // We don't necessarily cache this heavily in session storage as it's lightweight and critical for nav

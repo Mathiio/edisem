@@ -1,4 +1,4 @@
-import { StudyDayCarousel } from "@/components/features/studyDay/StudyDayCarousel";
+import { CorpusCarousel } from "@/components/features/corpus/CorpusCarousel";
 import { Layouts } from "@/components/layout/Layouts";
 import * as Items from "@/services/Items";
 import { useEffect, useState } from 'react';
@@ -16,8 +16,8 @@ export const JourneesEtudes = () => {
   useEffect(() => {
     (async () => {
       try {
-        const editions = await Items.getEditions();
-        setStudyDayEditions(editions.filter((ed: Edition) => ed.editionType === "journée d’études"));
+        const editions = await Items.getEditionsByType('studyday');
+        setStudyDayEditions(editions);
       } catch (error) {
         console.error('Error loading study day editions', error);
       } finally {
@@ -37,7 +37,7 @@ export const JourneesEtudes = () => {
           { label: 'conférences', value: totalConferences || 0 }
         ]}
       />
-      <StudyDayCarousel editions={studyDayEditions} loading={loading}/>
+      <CorpusCarousel editions={studyDayEditions} loading={loading} title="Toutes nos Journées d'études"/>
     </Layouts>
   );
 };
