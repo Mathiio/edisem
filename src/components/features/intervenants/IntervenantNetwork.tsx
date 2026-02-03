@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as d3 from 'd3';
 import * as Items from '@/services/Items';
-import { Actant, Conference } from '@/types/ui';
 import { ZoomInIcon, ZoomOutIcon, UserIcon } from '@/components/ui/icons';
 
 interface IntervenantNetworkProps {
@@ -49,193 +48,27 @@ export const IntervenantNetwork: React.FC<IntervenantNetworkProps> = ({ currentA
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const [zoomLevel, setZoomLevel] = useState(1.1); // 1.1 = Slightly zoomed in
 
-  // Fetch & Process Data ...
+  // Fetch Network Data
   useEffect(() => {
     const fetchData = async () => {
+      if (!currentActantId) return;
+      
       setLoading(true);
       try {
-        const [allConfs, allActants] = await Promise.all([
-          Items.getAllConfs() as Promise<Conference[]>,
-          Items.getActants() as Promise<Actant[]>
-        ]);
-
-        const actantsMap = new Map(allActants.map(a => [String(a.id), a]));
+        const data = await Items.getActantNetwork(currentActantId);
         
-        // Data Structures
-        const actantKeywords = new Map<string, Set<string>>();
-        const actantUnis = new Map<string, Set<string>>();
-        const actantLabs = new Map<string, Set<string>>();
-        const actantSchools = new Map<string, Set<string>>();
-        const actantEvents = new Map<string, Set<string>>(); // Shared Conferences
-        const actantRefs = new Map<string, Set<string>>(); // Shared Biblio/Citations
-
-        // Initialize Sets
-        allActants.forEach(a => {
-            const id = String(a.id);
-            actantKeywords.set(id, new Set());
-            actantUnis.set(id, new Set(a.universities?.map((u: any) => String(u.id || u))));
-            actantLabs.set(id, new Set(a.laboratories?.map((l: any) => String(l.id || l))));
-            actantSchools.set(id, new Set(a.doctoralSchools?.map((s: any) => String(s.id || s))));
-            actantEvents.set(id, new Set());
-            actantRefs.set(id, new Set());
-        });
-
-        // Populate Keywords, Events, Refs
-        allConfs.forEach((conf) => {
-            if (!conf.actant) return;
-            
-            // Normalize Actants in this conf
-            let confActants: string[] = [];
-            if (Array.isArray(conf.actant)) {
-               confActants = conf.actant.map((a: any) => String(a.id || a));
-            } else if (typeof conf.actant === 'string') {
-               confActants = (conf.actant as string).split(',').map(s => s.trim());
-            }
-
-            // Normalize Keywords
-            let confKeywords: string[] = [];
-            if (Array.isArray(conf.motcles)) {
-                confKeywords = conf.motcles.map((k: any) => String(k.id || k));
-            }
-
-            // Normalize Refs (Biblio + Citations)
-            let confRefs: string[] = [];
-            conf.bibliographies?.forEach((b: any) => confRefs.push(`bib-${b.id}`));
-            conf.citations?.forEach((c: any) => confRefs.push(`cit-${c.id}`));
-
-            // Assign to Actants
-            confActants.forEach(actantId => {
-                if (!actantKeywords.has(actantId)) return;
-                
-                // Add Event (Conference ID)
-                actantEvents.get(actantId)?.add(String(conf.id));
-
-                // Add Keywords
-                confKeywords.forEach(k => actantKeywords.get(actantId)?.add(k));
-
-                // Add Refs
-                confRefs.forEach(r => actantRefs.get(actantId)?.add(r));
-            });
-        });
-
-        // Current User Profiles
-        const cKeywords = actantKeywords.get(currentActantId) || new Set();
-        const cUnis = actantUnis.get(currentActantId) || new Set();
-        const cLabs = actantLabs.get(currentActantId) || new Set();
-        const cSchools = actantSchools.get(currentActantId) || new Set();
-        const cEvents = actantEvents.get(currentActantId) || new Set();
-        const cRefs = actantRefs.get(currentActantId) || new Set();
-
-        if (cKeywords.size === 0 && cEvents.size === 0) {
-            setNodes([]); setLinks([]); return;
+        if (data && data.nodes && data.nodes.length > 0) {
+            setNodes(data.nodes);
+            setLinks(data.links || []);
+        } else {
+            console.log('No network data found for', currentActantId);
+            setNodes([]);
+            setLinks([]);
         }
-
-        // Helper: Jaccard
-        const getJaccard = (setA: Set<string>, setB: Set<string>) => {
-            if (setA.size === 0 || setB.size === 0) return 0;
-            const intersection = new Set([...setA].filter(x => setB.has(x)));
-            const union = new Set([...setA, ...setB]);
-            return intersection.size / union.size;
-        };
-
-        // Helper: Intersection Count (for Tooltip)
-        const getSharedCount = (setA: Set<string>, setB: Set<string>) => {
-             return new Set([...setA].filter(x => setB.has(x))).size;
-        };
-
-        // Calculate Scores
-        const similarities: { id: string; score: number; details: any }[] = [];
-
-        actantsMap.forEach((_, id) => {
-            if (id === currentActantId) return;
-
-            const tKeywords = actantKeywords.get(id) || new Set();
-            const tUnis = actantUnis.get(id) || new Set();
-            const tLabs = actantLabs.get(id) || new Set();
-            const tSchools = actantSchools.get(id) || new Set();
-            const tEvents = actantEvents.get(id) || new Set();
-            const tRefs = actantRefs.get(id) || new Set();
-
-            const sK = getJaccard(cKeywords, tKeywords);
-            const sU = getJaccard(cUnis, tUnis);
-            const sL = getJaccard(cLabs, tLabs);
-            const sS = getJaccard(cSchools, tSchools);
-            const sE = getJaccard(cEvents, tEvents);
-            const sR = getJaccard(cRefs, tRefs);
-
-            // New Weighted Formula: 
-            // Thematic (40%) + Activity (30%) + References (20%) + Inst (10%)
-            // Inst is avg of U, L, S
-            const sInst = (sU + sL + sS) / 3;
-            
-            const compositeScore = 
-                (sK * 0.40) + 
-                (sE * 0.30) + 
-                (sR * 0.20) + 
-                (sInst * 0.10);
-
-            if (compositeScore > 0.05) { 
-                similarities.push({
-                    id,
-                    score: compositeScore,
-                    details: { 
-                        k: sK, u: sU, l: sL, s: sS, e: sE, r: sR,
-                        sharedEventsCount: getSharedCount(cEvents, tEvents),
-                        sharedRefsCount: getSharedCount(cRefs, tRefs)
-                    }
-                });
-            }
-        });
-
-        // Sort & Top 20 (Increased slightly for solar system which can handle more)
-        const topSimilar = similarities
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 20);
-
-        // Build Nodes
-        const currentActant = actantsMap.get(currentActantId);
-        if (!currentActant) return;
-
-        const centerNode: NetworkNode = {
-          id: currentActantId,
-          name: `${currentActant.firstname} ${currentActant.lastname}`,
-          picture: currentActant.picture,
-          similarity: 1,
-          type: 'current',
-          fx: 0, fy: 0,
-          orbitIndex: -1,
-          sharedKeywords: cKeywords.size
-        };
-
-        const totalNeighbors = topSimilar.length;
-        const neighborNodes: NetworkNode[] = topSimilar.map((sim, index) => {
-           const actant = actantsMap.get(sim.id);
-           
-           // Rank-based distribution
-           let orbitIndex = 0;
-           if (totalNeighbors > 3) {
-               if (index < totalNeighbors / 3) orbitIndex = 0; // Top 33% -> Inner
-               else if (index < (totalNeighbors * 2) / 3) orbitIndex = 1; // Mid 33% -> Middle
-               else orbitIndex = 2; // Bottom 33% -> Outer
-           }
-
-           return {
-             id: sim.id,
-             name: actant ? `${actant.firstname} ${actant.lastname}` : 'Unknown',
-             picture: actant?.picture,
-             similarity: sim.score,
-             type: 'neighbor',
-             details: sim.details,
-             orbitIndex: orbitIndex,
-             sharedKeywords: 0 
-           };
-        });
-
-        setNodes([centerNode, ...neighborNodes]);
-        setLinks(neighborNodes.map(n => ({ source: centerNode.id, target: n.id, value: n.similarity })));
-
       } catch (error) {
         console.error("Graph Data Error:", error);
+        setNodes([]); 
+        setLinks([]);
       } finally {
         setLoading(false);
       }

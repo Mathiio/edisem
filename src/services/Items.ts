@@ -578,6 +578,15 @@ export async function getActantDetails(id: string | number) {
   }
 }
 
+export async function getActantNetwork(id: string | number) {
+  try {
+    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActantNetwork&id=${id}&json=1`);
+  } catch (error) {
+    console.error(`Error fetching actant network for ${id}:`, error);
+    return { nodes: [], links: [] };
+  }
+}
+
 export async function getActantsByCountry() {
   try {
     return await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActantsByCountry&json=1');

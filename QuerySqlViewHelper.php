@@ -200,6 +200,9 @@ class QuerySqlViewHelper extends AbstractHelper
             case 'getActantDetails':
                 $result = $this->getActantDetails($params['id']);
                 break;
+            case 'getActantNetwork':
+                $result = $this->getActantNetwork($params['id']);
+                break;
             case 'getRandomActants':
                 $limit = isset($params['limit']) ? (int)$params['limit'] : 10;
                 $result = $this->getRandomActants($limit);
@@ -531,6 +534,224 @@ class QuerySqlViewHelper extends AbstractHelper
         }
         
         return array_values($countriesData);
+    }
+
+    /**
+     * Calcule le réseau de proximité pour un intervenant donné.
+     * Logique migrée du frontend (IntervenantNetwork.tsx).
+     */
+    public function getActantNetwork($actantId) {
+        $actantId = (int)$actantId;
+        
+        // 1. Récupérer les données de l'actant cible
+        $targetData = $this->getActantTerms([$actantId]);
+        if (!isset($targetData[$actantId])) {
+            return ['nodes' => [], 'links' => []];
+        }
+        $targetTerms = $targetData[$actantId];
+
+        // 2. Récupérer les données de TOUS les autres actants
+        $allActantsSql = "SELECT id FROM resource WHERE resource_template_id IN (72)";
+        $allIdsFn = $this->conn->fetchAllAssociative($allActantsSql);
+        $allIds = array_column($allIdsFn, 'id');
+        $allIds = array_diff($allIds, [$actantId]);
+        
+        // Fetch terms pour tous
+        $othersData = $this->getActantTerms($allIds);
+        
+        $similarities = [];
+        
+        foreach ($othersData as $otherId => $otherTerms) {
+            $sK = $this->jaccard($targetTerms['keywords'], $otherTerms['keywords']);
+            $sU = $this->jaccard($targetTerms['unis'], $otherTerms['unis']);
+            $sL = $this->jaccard($targetTerms['labs'], $otherTerms['labs']);
+            $sS = $this->jaccard($targetTerms['schools'], $otherTerms['schools']);
+            $sE = $this->jaccard($targetTerms['events'], $otherTerms['events']);
+            $sR = $this->jaccard($targetTerms['refs'], $otherTerms['refs']);
+            
+            $sInst = ($sU + $sL + $sS) / 3;
+            $score = ($sK * 0.40) + ($sE * 0.30) + ($sR * 0.20) + ($sInst * 0.10);
+            
+            if ($score > 0.05) {
+                $sharedEvents = count(array_intersect($targetTerms['events'], $otherTerms['events']));
+                $sharedRefs = count(array_intersect($targetTerms['refs'], $otherTerms['refs']));
+                
+                $similarities[] = [
+                    'id' => $otherId,
+                    'score' => $score,
+                    'details' => [
+                        'k' => $sK, 'u' => $sU, 'l' => $sL, 's' => $sS, 'e' => $sE, 'r' => $sR,
+                        'sharedEventsCount' => $sharedEvents,
+                        'sharedRefsCount' => $sharedRefs
+                    ]
+                ];
+            }
+        }
+        
+        usort($similarities, function($a, $b) {
+            return ($b['score'] <=> $a['score']);
+        });
+        
+        $topSimilar = array_slice($similarities, 0, 20);
+        
+        $idsToFetch = array_merge([$actantId], array_column($topSimilar, 'id'));
+        $basicInfos = $this->getActantBasicInfo($idsToFetch);
+        $infosMap = [];
+        foreach($basicInfos as $info) { 
+            $infosMap[$info['id']] = $info; 
+        }
+
+        $centerInfo = $infosMap[$actantId] ?? ['firstname' => '?', 'lastname' => '?', 'picture' => null];
+        $nodes = [[
+            'id' => (string)$actantId,
+            'name' => $centerInfo['firstname'] . ' ' . $centerInfo['lastname'],
+            'picture' => $centerInfo['picture'],
+            'similarity' => 1,
+            'type' => 'current',
+            'fx' => 0, 'fy' => 0,
+            'orbitIndex' => -1,
+            'sharedKeywords' => count($targetTerms['keywords'])
+        ]];
+        
+        $links = [];
+        $totalNeighbors = count($topSimilar);
+        
+        foreach($topSimilar as $index => $sim) {
+            $nid = $sim['id'];
+            $nInfo = $infosMap[$nid] ?? ['firstname' => '?', 'lastname' => '?', 'picture' => null];
+            
+            $orbitIndex = 0;
+            if ($totalNeighbors > 3) {
+                if ($index < $totalNeighbors / 3) $orbitIndex = 0;
+                else if ($index < ($totalNeighbors * 2) / 3) $orbitIndex = 1;
+                else $orbitIndex = 2;
+            }
+            
+            $nodes[] = [
+                'id' => (string)$nid,
+                'name' => $nInfo['firstname'] . ' ' . $nInfo['lastname'],
+                'picture' => $nInfo['picture'],
+                'similarity' => $sim['score'],
+                'type' => 'neighbor',
+                'details' => $sim['details'],
+                'orbitIndex' => $orbitIndex,
+                'sharedKeywords' => 0
+            ];
+            
+            $links[] = [
+                'source' => (string)$actantId,
+                'target' => (string)$nid,
+                'value' => $sim['score']
+            ];
+        }
+        
+        return ['nodes' => $nodes, 'links' => $links];
+    }
+    
+    private function jaccard($arr1, $arr2) {
+        if (empty($arr1) || empty($arr2)) return 0;
+        $intersection = count(array_intersect($arr1, $arr2));
+        $union = count(array_unique(array_merge($arr1, $arr2)));
+        if ($union == 0) return 0;
+        return $intersection / $union;
+    }
+
+    private function getActantTerms($actantIds) {
+        if (empty($actantIds)) return [];
+        $idsStr = implode(',', $actantIds);
+        
+        $result = [];
+        foreach($actantIds as $id) {
+            $result[$id] = [
+                'keywords' => [], 'unis' => [], 'labs' => [], 'schools' => [], 'events' => [], 'refs' => []
+            ];
+        }
+
+        $affilSql = "
+            SELECT resource_id, property_id, value_resource_id 
+            FROM value 
+            WHERE resource_id IN ($idsStr) 
+            AND property_id IN (73, 3038, 91, 3044, 74, 3043)
+            AND value_resource_id IS NOT NULL
+        ";
+        $affils = $this->conn->fetchAllAssociative($affilSql);
+        foreach($affils as $row) {
+            $rid = $row['resource_id'];
+            $vid = $row['value_resource_id'];
+            $pid = $row['property_id'];
+            
+            if (in_array($pid, [73, 3038])) $result[$rid]['unis'][] = $vid;
+            if (in_array($pid, [91, 3044])) $result[$rid]['labs'][] = $vid;
+            if (in_array($pid, [74, 3043])) $result[$rid]['schools'][] = $vid;
+        }
+
+        $confLinkSql = "
+            SELECT v.resource_id as conf_id, v.value_resource_id as actant_id
+            FROM value v
+            JOIN resource r ON v.resource_id = r.id
+            WHERE v.value_resource_id IN ($idsStr)
+            AND v.property_id IN (2095, 386)
+            AND r.resource_template_id IN (71, 121, 122)
+        ";
+        $confLinks = $this->conn->fetchAllAssociative($confLinkSql);
+        
+        $actantConfs = [];
+        $allConfIds = [];
+        foreach($confLinks as $row) {
+            $actantConfs[$row['actant_id']][] = $row['conf_id'];
+            $allConfIds[$row['conf_id']] = true;
+            $result[$row['actant_id']]['events'][] = $row['conf_id']; 
+        }
+        $confIdsUnique = array_keys($allConfIds);
+        
+        if (!empty($confIdsUnique)) {
+            $confIdsStr = implode(',', $confIdsUnique);
+            $confPropsSql = "
+                SELECT v.resource_id as conf_id, v.property_id, v.value_resource_id, r.resource_template_id as target_template
+                FROM value v
+                JOIN resource r ON v.value_resource_id = r.id
+                WHERE v.resource_id IN ($confIdsStr)
+            ";
+            $confProps = $this->conn->fetchAllAssociative($confPropsSql);
+            
+            $confKeywords = [];
+            $confRefs = [];
+            
+            foreach($confProps as $row) {
+                $cid = $row['conf_id'];
+                $tid = $row['target_template'];
+                $vid = $row['value_resource_id'];
+                $pid = $row['property_id'];
+                
+                if ($pid == 2097 || $tid == 34) {
+                    $confKeywords[$cid][] = $vid;
+                }
+                if ($tid == 81) $confRefs[$cid][] = "bib-$vid";
+                if ($tid == 80) $confRefs[$cid][] = "cit-$vid";
+            }
+            
+            foreach($actantConfs as $aid => $cids) {
+                foreach($cids as $cid) {
+                    if (isset($confKeywords[$cid])) {
+                        foreach($confKeywords[$cid] as $k) $result[$aid]['keywords'][] = $k;
+                    }
+                    if (isset($confRefs[$cid])) {
+                        foreach($confRefs[$cid] as $r) $result[$aid]['refs'][] = $r;
+                    }
+                }
+            }
+        }
+        
+        foreach($result as $id => &$terms) {
+            $terms['keywords'] = array_unique($terms['keywords']);
+            $terms['unis'] = array_unique($terms['unis']);
+            $terms['labs'] = array_unique($terms['labs']);
+            $terms['schools'] = array_unique($terms['schools']);
+            $terms['events'] = array_unique($terms['events']);
+            $terms['refs'] = array_unique($terms['refs']);
+        }
+        
+        return $result;
     }
 
     function getActantGlobalStats() {

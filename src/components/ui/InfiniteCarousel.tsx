@@ -1,18 +1,23 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 export type InfiniteCarouselProps<T> = {
   items: T[];
-  loading?: boolean;
   renderItem: (item: T, index: number) => React.ReactNode;
-  renderSkeleton?: () => React.ReactNode;
+  loading?: boolean;
   skeletonCount?: number;
-  itemWidth?: number;
+  renderSkeleton?: () => React.ReactNode;
   gap?: number;
+  itemWidth?: number;
   speed?: number;
   hoverSpeed?: number;
-  fadeColor?: string;
-  fadeWidth?: string;
-  emptyMessage?: string;
+  pauseOnHover?: boolean;
+  fade?: boolean;
   className?: string;
   ariaLabel?: string;
 };
@@ -20,263 +25,224 @@ export type InfiniteCarouselProps<T> = {
 const ANIMATION_CONFIG = {
   SMOOTH_TAU: 0.25,
   MIN_COPIES: 2,
-  COPY_HEADROOM: 2
+  COPY_HEADROOM: 2,
 } as const;
 
-export function InfiniteCarousel<T>({
-  items,
-  loading = false,
-  renderItem,
-  renderSkeleton,
-  skeletonCount = 12,
-  itemWidth,
-  gap = 20,
-  speed = 50,
-  hoverSpeed = 0,
-  fadeColor = 'var(--c1)',
-  fadeWidth = 'clamp(24px, 8%, 120px)',
-  emptyMessage = 'Aucun élément trouvé',
-  className = '',
-  ariaLabel = 'Carrousel infini'
-}: InfiniteCarouselProps<T>) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const seqRef = useRef<HTMLDivElement>(null);
-  
-  const [seqWidth, setSeqWidth] = useState<number>(0);
-  const [copyCount, setCopyCount] = useState<number>(ANIMATION_CONFIG.MIN_COPIES);
-  const [isHovered, setIsHovered] = useState<boolean>(false);
-  
-  const rafRef = useRef<number | null>(null);
-  const lastTimestampRef = useRef<number | null>(null);
-  const offsetRef = useRef(0);
-  const velocityRef = useRef(0);
+/* ---------------- hooks ---------------- */
 
-  // Update dimensions and calculate copy count
-  const updateDimensions = useCallback(() => {
-    const containerWidth = containerRef.current?.clientWidth ?? 0;
-    const sequenceWidth = seqRef.current?.scrollWidth ?? 0;
-    
-    if (sequenceWidth > 0) {
-      setSeqWidth(Math.ceil(sequenceWidth));
-      const copiesNeeded = Math.ceil(containerWidth / sequenceWidth) + ANIMATION_CONFIG.COPY_HEADROOM;
-      setCopyCount(Math.max(ANIMATION_CONFIG.MIN_COPIES, copiesNeeded));
-    }
-  }, []);
-
-  // Resize observer
+function useResizeObserver(
+  callback: () => void,
+  refs: React.RefObject<HTMLElement>[],
+  deps: unknown[]
+) {
   useEffect(() => {
     if (!window.ResizeObserver) {
-      const handleResize = () => updateDimensions();
-      window.addEventListener('resize', handleResize);
-      updateDimensions();
-      return () => window.removeEventListener('resize', handleResize);
+      window.addEventListener('resize', callback);
+      callback();
+      return () => window.removeEventListener('resize', callback);
     }
 
-    const observer = new ResizeObserver(updateDimensions);
-    if (containerRef.current) observer.observe(containerRef.current);
-    if (seqRef.current) observer.observe(seqRef.current);
-    
-    updateDimensions();
-    
-    return () => observer.disconnect();
-  }, [updateDimensions, items]);
+    const observers = refs.map(ref => {
+      if (!ref.current) return null;
+      const obs = new ResizeObserver(callback);
+      obs.observe(ref.current);
+      return obs;
+    });
 
-  // Image loader
+    callback();
+    return () => observers.forEach(o => o?.disconnect());
+  }, deps);
+}
+
+function useImageLoader(
+  seqRef: React.RefObject<HTMLElement>,
+  onLoad: () => void,
+  deps: unknown[]
+) {
   useEffect(() => {
     const images = seqRef.current?.querySelectorAll('img') ?? [];
-    
     if (images.length === 0) {
-      updateDimensions();
+      onLoad();
       return;
     }
 
-    let remainingImages = images.length;
-    const handleImageLoad = () => {
-      remainingImages -= 1;
-      if (remainingImages === 0) {
-        updateDimensions();
-      }
+    let remaining = images.length;
+    const done = () => {
+      remaining--;
+      if (remaining === 0) onLoad();
     };
 
     images.forEach(img => {
-      const htmlImg = img as HTMLImageElement;
-      if (htmlImg.complete) {
-        handleImageLoad();
-      } else {
-        htmlImg.addEventListener('load', handleImageLoad, { once: true });
-        htmlImg.addEventListener('error', handleImageLoad, { once: true });
+      const i = img as HTMLImageElement;
+      if (i.complete) done();
+      else {
+        i.addEventListener('load', done, { once: true });
+        i.addEventListener('error', done, { once: true });
       }
     });
 
     return () => {
       images.forEach(img => {
-        img.removeEventListener('load', handleImageLoad);
-        img.removeEventListener('error', handleImageLoad);
+        img.removeEventListener('load', done);
+        img.removeEventListener('error', done);
       });
     };
-  }, [updateDimensions, items]);
+  }, deps);
+}
 
-  // Animation loop
-  useEffect(() => {
-    if (loading || items.length === 0) return;
+/* ---------------- component ---------------- */
 
-    const track = trackRef.current;
-    if (!track) return;
+export function InfiniteCarousel<T>({
+  items,
+  renderItem,
+  loading = false,
+  skeletonCount = 8,
+  renderSkeleton,
+  gap = 24,
+  itemWidth,
+  speed = 80,
+  hoverSpeed,
+  pauseOnHover = true,
+  fade = true,
+  className = '',
+  ariaLabel = 'Carrousel infini',
+}: InfiniteCarouselProps<T>) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const seqRef = useRef<HTMLDivElement>(null);
 
-    const prefersReduced = 
-      typeof window !== 'undefined' &&
-      window.matchMedia &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [seqWidth, setSeqWidth] = useState(0);
+  const [copyCount, setCopyCount] = useState<number>(ANIMATION_CONFIG.MIN_COPIES);
+  const [isHovered, setIsHovered] = useState(false);
 
-    if (seqWidth > 0) {
-      offsetRef.current = ((offsetRef.current % seqWidth) + seqWidth) % seqWidth;
-      track.style.transform = `translate3d(${-offsetRef.current}px, 0, 0)`;
+  const rafRef = useRef<number | null>(null);
+  const lastTimeRef = useRef<number | null>(null);
+  const offsetRef = useRef(0);
+  const velocityRef = useRef(0);
+
+  const effectiveHoverSpeed = useMemo(() => {
+    if (hoverSpeed !== undefined) return hoverSpeed;
+    if (pauseOnHover) return 0;
+    return undefined;
+  }, [hoverSpeed, pauseOnHover]);
+
+  const updateDimensions = useCallback(() => {
+    const containerW = containerRef.current?.clientWidth ?? 0;
+    const seqW = seqRef.current?.scrollWidth ?? 0;
+
+    if (seqW > 0) {
+      setSeqWidth(seqW);
+      const needed =
+        Math.ceil(containerW / seqW) + ANIMATION_CONFIG.COPY_HEADROOM;
+      setCopyCount(Math.max(ANIMATION_CONFIG.MIN_COPIES, needed));
     }
+  }, []);
+
+  useResizeObserver(updateDimensions, [containerRef, seqRef], [
+    items,
+    gap,
+    itemWidth,
+  ]);
+
+  useImageLoader(seqRef, updateDimensions, [items]);
+
+  /* ---------------- animation ---------------- */
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || seqWidth === 0) return;
+
+    const prefersReduced =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
     if (prefersReduced) {
-      track.style.transform = 'translate3d(0, 0, 0)';
-      return () => {
-        lastTimestampRef.current = null;
-      };
+      track.style.transform = 'translate3d(0,0,0)';
+      return;
     }
 
-    const animate = (timestamp: number) => {
-      if (lastTimestampRef.current === null) {
-        lastTimestampRef.current = timestamp;
-      }
+    const animate = (t: number) => {
+      if (lastTimeRef.current == null) lastTimeRef.current = t;
+      const dt = (t - lastTimeRef.current) / 1000;
+      lastTimeRef.current = t;
 
-      const deltaTime = Math.max(0, timestamp - lastTimestampRef.current) / 1000;
-      lastTimestampRef.current = timestamp;
+      const target =
+        isHovered && effectiveHoverSpeed !== undefined
+          ? effectiveHoverSpeed
+          : speed;
 
-      const target = isHovered ? hoverSpeed : speed;
+      const easing =
+        1 - Math.exp(-dt / ANIMATION_CONFIG.SMOOTH_TAU);
+      velocityRef.current += (target - velocityRef.current) * easing;
 
-      const easingFactor = 1 - Math.exp(-deltaTime / ANIMATION_CONFIG.SMOOTH_TAU);
-      velocityRef.current += (target - velocityRef.current) * easingFactor;
+      offsetRef.current =
+        ((offsetRef.current + velocityRef.current * dt) % seqWidth + seqWidth) % seqWidth;
 
-      if (seqWidth > 0) {
-        let nextOffset = offsetRef.current + velocityRef.current * deltaTime;
-        nextOffset = ((nextOffset % seqWidth) + seqWidth) % seqWidth;
-        offsetRef.current = nextOffset;
-
-        track.style.transform = `translate3d(${-offsetRef.current}px, 0, 0)`;
-      }
-
+      track.style.transform = `translate3d(${-offsetRef.current}px,0,0)`;
       rafRef.current = requestAnimationFrame(animate);
     };
 
     rafRef.current = requestAnimationFrame(animate);
-
     return () => {
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
-      lastTimestampRef.current = null;
     };
-  }, [seqWidth, isHovered, loading, items, speed, hoverSpeed]);
+  }, [seqWidth, speed, isHovered, effectiveHoverSpeed]);
 
-  // Gradient style
-  const gradientStyle = useMemo(() => ({
-    '--fade-color': fadeColor,
-    '--fade-width': fadeWidth,
-  } as React.CSSProperties), [fadeColor, fadeWidth]);
+  /* ---------------- render ---------------- */
 
-  // Render skeleton
   if (loading) {
     return (
-      <div className={`relative overflow-hidden w-full py-4 ${className}`} style={gradientStyle}>
-        <div 
-          aria-hidden
-          className="absolute left-0 top-0 h-full z-10 pointer-events-none"
-          style={{ 
-            width: 'var(--fade-width)',
-            background: 'linear-gradient(to right, var(--fade-color), transparent)'
-          }} 
-        />
-        <div 
-          aria-hidden
-          className="absolute right-0 top-0 h-full z-10 pointer-events-none"
-          style={{ 
-            width: 'var(--fade-width)',
-            background: 'linear-gradient(to left, var(--fade-color), transparent)'
-          }} 
-        />
-        
-        <div className="overflow-hidden w-full">
-          <div className="flex w-max" style={{ gap: `${gap}px` }}>
-            {Array.from({ length: skeletonCount }).map((_, index) => (
-              <div 
-                key={`skeleton-${index}`} 
-                className="flex-shrink-0"
-                style={itemWidth ? { width: `${itemWidth}px` } : undefined}
-              >
-                {renderSkeleton ? renderSkeleton() : <div className="w-full h-full bg-c3 rounded-lg" />}
-              </div>
-            ))}
+      <div className="flex gap-6 overflow-hidden">
+        {Array.from({ length: skeletonCount }).map((_, i) => (
+          <div
+            key={i}
+            className="shrink-0 rounded-lg bg-c3"
+            style={{ width: itemWidth ?? 160, height: 80 }}
+          >
+            {renderSkeleton?.()}
           </div>
-        </div>
+        ))}
       </div>
     );
   }
 
-  // Render empty state
-  if (items.length === 0) {
-    return (
-      <div className="flex items-center justify-center p-40">
-        <p className="text-c5 text-16">{emptyMessage}</p>
-      </div>
-    );
-  }
-
-  // Render carousel
   return (
-    <div 
-      ref={containerRef} 
-      className={`relative overflow-hidden w-full py-4 ${className}`}
-      style={gradientStyle}
+    <div
+      ref={containerRef}
       role="region"
       aria-label={ariaLabel}
+      className={`relative overflow-hidden ${className}`}
     >
-      <div 
-        aria-hidden
-        className="absolute left-0 top-0 h-full z-10 pointer-events-none"
-        style={{ 
-          width: 'var(--fade-width)',
-          background: 'linear-gradient(to right, var(--fade-color), transparent)'
-        }} 
-      />
-      <div 
-        aria-hidden
-        className="absolute right-0 top-0 h-full z-10 pointer-events-none"
-        style={{ 
-          width: 'var(--fade-width)',
-          background: 'linear-gradient(to left, var(--fade-color), transparent)'
-        }} 
-      />
+      {fade && (
+        <>
+            <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-80 bg-gradient-to-r from-c1 to-transparent" />
+            <div className="pointer-events-none absolute top-0 right-0 z-10 h-full w-80 bg-gradient-to-l from-c1 to-transparent" />
+        </>
+      )}
 
       <div
         ref={trackRef}
-        className="flex w-max will-change-transform select-none relative z-0"
-        style={{ gap: `${gap}px`, transform: 'translate3d(0, 0, 0)' }}
+        className="flex w-max select-none will-change-transform"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {Array.from({ length: copyCount }, (_, copyIndex) => (
+        {Array.from({ length: copyCount }).map((_, copyIdx) => (
           <div
-            key={`copy-${copyIndex}`}
-            ref={copyIndex === 0 ? seqRef : undefined}
+            key={copyIdx}
+            ref={copyIdx === 0 ? seqRef : undefined}
             className="flex"
-            style={{ gap: `${gap}px` }}
-            aria-hidden={copyIndex > 0}
+            style={{ gap, paddingRight: gap }}
+            aria-hidden={copyIdx > 0}
           >
-            {items.map((item, itemIndex) => (
-              <div 
-                key={`${copyIndex}-${itemIndex}`} 
-                className="flex-shrink-0"
-                style={itemWidth ? { width: `${itemWidth}px` } : undefined}
+            {items.map((item, i) => (
+              <div
+                key={`${copyIdx}-${i}`}
+                className="shrink-0"
+                style={itemWidth ? { width: itemWidth } : undefined}
               >
-                {renderItem(item, itemIndex)}
+                {renderItem(item, i)}
               </div>
             ))}
           </div>

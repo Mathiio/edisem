@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { IntervenantCard, IntervenantSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { InfiniteSlider } from '@/components/features/home/InfiniteSlider';
-import { getActants } from '@/services/Items';
+    import { getRandomActants } from '@/services/Items';
 
-
-
-export const IntervenantsSection: React.FC = () => {
+    export const IntervenantsSection: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [sliderGroups, setSliderGroups] = useState<any[][]>([]);
 
@@ -15,10 +13,10 @@ export const IntervenantsSection: React.FC = () => {
     const fetchAndGroupActants = async () => {
         setLoading(true);
         try {
-            const data = await getActants();
-            const shuffled = [...data].sort(() => Math.random() - 0.5);
-            const groups = Array.from({ length: 3 }, (_, i) =>
-                shuffled.slice(i * 8, (i + 1) * 8)
+          // Fetch 24 random actants to fill 3 sliders of 8 cards each
+          const data = await getRandomActants(24);
+          const groups = Array.from({ length: 3 }, (_, i) =>
+              data.slice(i * 8, (i + 1) * 8)
         );
         setSliderGroups(groups);
         } catch (error) {
@@ -50,8 +48,8 @@ export const IntervenantsSection: React.FC = () => {
       {/* Right side - 3 infinite sliders */}
       <div className="flex-1 flex gap-4 relative">
         {/* Fade overlays */}
-        <div className="absolute top-0 h-64 w-full z-10 pointer-events-none fade-bottom" />
-        <div className="absolute bottom-0 h-64 w-full z-10 pointer-events-none fade-top" />
+        <div className="pointer-events-none absolute bottom-0 z-10 h-60 w-full bg-gradient-to-t from-c1 to-transparent" />
+        <div className="pointer-events-none absolute top-0 z-10 h-60 w-full bg-gradient-to-b from-c1 to-transparent" />
         
         {loading ? (
           // Loading state: 3 skeleton columns

@@ -27,8 +27,6 @@ export const LogoCarousel: React.FC = () => {
 
   return (
     <div className='relative w-full'>
-      <div className="pointer-events-none absolute top-0 left-0 z-10 h-full w-80 bg-gradient-to-r from-c1 to-transparent" />
-      <div className="pointer-events-none absolute top-0 right-0 z-10 h-full w-80 bg-gradient-to-l from-c1 to-transparent" />
     <InfiniteCarousel
       items={logoUrls}
       renderItem={(logo) => (
@@ -41,9 +39,10 @@ export const LogoCarousel: React.FC = () => {
           decoding="async"
         />
       )}
-      gap={48}
+      gap={50}
       speed={30}
-      fadeWidth="96px"
+      fade={true}
+      pauseOnHover={false}
       ariaLabel="Logos des partenaires"
     />
     </div>
