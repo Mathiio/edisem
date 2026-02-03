@@ -57,16 +57,10 @@ export const Intervenant: React.FC = () => {
       <div className='flex flex-col items-center gap-75'>
         {loading ? (
           <div className='gap-20 w-full flex flex-col items-center'>
-            <Skeleton className="rounded-18">
-              <div className='w-100 h-100 rounded-18 bg-c3' />
-            </Skeleton>
+            <Skeleton className="rounded-18 w-100 h-100 bg-c2" />
             <div className='flex flex-col items-center gap-10 w-full'>
-              <Skeleton className="w-[400px] rounded-10">
-                <div className="h-60 bg-c3" />
-              </Skeleton>
-              <Skeleton className="rounded-10 w-[200px]">
-                <div className="h-6 bg-c3" />
-              </Skeleton>
+              <Skeleton className="w-[400px] h-60 rounded-10 bg-c3" />
+              <Skeleton className="rounded-10 w-[200px] h-6 bg-c3" />
             </div>
           </div>
         ) : (

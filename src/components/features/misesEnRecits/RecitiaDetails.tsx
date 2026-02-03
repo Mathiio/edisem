@@ -92,26 +92,14 @@ export const RecitiaDetailsSkeleton: React.FC = () => {
   return (
     <div className='flex w-full p-20 bg-c3 rounded-14'>
       <div className='flex w-full flex-col gap-10'>
-        <Skeleton className='w-[35%] rounded-8'>
-          <p className='font-semibold text-14'>_</p>
-        </Skeleton>
+        <Skeleton className='w-[35%] h-4 rounded-8' />
         <div className='flex flex-col gap-5'>
-          <Skeleton className='w-[100%] rounded-8'>
-            <p className='font-semibold text-14'>_</p>
-          </Skeleton>
-          <Skeleton className='w-[100%] rounded-8'>
-            <p className='font-semibold text-14'>_</p>
-          </Skeleton>
-          <Skeleton className='w-[100%] rounded-8'>
-            <p className='font-semibold text-14'>_</p>
-          </Skeleton>
-          <Skeleton className='w-[100%] rounded-8'>
-            <p className='font-semibold text-14'>_</p>
-          </Skeleton>
+          <Skeleton className='w-[100%] h-4 rounded-8' />
+          <Skeleton className='w-[100%] h-4 rounded-8' />
+          <Skeleton className='w-[100%] h-4 rounded-8' />
+          <Skeleton className='w-[100%] h-4 rounded-8' />
         </div>
-        <Skeleton className='w-[20%] rounded-8'>
-          <p className='font-semibold text-14'>_</p>
-        </Skeleton>
+        <Skeleton className='w-[20%] h-4 rounded-8' />
       </div>
     </div>
   );

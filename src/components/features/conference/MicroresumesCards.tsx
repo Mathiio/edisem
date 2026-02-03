@@ -97,31 +97,15 @@ export const MicroresumeSkeleton: React.FC = () => {
   return (
     <div className='w-full flex flex-col justify-start rounded-12 bg-c3 items-start p-10 gap-5 transition-transform-colors-opacity'>
       <div className='w-full flex justify-start items-center gap-10'>
-        <Skeleton className='w-[55%] rounded-6'>
-          <p className='text-16'>_</p>
-        </Skeleton>
+        <Skeleton className='w-[55%] h-4 rounded-6' />
       </div>
-      <Skeleton className='w-full rounded-6'>
-        <p className='text-14'>_</p>
-      </Skeleton>
-      <Skeleton className='w-full rounded-6'>
-        <p className='text-14'>_</p>
-      </Skeleton>
-      <Skeleton className='w-full rounded-6'>
-        <p className='text-14'>_</p>
-      </Skeleton>
-      <Skeleton className='w-full rounded-6'>
-        <p className='text-14'>_</p>
-      </Skeleton>
-      <Skeleton className='w-full rounded-6'>
-        <p className='text-14'>_</p>
-      </Skeleton>
-      <Skeleton className='w-full rounded-6'>
-        <p className='text-14'>_</p>
-      </Skeleton>
-      <Skeleton className='w-[30%] rounded-6'>
-        <p className='text-14'>_</p>
-      </Skeleton>
+      <Skeleton className='w-full h-4 rounded-6' />
+      <Skeleton className='w-full h-4 rounded-6' />
+      <Skeleton className='w-full h-4 rounded-6' />
+      <Skeleton className='w-full h-4 rounded-6' />
+      <Skeleton className='w-full h-4 rounded-6' />
+      <Skeleton className='w-full h-4 rounded-6' />
+      <Skeleton className='w-[30%] h-4 rounded-6' />
     </div>
   );
 };

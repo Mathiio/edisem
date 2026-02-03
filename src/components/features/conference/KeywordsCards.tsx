@@ -94,9 +94,5 @@ export const KeywordsCard: React.FC<KeywordsCardProps> = ({ word, description, d
 };
 
 export const KeywordsSkeleton: React.FC = () => {
-  return (
-    <Skeleton className='w-[100%] rounded-8'>
-      <p className='w-[120px] font-semibold text-16 p-5'>_</p>
-    </Skeleton>
-  );
+  return <Skeleton className='w-[100%] h-4 rounded-8' />;
 };

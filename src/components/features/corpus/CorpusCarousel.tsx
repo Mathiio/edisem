@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
 import { Edition } from '@/types/ui';
 import { getSeasonOrder } from '@/lib/utils';
+import { Skeleton } from '@heroui/react';
 
-interface ColloquesCarouselProps {
+interface CorpusCarouselProps {
   editions: Edition[];
   loading?: boolean;
+  title: string;
 }
 
 // Card animation configuration
@@ -22,8 +24,8 @@ const cardVariants: Variants = {
   }),
 };
 
-// Colloques Edition Card Component
-const ColloqueEditionCard = ({ edition }: { edition: Edition }) => {
+// Generic Edition Card Component
+const EditionCard = ({ edition }: { edition: Edition }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -52,26 +54,55 @@ const ColloqueEditionCard = ({ edition }: { edition: Edition }) => {
   );
 };
 
+const EditionCardSkeleton = () => {
+  return (
+    <div className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-40 rounded-30 flex flex-col gap-40 h-full">
+        <div className='flex flex-col items-start gap-2'>
+            <Skeleton className="rounded-8 w-full h-8 bg-c2"/>
+            <Skeleton className="rounded-8 w-full h-8 bg-c2"/>
+            <Skeleton className="rounded-8 w-3/4 h-8 bg-c2"/>
+        </div>
+        <div className='flex flex-col items-start gap-2'>
+            <Skeleton className="rounded-8 w-1/2 h-4 bg-c2"/>
+            <Skeleton className="rounded-8 w-1/4 h-4 bg-c2"/>
+        </div>
+    </div>
+  );
+};
+
 // Main Carousel Component
-export const ColloquesCarousel = ({ editions, loading = false }: ColloquesCarouselProps) => {
-  if (!editions || editions.length === 0) return null;
+export const CorpusCarousel = ({ editions, loading = false, title }: CorpusCarouselProps) => {
   
   const sortedEditions = [...editions].sort((a, b) => {
     if (b.year !== a.year) return Number(b.year) - Number(a.year);
     return getSeasonOrder(b.season) - getSeasonOrder(a.season);
   });
 
+  if (loading) {
+     return (
+        <div className="w-full max-w-full">
+             <FullCarrousel
+              title={title}
+              data={[1,2,3]} // Dummy data for skeleton
+              perPage={3}
+              perMove={1}
+              renderSlide={() => <EditionCardSkeleton />}
+            />
+        </div>
+     )
+  }
+
+  if (!editions || editions.length === 0) return null;
+
   return (
     <div className="w-full max-w-full">
-      {!loading && editions.length > 0 && (
         <FullCarrousel
-          title='Tous nos colloques'
+          title={title}
           data={sortedEditions}
           perPage={3}
           perMove={1}
-          renderSlide={(edition, index) => <ColloqueEditionCard edition={edition} key={index} />}
+          renderSlide={(edition, index) => <EditionCard edition={edition} key={index} />}
         />
-      )}
     </div>
   );
 };
