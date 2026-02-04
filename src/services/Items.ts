@@ -551,9 +551,9 @@ export async function getActants(actantIds?: string | string[]) {
   }
 }
 
-export async function getActantGlobalStats() {
+export async function getActantsGlobalStats() {
   try {
-    return await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActantGlobalStats&json=1');
+    return await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActantsGlobalStats&json=1');
   } catch (error) {
     console.error('Error fetching global stats:', error);
     return null;

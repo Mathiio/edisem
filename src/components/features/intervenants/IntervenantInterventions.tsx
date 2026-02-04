@@ -16,11 +16,13 @@ export const IntervenantInterventions: React.FC<IntervenantInterventionsProps> =
   const studyDays = getInterventionsByType('studyday');
   const colloques = getInterventionsByType('colloque');
   const seminars = getInterventionsByType('seminar');
+  const experimentations = getInterventionsByType('experimentation');
 
   const categories = [
     { title: "Journées d'études", items: studyDays },
     { title: "Colloques", items: colloques },
-    { title: "Séminaires", items: seminars }
+    { title: "Séminaires", items: seminars },
+    { title: "Expérimentations", items: experimentations }
   ];
 
   // Only render categories with items

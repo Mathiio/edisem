@@ -191,8 +191,8 @@ class QuerySqlViewHelper extends AbstractHelper
             case 'searchEmbeddings':
                 $result = $this->searchEmbeddings($params);
                 break;
-            case 'getActantGlobalStats':
-                $result = $this->getActantGlobalStats();
+            case 'getActantsGlobalStats':
+                $result = $this->getActantsGlobalStats();
                 break;
             case 'getActantsByCountry':
                 $result = $this->getActantsByCountry();
@@ -245,7 +245,7 @@ class QuerySqlViewHelper extends AbstractHelper
         $resourceQuery = "
             SELECT r.id
             FROM `resource` r
-            WHERE r.resource_template_id IN (72)
+            WHERE r.resource_template_id IN (72, 96)
             $idFilter
             $orderClause
             $limitClause
@@ -325,8 +325,8 @@ class QuerySqlViewHelper extends AbstractHelper
             SELECT v.value_resource_id as actant_id, COUNT(DISTINCT r.id) as count 
             FROM value v
             JOIN resource r ON v.resource_id = r.id
-            WHERE v.property_id IN (2095, 386)
-            AND r.resource_template_id IN (71, 121, 122)
+            WHERE v.property_id IN (2095, 386, 235, 581)
+            AND r.resource_template_id IN (71, 121, 122, 108)
             AND v.value_resource_id IN ($idList)
             GROUP BY v.value_resource_id
         ";
@@ -490,7 +490,7 @@ class QuerySqlViewHelper extends AbstractHelper
             -- 4. Logo de l'affiliation (pour l'affichage)
             LEFT JOIN media m ON (affil.id = m.item_id AND m.position = 1)
             
-            WHERE r.resource_template_id IN (72)
+            WHERE r.resource_template_id IN (72, 96)
             ORDER BY country ASC, affil_name ASC
         ";
         
@@ -558,7 +558,7 @@ class QuerySqlViewHelper extends AbstractHelper
         $targetTerms = $targetData[$actantId];
 
         // 2. Récupérer les données de TOUS les autres actants
-        $allActantsSql = "SELECT id FROM resource WHERE resource_template_id IN (72)";
+        $allActantsSql = "SELECT id FROM resource WHERE resource_template_id IN (72, 96)";
         $allIdsFn = $this->conn->fetchAllAssociative($allActantsSql);
         $allIds = array_column($allIdsFn, 'id');
         $allIds = array_diff($allIds, [$actantId]);
@@ -697,8 +697,8 @@ class QuerySqlViewHelper extends AbstractHelper
             FROM value v
             JOIN resource r ON v.resource_id = r.id
             WHERE v.value_resource_id IN ($idsStr)
-            AND v.property_id IN (2095, 386)
-            AND r.resource_template_id IN (71, 121, 122)
+            AND v.property_id IN (2095, 386, 235, 581)
+            AND r.resource_template_id IN (71, 121, 122, 108)
         ";
         $confLinks = $this->conn->fetchAllAssociative($confLinkSql);
         
@@ -809,85 +809,16 @@ class QuerySqlViewHelper extends AbstractHelper
 
         // 2. Fetch Conferences
         // Link: Edition --(937)--> Conference
-        // So we search for values where resource_id = editionId AND property_id = 937
-        
         $confsSql = "
-            SELECT 
-                r.id, 
-                r.title,
-                r.resource_template_id,
-                (SELECT value FROM value WHERE resource_id = r.id AND property_id = 561 LIMIT 1) as description, 
-                (SELECT value FROM value WHERE resource_id = r.id AND property_id = 1457 LIMIT 1) as date,
-                (SELECT uri FROM value WHERE resource_id = r.id AND property_id = 1517 LIMIT 1) as url,
-                (SELECT CONCAT(m.storage_id, '.', m.extension) FROM media m WHERE m.item_id = r.id LIMIT 1) as media_logo
+            SELECT v_link.value_resource_id as id
             FROM value v_link
-            JOIN resource r ON v_link.value_resource_id = r.id
             WHERE v_link.resource_id = ?
             AND v_link.property_id = 937
-            ORDER BY r.id ASC
         ";
         $confsRaw = $this->conn->fetchAllAssociative($confsSql, [$editionId]);
         
-        $conferences = [];
         $confIds = array_column($confsRaw, 'id');
-        
-        // Define Template Map
-        $typeMap = [
-            121 => 'studyday',
-            122 => 'colloque',
-            71 => 'seminar'
-        ];
-        
-        if (!empty($confIds)) {
-            // Fetch Contributors (Actants) for all these conferences
-            // Prop 2095 (Has Actant) or 386 (Creator)
-            $confIdsStr = implode(',', $confIds);
-            
-            $contribSql = "
-                SELECT 
-                    v.resource_id as conf_id,
-                    v.value_resource_id as actant_id
-                FROM value v
-                WHERE v.resource_id IN ($confIdsStr)
-                AND v.property_id IN (2095, 386)
-                AND v.value_resource_id IS NOT NULL
-            ";
-            $contribsRaw = $this->conn->fetchAllAssociative($contribSql);
-            
-            $actantIds = array_unique(array_column($contribsRaw, 'actant_id'));
-            
-            $actantsData = [];
-            if (!empty($actantIds)) {
-                $basicInfos = $this->getActantBasicInfo($actantIds);
-                foreach($basicInfos as $info) {
-                    $actantsData[$info['id']] = $info;
-                }
-            }
-            
-            $confContributors = [];
-            foreach($contribsRaw as $row) {
-                if (isset($actantsData[$row['actant_id']])) {
-                    $confContributors[$row['conf_id']][] = $actantsData[$row['actant_id']];
-                }
-            }
-            
-            foreach($confsRaw as $cRow) {
-                $cid = $cRow['id'];
-                
-                // Resolve Type
-                $type = $typeMap[$cRow['resource_template_id']] ?? 'default';
-
-                $conferences[] = [
-                    'id' => (string)$cid,
-                    'title' => $cRow['title'],
-                    'description' => $cRow['description'],
-                    'date' => $cRow['date'], 
-                    'type' => $type,
-                    'url' => $cRow['url'],
-                    'actant' => $confContributors[$cid] ?? []
-                ];
-            }
-        }
+        $conferences = $this->fetchResourceCardData($confIds);
 
         return [
             'edition' => $edition,
@@ -895,14 +826,14 @@ class QuerySqlViewHelper extends AbstractHelper
         ];
     }
 
-    function getActantGlobalStats() {
+    function getActantsGlobalStats() {
         // 1. Global Counts
         $counts = [
-            'actants' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id IN (72)"),
+            'actants' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id IN (72, 96)"),
             'universities' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 73"),
             'laboratories' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 91"),
             'doctoralSchools' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 74"),
-            'countries' => $this->conn->fetchOne("SELECT COUNT(DISTINCT value) FROM value WHERE property_id = 94"),
+            'countries' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 94"),
         ];
 
         // 2. Intervention Counts over Years
@@ -912,8 +843,8 @@ class QuerySqlViewHelper extends AbstractHelper
                 COUNT(*) as count
             FROM value v
             JOIN resource r ON v.resource_id = r.id
-            WHERE r.resource_template_id IN (71, 121, 122)
-            AND v.property_id = 1457 -- Date
+            WHERE r.resource_template_id IN (71, 121, 122, 108)
+            AND v.property_id IN (1457, 7) -- Date (1457 for Confs, 7 for Experimentations/Colloques)
             GROUP BY year
             ORDER BY year ASC
         ";
@@ -926,8 +857,8 @@ class QuerySqlViewHelper extends AbstractHelper
                 COUNT(DISTINCT r.id) as intervention_count
             FROM value v
             JOIN resource r ON v.resource_id = r.id
-            WHERE v.property_id IN (386, 2095)
-            AND r.resource_template_id IN (71, 121, 122)
+            WHERE v.property_id IN (386, 2095, 235, 581) -- Actant connection properties
+            AND r.resource_template_id IN (71, 121, 122, 108)
             GROUP BY v.value_resource_id
             ORDER BY intervention_count DESC
             LIMIT 3
@@ -959,7 +890,7 @@ class QuerySqlViewHelper extends AbstractHelper
             FROM value v_act
             JOIN value v_kw ON v_act.resource_id = v_kw.resource_id 
             JOIN resource kw ON v_kw.value_resource_id = kw.id
-            WHERE v_act.property_id IN (386, 2095) -- Actant connection
+            WHERE v_act.property_id IN (386, 2095, 235, 581) -- Actant connection
             AND v_kw.property_id = 2097 -- Keyword connection
             GROUP BY kw.id, kw.title
             ORDER BY count DESC
@@ -976,8 +907,119 @@ class QuerySqlViewHelper extends AbstractHelper
     }
 
     /**
-     * Récupère les éditions filtrées par type (seminar, colloque, studyday).
+     * Helper to fetch standardized data for ResourceCards (Conf, Exp, Recit, etc.)
+     * Returns: [ id, title, type, date, url, thumbnail, actants: [...] ]
      */
+    private function fetchResourceCardData(array $resourceIds) {
+        if (empty($resourceIds)) return [];
+        
+        $idsStr = implode(',', array_map('intval', $resourceIds));
+        
+        // 1. Fetch Basic Info & Metadata
+        // Prop 1 (Title), 561 (Description), 1457 (Date), 1517 (URL), 7 (Year - fallback for Date)
+        $sql = "
+            SELECT 
+                r.id, 
+                r.title, 
+                r.resource_template_id,
+                MAX(CASE WHEN v.property_id = 561 THEN v.value END) as description,
+                MAX(CASE WHEN v.property_id IN (1457, 7) THEN v.value END) as date,
+                (SELECT uri FROM value WHERE resource_id = r.id AND property_id = 1517 LIMIT 1) as url,
+                (SELECT CONCAT(m.storage_id, '.', m.extension) FROM media m WHERE m.item_id = r.id LIMIT 1) as media_logo
+            FROM resource r
+            LEFT JOIN value v ON r.id = v.resource_id AND v.property_id IN (561, 1457, 7)
+            WHERE r.id IN ($idsStr)
+            GROUP BY r.id
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql);
+        
+        // 2. Fetch Linked Actants for these resources
+        // Prop 2095 (Has Actant) or 386 (Creator)
+        $actantMap = [];
+        $resToActants = [];
+        
+        $contribSql = "
+            SELECT 
+                v.resource_id as res_id,
+                v.value_resource_id as actant_id
+            FROM value v
+            WHERE v.property_id IN (2095, 386, 235, 581) 
+            AND v.resource_id IN ($idsStr)
+        ";
+        $contribs = $this->conn->fetchAllAssociative($contribSql);
+        
+        if (!empty($contribs)) {
+            $allActantIds = array_unique(array_column($contribs, 'actant_id'));
+            
+            // Fully hydrate actants (Names, Pics, etc.)
+            $actantDetails = $this->getActantBasicInfo($allActantIds, null);
+            
+            foreach ($actantDetails as $ad) {
+                $actantMap[$ad['id']] = $ad;
+            }
+            
+            foreach ($contribs as $c) {
+                if (isset($actantMap[$c['actant_id']])) {
+                    $resToActants[$c['res_id']][] = $actantMap[$c['actant_id']];
+                }
+            }
+        }
+        
+        // 2b. Fetch Keywords (Prop 2097)
+        $keywordsMap = [];
+        $kwSql = "
+            SELECT resource_id, value_resource_id
+            FROM value
+            WHERE resource_id IN ($idsStr)
+            AND property_id = 2097
+        ";
+        $kwRows = $this->conn->fetchAllAssociative($kwSql);
+        foreach ($kwRows as $row) {
+            $keywordsMap[$row['resource_id']][] = $row['value_resource_id'];
+        }
+        
+        // 3. Mapping Templates to Types
+        $typeMap = [
+            121 => 'studyday',
+            122 => 'colloque',
+            71 => 'seminar',
+            108 => 'experimentation',
+            // Recits
+            127 => 'recitCitoyen',
+            128 => 'recitMediatique',
+            129 => 'recitScientifique',
+            130 => 'recitTechnoIndustriel',
+            131 => 'recitArtistique'
+        ];
+
+        // 4. Assemble Final Data
+        $results = [];
+        foreach ($rows as $row) {
+            $id = $row['id'];
+            $typeKey = $typeMap[$row['resource_template_id']] ?? 'default';
+            
+            $thumbnail = null;
+            if ($row['media_logo']) {
+                 $thumbnail = "https://tests.arcanes.ca/omk/files/original/" . $row['media_logo'];
+            }
+            
+            $results[] = [
+                'id' => (string)$id,
+                'title' => $row['title'],
+                'date' => $row['date'],
+                'description' => $row['description'],
+                'url' => $row['url'],
+                'type' => $typeKey,
+                'thumbnail' => $thumbnail,
+                'actant' => $resToActants[$id] ?? [],
+                'motcles' => $keywordsMap[$id] ?? []
+            ];
+        }
+        
+        return $results;
+    }
+
     public function getEditionsByType($typeKey) {
         // Mapping key -> DB Title (lowercase checks)
         $map = [
@@ -990,20 +1032,13 @@ class QuerySqlViewHelper extends AbstractHelper
         if (!$targetType) return [];
         
         // 1. Find Editions (Template 77) of this type
-        // Link: Edition --(Prop 8)--> Type Resource --(Prop 1)--> Title
         $sql = "
             SELECT 
                 r.id, 
                 r.title,
                 MAX(CASE WHEN v.property_id = 7 THEN v.value END) as year,
-                MAX(CASE WHEN v.property_id = 1662 THEN v_linked.value END) as season,
-                 -- Count conferences (Prop 937 on Edition)
-                (SELECT COUNT(*) 
-                 FROM value v_conf 
-                 WHERE v_conf.resource_id = r.id 
-                 AND v_conf.property_id = 937) as conf_count
+                MAX(CASE WHEN v.property_id = 1662 THEN v_linked.value END) as season
             FROM resource r
-            -- Join Type
             JOIN value v_type ON r.id = v_type.resource_id AND v_type.property_id = 8
             JOIN resource r_type ON v_type.value_resource_id = r_type.id
             LEFT JOIN value v ON r.id = v.resource_id AND v.property_id IN (7, 1662)
@@ -1020,15 +1055,53 @@ class QuerySqlViewHelper extends AbstractHelper
         
         $rows = $this->conn->fetchAllAssociative($sql, [$searchParam]);
         
+        // 2. Enrich with Conferences using Standard Helper
         $results = [];
+        $editionIds = array_column($rows, 'id');
+        
+        $conferencesByEdition = [];
+        if (!empty($editionIds)) {
+            $editionIdsStr = implode(',', $editionIds);
+            
+            // 2a. Find all conference IDs for these editions
+            $confsSql = "
+                SELECT v.value_resource_id as id, v.resource_id as edition_id
+                FROM value v
+                JOIN resource r ON v.value_resource_id = r.id
+                WHERE v.resource_id IN ($editionIdsStr)
+                AND v.property_id = 937
+                ORDER BY r.id ASC
+            ";
+            $confLinks = $this->conn->fetchAllAssociative($confsSql);
+            
+            $allConfIds = array_column($confLinks, 'id');
+            
+            // 2b. Fetch standardized card data
+            $cardsData = $this->fetchResourceCardData($allConfIds);
+            $cardsMap = [];
+            foreach ($cardsData as $card) {
+                $cardsMap[$card['id']] = $card;
+            }
+            
+            // 2c. Group by Edition
+            foreach ($confLinks as $link) {
+                $cId = $link['id'];
+                $eId = $link['edition_id'];
+                if (isset($cardsMap[$cId])) {
+                    $conferencesByEdition[$eId][] = $cardsMap[$cId];
+                }
+            }
+        }
+        
         foreach($rows as $row) {
+            $eId = $row['id'];
             $results[] = [
-                'id' => (string)$row['id'],
+                'id' => (string)$eId,
                 'title' => $row['title'],
                 'year' => $row['year'],
                 'season' => $row['season'],
                 'editionType' => $targetType,
-                'conferences' => array_fill(0, (int)$row['conf_count'], null) // Dummy array to satisfy length check
+                'conferences' => $conferencesByEdition[$eId] ?? []
             ];
         }
         
@@ -1045,8 +1118,31 @@ class QuerySqlViewHelper extends AbstractHelper
          
          $actant = $basic[0];
          
-         // Ajouter stats mots clés spécifiques
-         // ... implementation keywords stats ...
+         // Fetch Interventions (Conferences + Experimentations)
+         // Link properties: 386 (Creator), 2095 (Has Actant), 235 (Contributor), 581 (Collaborator)
+         // Templates: 71 (Seminar), 121 (StudyDay), 122 (Colloque), 108 (Experimentation)
+         
+         $linkSql = "
+            SELECT DISTINCT r.id
+            FROM value v_link
+            JOIN resource r ON v_link.resource_id = r.id
+            WHERE v_link.value_resource_id = ?
+            AND v_link.property_id IN (386, 2095, 235, 581)
+            AND r.resource_template_id IN (71, 121, 122, 108)
+         ";
+         
+         $linkedRes = $this->conn->fetchAllAssociative($linkSql, [$id]);
+         $linkedIds = array_column($linkedRes, 'id');
+         
+         // Use Standard Helper
+         $interventions = $this->fetchResourceCardData($linkedIds);
+         
+         // Sort by date DESC
+         usort($interventions, function($a, $b) {
+             return strtotime($b['date'] ?? '0') - strtotime($a['date'] ?? '0');
+         });
+         
+         $actant['interventionsList'] = $interventions;
 
          return $actant;
     }
