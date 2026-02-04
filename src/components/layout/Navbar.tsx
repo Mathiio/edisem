@@ -5,6 +5,7 @@ import Logo from '@/assets/svg/logo.svg';
 import { ProfilDropdown } from '@/components/layout/ProfilDropdown';
 import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
 import { ArrowIcon, SeminaireIcon, StudyDayIcon, PratiqueNarrativeIcon, ColloqueIcon, ExperimentationIcon } from '@/components/ui/icons';
+import { RESOURCE_TYPES } from '@/config/resourceTypes';
 
 interface DropdownItem {
   to: string;
@@ -144,7 +145,6 @@ export const Navbar: React.FC = () => {
             item.to = `/corpus/journees-etudes/edition/${e.id}`;
             studyDays.push(item);
           } else if (typeId === 19395 || type.includes('séminaire')) {
-            // Explicitly check for seminar type
             item.to = `/corpus/seminaires/edition/${e.id}`;
             seminars.push(item);
           }
@@ -166,29 +166,29 @@ export const Navbar: React.FC = () => {
         items: [
           { to: '/corpus/pratiques-narratives', label: 'IA & Pratiques narratives', icon: PratiqueNarrativeIcon, variant: 'main' as const },
           { to: '/corpus/mises-en-recits', label: "Mises en récits de l'IA", icon: PratiqueNarrativeIcon, variant: 'secondary' as const },
-          { to: '/corpus/recits-artistiques', label: 'Récits Artistiques/Oeuvres', variant: 'simple' as const },
-          { to: '/corpus/recits-scientifiques', label: 'Récits Scientifiques', variant: 'simple' as const },
-          { to: '/corpus/recits-techno-industriels', label: 'Récits Techno-industriels', variant: 'simple' as const },
-          { to: '/corpus/recits-citoyens', label: 'Récits Citoyens', variant: 'simple' as const },
-          { to: '/corpus/recits-mediatiques', label: 'Récits Médiatiques', variant: 'simple' as const },
-          { to: '/corpus/experimentations', label: 'Expérimentations', icon: ExperimentationIcon, variant: 'secondary' as const },
+          { to: RESOURCE_TYPES.recit_artistique.getUrl(''), label: RESOURCE_TYPES.recit_artistique.displayName, variant: 'simple' as const },
+          { to: RESOURCE_TYPES.recit_scientifique.getUrl(''), label: RESOURCE_TYPES.recit_scientifique.displayName, variant: 'simple' as const },
+          { to: RESOURCE_TYPES.recit_techno_industriel.getUrl(''), label: RESOURCE_TYPES.recit_techno_industriel.displayName, variant: 'simple' as const },
+          { to: RESOURCE_TYPES.recit_citoyen.getUrl(''), label: RESOURCE_TYPES.recit_citoyen.displayName, variant: 'simple' as const },
+          { to: RESOURCE_TYPES.recit_mediatique.getUrl(''), label: RESOURCE_TYPES.recit_mediatique.displayName, variant: 'simple' as const },
+          { to: RESOURCE_TYPES.experimentation.getUrl(''), label: RESOURCE_TYPES.experimentation.displayName, icon: ExperimentationIcon, variant: 'secondary' as const },
         ],
       },
       {
         items: [
-          { to: '/corpus/seminaires', label: 'Séminaires', icon: SeminaireIcon, variant: 'main' as const },
+          { to: RESOURCE_TYPES.seminaire.getUrl(''), label: RESOURCE_TYPES.seminaire.displayName, icon: SeminaireIcon, variant: 'main' as const },
           ...seminarEditions.map((e) => ({ ...e, variant: 'simple' as const })),
         ],
       },
       {
         items: [
-          { to: '/corpus/journees-etudes', label: "Journées d'études", icon: StudyDayIcon, variant: 'main' as const },
+          { to: RESOURCE_TYPES.journee_etudes.getUrl(''), label: RESOURCE_TYPES.journee_etudes.displayName, icon: StudyDayIcon, variant: 'main' as const },
           ...studyDayEditions.map((e) => ({ ...e, variant: 'simple' as const })),
         ],
       },
       {
         items: [
-          { to: '/corpus/colloques', label: 'Colloques', icon: ColloqueIcon, variant: 'main' as const },
+          { to: RESOURCE_TYPES.colloque.getUrl(''), label: RESOURCE_TYPES.colloque.displayName, icon: ColloqueIcon, variant: 'main' as const },
           ...colloqueEditions.map((e) => ({ ...e, variant: 'simple' as const })),
         ],
       },

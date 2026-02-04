@@ -63,7 +63,7 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
   mapRecommendationProps: (objet: any) => ({
     id: objet.id,
     title: objet.title,
-    type: 'recitTechnoIndustriel',
+    type: 'recit_techno_industriel',
     url: null, // url est pour YouTube, on ne l'utilise pas ici
     thumbnail: objet.associatedMedia?.[0] || objet.thumbnail || null,
     actant: [],

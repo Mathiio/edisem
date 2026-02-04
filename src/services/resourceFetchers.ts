@@ -19,21 +19,17 @@ type FetcherFunction = (id: number | string) => Promise<any>;
 const RESOURCE_TYPE_FETCHERS: Record<ResourceType, FetcherFunction> = {
   mediagraphie: async (id) => Items.getMediagraphies(typeof id === 'string' ? parseInt(id) : id),
   bibliographie: async (id) => Items.getBibliographies(typeof id === 'string' ? parseInt(id) : id),
-  recitScientifique: async (id) => Items.getRecitsScientifiques(typeof id === 'string' ? parseInt(id) : id),
-  oeuvre: async (id) => Items.getRecitsArtistiques(typeof id === 'string' ? parseInt(id) : id),
-  recitTechnoIndustriel: async (id) => Items.getRecitsTechnoIndustriels(typeof id === 'string' ? parseInt(id) : id),
-  recitCitoyen: async () => {
-    // TODO: implémenter getRecitCitoyens
-    console.warn('getRecitCitoyens not implemented yet');
-    return null;
-  },
-  recitMediatique: async (id) => Items.getRecitsMediatiques(typeof id === 'string' ? parseInt(id) : id),
+  recit_scientifique: async (id) => Items.getRecitsScientifiques(typeof id === 'string' ? parseInt(id) : id),
+  recit_artistique: async (id) => Items.getRecitsArtistiques(typeof id === 'string' ? parseInt(id) : id),
+  recit_techno_industriel: async (id) => Items.getRecitsTechnoIndustriels(typeof id === 'string' ? parseInt(id) : id),
+  recit_citoyen: async (id) => Items.getRecitsCitoyens(typeof id === 'string' ? parseInt(id) : id),
+  recit_mediatique: async (id) => Items.getRecitsMediatiques(typeof id === 'string' ? parseInt(id) : id),
   annotation: async (id) => Items.getAnnotations(typeof id === 'string' ? parseInt(id) : id),
-  studyDay: async (id) => Items.getStudyDayConfs(typeof id === 'string' ? parseInt(id) : id),
-  seminar: async (id) => Items.getSeminarConfs(typeof id === 'string' ? parseInt(id) : id),
+  journee_etudes: async (id) => Items.getStudyDayConfs(typeof id === 'string' ? parseInt(id) : id),
+  seminaire: async (id) => Items.getSeminarConfs(typeof id === 'string' ? parseInt(id) : id),
   colloque: async (id) => Items.getColloqueConfs(typeof id === 'string' ? parseInt(id) : id),
-  elementEsthetique: async (id) => Items.getElementEsthetiques(typeof id === 'string' ? parseInt(id) : id),
-  elementNarratif: async (id) => Items.getElementNarratifs(typeof id === 'string' ? parseInt(id) : id),
+  element_esthetique: async (id) => Items.getElementEsthetiques(typeof id === 'string' ? parseInt(id) : id),
+  element_narratif: async (id) => Items.getElementNarratifs(typeof id === 'string' ? parseInt(id) : id),
   experimentation: async (id) => Items.getExperimentations(typeof id === 'string' ? parseInt(id) : id),
   tool: async (id) => Items.getTools(typeof id === 'string' ? parseInt(id) : id),
 };

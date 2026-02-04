@@ -16,9 +16,9 @@ interface HierarchyNode {
 // Mapping des types vers des labels français
 const TYPE_LABELS: Record<string, string> = {
   // Événements
-  seminar: 'Séminaires',
+  seminaire: 'Séminaires',
   colloque: 'Colloques',
-  studyday: "Journées d'étude",
+  journee_etudes: "Journées d'étude",
   // Acteurs
   actant: 'Actants',
   student: 'Étudiants',
@@ -36,12 +36,12 @@ const TYPE_LABELS: Record<string, string> = {
   doctoralschool: 'Écoles doctorales',
   doctoralchool: 'Écoles doctorales',
   // Contenus
-  oeuvre: 'Récits Artistiques',
+  recit_artistique: 'Récits Artistiques',
   recitArtistique: 'Récits Artistiques',
-  recitScientifique: 'Récits Scientifiques',
-  recitTechnoIndustriel: 'Récits Techno-Industriels',
-  recitMediatique: 'Récits Médiatiques',
-  recitCitoyen: 'Récits Citoyens',
+  recit_scientifique: 'Récits Scientifiques',
+  recit_techno_industriel: 'Récits Techno-Industriels',
+  recit_mediatique: 'Récits Médiatiques',
+  recit_citoyen: 'Récits Citoyens',
   // Éléments narratifs/esthétiques
   elementNarratif: 'Éléments Narratifs',
   elementNarratifs: 'Éléments Narratifs',
@@ -62,9 +62,9 @@ const TYPE_LABELS: Record<string, string> = {
 // Couleurs par type
 const TYPE_COLORS: Record<string, string> = {
   // Événements (bleus/violets)
-  seminar: '#3b82f6',
+  seminaire: '#3b82f6',
   colloque: '#8b5cf6',
-  studyday: '#06b6d4',
+  journee_etudes: '#06b6d4',
   // Acteurs (oranges/verts)
   actant: '#f59e0b',
   student: '#22c55e',
@@ -82,12 +82,12 @@ const TYPE_COLORS: Record<string, string> = {
   doctoralschool: '#a855f7',
   doctoralchool: '#a855f7',
   // Contenus - Récits (roses/rouges variés)
-  oeuvre: '#f43f5e',
+  recit_artistique: '#f43f5e',
   recitArtistique: '#f43f5e',
-  recitScientifique: '#0891b2',
-  recitTechnoIndustriel: '#7c3aed',
-  recitMediatique: '#db2777',
-  recitCitoyen: '#16a34a',
+  recit_scientifique: '#0891b2',
+  recit_techno_industriel: '#7c3aed',
+  recit_mediatique: '#db2777',
+  recit_citoyen: '#16a34a',
   // Éléments narratifs/esthétiques (teals/cyans)
   elementNarratif: '#14b8a6',
   elementNarratifs: '#14b8a6',

@@ -2,7 +2,7 @@
 
 > **🔄 Workflow complet :** Pour un processus de bout en bout (API → TypeScript → Page), voir [`WORKFLOW_COMPLET.md`](../../../plans/WORKFLOW_COMPLET.md).
 
-Système pour créer des pages de détails (conference, experimentation, oeuvre, etc.) **sans dupliquer le code**.
+Système pour créer des pages de détails (conference, experimentation, recit_artistique, etc.) **sans dupliquer le code**.
 
 ## 📁 Fichiers
 

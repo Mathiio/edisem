@@ -72,9 +72,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, 
         </SearchResultSection>
 
         <SearchResultSection title='Récits Artistiques/Oeuvres' count={results.recitsArtistiques.length} loading={loading.recitsArtistiques}>
-          {results.recitsArtistiques.map((oeuvre) => (
-            <motion.div key={oeuvre.id} initial='hidden' animate='visible' variants={cardVariants} custom={getNextIndex()}>
-              <SearchModalCard id={oeuvre.id} title={oeuvre.title} date={oeuvre.date} thumbnail={oeuvre.thumbnail} acteurs={oeuvre.acteurs} onClose={onClose} />
+          {results.recitsArtistiques.map((recit_artistique) => (
+            <motion.div key={recit_artistique.id} initial='hidden' animate='visible' variants={cardVariants} custom={getNextIndex()}>
+              <SearchModalCard id={recit_artistique.id} title={recit_artistique.title} date={recit_artistique.date} thumbnail={recit_artistique.thumbnail} acteurs={recit_artistique.acteurs} onClose={onClose} />
             </motion.div>
           ))}
         </SearchResultSection>

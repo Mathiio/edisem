@@ -139,13 +139,13 @@ export const Personne: React.FC = () => {
         </div>
       </div>
       <div className='gap-25 flex flex-col'>
-        <h2 className='text-24 font-medium text-c6'>Dernière(s) oeuvre(s)</h2>
+        <h2 className='text-24 font-medium text-c6'>Dernière(s) recit_artistique(s)</h2>
         <div className='grid grid-cols-4 grid-rows-2 gap-25'>
           {loading
             ? Array.from({ length: 8 }).map((_, index) => <OeuvreCardSkeleton key={index} />)
-            : recitsArtistiques.map((oeuvre, index) => (
-              <motion.div initial='hidden' animate='visible' variants={fadeIn} key={oeuvre.id} custom={index}>
-                <OeuvreCard {...oeuvre} />
+            : recitsArtistiques.map((recit_artistique, index) => (
+              <motion.div initial='hidden' animate='visible' variants={fadeIn} key={recit_artistique.id} custom={index}>
+                <OeuvreCard {...recit_artistique} />
               </motion.div>
             ))}
         </div>

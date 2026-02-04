@@ -13,9 +13,9 @@ export const IntervenantInterventions: React.FC<IntervenantInterventionsProps> =
     return interventions.filter(item => item.type === type);
   };
 
-  const studyDays = getInterventionsByType('studyday');
+  const studyDays = getInterventionsByType('journee_etudes');
   const colloques = getInterventionsByType('colloque');
-  const seminars = getInterventionsByType('seminar');
+  const seminars = getInterventionsByType('seminaire');
   const experimentations = getInterventionsByType('experimentation');
 
   const categories = [

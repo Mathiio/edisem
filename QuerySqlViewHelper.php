@@ -143,9 +143,6 @@ class QuerySqlViewHelper extends AbstractHelper
             case 'getElementNarratifs':
                 $result = $this->getElementNarratifs();
                 break;
-            case 'getEditions':
-                $result = $this->getEditions();
-                break;
             case 'getNavbarEditions':
                 $result = $this->getNavbarEditions();
                 break;
@@ -211,7 +208,7 @@ class QuerySqlViewHelper extends AbstractHelper
                 $result = $this->getRandomActants($limit);
                 break;
             case 'getEditionsByType':
-                $type = isset($params['type']) ? $params['type'] : 'seminar';
+                $type = isset($params['type']) ? $params['type'] : 'seminaire';
                 $result = $this->getEditionsByType($type);
                 break;
             default:
@@ -981,16 +978,15 @@ class QuerySqlViewHelper extends AbstractHelper
         
         // 3. Mapping Templates to Types
         $typeMap = [
-            121 => 'studyday',
+            121 => 'journee_etudes',
             122 => 'colloque',
-            71 => 'seminar',
+            71 => 'seminaire',
             108 => 'experimentation',
-            // Recits
-            127 => 'recitCitoyen',
-            128 => 'recitMediatique',
-            129 => 'recitScientifique',
-            130 => 'recitTechnoIndustriel',
-            131 => 'recitArtistique'
+            127 => 'recit_citoyen',
+            128 => 'recit_mediatique',
+            129 => 'recit_scientifique',
+            130 => 'recit_techno_industriel',
+            131 => 'recit_artistique'
         ];
 
         // 4. Assemble Final Data
@@ -1023,9 +1019,9 @@ class QuerySqlViewHelper extends AbstractHelper
     public function getEditionsByType($typeKey) {
         // Mapping key -> DB Title (lowercase checks)
         $map = [
-            'seminar' => 'séminaire',
+            'seminaire' => 'séminaire',
             'colloque' => 'colloque',
-            'studyday' => 'journée d’études'
+            'journee_etudes' => 'journée d’études'
         ];
         
         $targetType = $map[$typeKey] ?? null;
@@ -1051,7 +1047,7 @@ class QuerySqlViewHelper extends AbstractHelper
         
         // Use LIKE for safer string matching
         $searchParam = $targetType;
-        if ($typeKey === 'studyday') $searchParam = 'journée d%';
+        if ($typeKey === 'journee_etudes') $searchParam = 'journée d%';
         
         $rows = $this->conn->fetchAllAssociative($sql, [$searchParam]);
         
@@ -6118,7 +6114,7 @@ class QuerySqlViewHelper extends AbstractHelper
 
         $result = [];
         foreach ($resources as $resource) {
-            $oeuvre = [
+            $recit_artistique = [
                 'id' => $resource['id'],
                 'title' => '',
                 'annotations' => [],
@@ -6144,19 +6140,19 @@ class QuerySqlViewHelper extends AbstractHelper
                 if ($value['resource_id'] == $resource['id']) {
                     switch ($value['property_id']) {
                         case 1: // dcterms:title
-                            $oeuvre['title'] = $value['value'];
+                            $recit_artistique['title'] = $value['value'];
                             break;
                         case 4: // dcterms:description
-                            $oeuvre['annotations'][] = $value['value_resource_id'];
+                            $recit_artistique['annotations'][] = $value['value_resource_id'];
                             break;
                         case 7: // dcterms:date
-                            $oeuvre['date'] = $value['value'];
+                            $recit_artistique['date'] = $value['value'];
                             break;
                         case 19: // dcterms:abstract
-                            $oeuvre['abstract'] = $value['value'];
+                            $recit_artistique['abstract'] = $value['value'];
                             break;
                         case 26: // dcterms:medium
-                            $oeuvre['medium'] = $value['value'];
+                            $recit_artistique['medium'] = $value['value'];
                             break;
                         case 581: // schema:contributor
                             if ($value['value_resource_id']) {
@@ -6164,7 +6160,7 @@ class QuerySqlViewHelper extends AbstractHelper
                                 $contributorName = isset($contributorMap[$contributorId]) ? $contributorMap[$contributorId] : null;
                                 $contributorThumbnail = isset($contributorThumbnailMap[$contributorId]) ? $contributorThumbnailMap[$contributorId] : null;
                                 $contributorPage = isset($contributorPageMap[$contributorId]) ? $contributorPageMap[$contributorId] : null;
-                                $oeuvre['actants'][] = [
+                                $recit_artistique['actants'][] = [
                                     'id' => $contributorId,
                                     'name' => $contributorName,
                                     'thumbnail' => $contributorThumbnail,
@@ -6177,7 +6173,7 @@ class QuerySqlViewHelper extends AbstractHelper
                                 $genreId = $value['value_resource_id'];
                                 $genreName = isset($genreMap[$genreId]) ? $genreMap[$genreId] : '';
                                 if (!empty($genreName)) {
-                                    $oeuvre['genre'] = $genreName;
+                                    $recit_artistique['genre'] = $genreName;
                                 }
                             }
                             break;
@@ -6185,23 +6181,23 @@ class QuerySqlViewHelper extends AbstractHelper
                             if ($value['value_resource_id']) {
                                 $agentId = $value['value_resource_id'];
 
-                                $oeuvre['personne'][] = $agentId;
+                                $recit_artistique['personne'][] = $agentId;
                             }
                             break;
                         case 461: // schema:elementsNarratifs
                             if ($value['value_resource_id']) {
                                 $elementsNarratifsId = $value['value_resource_id'];
-                                $oeuvre['elementsNarratifs'][] = $elementsNarratifsId;
+                                $recit_artistique['elementsNarratifs'][] = $elementsNarratifsId;
                             }
                             break;
                         case 428: // schema:elementsEsthetique
                             if ($value['value_resource_id']) {
                                 $elementsEsthetiqueId = $value['value_resource_id'];
-                                $oeuvre['elementsEsthetique'][] = $elementsEsthetiqueId;
+                                $recit_artistique['elementsEsthetique'][] = $elementsEsthetiqueId;
                             }
                             break;
                         case 2145: // theatre:credit
-                            $oeuvre['credits'] = $value['uri'];
+                            $recit_artistique['credits'] = $value['uri'];
                             break;
                         case 438: // schema:associatedMedia
                             if ($value['value_resource_id']) {
@@ -6210,36 +6206,36 @@ class QuerySqlViewHelper extends AbstractHelper
                                     $mediaUrl = $associatedMediaMap[$mediaId];
                                     // Si c'est une URL YouTube, retourner un objet avec url
                                     if (strpos($mediaUrl, 'youtube.com') !== false || strpos($mediaUrl, 'youtu.be') !== false) {
-                                        $oeuvre['associatedMedia'][] = [
+                                        $recit_artistique['associatedMedia'][] = [
                                             'id' => $mediaId,
                                             'url' => $mediaUrl,
                                             'thumbnail' => null
                                         ];
                                     } else {
                                         // Sinon, retourner juste l'URL du thumbnail comme string
-                                        $oeuvre['associatedMedia'][] = $this->generateThumbnailUrl($mediaUrl);
+                                        $recit_artistique['associatedMedia'][] = $this->generateThumbnailUrl($mediaUrl);
                                     }
                                 }
                             }
                             break;
                         case 1517: // schema:url
-                            $oeuvre['url'][] = $value['uri'];
+                            $recit_artistique['url'][] = $value['uri'];
                             break;
                         case 36:
                             if ($value['value_resource_id']) {
-                                $oeuvre['referencesScient'][] = $value['value_resource_id'];
+                                $recit_artistique['referencesScient'][] = $value['value_resource_id'];
                             }
                             break;
                         case 48:
                             if ($value['value_resource_id']) {
-                                $oeuvre['referencesCultu'][] = $value['value_resource_id'];
+                                $recit_artistique['referencesCultu'][] = $value['value_resource_id'];
                             }
                             break;
 
                         case 2097: // jdc:hasConcept
                             if ($value['value_resource_id']) {
                                 $conceptId = $value['value_resource_id'];
-                                $oeuvre['keywords'][] = isset($linkedResourceMap[$conceptId]) ? $linkedResourceMap[$conceptId] : '';
+                                $recit_artistique['keywords'][] = isset($linkedResourceMap[$conceptId]) ? $linkedResourceMap[$conceptId] : '';
                             }
                             break;
                         case 2355: // Archive
@@ -6250,7 +6246,7 @@ class QuerySqlViewHelper extends AbstractHelper
                                 $archiveTitle = isset($archiveTitleMap[$archiveId]) ? $archiveTitleMap[$archiveId] : '';
                                 $archiveSource = isset($archiveSourceMap[$archiveId]) ? $archiveSourceMap[$archiveId] : '';
                                 error_log("Archive liée - ID: " . $archiveId . ", Title: " . $archiveTitle . ", Source: " . $archiveSource);
-                                $oeuvre['archives'][] = [
+                                $recit_artistique['archives'][] = [
                                     'id' => $archiveId,
                                     'title' => $archiveTitle,
                                     'source' => $archiveSource
@@ -6258,7 +6254,7 @@ class QuerySqlViewHelper extends AbstractHelper
                             } else if (!empty($value['value'])) {
                                 // Archive comme valeur textuelle simple
                                 error_log("Archive simple - Value: " . $value['value']);
-                                $oeuvre['archives'][] = [
+                                $recit_artistique['archives'][] = [
                                     'id' => null,
                                     'title' => $value['value'],
                                     'source' => null
@@ -6268,50 +6264,50 @@ class QuerySqlViewHelper extends AbstractHelper
                         case 3233: // storyline:hasTheme
                             if ($value['value_resource_id']) {
                                 $themeId = $value['value_resource_id'];
-                                $oeuvre['themes'][] = isset($linkedResourceMap[$themeId]) ? $linkedResourceMap[$themeId] : '';
+                                $recit_artistique['themes'][] = isset($linkedResourceMap[$themeId]) ? $linkedResourceMap[$themeId] : '';
                             }
                             break;
                         case 3238: // storyline:hasProcess
                             if ($value['value_resource_id']) {
                                 $processId = $value['value_resource_id'];
-                                $oeuvre['processes'][] = isset($linkedResourceMap[$processId]) ? $linkedResourceMap[$processId] : '';
+                                $recit_artistique['processes'][] = isset($linkedResourceMap[$processId]) ? $linkedResourceMap[$processId] : '';
                             }
                             break;
                         case 3239: // storyline:hasAffect
                             if ($value['value_resource_id']) {
                                 $affectId = $value['value_resource_id'];
-                                $oeuvre['affects'][] = isset($linkedResourceMap[$affectId]) ? $linkedResourceMap[$affectId] : '';
+                                $recit_artistique['affects'][] = isset($linkedResourceMap[$affectId]) ? $linkedResourceMap[$affectId] : '';
                             }
                             break;
                         case 2079: // genstory:hasScenario
                             if ($value['value_resource_id']) {
                                 $scenarioId = $value['value_resource_id'];
-                                $oeuvre['scenarios'][] = isset($linkedResourceMap[$scenarioId]) ? $linkedResourceMap[$scenarioId] : '';
+                                $recit_artistique['scenarios'][] = isset($linkedResourceMap[$scenarioId]) ? $linkedResourceMap[$scenarioId] : '';
                             }
                             break;
                         case 3235: // storyline:hasRole
                             if ($value['value_resource_id']) {
                                 $roleId = $value['value_resource_id'];
-                                $oeuvre['roles'][] = isset($linkedResourceMap[$roleId]) ? $linkedResourceMap[$roleId] : '';
+                                $recit_artistique['roles'][] = isset($linkedResourceMap[$roleId]) ? $linkedResourceMap[$roleId] : '';
                             }
                             break;
                         case 3240: // storyline:hasRisk
                             if ($value['value_resource_id']) {
                                 $riskId = $value['value_resource_id'];
-                                $oeuvre['risks'][] = isset($linkedResourceMap[$riskId]) ? $linkedResourceMap[$riskId] : '';
+                                $recit_artistique['risks'][] = isset($linkedResourceMap[$riskId]) ? $linkedResourceMap[$riskId] : '';
                             }
                             break;
                         case 2080: // genstory:hasMonde
                             if ($value['value_resource_id']) {
                                 $mondeId = $value['value_resource_id'];
-                                $oeuvre['mondes'][] = isset($linkedResourceMap[$mondeId]) ? $linkedResourceMap[$mondeId] : '';
+                                $recit_artistique['mondes'][] = isset($linkedResourceMap[$mondeId]) ? $linkedResourceMap[$mondeId] : '';
                             }
                             break;
                     }
                 }
             }
 
-            $result[] = $oeuvre;
+            $result[] = $recit_artistique;
         }
 
         return $result;
@@ -6636,78 +6632,6 @@ class QuerySqlViewHelper extends AbstractHelper
                     }
                 }
             }
-            $result[] = $edition;
-        }
-
-        return $result;
-    }
-
-
-    function getEditions()
-    {
-        $resourceQuery = "
-            SELECT r.id
-            FROM `resource` r
-            WHERE r.resource_template_id = 77
-            ORDER BY RAND()
-        ";
-
-        $resources = $this->conn->executeQuery($resourceQuery)->fetchAllAssociative();
-
-        if (empty($resources)) {
-            return [];
-        }
-
-        $resourceIds = array_column($resources, 'id');
-
-        $valueQuery = "
-            SELECT
-                v.resource_id,
-                v.value,
-                v.property_id,
-                v.value_resource_id,
-                v2.value as display_title
-            FROM `value` v
-            LEFT JOIN `value` v2 ON v.value_resource_id = v2.resource_id AND v2.property_id = 1
-            WHERE v.resource_id IN (" . implode(',', $resourceIds) . ")
-            AND v.property_id IN (1, 937, 1662, 8, 7)
-        ";
-
-        $values = $this->conn->executeQuery($valueQuery)->fetchAllAssociative();
-
-        $result = [];
-        foreach ($resources as $resource) {
-            $edition = [
-                'id' => $resource['id'],
-                'title' => '',
-                'conferences' => [],
-                'season' => '',
-                'editionType' => '',
-                'year' => ''
-            ];
-
-            foreach ($values as $value) {
-                if ($value['resource_id'] == $resource['id']) {
-                    switch ($value['property_id']) {
-                        case 1:
-                            $edition['title'] = $value['value'];
-                            break;
-                        case 937:
-                            $edition['conferences'][] = $value['value_resource_id'];
-                            break;
-                        case 1662:
-                            $edition['season'] = $value['display_title'] ?: '';
-                            break;
-                        case 8:
-                            $edition['editionType'] = $value['display_title'] ?: '';
-                            break;
-                        case 7:
-                            $edition['year'] = $value['value'];
-                            break;
-                    }
-                }
-            }
-
             $result[] = $edition;
         }
 
@@ -7671,7 +7595,7 @@ class QuerySqlViewHelper extends AbstractHelper
         // 4. CONSTRUCTION DU RÉSULTAT : Boucle avec switch/case
         $result = [];
         foreach ($resources as $resource) {
-            $recitMediatique = [
+            $recit_mediatique = [
                 'id' => $resource['id'],
                 'title' => '',
                 'creator' => '',
@@ -7697,24 +7621,24 @@ class QuerySqlViewHelper extends AbstractHelper
                 if ($value['resource_id'] == $resource['id']) {
                     switch ($value['property_id']) {
                         case 1: // dcterms:title
-                            $recitMediatique['title'] = $value['value'];
+                            $recit_mediatique['title'] = $value['value'];
                             break;
 
                         case 2: // dcterms:creator
                             if ($value['value_resource_id']) {
                                 $creatorId = $value['value_resource_id'];
-                                $recitMediatique['creator'] = $creatorId;
+                                $recit_mediatique['creator'] = $creatorId;
                             } else {
-                                $recitMediatique['creator'] = $value['value'];
+                                $recit_mediatique['creator'] = $value['value'];
                             }
                             break;
 
                         case 23: // dcterms:issued
-                            $recitMediatique['dateIssued'] = $value['value'];
+                            $recit_mediatique['dateIssued'] = $value['value'];
                             break;
 
                         case 1517: // schema:url
-                            $recitMediatique['url'] = $value['uri'];
+                            $recit_mediatique['url'] = $value['uri'];
                             break;
 
                         case 438: // schema:associatedMedia
@@ -7724,61 +7648,61 @@ class QuerySqlViewHelper extends AbstractHelper
                                     $mediaData = $associatedMediaMap[$itemId];
                                     // Si c'est un objet (vidéo YouTube), l'ajouter tel quel
                                     if (is_array($mediaData)) {
-                                        $recitMediatique['associatedMedia'][] = $mediaData;
+                                        $recit_mediatique['associatedMedia'][] = $mediaData;
                                     } else {
                                         // Sinon, c'est une string (URL du thumbnail)
-                                        $recitMediatique['associatedMedia'][] = $mediaData;
+                                        $recit_mediatique['associatedMedia'][] = $mediaData;
                                     }
                                 }
                             }
                             break;
 
                         case 408: // schema:application
-                            $recitMediatique['application'] = $value['value'];
+                            $recit_mediatique['application'] = $value['value'];
                             break;
 
                         case 193: // oa:hasPurpose
-                            $recitMediatique['purpose'] = $value['value'];
+                            $recit_mediatique['purpose'] = $value['value'];
                             break;
 
                         case 4: // dcterms:description
                             if ($value['value_resource_id']) {
-                                $recitMediatique['descriptions'][] = $value['value_resource_id'];
+                                $recit_mediatique['descriptions'][] = $value['value_resource_id'];
                             }
                             break;
 
                         case 2083: // genstory:hasConditionInitial
-                            $recitMediatique['conditionInitiale'] = $value['value'];
+                            $recit_mediatique['conditionInitiale'] = $value['value'];
                             break;
 
                         case 11: // dcterms:source
                             if ($value['value_resource_id']) {
-                                $recitMediatique['referencesScient'][] = $value['value_resource_id'];
+                                $recit_mediatique['referencesScient'][] = $value['value_resource_id'];
                             }
                             break;
 
                         case 1659: // schema:review
                             if ($value['value_resource_id']) {
-                                $recitMediatique['referencesCultu'][] = $value['value_resource_id'];
+                                $recit_mediatique['referencesCultu'][] = $value['value_resource_id'];
                             }
                             break;
 
                         case 3236: // storyline:hasQuote - Citations
                             if ($value['value']) {
-                                $recitMediatique['citations'][] = $value['value'];
+                                $recit_mediatique['citations'][] = $value['value'];
                             }
                             break;
 
                         case 2097: // jdc:hasConcept
                             if ($value['value_resource_id']) {
-                                $recitMediatique['keywords'][] = $value['value_resource_id'];
+                                $recit_mediatique['keywords'][] = $value['value_resource_id'];
                             }
                             break;
 
                         case 937: // schema:isRelatedTo
                             if ($value['value_resource_id']) {
                                 $relatedId = $value['value_resource_id'];
-                                $recitMediatique['isRelatedTo'][] = [
+                                $recit_mediatique['isRelatedTo'][] = [
                                     'id' => $relatedId,
                                     'title' => $isRelatedToMap[$relatedId] ?? null,
                                     'thumbnail' => $isRelatedToThumbnailMap[$relatedId] ?? null
@@ -7788,14 +7712,14 @@ class QuerySqlViewHelper extends AbstractHelper
 
                         case 33: // dcterms:isPartOf
                             if ($value['value_resource_id']) {
-                                $recitMediatique['isPartOf'][] = $value['value_resource_id'];
+                                $recit_mediatique['isPartOf'][] = $value['value_resource_id'];
                             }
                             break;
                     }
                 }
             }
 
-            $result[] = $recitMediatique;
+            $result[] = $recit_mediatique;
         }
 
         // 5. RETURN DU RÉSULTAT
@@ -7975,7 +7899,7 @@ class QuerySqlViewHelper extends AbstractHelper
         // 4. CONSTRUCTION DU RÉSULTAT : Boucle avec switch/case
         $result = [];
         foreach ($resources as $resource) {
-            $recitCitoyen = [
+            $recit_citoyen = [
                 'id' => $resource['id'],
                 'title' => '',
                 'creator' => [],
@@ -8000,13 +7924,13 @@ class QuerySqlViewHelper extends AbstractHelper
                 if ($value['resource_id'] == $resource['id']) {
                     switch ($value['property_id']) {
                         case 1: // dcterms:title
-                            $recitCitoyen['title'] = $value['value'];
+                            $recit_citoyen['title'] = $value['value'];
                             break;
 
                         case 2: // dcterms:creator
                             if ($value['value_resource_id']) {
                                 $creatorId = $value['value_resource_id'];
-                                $recitCitoyen['creator'][] = [
+                                $recit_citoyen['creator'][] = [
                                     'id' => $creatorId,
                                     'title' => $creatorMap[$creatorId] ?? null,
                                     'thumbnail' => $creatorThumbnailMap[$creatorId] ?? null
@@ -8015,11 +7939,11 @@ class QuerySqlViewHelper extends AbstractHelper
                             break;
 
                         case 23: // dcterms:issued
-                            $recitCitoyen['dateIssued'] = $value['value'];
+                            $recit_citoyen['dateIssued'] = $value['value'];
                             break;
 
                         case 1517: // schema:url
-                            $recitCitoyen['url'] = $value['uri'];
+                            $recit_citoyen['url'] = $value['uri'];
                             break;
 
                         case 438: // schema:associatedMedia
@@ -8029,55 +7953,55 @@ class QuerySqlViewHelper extends AbstractHelper
                                     $mediaData = $associatedMediaMap[$itemId];
                                     // Si c'est un objet (vidéo YouTube), l'ajouter tel quel
                                     if (is_array($mediaData)) {
-                                        $recitCitoyen['associatedMedia'][] = $mediaData;
+                                        $recit_citoyen['associatedMedia'][] = $mediaData;
                                     } else {
                                         // Sinon, c'est une string (URL du thumbnail)
-                                        $recitCitoyen['associatedMedia'][] = $mediaData;
+                                        $recit_citoyen['associatedMedia'][] = $mediaData;
                                     }
                                 }
                             }
                             break;
 
                         case 408: // schema:application
-                            $recitCitoyen['application'] = $value['value'];
+                            $recit_citoyen['application'] = $value['value'];
                             break;
 
                         case 193: // oa:hasPurpose
-                            $recitCitoyen['purpose'] = $value['value'];
+                            $recit_citoyen['purpose'] = $value['value'];
                             break;
 
                         case 4: // dcterms:description
                             if ($value['value_resource_id']) {
-                                $recitCitoyen['descriptions'][] = $value['value_resource_id'];
+                                $recit_citoyen['descriptions'][] = $value['value_resource_id'];
                             }
                             break;
 
                         case 2083: // genstory:hasConditionInitial
-                            $recitCitoyen['conditionInitiale'] = $value['value'];
+                            $recit_citoyen['conditionInitiale'] = $value['value'];
                             break;
 
                         case 11: // dcterms:source
                             if ($value['value_resource_id']) {
-                                $recitCitoyen['referencesScient'][] = $value['value_resource_id'];
+                                $recit_citoyen['referencesScient'][] = $value['value_resource_id'];
                             }
                             break;
 
                         case 1659: // schema:review
                             if ($value['value_resource_id']) {
-                                $recitCitoyen['referencesCultu'][] = $value['value_resource_id'];
+                                $recit_citoyen['referencesCultu'][] = $value['value_resource_id'];
                             }
                             break;
 
                         case 2097: // jdc:hasConcept
                             if ($value['value_resource_id']) {
-                                $recitCitoyen['keywords'][] = $value['value_resource_id'];
+                                $recit_citoyen['keywords'][] = $value['value_resource_id'];
                             }
                             break;
 
                         case 937: // schema:isRelatedTo
                             if ($value['value_resource_id']) {
                                 $relatedId = $value['value_resource_id'];
-                                $recitCitoyen['isRelatedTo'][] = [
+                                $recit_citoyen['isRelatedTo'][] = [
                                     'id' => $relatedId,
                                     'title' => $isRelatedToMap[$relatedId] ?? null,
                                     'thumbnail' => $isRelatedToThumbnailMap[$relatedId] ?? null
@@ -8087,7 +8011,7 @@ class QuerySqlViewHelper extends AbstractHelper
 
                         case 33: // dcterms:isPartOf
                             if ($value['value_resource_id']) {
-                                $recitCitoyen['isPartOf'][] = $value['value_resource_id'];
+                                $recit_citoyen['isPartOf'][] = $value['value_resource_id'];
                             }
                             break;
                     }
@@ -8096,7 +8020,7 @@ class QuerySqlViewHelper extends AbstractHelper
 
 
 
-            $result[] = $recitCitoyen;
+            $result[] = $recit_citoyen;
         }
 
         // 5. RETURN DU RÉSULTAT

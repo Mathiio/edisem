@@ -4,9 +4,9 @@ import { images } from '@/components/features/datavisualisation/images';
 export const getConfigKey = (nodeType: string): string | null => {
   const typeMap: Record<string, string> = {
     conference: 'conferences',
-    studyday: 'conferences',
+    journee_etudes: 'conferences',
     colloque: 'conferences',
-    seminar: 'conferences',
+    seminaire: 'conferences',
     citation: 'citations',
     actant: 'conferenciers',
     bibliography: 'bibliography',
@@ -29,8 +29,8 @@ export const getRadiusForType = (type: string) => {
   const radii: { [key: string]: number } = {
     conf: 250,
     colloque: 250,
-    seminar: 250,
-    studyday: 250,
+    seminaire: 250,
+    journee_etudes: 250,
     bibliography: 200,
     actant: 250,
     mediagraphie: 200,
@@ -48,8 +48,8 @@ export const getSizeForType = (type: string) => {
   const sizes: { [key: string]: string } = {
     conf: '18px',
     colloque: '18px',
-    seminar: '18px',
-    studyday: '18px',
+    seminaire: '18px',
+    journee_etudes: '18px',
     bibliography: '16px',
     actant: '18px',
     mediagraphie: '16px',

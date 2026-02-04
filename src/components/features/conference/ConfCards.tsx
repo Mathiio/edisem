@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { buildConfsRoute, getYouTubeThumbnailUrl } from '@/lib/utils';
 import { Conference, IconSvgProps } from '@/types/ui';
 import { SeminaireIcon, ColloqueIcon, StudyDayIcon, ArrowIcon, ThumbnailIcon, UserIcon } from '@/components/ui/icons';
-import { ResourceCard, ResourceCardSkeleton } from '@/components/ui/ResourceCard';
+import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
 
 
 const CONFERENCE_TYPES: Record<string, { label: string; icon: React.FC<IconSvgProps> }> = {
-  seminar: { label: 'Conférence de séminaire', icon: SeminaireIcon },
+  seminaire: { label: 'Conférence de séminaire', icon: SeminaireIcon },
   colloque: { label: 'Conférence de colloque', icon: ColloqueIcon },
-  studyday: { label: 'Conférence de journée d\'études', icon: StudyDayIcon },
+  journee_etudes: { label: 'Conférence de journée d\'études', icon: StudyDayIcon },
   default: { label: 'Conférence', icon: SeminaireIcon }
 };
 
@@ -77,7 +77,7 @@ export const ConfCard: React.FC<Conference> = (props) => {
         onClick={openConf}
         authors={getAuthors()}
         subtitle={getSubtitle()}
-        typeLabel={confType.label}
+        type={conference.type}
         TypeIcon={confType.icon}
     />
   );

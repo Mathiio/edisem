@@ -596,40 +596,6 @@ export async function getActantsByCountry() {
   }
 }
 
-export async function getEditions(editionIds?: string | string[]) {
-  try {
-    checkAndClearDailyCache();
-    let editions: any[];
-    const storedEditions = sessionStorage.getItem('editions');
-
-    if (!storedEditions) {
-      const rawEditions = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getEditions&json=1');
-
-      editions = rawEditions.map((edition: any) => ({
-        ...edition,
-        type: 'edition',
-      }));
-
-      sessionStorage.setItem('editions', JSON.stringify(editions));
-    } else {
-      editions = JSON.parse(storedEditions);
-    }
-
-    if (!editionIds) {
-      return editions;
-    }
-
-    const normalizedIds = Array.isArray(editionIds) ? editionIds.map((id) => String(id)) : [String(editionIds)];
-
-    const foundEditions = editions.filter((e: any) => normalizedIds.includes(String(e.id)));
-
-    return !Array.isArray(editionIds) && foundEditions.length > 0 ? foundEditions[0] : foundEditions;
-  } catch (error) {
-    console.error('Error fetching editions:', error);
-    throw new Error('Failed to fetch editions');
-  }
-}
-
 export async function getEditionDetails(id: string | number) {
   try {
     return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getEditionDetails&id=${id}&json=1`);
@@ -675,7 +641,7 @@ export async function getSeminarConfs(confId?: number) {
 
         return rawConfs.map((conf: any) => ({
           ...conf,
-          type: 'seminar',
+          type: 'seminaire',
           motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
           url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
           fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
@@ -757,7 +723,7 @@ export async function getStudyDayConfs(confId?: number) {
 
         return (rawConfs || []).map((conf: any) => ({
           ...conf,
-          type: 'studyday',
+          type: 'journee_etudes',
           motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
           url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
           fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
@@ -1020,71 +986,71 @@ export async function getRecitsArtistiques(id?: number) {
     const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
     const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
 
-    const oeuvresFull = recitsArtistiques.map((oeuvre: any) => {
+    const oeuvresFull = recitsArtistiques.map((recit_artistique: any) => {
       // Parse les IDs multiples séparés par des virgules pour personne
       let personneIds: string[] = [];
-      if (oeuvre.personne) {
-        if (typeof oeuvre.personne === 'string') {
-          personneIds = oeuvre.personne.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(oeuvre.personne)) {
-          personneIds = oeuvre.personne.map((id: any) => String(id));
-        } else if (oeuvre.personne != null) {
-          personneIds = [String(oeuvre.personne)];
+      if (recit_artistique.personne) {
+        if (typeof recit_artistique.personne === 'string') {
+          personneIds = recit_artistique.personne.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(recit_artistique.personne)) {
+          personneIds = recit_artistique.personne.map((id: any) => String(id));
+        } else if (recit_artistique.personne != null) {
+          personneIds = [String(recit_artistique.personne)];
         }
       }
 
       // Parse les IDs multiples pour elementsNarratifs
       let elementsNarratifsIds: string[] = [];
-      if (oeuvre.elementsNarratifs) {
-        if (typeof oeuvre.elementsNarratifs === 'string') {
-          elementsNarratifsIds = oeuvre.elementsNarratifs.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(oeuvre.elementsNarratifs)) {
-          elementsNarratifsIds = oeuvre.elementsNarratifs.map((id: any) => String(id));
-        } else if (oeuvre.elementsNarratifs != null) {
-          elementsNarratifsIds = [String(oeuvre.elementsNarratifs)];
+      if (recit_artistique.elementsNarratifs) {
+        if (typeof recit_artistique.elementsNarratifs === 'string') {
+          elementsNarratifsIds = recit_artistique.elementsNarratifs.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(recit_artistique.elementsNarratifs)) {
+          elementsNarratifsIds = recit_artistique.elementsNarratifs.map((id: any) => String(id));
+        } else if (recit_artistique.elementsNarratifs != null) {
+          elementsNarratifsIds = [String(recit_artistique.elementsNarratifs)];
         }
       }
 
       // Parse les IDs multiples pour elementsEsthetique
       let elementsEsthetiqueIds: string[] = [];
-      if (oeuvre.elementsEsthetique) {
-        if (typeof oeuvre.elementsEsthetique === 'string') {
-          elementsEsthetiqueIds = oeuvre.elementsEsthetique.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(oeuvre.elementsEsthetique)) {
-          elementsEsthetiqueIds = oeuvre.elementsEsthetique.map((id: any) => String(id));
-        } else if (oeuvre.elementsEsthetique != null) {
-          elementsEsthetiqueIds = [String(oeuvre.elementsEsthetique)];
+      if (recit_artistique.elementsEsthetique) {
+        if (typeof recit_artistique.elementsEsthetique === 'string') {
+          elementsEsthetiqueIds = recit_artistique.elementsEsthetique.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(recit_artistique.elementsEsthetique)) {
+          elementsEsthetiqueIds = recit_artistique.elementsEsthetique.map((id: any) => String(id));
+        } else if (recit_artistique.elementsEsthetique != null) {
+          elementsEsthetiqueIds = [String(recit_artistique.elementsEsthetique)];
         }
       }
 
       // Parse les IDs multiples pour annotations
       let annotationsIds: string[] = [];
-      if (oeuvre.annotations) {
-        if (typeof oeuvre.annotations === 'string') {
-          annotationsIds = oeuvre.annotations.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(oeuvre.annotations)) {
-          annotationsIds = oeuvre.annotations.map((id: any) => String(id));
-        } else if (oeuvre.annotations != null) {
-          annotationsIds = [String(oeuvre.annotations)];
+      if (recit_artistique.annotations) {
+        if (typeof recit_artistique.annotations === 'string') {
+          annotationsIds = recit_artistique.annotations.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(recit_artistique.annotations)) {
+          annotationsIds = recit_artistique.annotations.map((id: any) => String(id));
+        } else if (recit_artistique.annotations != null) {
+          annotationsIds = [String(recit_artistique.annotations)];
         }
       }
 
       // Parse les IDs multiples pour keywords
       let keywordsLinked: any[] = [];
-      if (oeuvre.keywords) {
+      if (recit_artistique.keywords) {
         // Si keywords est déjà un tableau d'objets complets (déjà hydraté), on les garde tels quels
-        if (Array.isArray(oeuvre.keywords) && oeuvre.keywords.length > 0 && typeof oeuvre.keywords[0] === 'object' && oeuvre.keywords[0].title) {
+        if (Array.isArray(recit_artistique.keywords) && recit_artistique.keywords.length > 0 && typeof recit_artistique.keywords[0] === 'object' && recit_artistique.keywords[0].title) {
           // Keywords déjà hydratés (objets avec title), on les garde
-          keywordsLinked = oeuvre.keywords.map((k: any) => ({ ...k, type: 'keyword' }));
+          keywordsLinked = recit_artistique.keywords.map((k: any) => ({ ...k, type: 'keyword' }));
         } else {
           // Sinon, on parse les IDs/titres et on les lie
           let keywordsIds: string[] = [];
-          if (typeof oeuvre.keywords === 'string') {
-            keywordsIds = oeuvre.keywords.split(',').map((id: string) => id.trim());
-          } else if (Array.isArray(oeuvre.keywords)) {
-            keywordsIds = oeuvre.keywords.map((id: any) => String(id));
-          } else if (oeuvre.keywords != null) {
-            keywordsIds = [String(oeuvre.keywords)];
+          if (typeof recit_artistique.keywords === 'string') {
+            keywordsIds = recit_artistique.keywords.split(',').map((id: string) => id.trim());
+          } else if (Array.isArray(recit_artistique.keywords)) {
+            keywordsIds = recit_artistique.keywords.map((id: any) => String(id));
+          } else if (recit_artistique.keywords != null) {
+            keywordsIds = [String(recit_artistique.keywords)];
           }
 
           // Relink objects using the maps (chercher d'abord par ID, puis par titre)
@@ -1102,32 +1068,32 @@ export async function getRecitsArtistiques(id?: number) {
 
           // Log pour debug si keywordsIds existe mais keywordsLinked est vide
           if (keywordsIds.length > 0 && keywordsLinked.length === 0) {
-            console.log(`⚠️ Oeuvre ${oeuvre.id}: keywordsIds/titres trouvés mais non liés`, { keywordsIds, keywordsMapSize: keywordsMap.size, sampleKeywordId: keywordsIds[0] });
+            console.log(`⚠️ Oeuvre ${recit_artistique.id}: keywordsIds/titres trouvés mais non liés`, { keywordsIds, keywordsMapSize: keywordsMap.size, sampleKeywordId: keywordsIds[0] });
           }
         }
       }
 
       // Parse les IDs multiples pour referencesScient
       let referencesScientIds: string[] = [];
-      if (oeuvre.referencesScient) {
-        if (typeof oeuvre.referencesScient === 'string') {
-          referencesScientIds = oeuvre.referencesScient.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(oeuvre.referencesScient)) {
-          referencesScientIds = oeuvre.referencesScient.map((id: any) => String(id));
-        } else if (oeuvre.referencesScient != null) {
-          referencesScientIds = [String(oeuvre.referencesScient)];
+      if (recit_artistique.referencesScient) {
+        if (typeof recit_artistique.referencesScient === 'string') {
+          referencesScientIds = recit_artistique.referencesScient.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(recit_artistique.referencesScient)) {
+          referencesScientIds = recit_artistique.referencesScient.map((id: any) => String(id));
+        } else if (recit_artistique.referencesScient != null) {
+          referencesScientIds = [String(recit_artistique.referencesScient)];
         }
       }
 
       // Parse les IDs multiples pour referencesCultu
       let referencesCultuIds: string[] = [];
-      if (oeuvre.referencesCultu) {
-        if (typeof oeuvre.referencesCultu === 'string') {
-          referencesCultuIds = oeuvre.referencesCultu.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(oeuvre.referencesCultu)) {
-          referencesCultuIds = oeuvre.referencesCultu.map((id: any) => String(id));
-        } else if (oeuvre.referencesCultu != null) {
-          referencesCultuIds = [String(oeuvre.referencesCultu)];
+      if (recit_artistique.referencesCultu) {
+        if (typeof recit_artistique.referencesCultu === 'string') {
+          referencesCultuIds = recit_artistique.referencesCultu.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(recit_artistique.referencesCultu)) {
+          referencesCultuIds = recit_artistique.referencesCultu.map((id: any) => String(id));
+        } else if (recit_artistique.referencesCultu != null) {
+          referencesCultuIds = [String(recit_artistique.referencesCultu)];
         }
       }
 
@@ -1140,8 +1106,8 @@ export async function getRecitsArtistiques(id?: number) {
       const referencesCultuLinked = referencesCultuIds.map((id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id)).filter(Boolean);
 
       return {
-        ...oeuvre,
-        type: 'oeuvre',
+        ...recit_artistique,
+        type: 'recit_artistique',
         personne: personnesLinked.length > 0 ? personnesLinked : null,
         elementsNarratifs: elementsNarratifsLinked.length > 0 ? elementsNarratifsLinked : null,
         elementsEsthetique: elementsEsthetiqueLinked.length > 0 ? elementsEsthetiqueLinked : null,
@@ -1717,7 +1683,7 @@ export async function getRecitsTechnoIndustriels(id?: number) {
 
       return {
         ...objet,
-        type: 'recitTechnoIndustriel',
+        type: 'recit_techno_industriel',
         descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
         keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
         // tools, reviews, relatedResources sont déjà hydratés dans PHP
@@ -1821,7 +1787,7 @@ export async function getRecitsScientifiques(id?: number) {
 
       return {
         ...doc,
-        type: 'recitScientifique',
+        type: 'recit_scientifique',
         descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
         keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
         creator: creatorHydrated,
@@ -1944,7 +1910,7 @@ export async function getRecitsMediatiques(id?: number) {
 
       return {
         ...recit,
-        type: 'recitMediatique',
+        type: 'recit_mediatique',
         descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
         keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
         creator: creatorHydrated,
@@ -1994,28 +1960,28 @@ export async function getRecitsCitoyens(id?: number) {
     const bibliographiesMap = new Map(bibliographies.map((b: any) => [String(b.id), b]));
     const mediagraphiesMap = new Map(mediagraphies.map((m: any) => [String(m.id), m]));
     // 4. HYDRATATION : Remplacer IDs par objets complets
-    const recitsCitoyensFull = rawRecitsCitoyens.map((recitCitoyen: any) => {
+    const recitsCitoyensFull = rawRecitsCitoyens.map((recit_citoyen: any) => {
       // Hydrater descriptions (items)
       let descriptionsHydrated = [];
-      if (Array.isArray(recitCitoyen.descriptions)) {
-        descriptionsHydrated = recitCitoyen.descriptions.map((id: any) => annotationsMap.get(String(id))).filter(Boolean);
+      if (Array.isArray(recit_citoyen.descriptions)) {
+        descriptionsHydrated = recit_citoyen.descriptions.map((id: any) => annotationsMap.get(String(id))).filter(Boolean);
       }
 
       // Hydrater keywords
       let keywordsHydrated = [];
-      if (Array.isArray(recitCitoyen.keywords)) {
-        keywordsHydrated = recitCitoyen.keywords.map((id: any) => keywordsMap.get(String(id))).filter(Boolean);
+      if (Array.isArray(recit_citoyen.keywords)) {
+        keywordsHydrated = recit_citoyen.keywords.map((id: any) => keywordsMap.get(String(id))).filter(Boolean);
       }
 
       // Hydrater creator - peut être un tableau d'objets (nouveau format), un tableau d'IDs, un ID unique, ou une chaîne avec virgules
       let creatorHydrated = null;
-      if (recitCitoyen.creator) {
+      if (recit_citoyen.creator) {
         // Si c'est un tableau
-        if (Array.isArray(recitCitoyen.creator)) {
+        if (Array.isArray(recit_citoyen.creator)) {
           // Vérifier si c'est déjà des objets complets (nouveau format PHP avec id, title, thumbnail)
-          if (recitCitoyen.creator.length > 0 && typeof recitCitoyen.creator[0] === 'object' && recitCitoyen.creator[0] !== null && 'id' in recitCitoyen.creator[0]) {
+          if (recit_citoyen.creator.length > 0 && typeof recit_citoyen.creator[0] === 'object' && recit_citoyen.creator[0] !== null && 'id' in recit_citoyen.creator[0]) {
             // Déjà des objets complets depuis PHP, essayer de les enrichir avec personnes/actants si disponibles
-            const hydratedCreators = recitCitoyen.creator
+            const hydratedCreators = recit_citoyen.creator
               .map((creatorObj: any) => {
                 const creatorId = String(creatorObj.id);
                 // Essayer de trouver dans personnes ou actants pour enrichir l'objet
@@ -2033,7 +1999,7 @@ export async function getRecitsCitoyens(id?: number) {
             }
           } else {
             // C'est un tableau d'IDs, les hydrater
-            const hydratedCreators = recitCitoyen.creator
+            const hydratedCreators = recit_citoyen.creator
               .map((id: any) => {
                 const creatorId = String(id).trim();
                 // Chercher d'abord dans personnes, puis dans actants
@@ -2047,7 +2013,7 @@ export async function getRecitsCitoyens(id?: number) {
           }
         } else {
           // Format legacy : ID unique ou chaîne avec virgules
-          const creatorStr = String(recitCitoyen.creator).trim();
+          const creatorStr = String(recit_citoyen.creator).trim();
           if (creatorStr.includes(',')) {
             // Plusieurs IDs séparés par des virgules
             const creatorIds = creatorStr.split(',').map((id: string) => id.trim());
@@ -2065,38 +2031,38 @@ export async function getRecitsCitoyens(id?: number) {
 
       // Hydrater associatedMedia (items)
       let associatedMediaHydrated = [];
-      if (Array.isArray(recitCitoyen.associatedMedia)) {
-        associatedMediaHydrated = recitCitoyen.associatedMedia.filter(Boolean);
+      if (Array.isArray(recit_citoyen.associatedMedia)) {
+        associatedMediaHydrated = recit_citoyen.associatedMedia.filter(Boolean);
       }
 
       // Hydrater isRelatedTo (items)
       let isRelatedToHydrated = [];
-      if (Array.isArray(recitCitoyen.isRelatedTo)) {
-        isRelatedToHydrated = recitCitoyen.isRelatedTo.filter(Boolean);
+      if (Array.isArray(recit_citoyen.isRelatedTo)) {
+        isRelatedToHydrated = recit_citoyen.isRelatedTo.filter(Boolean);
       }
 
       // Hydrater referencesScient (items)
       let referencesScientHydrated = [];
-      if (Array.isArray(recitCitoyen.referencesScient)) {
+      if (Array.isArray(recit_citoyen.referencesScient)) {
         // Vérifier si c'est déjà des objets complets ou des IDs
-        if (recitCitoyen.referencesScient.length > 0 && typeof recitCitoyen.referencesScient[0] === 'object' && recitCitoyen.referencesScient[0] !== null) {
+        if (recit_citoyen.referencesScient.length > 0 && typeof recit_citoyen.referencesScient[0] === 'object' && recit_citoyen.referencesScient[0] !== null) {
           // Déjà des objets complets
-          referencesScientHydrated = recitCitoyen.referencesScient;
+          referencesScientHydrated = recit_citoyen.referencesScient;
         } else {
           // Ce sont des IDs, les hydrater
-          referencesScientHydrated = recitCitoyen.referencesScient.map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id)).filter(Boolean);
+          referencesScientHydrated = recit_citoyen.referencesScient.map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id)).filter(Boolean);
         }
       }
 
       // Hydrater referencesCultu (items)
       let referencesCultuHydrated = [];
-      if (Array.isArray(recitCitoyen.referencesCultu)) {
-        referencesCultuHydrated = recitCitoyen.referencesCultu.map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id)).filter(Boolean);
+      if (Array.isArray(recit_citoyen.referencesCultu)) {
+        referencesCultuHydrated = recit_citoyen.referencesCultu.map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id)).filter(Boolean);
       }
 
       return {
-        ...recitCitoyen,
-        type: 'recitCitoyen',
+        ...recit_citoyen,
+        type: 'recit_citoyen',
         descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
         keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
         creator: creatorHydrated,

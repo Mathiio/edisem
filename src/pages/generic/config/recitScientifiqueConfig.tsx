@@ -53,7 +53,7 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
   mapRecommendationProps: (doc: any) => ({
     id: doc.id,
     title: doc.title,
-    type: 'recitScientifique',
+    type: 'recit_scientifique',
     url: null, // url est pour YouTube, on ne l'utilise pas ici
     thumbnail: doc.associatedMedia?.[0] || doc.thumbnail || null,
     actant: doc.creator ? [doc.creator] : [],

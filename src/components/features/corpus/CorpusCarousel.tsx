@@ -58,13 +58,13 @@ const EditionCardSkeleton = () => {
   return (
     <div className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-40 rounded-30 flex flex-col gap-40 h-full">
         <div className='flex flex-col items-start gap-2'>
-            <Skeleton className="rounded-8 w-full h-8 bg-c2"/>
-            <Skeleton className="rounded-8 w-full h-8 bg-c2"/>
-            <Skeleton className="rounded-8 w-3/4 h-8 bg-c2"/>
+            <Skeleton className="rounded-8 w-full h-8"/>
+            <Skeleton className="rounded-8 w-full h-8"/>
+            <Skeleton className="rounded-8 w-3/4 h-8"/>
         </div>
         <div className='flex flex-col items-start gap-2'>
-            <Skeleton className="rounded-8 w-1/2 h-4 bg-c2"/>
-            <Skeleton className="rounded-8 w-1/4 h-4 bg-c2"/>
+            <Skeleton className="rounded-8 w-1/2 h-4"/>
+            <Skeleton className="rounded-8 w-1/4 h-4"/>
         </div>
     </div>
   );

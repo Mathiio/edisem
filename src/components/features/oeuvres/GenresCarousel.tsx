@@ -66,14 +66,14 @@ export const GenreCarousel = ({ recitsArtistiques, loading = false }: GenreCarou
     if (!loading && recitsArtistiques.length > 0) {
       const genreMap: { [key: string]: { recitsArtistiques: any[] } } = {};
 
-      recitsArtistiques.forEach((oeuvre: any) => {
-        const genreName = oeuvre.genre;
+      recitsArtistiques.forEach((recit_artistique: any) => {
+        const genreName = recit_artistique.genre;
         if (!genreName) return;
 
         if (!genreMap[genreName]) {
           genreMap[genreName] = { recitsArtistiques: [] };
         }
-        genreMap[genreName].recitsArtistiques.push(oeuvre);
+        genreMap[genreName].recitsArtistiques.push(recit_artistique);
       });
 
       const formattedGenres = Object.entries(genreMap)

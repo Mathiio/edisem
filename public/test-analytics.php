@@ -28,10 +28,10 @@ $action = $_GET['action'] ?? '';
 
 // Templates des ressources
 $templates = [
-    'seminar' => 71,
+    'seminaire' => 71,
     'colloque' => 122,
-    'studyday' => 121,
-    'oeuvre' => 103,
+    'journee_etudes' => 121,
+    'recit_artistique' => 103,
     'annotation' => 101,
     'experimentation' => 106,
     'tool' => 118,

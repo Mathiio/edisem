@@ -6,7 +6,7 @@ import * as Items from '@/services/Items';
 import { createOeuvreViews } from '../helpers';
 
 /**
- * Configuration pour les pages d'oeuvre
+ * Configuration pour les pages d'recit_artistique
  *
  * Cas complexe avec:
  * - 6 vues différentes (ContentScient, ContentCultu, Archives, ElementsNarratifs, ElementsEsthetique, AnalyseCritique)
@@ -40,12 +40,12 @@ export const oeuvreConfig: GenericDetailPageConfig = {
       keywordMap.set(Number(k.id), k);
     });
 
-    const oeuvre = recitIas.find((r: any) => String(r.id) === String(id));
+    const recit_artistique = recitIas.find((r: any) => String(r.id) === String(id));
 
-    if (oeuvre) {
+    if (recit_artistique) {
       // Enrichir les actants
-      if (oeuvre.actants && Array.isArray(oeuvre.actants)) {
-        oeuvre.enrichedActants = oeuvre.actants
+      if (recit_artistique.actants && Array.isArray(recit_artistique.actants)) {
+        recit_artistique.enrichedActants = recit_artistique.actants
           .map((actant: any) => {
             if (typeof actant === 'string' && !/^\d{5}$/.test(actant)) {
               return { displayName: actant };
@@ -63,16 +63,16 @@ export const oeuvreConfig: GenericDetailPageConfig = {
           })
           .filter(Boolean);
 
-        oeuvre.primaryActant = oeuvre.enrichedActants.length > 0 ? oeuvre.enrichedActants[0] : null;
+        recit_artistique.primaryActant = recit_artistique.enrichedActants.length > 0 ? recit_artistique.enrichedActants[0] : null;
       }
 
       // Legacy support
-      if (oeuvre.actant && !oeuvre.primaryActant) {
-        if (typeof oeuvre.actant === 'object' && oeuvre.actant.id) {
-          oeuvre.primaryActant = oeuvre.actant;
+      if (recit_artistique.actant && !recit_artistique.primaryActant) {
+        if (typeof recit_artistique.actant === 'object' && recit_artistique.actant.id) {
+          recit_artistique.primaryActant = recit_artistique.actant;
         } else {
-          const actantId = oeuvre.actant;
-          oeuvre.primaryActant =
+          const actantId = recit_artistique.actant;
+          recit_artistique.primaryActant =
             actantMap.get(actantId) ||
             actantMap.get(Number(actantId)) ||
             actantMap.get(String(actantId)) ||
@@ -84,8 +84,8 @@ export const oeuvreConfig: GenericDetailPageConfig = {
       }
 
       // Enrichir les feedbacks
-      if (oeuvre.feedbacks) {
-        oeuvre.feedbacks.forEach((feedback: any) => {
+      if (recit_artistique.feedbacks) {
+        recit_artistique.feedbacks.forEach((feedback: any) => {
           if (feedback.contributors) {
             feedback.contributors = feedback.contributors.map((contributor: any) => {
               const contributorId = contributor.id;
@@ -102,13 +102,13 @@ export const oeuvreConfig: GenericDetailPageConfig = {
 
     // Enrichir les keywords depuis plusieurs sources
     const oeuvreKeywords = [
-      ...(oeuvre?.keywords || []),
-      ...(oeuvre?.risks || []),
-      ...(oeuvre?.roles || []),
-      ...(oeuvre?.scenarios || []),
-      ...(oeuvre?.themes || []),
-      ...(oeuvre?.processes || []),
-      ...(oeuvre?.affects || []),
+      ...(recit_artistique?.keywords || []),
+      ...(recit_artistique?.risks || []),
+      ...(recit_artistique?.roles || []),
+      ...(recit_artistique?.scenarios || []),
+      ...(recit_artistique?.themes || []),
+      ...(recit_artistique?.processes || []),
+      ...(recit_artistique?.affects || []),
     ]
       .map((word: any) => {
         if (typeof word === 'object' && word !== null && 'id' in word) {
@@ -121,24 +121,24 @@ export const oeuvreConfig: GenericDetailPageConfig = {
 
     // Récupérer les recommandations
     let recommendedConfs: any[] = [];
-    if (oeuvre?.recommendations?.length) {
+    if (recit_artistique?.recommendations?.length) {
       try {
-        const recommendationsPromises = oeuvre.recommendations.map((recId: string) => Items.getSeminarConfs(Number(recId)));
+        const recommendationsPromises = recit_artistique.recommendations.map((recId: string) => Items.getSeminarConfs(Number(recId)));
         recommendedConfs = await Promise.all(recommendationsPromises);
       } catch (error) {
         console.error('Error fetching recommended conferences:', error);
       }
     }
 
-    console.log('oeuvre', oeuvre);
+    console.log('recit_artistique', recit_artistique);
 
     // Résoudre les targets et related des annotations
-    if (oeuvre?.annotations) {
-      oeuvre.annotations = await getAnnotationsWithTargets(oeuvre.annotations);
+    if (recit_artistique?.annotations) {
+      recit_artistique.annotations = await getAnnotationsWithTargets(recit_artistique.annotations);
     }
 
     return {
-      itemDetails: oeuvre,
+      itemDetails: recit_artistique,
       keywords: oeuvreKeywords,
       recommendations: [],
       viewData: {
@@ -154,32 +154,32 @@ export const oeuvreConfig: GenericDetailPageConfig = {
   detailsSkeleton: RecitiaDetailsSkeleton,
 
   // Mappers de props
-  mapOverviewProps: (oeuvre: any, currentVideoTime: number) => ({
-    id: oeuvre.id,
-    title: oeuvre.title,
-    personnes: oeuvre.personne,
-    medias: oeuvre.associatedMedia && oeuvre.associatedMedia.length > 0 ? oeuvre.associatedMedia : oeuvre.thumbnail ? [oeuvre.thumbnail] : [],
-    credits: oeuvre.credits,
-    fullUrl: oeuvre.url,
+  mapOverviewProps: (recit_artistique: any, currentVideoTime: number) => ({
+    id: recit_artistique.id,
+    title: recit_artistique.title,
+    personnes: recit_artistique.personne,
+    medias: recit_artistique.associatedMedia && recit_artistique.associatedMedia.length > 0 ? recit_artistique.associatedMedia : recit_artistique.thumbnail ? [recit_artistique.thumbnail] : [],
+    credits: recit_artistique.credits,
+    fullUrl: recit_artistique.url,
     currentTime: currentVideoTime,
     buttonText: 'Voir plus',
   }),
 
-  mapDetailsProps: (oeuvre: any) => ({
-    date: oeuvre.date,
-    description: oeuvre.abstract,
-    medium: oeuvre.medium,
-    actants: oeuvre.actants,
+  mapDetailsProps: (recit_artistique: any) => ({
+    date: recit_artistique.date,
+    description: recit_artistique.abstract,
+    medium: recit_artistique.medium,
+    actants: recit_artistique.actants,
   }),
 
   // Mapper pour les recommandations (format SmConfCard)
-  mapRecommendationProps: (oeuvre: any) => ({
-    id: oeuvre.id,
-    title: oeuvre.title,
-    type: 'oeuvre',
+  mapRecommendationProps: (recit_artistique: any) => ({
+    id: recit_artistique.id,
+    title: recit_artistique.title,
+    type: 'recit_artistique',
     url: null, // url est pour YouTube, on ne l'utilise pas ici
-    thumbnail: oeuvre.associatedMedia?.[0] || oeuvre.thumbnail || null,
-    actant: oeuvre.personne || [],
+    thumbnail: recit_artistique.associatedMedia?.[0] || recit_artistique.thumbnail || null,
+    actant: recit_artistique.personne || [],
   }),
 
   viewOptions: createOeuvreViews(),

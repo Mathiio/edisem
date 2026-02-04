@@ -3,11 +3,11 @@ import * as d3 from 'd3';
 import { getRecitsArtistiques, getRecitsTechnoIndustriels, getRecitsScientifiques, getRecitsMediatiques, getRecitsCitoyens } from '@/services/Items';
 
 // Note: Les fonctions dans Items.ts sont:
-// - getRecitsArtistiques (type: 'oeuvre')
-// - getRecitsScientifiques (type: 'recitScientifique')
-// - getRecitsTechnoIndustriels (type: 'recitTechnoIndustriel')
-// - getRecitsCitoyens (type: 'recitCitoyen')
-// - getRecitsMediatiques (type: 'recitMediatique')
+// - getRecitsArtistiques (type: 'recit_artistique')
+// - getRecitsScientifiques (type: 'recit_scientifique')
+// - getRecitsTechnoIndustriels (type: 'recit_techno_industriel')
+// - getRecitsCitoyens (type: 'recit_citoyen')
+// - getRecitsMediatiques (type: 'recit_mediatique')
 import { Skeleton } from '@heroui/react';
 import { Sparkles } from 'lucide-react';
 
@@ -22,11 +22,11 @@ interface HierarchyNode {
 
 // Labels et couleurs pour chaque type de récit
 const RECIT_TYPES = {
-  oeuvre: { label: 'Récits Artistiques', color: '#f43f5e' },
-  recitScientifique: { label: 'Récits Scientifiques', color: '#3b82f6' },
-  recitTechnoIndustriel: { label: 'Récits Techno-industriels', color: '#8b5cf6' },
-  recitCitoyen: { label: 'Récits Citoyens', color: '#10b981' },
-  recitMediatique: { label: 'Récits Médiatiques', color: '#f59e0b' },
+  recit_artistique: { label: 'Récits Artistiques', color: '#f43f5e' },
+  recit_scientifique: { label: 'Récits Scientifiques', color: '#3b82f6' },
+  recit_techno_industriel: { label: 'Récits Techno-industriels', color: '#8b5cf6' },
+  recit_citoyen: { label: 'Récits Citoyens', color: '#10b981' },
+  recit_mediatique: { label: 'Récits Médiatiques', color: '#f59e0b' },
 };
 
 interface RecitsClusterViewProps {
@@ -79,11 +79,11 @@ export const OeuvresClusterView: React.FC<RecitsClusterViewProps> = ({ onNodeCli
         });
 
         const recitsMap = new Map<string, any[]>();
-        recitsMap.set('oeuvre', Array.isArray(artistiques) ? artistiques : []);
-        recitsMap.set('recitScientifique', Array.isArray(scientifiques) ? scientifiques : []);
-        recitsMap.set('recitTechnoIndustriel', Array.isArray(technoIndustriels) ? technoIndustriels : []);
-        recitsMap.set('recitCitoyen', Array.isArray(citoyens) ? citoyens : []);
-        recitsMap.set('recitMediatique', Array.isArray(mediatiques) ? mediatiques : []);
+        recitsMap.set('recit_artistique', Array.isArray(artistiques) ? artistiques : []);
+        recitsMap.set('recit_scientifique', Array.isArray(scientifiques) ? scientifiques : []);
+        recitsMap.set('recit_techno_industriel', Array.isArray(technoIndustriels) ? technoIndustriels : []);
+        recitsMap.set('recit_citoyen', Array.isArray(citoyens) ? citoyens : []);
+        recitsMap.set('recit_mediatique', Array.isArray(mediatiques) ? mediatiques : []);
 
         setRecits(recitsMap);
       } catch (error) {
