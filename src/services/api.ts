@@ -60,9 +60,9 @@ export async function getConfByActant(actantId: string) {
       if (typeof conf.actant === 'string') {
         return conf.actant.includes(',')
           ? conf.actant
-              .split(',')
-              .map((id) => id.trim())
-              .includes(actantId)
+            .split(',')
+            .map((id) => id.trim())
+            .includes(actantId)
           : conf.actant === actantId;
       }
       return Array.isArray(conf.actant) && conf.actant.includes(actantId);
@@ -243,21 +243,21 @@ export async function getConfMediagraphies(confId: number) {
 export async function getOeuvresByPersonne(personneId: number) {
   const recitsArtistiques = await Items.getRecitsArtistiques();
 
-  const filteredOeuvres = recitsArtistiques.filter((oeuvre: any) => {
-    console.log('Checking oeuvre:', oeuvre.id, 'personne:', oeuvre.personne);
+  const filteredOeuvres = recitsArtistiques.filter((recit_artistique: any) => {
+    console.log('Checking recit_artistique:', recit_artistique.id, 'personne:', recit_artistique.personne);
 
-    if (!oeuvre.personne) return false;
+    if (!recit_artistique.personne) return false;
 
     // Si personne est un tableau d'objets (nouvelle structure)
-    if (Array.isArray(oeuvre.personne)) {
-      const found = oeuvre.personne.some((p: any) => p.id === String(personneId));
+    if (Array.isArray(recit_artistique.personne)) {
+      const found = recit_artistique.personne.some((p: any) => p.id === String(personneId));
       console.log('Array check result:', found);
       return found;
     }
 
     // Si personne est une chaîne (ancienne structure)
-    if (typeof oeuvre.personne === 'string') {
-      const found = oeuvre.personne.includes(String(personneId));
+    if (typeof recit_artistique.personne === 'string') {
+      const found = recit_artistique.personne.includes(String(personneId));
       console.log('String check result:', found);
       return found;
     }

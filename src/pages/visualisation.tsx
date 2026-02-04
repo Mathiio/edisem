@@ -51,8 +51,8 @@ import { getConfigKey, getImageForType, getRadiusForType, getSizeForType } from 
 const RELATION_CONFIG: Record<string, { color: string; label: string }> = {
   // Relations impliquant des actants
   'actant-colloque': { color: '#FF6B6B', label: 'intervient dans' },
-  'actant-seminar': { color: '#FF6B6B', label: 'intervient dans' },
-  'actant-studyday': { color: '#FF6B6B', label: 'intervient dans' },
+  'actant-seminaire': { color: '#FF6B6B', label: 'intervient dans' },
+  'actant-journee_etudes': { color: '#FF6B6B', label: 'intervient dans' },
   'actant-citation': { color: '#4ECDC4', label: 'cité par' },
   'actant-keyword': { color: '#95E1D3', label: 'associé à' },
   'actant-bibliography': { color: '#F38181', label: 'auteur de' },
@@ -68,17 +68,17 @@ const RELATION_CONFIG: Record<string, { color: string; label: string }> = {
   'colloque-mediagraphie': { color: '#C9B1FF', label: 'référence' },
   'colloque-collection': { color: '#88D8B0', label: 'fait partie de' },
 
-  'seminar-keyword': { color: '#FFE66D', label: 'traite de' },
-  'seminar-citation': { color: '#4ECDC4', label: 'contient' },
-  'seminar-bibliography': { color: '#C9B1FF', label: 'référence' },
-  'seminar-mediagraphie': { color: '#C9B1FF', label: 'référence' },
-  'seminar-collection': { color: '#88D8B0', label: 'fait partie de' },
+  'seminaire-keyword': { color: '#FFE66D', label: 'traite de' },
+  'seminaire-citation': { color: '#4ECDC4', label: 'contient' },
+  'seminairere-bibliography': { color: '#C9B1FF', label: 'référence' },
+  'seminaire-mediagraphie': { color: '#C9B1FF', label: 'référence' },
+  'seminaire-collection': { color: '#88D8B0', label: 'fait partie de' },
 
-  'studyday-keyword': { color: '#FFE66D', label: 'traite de' },
-  'studyday-citation': { color: '#4ECDC4', label: 'contient' },
-  'studyday-bibliography': { color: '#C9B1FF', label: 'référence' },
-  'studyday-mediagraphie': { color: '#C9B1FF', label: 'référence' },
-  'studyday-collection': { color: '#88D8B0', label: 'fait partie de' },
+  'journee_etudes-keyword': { color: '#FFE66D', label: 'traite de' },
+  'journee_etudes-citation': { color: '#4ECDC4', label: 'contient' },
+  'journee_etudes-bibliography': { color: '#C9B1FF', label: 'référence' },
+  'journee_etudes-mediagraphie': { color: '#C9B1FF', label: 'référence' },
+  'journee_etudes-collection': { color: '#88D8B0', label: 'fait partie de' },
 
   // Relations impliquant des mots-clés
   'keyword-citation': { color: '#95E1D3', label: 'associé à' },
@@ -223,9 +223,9 @@ const getNodePageUrl = (type: string, id: string | number): string | null => {
       return `/intervenant/${id}`;
     case 'colloque':
       return `/corpus/colloques/conference/${id}`;
-    case 'seminar':
+    case 'seminaire':
       return `/corpus/seminaires/conference/${id}`;
-    case 'studyday':
+    case 'journee_etudes':
       return `/corpus/journees-etudes/conference/${id}`;
     default:
       return null; // Pas de page capsule pour ce type
@@ -460,7 +460,7 @@ const Visualisation = () => {
 
   // Fonction helper pour ajouter un cercle animé à un nœud
   const addAnimatedCircleToNode = (node: any) => {
-    const validTypes = ['keyword', 'university', 'school', 'laboratory', 'colloque', 'seminar', 'studyday', 'citation', 'actant'];
+    const validTypes = ['keyword', 'university', 'school', 'laboratory', 'colloque', 'seminaire', 'journee_etudes', 'citation', 'actant'];
 
     if (!validTypes.includes(node.type)) return;
 
@@ -683,7 +683,7 @@ const Visualisation = () => {
     const links = new Set();
     const typesInUse = new Set<string>();
 
-    // Plus besoin de normaliser les types car colloque, seminar, studyday sont maintenant des types à part entière
+    // Plus besoin de normaliser les types car colloque, seminaire, journee_etudes sont maintenant des types à part entière
     const normalizeType = (type: string) => {
       return type;
     };
@@ -1069,7 +1069,7 @@ const Visualisation = () => {
     // Gestion du hover sur les groupes
     nodeGroup
       .on('mouseover', function (event, d) {
-        const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'colloque', 'seminar', 'studyday', 'citation', 'actant'];
+        const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'colloque', 'seminaire', 'journee_etudes', 'citation', 'actant'];
 
         // Afficher le tooltip avec le type et le titre
         const typeInfo = VISUAL_TYPES.find((t) => t.key === d.type);
@@ -1096,7 +1096,7 @@ const Visualisation = () => {
         // Si le mode annotation est activé, filtrer les types autorisés
         if (
           (!isAnnoteMode && allowedTypes.includes(d.type)) ||
-          (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'colloque', 'seminar', 'studyday'].includes(d.type))
+          (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'colloque', 'seminaire', 'journee_etudes'].includes(d.type))
         ) {
           const currentRadius = getRadiusForType(d.type) / 2;
           let offset = -2;
@@ -1138,11 +1138,11 @@ const Visualisation = () => {
         tooltip.style('opacity', '0');
       })
       .on('click', function (_event, d) {
-        const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'colloque', 'seminar', 'studyday', 'citation', 'actant'];
+        const allowedTypes = ['keyword', 'university', 'school', 'laboratory', 'colloque', 'seminaire', 'journee_etudes', 'citation', 'actant'];
 
         if (
           (!isAnnoteMode && allowedTypes.includes(d.type)) ||
-          (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'colloque', 'seminar', 'studyday'].includes(d.type))
+          (isAnnoteMode && ['mediagraphie', 'bibliography', 'citation', 'colloque', 'seminaire', 'journee_etudes'].includes(d.type))
         ) {
           handleNodeClick(d);
         }

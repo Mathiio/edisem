@@ -9,8 +9,8 @@ import { ChevronLeft } from 'lucide-react';
 export const VISUAL_TYPES = [
   { key: 'actant', label: 'Actants', image: '/bulle-actant.png' },
   { key: 'colloque', label: 'Colloques', image: '/bulle-conference.png' },
-  { key: 'seminar', label: 'Séminaires', image: '/bulle-conference.png' },
-  { key: 'studyday', label: 'Journées d\'étude', image: '/bulle-conference.png' },
+  { key: 'seminaire', label: 'Séminaires', image: '/bulle-conference.png' },
+  { key: 'journee_etudes', label: 'Journées d\'étude', image: '/bulle-conference.png' },
   { key: 'citation', label: 'Citations', image: '/bulle-citation.png' },
   { key: 'keyword', label: 'Mots-clés', image: '/bulle-keyword.png' },
   { key: 'bibliography', label: 'Bibliographies', image: '/bulle-bibliography.png' },

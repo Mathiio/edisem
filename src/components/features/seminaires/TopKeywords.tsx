@@ -65,7 +65,7 @@ export const TopKeywords = ({ seminaires, loading = false }: TopKeywordsProps) =
   useEffect(() => {
     if (!loading && seminaires.length > 0) {
       try {
-        // Filter seminar confs
+        // Filter seminaire confs
         const seminarConfs = seminaires.filter((conf: Conference) =>
           conf.event?.toLowerCase().includes('séminaire')
         );

@@ -18,7 +18,7 @@ export const Seminaires = () => {
   useEffect(() => {
     (async () => {
       try {
-        const editions = await Items.getEditionsByType('seminar');
+        const editions = await Items.getEditionsByType('seminaire');
         setSeminarEditions(editions);
         setSeminaires(await Items.getSeminarConfs());
       } catch (error) {

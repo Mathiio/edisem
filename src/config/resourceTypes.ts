@@ -15,18 +15,19 @@
 export type ResourceType =
   | 'mediagraphie'
   | 'bibliographie'
-  | 'recitScientifique'
-  | 'oeuvre'
-  | 'recitTechnoIndustriel'
-  | 'recitCitoyen'
-  | 'recitMediatique'
+  | 'recit_scientifique'
+  | 'recit_artistique'
+  | 'recit_techno_industriel'
+  | 'recit_citoyen'
+  | 'recit_mediatique'
   | 'annotation'
-  | 'studyDay'
-  | 'seminar'
+  | 'journee_etudes'
+  | 'seminaire'
   | 'colloque'
-  | 'elementEsthetique'
-  | 'elementNarratif'
+  | 'element_esthetique'
+  | 'element_narratif'
   | 'experimentation'
+  | 'recit_artistique'
   | 'tool';
 
 // ========================================
@@ -55,36 +56,36 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     getUrl: (id) => `/corpus/bibliographie/${id}`,
   },
 
-  recitScientifique: {
-    type: 'recitScientifique',
+  recit_scientifique: {
+    type: 'recit_scientifique',
     displayName: 'Récit scientifique',
     templateIds: [124],
-    getUrl: (id) => `/corpus/documentation/${id}`,
+    getUrl: (id) => `/corpus/recit-scientifique/${id}`,
   },
 
-  oeuvre: {
-    type: 'oeuvre',
+  recit_artistique: {
+    type: 'recit_artistique',
     displayName: 'Œuvre',
     templateIds: [103],
-    getUrl: (id) => `/corpus/oeuvre/${id}`,
+    getUrl: (id) => `/corpus/recit_artistique/${id}`,
   },
 
-  recitTechnoIndustriel: {
-    type: 'recitTechnoIndustriel',
+  recit_techno_industriel: {
+    type: 'recit_techno_industriel',
     displayName: 'Récit techno-industriel',
     templateIds: [117],
-    getUrl: (id) => `/corpus/recit-techno-industriel-industriel/${id}`,
+    getUrl: (id) => `/corpus/recit-techno-industriel/${id}`,
   },
 
-  recitCitoyen: {
-    type: 'recitCitoyen',
+  recit_citoyen: {
+    type: 'recit_citoyen',
     displayName: 'Récit citoyen',
     templateIds: [119],
     getUrl: (id) => `/corpus/recit-citoyen/${id}`,
   },
 
-  recitMediatique: {
-    type: 'recitMediatique',
+  recit_mediatique: {
+    type: 'recit_mediatique',
     displayName: 'Récit médiatique',
     templateIds: [120],
     getUrl: (id) => `/corpus/recit-mediatique/${id}`,
@@ -97,36 +98,36 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     getUrl: (id) => `/corpus/analyse-critique/${id}`,
   },
 
-  studyDay: {
-    type: 'studyDay',
-    displayName: 'Conférence Study Day',
+  journee_etudes: {
+    type: 'journee_etudes',
+    displayName: 'Journée d\'études',
     templateIds: [121],
     getUrl: (id) => `/corpus/journees-etudes/conference/${id}`,
   },
 
-  seminar: {
-    type: 'seminar',
-    displayName: 'Conférence Séminaire',
+  seminaire: {
+    type: 'seminaire',
+    displayName: 'Séminaire',
     templateIds: [71],
     getUrl: (id) => `/corpus/seminaires/conference/${id}`,
   },
 
   colloque: {
     type: 'colloque',
-    displayName: 'Conférence Colloque',
+    displayName: 'Colloque',
     templateIds: [122],
     getUrl: (id) => `/corpus/colloques/conference/${id}`,
   },
 
-  elementEsthetique: {
-    type: 'elementEsthetique',
+  element_esthetique: {
+    type: 'element_esthetique',
     displayName: 'Élément esthétique',
     templateIds: [104],
     getUrl: (id) => `/corpus/element-esthetique/${id}`,
   },
 
-  elementNarratif: {
-    type: 'elementNarratif',
+  element_narratif: {
+    type: 'element_narratif',
     displayName: 'Élément narratif',
     templateIds: [105],
     getUrl: (id) => `/corpus/element-narratif/${id}`,

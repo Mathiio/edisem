@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/react';
-import { ResourceCard, ResourceCardSkeleton } from '@/components/ui/ResourceCard';
+import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
 import { Conference } from '@/types/ui';
 import { ExperimentationIcon, EditIcon, TrashIcon } from '@/components/ui/icons';
 
@@ -121,7 +121,7 @@ export const ExpCard: React.FC<ExpCardProps> = (props) => {
         onClick={openConf}
         authors={getAuthors()}
         subtitle={getSubtitle()}
-        typeLabel="Expérimentation"
+        type={type}
         TypeIcon={ExperimentationIcon}
         actions={actions}
     />

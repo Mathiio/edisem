@@ -73,7 +73,7 @@ export const recitmediatiqueConfig: GenericDetailPageConfig = {
   mapRecommendationProps: (recit: any) => ({
     id: recit.id,
     title: recit.title,
-    type: 'recitMediatique',
+    type: 'recit_mediatique',
     url: null, // url est pour YouTube, on ne l'utilise pas ici
     thumbnail: recit.associatedMedia?.[0] || recit.thumbnail || null,
     actant: normalizeCreator(recit.creator),
@@ -134,5 +134,5 @@ export const recitmediatiqueConfig: GenericDetailPageConfig = {
   },
 
   // Type à afficher
-  type: 'recitMediatique',
+  type: 'recit_mediatique',
 };

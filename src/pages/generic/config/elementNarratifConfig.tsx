@@ -72,7 +72,7 @@ export const elementNarratifConfig: GenericDetailPageConfig = {
       return elements;
     },
 
-    // Récupère les autres éléments narratifs de la même oeuvre
+    // Récupère les autres éléments narratifs de la même recit_artistique
     getRelatedItems: async (itemDetails) => {
       const recitsArtistiques = await getRecitsArtistiques();
       const parentOeuvre = recitsArtistiques.find((o: any) => o.elementsNarratifs?.some((e: any) => String(e.id) === String(itemDetails.id)));

@@ -37,9 +37,9 @@ export const GenreDetail: React.FC = () => {
       }
 
       // Filter by genre (slug)
-      const filteredOeuvres = allOeuvres.filter((oeuvre: any) => {
+      const filteredOeuvres = allOeuvres.filter((recit_artistique: any) => {
         // Handle simple or array genre
-        const genres = Array.isArray(oeuvre.genre) ? oeuvre.genre : [oeuvre.genre];
+        const genres = Array.isArray(recit_artistique.genre) ? recit_artistique.genre : [recit_artistique.genre];
         return genres.some((g: any) => {
           const genreStr = typeof g === 'string' ? g : g?.title || g?.name || '';
           return slugUtils.matches(genreStr, slug);
@@ -108,9 +108,9 @@ export const GenreDetail: React.FC = () => {
       <div className='grid grid-cols-4 grid-rows-auto gap-20'>
         {loading
           ? Array.from({ length: 8 }).map((_, index) => <div key={index} />)
-          : recitsArtistiques.map((oeuvre, index) => (
-            <motion.div initial='hidden' animate='visible' variants={fadeIn} key={oeuvre.id} custom={index}>
-              <OeuvreCard {...oeuvre} />
+          : recitsArtistiques.map((recit_artistique, index) => (
+            <motion.div initial='hidden' animate='visible' variants={fadeIn} key={recit_artistique.id} custom={index}>
+              <OeuvreCard {...recit_artistique} />
             </motion.div>
           ))}
       </div>

@@ -14,12 +14,12 @@ export interface FilteredConfs {
 }
 
 const SEARCH_TYPE_MAPPING = {
-  'journées d\'études': 'studyday',
-  'journée d\'étude': 'studyday',
-  'journées': 'studyday',
-  'séminaire': 'seminar',
-  'seminaire': 'seminar',
-  'séminaires': 'seminar',
+  'journées d\'études': 'journee_etudes',
+  'journée d\'étude': 'journee_etudes',
+  'journées': 'journee_etudes',
+  'séminaire': 'seminaire',
+  'seminaire': 'seminaire',
+  'séminaires': 'seminaire',
   'colloque': 'colloque',
   'colloques': 'colloque',
 } as const;
@@ -40,7 +40,7 @@ export class SearchService {
       }
     });
 
-    return matchedTypes.length ? matchedTypes : ['seminar', 'colloque', 'studyday'];
+    return matchedTypes.length ? matchedTypes : ['seminaire', 'colloque', 'journee_etudes'];
   }
 
   static async searchActants(query: string): Promise<any[]> {
@@ -92,11 +92,10 @@ export class SearchService {
 
   static async searchConferences(query: string): Promise<FilteredConfs> {
     try {
-      const [allConfs, actants, keywords, editions] = await Promise.all([
+      const [allConfs, actants, keywords] = await Promise.all([
         Items.getAllConfs(),
         Items.getActants(),
         Items.getKeywords(),
-        Items.getEditions()
       ]);
 
       const conferenceTypes = this.getConferenceTypeFromQuery(query);
@@ -110,17 +109,17 @@ export class SearchService {
 
       conferenceTypes.forEach(type => {
         const typeConfs = this.filterConferencesByType(
-          allConfs, actants, keywords, editions, normalizedQuery, type
+          allConfs, actants, keywords, normalizedQuery, type
         );
 
         switch (type) {
-          case 'seminar':
+          case 'seminaire':
             results.seminars = typeConfs;
             break;
           case 'colloque':
             results.colloques = typeConfs;
             break;
-          case 'studyday':
+          case 'journee_etudes':
             results.studyDays = typeConfs;
             break;
         }
@@ -137,7 +136,6 @@ export class SearchService {
     allConfs: any[],
     actants: any[],
     keywords: any[],
-    editions: any[],
     query: string,
     type: string
   ): Conference[] {
@@ -147,9 +145,8 @@ export class SearchService {
         const basicMatch = this.matchBasicConferenceFields(conf, query);
         const actantMatch = this.matchConferenceActants(conf, actants, query);
         const keywordMatch = this.matchConferenceKeywords(conf, keywords, query);
-        const editionMatch = this.matchConferenceEditions(conf, editions, query);
 
-        return basicMatch || actantMatch || keywordMatch || editionMatch;
+        return basicMatch || actantMatch || keywordMatch;
       })
       .map(conf => this.enrichConferenceWithActants(conf, actants));
   }
@@ -185,15 +182,6 @@ export class SearchService {
     return confKeywords.some(kw =>
       kw.name?.toLowerCase().includes(query)
     );
-  }
-
-  private static matchConferenceEditions(conf: any, editions: any[], query: string): boolean {
-    if (!conf.edition) return false;
-
-    const edition = editions.find(ed => ed.id === conf.edition);
-    return edition?.title?.toLowerCase().includes(query) ||
-      edition?.season?.toLowerCase().includes(query) ||
-      edition?.type?.toLowerCase().includes(query);
   }
 
   private static getConferenceActants(conf: any, actants: any[]): any[] {
@@ -255,11 +243,11 @@ export class SearchService {
 
       const normalizedQuery = this.normalizeSearchQuery(query);
 
-      return recitsArtistiques.filter((oeuvre: any) => {
-        const basicMatch = this.matchBasicOeuvreFields(oeuvre, normalizedQuery);
-        const genreMatch = this.matchOeuvreGenre(oeuvre, normalizedQuery);
-        const actantMatch = this.matchOeuvreActants(oeuvre, actants, normalizedQuery);
-        const keywordMatch = this.matchOeuvreKeywords(oeuvre, keywords, normalizedQuery);
+      return recitsArtistiques.filter((recit_artistique: any) => {
+        const basicMatch = this.matchBasicOeuvreFields(recit_artistique, normalizedQuery);
+        const genreMatch = this.matchOeuvreGenre(recit_artistique, normalizedQuery);
+        const actantMatch = this.matchOeuvreActants(recit_artistique, actants, normalizedQuery);
+        const keywordMatch = this.matchOeuvreKeywords(recit_artistique, keywords, normalizedQuery);
 
         return basicMatch || genreMatch || actantMatch || keywordMatch;
       });
@@ -269,11 +257,11 @@ export class SearchService {
     }
   }
 
-  private static matchBasicOeuvreFields(oeuvre: any, query: string): boolean {
+  private static matchBasicOeuvreFields(recit_artistique: any, query: string): boolean {
     const searchableFields = [
-      oeuvre.title,
-      oeuvre.description,
-      oeuvre.abstract
+      recit_artistique.title,
+      recit_artistique.description,
+      recit_artistique.abstract
     ].filter(Boolean);
 
     return searchableFields.some(field =>
@@ -281,18 +269,18 @@ export class SearchService {
     );
   }
 
-  private static matchOeuvreGenre(oeuvre: any, query: string): boolean {
-    if (!oeuvre.genre) return false;
+  private static matchOeuvreGenre(recit_artistique: any, query: string): boolean {
+    if (!recit_artistique.genre) return false;
 
-    return oeuvre.genre.toLowerCase().includes(query);
+    return recit_artistique.genre.toLowerCase().includes(query);
   }
 
-  private static matchOeuvreActants(oeuvre: any, actants: any[], query: string): boolean {
-    if (!oeuvre.actants?.length) return false;
+  private static matchOeuvreActants(recit_artistique: any, actants: any[], query: string): boolean {
+    if (!recit_artistique.actants?.length) return false;
 
     const oeuvreActants = actants.filter(actant =>
-      oeuvre.actants.includes(String(actant.id)) ||
-      oeuvre.actants.includes(Number(actant.id))
+      recit_artistique.actants.includes(String(actant.id)) ||
+      recit_artistique.actants.includes(Number(actant.id))
     );
 
     return oeuvreActants.some(actant =>
@@ -302,12 +290,12 @@ export class SearchService {
     );
   }
 
-  private static matchOeuvreKeywords(oeuvre: any, keywords: any[], query: string): boolean {
-    if (!oeuvre.keywords?.length) return false;
+  private static matchOeuvreKeywords(recit_artistique: any, keywords: any[], query: string): boolean {
+    if (!recit_artistique.keywords?.length) return false;
 
     const oeuvreKeywords = keywords.filter(kw =>
-      oeuvre.keywords.includes(String(kw.id)) ||
-      oeuvre.keywords.includes(Number(kw.id))
+      recit_artistique.keywords.includes(String(kw.id)) ||
+      recit_artistique.keywords.includes(Number(kw.id))
     );
 
     return oeuvreKeywords.some(kw =>

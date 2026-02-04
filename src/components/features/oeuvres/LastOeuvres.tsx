@@ -74,9 +74,9 @@ export const LastOeuvres: React.FC<LastOeuvresProps> = ({ recitsArtistiques, loa
             </div>
           ))
           : // Cards with animations
-          paginatedOeuvres.map((oeuvre: any, index: number) => (
-            <motion.div key={`${oeuvre.id}-${activePage}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-              <OeuvreCard {...oeuvre} />
+          paginatedOeuvres.map((recit_artistique: any, index: number) => (
+            <motion.div key={`${recit_artistique.id}-${activePage}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
+              <OeuvreCard {...recit_artistique} />
             </motion.div>
           ))}
       </div>

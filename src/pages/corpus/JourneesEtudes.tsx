@@ -16,7 +16,7 @@ export const JourneesEtudes = () => {
   useEffect(() => {
     (async () => {
       try {
-        const editions = await Items.getEditionsByType('studyday');
+        const editions = await Items.getEditionsByType('journee_etudes');
         setStudyDayEditions(editions);
       } catch (error) {
         console.error('Error loading study day editions', error);

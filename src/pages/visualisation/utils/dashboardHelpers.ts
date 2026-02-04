@@ -74,18 +74,18 @@ export function getTypeColor(type: string): string {
     mediagraphie: '#0284c7', // datavisBlue
     bibliographie: '#84cc16', // datavisGreen
     citation: '#eab308', // datavisYellow
-    oeuvre: '#c2410c', // datavisOrange
+    recit_artistique: '#c2410c', // datavisOrange
     recitArtistique: '#c2410c', // datavisOrange
-    recitScientifique: '#8b5cf6', // violet
-    recitCitoyen: '#ec4899', // pink
-    recitMediatique: '#06b6d4', // cyan
-    recitTechnoIndustriel: '#6366f1', // indigo
+    recit_scientifique: '#8b5cf6', // violet
+    recit_citoyen: '#ec4899', // pink
+    recit_mediatique: '#06b6d4', // cyan
+    recit_techno_industriel: '#6366f1', // indigo
     experimentation: '#f59e0b', // amber
     tool: '#10b981', // emerald
     annotation: '#a855f7', // purple
-    seminar: '#3b82f6', // blue
+    seminaire: '#3b82f6', // blue
     colloque: '#14b8a6', // teal
-    studyday: '#f97316', // orange
+    journee_etudes: '#f97316', // orange
     elementEsthetique: '#db2777', // pink-600
     elementNarratif: '#7c3aed', // violet-600
     actant: '#059669', // emerald-600

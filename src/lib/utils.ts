@@ -1,15 +1,15 @@
 // Navigation utilities
 export const buildConfsRoute = (confType: string, id: number): string => {
   switch (confType) {
-    case 'seminar':
+    case 'seminaire':
       return `/corpus/seminaires/conference/${id}`;
     case 'colloque':
       return `/corpus/colloques/conference/${id}`;
-    case 'studyday':
+    case 'journee_etudes':
       return `/corpus/journees-etudes/conference/${id}`;
-    case 'oeuvre':
-      return `/corpus/oeuvre/${id}`;
-    case 'recitTechnoIndustriel':
+    case 'recit_artistique':
+      return `/corpus/recit_artistique/${id}`;
+    case 'recit_techno_industriel':
       return `/corpus/recit-techno-industriel/${id}`;
     case 'experimentation':
       return `/corpus/experimentation/${id}`;
@@ -27,9 +27,9 @@ export const buildConfsRoute = (confType: string, id: number): string => {
       return `/corpus/tool/${id}`;
     case 'miseEnRecit':
       return `/corpus/mise-en-recit/${id}`;
-    case 'recitScientifique':
+    case 'recit_scientifique':
       return `/corpus/recit-scientifique/${id}`;
-    case 'recitMediatique':
+    case 'recit_mediatique':
       return `/corpus/recit-mediatique/${id}`;
     default:
       return `/`;

@@ -148,7 +148,7 @@ export const ITEM_PROPERTIES: any = {
     },
     { key: 'date', label: 'Date' },
   ],
-  seminar: [
+  seminaire: [
     { key: 'title', label: 'Nom' },
     {
       key: 'actant',
@@ -173,7 +173,7 @@ export const ITEM_PROPERTIES: any = {
     },
     { key: 'date', label: 'Date' },
   ],
-  studyday: [
+  journee_etudes: [
     { key: 'title', label: 'Nom' },
     {
       key: 'actant',
@@ -240,8 +240,8 @@ export const ITEM_PROPERTIES: any = {
 export const ITEM_TYPES = {
   citations: 'citation',
   colloques: 'colloque',
-  séminaires: 'seminar',
-  'journées d\'étude': 'studyday',
+  séminaires: 'seminaire',
+  'journées d\'étude': 'journee_etudes',
   actants: 'actant',
   'mots clés': 'keyword',
   bibliographies: 'bibliography',
@@ -364,8 +364,8 @@ export const getDataByType = async (type: string): Promise<any[]> => {
     case 'citation':
       return (await Items.getCitations()) || [];
     case 'conference':
-    case 'seminar':
-    case 'studyday':
+    case 'seminaire':
+    case 'journee_etudes':
     case 'colloque':
       const confs = (await Items.getAllConfs()) || [];
       // Filtrer par le type spécifique demandé

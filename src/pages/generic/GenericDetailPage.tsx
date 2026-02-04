@@ -63,7 +63,7 @@ interface GenericDetailPageProps {
  * Composant générique pour afficher les pages de détails
  *
  * Ce composant unifie la logique commune de toutes les pages de type:
- * - conference, experimentation, miseEnRecit, oeuvre, etc.
+ * - conference, experimentation, miseEnRecit, recit_artistique, etc.
  *
  * Il est configurable via le prop `config` qui définit:
  * - Les données à récupérer (dataFetcher)

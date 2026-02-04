@@ -108,7 +108,7 @@ export const elementEsthetiqueConfig: GenericDetailPageConfig = {
       return elements;
     },
 
-    // Récupère les autres éléments esthétiques de la même oeuvre
+    // Récupère les autres éléments esthétiques de la même recit_artistique
     getRelatedItems: async (itemDetails) => {
       const recitsArtistiques = await getRecitsArtistiques();
       const parentOeuvre = recitsArtistiques.find((o: any) => o.elementsEsthetique?.some((e: any) => String(e.id) === String(itemDetails.id)));

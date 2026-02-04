@@ -158,8 +158,8 @@ export const OeuvresKeywords: React.FC<KeywordsCloudProps> = ({ recitsArtistique
   // Extract keywords with their descriptions
   const keywordMap = useMemo(() => {
     const map: Record<string, { count: number; description?: string }> = {};
-    safeOeuvres.forEach((oeuvre) => {
-      oeuvre.keywords?.forEach((keyword) => {
+    safeOeuvres.forEach((recit_artistique) => {
+      recit_artistique.keywords?.forEach((keyword) => {
         const keywordTitle = typeof keyword === 'string' ? keyword : keyword.title || '';
         const keywordDescription = typeof keyword === 'string' ? undefined : keyword.description || keyword.short_resume;
 

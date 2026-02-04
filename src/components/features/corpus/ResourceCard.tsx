@@ -1,7 +1,19 @@
 import React from 'react';
 import { IconSvgProps } from '@/types/ui';
-import { ArrowIcon, ThumbnailIcon, UserIcon } from '@/components/ui/icons';
-import { Skeleton } from '@heroui/react';
+import { ThumbnailIcon, UserIcon } from '@/components/ui/icons';
+
+// Standardized labels for backend types
+const RESOURCE_LABELS: Record<string, string> = {
+  journee_etudes: 'Journée d\'études',
+  colloque: 'Colloque',
+  seminaire: 'Séminaire',
+  experimentation: 'Expérimentation',
+  recit_citoyen: 'Mise en récit citoyen',
+  recit_mediatique: 'Mise en récit médiatique',
+  recit_scientifique: 'Mise en récit scientifique',
+  recit_techno_industriel: 'Mise en récit techno-industriel',
+  recit_artistique: 'Mise en récit artistique',
+};
 
 export interface ResourceCardProps {
   title: string;
@@ -15,7 +27,8 @@ export interface ResourceCardProps {
   date?: string;     // Explicit date line if needed (e.g. for Recits)
   
   // Footer / Type
-  typeLabel: string;
+  type?: string;     // Standardized backend type key
+  typeLabel?: string; // Manual override
   TypeIcon: React.FC<IconSvgProps>;
   typeColor?: string; // Optional override color for the type icon
   
@@ -32,13 +45,16 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
   authors = [],
   subtitle,
   date,
+  type,
   typeLabel,
   TypeIcon,
   typeColor,
   actions,
   className = ''
 }) => {
-  
+
+  const finalTypeLabel = typeLabel || (type ? RESOURCE_LABELS[type] : 'Ressource');
+
   // Helper to format multiple authors
   const renderAuthorNames = () => {
     if (authors.length === 0) return 'Aucun intervenant';
@@ -101,7 +117,7 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
              {hasAuthors ? (
                 <div className='flex items-center relative'>
                    {authors.length === 1 ? (
-                        <div className='w-7 h-7 rounded-8 border-3 border-c1 overflow-hidden bg-c3 flex items-center justify-center'>
+                        <div className='w-7 h-7 rounded-8 overflow-hidden bg-c3 flex items-center justify-center'>
                            {authors[0].picture ? (
                                <img src={authors[0].picture} alt={authors[0].name} className='w-full h-full object-cover' />
                            ) : (
@@ -138,7 +154,7 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
       {/* Footer Type Badge */}
       <div className="flex gap-1.5 items-center">
         <TypeIcon size={14} className={typeColor ? "" : "text-c4/60"} style={typeColor ? { color: typeColor } : {}} />
-        <p className='text-14 text-c4/60 font-medium'>{typeLabel}</p>
+        <p className='text-14 text-c4/60 font-medium'>{finalTypeLabel}</p>
       </div>
 
     </div>

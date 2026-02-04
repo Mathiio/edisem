@@ -46,7 +46,7 @@ export const Oeuvres: React.FC = () => {
 
   const uniqueGenres = new Set(
     recitsArtistiques
-      .map(oeuvre => oeuvre.genre)
+      .map(recit_artistique => recit_artistique.genre)
       .filter(genre => genre !== undefined && genre !== null && genre !== '')
   ).size;
 

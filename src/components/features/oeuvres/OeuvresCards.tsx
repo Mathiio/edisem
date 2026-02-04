@@ -106,20 +106,20 @@ interface OeuvreCardProps {
 }
 
 export const OeuvreCard: React.FC<OeuvreCardProps> = (props) => {
-  const oeuvre = props;
+  const recit_artistique = props;
   const navigate = useNavigate();
 
   // Priority : thumbnail > picture > url (YouTube) > url (link)
-  const thumbnailUrl = oeuvre.thumbnail || oeuvre.picture || (oeuvre.url ? getYouTubeThumbnailUrl(Array.isArray(oeuvre.url) ? oeuvre.url[0] : oeuvre.url) : '');
+  const thumbnailUrl = recit_artistique.thumbnail || recit_artistique.picture || (recit_artistique.url ? getYouTubeThumbnailUrl(Array.isArray(recit_artistique.url) ? recit_artistique.url[0] : recit_artistique.url) : '');
 
   const openOeuvre = () => {
     // Navigation vers la page de l'œuvre
-    navigate(`/corpus/recit-artistique/${oeuvre.id}`);
+    navigate(`/corpus/recit-artistique/${recit_artistique.id}`);
   };
 
   const formatActantNames = () => {
     // Use personne if available, otherwise actant
-    const people = oeuvre.personne || oeuvre.actant || [];
+    const people = recit_artistique.personne || recit_artistique.actant || [];
 
     if (people.length === 1) {
       const person = people[0];
@@ -140,7 +140,7 @@ export const OeuvreCard: React.FC<OeuvreCardProps> = (props) => {
   };
 
   const hasActants =
-    (oeuvre.personne && Array.isArray(oeuvre.personne) && oeuvre.personne.length > 0) || (oeuvre.actant && Array.isArray(oeuvre.actant) && oeuvre.actant.length > 0);
+    (recit_artistique.personne && Array.isArray(recit_artistique.personne) && recit_artistique.personne.length > 0) || (recit_artistique.actant && Array.isArray(recit_artistique.actant) && recit_artistique.actant.length > 0);
 
   return (
     <div
@@ -159,17 +159,17 @@ export const OeuvreCard: React.FC<OeuvreCardProps> = (props) => {
           {/* Title */}
           <div className='flex flex-col gap-1.5 w-full'>
             <p className='text-16 text-c6 font-medium overflow-hidden line-clamp-2 leading-[1.2]'>
-              {oeuvre.title}
+              {recit_artistique.title}
             </p>
             {/* Date */}
-            <p className='text-12 text-c5 font-extralight'>{oeuvre.date ? oeuvre.date : "Aucune date"}</p>
+            <p className='text-12 text-c5 font-extralight'>{recit_artistique.date ? recit_artistique.date : "Aucune date"}</p>
           </div>
           {hasActants && (
             <div className='flex items-center gap-5'>
               {/* Authors avatars */}
               <div className='flex items-center relative'>
                 {(() => {
-                  const people = oeuvre.personne || oeuvre.actant || [];
+                  const people = recit_artistique.personne || recit_artistique.actant || [];
 
                   // CASE 1 : One author
                   if (people.length === 1) {
