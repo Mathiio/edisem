@@ -1,5 +1,5 @@
 import { Layouts } from "@/components/layout/Layouts";
-import { getActantGlobalStats, getRandomActants, getActantsByCountry } from "@/services/Items";
+import { getActantsGlobalStats, getRandomActants, getActantsByCountry } from "@/services/Items";
 import { useEffect, useState } from "react";
 import { IntervenantsCarousel } from "@/components/features/intervenants/IntervenantsCarousel"; 
 import { IntervenantsWorldMap } from "@/components/features/intervenants/IntervenantsWorldMap";
@@ -36,7 +36,7 @@ export const Intervenants: React.FC = () => {
             });
 
             const promises = [
-                getActantGlobalStats().then(data => {
+                getActantsGlobalStats().then(data => {
                     setStats(data);
                     setLoading(prev => ({ ...prev, stats: false }));
                 }),

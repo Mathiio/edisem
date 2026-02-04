@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { getConfByActant } from '@/services/api';
+
 import * as Items from '@/services/Items';
 import { IntervenantAffiliations } from '@/components/features/intervenants/IntervenantAffiliations';
 import { Link, Skeleton } from '@heroui/react';
@@ -23,13 +23,9 @@ export const Intervenant: React.FC = () => {
 
     setLoading(true);
     try {
-      const [actantData, confs] = await Promise.all([
-          Items.getActantDetails(id), 
-          getConfByActant(id)
-      ]);
-
+      const actantData = await Items.getActantDetails(id);
       setActant(actantData);
-      setConf(confs);
+      setConf(actantData?.interventionsList || []);
       
       // Mettre à jour le titre du breadcrumb avec le nom de l'actant
       const firstName = actantData?.firstname;
