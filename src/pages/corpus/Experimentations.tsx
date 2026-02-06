@@ -2,7 +2,7 @@ import { ExpCard, ExpCardSkeleton } from '@/components/features/experimentation/
 import { Layouts } from '@/components/layout/Layouts';
 import { ExperimentationIcon } from '@/components/ui/icons';
 import { PageBanner } from '@/components/ui/PageBanner';
-import { getExperimentations } from '@/services/Items';
+import { getExperimentationCards } from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
@@ -23,10 +23,8 @@ export const Experimentations: React.FC = () => {
     setLoading(true);
     const fetchAndProcessData = async () => {
       try {
-        // Récupérer les expérimentations, actants ET students
-        const [experimentations] = await Promise.all([getExperimentations()]);
-
-        setExperimentations(experimentations);
+        const data = await getExperimentationCards();
+        setExperimentations(data);
       } catch (error) {
         console.error('Erreur lors du chargement des expérimentations', error);
       } finally {

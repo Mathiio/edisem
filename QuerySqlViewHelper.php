@@ -8,6 +8,9 @@ class QuerySqlViewHelper extends AbstractHelper
 {
     protected $api;
     protected $conn;
+    protected $cardHelper;
+    protected $statsHelper;
+    protected $narrativeStatsHelper;
 
     // Templates autorisés pour la création de ressources
     private $allowedTemplates = [
@@ -21,6 +24,11 @@ class QuerySqlViewHelper extends AbstractHelper
     {
         $this->api = $api;
         $this->conn = $conn;
+        
+        // Initialize helpers
+        $this->cardHelper = new QueryCardHelper($conn);
+        $this->statsHelper = new QueryStatsHelper($conn);
+        $this->narrativeStatsHelper = new NarrativeStatsHelper($conn, $this->statsHelper);
     }
 
     /**
@@ -143,6 +151,50 @@ class QuerySqlViewHelper extends AbstractHelper
             case 'getElementNarratifs':
                 $result = $this->getElementNarratifs();
                 break;
+            case 'getExperimentationCards':
+                $result = $this->getExperimentationCards();
+                break;
+            case 'getRecitsCitoyensCards':
+                $result = $this->getRecitsCitoyensCards();
+                break;
+            case 'getRecitsMediatiquesCards':
+                $result = $this->getRecitsMediatiquesCards();
+                break;
+            case 'getRecitsScientifiquesCards':
+                $result = $this->getRecitsScientifiquesCards();
+                break;
+            case 'getRecitsTechnoCards':
+                $result = $this->getRecitsTechnoCards();
+                break;
+            case 'getRecitsArtistiquesCards':
+                $result = $this->getRecitsArtistiquesCards();
+                break;
+            case 'getCardsByEdition':
+                $editionId = $params['editionId'] ?? null;
+                $result = $this->getCardsByEdition($editionId);
+                break;
+            case 'getCardsByActant':
+                $actantId = $params['actantId'] ?? null;
+                $types = isset($params['types']) ? explode(',', $params['types']) : [];
+                $result = $this->getCardsByActant($actantId, $types);
+                break;
+            case 'getCardsByKeyword':
+                $keywordId = $params['keywordId'] ?? null;
+                $limit = $params['limit'] ?? 8;
+                $result = $this->getCardsByKeyword($keywordId, $limit);
+                break;
+            
+            // Stats & Metrics Routes
+            case 'getNarrativePracticesStats':
+                $result = $this->narrativeStatsHelper->getNarrativePracticesStats();
+                break;
+            case 'getNarrativeTopKeywords':
+                $limit = $params['limit'] ?? 8;
+                $result = $this->narrativeStatsHelper->getTopKeywords($limit);
+                break;
+            case 'getRecitTypeBreakdown':
+                $result = $this-> narrativeStatsHelper->getRecitTypeBreakdown();
+                break;
             case 'getNavbarEditions':
                 $result = $this->getNavbarEditions();
                 break;
@@ -242,7 +294,7 @@ class QuerySqlViewHelper extends AbstractHelper
         $resourceQuery = "
             SELECT r.id
             FROM `resource` r
-            WHERE r.resource_template_id IN (72, 96)
+            WHERE r.resource_template_id IN (72)
             $idFilter
             $orderClause
             $limitClause
@@ -271,7 +323,7 @@ class QuerySqlViewHelper extends AbstractHelper
             FROM `value` v
             LEFT JOIN `media` m ON v.value_resource_id = m.id
             WHERE v.resource_id IN ($idList)
-            AND v.property_id IN (1, 139, 140, 73, 91, 74, 94, 12, 11, 3038, 3044, 3043)
+            AND v.property_id IN (139, 140, 73, 91, 74, 94, 11, 3038, 3044, 3043)
         ";
         $values = $this->conn->fetchAllAssociative($valueQuery);
 
@@ -350,7 +402,7 @@ class QuerySqlViewHelper extends AbstractHelper
         foreach($resources as $res) {
              $actant = [
                  'id' => $res['id'],
-                 'title' => '',
+                 //'title' => '',
                  'firstname' => '',
                  'lastname' => '',
                  'picture' => $imgMap[$res['id']] ?? null, 
@@ -359,17 +411,17 @@ class QuerySqlViewHelper extends AbstractHelper
                  'laboratories' => [],
                  'doctoralSchools' => [],
                  'countries' => [],
-                 'bio' => ''
+                 //'bio' => ''
              ];
              
              foreach($values as $val) {
                  if ($val['resource_id'] != $res['id']) continue;
                  
                  switch($val['property_id']) {
-                     case 1: $actant['title'] = $val['value']; break;
+                     //case 1: $actant['title'] = $val['value']; break;
                      case 139: $actant['firstname'] = $val['value']; break;
                      case 140: $actant['lastname'] = $val['value']; break;
-                     case 12: $actant['bio'] = $val['value']; break;
+                     //case 12: $actant['bio'] = $val['value']; break;
                      
                      // Gestion de l'image
                      case 11: 
@@ -429,6 +481,8 @@ class QuerySqlViewHelper extends AbstractHelper
              }
 
              // Fallback names
+             // Fallback names
+             /*
              if (!$actant['title'] && $actant['firstname'] && $actant['lastname']) {
                  $actant['title'] = $actant['firstname'] . ' ' . $actant['lastname'];
              }
@@ -437,6 +491,7 @@ class QuerySqlViewHelper extends AbstractHelper
                  if (!$actant['firstname']) $actant['firstname'] = $parts[0];
                  if (!$actant['lastname']) $actant['lastname'] = isset($parts[1]) ? end($parts) : '';
              }
+             */
 
              $results[] = $actant;
         }
@@ -463,13 +518,13 @@ class QuerySqlViewHelper extends AbstractHelper
                 m.extension as affil_logo_ext,
                 -- Image Actant via Property 11 or Media
                 (SELECT CONCAT(media.storage_id, '.', media.extension) FROM media WHERE media.item_id = r.id LIMIT 1) as actant_picture,
-                -- Compte Interventions (Filtré par Template Conférence 71, 121, 122)
+                -- Compte Interventions (Conférences, Expérimentations, Colloques, Journées d'études, Séminaires)
                 (SELECT COUNT(DISTINCT r_conf.id) 
                  FROM value v_conf 
                  JOIN resource r_conf ON v_conf.resource_id = r_conf.id 
                  WHERE v_conf.value_resource_id = r.id 
-                 AND v_conf.property_id IN (386, 2095)
-                 AND r_conf.resource_template_id IN (71, 121, 122)
+                 AND v_conf.property_id = 386
+                 AND r_conf.resource_template_id IN (71, 108, 121, 122)
                 ) as intervention_count
             FROM resource r
             
@@ -487,7 +542,7 @@ class QuerySqlViewHelper extends AbstractHelper
             -- 4. Logo de l'affiliation (pour l'affichage)
             LEFT JOIN media m ON (affil.id = m.item_id AND m.position = 1)
             
-            WHERE r.resource_template_id IN (72, 96)
+            WHERE r.resource_template_id IN (72)
             ORDER BY country ASC, affil_name ASC
         ";
         
@@ -815,7 +870,9 @@ class QuerySqlViewHelper extends AbstractHelper
         $confsRaw = $this->conn->fetchAllAssociative($confsSql, [$editionId]);
         
         $confIds = array_column($confsRaw, 'id');
-        $conferences = $this->fetchResourceCardData($confIds);
+        
+        // Use cardHelper for standardized card data
+        $conferences = $this->cardHelper->fetchCards($confIds);
 
         return [
             'edition' => $edition,
@@ -826,7 +883,7 @@ class QuerySqlViewHelper extends AbstractHelper
     function getActantsGlobalStats() {
         // 1. Global Counts
         $counts = [
-            'actants' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id IN (72, 96)"),
+            'actants' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id IN (72)"),
             'universities' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 73"),
             'laboratories' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 91"),
             'doctoralSchools' => $this->conn->fetchOne("SELECT COUNT(*) FROM resource WHERE resource_template_id = 74"),
@@ -914,17 +971,30 @@ class QuerySqlViewHelper extends AbstractHelper
         
         // 1. Fetch Basic Info & Metadata
         // Prop 1 (Title), 561 (Description), 1457 (Date), 1517 (URL), 7 (Year - fallback for Date)
+        // PLUS: Associated Video URL logic (Prop 438 'associatedMedia' -> Item -> Prop 121 'URL')
         $sql = "
             SELECT 
                 r.id, 
                 r.title, 
                 r.resource_template_id,
                 MAX(CASE WHEN v.property_id = 561 THEN v.value END) as description,
-                MAX(CASE WHEN v.property_id IN (1457, 7) THEN v.value END) as date,
+                COALESCE(
+                    MAX(CASE WHEN v.property_id = 23 THEN v.value END),   -- dcterms:issued (Priority)
+                    MAX(CASE WHEN v.property_id = 1457 THEN v.value END), -- date (Legacy)
+                    MAX(CASE WHEN v.property_id = 7 THEN v.value END)     -- year (Fallback)
+                ) as date,
                 (SELECT uri FROM value WHERE resource_id = r.id AND property_id = 1517 LIMIT 1) as url,
-                (SELECT CONCAT(m.storage_id, '.', m.extension) FROM media m WHERE m.item_id = r.id LIMIT 1) as media_logo
+                (SELECT CONCAT(m.storage_id, '.', m.extension) FROM media m WHERE m.item_id = r.id LIMIT 1) as media_logo,
+                -- Try to fetch associated video URL (YouTube)
+                (SELECT v_url.uri 
+                 FROM value v_assoc 
+                 JOIN value v_url ON v_assoc.value_resource_id = v_url.resource_id 
+                 WHERE v_assoc.resource_id = r.id 
+                 AND v_assoc.property_id = 438 
+                 AND v_url.property_id = 121 
+                 LIMIT 1) as associated_video_url
             FROM resource r
-            LEFT JOIN value v ON r.id = v.resource_id AND v.property_id IN (561, 1457, 7)
+            LEFT JOIN value v ON r.id = v.resource_id AND v.property_id IN (1457, 7, 561, 23)
             WHERE r.id IN ($idsStr)
             GROUP BY r.id
         ";
@@ -932,17 +1002,27 @@ class QuerySqlViewHelper extends AbstractHelper
         $rows = $this->conn->fetchAllAssociative($sql);
         
         // 2. Fetch Linked Actants for these resources
-        // Prop 2095 (Has Actant) or 386 (Creator)
+        // Prop 2095 (Has Actant) or 386 (Creator) OR 2 (Legacy Creator/Source for Recits)
         $actantMap = [];
         $resToActants = [];
         
+        // Create Map of ID -> TemplateID for filtering
+        $templateMap = [];
+        foreach ($rows as $r) {
+            $templateMap[$r['id']] = $r['resource_template_id'];
+        }
+
         $contribSql = "
             SELECT 
                 v.resource_id as res_id,
-                v.value_resource_id as actant_id
+                v.value_resource_id as actant_id,
+                v.property_id
             FROM value v
-            WHERE v.property_id IN (2095, 386, 235, 581) 
+            INNER JOIN resource r ON v.value_resource_id = r.id
+            WHERE v.property_id IN (2095, 386, 581, 1418, 86, 2145, 1606, 2) 
             AND v.resource_id IN ($idsStr)
+            AND v.value_resource_id IS NOT NULL
+            AND r.resource_template_id IN (72, 96)
         ";
         $contribs = $this->conn->fetchAllAssociative($contribSql);
         
@@ -955,10 +1035,70 @@ class QuerySqlViewHelper extends AbstractHelper
             foreach ($actantDetails as $ad) {
                 $actantMap[$ad['id']] = $ad;
             }
+
+            // Identify missing IDs (non-Actant creators, e.g. Organizations or legacy)
+            $foundIds = array_keys($actantMap);
+            $missingIds = array_diff($allActantIds, $foundIds);
+
+            if (!empty($missingIds)) {
+                // 1. Initialize ALL missing IDs to ensure they are not skipped
+                foreach ($missingIds as $mid) {
+                    $actantMap[$mid] = [
+                        'id' => (string)$mid,
+                        'name' => 'Contributor', // Default label if Title is missing
+                        'firstname' => '',
+                        'lastname' => '',
+                        'picture' => null,
+                        'details' => 'Contributor'
+                    ];
+                }
+
+                $missingIdsStr = implode(',', $missingIds);
+                
+                // 2. Fetch Titles (Prop 1) to update name
+                $fallbackSql = "
+                    SELECT r.id, v.value as title
+                    FROM resource r
+                    JOIN value v ON r.id = v.resource_id
+                    WHERE r.id IN ($missingIdsStr)
+                    AND v.property_id = 1
+                ";
+                $fallbackRows = $this->conn->fetchAllAssociative($fallbackSql);
+                
+                // 3. Update Names
+                foreach ($fallbackRows as $row) {
+                    $actantMap[$row['id']]['name'] = $row['title'];
+                }
+
+                // 4. Fetch Thumbnails (Media)
+                $fallbackImgSql = "
+                    SELECT item_id, CONCAT(storage_id, '.', extension) as logo
+                    FROM media
+                    WHERE item_id IN ($missingIdsStr)
+                ";
+                $fallbackImgs = $this->conn->fetchAllAssociative($fallbackImgSql);
+                
+                // 5. Update Pictures
+                foreach ($fallbackImgs as $img) {
+                    $logo = "https://tests.arcanes.ca/omk/files/original/" . $img['logo'];
+                    $actantMap[$img['item_id']]['picture'] = $logo;
+                }
+            }
             
             foreach ($contribs as $c) {
-                if (isset($actantMap[$c['actant_id']])) {
-                    $resToActants[$c['res_id']][] = $actantMap[$c['actant_id']];
+                $resId = $c['res_id'];
+                $propId = $c['property_id'];
+                $actantId = $c['actant_id'];
+                $tmplId = $templateMap[$resId] ?? 0;
+
+                // STRICT FILTERING RULES
+                // Recit Citoyen (119) -> ONLY Prop 2 (Creator)
+                if ($tmplId == 119 && $propId != 2) {
+                    continue;
+                }
+
+                if (isset($actantMap[$actantId])) {
+                    $resToActants[$resId][] = $actantMap[$actantId];
                 }
             }
         }
@@ -982,11 +1122,12 @@ class QuerySqlViewHelper extends AbstractHelper
             122 => 'colloque',
             71 => 'seminaire',
             108 => 'experimentation',
-            127 => 'recit_citoyen',
-            128 => 'recit_mediatique',
-            129 => 'recit_scientifique',
-            130 => 'recit_techno_industriel',
-            131 => 'recit_artistique'
+            119 => 'recit_citoyen',
+            120 => 'recit_mediatique',
+            124 => 'recit_scientifique',
+            117 => 'recit_techno_industriel',
+            131 => 'recit_artistique',
+            103 => 'recit_artistique'
         ];
 
         // 4. Assemble Final Data
@@ -1000,16 +1141,24 @@ class QuerySqlViewHelper extends AbstractHelper
                  $thumbnail = "https://tests.arcanes.ca/omk/files/original/" . $row['media_logo'];
             }
             
+            $finalUrl = $row['url'] ?: $row['associated_video_url'];
+
+            // Construct Associated Media Stub for logic consistency
+            $associatedMedia = [];
+            if ($row['associated_video_url']) {
+                $associatedMedia[] = ['url' => $row['associated_video_url']];
+            }
+
             $results[] = [
                 'id' => (string)$id,
                 'title' => $row['title'],
                 'date' => $row['date'],
-                'description' => $row['description'],
-                'url' => $row['url'],
+                'url' => $finalUrl,
                 'type' => $typeKey,
                 'thumbnail' => $thumbnail,
-                'actant' => $resToActants[$id] ?? [],
-                'motcles' => $keywordsMap[$id] ?? []
+                'actants' => $resToActants[$id] ?? [],
+                'motcles' => $keywordsMap[$id] ?? [],
+                'associatedMedia' => $associatedMedia
             ];
         }
         
@@ -1115,7 +1264,7 @@ class QuerySqlViewHelper extends AbstractHelper
          $actant = $basic[0];
          
          // Fetch Interventions (Conferences + Experimentations)
-         // Link properties: 386 (Creator), 2095 (Has Actant), 235 (Contributor), 581 (Collaborator)
+         // Link properties: 386 (Creator), 2095 (Has Actant), 581 (Collaborator)
          // Templates: 71 (Seminar), 121 (StudyDay), 122 (Colloque), 108 (Experimentation)
          
          $linkSql = "
@@ -1123,7 +1272,7 @@ class QuerySqlViewHelper extends AbstractHelper
             FROM value v_link
             JOIN resource r ON v_link.resource_id = r.id
             WHERE v_link.value_resource_id = ?
-            AND v_link.property_id IN (386, 2095, 235, 581)
+            AND v_link.property_id IN (386, 2095, 581)
             AND r.resource_template_id IN (71, 121, 122, 108)
          ";
          
@@ -8027,6 +8176,99 @@ class QuerySqlViewHelper extends AbstractHelper
         return $result;
     }
 
+    /**
+     * Optimized version for Cards only (Home, Lists, etc.)
+     */
+    function getRecitsCitoyensCards() {
+        $resourceQuery = "
+            SELECT r.id
+            FROM `resource` r
+            WHERE r.resource_template_id = 119
+            ORDER BY r.created DESC
+        ";
+        $resources = $this->conn->fetchAllAssociative($resourceQuery);
+        
+        if (empty($resources)) {
+            return [];
+        }
+
+        $resourceIds = array_column($resources, 'id');
+        
+        return $this->cardHelper->fetchCards($resourceIds);
+    }
+
+    function getRecitsMediatiquesCards() {
+        $resourceQuery = "
+            SELECT r.id
+            FROM `resource` r
+            WHERE r.resource_template_id = 120
+            ORDER BY r.created DESC
+        ";
+        $resources = $this->conn->fetchAllAssociative($resourceQuery);
+        
+        if (empty($resources)) {
+            return [];
+        }
+
+        $resourceIds = array_column($resources, 'id');
+        
+        return $this->cardHelper->fetchCards($resourceIds);
+    }
+
+    function getRecitsScientifiquesCards() {
+        $resourceQuery = "
+            SELECT r.id
+            FROM `resource` r
+            WHERE r.resource_template_id = 124
+            ORDER BY r.created DESC
+        ";
+        $resources = $this->conn->fetchAllAssociative($resourceQuery);
+        
+        if (empty($resources)) {
+            return [];
+        }
+
+        $resourceIds = array_column($resources, 'id');
+        
+        return $this->cardHelper->fetchCards($resourceIds);
+    }
+
+    function getRecitsTechnoCards() {
+        $resourceQuery = "
+            SELECT r.id
+            FROM `resource` r
+            WHERE r.resource_template_id = 117
+            ORDER BY r.created DESC
+        ";
+        $resources = $this->conn->fetchAllAssociative($resourceQuery);
+        
+        if (empty($resources)) {
+            return [];
+        }
+
+        $resourceIds = array_column($resources, 'id');
+        
+        return $this->cardHelper->fetchCards($resourceIds);
+    }
+
+    function getRecitsArtistiquesCards() {
+        $resourceQuery = "
+            SELECT r.id
+            FROM `resource` r
+            WHERE r.resource_template_id IN (131, 103)
+            ORDER BY r.created DESC
+        ";
+        $resources = $this->conn->fetchAllAssociative($resourceQuery);
+        
+        if (empty($resources)) {
+            return [];
+        }
+
+        $resourceIds = array_column($resources, 'id');
+        
+        return $this->cardHelper->fetchCards($resourceIds);
+    }
+
 
     /**
      * Recherche sémantique dans les embeddings - comparaison avec une requête textuelle
@@ -8215,5 +8457,173 @@ class QuerySqlViewHelper extends AbstractHelper
         }
 
         return $dotProduct / ($norm1 * $norm2);
+    }
+    public function getExperimentationCards()
+    {
+        // Get IDs of all experimentations (Template 108)
+        $resourceQuery = "
+            SELECT r.id
+            FROM `resource` r
+            WHERE r.resource_template_id = 108
+            ORDER BY r.created DESC
+        ";
+        
+        $resources = $this->conn->executeQuery($resourceQuery)->fetchAllAssociative();
+        
+        if (empty($resources)) {
+            return [];
+        }
+        
+        $ids = array_column($resources, 'id');
+        
+        // Delegate to QueryCardHelper
+        return $this->cardHelper->fetchCards($ids);
+    }
+
+    /**
+     * Get cards filtered by Edition ID
+     * Fetches all conferences (seminaires, colloques, journées d'études) linked to a specific edition
+     * 
+     * @param int $editionId Edition resource ID
+     * @return array Standardized card data
+     */
+    public function getCardsByEdition($editionId) {
+        if (!$editionId) {
+            return [];
+        }
+        
+        $editionId = (int)$editionId;
+        
+        // Get all conferences linked to this edition (Property 937)
+        $sql = "
+            SELECT v.value_resource_id as id
+            FROM value v
+            WHERE v.resource_id = :editionId
+            AND v.property_id = 937
+            AND v.value_resource_id IS NOT NULL
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql, ['editionId' => $editionId]);
+        
+        if (empty($rows)) {
+            return [];
+        }
+        
+        $confIds = array_column($rows, 'id');
+        
+        // Delegate to QueryCardHelper for standardized card data
+        return $this->cardHelper->fetchCards($confIds);
+    }
+    
+    /**
+     * Get cards filtered by Actant (Intervenant) ID
+     * Fetches all resources where this actant appears as schema:agent
+     * 
+     * @param int $actantId Actant resource ID
+     * @param array $types Optional filter by resource types (e.g., ['seminaire', 'experimentation'])
+     * @return array Standardized card data
+     */
+    public function getCardsByActant($actantId, $types = []) {
+        if (!$actantId) {
+            return [];
+        }
+        
+        $actantId = (int)$actantId;
+        
+        // Template IDs for actant-based resources
+        $typeTemplateMap = [
+            'seminaire' => 71,
+            'colloque' => 122,
+            'journee_etudes' => 121,
+            'experimentation' => 108
+        ];
+        
+        // Determine which template IDs to include
+        if (!empty($types)) {
+            $templateIds = [];
+            foreach ($types as $type) {
+                if (isset($typeTemplateMap[$type])) {
+                    $templateIds[] = $typeTemplateMap[$type];
+                }
+            }
+            // If no valid types provided, return empty
+            if (empty($templateIds)) {
+                return [];
+            }
+        } else {
+            // Default: all actant-based types
+            $templateIds = array_values($typeTemplateMap);
+        }
+        
+        $templateIdsStr = implode(',', $templateIds);
+        
+        // Get all resources where this actant appears (Property 386 - schema:agent)
+        $sql = "
+            SELECT DISTINCT v.resource_id as id
+            FROM value v
+            INNER JOIN resource r ON r.id = v.resource_id
+            WHERE v.property_id = 386
+            AND v.value_resource_id = :actantId
+            AND r.resource_template_id IN ($templateIdsStr)
+            ORDER BY r.created DESC
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql, ['actantId' => $actantId]);
+        
+        if (empty($rows)) {
+            return [];
+        }
+        
+        $resourceIds = array_column($rows, 'id');
+        
+        // Delegate to QueryCardHelper for standardized card data
+        return $this->cardHelper->fetchCards($resourceIds);
+    }
+    
+    /**
+     * Get cards filtered by Keyword (Concept) ID
+     * Fetches conferences (seminaires, colloques, journées d'études) linked to a specific keyword
+     * 
+     * @param int $keywordId Keyword resource ID
+     * @param int $limit Maximum number of cards to return
+     * @return array Standardized card data
+     */
+    public function getCardsByKeyword($keywordId, $limit = 8) {
+        if (!$keywordId) {
+            return [];
+        }
+        
+        $keywordId = (int)$keywordId;
+        $limit = (int)$limit;
+        
+        // Template IDs for conferences (seminaire, colloque, journée d'études)
+        $templateIds = [71, 122, 121];
+        $templateIdsStr = implode(',', $templateIds);
+        
+        // Get all conferences linked to this keyword (Property 2097 - jdc:hasConcept)
+        $sql = "
+            SELECT DISTINCT v.resource_id as id
+            FROM value v
+            INNER JOIN resource r ON r.id = v.resource_id
+            WHERE v.property_id = 2097
+            AND v.value_resource_id = :keywordId
+            AND r.resource_template_id IN ($templateIdsStr)
+            ORDER BY r.created DESC
+            LIMIT :limit
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql, [
+            'keywordId' => $keywordId,
+            'limit' => $limit
+        ]);
+        
+        if (empty($rows)) {
+            return [];
+        }
+        
+        $confIds = array_column($rows, 'id');
+        
+        // Delegate to QueryCardHelper for standardized card data
+        return $this->cardHelper->fetchCards($confIds);
     }
 }

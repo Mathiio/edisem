@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Layouts } from "@/components/layout/Layouts";
 import * as Items from '@/services/Items';
-import { PratiqueNarrativeIcon } from '@/components/ui/icons';
 import { motion, Variants } from 'framer-motion';
 import { BackgroundEllipse } from '@/assets/svg/BackgroundEllipse';
-import { RecitCard, RecitCardSkeleton } from '@/components/features/misesEnRecits/RecitCards';
+import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
+import { getResourceConfigByCollectionUrl } from '@/config/resourceConfig';
 
 // Animation variants
 const fadeIn: Variants = {
@@ -17,37 +17,12 @@ const fadeIn: Variants = {
   }),
 };
 
-// Configuration for each narrative type
-const RECIT_TYPES_CONFIG: Record<string, {
-    title: string;
-    description: string;
-    color: string;
-    fetcher: () => Promise<any[]>;
-}> = {
-    '/corpus/recits-scientifiques': {
-        title: 'Récits Scientifiques',
-        description: 'Analyses des publications scientifiques et académiques.',
-        color: '#AFC8FF',
-        fetcher: Items.getRecitsScientifiques
-    },
-    '/corpus/recits-techno-industriels': {
-        title: 'Récits Techno-Industriels',
-        description: 'Étude des discours industriels et technologiques.',
-        color: '#A9E2DA',
-        fetcher: Items.getRecitsTechnoIndustriels
-    },
-    '/corpus/recits-citoyens': {
-        title: 'Récits Citoyens',
-        description: 'Exploration des perspectives citoyennes et sociales.',
-        color: '#C8E6C9',
-        fetcher: Items.getRecitsCitoyens
-    },
-    '/corpus/recits-mediatiques': {
-        title: 'Récits Médiatiques',
-        description: 'Analyse de la couverture médiatique et presse.',
-        color: '#FFF1B8',
-        fetcher: Items.getRecitsMediatiques
-    }
+// Map resource types to their fetcher functions
+const FETCHER_MAP: Record<string, () => Promise<any[]>> = {
+  'recit_scientifique': Items.getRecitsScientifiques,
+  'recit_techno_industriel': Items.getRecitsTechnoIndustriels,
+  'recit_citoyen': Items.getRecitsCitoyensCards,
+  'recit_mediatique': Items.getRecitsMediatiques,
 };
 
 export const RecitsByGenre: React.FC = () => {
@@ -55,20 +30,20 @@ export const RecitsByGenre: React.FC = () => {
     const [recits, setRecits] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     
-    // Determine current type based on path
-    const currentPath = location.pathname;
-    const config = RECIT_TYPES_CONFIG[currentPath];
+    // Get config from RESOURCE_TYPES using collection URL
+    const config = getResourceConfigByCollectionUrl(location.pathname);
+    const fetcher = config ? FETCHER_MAP[config.type] : null;
 
     useEffect(() => {
         const loadData = async () => {
-            if (!config) return;
+            if (!config || !fetcher) return;
             
             setLoading(true);
             try {
-                const data = await config.fetcher();
+                const data = await fetcher();
                 setRecits(data);
             } catch (error) {
-                console.error(`Failed to load data for ${config.title}`, error);
+                console.error(`Failed to load data for ${config.label}`, error);
                 setRecits([]);
             } finally {
                 setLoading(false);
@@ -76,7 +51,7 @@ export const RecitsByGenre: React.FC = () => {
         };
         
         loadData();
-    }, [config]);
+    }, [config, fetcher]);
 
     if (!config) {
         return (
@@ -86,17 +61,19 @@ export const RecitsByGenre: React.FC = () => {
         );
     }
 
+    const Icon = config.icon;
+
     return (
         <Layouts className='col-span-10 flex flex-col gap-100'>
              {/* Header section similar to OeuvresByGenre */}
             <div className='pt-100 justify-center flex items-center flex-col gap-20 relative'>
                 <div className='gap-10 justify-between flex items-center flex-col'>
                     {/* Icon with custom color */}
-                    <PratiqueNarrativeIcon size={40} style={{ color: config.color }} />
+                    {Icon && <Icon size={40} style={{ color: config.color }} />}
 
                     {/* Title and description */}
                     <h1 className='z-[12] text-64 text-c6 font-medium flex text-center flex-col items-center max-w-[850px] leading-tight'>
-                        {config.title}
+                        {config.collectionLabel || config.label}
                     </h1>
                     <p className='text-c5 text-16 z-[12] text-center max-w-[600px]'>
                         Découvrez les {recits.length} éléments dans cette collection.
@@ -121,7 +98,7 @@ export const RecitsByGenre: React.FC = () => {
                 {loading
                     ? Array.from({ length: 8 }).map((_, index) => (
                         <div key={index} className="h-full">
-                            <RecitCardSkeleton />
+                            <ResourceCardSkeleton />
                         </div>
                     ))
                     : recits.map((recit, index) => (
@@ -132,7 +109,7 @@ export const RecitsByGenre: React.FC = () => {
                             key={recit.id || index} 
                             custom={index}
                         >
-                            <RecitCard {...recit} />
+                            <ResourceCard item={recit} />
                         </motion.div>
                     ))
                 }

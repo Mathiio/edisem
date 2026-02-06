@@ -26,7 +26,7 @@ import { Bibliographies } from '@/components/features/conference/BibliographyCar
 import { Mediagraphies } from '@/components/features/conference/MediagraphyCards';
 import { AddResourceCard } from '@/components/features/forms/AddResourceCard';
 import { GenericDetailPage } from './GenericDetailPage';
-import { getResourceUrl } from '@/config/resourceTypes';
+import { getResourceUrl } from '@/config/resourceConfig';
 import AutoResizingField from '@/components/features/database/AutoResizingTextarea';
 
 // ========================================

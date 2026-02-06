@@ -4,7 +4,7 @@
  * Ce fichier évite la duplication du switch/case dans getAnnotationsWithTargets
  */
 
-import { TEMPLATE_ID_TO_TYPE, ResourceType } from '@/config/resourceTypes';
+import { TEMPLATE_ID_TO_TYPE, ResourceType } from '@/config/resourceConfig';
 import * as Items from './Items';
 
 /**

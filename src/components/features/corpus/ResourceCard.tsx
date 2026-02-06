@@ -1,24 +1,13 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IconSvgProps } from '@/types/ui';
-import { ThumbnailIcon, UserIcon } from '@/components/ui/icons';
-
-// Standardized labels for backend types
-const RESOURCE_LABELS: Record<string, string> = {
-  journee_etudes: 'Journée d\'études',
-  colloque: 'Colloque',
-  seminaire: 'Séminaire',
-  experimentation: 'Expérimentation',
-  recit_citoyen: 'Mise en récit citoyen',
-  recit_mediatique: 'Mise en récit médiatique',
-  recit_scientifique: 'Mise en récit scientifique',
-  recit_techno_industriel: 'Mise en récit techno-industriel',
-  recit_artistique: 'Mise en récit artistique',
-};
+import { ThumbnailIcon, UserIcon, SeminaireIcon } from '@/components/ui/icons';
+import { getResourceAuthors, getResourceSubtitle, getSafeResourceUrl, getResourceThumbnail } from '@/lib/resourceUtils';
+import { getRessourceLabel, getResourceIcon } from '@/config/resourceConfig';
 
 export interface ResourceCardProps {
-  title: string;
+  title?: string;
   thumbnailUrl?: string;
-  onClick: () => void;
   authors?: {
     name: string;
     picture?: string;
@@ -26,23 +15,24 @@ export interface ResourceCardProps {
   subtitle?: string; // For universities or extra date info
   date?: string;     // Explicit date line if needed (e.g. for Recits)
   
-  // Footer / Type
   type?: string;     // Standardized backend type key
   typeLabel?: string; // Manual override
-  TypeIcon: React.FC<IconSvgProps>;
+  TypeIcon?: React.FC<IconSvgProps>; // Optional Override
   typeColor?: string; // Optional override color for the type icon
   
   // Actions (e.g. dropdown for ExpCard)
   actions?: React.ReactNode; 
   
   className?: string;
+
+  // Optional: Raw item to derive data from
+  item?: any;
 }
 
 export const ResourceCard: React.FC<ResourceCardProps> = ({
   title,
   thumbnailUrl,
-  onClick,
-  authors = [],
+  authors,
   subtitle,
   date,
   type,
@@ -50,18 +40,54 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
   TypeIcon,
   typeColor,
   actions,
-  className = ''
+  className = '',
+  item
 }) => {
+  const navigate = useNavigate();
 
-  const finalTypeLabel = typeLabel || (type ? RESOURCE_LABELS[type] : 'Ressource');
+  // Derive data if item is provided and props are missing
+  const finalTitle = title || item?.title || '';
+  const finalThumbnail = thumbnailUrl || (item ? getResourceThumbnail(item) : '') || '';
+  const finalAuthors = authors || (item ? getResourceAuthors(item) : []);
+  const finalSubtitle = subtitle || (item ? getResourceSubtitle(item) : undefined);
+  const finalType = type || item?.type;
+
+  const finalTypeLabel = typeLabel || (finalType ? getRessourceLabel(finalType) : 'Ressource');
+  
+  // Determine Icon
+  const FinalTypeIcon = TypeIcon || (finalType ? getResourceIcon(finalType) : SeminaireIcon) || SeminaireIcon;
+
+  // Determine Click Handler
+  const handleClick = () => {
+      // 1. Try to get URL from item (most robust)
+      if (item) {
+          const url = getSafeResourceUrl(item);
+          if (url && url !== '#') {
+            navigate(url);
+            return;
+          }
+      } 
+      
+      // 2. Fallback: construct from type and explicitly passed properties or item id
+      // Since 'id' is not a prop, we check item.id from the optional item
+      if (type && item?.id) {
+           const url = getSafeResourceUrl({ type, id: item.id });
+           if (url && url !== '#') {
+             navigate(url);
+             return;
+           }
+      }
+      
+      console.warn('Navigation impossible: ID manquant pour ce type', { type, item });
+  };
 
   // Helper to format multiple authors
   const renderAuthorNames = () => {
-    if (authors.length === 0) return 'Aucun intervenant';
+    if (finalAuthors.length === 0) return 'Aucun intervenant';
     
-    if (authors.length === 1) return authors[0].name || 'Nom inconnu';
+    if (finalAuthors.length === 1) return finalAuthors[0].name || 'Nom inconnu';
     
-    const displayAuthors = authors.slice(0, 3);
+    const displayAuthors = finalAuthors.slice(0, 3);
     const names = displayAuthors.map(a => {
         // Simple heuristic for "F. Lastname" or just name
         const parts = a.name.split(' ');
@@ -71,14 +97,14 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
         return a.name;
     }).join(' - ');
     
-    return authors.length > 3 ? `${names}...` : names;
+    return finalAuthors.length > 3 ? `${names}...` : names;
   };
 
-  const hasAuthors = authors.length > 0;
+  const hasAuthors = finalAuthors.length > 0;
 
   return (
     <div
-      onClick={onClick}
+      onClick={handleClick}
       className={`group shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-20 rounded-18 justify-between flex flex-col gap-20 hover:bg-c2 h-full transition-all ease-in-out duration-300 relative ${className}`}
     >
       {/* Optional Actions (Dropdowns, etc) */}
@@ -92,11 +118,11 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
         {/* Thumbnail */}
         <div
           className={`w-full aspect-[2/1] h-150 rounded-12 justify-center items-center flex overflow-hidden ${
-            thumbnailUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'
+            finalThumbnail ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'
           }`}
-          style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}
+          style={finalThumbnail ? { backgroundImage: `url(${finalThumbnail})` } : {}}
         >
-          {!thumbnailUrl && (
+          {!finalThumbnail && (
              <ThumbnailIcon className="text-c4/20" size={40} />
           )}
         </div>
@@ -106,7 +132,7 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
           {/* Title & Optional Date */}
           <div className='flex flex-col gap-1.5 w-full'>
             <p className='text-16 text-c6 font-medium overflow-hidden line-clamp-2 leading-[1.2]'>
-              {title}
+              {finalTitle}
             </p>
             {date && <p className='text-12 text-c5 font-extralight'>{date}</p>}
           </div>
@@ -116,17 +142,17 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
              {/* Avatars */}
              {hasAuthors ? (
                 <div className='flex items-center relative'>
-                   {authors.length === 1 ? (
+                   {finalAuthors.length === 1 ? (
                         <div className='w-7 h-7 rounded-8 overflow-hidden bg-c3 flex items-center justify-center'>
-                           {authors[0].picture ? (
-                               <img src={authors[0].picture} alt={authors[0].name} className='w-full h-full object-cover' />
+                           {finalAuthors[0].picture ? (
+                               <img src={finalAuthors[0].picture} alt={finalAuthors[0].name} className='w-full h-full object-cover' />
                            ) : (
                                <UserIcon size={12} className='text-c4' />
                            )}
                         </div>
                    ) : (
-                       <div className='w-7 h-7 rounded-8 border-3 border-c3 bg-c3 flex items-center justify-center'>
-                         <p className='text-12 font-bold text-c4'>+{authors.length}</p>
+                       <div className='w-7 h-7 rounded-8 bg-c3 flex items-center justify-center'>
+                         <p className='text-12 font-bold text-c4'>+{finalAuthors.length}</p>
                        </div>
                    )}
                 </div>
@@ -141,9 +167,9 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
                 <p className={`text-14 font-extralight w-full line-clamp-1 ${hasAuthors ? 'text-c4' : 'text-c5'}`}>
                    {renderAuthorNames()}
                 </p>
-                {subtitle && (
+                {finalSubtitle && (
                    <p className='text-12 text-c5 font-extralight w-full line-clamp-1'>
-                     {subtitle}
+                     {finalSubtitle}
                    </p>
                 )}
              </div>
@@ -153,7 +179,7 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
 
       {/* Footer Type Badge */}
       <div className="flex gap-1.5 items-center">
-        <TypeIcon size={14} className={typeColor ? "" : "text-c4/60"} style={typeColor ? { color: typeColor } : {}} />
+        <FinalTypeIcon size={14} className={typeColor ? "" : "text-c4/60"} style={typeColor ? { color: typeColor } : {}} />
         <p className='text-14 text-c4/60 font-medium'>{finalTypeLabel}</p>
       </div>
 

@@ -5,7 +5,7 @@ import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Spinner, addToas
 import { LongCarrousel, FullCarrousel } from '@/components/ui/Carrousels';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
-import { SmConfCard } from '@/components/features/conference/ConfCards';
+import { ResourceCard } from '@/components/features/corpus/ResourceCard';
 import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
 import { ArrowIcon, CrossIcon, EditIcon } from '@/components/ui/icons';
 import { EditSaveBar } from '@/components/ui/EditSaveBar';
@@ -2270,7 +2270,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
                 const mappedItem = config.mapRecommendationProps ? config.mapRecommendationProps(item) : item;
                 return (
                   <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
-                    <SmConfCard {...mappedItem} />
+                    <ResourceCard item={mappedItem} />
                   </motion.div>
                 );
               }}

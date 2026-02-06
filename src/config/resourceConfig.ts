@@ -8,6 +8,13 @@
  * - Les URLs de routage
  */
 
+import React from 'react';
+import { IconSvgProps } from '@/types/ui';
+import {
+  SeminaireIcon, ColloqueIcon, StudyDayIcon, ExperimentationIcon,
+  PratiqueNarrativeIcon
+} from '@/components/ui/icons';
+
 // ========================================
 // Types de ressources
 // ========================================
@@ -36,113 +43,161 @@ export type ResourceType =
 
 export interface ResourceTypeConfig {
   type: ResourceType;
-  displayName: string;
+  label: string;
+  icon?: React.FC<IconSvgProps>;
   templateIds: number[];
   getUrl: (id: string | number) => string;
+  collectionUrl?: string;
+  collectionLabel?: string;
+  color?: string; // Hex color for UI theming
+  description?: string; // Brief description for collection pages
 }
 
 export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
   mediagraphie: {
     type: 'mediagraphie',
-    displayName: 'Médiagraphie',
+    label: 'Médiagraphie',
+    icon: undefined,
     templateIds: [83, 98],
     getUrl: (id) => `/corpus/mediagraphie/${id}`,
   },
 
   bibliographie: {
     type: 'bibliographie',
-    displayName: 'Bibliographie',
+    label: 'Bibliographie',
+    icon: undefined,
     templateIds: [81, 99],
     getUrl: (id) => `/corpus/bibliographie/${id}`,
   },
 
   recit_scientifique: {
     type: 'recit_scientifique',
-    displayName: 'Récit scientifique',
+    label: 'Récit scientifique',
+    icon: PratiqueNarrativeIcon,
     templateIds: [124],
     getUrl: (id) => `/corpus/recit-scientifique/${id}`,
+    collectionUrl: '/corpus/recits-scientifiques',
+    collectionLabel: 'Récits Scientifiques',
+    color: '#AFC8FF',
+    description: 'Analyses des publications scientifiques et académiques.',
   },
 
   recit_artistique: {
     type: 'recit_artistique',
-    displayName: 'Œuvre',
+    label: 'Récit artistique',
+    icon: PratiqueNarrativeIcon,
     templateIds: [103],
     getUrl: (id) => `/corpus/recit_artistique/${id}`,
+    collectionUrl: '/corpus/recits-artistiques',
+    collectionLabel: 'Récits Artistiques',
+    color: '#FFB6C1', // Rose clair
+    description: 'Exploration des œuvres et discours artistiques.',
   },
 
   recit_techno_industriel: {
     type: 'recit_techno_industriel',
-    displayName: 'Récit techno-industriel',
+    label: 'Récit techno-industriel',
+    icon: PratiqueNarrativeIcon,
     templateIds: [117],
     getUrl: (id) => `/corpus/recit-techno-industriel/${id}`,
+    collectionUrl: '/corpus/recits-techno-industriels',
+    collectionLabel: 'Récits Techno-industriels',
+    color: '#A9E2DA',
+    description: 'Étude des discours industriels et technologiques.',
   },
 
   recit_citoyen: {
     type: 'recit_citoyen',
-    displayName: 'Récit citoyen',
+    label: 'Récit citoyen',
+    icon: PratiqueNarrativeIcon,
     templateIds: [119],
     getUrl: (id) => `/corpus/recit-citoyen/${id}`,
+    collectionUrl: '/corpus/recits-citoyens',
+    collectionLabel: 'Récits Citoyens',
+    color: '#C8E6C9',
+    description: 'Exploration des perspectives citoyennes et sociales.',
   },
 
   recit_mediatique: {
     type: 'recit_mediatique',
-    displayName: 'Récit médiatique',
+    label: 'Récit médiatique',
+    icon: PratiqueNarrativeIcon,
     templateIds: [120],
     getUrl: (id) => `/corpus/recit-mediatique/${id}`,
+    collectionUrl: '/corpus/recits-mediatiques',
+    collectionLabel: 'Récits Médiatiques',
+    color: '#FFF1B8',
+    description: 'Analyse de la couverture médiatique et presse.',
   },
 
   annotation: {
     type: 'annotation',
-    displayName: 'Analyse critique',
+    label: 'Analyse critique',
+    icon: undefined,
     templateIds: [101, 125],
     getUrl: (id) => `/corpus/analyse-critique/${id}`,
   },
 
   journee_etudes: {
     type: 'journee_etudes',
-    displayName: 'Journée d\'études',
+    label: 'Journée d\'études',
+    icon: StudyDayIcon,
     templateIds: [121],
     getUrl: (id) => `/corpus/journees-etudes/conference/${id}`,
+    collectionUrl: '/corpus/journees-etudes',
+    collectionLabel: 'Journées d\'études',
   },
 
   seminaire: {
     type: 'seminaire',
-    displayName: 'Séminaire',
+    label: 'Séminaire',
+    icon: SeminaireIcon,
     templateIds: [71],
     getUrl: (id) => `/corpus/seminaires/conference/${id}`,
+    collectionUrl: '/corpus/seminaires',
+    collectionLabel: 'Séminaires',
   },
 
   colloque: {
     type: 'colloque',
-    displayName: 'Colloque',
+    label: 'Colloque',
+    icon: ColloqueIcon,
     templateIds: [122],
     getUrl: (id) => `/corpus/colloques/conference/${id}`,
+    collectionUrl: '/corpus/colloques',
+    collectionLabel: 'Colloques',
   },
 
   element_esthetique: {
     type: 'element_esthetique',
-    displayName: 'Élément esthétique',
+    label: 'Élément esthétique',
+    icon: undefined,
     templateIds: [104],
     getUrl: (id) => `/corpus/element-esthetique/${id}`,
   },
 
   element_narratif: {
     type: 'element_narratif',
-    displayName: 'Élément narratif',
+    label: 'Élément narratif',
+    icon: undefined,
     templateIds: [105],
     getUrl: (id) => `/corpus/element-narratif/${id}`,
   },
 
   experimentation: {
     type: 'experimentation',
-    displayName: 'Expérimentation',
-    templateIds: [106],
+    label: 'Expérimentation',
+    icon: ExperimentationIcon,
+    templateIds: [108],
     getUrl: (id) => `/corpus/experimentation/${id}`,
+    collectionUrl: '/corpus/experimentations',
+    collectionLabel: 'Expérimentations',
   },
 
   tool: {
     type: 'tool',
-    displayName: 'Outil',
+    label: 'Outil',
+    icon: undefined,
     templateIds: [118],
     getUrl: (id) => `/corpus/tool/${id}`,
   },
@@ -181,9 +236,17 @@ export function getResourceConfigByType(type: string): ResourceTypeConfig | null
 /**
  * Récupère le nom d'affichage d'un type
  */
-export function getDisplayName(type: string): string {
+export function getRessourceLabel(type: string): string {
   const config = getResourceConfigByType(type);
-  return config?.displayName || type;
+  return config?.label || type;
+}
+
+/**
+ * Récupère l'icône associée à un type
+ */
+export function getResourceIcon(type: string): React.FC<IconSvgProps> | undefined {
+  const config = getResourceConfigByType(type);
+  return config?.icon;
 }
 
 /**
@@ -193,6 +256,18 @@ export function getResourceUrl(type: string, id: string | number): string {
   const config = getResourceConfigByType(type);
   return config ? config.getUrl(id) : '#';
 }
+
+/**
+ * Récupère la config d'un type de ressource par son URL de collection
+ * Utile pour les pages collection qui utilisent l'URL pour déterminer le type
+ */
+export function getResourceConfigByCollectionUrl(url: string): ResourceTypeConfig | null {
+  const config = Object.values(RESOURCE_TYPES).find(
+    (config) => config.collectionUrl === url
+  );
+  return config || null;
+}
+
 
 /**
  * Récupère tous les template IDs utilisés
@@ -208,4 +283,3 @@ export function isKnownTemplateId(templateId: number | string): boolean {
   const id = parseInt(String(templateId));
   return id in TEMPLATE_ID_TO_TYPE;
 }
-

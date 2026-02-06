@@ -2082,6 +2082,156 @@ export async function getRecitsCitoyens(id?: number) {
   }
 }
 
+export async function getRecitsCitoyensCards() {
+  try {
+    const data = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsCitoyensCards&json=1');
+    return data;
+  } catch (error) {
+    console.error('Error fetching recits citoyens cards:', error);
+    return [];
+  }
+}
+
+export async function getRecitsMediatiquesCards() {
+  try {
+    const data = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsMediatiquesCards&json=1');
+    return data;
+  } catch (error) {
+    console.error('Error fetching recits mediatiques cards:', error);
+    return [];
+  }
+}
+
+export async function getRecitsScientifiquesCards() {
+  try {
+    const data = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsScientifiquesCards&json=1');
+    return data;
+  } catch (error) {
+    console.error('Error fetching recits scientifiques cards:', error);
+    return [];
+  }
+}
+
+export async function getRecitsTechnoCards() {
+  try {
+    const data = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsTechnoCards&json=1');
+    return data;
+  } catch (error) {
+    console.error('Error fetching recits techno cards:', error);
+    return [];
+  }
+}
+
+export async function getRecitsArtistiquesCards() {
+  try {
+    const data = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsArtistiquesCards&json=1');
+    return data;
+  } catch (error) {
+    console.error('Error fetching recits artistiques cards:', error);
+    return [];
+  }
+}
+
+export async function getExperimentationCards() {
+  try {
+    return await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getExperimentationCards&json=1');
+  } catch (error) {
+    console.error('Error fetching experimentation cards:', error);
+    throw new Error('Failed to fetch experimentation cards');
+  }
+}
+
+/**
+ * Get cards filtered by Edition ID
+ * @param editionId - Edition resource ID
+ * @returns Array of standardized card data
+ */
+export async function getCardsByEdition(editionId: string | number) {
+  try {
+    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCardsByEdition&editionId=${editionId}&json=1`);
+  } catch (error) {
+    console.error('Error fetching cards by edition:', error);
+    return [];
+  }
+}
+
+/**
+ * Get cards filtered by Actant (Intervenant) ID
+ * @param actantId - Actant resource ID
+ * @param types - Optional filter by resource types (e.g., ['seminaire', 'experimentation'])
+ * @returns Array of standardized card data
+ */
+export async function getCardsByActant(actantId: string | number, types: string[] = []) {
+  try {
+    const typesParam = types.length > 0 ? `&types=${types.join(',')}` : '';
+    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCardsByActant&actantId=${actantId}${typesParam}&json=1`);
+  } catch (error) {
+    console.error('Error fetching cards by actant:', error);
+    return [];
+  }
+}
+
+/**
+ * Get cards filtered by Keyword (Concept) ID
+ * @param keywordId - Keyword resource ID
+ * @param limit - Maximum number of cards to return (default: 8)
+ * @returns Array of standardized card data
+ */
+export async function getCardsByKeyword(keywordId: string | number, limit: number = 8) {
+  try {
+    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCardsByKeyword&keywordId=${keywordId}&limit=${limit}&json=1`);
+  } catch (error) {
+    console.error('Error fetching cards by keyword:', error);
+    return [];
+  }
+}
+
+// ========================================
+// Stats & Metrics Functions
+// ========================================
+
+/**
+ * Get comprehensive stats for narrative practices page
+ * @returns {Promise<{recits: number, experimentations: number, recitsByType: object}>}
+ */
+export async function getNarrativePracticesStats() {
+  try {
+    return await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getNarrativePracticesStats&json=1');
+  } catch (error) {
+    console.error('Error fetching narrative practices stats:', error);
+    return { recits: 0, experimentations: 0, recitsByType: {} };
+  }
+}
+
+/**
+ * Get top keywords for narrative practices
+ * @param limit - Maximum number of keywords to return
+ * @returns {Promise<Array<{label: string, value: number}>>}
+ */
+export async function getNarrativeTopKeywords(limit: number = 8) {
+  try {
+    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getNarrativeTopKeywords&limit=${limit}&json=1`);
+  } catch (error) {
+    console.error('Error fetching narrative top keywords:', error);
+    return [];
+  }
+}
+
+/**
+ * Get detailed breakdown of recits by type with counts
+ * @returns {Promise<Array<{type: string, count: number}>>}
+ */
+export async function getRecitTypeBreakdown() {
+  try {
+    return await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitTypeBreakdown&json=1');
+  } catch (error) {
+    console.error('Error fetching recit type breakdown:', error);
+    return [];
+  }
+}
+
+
+
 export async function getMicroResumes(id?: number) {
   try {
     checkAndClearDailyCache();

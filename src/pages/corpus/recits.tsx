@@ -21,7 +21,7 @@ export const MisesEnRecits: React.FC = () => {
           Items.getRecitsMediatiques(),
           Items.getRecitsScientifiques(),
           Items.getRecitsTechnoIndustriels(),
-          Items.getRecitsCitoyens()
+          Items.getRecitsCitoyensCards()
         ]);
 
         const totalRecits =
