@@ -3,7 +3,7 @@ import { ItemsList, SimpleTextBlock, ToolItemData } from './components';
 import { Bibliographies } from '@/components/features/conference/BibliographyCards';
 import { Mediagraphies } from '@/components/features/conference/MediagraphyCards';
 import { AddResourceCard } from '@/components/features/forms/AddResourceCard';
-import { getResourceConfigByTemplateId, getDisplayName, getResourceUrl } from '@/config/resourceTypes';
+import { getResourceConfigByTemplateId, getRessourceLabel, getResourceUrl } from '@/config/resourceConfig';
 
 /**
  * Helpers pour créer des viewOptions communes facilement
@@ -723,7 +723,7 @@ export const createTargetView = (options?: { key?: string; title?: string; getTa
       return (
         <div className='space-y-4'>
           <div>
-            <span className='inline-block py-1 text-xs font-medium text-c5 rounded-full'>{getDisplayName(firstTarget.type)}</span>
+            <span className='inline-block py-1 text-xs font-medium text-c5 rounded-full'>{getRessourceLabel(firstTarget.type)}</span>
           </div>
 
           {renderer(firstTarget)}
@@ -809,18 +809,18 @@ export const createTargetsListView = (options?: { key?: string; title?: string; 
 
         // Si l'objet a un type défini mais pas de template_id (ex: objets déjà enrichis)
         if (target.type && target.id && !target.template_id && !target.resource_template_id) {
-          const displayName = getDisplayName(target.type);
+          const label = getRessourceLabel(target.type);
 
-          if (!acc[displayName]) {
-            acc[displayName] = {
+          if (!acc[label]) {
+            acc[label] = {
               typeInfo: {
-                type: displayName,
+                type: label,
                 getUrl: (item: any) => getResourceUrl(item.type, item.id),
               },
               items: [],
             };
           }
-          acc[displayName].items.push(target);
+          acc[label].items.push(target);
           return acc;
         }
 
@@ -847,17 +847,17 @@ export const createTargetsListView = (options?: { key?: string; title?: string; 
           return acc;
         }
 
-        const displayName = resourceConfig.displayName;
-        if (!acc[displayName]) {
-          acc[displayName] = {
+        const label = resourceConfig.label;
+        if (!acc[label]) {
+          acc[label] = {
             typeInfo: {
-              type: displayName,
+              type: label,
               getUrl: (item: any) => resourceConfig.getUrl(item.id),
             },
             items: [],
           };
         }
-        acc[displayName].items.push(target);
+        acc[label].items.push(target);
         return acc;
       }, {});
 

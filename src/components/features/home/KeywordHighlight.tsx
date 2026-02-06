@@ -2,15 +2,15 @@ import React from 'react';
 import { getLinksFromKeywords } from '@/services/Links';
 import { useEffect, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
-import { ConfCard, ConfCardSkeleton } from '@/components/features/conference/ConfCards';
+import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
 import { FullCarrousel } from '@/components/ui/Carrousels';
 import { getConfByCitation } from '@/services/api';
 import * as Items from '@/services/Items';
 import { Button } from '@heroui/react';
 import { ArrowIcon, UserIcon } from '@/components/ui/icons';
 import { Link } from 'react-router-dom';
-import { Actant, Citation, Conference, Keyword } from '@/types/ui';
-import { buildConfsRoute } from '@/lib/utils';
+import { Citation, Conference, Keyword } from '@/types/ui';
+import { getResourceUrl } from '@/config/resourceConfig';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -43,7 +43,7 @@ const CitationSlide = ({ item }: { item: Citation }) => {
     if (!conf) {
       return '#';
     }
-    return buildConfsRoute(conf.type, Number(conf.id));
+    return getResourceUrl(conf.type, conf.id) || '#';
   };
 
   return (
@@ -87,45 +87,10 @@ export const KeywordHighlight: React.FC = () => {
   const [filteredCitations, setFilteredCitations] = useState<Citation[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Helper pour normaliser actant en array
-  const normalizeActantToArray = async (actant: any): Promise<Actant[]> => {
-    if (!actant) return [];
-
-    try {
-      let actantIds: string[] = [];
-
-      if (typeof actant === 'string') {
-        actantIds = actant.includes(',') ? actant.split(',').map((id: string) => id.trim()) : [actant];
-      } else if (Array.isArray(actant)) {
-        actantIds = actant.map(String);
-      } else if (typeof actant === 'object' && actant.id) {
-        // Déjà un objet Actant complet
-        return [actant];
-      }
-
-      const actantDetails = await Promise.all(
-        actantIds.map(async (id) => {
-          try {
-            return await Items.getActants(id);
-          } catch (error) {
-            console.error(`Error fetching actant ${id}:`, error);
-            return null;
-          }
-        }),
-      );
-
-      return actantDetails.filter((actant): actant is Actant => actant !== null);
-    } catch (error) {
-      console.error('Error normalizing actant:', error);
-      return [];
-    }
-  };
-
   useEffect(() => {
     const fetchAndProcessData = async () => {
       try {
         const keywords = await Items.getKeywords();
-        const confs = await Items.getSeminarConfs();
         const citations = await Items.getCitations();
 
         const keywordLinks = await Promise.all(
@@ -145,25 +110,9 @@ export const KeywordHighlight: React.FC = () => {
           const randomKeyword = filteredKeywords[Math.floor(Math.random() * filteredKeywords.length)];
           setSelectedKeyword(randomKeyword);
 
-          const confsFiltered = confs.filter((conf: any) => conf.motcles?.some((motcle: any) => motcle.id === randomKeyword.id));
-
-          // Traitement des conférences avec actants normalisés en array
-          const updatedConfs = await Promise.all(
-            confsFiltered.slice(0, 8).map(async (conf: any) => {
-              try {
-                const actantArray = await normalizeActantToArray(conf.actant);
-                return {
-                  ...conf,
-                  actant: actantArray,
-                } as Conference;
-              } catch (error) {
-                console.error(`Error normalizing actant for conf ${conf.id}:`, error);
-                return { ...conf, actant: [] } as Conference;
-              }
-            }),
-          );
-
-          setFilteredConfs(updatedConfs);
+          // Use new getCardsByKeyword function (replaces filtering getSeminarConfs)
+          const confsFiltered = await Items.getCardsByKeyword(randomKeyword.id, 8);
+          setFilteredConfs(confsFiltered as Conference[]);
 
           // Traitement des citations (actant unique)
           const citationsFiltered = citations.filter((citation: any) => citation.motcles?.includes(String(randomKeyword.id)));
@@ -217,10 +166,10 @@ export const KeywordHighlight: React.FC = () => {
       </div>
       <div className='grid grid-cols-4 w-full gap-25'>
         {loading
-          ? Array.from({ length: 8 }).map((_, index) => <ConfCardSkeleton key={index} />)
+          ? Array.from({ length: 8 }).map((_, index) => <ResourceCardSkeleton key={index} />)
           : filteredConfs.map((conference, index) => (
               <motion.div key={conference.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                <ConfCard {...conference} />
+                <ResourceCard item={conference} />
               </motion.div>
             ))}
       </div>

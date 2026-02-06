@@ -1,13 +1,13 @@
 import React from 'react';
 import { Conference } from '@/types/ui';
-import { ConfCard } from '@/components/features/conference/ConfCards';
+import { ResourceCard } from '@/components/features/corpus/ResourceCard';
 
 interface IntervenantInterventionsProps {
   interventions: Conference[];
 }
 
 export const IntervenantInterventions: React.FC<IntervenantInterventionsProps> = ({ interventions }) => {
-  
+
   // Helper to filter by type
   const getInterventionsByType = (type: string) => {
     return interventions.filter(item => item.type === type);
@@ -43,7 +43,10 @@ export const IntervenantInterventions: React.FC<IntervenantInterventionsProps> =
                     <h3 className="text-24 text-c6 font-regular">{category.title}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-25">
                         {category.items.map((item, i) => (
-                            <ConfCard key={i} {...item} />
+                            <ResourceCard 
+                                key={i}
+                                item={item}
+                            />
                         ))}
                     </div>
                 </div>

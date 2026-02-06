@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import * as Items from '@/services/Items';
-import { ConfCard, ConfCardSkeleton } from '@/components/features/conference/ConfCards';
+import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
 import { Conference, Edition as EditionType } from '@/types/ui';
@@ -78,11 +78,11 @@ export const Edition: React.FC = () => {
       </div>
       <div className='grid grid-cols-4 grid-rows-3 gap-25'>
         {loading
-          ? Array.from({ length: 12 }).map((_, index) => <ConfCardSkeleton key={index} />)
+          ? Array.from({ length: 12 }).map((_, index) => <ResourceCardSkeleton key={index} />)
           : conferences.length > 0 ? (
               conferences.map((conference, index) => (
                 <motion.div initial='hidden' animate='visible' variants={fadeIn} key={conference.id} custom={index}>
-                  <ConfCard {...conference} />
+                  <ResourceCard item={conference} />
                 </motion.div>
               ))
           ) : (

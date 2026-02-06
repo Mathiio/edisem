@@ -1,9 +1,10 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/react';
 import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
 import { Conference } from '@/types/ui';
 import { ExperimentationIcon, EditIcon, TrashIcon } from '@/components/ui/icons';
+import { getResourceAuthors, getResourceSubtitle } from '@/lib/resourceUtils';
 
 interface ExpCardProps extends Omit<Conference, 'type'> {
   type?: string;
@@ -14,19 +15,7 @@ interface ExpCardProps extends Omit<Conference, 'type'> {
 
 export const ExpCard: React.FC<ExpCardProps> = (props) => {
   const { type = 'experimentation', showActions = false, onEdit, onDelete, ...experimentation } = props;
-  const navigate = useNavigate();
 
-  const openConf = () => {
-    if (type === 'experimentation') {
-      navigate(`/corpus/experimentation/${experimentation.id}`);
-    } else if (type === 'experimentationStudents') {
-      navigate(`/espace-etudiant/experimentation/${experimentation.id}`);
-    } else if (type === 'tool') {
-      navigate(`/espace-etudiant/outil/${experimentation.id}`);
-    } else if (type === 'feedback') {
-      navigate(`/espace-etudiant/feedback/${experimentation.id}`);
-    }
-  };
 
   const handleEdit = () => {
     if (onEdit && experimentation.id) {
@@ -76,54 +65,16 @@ export const ExpCard: React.FC<ExpCardProps> = (props) => {
      </Dropdown>
   ) : undefined;
 
-  // Helper to extract authors for ResourceCard
-  const getAuthors = () => {
-      const people = experimentation.actants || [];
-      if (!Array.isArray(people)) return [];
-      
-      return people.map(p => ({
-          name: `${p.firstname || p.firstName || ''} ${p.lastname || p.lastName || ''}`.trim() || p.title || p.name || '',
-          picture: p.picture
-      })).filter(a => a.name);
-  };
-
-  // Helper to extract universities strings for subtitle
-  const getSubtitle = () => {
-    const people = experimentation.actants || [];
-    if (!Array.isArray(people) || people.length === 0) return undefined;
-
-    const universities = people
-      .flatMap((person) => {
-        const univs = person?.universite || person?.universities || person?.affiliations || [];
-        return Array.isArray(univs) ? univs : [];
-      })
-      .filter(Boolean);
-
-    if (universities.length === 0) return undefined;
-
-    const uniqueUnivs = Array.from(
-      new Map(
-        universities.map(u => [
-          u.shortName || u.name || u.id,
-          u.shortName || u.name || 'Université'
-        ])
-      ).values()
-    );
-
-    const univText = uniqueUnivs.slice(0, 2).join(' - ');
-    return uniqueUnivs.length > 2 ? `${univText}...` : univText;
-  };
-
   return (
     <ResourceCard 
         title={experimentation.title}
         thumbnailUrl={experimentation.thumbnail}
-        onClick={openConf}
-        authors={getAuthors()}
-        subtitle={getSubtitle()}
+        authors={getResourceAuthors(experimentation)}
+        subtitle={getResourceSubtitle(experimentation)}
         type={type}
         TypeIcon={ExperimentationIcon}
         actions={actions}
+        item={{ ...experimentation, type }}
     />
   );
 };

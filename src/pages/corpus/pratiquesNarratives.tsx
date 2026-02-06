@@ -2,12 +2,13 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Layouts } from '@/components/layout/Layouts';
 import * as Items from '@/services/Items';
 import { FullCarrousel } from '@/components/ui/Carrousels';
-import { ExperimentationIcon, PratiqueNarrativeIcon } from '@/components/ui/icons';
+import { PratiqueNarrativeIcon } from '@/components/ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { KeywordsBarChart } from '@/components/features/pratiquesNarratives/KeywordsBarChart';
 import { ExpCard } from '@/components/features/experimentation/ExpCards';
 import { PageBanner } from '@/components/ui/PageBanner';
+import { RESOURCE_TYPES } from '@/config/resourceConfig';
 
 export const PratiquesNarratives: React.FC = () => {
   const [metrics, setMetrics] = useState({
@@ -20,67 +21,20 @@ export const PratiquesNarratives: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [recitsArtistiques, experimentations, recitsMediatiques, docsScientifiques, objetsTechno, recitsCitoyens] = await Promise.all([
-          Items.getRecitsArtistiques(),
-          Items.getExperimentations(),
-          Items.getRecitsMediatiques(),
-          Items.getRecitsScientifiques(),
-          Items.getRecitsTechnoIndustriels(),
-          Items.getRecitsCitoyens()
+        // Use optimized backend stats instead of loading all data
+        const [stats, keywords, experimentations] = await Promise.all([
+          Items.getNarrativePracticesStats(),
+          Items.getNarrativeTopKeywords(8),
+          Items.getExperimentations() // Still need full data for display
         ]);
 
-        const allRecits = [
-          ...recitsMediatiques,
-          ...docsScientifiques,
-          ...objetsTechno,
-          ...recitsCitoyens,
-          ...recitsArtistiques
-        ];
-
         setMetrics({
-          recits: allRecits.length,
-          experimentations: experimentations.length
+          recits: stats.recits || 0,
+          experimentations: stats.experimentations || 0
         });
+        
         setExperimentationsData(experimentations);
-
-        // Aggregating all keywords
-        const allItems = [
-          ...recitsArtistiques,
-          ...experimentations,
-          ...recitsMediatiques,
-          ...docsScientifiques,
-          ...objetsTechno,
-          ...recitsCitoyens
-        ];
-
-        const keywordCountsMap = new Map<string, number>();
-
-        allItems.forEach((item: any) => {
-          // Collect all possible keyword arrays
-          const itemKeywords = [
-            ...(Array.isArray(item.keywords) ? item.keywords : []),
-            ...(Array.isArray(item.motcles) ? item.motcles : []),
-            ...(Array.isArray(item.concepts) ? item.concepts : [])
-          ];
-
-          itemKeywords.forEach((k: any) => {
-            // Extract the label/title. Assuming k is object {title: string} or string
-            const label = (typeof k === 'object' ? k.title : k) || "";
-            if (label) {
-              // Normalize label if needed (e.g. trim)
-              const normalizedLabel = label.trim();
-              keywordCountsMap.set(normalizedLabel, (keywordCountsMap.get(normalizedLabel) || 0) + 1);
-            }
-          });
-        });
-
-        // Sort by count descending and take top 8
-        const topKeywords = Array.from(keywordCountsMap.entries())
-          .sort((a, b) => b[1] - a[1]) // Sort by count descending
-          .slice(0, 8) // Take top 8
-          .map(([label, value]) => ({ label, value }));
-
-        setKeywordCounts(topKeywords);
+        setKeywordCounts(keywords || []);
 
       } catch (error) {
         console.error("Failed to load Pratiques Narratives data", error);
@@ -89,22 +43,26 @@ export const PratiquesNarratives: React.FC = () => {
     loadData();
   }, []);
 
-  const navCards = useMemo(() => [
-    {
-      id: 'exp',
-      title: 'Expérimentations',
-      description: 'Explorations interdisciplinaires et démarches expérimentales',
-      path: '/corpus/experimentations',
-      icon: ExperimentationIcon
-    },
-    {
-      id: 'recits',
-      title: "Mises en récits de l'IA",
-      description: 'Exploration des imaginaires et représentations médiatiques',
-      path: '/corpus/mises-en-recits',
-      icon: PratiqueNarrativeIcon
-    }
-  ], []);
+  const navCards = useMemo(() => {
+    const expConfig = RESOURCE_TYPES.experimentation;
+    
+    return [
+      {
+        id: 'exp',
+        title: expConfig.collectionLabel || expConfig.label,
+        description: 'Explorations interdisciplinaires et démarches expérimentales',
+        path: expConfig.collectionUrl || expConfig.getUrl(''),
+        icon: expConfig.icon
+      },
+      {
+        id: 'recits',
+        title: "Mises en récits de l'IA",
+        description: 'Exploration des imaginaires et représentations médiatiques',
+        path: '/corpus/mises-en-recits',
+        icon: PratiqueNarrativeIcon
+      }
+    ];
+  }, []);
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
