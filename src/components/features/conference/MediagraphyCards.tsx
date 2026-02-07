@@ -248,7 +248,7 @@ export const MediagraphyCard: React.FC<Mediagraphy> = ({
       className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
-      <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={uri ?? '#'} target='_blank'>
+      <Link className='w-full gap-25 p-25 flex flex-row justify-between' to={uri ?? '#'} target='_blank'>
         <div className={`flex flex-col justify-center transition-transform-colors-opacity ${isHovered ? 'text-c6' : 'text-c4'}`}>
           {thumbnail ? <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' /> : getIcon(mediaType)}
         </div>
@@ -274,7 +274,7 @@ export const MediagraphyCard: React.FC<Mediagraphy> = ({
           )}
         </div>
       </Link>
-      <div className='flex flex-col h-full py-25 pr-25'>
+      <div className='flex flex-col h-full p-25'>
         <AnnotationDropdown
           id={id}
           content={ensureEndsWithPeriod(

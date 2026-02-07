@@ -544,6 +544,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                       <div className='flex flex-col items-start gap-0.5'>
                         <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{getPersonDisplayName(personnes[0])}</h3>
                         {getPersonJobTitle(personnes[0]) && <p className='text-c4 font-extralight text-14'>{getPersonJobTitle(personnes[0])}</p>}
+                        {personnes[0]?.universities?.[0] && <p className='text-c4 font-extralight text-14'>{String(personnes[0].universities[0])}</p>}
                       </div>
                     </Link>
                   ) : (
@@ -556,6 +557,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                       <div className='flex flex-col items-start gap-0.5'>
                         <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{getPersonDisplayName(personnes[0])}</h3>
                         {getPersonJobTitle(personnes[0]) && <p className='text-c4 font-extralight text-14'>{getPersonJobTitle(personnes[0])}</p>}
+                        {personnes[0]?.universities?.[0] && <p className='text-c4 font-extralight text-14'>{String(personnes[0].universities[0])}</p>}
                       </div>
                     </div>
                   ))}

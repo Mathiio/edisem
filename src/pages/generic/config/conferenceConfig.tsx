@@ -14,7 +14,6 @@ import { getResourceDetails } from '@/services/resourceDetails';
 export const conferenceConfig: GenericDetailPageConfig = {
   // Data fetching - using unified endpoint
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    await new Promise((resolve) => setTimeout(resolve, 100000));
     // Fetch unified resource details
     const details = await getResourceDetails(id);
     
