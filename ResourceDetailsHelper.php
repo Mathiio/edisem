@@ -66,9 +66,18 @@ class ResourceDetailsHelper
             $result['references'] = $this->fetchReferences($resourceId);
             $result['microResumes'] = $this->fetchMicroResumes($resourceId);
         } elseif ($isExperimentation) {
-            $result['description'] = $this->fetchDescription($resourceId);
+            // Description from property 4 (dcterms:description)
+            $result['description'] = $this->fetchProperty($resourceId, 4);
+            $result['abstract'] = $this->fetchProperty($resourceId, 86); // Hypothesis/Abstract (prop 86 - dcterms:abstract)
             $result['date'] = $this->fetchDate($resourceId);
-            $result['keywords'] = $this->fetchSubjects($resourceId); // dcterms:subject (4)
+            $result['status'] = $this->fetchStatus($resourceId); // Statut (prop 1418)
+            $result['percentage'] = $this->fetchPercentage($resourceId); // Pourcentage d'avancement (prop 1263)
+            $result['keywords'] = $this->fetchKeywords($resourceId); // jdc:hasConcept (2097) - même que conférences
+            $result['tools'] = $this->fetchTools($resourceId); // Outils techniques (prop 2145)
+            $result['feedbacks'] = $this->fetchFeedbacks($resourceId); // Retours d'expérience (prop 1606)
+            $result['citations'] = $this->fetchCitationsWithDetails($resourceId); // Citations bibliographiques (prop 48)
+            $result['references'] = $this->fetchReferences($resourceId); // Références (prop 36)
+            $result['relatedExperimentations'] = $this->fetchRelatedExperimentations($resourceId); // Expérimentations liées
         }
         
         return $result;
@@ -87,6 +96,21 @@ class ResourceDetailsHelper
         ];
         
         return $types[$templateId] ?? 'unknown';
+    }
+    
+    /**
+     * Generic fetch for a single property value
+     */
+    private function fetchProperty($resourceId, $propertyId)
+    {
+        $sql = "
+            SELECT value
+            FROM value
+            WHERE resource_id = ? AND property_id = ?
+            LIMIT 1
+        ";
+        
+        return $this->conn->fetchOne($sql, [$resourceId, $propertyId]) ?: null;
     }
     
     /**
@@ -126,7 +150,7 @@ class ResourceDetailsHelper
     {
         // If there's a media file, use it
         if ($mediaFile) {
-            return 'https://tests.arcanes.ca/omk/files/square/' . $mediaFile;
+            return 'https://tests.arcanes.ca/omk/files/original/' . $mediaFile;
         }
         
         // Otherwise, try to extract YouTube thumbnail
@@ -576,7 +600,7 @@ class ResourceDetailsHelper
             return [
                 'id' => $row['id'],
                 'title' => $row['title'],
-                'thumbnail' => $row['thumbnail'] ? 'https://tests.arcanes.ca/omk/files/square/' . $row['thumbnail'] : null
+                'thumbnail' => $row['thumbnail'] ? 'https://tests.arcanes.ca/omk/files/original/' . $row['thumbnail'] : null
             ];
         }, $rows);
     }
@@ -607,7 +631,7 @@ class ResourceDetailsHelper
             return [
                 'id' => $row['id'],
                 'title' => $row['title'],
-                'thumbnail' => $row['thumbnail'] ? 'https://tests.arcanes.ca/omk/files/square/' . $row['thumbnail'] : null
+                'thumbnail' => $row['thumbnail'] ? 'https://tests.arcanes.ca/omk/files/original/' . $row['thumbnail'] : null
             ];
         }, $rows);
     }
@@ -633,6 +657,166 @@ class ResourceDetailsHelper
             return [
                 'id' => $row['id'],
                 'title' => $row['title']
+            ];
+        }, $rows);
+    }
+    
+    /**
+     * Fetch status (prop 1418) for experimentations
+     */
+    private function fetchStatus($resourceId)
+    {
+        $sql = "
+            SELECT value
+            FROM value
+            WHERE resource_id = ? AND property_id = 1418
+            LIMIT 1
+        ";
+        
+        return $this->conn->fetchOne($sql, [$resourceId]) ?: null;
+    }
+    
+    /**
+     * Fetch percentage (prop 1263) for experimentations
+     */
+    private function fetchPercentage($resourceId)
+    {
+        $sql = "
+            SELECT value
+            FROM value
+            WHERE resource_id = ? AND property_id = 1263
+            LIMIT 1
+        ";
+        
+        return $this->conn->fetchOne($sql, [$resourceId]) ?: null;
+    }
+    
+    /**
+     * Fetch tools (prop 2145) - technical credits/tools used
+     * Returns detailed tool information
+     */
+    private function fetchTools($resourceId)
+    {
+        $sql = "
+            SELECT 
+                r.id,
+                (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 1 LIMIT 1) as title,
+                (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 4 LIMIT 1) as description,
+                (SELECT CONCAT(m.storage_id, '.', m.extension) FROM media m WHERE m.item_id = r.id LIMIT 1) as thumbnail
+            FROM value v_link
+            INNER JOIN resource r ON v_link.value_resource_id = r.id
+            WHERE v_link.resource_id = ?
+            AND v_link.property_id = 2145
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql, [$resourceId]);
+        
+        return array_map(function($row) {
+            return [
+                'id' => $row['id'],
+                'title' => $row['title'],
+                'description' => $row['description'],
+                'thumbnail' => $row['thumbnail'] ? 'https://tests.arcanes.ca/omk/files/original/' . $row['thumbnail'] : null
+            ];
+        }, $rows);
+    }
+    
+    /**
+     * Fetch feedbacks (prop 1606) - retours d'expérience
+     * Returns detailed feedback information with contributors
+     */
+    private function fetchFeedbacks($resourceId)
+    {
+        $sql = "
+            SELECT 
+                r.id,
+                (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 1 LIMIT 1) as title,
+                (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 4 LIMIT 1) as description,
+                (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 7 LIMIT 1) as date,
+                (SELECT CONCAT(m.storage_id, '.', m.extension) FROM media m WHERE m.item_id = r.id LIMIT 1) as thumbnail
+            FROM value v_link
+            INNER JOIN resource r ON v_link.value_resource_id = r.id
+            WHERE v_link.resource_id = ?
+            AND v_link.property_id = 1606
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql, [$resourceId]);
+        
+        if (empty($rows)) return [];
+        
+        // Fetch contributors for each feedback
+        $feedbackIds = array_column($rows, 'id');
+        $feedbackIdsStr = implode(',', $feedbackIds);
+        
+        $contributorsSql = "
+            SELECT 
+                v_link.resource_id as feedback_id,
+                r.id as contributor_id,
+                (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 139 LIMIT 1) as firstname,
+                (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 140 LIMIT 1) as lastname,
+                (SELECT CONCAT(m.storage_id, '.', m.extension) FROM media m WHERE m.item_id = r.id LIMIT 1) as picture
+            FROM value v_link
+            INNER JOIN resource r ON v_link.value_resource_id = r.id
+            WHERE v_link.resource_id IN ($feedbackIdsStr)
+            AND v_link.property_id = 581
+            AND r.resource_template_id = 72
+        ";
+        
+        $contributors = $this->conn->fetchAllAssociative($contributorsSql);
+        
+        // Group contributors by feedback
+        $contributorsByFeedback = [];
+        foreach ($contributors as $contributor) {
+            $feedbackId = $contributor['feedback_id'];
+            if (!isset($contributorsByFeedback[$feedbackId])) {
+                $contributorsByFeedback[$feedbackId] = [];
+            }
+            
+            $contributorsByFeedback[$feedbackId][] = [
+                'id' => $contributor['contributor_id'],
+                'firstname' => $contributor['firstname'],
+                'lastname' => $contributor['lastname'],
+                'display_title' => trim($contributor['firstname'] . ' ' . $contributor['lastname']),
+                'thumbnail_url' => $contributor['picture'] ? 'https://tests.arcanes.ca/omk/files/original/' . $contributor['picture'] : null
+            ];
+        }
+        
+        return array_map(function($row) use ($contributorsByFeedback) {
+            return [
+                'id' => $row['id'],
+                'title' => $row['title'],
+                'description' => $row['description'],
+                'date' => $row['date'],
+                'contributors' => $contributorsByFeedback[$row['id']] ?? []
+            ];
+        }, $rows);
+    }
+    
+    /**
+     * Fetch related experimentations (prop 937)
+     * Returns basic info for recommendations
+     */
+    private function fetchRelatedExperimentations($resourceId)
+    {
+        $sql = "
+            SELECT 
+                r.id,
+                (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 1 LIMIT 1) as title,
+                (SELECT CONCAT(m.storage_id, '.', m.extension) FROM media m WHERE m.item_id = r.id LIMIT 1) as thumbnail
+            FROM value v_link
+            INNER JOIN resource r ON v_link.value_resource_id = r.id
+            WHERE v_link.resource_id = ?
+            AND v_link.property_id = 937
+            AND r.resource_template_id = 108
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql, [$resourceId]);
+        
+        return array_map(function($row) {
+            return [
+                'id' => $row['id'],
+                'title' => $row['title'],
+                'thumbnail' => $row['thumbnail'] ? 'https://tests.arcanes.ca/omk/files/original/' . $row['thumbnail'] : null
             ];
         }, $rows);
     }

@@ -185,7 +185,13 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
           {description}
         </p>
         {actants && actants.length > 0 && (
-          <p className='text-14 text-end text-c4 italic  transition-all ease-in-out duration-200'>Ajouté par : {actants.map((actant: any) => actant.name).join(', ')}</p>
+          <p className='text-14 text-end text-c4 italic transition-all ease-in-out duration-200'>
+            Ajouté par : {actants.map((actant: any) => {
+              const name = actant.name || `${actant.firstname} ${actant.lastname}`;
+              const uni = actant.universities?.[0] ? ` (${actant.universities[0]})` : '';
+              return name + uni;
+            }).join(', ')}
+          </p>
         )}
         <p className='text-16 text-c5 font-semibold transition-all ease-in-out duration-200'>{expanded ? 'affichez moins' : '...affichez plus'}</p>
       </motion.div>

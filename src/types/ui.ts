@@ -205,4 +205,20 @@ export type ResourceDetails = {
 
   // Experimentation-specific fields
   description?: string;
+  status?: string;
+  percentage?: string;
+  tools?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    thumbnail: string | null;
+  }>;
+  feedbacks?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    date: string;
+    contributors: SimpleActant[];
+  }>;
+  relatedExperimentations?: ResourceReference[];
 };

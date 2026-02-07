@@ -78,7 +78,7 @@ export const elementEsthetiqueConfig: GenericDetailPageConfig = {
                   <div key={field.key} className='flex flex-col gap-10'>
                     <h3 className='text-18 font-medium text-c6'>{field.label}</h3>
                     <div className='w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 border-c3'>
-                      <div className='w-full gap-25 py-25 pl-25 flex flex-row justify-between'>
+                      <div className='w-full gap-25 p-25 flex flex-row justify-between'>
                         <div className='flex flex-col gap-4 items-start'>
                           <div className='w-full flex flex-col gap-10'>
                             <p className='text-c6 text-16'>{itemDetails[field.key]}</p>

@@ -129,7 +129,7 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, onNavigate, animationD
       className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'} ${isNavigating ? 'opacity-50 pointer-events-none' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
-      <Link className='w-full gap-25 py-25 pl-25 flex flex-row justify-between' to={itemUrl} target={itemUrl.startsWith('http') ? '_blank' : undefined} onClick={handleClick}>
+      <Link className='w-full gap-25 p-25  flex flex-row justify-between' to={itemUrl} target={itemUrl.startsWith('http') ? '_blank' : undefined} onClick={handleClick}>
         <div className='flex flex-row gap-4 items-start'>
           {thumbnail && (
             <div className='flex-shrink-0'>
@@ -142,11 +142,6 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, onNavigate, animationD
           </div>
         </div>
       </Link>
-      {/* {showAnnotation && (
-        <div className='flex flex-col h-full py-25 pr-25'>
-          <AnnotationDropdown id={Number(tool.id)} content={tool.description} image={thumbnail} type={annotationType} />
-        </div>
-      )} */}
     </div>
   );
 };
@@ -163,7 +158,7 @@ interface SimpleTextBlockProps {
 export const SimpleTextBlock: React.FC<SimpleTextBlockProps> = ({ content, className = '' }) => {
   return (
     <div className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity border-c3 ${className}`}>
-      <div className='w-full gap-25 py-25 px-25 flex flex-row justify-between'>
+      <div className='w-full gap-25 p-25 flex flex-row justify-between'>
         <div className='flex flex-col gap-4 items-start w-full'>
           <div className='w-full flex flex-col gap-10'>
             <p className='text-c6 text-16 h-full' style={{ whiteSpace: 'pre-line', wordBreak: 'break-word' }}>
