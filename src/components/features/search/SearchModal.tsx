@@ -1,5 +1,5 @@
 import { useEffect, forwardRef, useImperativeHandle } from 'react';
-import { Modal, ModalContent, ModalBody, useDisclosure } from '@heroui/react';
+import { Modal, ModalContent, ModalBody, useDisclosure, Alert } from '@heroui/react';
 import { SearchIcon } from '@/components/ui/icons';
 // import { useSearch } from '@/hooks/useSearch';
 // import { SearchInput } from './SearchInput';
@@ -120,12 +120,11 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
               </h1>
 
               {/* Maintenance message */}
-              <div className="flex flex-col items-center justify-center py-40 px-20 bg-c3/30 rounded-12 border-2 border-c3">
-                <p className="text-18 text-c6 font-medium mb-10">En cours de maintenance</p>
-                <p className="text-14 text-c5 text-center">
-                  La recherche est temporairement indisponible. Merci de réessayer plus tard.
-                </p>
-              </div>
+              <Alert
+                color="warning"
+                description="Le site éprouve actuellement quelques difficultés sur le navigateur Safari. Merci de vous rediriger vers Chrome pour une expérience optimale."
+                variant="faded"
+              />
 
               {/* Commented out search functionality */}
               {/* <SearchInput
