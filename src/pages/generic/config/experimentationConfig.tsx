@@ -31,7 +31,6 @@ export const experimentationConfig: GenericDetailPageConfig = {
         });
       }
     }
-    console.log('experimentation', experimentation);
     return {
       itemDetails: experimentation,
       keywords: experimentation?.keywords || [],
