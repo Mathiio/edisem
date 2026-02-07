@@ -626,128 +626,6 @@ export async function getNavbarEditions() {
   }
 }
 
-export async function getSeminarConfs(confId?: number) {
-  try {
-    checkAndClearDailyCache();
-    const confs = sessionStorage.getItem('seminarConfs')
-      ? JSON.parse(sessionStorage.getItem('seminarConfs')!)
-      : await (async () => {
-        const [rawConfs, keywords] = await Promise.all([
-          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
-          getKeywords(),
-        ]);
-
-        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
-
-        return rawConfs.map((conf: any) => ({
-          ...conf,
-          type: 'seminaire',
-          motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
-          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
-        }));
-      })();
-
-    if (!sessionStorage.getItem('seminarConfs')) {
-      sessionStorage.setItem('seminarConfs', JSON.stringify(confs));
-    }
-
-    return confId
-      ? await (async () => {
-        const conf = confs.find((c: any) => c.id === String(confId));
-        if (!conf) throw new Error(`Conference with id ${confId} not found`);
-
-        if (conf.actant) conf.actant = await getActants(conf.actant);
-        return conf;
-      })()
-      : confs;
-  } catch (error) {
-    console.error('Error fetching confs:', error);
-    throw new Error('Failed to fetch confs');
-  }
-}
-
-export async function getColloqueConfs(confId?: number) {
-  try {
-    checkAndClearDailyCache();
-    const confs = sessionStorage.getItem('colloqueConfs')
-      ? JSON.parse(sessionStorage.getItem('colloqueConfs')!)
-      : await (async () => {
-        const [rawConfs, keywords] = await Promise.all([
-          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getColloqueConfs&json=1'),
-          getKeywords(),
-        ]);
-
-        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
-
-        return rawConfs.map((conf: any) => ({
-          ...conf,
-          type: 'colloque',
-          motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
-          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
-        }));
-      })();
-
-    if (!sessionStorage.getItem('colloqueConfs')) {
-      sessionStorage.setItem('colloqueConfs', JSON.stringify(confs));
-    }
-
-    return confId
-      ? await (async () => {
-        const conf = confs.find((c: any) => c.id === String(confId));
-        if (!conf) throw new Error(`Conference with id ${confId} not found`);
-
-        if (conf.actant) conf.actant = await getActants(conf.actant);
-        return conf;
-      })()
-      : confs;
-  } catch (error) {
-    console.error('Error fetching confs:', error);
-    throw new Error('Failed to fetch confs');
-  }
-}
-
-export async function getStudyDayConfs(confId?: number) {
-  try {
-    checkAndClearDailyCache();
-    const confs = sessionStorage.getItem('studyDayConfs')
-      ? JSON.parse(sessionStorage.getItem('studyDayConfs')!)
-      : await (async () => {
-        const [rawConfs, keywords] = await Promise.all([
-          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
-          getKeywords(),
-        ]);
-
-        const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
-
-        return (rawConfs || []).map((conf: any) => ({
-          ...conf,
-          type: 'journee_etudes',
-          motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
-          url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-          fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
-        }));
-      })();
-
-    if (!sessionStorage.getItem('studyDayConfs')) {
-      sessionStorage.setItem('studyDayConfs', JSON.stringify(confs));
-    }
-
-    return confId
-      ? await (async () => {
-        const conf = confs.find((c: any) => c.id === String(confId));
-        if (!conf) throw new Error(`Conference with id ${confId} not found`);
-
-        if (conf.actant) conf.actant = await getActants(conf.actant);
-        return conf;
-      })()
-      : confs;
-  } catch (error) {
-    console.error('Error fetching confs:', error);
-    return []; // Return an empty array instead of throwing an error
-  }
-}
 
 export async function getAllItems() {
   try {
@@ -758,9 +636,7 @@ export async function getAllItems() {
     }
 
     const [
-      studyDayConfs,
-      seminarConfs,
-      colloqueConfs,
+      allConfs,
       actants,
       universities,
       laboratories,
@@ -783,9 +659,7 @@ export async function getAllItems() {
       personnes,
       comments,
     ] = await Promise.all([
-      getStudyDayConfs(),
-      getSeminarConfs(),
-      getColloqueConfs(),
+      getAllConfs(),
       getActants(),
       getUniversities(),
       getLaboratories(),
@@ -810,9 +684,7 @@ export async function getAllItems() {
     ]);
 
     const allItems = [
-      ...studyDayConfs,
-      ...seminarConfs,
-      ...colloqueConfs,
+      ...allConfs,
       ...actants,
       ...universities,
       ...laboratories,
@@ -852,7 +724,43 @@ export async function getAllItems() {
 export async function getAllConfs(id?: number) {
   try {
     checkAndClearDailyCache();
-    const [seminarConfs, colloqueConfs, studyDayConfs, microResumes] = await Promise.all([getSeminarConfs(), getColloqueConfs(), getStudyDayConfs(), getMicroResumes()]);
+
+    // Fetch all conference types, keywords, and microResumes in parallel
+    const [rawSeminarConfs, rawColloqueConfs, rawStudyDayConfs, keywords, microResumes] = await Promise.all([
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getColloqueConfs&json=1'),
+      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
+      getKeywords(),
+      getMicroResumes(),
+    ]);
+
+    // Create keyword map for lookups
+    const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
+
+    // Process each conference type
+    const seminarConfs = rawSeminarConfs.map((conf: any) => ({
+      ...conf,
+      type: 'seminaire',
+      motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+      url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+      fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
+    }));
+
+    const colloqueConfs = rawColloqueConfs.map((conf: any) => ({
+      ...conf,
+      type: 'colloque',
+      motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
+      url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+      fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
+    }));
+
+    const studyDayConfs = (rawStudyDayConfs || []).map((conf: any) => ({
+      ...conf,
+      type: 'journee_etudes',
+      motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
+      url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
+      fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
+    }));
 
     // Créer une map des micro-résumés indexée par relatedResource (ID de conférence)
     const microResumesByConfId = new Map<string, any[]>();
@@ -1638,7 +1546,6 @@ export async function getAnalyseCritiqueById(id: string | number) {
       console.log('Direct API call failed, trying alternative endpoints...');
     }
 
-    console.log('❌ Analyse critique not found with ID:', id);
     return null;
   } catch (error) {
     console.error('Error fetching analyse critique:', error);
@@ -2266,12 +2173,3 @@ export async function getMicroResumes(id?: number) {
     throw new Error('Failed to fetch micro resumes');
   }
 }
-
-export function generateThumbnailUrl(mediaId: string | number): string {
-  // Assuming the API endpoint for media thumbnails follows this pattern
-  return `https://tests.arcanes.ca/omk/s/edisem/media/${mediaId}`;
-}
-export function getExperimentationsCards(): any {
-  throw new Error('Function not implemented.');
-}
-

@@ -25,9 +25,19 @@ const RESOURCE_TYPE_FETCHERS: Record<ResourceType, FetcherFunction> = {
   recit_citoyen: async (id) => Items.getRecitsCitoyens(typeof id === 'string' ? parseInt(id) : id),
   recit_mediatique: async (id) => Items.getRecitsMediatiques(typeof id === 'string' ? parseInt(id) : id),
   annotation: async (id) => Items.getAnnotations(typeof id === 'string' ? parseInt(id) : id),
-  journee_etudes: async (id) => Items.getStudyDayConfs(typeof id === 'string' ? parseInt(id) : id),
-  seminaire: async (id) => Items.getSeminarConfs(typeof id === 'string' ? parseInt(id) : id),
-  colloque: async (id) => Items.getColloqueConfs(typeof id === 'string' ? parseInt(id) : id),
+  // Use unified getAllConfs with type filtering
+  journee_etudes: async (id) => {
+    const allConfs = await Items.getAllConfs(typeof id === 'string' ? parseInt(id) : id);
+    return Array.isArray(allConfs) ? allConfs.find((c: any) => c.type === 'journee_etudes' && String(c.id) === String(id)) : allConfs;
+  },
+  seminaire: async (id) => {
+    const allConfs = await Items.getAllConfs(typeof id === 'string' ? parseInt(id) : id);
+    return Array.isArray(allConfs) ? allConfs.find((c: any) => c.type === 'seminaire' && String(c.id) === String(id)) : allConfs;
+  },
+  colloque: async (id) => {
+    const allConfs = await Items.getAllConfs(typeof id === 'string' ? parseInt(id) : id);
+    return Array.isArray(allConfs) ? allConfs.find((c: any) => c.type === 'colloque' && String(c.id) === String(id)) : allConfs;
+  },
   element_esthetique: async (id) => Items.getElementEsthetiques(typeof id === 'string' ? parseInt(id) : id),
   element_narratif: async (id) => Items.getElementNarratifs(typeof id === 'string' ? parseInt(id) : id),
   experimentation: async (id) => Items.getExperimentations(typeof id === 'string' ? parseInt(id) : id),

@@ -25,7 +25,6 @@ export const Oeuvres: React.FC = () => {
 
       // Verify if recitsArtistiques is a valid array
       if (!Array.isArray(recitsArtistiques)) {
-        console.warn('⚠️ getRecitsArtistiques() did not return an array:', recitsArtistiques);
         setOeuvres([]);
         return;
       }
