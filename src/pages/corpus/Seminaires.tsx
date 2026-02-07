@@ -1,5 +1,4 @@
 import { CorpusCarousel } from "@/components/features/corpus/CorpusCarousel";
-import { TopKeywords } from "@/components/features/seminaires/TopKeywords";
 import { Layouts } from "@/components/layout/Layouts";
 import * as Items from "@/services/Items";
 import { useEffect, useState } from 'react';
@@ -9,7 +8,6 @@ import { Edition } from '@/types/ui';
 
 
 export const Seminaires = () => {
-  const [seminaires, setSeminaires] = useState([]);
   const [seminarEditions, setSeminarEditions] = useState<Edition[]>([]);
   const [loading, setLoading] = useState(true);
   const totalEditions = seminarEditions.length;
@@ -20,7 +18,6 @@ export const Seminaires = () => {
       try {
         const editions = await Items.getEditionsByType('seminaire');
         setSeminarEditions(editions);
-        setSeminaires(await Items.getSeminarConfs());
       } catch (error) {
         console.error('Error loading seminars & editions', error);
       } finally {
@@ -41,7 +38,6 @@ export const Seminaires = () => {
         ]}
       />
       <CorpusCarousel editions={seminarEditions} loading={loading} title="Tous nos séminaires" />
-      <TopKeywords seminaires={seminaires} loading={loading} />
     </Layouts>
   );
 };

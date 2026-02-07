@@ -61,7 +61,7 @@ export const conferenceConfig: GenericDetailPageConfig = {
     };
   },
 
-  fetchRecommendations: async (ids: string[], fetchedData?: any) => {
+  fetchRecommendations: async (fetchedData?: any) => {
     // Use relatedConferences from viewData
     if (fetchedData?.viewData?.relatedConferences) {
       return fetchedData.viewData.relatedConferences.map((conf: any) => ({
