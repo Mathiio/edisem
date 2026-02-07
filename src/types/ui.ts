@@ -44,7 +44,9 @@ export type Keyword = {
   relative_concept: Keyword[];
   genre_media: string[];
   related_subject: string[];
-  linked_subject: string[];
+  linked_subject: Keyword[];
+  popularity?: number;
+  linkCount?: number;
 };
 
 export type Actant = {

@@ -180,10 +180,10 @@ class QuerySqlViewHelper extends AbstractHelper
                 $types = isset($params['types']) ? explode(',', $params['types']) : [];
                 $result = $this->getCardsByActant($actantId, $types);
                 break;
-            case 'getCardsByKeyword':
+            case 'getResourceCardsByKeyword':
                 $keywordId = $params['keywordId'] ?? null;
-                $limit = $params['limit'] ?? 8;
-                $result = $this->getCardsByKeyword($keywordId, $limit);
+                $limit = $params['limit'] ?? 12;
+                $result = $this->getResourceCardsByKeyword($keywordId, $limit);
                 break;
             
             // Stats & Metrics Routes
@@ -8584,16 +8584,15 @@ class QuerySqlViewHelper extends AbstractHelper
         // Delegate to QueryCardHelper for standardized card data
         return $this->cardHelper->fetchCards($resourceIds);
     }
-    
     /**
-     * Get cards filtered by Keyword (Concept) ID
-     * Fetches conferences (seminaires, colloques, journées d'études) linked to a specific keyword
+     * Get resource cards filtered by Keyword (Concept) ID - ALL TYPES
+     * Fetches varied resources (conferences, récits, experimentations, tools, etc.) linked to a specific keyword
      * 
      * @param int $keywordId Keyword resource ID
-     * @param int $limit Maximum number of cards to return
+     * @param int $limit Maximum number of cards to return (default 12)
      * @return array Standardized card data
      */
-    public function getCardsByKeyword($keywordId, $limit = 8) {
+    public function getResourceCardsByKeyword($keywordId, $limit = 12) {
         if (!$keywordId) {
             return [];
         }
@@ -8601,34 +8600,34 @@ class QuerySqlViewHelper extends AbstractHelper
         $keywordId = (int)$keywordId;
         $limit = (int)$limit;
         
-        // Template IDs for conferences (seminaire, colloque, journée d'études)
-        $templateIds = [71, 122, 121];
+        // Template IDs for various resource types
+        // Conferences: 71 (seminaire), 122 (colloque), 121 (journée d'études)
+        // Récits: 127 (artistique), 126 (scientifique), 128 (médiatique), 129 (techno), 130 (citoyen)
+        // Others: 124 (experimentation), 125 (tool), 84 (feedback)
+        $templateIds = [71, 122, 121, 127, 126, 128, 129, 130, 124, 125, 84];
         $templateIdsStr = implode(',', $templateIds);
         
-        // Get all conferences linked to this keyword (Property 2097 - jdc:hasConcept)
+        // Get all resources linked to this keyword (Property 2097 - jdc:hasConcept)
         $sql = "
             SELECT DISTINCT v.resource_id as id
             FROM value v
             INNER JOIN resource r ON r.id = v.resource_id
             WHERE v.property_id = 2097
-            AND v.value_resource_id = :keywordId
+            AND v.value_resource_id = $keywordId
             AND r.resource_template_id IN ($templateIdsStr)
             ORDER BY r.created DESC
-            LIMIT :limit
+            LIMIT $limit
         ";
         
-        $rows = $this->conn->fetchAllAssociative($sql, [
-            'keywordId' => $keywordId,
-            'limit' => $limit
-        ]);
+        $rows = $this->conn->fetchAllAssociative($sql);
         
         if (empty($rows)) {
             return [];
         }
         
-        $confIds = array_column($rows, 'id');
+        $resourceIds = array_column($rows, 'id');
         
         // Delegate to QueryCardHelper for standardized card data
-        return $this->cardHelper->fetchCards($confIds);
+        return $this->cardHelper->fetchCards($resourceIds);
     }
 }
