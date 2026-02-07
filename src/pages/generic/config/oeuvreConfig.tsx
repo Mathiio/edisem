@@ -123,8 +123,10 @@ export const oeuvreConfig: GenericDetailPageConfig = {
     let recommendedConfs: any[] = [];
     if (recit_artistique?.recommendations?.length) {
       try {
-        const recommendationsPromises = recit_artistique.recommendations.map((recId: string) => Items.getSeminarConfs(Number(recId)));
-        recommendedConfs = await Promise.all(recommendationsPromises);
+        const allConfs = await Items.getAllConfs();
+        recommendedConfs = recit_artistique.recommendations
+          .map((recId: string) => allConfs.find((c: any) => String(c.id) === String(recId)))
+          .filter(Boolean);
       } catch (error) {
         console.error('Error fetching recommended conferences:', error);
       }

@@ -136,14 +136,3 @@ export const getRecitDateLine = (item: any): string => {
     if (item.type === 'recit_citoyen') return `Fondé : ${date}`;
     return `Publié : ${date}`;
 };
-
-export function generateThumbnailUrl(mediaId: string | number): string {
-    const mediaIdString = String(mediaId);
-
-    // Check if it's a YouTube media ID (typically numeric)
-    if (/^\d+$/.test(mediaIdString)) {
-        return `https://tests.arcanes.ca/omk/files/original/${mediaIdString}.jpg`;
-    }
-
-    return '';
-}
