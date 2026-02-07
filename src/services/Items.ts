@@ -2084,11 +2084,12 @@ export async function getCardsByActant(actantId: string | number, types: string[
  * @param limit - Maximum number of cards to return (default: 8)
  * @returns Array of standardized card data
  */
-export async function getCardsByKeyword(keywordId: string | number, limit: number = 8) {
+
+export async function getResourceCardsByKeyword(keywordId: string | number, limit: number = 12) {
   try {
-    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCardsByKeyword&keywordId=${keywordId}&limit=${limit}&json=1`);
+    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getResourceCardsByKeyword&keywordId=${keywordId}&limit=${limit}&json=1`);
   } catch (error) {
-    console.error('Error fetching cards by keyword:', error);
+    console.error('Error fetching resource cards by keyword:', error);
     return [];
   }
 }
