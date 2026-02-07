@@ -1,4 +1,4 @@
-import {SVGProps} from "react";
+import { SVGProps } from "react";
 
 export type IconSvgProps = SVGProps<SVGSVGElement> & {
   size?: number;
@@ -94,7 +94,7 @@ export type Conference = {
   description: string;
   citations: Citation[];
   bibliographies: Bibliography[];
-  mediagraphies: Mediagraphy[]; 
+  mediagraphies: Mediagraphy[];
   motcles: Keyword[];
   recommendation: Conference[];
   thumbnail?: string;
@@ -140,3 +140,69 @@ export type Mediagraphy = {
   place?: string;
   resource_template_id: string;
 }
+
+// New types for unified resource details
+export type ResourceMedia = {
+  id: string;
+  title: string;
+  thumbnail: string | null;
+};
+
+export type ResourceReference = {
+  id: string;
+  title: string;
+  thumbnail: string | null;
+  date?: string | null;
+  actants?: SimpleActant[];
+};
+
+export type ResourceCitation = {
+  id: string;
+  citation: string;
+  actant: SimpleActant; // Always present (backend provides default empty object)
+  startTime: number;
+  endTime: number;
+};
+
+export type SimpleKeyword = {
+  id: string;
+  name: string;
+};
+
+export type SimpleActant = {
+  id: string;
+  firstname: string;
+  lastname: string;
+  name: string;
+  picture: string | null;
+  universities?: string[]; // Array of university shortNames
+};
+
+export type MicroResume = {
+  id: string;
+  title: string;
+};
+
+export type ResourceDetails = {
+  id: string;
+  title: string;
+  type: 'seminaire' | 'journee_etudes' | 'colloque' | 'experimentation';
+  template_id: number;
+
+  // Common fields
+  actants: SimpleActant[];
+  associatedMedia: ResourceMedia[];
+  date: string | null;
+  videoUrl?: string | null;
+
+  // Conference-specific fields
+  abstract?: string;
+  keywords?: SimpleKeyword[];
+  relatedConferences?: ResourceReference[];
+  citations?: ResourceCitation[];
+  references?: ResourceReference[];
+  microResumes?: MicroResume[];
+
+  // Experimentation-specific fields
+  description?: string;
+};

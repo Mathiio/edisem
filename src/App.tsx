@@ -37,6 +37,8 @@ import { recitmediatiqueConfig } from '@/pages/generic/config/recitmediatiqueCon
 import { recitcitoyenConfig } from './pages/generic/config/recitcitoyenConfig';
 import { NavigationTrailProvider } from './hooks/useNavigationTrail';
 import { EspaceEtudiant } from './pages/espaceEtudiant';
+import { LoadingScreen } from './components/layout/LoadingScreen';
+import { useState, useCallback, useEffect, createContext, useContext } from 'react';
 import { experimentationStudentConfig } from './pages/generic/config/experimentationStudentConfig';
 import { toolStudentConfig } from './pages/generic/config/toolStudentConfig';
 import { feedbackStudentConfig } from './pages/generic/config/feedbackStudentConfig';
@@ -48,6 +50,18 @@ import { CourseManagement } from './pages/admin/CourseManagement';
 import { ActantManagement } from './pages/admin/ActantManagement';
 import ResourceManagement from './pages/admin/ResourceManagement';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+
+// Create context for navbar ready callback
+interface NavbarReadyContextType {
+  onNavbarReady: () => void;
+}
+
+const NavbarReadyContext = createContext<NavbarReadyContextType | null>(null);
+
+export const useNavbarReadyContext = () => {
+  const context = useContext(NavbarReadyContext);
+  return context;
+};
 
 const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 const ProtectedStudentManagement = withAuth(StudentManagement, { requiredRole: 'actant' });
@@ -62,11 +76,29 @@ const ProtectedConfigurableDetailPage = withAuth(ConfigurableDetailPage, { requi
 
 function App() {
   useThemeMode();
+  const [navbarReady, setNavbarReady] = useState(false);
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+
+  // Ensure minimum loading time of 500ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinTimeElapsed(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleNavbarReady = useCallback(() => {
+    setNavbarReady(true);
+  }, []);
+
+  const isLoading = !navbarReady || !minTimeElapsed;
 
   return (
     <HeroUIProvider>
       <ToastProvider />
-      <NavigationTrailProvider>
+      <LoadingScreen isLoading={isLoading} />
+      <NavbarReadyContext.Provider value={{ onNavbarReady: handleNavbarReady }}>
+        <NavigationTrailProvider>
         <Routes>
           {/* Base routes */}
           <Route index path='/' Component={Home} />
@@ -157,6 +189,7 @@ function App() {
           <Route path='/add-resource/retour-experience' element={<ProtectedConfigurableDetailPage config={feedbackStudentConfig} initialMode='create' />} />
         </Routes>
       </NavigationTrailProvider>
+      </NavbarReadyContext.Provider>
     </HeroUIProvider>
   );
 }

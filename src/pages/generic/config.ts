@@ -29,7 +29,7 @@ export type ProgressiveDataFetcher = (id: string, onProgress: ProgressCallback) 
 /**
  * Function pour récupérer les recommandations
  */
-export type RecommendationsFetcher = (ids: string[]) => Promise<any[]>;
+export type RecommendationsFetcher = (ids: string[], fetchedData?: any) => Promise<any[]>;
 
 /**
  * Strategy de génération de recommandations intelligentes

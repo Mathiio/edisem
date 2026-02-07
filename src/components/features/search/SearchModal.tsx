@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Modal, ModalContent, ModalBody, useDisclosure } from '@heroui/react';
 import { SearchIcon } from '@/components/ui/icons';
-import { useSearch } from '@/hooks/useSearch';
-import { SearchInput } from './SearchInput';
-import { SearchResults } from './SearchResults';
-import { useDebounce } from '@/hooks/useDebounce'
+// import { useSearch } from '@/hooks/useSearch';
+// import { SearchInput } from './SearchInput';
+// import { SearchResults } from './SearchResults';
+// import { useDebounce } from '@/hooks/useDebounce'
 
 export interface SearchModalRef {
   openWithSearch: (searchTerm: string) => void;
@@ -17,46 +17,46 @@ interface SearchModalProps {
 
 export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
   ({ notrigger = false }, ref) => {
-    const [searchQuery, setSearchQuery] = useState('');
+    // const [searchQuery, setSearchQuery] = useState('');
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const inputRef = useRef<HTMLInputElement>(null);
+    // const inputRef = useRef<HTMLInputElement>(null);
 
-    const {
-      searchResults,
-      loading,
-      hasSearched,
-      totalResults,
-      performSearch,
-      clearSearch
-    } = useSearch();
+    // const {
+    //   searchResults,
+    //   loading,
+    //   hasSearched,
+    //   totalResults,
+    //   performSearch,
+    //   clearSearch
+    // } = useSearch();
 
     // Debounce pour optimiser les performances
-    const debouncedSearchQuery = useDebounce(searchQuery, 300);
+    // const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
     useImperativeHandle(ref, () => ({
-      openWithSearch: (searchTerm: string) => {
-        setSearchQuery(searchTerm);
+      openWithSearch: (_searchTerm: string) => {
+        // setSearchQuery(searchTerm);
         onOpen();
       },
       notrigger,
     }));
 
     // Effectuer la recherche avec debounce
-    useEffect(() => {
-      performSearch(debouncedSearchQuery);
-    }, [debouncedSearchQuery, performSearch]);
+    // useEffect(() => {
+    //   performSearch(debouncedSearchQuery);
+    // }, [debouncedSearchQuery, performSearch]);
 
     // Focus sur l'input à l'ouverture
-    useEffect(() => {
-      if (isOpen && inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, [isOpen]);
+    // useEffect(() => {
+    //   if (isOpen && inputRef.current) {
+    //     inputRef.current.focus();
+    //   }
+    // }, [isOpen]);
 
     const handleClose = () => {
       onClose();
-      setSearchQuery('');
-      clearSearch();
+      // setSearchQuery('');
+      // clearSearch();
     };
 
     // Gestion des raccourcis clavier
@@ -119,7 +119,16 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
                 Rechercher
               </h1>
 
-              <SearchInput
+              {/* Maintenance message */}
+              <div className="flex flex-col items-center justify-center py-40 px-20 bg-c3/30 rounded-12 border-2 border-c3">
+                <p className="text-18 text-c6 font-medium mb-10">En cours de maintenance</p>
+                <p className="text-14 text-c5 text-center">
+                  La recherche est temporairement indisponible. Merci de réessayer plus tard.
+                </p>
+              </div>
+
+              {/* Commented out search functionality */}
+              {/* <SearchInput
                 ref={inputRef}
                 value={searchQuery}
                 onChange={setSearchQuery}
@@ -133,7 +142,7 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
                   totalResults={totalResults}
                   onClose={handleClose}
                 />
-              </div>
+              </div> */}
             </ModalBody>
           </ModalContent>
         </Modal>

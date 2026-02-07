@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CameraIcon, UserIcon, ShareIcon, MovieIcon } from '@/components/ui/icons';
 import { motion, Variants } from 'framer-motion';
-import { addToast, Skeleton, Link, Button, cn, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
+import { addToast, Link, Button, cn, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { AnnotationDropdown } from './AnnotationDropdown';
 import { Conference } from '@/types/ui';
 
@@ -161,7 +161,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
                     {conf.actant[0]?.jobTitle && Array.isArray(conf.actant[0].jobTitle) && conf.actant[0].jobTitle.length > 0 ? (
                       <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{conf.actant[0].jobTitle[0]?.title}</p>
                     ) : (
-                      <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{conf.actant[0]?.universities?.[0]?.shortName || ''}</p>
+                      <p className='text-c4 font-extralight text-14 gap-10 transition-all ease-in-out duration-200'>{String(conf.actant[0]?.universities?.[0] || '')}</p>
                     )}
                   </div>
                 </Link>
@@ -193,7 +193,7 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
                             {actant.jobTitle && Array.isArray(actant.jobTitle) && actant.jobTitle.length > 0 ? (
                               <span className='text-14 text-c4 font-extralight'>{actant.jobTitle[0]?.title}</span>
                             ) : (
-                              <span className='text-14 text-c4 font-extralight'>{actant.universities?.[0]?.shortName || ''}</span>
+                              <span className='text-14 text-c4 font-extralight'>{String(actant.universities?.[0] || '')}</span>
                             )}
                           </div>
                         </div>
@@ -246,18 +246,33 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
 
 export const ConfOverviewSkeleton: React.FC = () => {
   return (
-    <div className='flex flex-col gap-20'>
-      <Skeleton className='rounded-14 lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'></Skeleton>
+    <div className='w-full flex flex-col gap-25'>
+      {/* Video skeleton */}
+      <div className='rounded-14 lg:w-full h-[400px] bg-c2 animate-pulse' />
+      
+      {/* Content skeleton */}
       <div className='flex flex-col gap-20'>
-        <div className='flex flex-col gap-5'>
-          <Skeleton className='w-[100%] h-6 rounded-8'/>
-          <Skeleton className='w-[80%] h-6 rounded-8'/>
+        {/* Title skeleton */}
+        <div className='flex flex-col gap-10'>
+          <div className='w-[80%] h-8 bg-c2 rounded-8 animate-pulse' />
+          <div className='w-[60%] h-8 bg-c2 rounded-8 animate-pulse' />
         </div>
-        <div className='flex justify-between items-center'>
-          <Skeleton className='w-[40%] h-8 rounded-8'/>
-          <div className='w-[30%] flex justify-end gap-10'>
-            <Skeleton className='w-[100%] h-8 rounded-8'/>
-            <Skeleton className='w-[100%] h-8 rounded-8'/>
+        
+        {/* Actant & buttons row skeleton */}
+        <div className='flex justify-between items-center gap-10'>
+          {/* Actant skeleton */}
+          <div className='flex items-center gap-10'>
+            <div className='w-9 h-9 bg-c2 rounded-8 animate-pulse' />
+            <div className='flex flex-col gap-5'>
+              <div className='w-32 h-4 bg-c2 rounded-8 animate-pulse' />
+              <div className='w-24 h-3 bg-c2 rounded-8 animate-pulse' />
+            </div>
+          </div>
+          
+          {/* Buttons skeleton */}
+          <div className='flex gap-10'>
+            <div className='w-24 h-9 bg-c2 rounded-8 animate-pulse' />
+            <div className='w-24 h-9 bg-c2 rounded-8 animate-pulse' />
           </div>
         </div>
       </div>

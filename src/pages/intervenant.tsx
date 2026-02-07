@@ -60,7 +60,7 @@ export const Intervenant: React.FC = () => {
             </div>
           </div>
         ) : (
-          <Link isExternal className='gap-20 text-c6 w-full flex flex-col items-center' href={actant?.url || '#'}>
+          <div className='gap-20 text-c6 w-full flex flex-col items-center'>
             {actant?.picture ? (
               <img className='w-100 h-100 object-cover rounded-18' src={actant.picture} alt='' />
             ) : (
@@ -68,11 +68,11 @@ export const Intervenant: React.FC = () => {
                 <UserIcon size={40} className='text-c6' />
               </div>
             )}
-            <div className='flex flex-col items-center gap-10'>
+            <Link isExternal className='flex flex-col items-center gap-10' href={actant?.url || '#'}>
               <h1 className='text-64 font-medium text-c6'>{actant?.firstname} {actant?.lastname}</h1>
               <p className='text-16 text-c6'>{actant?.interventions} participations</p>
-            </div>
-          </Link>
+            </Link>
+          </div>
         )}
 
         {/* Universités, Écoles, Labos */}

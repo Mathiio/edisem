@@ -106,13 +106,18 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({ trigger, section
   );
 };
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  onReady?: () => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ onReady }) => {
   const [hasScrolled, setHasScrolled] = useState(false);
   const [seminarEditions, setSeminarEditions] = useState<{ to: string; label: string }[]>([]);
   const [colloqueEditions, setColloqueEditions] = useState<{ to: string; label: string }[]>([]);
   const [studyDayEditions, setStudyDayEditions] = useState<{ to: string; label: string }[]>([]);
   const searchModalRef = useRef<SearchModalRef>(null);
   const location = useLocation();
+  const hasNotifiedReady = useRef(false);
 
   const isActive = useMemo(() => (path: string) => location.pathname === path, [location.pathname]);
   const isCorpusPathValue = useMemo(() => location.pathname.startsWith('/corpus'), [location.pathname]);
@@ -153,12 +158,23 @@ export const Navbar: React.FC = () => {
         setSeminarEditions(seminars.slice(0, 6));
         setColloqueEditions(colloques.slice(0, 6));
         setStudyDayEditions(studyDays.slice(0, 6));
+        
+        // Notify parent that navbar is ready
+        if (onReady && !hasNotifiedReady.current) {
+          hasNotifiedReady.current = true;
+          onReady();
+        }
       } catch (err) {
         console.error(err);
+        // Notify ready even on error to not block the UI
+        if (onReady && !hasNotifiedReady.current) {
+          hasNotifiedReady.current = true;
+          onReady();
+        }
       }
     };
     loadData();
-  }, []);
+  }, [onReady]);
 
   const corpusSections: DropdownSection[] = useMemo(
     () => [
