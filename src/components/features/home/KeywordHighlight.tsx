@@ -110,11 +110,9 @@ export const KeywordHighlight: React.FC = () => {
           const randomKeyword = filteredKeywords[Math.floor(Math.random() * filteredKeywords.length)];
           setSelectedKeyword(randomKeyword);
 
-          // Use new getCardsByKeyword function (replaces filtering getSeminarConfs)
           const confsFiltered = await Items.getCardsByKeyword(randomKeyword.id, 8);
           setFilteredConfs(confsFiltered as Conference[]);
 
-          // Traitement des citations (actant unique)
           const citationsFiltered = citations.filter((citation: any) => citation.motcles?.includes(String(randomKeyword.id)));
 
           const updatedCitations = await Promise.all(
