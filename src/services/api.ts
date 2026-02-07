@@ -12,82 +12,6 @@ export async function getItemByID(id: string): Promise<any | null> {
   }
 }
 
-export async function getConfByEdition(editionId: string) {
-  try {
-    const seminarConfs = await Items.getSeminarConfs();
-    const colloqueConfs = await Items.getColloqueConfs();
-    const studyDayConfs = await Items.getStudyDayConfs();
-
-    const allConfs = [...seminarConfs, ...colloqueConfs, ...studyDayConfs];
-
-    const editionConfs = allConfs.filter((conf: any) => conf.edition === editionId);
-
-    const updatedConfs = await Promise.all(
-      editionConfs.map(async (conf: any) => {
-        if (!conf.actant) return conf;
-
-        try {
-          if (typeof conf.actant === 'string' && conf.actant.includes(',')) {
-            const actantIds = conf.actant.split(',').map((id: string) => parseInt(id.trim()));
-            const actantDetails = await Promise.all(actantIds.map((id: string) => Items.getActants(id)));
-            return { ...conf, actant: actantDetails };
-          }
-
-          if (typeof conf.actant === 'string' || typeof conf.actant === 'number') {
-            const actantDetails = await Items.getActants(conf.actant);
-            return { ...conf, actant: [actantDetails] };
-          }
-          return conf;
-        } catch (error) {
-          console.error(`Error fetching actant for conf ${conf.id}:`, error);
-          return { ...conf, actant: [] };
-        }
-      }),
-    );
-
-    return updatedConfs;
-  } catch (error) {
-    console.error('Error fetching confByEdition:', error);
-    throw new Error('Failed to fetch confByEdition');
-  }
-}
-
-export async function getConfByActant(actantId: string) {
-  try {
-    const confs = await Items.getAllConfs();
-
-    const actantConfs = confs.filter((conf: { actant: string | string[] }) => {
-      if (typeof conf.actant === 'string') {
-        return conf.actant.includes(',')
-          ? conf.actant
-            .split(',')
-            .map((id) => id.trim())
-            .includes(actantId)
-          : conf.actant === actantId;
-      }
-      return Array.isArray(conf.actant) && conf.actant.includes(actantId);
-    });
-
-    const updatedConfs = await Promise.all(
-      actantConfs.map(async (conf: { actant: string | string[] }) => {
-        if (conf.actant) {
-          const actantIds = typeof conf.actant === 'string' ? (conf.actant.includes(',') ? conf.actant.split(',').map((id) => id.trim()) : [conf.actant]) : conf.actant;
-
-          const actantDetails = await Promise.all(actantIds.map((id) => Items.getActants(id)));
-
-          return { ...conf, actant: actantDetails.flat() };
-        }
-        return conf;
-      }),
-    );
-
-    return updatedConfs;
-  } catch (error) {
-    console.error('Error fetching confByActant:', error);
-    throw new Error('Failed to fetch confByActant');
-  }
-}
-
 export async function getResearchByActant(actantId: string) {
   try {
     const recherches = await Items.getRecherches();
@@ -151,34 +75,6 @@ export async function filterActants(searchQuery: string) {
   }
 }
 
-export async function getConfCitations(confId: number) {
-  try {
-    const confs = await Items.getAllConfs();
-    const citations = await Items.getCitations();
-    const actants = await Items.getActants();
-
-    const conf = confs.find((conf: { id: string }) => Number(conf.id) === confId);
-
-    if (conf) {
-      const confCitations = citations
-        .filter((citation: { id: number }) => conf.citations.includes(citation.id))
-        .map((citation: { actant: string }) => {
-          const actantObj = actants.find((actant: { id: string }) => actant.id === citation.actant);
-
-          return {
-            ...citation,
-            actant: actantObj ? actantObj : citation.actant,
-          };
-        });
-
-      return confCitations;
-    }
-  } catch (error) {
-    console.error('Error fetching conferences:', error);
-    throw new Error('Failed to fetch conferences');
-  }
-}
-
 export async function getConfByCitation(citationId: string) {
   try {
     const confs = await Items.getAllConfs();
@@ -198,45 +94,6 @@ export async function getConfByCitation(citationId: string) {
   } catch (error) {
     console.error('Error fetching conference by citation:', error);
     throw new Error('Failed to fetch conference by citation');
-  }
-}
-
-export async function getConfBibliographies(confId: number) {
-  try {
-    const confs = await Items.getAllConfs();
-    const bibliographies = await Items.getBibliographies();
-
-    const conf = confs.find((conf: { id: number }) => Number(conf.id) === confId);
-    if (!conf) {
-      throw new Error(`No conference found with id: ${confId}`);
-    }
-
-    const filteredBibliographies = bibliographies.filter((bib: { id: number }) => conf.bibliographies.includes(String(bib.id)));
-
-    return filteredBibliographies;
-  } catch (error) {
-    console.error('Error fetching bibliographies:', error);
-    throw new Error('Failed to fetch bibliographies');
-  }
-}
-
-export async function getConfMediagraphies(confId: number) {
-  try {
-    const confs = await Items.getAllConfs();
-    const mediagraphies = await Items.getMediagraphies();
-
-    const conf = confs.find((conf: { id: number }) => Number(conf.id) === confId);
-
-    if (!conf) {
-      throw new Error(`No conference found with id: ${confId}`);
-    }
-
-    const filteredMediagraphies = mediagraphies.filter((media: { id: number }) => conf.mediagraphies.includes(String(media.id)));
-
-    return filteredMediagraphies;
-  } catch (error) {
-    console.error('Error fetching mediagraphies:', error);
-    throw new Error('Failed to fetch mediagraphies');
   }
 }
 
@@ -306,8 +163,6 @@ export async function createEdisemComment(commentaireData: {
         type: 'literal',
       },
     ];
-
-    console.log('Values to insert:', values);
 
     // Ajouter automatiquement l'actant (l'auteur du commentaire)
     // Pour l'instant, nous devons faire correspondre l'utilisateur local avec une ressource actant

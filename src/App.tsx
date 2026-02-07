@@ -21,7 +21,6 @@ import { Oeuvres } from '@/pages/corpus/Oeuvres';
 import { Personne } from '@/pages/personne';
 import { GenreDetail } from '@/pages/corpus/oeuvresByGenre';
 import { RecitsByGenre } from '@/pages/corpus/recitsByGenre';
-import { KeywordsDashboard } from '@/pages/analysis/KeywordsDashboard';
 import { ConfigurableDetailPage } from '@/pages/generic/ConfigurableDetailPage';
 import { conferenceConfig } from '@/pages/generic/config/conferenceConfig';
 import { experimentationConfig } from '@/pages/generic/config/experimentationConfig';
@@ -179,9 +178,6 @@ function App() {
           {/* Routes pour les personnes/intervenants (toujours utilisées directement) */}
           <Route path='/intervenant/:id' Component={Intervenant} />
           <Route path='/personne/:id' Component={Personne} />
-
-          {/* Keyword Analysis Route */}
-          <Route path='/analysis/keywords' Component={KeywordsDashboard} />
 
           {/* Resource Creation Routes - Utilise ConfigurableDetailPage en mode create */}
           <Route path='/add-resource/experimentation' element={<ProtectedConfigurableDetailPage config={experimentationStudentConfig} initialMode='create' />} />

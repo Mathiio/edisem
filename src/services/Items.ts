@@ -2271,3 +2271,7 @@ export function generateThumbnailUrl(mediaId: string | number): string {
   // Assuming the API endpoint for media thumbnails follows this pattern
   return `https://tests.arcanes.ca/omk/s/edisem/media/${mediaId}`;
 }
+export function getExperimentationsCards(): any {
+  throw new Error('Function not implemented.');
+}
+
