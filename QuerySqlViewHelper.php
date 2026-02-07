@@ -11,6 +11,7 @@ class QuerySqlViewHelper extends AbstractHelper
     protected $cardHelper;
     protected $statsHelper;
     protected $narrativeStatsHelper;
+    protected $resourceDetailsHelper;
 
     // Templates autorisés pour la création de ressources
     private $allowedTemplates = [
@@ -29,6 +30,7 @@ class QuerySqlViewHelper extends AbstractHelper
         $this->cardHelper = new QueryCardHelper($conn);
         $this->statsHelper = new QueryStatsHelper($conn);
         $this->narrativeStatsHelper = new NarrativeStatsHelper($conn, $this->statsHelper);
+        $this->resourceDetailsHelper = new ResourceDetailsHelper($conn);
     }
 
     /**
@@ -187,6 +189,9 @@ class QuerySqlViewHelper extends AbstractHelper
             // Stats & Metrics Routes
             case 'getNarrativePracticesStats':
                 $result = $this->narrativeStatsHelper->getNarrativePracticesStats();
+                break;
+            case 'getResourceDetails':
+                $result = $this->resourceDetailsHelper->getResourceDetails($params['id']);
                 break;
             case 'getNarrativeTopKeywords':
                 $limit = $params['limit'] ?? 8;

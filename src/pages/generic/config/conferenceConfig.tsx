@@ -5,38 +5,75 @@ import { Citations } from '@/components/features/conference/CitationsCards';
 import { Microresumes } from '@/components/features/conference/MicroresumesCards';
 import { Bibliographies } from '@/components/features/conference/BibliographyCards';
 import { Mediagraphies } from '@/components/features/conference/MediagraphyCards';
-import { getConfCitations, getConfBibliographies, getConfMediagraphies } from '@/services/api';
-import * as Items from '@/services/Items';
+import { getResourceDetails } from '@/services/resourceDetails';
 
 /**
  * Configuration pour les pages de conférence
+ * Utilise l'endpoint unifié getResourceDetails
  */
 export const conferenceConfig: GenericDetailPageConfig = {
-  // Data fetching
+  // Data fetching - using unified endpoint
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const [conf, citations, bibliographies, mediagraphies] = await Promise.all([
-      Items.getAllConfs(Number(id)),
-      getConfCitations(Number(id)),
-      getConfBibliographies(Number(id)),
-      getConfMediagraphies(Number(id)),
-    ]);
+    await new Promise((resolve) => setTimeout(resolve, 100000));
+    // Fetch unified resource details
+    const details = await getResourceDetails(id);
+    
+    if (!details) {
+      throw new Error('Resource not found');
+    }
+
+    // Backend now provides complete structures, minimal transformation needed
+    const conf = {
+      id: details.id,
+      title: details.title,
+      description: details.abstract || details.description || '',
+      date: details.date || '',
+      motcles: details.keywords || [],
+      actant: details.actants || [],
+      type: details.type,
+      url: details.videoUrl || '',
+      fullUrl: details.videoUrl || '',
+      event: details.type,
+      season: '',
+      edition: '',
+      collection: '',
+      citations: details.citations || [],
+      bibliographies: details.references || [],
+      mediagraphies: details.associatedMedia || [],
+      recommendation: [],
+      thumbnail: '',
+    };
 
     return {
       itemDetails: conf,
-      keywords: conf?.motcles || [],
-      recommendations: conf?.recommendation || [],
+      keywords: (details.keywords || []).map((kw: any) => ({
+        ...kw,
+        title: kw.name || kw.title,
+      })),
+      recommendations: (details.relatedConferences || []).map(ref => ref.id),
       viewData: {
-        citations,
-        bibliographies,
-        mediagraphies,
-        microresumes: (conf?.micro_resumes || []).slice().sort((a: any, b: any) => a.startTime - b.startTime),
+        citations: details.citations || [],
+        bibliographies: details.references || [],
+        mediagraphies: details.associatedMedia || [],
+        microresumes: details.microResumes || [],
+        relatedConferences: details.relatedConferences || [],
       },
     };
   },
 
-  fetchRecommendations: async (ids: string[]) => {
-    const allConfs = await Items.getAllConfs();
-    return allConfs.filter((conf: any) => ids.includes(String(conf.id)) || ids.includes(conf.id));
+  fetchRecommendations: async (ids: string[], fetchedData?: any) => {
+    // Use relatedConferences from viewData
+    if (fetchedData?.viewData?.relatedConferences) {
+      return fetchedData.viewData.relatedConferences.map((conf: any) => ({
+        id: conf.id,
+        title: conf.title,
+        date: conf.date,
+        thumbnail: conf.thumbnail,
+        actant: conf.actants || [],
+        type: 'seminaire',
+      }));
+    }
+    return [];
   },
 
   // Composants

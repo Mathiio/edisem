@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { motion, Variants } from 'framer-motion';
+import { useNavbarReadyContext } from '@/App';
 
 const containerVariants: Variants = {
   hidden: { opacity: 1 },
@@ -31,9 +32,11 @@ interface LayoutsProps {
 }
 
 export const Layouts: React.FC<LayoutsProps> = ({ children, className, fullWidth, noPadding, noFooter }) => {
+  const navbarContext = useNavbarReadyContext();
+  
   return (
     <div className={`relative bg-c1 overflow-x-hidden ${noFooter ? 'h-screen overflow-hidden' : ''}`}>
-      <Navbar />
+      <Navbar onReady={navbarContext?.onNavbarReady} />
       {fullWidth ? (
         <motion.main
           className={`w-full  overflow-hidden transition-all ease-in-out duration-200 ${noFooter ? 'h-[calc(100vh-80px)]' : ''}`}

@@ -5,7 +5,7 @@ import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Spinner, addToas
 import { LongCarrousel, FullCarrousel } from '@/components/ui/Carrousels';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
-import { ResourceCard } from '@/components/features/corpus/ResourceCard';
+import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
 import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
 import { ArrowIcon, CrossIcon, EditIcon } from '@/components/ui/icons';
 import { EditSaveBar } from '@/components/ui/EditSaveBar';
@@ -237,13 +237,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
 
   // Handle time change for video synchronization
   const handleTimeChange = (newTime: number) => {
-    console.log('📺 GenericDetailPage - handleTimeChange appelé:', {
-      newTime,
-      previousTime: currentVideoTime,
-      configType: config.type,
-    });
     setCurrentVideoTime(newTime);
-    console.log('✅ GenericDetailPage - currentVideoTime mis à jour:', newTime);
   };
   // En mode create, initialiser directement avec des données vides (pas de chargement nécessaire)
   const isCreateMode = initialMode === 'create';
@@ -346,10 +340,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
 
         // Mise à jour finale avec toutes les données
         setItemDetails(result.itemDetails);
-        // Ne pas écraser les keywords s'ils ont déjà été chargés via onProgress
-        if (result.keywords && result.keywords.length > 0) {
-          setKeywords(result.keywords);
-        }
+        setKeywords(result.keywords || []);
         setViewData(result.viewData || {});
         setLoading(false);
         setLoadingMedia(false);
@@ -361,7 +352,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
         try {
           let recs: any[] = [];
           if (result.recommendations && result.recommendations.length > 0 && config.fetchRecommendations) {
-            recs = await config.fetchRecommendations(result.recommendations);
+            recs = await config.fetchRecommendations(result.recommendations, result);
           } else if (config.smartRecommendations) {
             recs = await generateSmartRecommendations(result.itemDetails, config.smartRecommendations);
           }
@@ -388,7 +379,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
         try {
           let recs: any[] = [];
           if (result.recommendations && result.recommendations.length > 0 && config.fetchRecommendations) {
-            recs = await config.fetchRecommendations(result.recommendations);
+            recs = await config.fetchRecommendations(result.recommendations, result);
           } else if (config.smartRecommendations) {
             recs = await generateSmartRecommendations(result.itemDetails, config.smartRecommendations);
           }
@@ -1419,13 +1410,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
 
     // Sinon, rediriger comme avant
     let redirectPath = `/espace-etudiant/`;
-    // if (config.type?.includes('Expérimentation')) {
-    //   redirectPath = `/espace-etudiant/experimentation/${newItemId}`;
-    // } else if (config.type?.includes('Outil')) {
-    //   redirectPath = `/corpus/tool/${newItemId}`;
-    // } else if (config.type?.includes('Retour') || config.type?.includes('Feedback')) {
-    //   redirectPath = `/feedback/${newItemId}`;
-    // }
 
     navigate(redirectPath);
     return result;
@@ -1870,7 +1854,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
   const OverviewSkeleton = config.overviewSkeleton;
   const DetailsSkeleton = config.detailsSkeleton;
 
-  const shouldShowRightColumn = hasRightColumnContent;
+  const shouldShowRightColumn = hasRightColumnContent || loadingViews;
   const leftColumnSpan = shouldShowRightColumn ? 'col-span-10 lg:col-span-6' : 'col-span-10';
 
   // Use availableViews instead of config.viewOptions for the selected option
@@ -1901,10 +1885,13 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
         </div>
         {/* Onglets toujours visibles même pendant le chargement */}
         {tabs && activeTabId && onTabChange && onTabClose && <ResourceFormTabs tabs={tabs} activeTabId={activeTabId} onTabChange={onTabChange} onTabClose={onTabClose} />}
-        <div className='col-span-10 lg:col-span-6 flex flex-col gap-25'>
+        
+        {/* Left column skeleton - matching loaded state structure */}
+        <motion.div className='col-span-10 lg:col-span-6 flex flex-col gap-25 h-fit' variants={fadeIn}>
           {OverviewSkeleton && <OverviewSkeleton />}
           {DetailsSkeleton && <DetailsSkeleton />}
-        </div>
+        </motion.div>
+
       </Layouts>
     );
   }
@@ -2199,7 +2186,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
         </motion.div>
 
         {/* Colonne secondaire - Vues multiples */}
-        {shouldShowRightColumn && hasRenderedContent && (
+        {(shouldShowRightColumn && hasRenderedContent) || loadingViews ? (
           <motion.div
             style={{ height: equalHeight || 'auto' }}
             className='col-span-10 lg:col-span-4 flex flex-col gap-50 overflow-hidden'
@@ -2207,6 +2194,24 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
             animate={
               isExitingRightColumn ? { opacity: 0, x: 60, transition: { duration: 0.35, ease: 'easeIn' } } : { opacity: 1, x: 0, transition: { duration: 0.4, ease: 'easeOut' } }
             }>
+            {loadingViews ? (
+              <div className='flex w-full flex-col gap-20 flex-grow'>
+                {/* Header skeleton */}
+                <div className='flex items-center justify-between w-full'>
+                  <div className='w-2/5 h-12 bg-c2 rounded-8 animate-pulse' />
+                  <div className='w-1/5 h-12 bg-c2 rounded-8 animate-pulse' />
+                </div>
+                {/* Content skeleton */}
+                <div className='flex flex-col gap-15'>
+                  <div className='w-full h-28 bg-c2 rounded-12 animate-pulse' />
+                  <div className='w-full h-28 bg-c2 rounded-12 animate-pulse' />
+                  <div className='w-full h-28 bg-c2 rounded-12 animate-pulse' />
+                  <div className='w-full h-28 bg-c2 rounded-12 animate-pulse' />
+                  <div className='w-full h-28 bg-c2 rounded-12 animate-pulse' />
+                  <div className='w-full h-28 bg-c2 rounded-12 animate-pulse' />
+                </div>
+              </div>
+            ) : (
             <div className='flex w-full flex-col gap-20 flex-grow min-h-0 overflow-hidden'>
               {/* Header avec titre et dropdown */}
               <div className='flex items-center justify-between w-full'>
@@ -2252,30 +2257,43 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
               </div>
 
               {/* Contenu de la vue sélectionnée */}
-              <div className='flex-grow min-h-0 overflow-auto pr-25'>{renderedContent}</div>
+              <div className='flex-grow min-h-0 overflow-auto'>{renderedContent}</div>
             </div>
+            )}
           </motion.div>
-        )}
+        ) : null}
 
         {/* Recommendations */}
-        {config.showRecommendations && !loadingRecommendations && recommendations.length > 0 && (
-          <motion.div className='col-span-10 h-full lg:col-span-6 flex flex-col gap-50 flex-grow' variants={fadeIn}>
-            <FullCarrousel
-              title={config.recommendationsTitle || 'Recommandations'}
-              perPage={2}
-              perMove={1}
-              data={recommendations}
-              renderSlide={(item) => {
-                // Mapper les props si nécessaire
-                const mappedItem = config.mapRecommendationProps ? config.mapRecommendationProps(item) : item;
-                return (
-                  <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
-                    <ResourceCard item={mappedItem} />
-                  </motion.div>
-                );
-              }}
-            />
-          </motion.div>
+        {config.showRecommendations && (
+          loadingRecommendations ? (
+            <motion.div className='col-span-10 h-full lg:col-span-6 flex flex-col gap-50 flex-grow' variants={fadeIn}>
+              <div className='flex flex-col gap-20'>
+                <h2 className='text-24 font-medium text-c6'>{config.recommendationsTitle || 'Recommandations'}</h2>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-20'>
+                  <ResourceCardSkeleton />
+                  <ResourceCardSkeleton />
+                </div>
+              </div>
+            </motion.div>
+          ) : recommendations.length > 0 ? (
+            <motion.div className='col-span-10 h-full lg:col-span-6 flex flex-col gap-50 flex-grow' variants={fadeIn}>
+              <FullCarrousel
+                title={config.recommendationsTitle || 'Recommandations'}
+                perPage={2}
+                perMove={1}
+                data={recommendations}
+                renderSlide={(item) => {
+                  // Mapper les props si nécessaire
+                  const mappedItem = config.mapRecommendationProps ? config.mapRecommendationProps(item) : item;
+                  return (
+                    <motion.div initial='hidden' animate='visible' variants={fadeIn} key={item.id}>
+                      <ResourceCard item={mappedItem} />
+                    </motion.div>
+                  );
+                }}
+              />
+            </motion.div>
+          ) : null
         )}
 
         {/* Comments */}

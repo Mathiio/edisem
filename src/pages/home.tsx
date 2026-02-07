@@ -23,7 +23,7 @@ export const Home: React.FC = () => {
       {isSafari && (
         <Alert
           color="warning"
-          description="Le site éprouve actuellement quelques difficultés à fonctionner sur le navigateur Safari. Le problème est en cours de résolution."
+          description="Le site éprouve actuellement quelques difficultés sur le navigateur Safari. Merci de vous rediriger vers Chrome pour une expérience optimale."
           variant="faded"
           className="mb-4"
         />
