@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button, Input, Divider, Breadcrumbs, BreadcrumbItem } from '@heroui/react';
+import { Button, Input, Divider, Breadcrumbs, BreadcrumbItem, Alert } from '@heroui/react';
 import { FilterGroup, FilterCondition, ITEM_TYPES, ITEM_PROPERTIES, storeSearchHistory } from './FilterPopup';
 import { CrossIcon, PlusIcon, SearchIcon } from '@/components/ui/icons';
 import { ChevronLeft } from 'lucide-react';
@@ -313,7 +313,13 @@ export default function VisualFilterOverlay({ onSelect, renderBreadcrumb, onNavi
 
   return (
     <div className='absolute z-[9] inset-0 bg-c1 flex flex-col items-center justify-center p-20 overflow-y-auto'>
-      <div className='w-full max-w-3xl'>
+
+      <div className='w-full max-w-3xl flex flex-col gap-20'>
+        <Alert
+          color="warning"
+          description="Cette section fait actuellement l’objet d’une restructuration technique. Des ralentissements ou dysfonctionnements temporaires peuvent survenir."
+          variant="faded"
+        />
         <AnimatePresence mode='wait'>
           {/* Step 1: Type Selection */}
           {currentStep === 'type' && (

@@ -7,27 +7,10 @@ import { IntervenantsSection } from '@/components/features/home/IntervenantsSect
 import { CorpusSection } from '@/components/features/home/CorpusSection';
 
 
-
-import { Alert } from '@heroui/react';
-
 export const Home: React.FC = () => {
-  const [isSafari, setIsSafari] = React.useState(false);
-
-  React.useEffect(() => {
-    const isSafariBrowser = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    setIsSafari(isSafariBrowser);
-  }, []);
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
-      {isSafari && (
-        <Alert
-          color="warning"
-          description="Le site éprouve actuellement quelques difficultés sur le navigateur Safari. Merci de vous rediriger vers Chrome pour une expérience optimale."
-          variant="faded"
-          className="mb-4"
-        />
-      )}
       <HomeBaner />
       <LogoCarousel/>
       <CorpusSection />
