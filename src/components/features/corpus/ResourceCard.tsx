@@ -52,6 +52,7 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
   const finalSubtitle = subtitle || (item ? getResourceSubtitle(item) : undefined);
   const finalType = type || item?.type;
 
+
   const finalTypeLabel = typeLabel || (finalType ? getRessourceLabel(finalType) : 'Ressource');
   
   // Determine Icon

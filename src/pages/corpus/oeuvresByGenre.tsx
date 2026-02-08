@@ -31,7 +31,6 @@ export const GenreDetail: React.FC = () => {
       const allOeuvres = await Items.getRecitsArtistiques();
 
       if (!Array.isArray(allOeuvres) || allOeuvres.length === 0) {
-        console.warn('⚠️ No recitsArtistiques found');
         setOeuvres([]);
         return;
       }

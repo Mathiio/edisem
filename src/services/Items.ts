@@ -1999,6 +1999,7 @@ export async function getRecitsCitoyensCards() {
   }
 }
 
+
 export async function getRecitsMediatiquesCards() {
   try {
     const data = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsMediatiquesCards&json=1');
@@ -2174,3 +2175,4 @@ export async function getMicroResumes(id?: number) {
     throw new Error('Failed to fetch micro resumes');
   }
 }
+

@@ -229,65 +229,65 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                     ) : (
                       <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                     )}
-                    <div className='flex flex-col items-start gap-0.5'>
-                      <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
-                      {personnes[0]?.jobTitle && Array.isArray(personnes[0].jobTitle) && personnes[0].jobTitle.length > 0 && (
-                        <p className='text-c4 font-extralight text-14'>{personnes[0].jobTitle[0]?.title}</p>
+                      <div className='flex flex-col items-start gap-0.5'>
+                        <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
+                        {(personnes[0]?.role || (personnes[0]?.jobTitle && Array.isArray(personnes[0].jobTitle) && personnes[0].jobTitle.length > 0)) && (
+                          <p className='text-c4 font-extralight text-14'>{personnes[0].role || personnes[0].jobTitle[0]?.title}</p>
+                        )}
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className='w-fit flex justify-start gap-10 items-center'>
+                      {personnes[0]?.picture ? (
+                        <img src={personnes[0].picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                      ) : (
+                        <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                       )}
+                      <div className='flex flex-col items-start gap-0.5'>
+                        <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
+                        {(personnes[0]?.role || (personnes[0]?.jobTitle && Array.isArray(personnes[0].jobTitle) && personnes[0].jobTitle.length > 0)) && (
+                          <p className='text-c4 font-extralight text-14'>{personnes[0].role || personnes[0].jobTitle[0]?.title}</p>
+                        )}
+                      </div>
                     </div>
-                  </Link>
-                ) : (
-                  <div className='w-fit flex justify-start gap-10 items-center'>
-                    {personnes[0]?.picture ? (
-                      <img src={personnes[0].picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
-                    ) : (
-                      <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
-                    )}
-                    <div className='flex flex-col items-start gap-0.5'>
-                      <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
-                      {personnes[0]?.jobTitle && Array.isArray(personnes[0].jobTitle) && personnes[0].jobTitle.length > 0 && (
-                        <p className='text-c4 font-extralight text-14'>{personnes[0].jobTitle[0]?.title}</p>
-                      )}
-                    </div>
-                  </div>
-                )
-              )}
-              {Array.isArray(personnes) && personnes.length > 1 && (
-                <Dropdown>
-                  <DropdownTrigger className='p-0'>
-                    <Button
-                      size='md'
-                      className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
-                      <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1}</h3>
-                    </Button>
-                  </DropdownTrigger>
-
-                  <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
-                    {Array.isArray(personnes) && personnes.length > 1
-                      ? personnes.slice(1).map((option: any, index: number) => (
-                          <DropdownItem 
-                            key={option.id || `person-${index}`} 
-                            className={`p-0`} 
-                            onClick={() => option.id != null && openPersonne(option.id)}
-                            isDisabled={option.id == null}
-                          >
-                            <div className={`flex items-center gap-15 w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 text-c6`}>
-                              {option.picture ? (
-                                <img src={option.picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
-                              ) : (
-                                <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
-                              )}
-                              <div className='flex flex-col items-start gap-0.5'>
-                                <span className='text-16'>{option.name}</span>
-                                {option.jobTitle && Array.isArray(option.jobTitle) && option.jobTitle.length > 0 && (
-                                  <span className='text-14 text-c4 font-extralight'>{option.jobTitle[0]?.title}</span>
+                  )
+                )}
+                {Array.isArray(personnes) && personnes.length > 1 && (
+                  <Dropdown>
+                    <DropdownTrigger className='p-0'>
+                      <Button
+                        size='md'
+                        className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
+                        <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1}</h3>
+                      </Button>
+                    </DropdownTrigger>
+  
+                    <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
+                      {Array.isArray(personnes) && personnes.length > 1
+                        ? personnes.slice(1).map((option: any, index: number) => (
+                            <DropdownItem 
+                              key={option.id || `person-${index}`} 
+                              className={`p-0`} 
+                              onClick={() => option.id != null && openPersonne(option.id)}
+                              isDisabled={option.id == null}
+                            >
+                              <div className={`flex items-center gap-15 w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 text-c6`}>
+                                {option.picture ? (
+                                  <img src={option.picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                                ) : (
+                                  <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                                 )}
+                                <div className='flex flex-col items-start gap-0.5'>
+                                  <span className='text-16'>{option.name}</span>
+                                  {(option.role || (option.jobTitle && Array.isArray(option.jobTitle) && option.jobTitle.length > 0)) && (
+                                    <span className='text-14 text-c4 font-extralight'>{option.role || option.jobTitle[0]?.title}</span>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          </DropdownItem>
-                        ))
-                      : null}
-                  </DropdownMenu>
+                            </DropdownItem>
+                          ))
+                        : null}
+                    </DropdownMenu>
                 </Dropdown>
               )}
             </div>

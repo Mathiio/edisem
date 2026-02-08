@@ -19,10 +19,11 @@ const fadeIn: Variants = {
 
 // Map resource types to their fetcher functions
 const FETCHER_MAP: Record<string, () => Promise<any[]>> = {
-  'recit_scientifique': Items.getRecitsScientifiques,
-  'recit_techno_industriel': Items.getRecitsTechnoIndustriels,
+  'recit_scientifique': Items.getRecitsScientifiquesCards,
+  'recit_techno_industriel': Items.getRecitsTechnoCards,
   'recit_citoyen': Items.getRecitsCitoyensCards,
-  'recit_mediatique': Items.getRecitsMediatiques,
+  'recit_mediatique': Items.getRecitsMediatiquesCards,
+  'recit_artistique': Items.getRecitsArtistiquesCards,
 };
 
 export const RecitsByGenre: React.FC = () => {

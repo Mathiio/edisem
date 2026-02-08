@@ -6,7 +6,7 @@ import { ReactNode } from 'react';
 export interface FetchResult {
   itemDetails: any;
   keywords?: any[];
-  recommendations?: string[];
+  recommendations?: any[];
   viewData?: Record<string, any>;
 }
 

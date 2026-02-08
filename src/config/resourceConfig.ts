@@ -87,10 +87,10 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     label: 'Récit artistique',
     icon: PratiqueNarrativeIcon,
     templateIds: [103],
-    getUrl: (id) => `/corpus/recit_artistique/${id}`,
+    getUrl: (id) => `/corpus/recit-artistique/${id}`,
     collectionUrl: '/corpus/recits-artistiques',
     collectionLabel: 'Récits Artistiques',
-    color: '#FFB6C1', // Rose clair
+    color: '#FFB6C1',
     description: 'Exploration des œuvres et discours artistiques.',
   },
 
