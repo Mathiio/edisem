@@ -122,7 +122,7 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
               {/* Maintenance message */}
               <Alert
                 color="warning"
-                description="Le site éprouve actuellement quelques difficultés sur le navigateur Safari. Merci de vous rediriger vers Chrome pour une expérience optimale."
+                description="Cette section fait actuellement l’objet d’une restructuration technique. Des ralentissements ou dysfonctionnements temporaires peuvent survenir."
                 variant="faded"
               />
 

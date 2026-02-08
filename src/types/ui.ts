@@ -186,6 +186,7 @@ export type MicroResume = {
 };
 
 export type ResourceDetails = {
+  relatedRecits: never[];
   id: string;
   title: string;
   type: 'seminaire' | 'journee_etudes' | 'colloque' | 'experimentation';

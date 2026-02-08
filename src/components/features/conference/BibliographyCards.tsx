@@ -189,7 +189,7 @@ export const BibliographyCard: React.FC<Bibliography & { uniqueKey?: number }> =
       className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
-      <Link className='w-full gap-25 py-25 flex flex-row justify-between' to={url ?? '#'} target='_blank'>
+      <Link className='w-full gap-25 p-25 flex flex-row justify-between' to={url ?? '#'} target='_blank'>
         <div className={`flex  ${thumbnail ? 'flex-row' : 'flex-col'} gap-4 items-start`}>
           {thumbnail && (
             <div className='flex-shrink-0'>
