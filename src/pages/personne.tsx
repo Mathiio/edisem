@@ -5,7 +5,7 @@ import * as Items from '@/services/Items';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon } from '@/components/ui/icons';
 import { InfoCard, InfoSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { Link } from '@heroui/react';
-import { OeuvreCard, OeuvreCardSkeleton } from '@/components/features/oeuvres/OeuvresCards';
+import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
 import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
 
@@ -142,10 +142,10 @@ export const Personne: React.FC = () => {
         <h2 className='text-24 font-medium text-c6'>Dernière(s) recit_artistique(s)</h2>
         <div className='grid grid-cols-4 grid-rows-2 gap-25'>
           {loading
-            ? Array.from({ length: 8 }).map((_, index) => <OeuvreCardSkeleton key={index} />)
+            ? Array.from({ length: 8 }).map((_, index) => <ResourceCardSkeleton key={index} />)
             : recitsArtistiques.map((recit_artistique, index) => (
               <motion.div initial='hidden' animate='visible' variants={fadeIn} key={recit_artistique.id} custom={index}>
-                <OeuvreCard {...recit_artistique} />
+                <ResourceCard item={recit_artistique} type="recit_artistique" />
               </motion.div>
             ))}
         </div>

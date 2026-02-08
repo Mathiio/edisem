@@ -1,7 +1,7 @@
-import React from 'react';
-import { motion, Variants } from 'framer-motion';
-import { OeuvreCard } from '@/components/features/oeuvres/OeuvresCards';
+import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
 import { Pagination } from '@heroui/react';
+import { motion, Variants } from 'framer-motion';
+import React from 'react';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -66,19 +66,15 @@ export const LastOeuvres: React.FC<LastOeuvresProps> = ({ recitsArtistiques, loa
       <div className='grid grid-cols-4 grid-rows-auto gap-20'>
         {loading
           ? // Skeleton loading (adapted to the number of items per page)
-          Array.from({ length: Math.min(itemsPerPage, 8) }).map((_, index) => (
-            <div key={`skeleton-${index}`} className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] h-[280px] border-c3 border-2 p-20 rounded-30 animate-pulse'>
-              <div className='w-full h-40 rounded-15 bg-c2 mb-15'></div>
-              <div className='h-6 w-3/4 bg-c2 rounded mb-10'></div>
-              <div className='h-4 w-1/2 bg-c2 rounded'></div>
-            </div>
-          ))
+            Array.from({ length: Math.min(itemsPerPage, 8) }).map((_, index) => (
+              <ResourceCardSkeleton key={`skeleton-${index}`} />
+            ))
           : // Cards with animations
-          paginatedOeuvres.map((recit_artistique: any, index: number) => (
-            <motion.div key={`${recit_artistique.id}-${activePage}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-              <OeuvreCard {...recit_artistique} />
-            </motion.div>
-          ))}
+            paginatedOeuvres.map((recit_artistique: any, index: number) => (
+              <motion.div key={`${recit_artistique.id}-${activePage}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
+                <ResourceCard item={recit_artistique} type="recit_artistique" />
+              </motion.div>
+            ))}
       </div>
     </div>
   );

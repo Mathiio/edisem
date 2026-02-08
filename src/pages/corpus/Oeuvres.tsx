@@ -1,6 +1,5 @@
 import { GenreCarousel } from '@/components/features/oeuvres/GenresCarousel';
 import { LastOeuvres } from '@/components/features/oeuvres/LastOeuvres';
-import { OeuvresKeywords } from '@/components/features/oeuvres/OeuvresKeywords';
 import { Layouts } from '@/components/layout/Layouts';
 import { OeuvreIcon } from '@/components/ui/icons';
 import { PageBanner } from '@/components/ui/PageBanner';
@@ -61,7 +60,6 @@ export const Oeuvres: React.FC = () => {
         ]}
       />
       <GenreCarousel recitsArtistiques={recitsArtistiques} loading={loading} />
-      <OeuvresKeywords recitsArtistiques={recitsArtistiques} />
       <LastOeuvres recitsArtistiques={recitsArtistiques} loading={loading} />
     </Layouts>
   );
