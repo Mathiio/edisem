@@ -870,9 +870,10 @@ export async function getRecitsArtistiques(id?: number) {
     }
 
     // Use Promise.all to fetch all needed data (can fetch additional data for linking elements)
-    const [recitsArtistiques, personnes, elementsNarratifs, elementsEsthetique, annotations, keywords, bibliographies, mediagraphies] = await Promise.all([
+    const [recitsArtistiques, personnes, actants, elementsNarratifs, elementsEsthetique, annotations, keywords, bibliographies, mediagraphies] = await Promise.all([
       getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1'),
       getPersonnes(),
+      getActants(),
       getElementNarratifs(),
       getElementEsthetiques(),
       getAnnotations(),
@@ -883,6 +884,7 @@ export async function getRecitsArtistiques(id?: number) {
 
     // Build maps for fast lookups
     const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
+    const actantsMap = new Map((actants || []).map((a: any) => [String(a.id), a]));
     const elementsNarratifsMap = new Map((elementsNarratifs || []).map((e: any) => [String(e.id), { ...e, type: 'elementNarratif' }]));
     const elementsEsthetiqueMap = new Map((elementsEsthetique || []).map((e: any) => [String(e.id), { ...e, type: 'elementEsthetique' }]));
     const annotationsMap = new Map((annotations || []).map((a: any) => [String(a.id), { ...a, type: 'annotation' }]));
@@ -904,6 +906,18 @@ export async function getRecitsArtistiques(id?: number) {
           personneIds = recit_artistique.personne.map((id: any) => String(id));
         } else if (recit_artistique.personne != null) {
           personneIds = [String(recit_artistique.personne)];
+        }
+      }
+
+      // Parse les IDs multiples pour actants
+      let actantsIds: string[] = [];
+      if (recit_artistique.actants) {
+        if (typeof recit_artistique.actants === 'string') {
+          actantsIds = recit_artistique.actants.split(',').map((id: string) => id.trim());
+        } else if (Array.isArray(recit_artistique.actants)) {
+          actantsIds = recit_artistique.actants.map((id: any) => String(id));
+        } else if (recit_artistique.actants != null) {
+          actantsIds = [String(recit_artistique.actants)];
         }
       }
 
@@ -1007,6 +1021,7 @@ export async function getRecitsArtistiques(id?: number) {
 
       // Relink objects using the maps
       const personnesLinked = personneIds.map((id: string) => personnesMap.get(id)).filter(Boolean);
+      const actantsLinked = actantsIds.map((id: string) => actantsMap.get(id)).filter(Boolean);
       const elementsNarratifsLinked = elementsNarratifsIds.map((id: string) => elementsNarratifsMap.get(id)).filter(Boolean);
       const elementsEsthetiqueLinked = elementsEsthetiqueIds.map((id: string) => elementsEsthetiqueMap.get(id)).filter(Boolean);
       const annotationsLinked = annotationsIds.map((id: string) => annotationsMap.get(id)).filter(Boolean);
@@ -1017,6 +1032,7 @@ export async function getRecitsArtistiques(id?: number) {
         ...recit_artistique,
         type: 'recit_artistique',
         personne: personnesLinked.length > 0 ? personnesLinked : null,
+        actants: actantsLinked.length > 0 ? actantsLinked : null,
         elementsNarratifs: elementsNarratifsLinked.length > 0 ? elementsNarratifsLinked : null,
         elementsEsthetique: elementsEsthetiqueLinked.length > 0 ? elementsEsthetiqueLinked : null,
         annotations: annotationsLinked.length > 0 ? annotationsLinked : null,

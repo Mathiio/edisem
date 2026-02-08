@@ -1,11 +1,11 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { BackgroundEllipse } from '@/assets/svg/BackgroundEllipse';
+import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
+import { Layouts } from '@/components/layout/Layouts';
+import { slugUtils } from '@/lib/utils';
 import * as Items from '@/services/Items';
 import { motion, Variants } from 'framer-motion';
-import { Layouts } from '@/components/layout/Layouts';
-import { OeuvreCard } from '@/components/features/oeuvres/OeuvresCards';
-import { slugUtils } from '@/lib/utils';
-import { BackgroundEllipse } from '@/assets/svg/BackgroundEllipse';
+import { useCallback, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 6 },
@@ -26,6 +26,8 @@ export const GenreDetail: React.FC = () => {
 
     try {
       setLoading(true);
+      // Clear cache to force reload with normalized data (including actants)
+      sessionStorage.removeItem('recitsArtistiques');
 
       // Get all works (already normalized in the service)
       const allOeuvres = await Items.getRecitsArtistiques();
@@ -106,10 +108,10 @@ export const GenreDetail: React.FC = () => {
       {/* Oeuvres grid */}
       <div className='grid grid-cols-4 grid-rows-auto gap-20'>
         {loading
-          ? Array.from({ length: 8 }).map((_, index) => <div key={index} />)
+          ? Array.from({ length: 8 }).map((_, index) => <ResourceCardSkeleton key={index} />)
           : recitsArtistiques.map((recit_artistique, index) => (
             <motion.div initial='hidden' animate='visible' variants={fadeIn} key={recit_artistique.id} custom={index}>
-              <OeuvreCard {...recit_artistique} />
+              <ResourceCard item={recit_artistique} type="recit_artistique" />
             </motion.div>
           ))}
       </div>
