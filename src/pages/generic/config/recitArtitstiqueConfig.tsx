@@ -72,7 +72,7 @@ export const recitArtitstiqueConfig: GenericDetailPageConfig = {
   mapRecommendationProps: (recit_artistique: any) => ({
     id: recit_artistique.id,
     title: recit_artistique.title,
-    type: 'recit_artistique',
+    type: recit_artistique.type || 'recit_artistique',
     url: null, // url est pour YouTube, on ne l'utilise pas ici
     thumbnail: recit_artistique.associatedMedia?.[0] || recit_artistique.thumbnail || null,
     actant: recit_artistique.personne || recit_artistique.actants || [],

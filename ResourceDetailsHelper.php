@@ -10,10 +10,12 @@ use Doctrine\DBAL\Connection;
 class ResourceDetailsHelper
 {
     private $conn;
+    private $cardHelper;
     
     public function __construct(Connection $conn)
     {
         $this->conn = $conn;
+        $this->cardHelper = new QueryCardHelper($conn);
     }
     
     /**
@@ -42,20 +44,22 @@ class ResourceDetailsHelper
         // 2. Determine resource type and fetch appropriate data
         $isConference = in_array($templateId, [71, 121, 122]); // Sém, JE, Coll
         $isExperimentation = $templateId == 108;
-        $isRecitArtistique = $templateId == 103;
+        // Include all narrative types (Artistique, Citoyen, Mediatique, Scientifique, Techno)
+        $isRecit = in_array($templateId, [103, 131, 119, 120, 124, 117]);
         
         // 3. Build result structure
         $result = [
             'id' => $basic['id'],
             'title' => $basic['title'],
-            'type' => $this->getResourceType($templateId),
-            'template_id' => $templateId,
+            'resource_template_id' => $templateId,
+            'type' => $this->getResourceType($templateId)
         ];
         
         // 4. Fetch common components
         $result['actants'] = $this->fetchActants($resourceId);
-        // Use fetchRecitMedia for Recit Artistique, generic fetchAssociatedMedia for others
-        if ($isRecitArtistique) {
+        
+        // Use fetchRecitMedia for Recits, generic fetchAssociatedMedia for others
+        if ($isRecit) {
             $result['associatedMedia'] = $this->fetchRecitMedia($resourceId);
         } else {
             $result['associatedMedia'] = $this->fetchAssociatedMedia($resourceId);
@@ -83,8 +87,7 @@ class ResourceDetailsHelper
             $result['feedbacks'] = $this->fetchFeedbacks($resourceId); // Retours d'expérience (prop 1606)
             $result['citations'] = $this->fetchCitationsWithDetails($resourceId); // Citations bibliographiques (prop 48)
             $result['references'] = $this->fetchReferences($resourceId); // Références (prop 36)
-            $result['relatedExperimentations'] = $this->fetchRelatedExperimentations($resourceId); // Expérimentations liées
-        } elseif ($isRecitArtistique) {
+        } elseif ($isRecit) {
             $result['date'] = $this->fetchDate($resourceId); // dcterms:date (prop 7)
             $result['description'] = $this->fetchAbstract($resourceId); // dcterms:abstract (prop 19)
             $result['actants'] = $this->fetchRecitActants($resourceId); // schema:contributor (prop 581)
@@ -105,22 +108,54 @@ class ResourceDetailsHelper
         
         return $result;
     }
-    
-    /**
-     * Get resource type label from template ID
-     */
-    private function getResourceType($templateId)
-    {
-        $types = [
-            71 => 'seminaire',
-            121 => 'journee_etudes',
-            122 => 'colloque',
-            108 => 'experimentation',
-            103 => 'recit_artistique',
-        ];
-        
-        return $types[$templateId] ?? 'unknown';
+
+    private function getResourceType($templateId) {
+        switch ($templateId) {
+            // case 71: return 'seminaire'; // This was wrong in previous view?
+            case 108: return 'experimentation';
+            case 71: return 'seminaire';
+            case 121: return 'journee_etudes';
+            case 122: return 'colloque';
+            case 119: return 'recit_citoyen';
+            case 120: return 'recit_mediatique';
+            case 124: return 'recit_scientifique'; // Correction: 124 is likely Scientific based on context
+            case 117: return 'recit_techno_industriel';
+            case 103: return 'recit_artistique';
+            default: return 'unknown';
+        }
     }
+
+
+    /**
+     * Fetch related recits (prop 1811 - ma:isRelatedTo)
+     * Uses QueryCardHelper to standardize output
+     */
+    private function fetchRelatedRecits($resourceId)
+    {
+        // 1. Get IDs of related resources
+        $sql = "
+            SELECT DISTINCT v.value_resource_id
+            FROM value v
+            WHERE v.resource_id = ?
+            AND v.property_id = 1811
+            AND v.value_resource_id IS NOT NULL
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql, [$resourceId]);
+        
+        if (empty($rows)) {
+            return [];
+        }
+        
+        $relatedIds = array_column($rows, 'value_resource_id');
+        
+        // 2. Use CardHelper to fetch standardized data
+        return $this->cardHelper->fetchCards($relatedIds);
+    }
+        
+
+    
+
 
     /**
      * Generic fetch for linked resources (Prop -> Resource)
@@ -380,6 +415,7 @@ class ResourceDetailsHelper
             SELECT 
                 v.value_resource_id as id,
                 r.title as title,
+                r.resource_template_id,
                 (SELECT CONCAT(m.storage_id, '.', m.extension) 
                  FROM media m 
                  WHERE m.item_id = r.id 
@@ -483,7 +519,9 @@ class ResourceDetailsHelper
                 'title' => $row['title'],
                 'thumbnail' => $this->getConferenceThumbnail($row['thumbnail'], $row['video_url']),
                 'date' => $row['date'],
-                'actants' => $actants
+                'actants' => $actants,
+                'type' => $this->getResourceType($row['resource_template_id']),
+                'resource_template_id' => $row['resource_template_id']
             ];
         }, $rows);
     }
@@ -851,148 +889,6 @@ class ResourceDetailsHelper
         }, $rows);
     }
     
-    /**
-     * Fetch related experimentations (prop 937)
-     * Returns basic info for recommendations
-     */
-    private function fetchRelatedExperimentations($resourceId)
-    {
-        $sql = "
-            SELECT 
-                r.id,
-                (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 1 LIMIT 1) as title,
-                (SELECT CONCAT(m.storage_id, '.', m.extension) FROM media m WHERE m.item_id = r.id LIMIT 1) as thumbnail
-            FROM value v_link
-            INNER JOIN resource r ON v_link.value_resource_id = r.id
-            WHERE v_link.resource_id = ?
-            AND v_link.property_id = 937
-            AND r.resource_template_id = 108
-        ";
-        
-        $rows = $this->conn->fetchAllAssociative($sql, [$resourceId]);
-        
-        return array_map(function($row) {
-            return [
-                'id' => $row['id'],
-                'title' => $row['title'],
-                'thumbnail' => $row['thumbnail'] ? 'https://tests.arcanes.ca/omk/files/original/' . $row['thumbnail'] : null
-            ];
-        }, $rows);
-    }
-    
-    /**
-     * Fetch related recits artistiques (prop 1811 - ma:isRelatedTo)
-     * Returns complete card data for recommendations
-     */
-    private function fetchRelatedRecits($resourceId)
-    {
-        $sql = "
-            SELECT 
-                r.id,
-                r.resource_template_id,
-                (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 1 LIMIT 1) as title,
-                (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 7 LIMIT 1) as date,
-                (SELECT storage_id FROM media m WHERE m.item_id = r.id LIMIT 1) as storage_id,
-                (SELECT extension FROM media m WHERE m.item_id = r.id LIMIT 1) as extension
-            FROM value v_link
-            INNER JOIN resource r ON v_link.value_resource_id = r.id
-            WHERE v_link.resource_id = ?
-            AND v_link.property_id = 1811
-            AND r.resource_template_id = 103
-        ";
-        
-        $rows = $this->conn->fetchAllAssociative($sql, [$resourceId]);
-        
-        return array_map(function($row) {
-            // Construct thumbnail
-            $thumbnail = null;
-            if ($row['storage_id']) {
-                $filename = $row['storage_id'];
-                if ($row['extension']) {
-                    $filename .= '.' . $row['extension'];
-                }
-                $thumbnail = 'https://tests.arcanes.ca/omk/files/original/' . $filename;
-            }
-
-            // Fetch agents/personnes (prop 386) for each related recit
-            $agentsSql = "
-                SELECT 
-                    r.id,
-                    r.title as name,
-                    (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 139 LIMIT 1) as firstname,
-                    (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 140 LIMIT 1) as lastname,
-                    (SELECT storage_id FROM media m WHERE m.item_id = r.id LIMIT 1) as storage_id,
-                    (SELECT extension FROM media m WHERE m.item_id = r.id LIMIT 1) as extension
-                FROM value v_link
-                INNER JOIN resource r ON v_link.value_resource_id = r.id
-                WHERE v_link.resource_id = ?
-                AND v_link.property_id = 386
-            ";
-            
-            $agentsData = $this->conn->fetchAllAssociative($agentsSql, [$row['id']]);
-            
-            $agents = array_map(function($agentRow) {
-                $name = $agentRow['name'];
-                if ($agentRow['firstname'] || $agentRow['lastname']) {
-                    $name = trim(($agentRow['firstname'] ?? '') . ' ' . ($agentRow['lastname'] ?? ''));
-                }
-                
-                $picture = null;
-                if ($agentRow['storage_id']) {
-                    $filename = $agentRow['storage_id'];
-                    if ($agentRow['extension']) {
-                        $filename .= '.' . $agentRow['extension'];
-                    }
-                    $picture = 'https://tests.arcanes.ca/omk/files/original/' . $filename;
-                }
-                
-                return [
-                    'id' => $agentRow['id'],
-                    'name' => $name,
-                    'picture' => $picture,
-                ];
-            }, $agentsData);
-            
-            // If main thumbnail missing, try first associated media (prop 438)
-            if (!$thumbnail) {
-                $mediaSql = "
-                    SELECT v.value_resource_id
-                    FROM value v
-                    WHERE v.resource_id = ?
-                    AND v.property_id = 438
-                    AND v.value_resource_id IS NOT NULL
-                    LIMIT 1
-                ";
-                $mediaId = $this->conn->fetchOne($mediaSql, [$row['id']]);
-                
-                if ($mediaId) {
-                    $mediaThumbSql = "
-                        SELECT storage_id, extension
-                        FROM media
-                        WHERE item_id = ?
-                        LIMIT 1
-                    ";
-                    $mediaRow = $this->conn->fetchAssociative($mediaThumbSql, [$mediaId]);
-                    if ($mediaRow && $mediaRow['storage_id']) {
-                        $filename = $mediaRow['storage_id'];
-                        if ($mediaRow['extension']) {
-                            $filename .= '.' . $mediaRow['extension'];
-                        }
-                        $thumbnail = 'https://tests.arcanes.ca/omk/files/original/' . $filename;
-                    }
-                }
-            }
-            
-            return [
-                'id' => $row['id'],
-                'title' => $row['title'],
-                'date' => $row['date'],
-                'thumbnail' => $thumbnail,
-                'personne' => $agents,
-                'type' => 'recit_artistique'
-            ];
-        }, $rows);
-    }
 
     /**
      * Fetch creator (prop 2 - dcterms:creator)
@@ -1113,41 +1009,12 @@ class ResourceDetailsHelper
             ];
         }, $rows);
     }
-
+    
     /**
-     * Fetch recommendations for Recit Artistique (prop 1811 - ma:isRelatedTo)
-     * Returns related artistic works with thumbnails
+     * Fetch related recits artistiques (prop 1811 - ma:isRelatedTo)
+     * Returns complete card data for recommendations
      */
-    private function fetchRecommendations($resourceId)
-    {
-        $sql = "
-            SELECT 
-                v.value_resource_id as id,
-                r.title as title,
-                r.resource_template_id as template_id,
-                (SELECT CONCAT(m.storage_id, '.', m.extension) 
-                 FROM media m 
-                 WHERE m.item_id = r.id 
-                 LIMIT 1) as thumbnail
-            FROM value v
-            INNER JOIN resource r ON v.value_resource_id = r.id
-            WHERE v.resource_id = ?
-            AND v.property_id = 1811
-            AND v.value_resource_id IS NOT NULL
-        ";
-        
-        $rows = $this->conn->fetchAllAssociative($sql, [$resourceId]);
-        
-        return array_map(function($row) {
-            return [
-                'id' => $row['id'],
-                'title' => $row['title'],
-                'thumbnail' => $row['thumbnail'] ? 'https://tests.arcanes.ca/omk/files/square/' . $row['thumbnail'] : null,
-                'type' => $this->getResourceType($row['template_id']),
-                'resource_template_id' => $row['template_id']
-            ];
-        }, $rows);
-    }
+
 
     /**
      * Fetch media for Recit Artistique (Prop 438 - schema:associatedMedia)
