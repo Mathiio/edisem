@@ -60,7 +60,7 @@ export const conferenceConfig: GenericDetailPageConfig = {
     };
   },
 
-  fetchRecommendations: async (fetchedData?: any) => {
+  fetchRecommendations: async (_ids: any[], fetchedData?: any) => {
     // Use relatedConferences from viewData
     if (fetchedData?.viewData?.relatedConferences) {
       return fetchedData.viewData.relatedConferences.map((conf: any) => ({
@@ -69,7 +69,7 @@ export const conferenceConfig: GenericDetailPageConfig = {
         date: conf.date,
         thumbnail: conf.thumbnail,
         actant: conf.actants || [],
-        type: 'seminaire',
+        type: conf.type || 'seminaire',
       }));
     }
     return [];
