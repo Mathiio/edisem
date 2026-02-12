@@ -33,6 +33,7 @@ const RESOURCE_TYPE_FETCHERS: Record<ResourceType, FetcherFunction> = {
   element_esthetique: async (id) => Items.getElementEsthetiques(typeof id === 'string' ? parseInt(id) : id),
   element_narratif: async (id) => Items.getElementNarratifs(typeof id === 'string' ? parseInt(id) : id),
   experimentation: async (id) => Items.getExperimentations(typeof id === 'string' ? parseInt(id) : id),
+  experimentation_etudiant: async (id) => Items.getExperimentations(typeof id === 'string' ? parseInt(id) : id),
   tool: async (id) => Items.getTools(typeof id === 'string' ? parseInt(id) : id),
 };
 

@@ -233,7 +233,7 @@ export const EspaceEtudiant: React.FC = () => {
                     title: a.title,
                     picture: a.picture || undefined,
                   }))}
-                  type={item.type === 'experimentation' ? 'experimentationStudents' : item.type}
+                  type={item.type === 'experimentation' ? 'experimentation_etudiant' : item.type}
                 />
               </motion.div>
             ))}
@@ -332,7 +332,7 @@ export const EspaceEtudiant: React.FC = () => {
                             title: a.title,
                             picture: a.picture || undefined,
                           }))}
-                          type={item.type === 'experimentation' ? 'experimentationStudents' : item.type}
+                          type={item.type === 'experimentation' ? 'experimentation_etudiant' : item.type}
                         />
                       </motion.div>
                     ))

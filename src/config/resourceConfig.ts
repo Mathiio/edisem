@@ -34,6 +34,7 @@ export type ResourceType =
   | 'element_esthetique'
   | 'element_narratif'
   | 'experimentation'
+  | 'experimentation_etudiant'
   | 'recit_artistique'
   | 'tool';
 
@@ -192,6 +193,14 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     getUrl: (id) => `/corpus/experimentation/${id}`,
     collectionUrl: '/corpus/experimentations',
     collectionLabel: 'Expérimentations',
+  },
+
+  experimentation_etudiant: {
+    type: 'experimentation_etudiant',
+    label: 'Expérimentation (Étudiant)',
+    icon: ExperimentationIcon,
+    templateIds: [127],
+    getUrl: (id) => `/espace-etudiant/experimentation/${id}`,
   },
 
   tool: {

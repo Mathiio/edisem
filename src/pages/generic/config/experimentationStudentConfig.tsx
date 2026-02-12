@@ -1,3 +1,4 @@
+import { RESOURCE_TYPES } from '@/config/resourceConfig';
 import { SimplifiedDetailConfig } from '../simplifiedConfig';
 import { convertToGenericConfig } from '../simplifiedConfigAdapter';
 import { getSameCourseExperimentations } from '@/services/StudentSpace';
@@ -7,8 +8,8 @@ import { getSameCourseExperimentations } from '@/services/StudentSpace';
  * Utilisée pour le dropdown d'ajout et les formulaires
  */
 export const experimentationStudentConfigSimplified: SimplifiedDetailConfig = {
-  resourceType: 'Expérimentation',
-  templateId: 127,
+  resourceType: RESOURCE_TYPES.experimentation_etudiant.type,
+  templateId: RESOURCE_TYPES.experimentation_etudiant.templateIds[0],
 
   fields: {
     title: { property: 'dcterms:title', type: 'title', zone: 'header' },
