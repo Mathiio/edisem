@@ -508,7 +508,10 @@ export const createCriticalAnalysisView = (): ViewOption => {
   return createItemsListView({
     key: 'AnalyseCritique',
     title: 'Analyses critiques',
-    getItems: (itemDetails) => itemDetails?.annotations || itemDetails?.descriptions || itemDetails?.abstract || [],
+    getItems: (itemDetails) => {
+      const items = itemDetails?.annotations || itemDetails?.descriptions || itemDetails?.abstract || [];
+      return Array.isArray(items) ? items.map((item: any) => ({ ...item, thumbnail: null })) : items;
+    },
     mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
   });
 };

@@ -66,7 +66,7 @@ export const RecitsByType: React.FC = () => {
 
     return (
         <Layouts className='col-span-10 flex flex-col gap-100'>
-             {/* Header section similar to OeuvresByGenre */}
+             {/* Header section */}
             <div className='pt-100 justify-center flex items-center flex-col gap-20 relative'>
                 <div className='gap-10 justify-between flex items-center flex-col'>
                     {/* Icon with custom color */}

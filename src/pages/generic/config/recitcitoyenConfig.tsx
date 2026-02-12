@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
-import { getRecitsMediatiques, getKeywords, getAnnotationsWithTargets, getRecitsCitoyens } from '@/services/Items';
+import { getKeywords, getAnnotationsWithTargets, getRecitsCitoyens } from '@/services/Items';
 import { createCulturalReferencesView, createScientificReferencesView, createItemsListView, createTextView } from '../helpers';
 
 // Helper pour normaliser creator (peut être un objet personne ou une chaîne)
@@ -22,7 +22,7 @@ const normalizeCreator = (creator: any): any[] => {
   return [creator];
 };
 
-export const recitcitoyenConfig: GenericDetailPageConfig = {
+export const recitCitoyenConfig: GenericDetailPageConfig = {
   // Data fetching avec enrichissement des keywords
   dataFetcher: async (id: string): Promise<FetchResult> => {
     const [recit, concepts] = await Promise.all([getRecitsCitoyens(Number(id)), getKeywords()]);
@@ -129,11 +129,11 @@ export const recitcitoyenConfig: GenericDetailPageConfig = {
   // Smart recommendations
   smartRecommendations: {
     // Retourne toutes les autres récits médiatiques comme recommandations
-    getRelatedItems: async (itemDetails: any) => {
-      const recits = await getRecitsMediatiques();
-      // Retourner tous les récits sauf celui actuel
-      return recits.filter((recit: any) => String(recit.id) !== String(itemDetails.id));
-    },
+    // getRelatedItems: async (itemDetails: any) => {
+    //   const recits = await getRecitsMediatiques();
+    //   // Retourner tous les récits sauf celui actuel
+    //   return recits.filter((recit: any) => String(recit.id) !== String(itemDetails.id));
+    // },
 
     maxRecommendations: 5, // Afficher plus de recommandations
   },

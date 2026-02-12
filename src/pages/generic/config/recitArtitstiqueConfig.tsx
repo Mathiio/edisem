@@ -6,7 +6,7 @@ import { getResourceDetails } from '@/services/resourceDetails';
 import { createOeuvreViews } from '../helpers';
 
 /**
- * Configuration pour les pages d'recit_artistique
+ * Configuration pour les pages d'recit
  *
  * Cas complexe avec:
  * - 6 vues différentes (ContentScient, ContentCultu, Archives, ElementsNarratifs, ElementsEsthetique, AnalyseCritique)
@@ -17,19 +17,19 @@ export const recitArtitstiqueConfig: GenericDetailPageConfig = {
   // Data fetching optimisé via getResourceDetails
   dataFetcher: async (id: string): Promise<FetchResult> => {
     try {
-      const recit_artistique = await getResourceDetails(id);
+      const recit = await getResourceDetails(id);
       
-      if (!recit_artistique) {
+      if (!recit) {
         throw new Error(`Récit artistique ${id} non trouvé`);
       }
 
       return {
-        itemDetails: recit_artistique,
-        keywords: (recit_artistique.keywords || []).map((kw: any) => ({
+        itemDetails: recit,
+        keywords: (recit.keywords || []).map((kw: any) => ({
           ...kw,
           title: kw.name || kw.title,
         })),
-        recommendations: recit_artistique.relatedRecits || [],
+        recommendations: recit.relatedRecits || [],
       };
     } catch (error) {
       console.error('Erreur chargement récit artistique:', error);
@@ -44,39 +44,39 @@ export const recitArtitstiqueConfig: GenericDetailPageConfig = {
   detailsSkeleton: RecitiaDetailsSkeleton,
 
   // Mappers de props
-  mapOverviewProps: (recit_artistique: any, currentVideoTime: number) => {
+  mapOverviewProps: (recit: any, currentVideoTime: number) => {
     const medias = [
-      ...(recit_artistique.associatedMedia || [])
+      ...(recit.associatedMedia || [])
     ];
 
     return {
-      id: recit_artistique.id,
-      title: recit_artistique.title,
-      personnes: recit_artistique.personne || [],
-      medias: medias.length > 0 ? medias : (recit_artistique.thumbnail ? [recit_artistique.thumbnail] : []),
-      credits: recit_artistique.credits,
-      fullUrl: recit_artistique.url,
+      id: recit.id,
+      title: recit.title,
+      personnes: recit.personne || [],
+      medias: medias.length > 0 ? medias : (recit.thumbnail ? [recit.thumbnail] : []),
+      credits: recit.credits,
+      fullUrl: recit.url,
       currentTime: currentVideoTime,
       buttonText: 'Voir plus',
     };
   },
 
-  mapDetailsProps: (recit_artistique: any) => ({
-    date: recit_artistique.date,
-    description: recit_artistique.description,
-    medium: recit_artistique.medium,
-    actants: recit_artistique.actants || [],
+  mapDetailsProps: (recit: any) => ({
+    date: recit.date,
+    description: recit.description,
+    medium: recit.medium,
+    actants: recit.actants || [],
   }),
 
   // Mapper pour les recommandations (format SmConfCard)
-  mapRecommendationProps: (recit_artistique: any) => ({
-    id: recit_artistique.id,
-    title: recit_artistique.title,
-    type: recit_artistique.type || 'recit_artistique',
+  mapRecommendationProps: (recit: any) => ({
+    id: recit.id,
+    title: recit.title,
+    type: recit.type || 'recit_artistique',
     url: null, // url est pour YouTube, on ne l'utilise pas ici
-    thumbnail: recit_artistique.associatedMedia?.[0] || recit_artistique.thumbnail || null,
-    actant: recit_artistique.personne || recit_artistique.actants || [],
-    date: recit_artistique.date,
+    thumbnail: recit.associatedMedia?.[0] || recit.thumbnail || null,
+    actant: recit.personne || recit.actants || [],
+    date: recit.date,
   }),
 
   // Utiliser directement les références fournies par l'API

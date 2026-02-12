@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
-import { getRecitsArtistiques, getRecitsTechnoIndustriels, getRecitsScientifiques, getRecitsMediatiques, getRecitsCitoyens } from '@/services/Items';
+import { getRecitsArtistiques, getRecitsTechnoIndustriels, getRecitsCitoyens } from '@/services/Items';
 
 // Note: Les fonctions dans Items.ts sont:
 // - getRecitsArtistiques (type: 'recit_artistique')
@@ -47,15 +47,15 @@ export const OeuvresClusterView: React.FC<RecitsClusterViewProps> = ({ onNodeCli
       try {
         console.log('Chargement des récits...');
 
-        const [artistiques, scientifiques, technoIndustriels, citoyens, mediatiques] = await Promise.all([
+        const [artistiques, technoIndustriels, citoyens] = await Promise.all([
           getRecitsArtistiques().catch((e) => {
             console.error('Erreur artistiques:', e);
             return [];
           }),
-          getRecitsScientifiques().catch((e) => {
-            console.error('Erreur scientifiques:', e);
-            return [];
-          }),
+          // getRecitsScientifiques().catch((e) => {
+          //   console.error('Erreur scientifiques:', e);
+          //   return [];
+          // }),
           getRecitsTechnoIndustriels().catch((e) => {
             console.error('Erreur techno:', e);
             return [];
@@ -64,26 +64,26 @@ export const OeuvresClusterView: React.FC<RecitsClusterViewProps> = ({ onNodeCli
             console.error('Erreur citoyens:', e);
             return [];
           }),
-          getRecitsMediatiques().catch((e) => {
-            console.error('Erreur mediatiques:', e);
-            return [];
-          }),
+          // getRecitsMediatiques().catch((e) => {
+          //   console.error('Erreur mediatiques:', e);
+          //   return [];
+          // }),
         ]);
 
         console.log('Récits chargés:', {
           artistiques: artistiques?.length || 0,
-          scientifiques: scientifiques?.length || 0,
+          // scientifiques: scientifiques?.length || 0,
           technoIndustriels: technoIndustriels?.length || 0,
           citoyens: citoyens?.length || 0,
-          mediatiques: mediatiques?.length || 0,
+          // mediatiques: mediatiques?.length || 0,
         });
 
         const recitsMap = new Map<string, any[]>();
         recitsMap.set('recit_artistique', Array.isArray(artistiques) ? artistiques : []);
-        recitsMap.set('recit_scientifique', Array.isArray(scientifiques) ? scientifiques : []);
+        // recitsMap.set('recit_scientifique', Array.isArray(scientifiques) ? scientifiques : []);
         recitsMap.set('recit_techno_industriel', Array.isArray(technoIndustriels) ? technoIndustriels : []);
         recitsMap.set('recit_citoyen', Array.isArray(citoyens) ? citoyens : []);
-        recitsMap.set('recit_mediatique', Array.isArray(mediatiques) ? mediatiques : []);
+        // recitsMap.set('recit_mediatique', Array.isArray(mediatiques) ? mediatiques : []);
 
         setRecits(recitsMap);
       } catch (error) {

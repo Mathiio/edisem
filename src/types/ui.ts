@@ -224,4 +224,13 @@ export type ResourceDetails = {
     contributors: SimpleActant[];
   }>;
   relatedExperimentations?: ResourceReference[];
+
+  // Recit Scientifique specific fields
+  purpose?: string;
+  application?: string;
+  conditionInitiale?: string;
+  referencesScient?: ResourceReference[];
+  referencesCultu?: ResourceReference[];
+  descriptions?: any[]; // definitions/descriptions
+
 };
