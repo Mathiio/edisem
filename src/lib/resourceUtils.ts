@@ -18,7 +18,7 @@ export const getResourceAuthors = (item: any) => {
             const fullName = `${p.firstname || p.firstName || ''} ${p.lastname || p.lastName || ''}`.trim();
 
             // Fallback to name field (Creators - display_title)
-            const name = fullName || p.name || '';
+            const name = fullName || p.name || p.title || '';
 
             if (!name) return null;
 
