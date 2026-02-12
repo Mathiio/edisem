@@ -44,7 +44,7 @@ import { DatavisSidebar } from './visualisation/components/DatavisSidebar';
 import { CahiersView } from './visualisation/components/CahiersView';
 import { CreateView } from './visualisation/components/CreateView';
 import { RadialClusterView } from './visualisation/components/RadialClusterView';
-import { OeuvresClusterView } from './visualisation/components/OeuvresClusterView';
+import { RecitsClusterView } from './visualisation/components/RecitsClusterView';
 import { getConfigKey, getImageForType, getRadiusForType, getSizeForType } from './visualisation/utils/nodeHelpers';
 
 // Configuration des couleurs et labels pour les types de relations
@@ -1632,7 +1632,7 @@ const Visualisation = () => {
                   />
                 )}
                 {activeView === 'oeuvres' && (
-                  <OeuvresClusterView
+                  <RecitsClusterView
                     onNodeClick={(node) => {
                       const apiBase = 'https://tests.arcanes.ca/omk/api/';
                       const itemUrl = `${apiBase}items/${node.id}`;
