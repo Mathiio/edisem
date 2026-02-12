@@ -28,7 +28,7 @@ import { elementEsthetiqueConfig } from '@/pages/generic/config/elementEsthetiqu
 import { elementNarratifConfig } from '@/pages/generic/config/elementNarratifConfig';
 import { feedbackConfig } from '@/pages/generic/config/feedbackConfig';
 import { analyseCritiqueConfig } from '@/pages/generic/config/analyseCritiqueConfig';
-import { objetTechnoConfig } from '@/pages/generic/config/recitTechnoConfig';
+import { recitTechnoConfig } from '@/pages/generic/config/recitTechnoConfig';
 import { toolConfig } from '@/pages/generic/config/toolConfig';
 import { recitScientifiqueConfig } from '@/pages/generic/config/recitScientifiqueConfig';
 import { recitMediatiqueConfig } from '@/pages/generic/config/recitMediatiqueConfig';
@@ -172,7 +172,7 @@ function App() {
           <Route path='/corpus/recit-mediatique/:id' element={<ConfigurableDetailPage config={recitMediatiqueConfig} />} />
           <Route path='/corpus/recit-citoyen/:id' element={<ConfigurableDetailPage config={recitCitoyenConfig} />} />
           <Route path='/corpus/recit-artistique/:id' element={<ConfigurableDetailPage config={recitArtitstiqueConfig} />} />
-          <Route path='/corpus/recit-techno-industriel/:id' element={<ConfigurableDetailPage config={objetTechnoConfig} />} />
+          <Route path='/corpus/recit-techno-industriel/:id' element={<ConfigurableDetailPage config={recitTechnoConfig} />} />
 
           {/* Routes pour les personnes/intervenants (toujours utilisées directement) */}
           <Route path='/intervenant/:id' Component={Intervenant} />
