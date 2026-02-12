@@ -1,5 +1,5 @@
 import { useEffect, forwardRef, useImperativeHandle } from 'react';
-import { Modal, ModalContent, ModalBody, useDisclosure, Alert } from '@heroui/react';
+import { Modal, ModalContent, ModalBody, useDisclosure } from '@heroui/react';
 import { SearchIcon } from '@/components/ui/icons';
 import { Construction } from 'lucide-react';
 // import { useSearch } from '@/hooks/useSearch';

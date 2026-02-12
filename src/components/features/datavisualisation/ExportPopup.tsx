@@ -74,50 +74,6 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
         document.body.removeChild(link);
       }
 
-      // Données à envoyer à l'API
-      // const rawData = {
-      //   '@type': ['o:Item', 'schema:ResearchProject'], // Type d'annotation
-      //   'o:resource_class': {
-      //     '@id': 'https://tests.arcanes.ca/omk/api/resource_classes/826',
-      //     'o:id': 826,
-      //   },
-      //   'o:resource_template': {
-      //     '@id': 'https://tests.arcanes.ca/omk/api/resource_templates/102',
-      //     'o:id': 102,
-      //   },
-      //   'dcterms:title': [
-      //     {
-      //       type: 'literal',
-      //       property_id: 1,
-      //       property_label: 'Title',
-      //       is_public: true,
-      //       '@value': title,
-      //     },
-      //   ],
-      //   'schema:creator': [
-      //     {
-      //       type: 'resource',
-      //       property_id: 2,
-      //       property_label: 'Creator',
-      //       is_public: true,
-      //       value_resource_id: user.id, // Utilisateur actuel comme contributeur
-      //       value_resource_name: 'items',
-      //     },
-      //   ],
-      //   'schema:codeRepository': [
-      //     {
-      //       type: 'literal',
-      //       property_id: 551,
-      //       property_label: 'codeRepository',
-      //       is_public: true,
-      //       '@value': JSON.stringify(configObject.config),
-      //     },
-      //   ],
-      // };
-
-      // // Envoi de la requête à l'API
-      // const response = await omkInstance.createItem(rawData);
-
       setCopyConfirmation('Export réussi !');
     } catch (e) {
       setCopyConfirmation("Erreur lors de l'exportation de l'image");

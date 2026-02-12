@@ -1684,4 +1684,3 @@ export async function getMicroResumes(id?: number) {
     throw new Error('Failed to fetch micro resumes');
   }
 }
-

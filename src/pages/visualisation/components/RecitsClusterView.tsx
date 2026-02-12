@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
-import { getRecitsArtistiques } from '@/services/Items';
-
-// Note: Les fonctions dans Items.ts sont:
-// - getRecitsArtistiques (type: 'recit_artistique')
-// - getRecitsScientifiques (type: 'recit_scientifique')
-// - getRecitsTechnoIndustriels (type: 'recit_techno_industriel')
-// - getRecitsCitoyens (type: 'recit_citoyen')
-// - getRecitsMediatiques (type: 'recit_mediatique')
+import { 
+  getRecitsArtistiquesCards,
+  getRecitsScientifiquesCards,
+  getRecitsTechnoCards,
+  getRecitsCitoyensCards,
+  getRecitsMediatiquesCards
+} from '@/services/Items';
 import { Skeleton } from '@heroui/react';
 import { Sparkles } from 'lucide-react';
 
@@ -33,7 +32,7 @@ interface RecitsClusterViewProps {
   onNodeClick?: (node: { id: string; type: string; name: string }) => void;
 }
 
-export const OeuvresClusterView: React.FC<RecitsClusterViewProps> = ({ onNodeClick }) => {
+export const RecitsClusterView: React.FC<RecitsClusterViewProps> = ({ onNodeClick }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [recits, setRecits] = useState<Map<string, any[]>>(new Map());
@@ -41,49 +40,41 @@ export const OeuvresClusterView: React.FC<RecitsClusterViewProps> = ({ onNodeCli
   const [dimensions, setDimensions] = useState({ width: 800, height: 800 });
   const currentTransformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity);
 
-  // Fetch de tous les récits
+  // Fetch de tous les récits avec les fonctions Cards optimisées
   useEffect(() => {
     const loadData = async () => {
       try {
         console.log('Chargement des récits...');
 
-        const [artistiques] = await Promise.all([
-          getRecitsArtistiques().catch((e) => {
+        const [artistiques, scientifiques, technoIndustriels, citoyens, mediatiques] = await Promise.all([
+          getRecitsArtistiquesCards().catch((e) => {
             console.error('Erreur artistiques:', e);
             return [];
           }),
-          // getRecitsScientifiques().catch((e) => {
-          //   console.error('Erreur scientifiques:', e);
-          //   return [];
-          // }),
-          // getRecitsTechnoIndustriels().catch((e) => {
-          //   console.error('Erreur techno:', e);
-          //   return [];
-          // }),
-          // getRecitsCitoyens().catch((e) => {
-          //   console.error('Erreur citoyens:', e);
-          //   return [];
-          // }),
-          // getRecitsMediatiques().catch((e) => {
-          //   console.error('Erreur mediatiques:', e);
-          //   return [];
-          // }),
+          getRecitsScientifiquesCards().catch((e) => {
+            console.error('Erreur scientifiques:', e);
+            return [];
+          }),
+          getRecitsTechnoCards().catch((e) => {
+            console.error('Erreur techno:', e);
+            return [];
+          }),
+          getRecitsCitoyensCards().catch((e) => {
+            console.error('Erreur citoyens:', e);
+            return [];
+          }),
+          getRecitsMediatiquesCards().catch((e) => {
+            console.error('Erreur mediatiques:', e);
+            return [];
+          }),
         ]);
-
-        console.log('Récits chargés:', {
-          artistiques: artistiques?.length || 0,
-          // scientifiques: scientifiques?.length || 0,
-          // technoIndustriels: technoIndustriels?.length || 0,
-          // citoyens: citoyens?.length || 0,
-          // mediatiques: mediatiques?.length || 0,
-        });
 
         const recitsMap = new Map<string, any[]>();
         recitsMap.set('recit_artistique', Array.isArray(artistiques) ? artistiques : []);
-        // recitsMap.set('recit_scientifique', Array.isArray(scientifiques) ? scientifiques : []);
-        // recitsMap.set('recit_techno_industriel', Array.isArray(technoIndustriels) ? technoIndustriels : []);
-        // recitsMap.set('recit_citoyen', Array.isArray(citoyens) ? citoyens : []);
-        // recitsMap.set('recit_mediatique', Array.isArray(mediatiques) ? mediatiques : []);
+        recitsMap.set('recit_scientifique', Array.isArray(scientifiques) ? scientifiques : []);
+        recitsMap.set('recit_techno_industriel', Array.isArray(technoIndustriels) ? technoIndustriels : []);
+        recitsMap.set('recit_citoyen', Array.isArray(citoyens) ? citoyens : []);
+        recitsMap.set('recit_mediatique', Array.isArray(mediatiques) ? mediatiques : []);
 
         setRecits(recitsMap);
       } catch (error) {
