@@ -106,8 +106,8 @@ class ResourceDetailsHelper
             $result['tools'] = $this->fetchTools($resourceId); // if applicable
         }
 
-        // Special handling for Recit Scientifique (124), Recit Mediatique (120) and Recit Citoyen (119)
-        if ($templateId == 124 || $templateId == 120 || $templateId == 119) {
+        // Special handling for Recit Scientifique (124), Recit Mediatique (120), Recit Citoyen (119) and Recit Techno-Industriel (117)
+        if (in_array($templateId, [124, 120, 119, 117])) {
             $result['date'] = $this->fetchDate($resourceId, 23); // dcterms:issued (prop 23)
             $result['purpose'] = $this->fetchProperty($resourceId, 193); // oa:hasPurpose
             $result['application'] = $this->fetchProperty($resourceId, 408); // schema:application
@@ -117,12 +117,12 @@ class ResourceDetailsHelper
             $result['actants'] = $this->fetchCreator($resourceId); // dcterms:creator (prop 2)
             $result['descriptions'] = $this->fetchLinkedResources($resourceId, 4); // dcterms:description (prop 4)
             
-            if ($templateId == 124 || $templateId == 119) {
+            if (in_array($templateId, [124, 119, 117])) {
                 $result['referencesScient'] = $this->fetchLinkedResources($resourceId, 11); // dcterms:source (prop 11)
                 $result['referencesCultu'] = $this->fetchLinkedResources($resourceId, 1659); // schema:review (prop 1659)
             }
 
-            if ($templateId == 120 || $templateId == 119) {
+            if (in_array($templateId, [120, 119])) {
                 $result['citations'] = array_merge(
                     $this->fetchCitationsWithDetails($resourceId) ?? [], 
                     $this->fetchQuotes($resourceId) ?? []
@@ -132,6 +132,10 @@ class ResourceDetailsHelper
             $result['isRelatedTo'] = $this->fetchLinkedResources($resourceId, 937); // schema:isRelatedTo (prop 937)
             $result['isPartOf'] = $this->fetchLinkedResources($resourceId, 33); // dcterms:isPartOf (prop 33)
             $result['descriptionLiteral'] = $this->fetchProperty($resourceId, 4); // dcterms:description (prop 4) - Literal
+            
+            if ($templateId == 117) {
+                $result['slogan'] = $this->fetchProperty($resourceId, 1810); // ma:slogan (prop 1810) if exists
+            }
         }
         
         return $result;

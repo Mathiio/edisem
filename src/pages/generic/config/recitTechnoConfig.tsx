@@ -1,30 +1,36 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
-import { getRecitsTechnoIndustriels, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
-import { createItemsListView, createScientificReferencesView, createTextView } from '../helpers';
+import { getResourceDetails } from '@/services/resourceDetails';
+import { getRecitsTechnoCards } from '@/services/Items';
+import { createCriticalAnalysisView, createCulturalReferencesView, createScientificReferencesView, createTextView } from '../helpers';
 
-export const objetTechnoConfig: GenericDetailPageConfig = {
-  // Data fetching avec enrichissement des keywords
+export const recitTechnoConfig: GenericDetailPageConfig = {
+  // Data fetching with unified endpoint
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const [objets, concepts] = await Promise.all([getRecitsTechnoIndustriels(), getKeywords()]);
+    const data = await getResourceDetails(id);
 
-    console.log(objets);
-
-    const objet = objets.find((o: any) => String(o.id) === String(id));
-
-    // Enrichir les keywords si nécessaire
-    const objetKeywords = concepts.filter((c: any) => objet?.keywords?.some((k: any) => String(k.id) === String(c.id)));
-
-    // Résoudre les targets et related des descriptions (annotations)
-    if (objet?.descriptions) {
-      objet.descriptions = await getAnnotationsWithTargets(objet.descriptions);
+    if (!data) {
+      throw new Error(`Recit Techno-Industriel ${id} not found`);
     }
 
     return {
-      itemDetails: objet,
-      keywords: objetKeywords,
-      recommendations: [],
+      itemDetails: {
+        ...data,
+        // Ensure specific fields are mapped/preserved
+        date: data.date,
+        actants: data.actants || [],
+      },
+      keywords: (data.keywords || []).map((kw: any) => ({
+        ...kw,
+        title: kw.name || kw.title,
+      })),
+      viewData: {
+        // Pass references to viewData for helper functions
+        referencesScient: data.referencesScient || [],
+        referencesCultu: data.referencesCultu || [],
+        descriptions: data.descriptions || [],
+      }
     };
   },
 
@@ -35,102 +41,72 @@ export const objetTechnoConfig: GenericDetailPageConfig = {
   detailsSkeleton: RecitiaDetailsSkeleton,
 
   // Mapper les props pour l'overview
-  mapOverviewProps: (objet: any, currentVideoTime: number) => ({
-    id: objet.id,
-    title: objet.title,
-    personnes: [], // Les objets techno n'ont pas de personnes directes
-    medias: objet.associatedMedia || [],
-    fullUrl: objet.source || objet.uri || '#',
+  mapOverviewProps: (recit: any, currentVideoTime: number) => ({
+    id: recit.id,
+    title: recit.title,
+    personnes: recit.actants || [],
+    medias: recit.associatedMedia || [],
+    fullUrl: recit.url || recit.source || '#',
     currentTime: currentVideoTime,
     buttonText: 'Voir plus',
   }),
 
   // Mapper les props pour les détails
-  mapDetailsProps: (objet: any) => ({
-    date: objet.dateIssued,
-    actants: [],
+  mapDetailsProps: (recit: any) => ({
+    date: recit.date,
+    actants: recit.actants || [],
     description:
       [
-        objet.purpose ? `<strong>Objectif:</strong> ${objet.purpose}` : '',
-        objet.slogan ? `<strong>Slogan:</strong> ${objet.slogan}` : '',
-        objet.application ? `<strong>Résumé:</strong> ${objet.application}` : '',
-      ]
-        .filter(Boolean)
-        .join('<br><br>') || '',
+        recit.purpose ? `<strong>Objectif:</strong> ${recit.purpose}` : '',
+        recit.slogan ? `<strong>Slogan:</strong> ${recit.slogan}` : '',
+        recit.application ? `<strong>Résumé:</strong> ${recit.application}` : '',
+        recit.conditionInitiale ? `<strong>Condition Initiale:</strong> ${recit.conditionInitiale}` : ''
+      ].filter(Boolean).join('<br><br>') || (recit.descriptionLiteral || ''),
   }),
 
   // Mapper pour les recommandations (format SmConfCard)
-  mapRecommendationProps: (objet: any) => ({
-    id: objet.id,
-    title: objet.title,
-    type: objet.type || 'recit_techno_industriel',
-    url: null, // url est pour YouTube, on ne l'utilise pas ici
-    thumbnail: objet.associatedMedia?.[0] || objet.thumbnail || null,
-    actant: [],
+  mapRecommendationProps: (recit: any) => ({
+    id: recit.id,
+    title: recit.title,
+    type: recit.type || 'recit_techno_industriel',
+    url: null,
+    thumbnail: recit.associatedMedia?.[0]?.thumbnail || recit.thumbnail || null,
+    actant: recit.actants || [],
   }),
 
-  // ✨ Vues personnalisées pour les objets techno-industriels
+  // ✨ Vues personnalisées pour les récits techno-industriels
   viewOptions: [
-    // Vue 5 : Descriptions/Analyses critiques
-    createItemsListView({
-      key: 'Descriptions',
-      title: 'Analyses critiques',
-      getItems: (itemDetails) => itemDetails?.descriptions || [],
-      mapUrl: (item) => `/corpus/analyse-critique/${item.id}`,
-    }),
-    // Vue 1 : Condition initiale / Contexte
+    // Vue 1 : Analyses critiques
+    createCriticalAnalysisView(),
+
+    // Vue 2 : Figure narrative / Condition initiale
     createTextView({
       key: 'ConditionInitiale',
       title: 'Figure narrative',
       getText: (itemDetails) => itemDetails?.conditionInitiale,
     }),
 
+    // Vue 3 : Références scientifiques
     createScientificReferencesView(),
 
-    // Vue 3 : Reviews et critiques
-    createItemsListView({
-      key: 'Reviews',
-      title: 'Contenus scientifiques',
-      getItems: (itemDetails) => itemDetails?.reviews || [],
-    }),
-
-    // Vue 4 : Ressources liées (articles, autres ressources)
-    createItemsListView({
-      key: 'RessourcesLiees',
-      title: 'Contenus culturels',
-      getItems: (itemDetails) => itemDetails?.relatedResources || [],
-    }),
-
-    // Vue 2 : Outils/Technologies utilisés
-    createItemsListView({
-      key: 'Outils',
-      title: 'Outils',
-      getItems: (itemDetails) =>
-        (itemDetails?.tools || []).map((tool: any) => ({
-          ...tool,
-          title: tool.name || tool.title || 'Outil sans nom',
-        })),
-    }),
+    // Vue 4 : Contenus culturels
+    createCulturalReferencesView(),
   ],
 
   // Sections optionnelles
   showKeywords: true,
   showComments: true,
   showRecommendations: true,
-  recommendationsTitle: 'Objets techno similaires',
+  recommendationsTitle: 'Récits techno similaires',
 
   // Smart recommendations
   smartRecommendations: {
-    // Récupère tous les objets techno pour trouver des similaires
-    getAllResourcesOfType: async () => {
-      const objets = await getRecitsTechnoIndustriels();
-      return objets;
+    // Retourne tous les autres récits techno-industriels comme recommandations
+    getRelatedItems: async (itemDetails: any) => {
+      const recits = await getRecitsTechnoCards();
+      // Retourner tous les récits sauf celui actuel
+      return recits.filter((recit: any) => String(recit.id) !== String(itemDetails.id));
     },
-
-    // Pour les objets techno, on ne veut pas de recommandations liées
-    // Les analyses critiques sont déjà dans les vues
-    // On veut seulement des objets techno similaires
-    getRelatedItems: () => [],
 
     maxRecommendations: 5,
   },

@@ -652,7 +652,6 @@ export async function getAllItems() {
       tools,
       feedbacks,
       recitsArtistiques,
-      recitsTechnoIndustriels,
       personnes,
       comments,
     ] = await Promise.all([
@@ -672,7 +671,6 @@ export async function getAllItems() {
       getTools(),
       getFeedbacks(),
       getRecitsArtistiques(),
-      getRecitsTechnoIndustriels(),
       getPersonnes(),
       getComments(),
     ]);
@@ -692,7 +690,6 @@ export async function getAllItems() {
       ...experimentations,
       ...feedbacks,
       ...recitsArtistiques,
-      ...(Array.isArray(recitsTechnoIndustriels) ? recitsTechnoIndustriels : []),
       ...tools,
       ...(Array.isArray(recherches) ? recherches : []),
       ...(Array.isArray(personnes) ? personnes : []),
@@ -1498,119 +1495,6 @@ export async function getComments(forceRefresh = false) {
   } catch (error) {
     console.error('Error fetching comments:', error);
     throw new Error('Failed to fetch comments');
-  }
-}
-
-export async function getAnalyseCritiqueById(id: string | number) {
-  try {
-    checkAndClearDailyCache();
-
-    // Try to fetch directly from the API endpoint that might return this specific item
-    // Based on the structure shown by the user, it seems like this might be a specific content type
-    try {
-      // Try to get it from all items if cached first
-      const allItems = await getAllItems();
-      const analyseCritique = allItems.find(
-        (item: any) =>
-          item.id === String(id) &&
-          (item.type === 'analyse-critique' ||
-            item.type === 'analyse_critique' ||
-            item.type === 'recherche' ||
-            item.title?.toLowerCase().includes('analyse') ||
-            item.description?.toLowerCase().includes('analyse') ||
-            item.id === String(id)), // Also try to find by ID alone
-      );
-
-      if (analyseCritique) {
-        return analyseCritique;
-      }
-    } catch (e) {
-      console.log('No cached items found, trying direct fetch...');
-    }
-
-    // If not found in cache, try to fetch specific recherches (which might include analyses critiques)
-    const recherches = await getRecherches();
-    const foundAnalyse = recherches.find((recherche: any) => String(recherche.id) === String(id));
-
-    if (foundAnalyse) {
-      return {
-        ...foundAnalyse,
-        type: 'analyse-critique',
-      };
-    }
-
-    // Try to fetch directly from API if it's a specific content type
-    try {
-      const directItem = await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getItem&id=${id}&json=1`);
-
-      if (directItem && (directItem.id === String(id) || directItem['o:id'] === String(id))) {
-        return {
-          ...directItem,
-          type: 'analyse-critique',
-        };
-      }
-    } catch (e) {
-      console.log('Direct API call failed, trying alternative endpoints...');
-    }
-
-    return null;
-  } catch (error) {
-    console.error('Error fetching analyse critique:', error);
-    throw new Error('Failed to fetch analyse critique');
-  }
-}
-
-export async function getRecitsTechnoIndustriels(id?: number) {
-  try {
-    checkAndClearDailyCache();
-    // 1. CACHE : Vérifier sessionStorage
-    const storedObjets = sessionStorage.getItem('recitsTechnoIndustriels');
-    if (storedObjets) {
-      const objets = JSON.parse(storedObjets);
-      return id ? objets.find((o: any) => o.id === String(id)) : objets;
-    }
-
-    // 2. FETCH : Récupérer données + dépendances en Promise.all
-    const [rawObjets, annotations, keywords] = await Promise.all([
-      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsTechnoIndustriels&json=1'),
-      getAnnotations(),
-      getKeywords(),
-    ]);
-
-    // 3. MAPS : Créer maps pour accès rapide
-    const annotationsMap = new Map(annotations.map((a: any) => [String(a.id), a]));
-    const keywordsMap = new Map(keywords.map((k: any) => [String(k.id), k]));
-
-    // 4. HYDRATATION : Remplacer IDs par objets complets
-    const objetsFull = rawObjets.map((objet: any) => {
-      // Hydrater descriptions (annotations)
-      let descriptionsHydrated = [];
-      if (Array.isArray(objet.descriptions)) {
-        descriptionsHydrated = objet.descriptions.map((id: any) => annotationsMap.get(String(id))).filter(Boolean);
-      }
-
-      // Hydrater keywords
-      let keywordsHydrated = [];
-      if (Array.isArray(objet.keywords)) {
-        keywordsHydrated = objet.keywords.map((id: any) => keywordsMap.get(String(id))).filter(Boolean);
-      }
-
-      return {
-        ...objet,
-        type: 'recit_techno_industriel',
-        descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
-        keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
-        // tools, reviews, relatedResources sont déjà hydratés dans PHP
-        // associatedMedia est déjà un tableau d'URLs
-      };
-    });
-
-    // 5. CACHE + RETURN : Stocker et retourner
-    sessionStorage.setItem('recitsTechnoIndustriels', JSON.stringify(objetsFull));
-    return id ? objetsFull.find((o: any) => o.id === String(id)) : objetsFull;
-  } catch (error) {
-    console.error('Error fetching objets techno-industriels:', error);
-    throw new Error('Failed to fetch objets techno-industriels');
   }
 }
 

@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
-import { getAnnotations, getAnnotationsWithTargets, getRecitsTechnoIndustriels, getRecitsArtistiques } from '@/services/Items';
+import { getAnnotations, getAnnotationsWithTargets } from '@/services/Items';
 import { createTargetsListView, createTextView } from '../helpers';
 
 /**
@@ -88,26 +88,26 @@ export const analyseCritiqueConfig: GenericDetailPageConfig = {
     },
 
     // Récupère les autres analyses critiques du même objet parent
-    getRelatedItems: async (itemDetails) => {
-      // Essayer de trouver l'objet parent dans les objets techno
-      const objets = await getRecitsTechnoIndustriels();
-      const parentObjet = objets.find((o: any) => o.descriptions?.some((d: any) => String(d.id) === String(itemDetails.id)));
+    // getRelatedItems: async (itemDetails) => {
+    //   // Essayer de trouver l'objet parent dans les objets techno
+    //   const objets = await getRecitsTechnoIndustriels();
+    //   const parentObjet = objets.find((o: any) => o.descriptions?.some((d: any) => String(d.id) === String(itemDetails.id)));
 
-      if (parentObjet) {
-        // Retourner les autres analyses du même objet
-        return (parentObjet.descriptions || []).filter((d: any) => String(d.id) !== String(itemDetails.id));
-      }
+    //   if (parentObjet) {
+    //     // Retourner les autres analyses du même objet
+    //     return (parentObjet.descriptions || []).filter((d: any) => String(d.id) !== String(itemDetails.id));
+    //   }
 
-      // Essayer dans les recitsArtistiques
-      const recitsArtistiques = await getRecitsArtistiques();
-      const parentOeuvre = recitsArtistiques.find((o: any) => o.annotations?.some((a: any) => String(a.id) === String(itemDetails.id)));
+    //   // Essayer dans les recitsArtistiques
+    //   const recitsArtistiques = await getRecitsArtistiques();
+    //   const parentOeuvre = recitsArtistiques.find((o: any) => o.annotations?.some((a: any) => String(a.id) === String(itemDetails.id)));
 
-      if (parentOeuvre) {
-        return (parentOeuvre.annotations || []).filter((a: any) => String(a.id) !== String(itemDetails.id));
-      }
+    //   if (parentOeuvre) {
+    //     return (parentOeuvre.annotations || []).filter((a: any) => String(a.id) !== String(itemDetails.id));
+    //   }
 
-      return [];
-    },
+    //   return [];
+    // },
 
     maxRecommendations: 5,
   },

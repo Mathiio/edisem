@@ -22,7 +22,7 @@ const RESOURCE_TYPE_FETCHERS: Record<ResourceType, FetcherFunction> = {
   bibliographie: async (id) => Items.getBibliographies(typeof id === 'string' ? parseInt(id) : id),
   recit_scientifique: async (id) => getResourceDetails(id),
   recit_artistique: async (id) => getResourceDetails(id),
-  recit_techno_industriel: async (id) => Items.getRecitsTechnoIndustriels(typeof id === 'string' ? parseInt(id) : id),
+  recit_techno_industriel: async (id) => getResourceDetails(id),
   recit_citoyen: async (id) => getResourceDetails(id),
   recit_mediatique: async (id) => getResourceDetails(id),
   annotation: async (id) => Items.getAnnotations(typeof id === 'string' ? parseInt(id) : id),
