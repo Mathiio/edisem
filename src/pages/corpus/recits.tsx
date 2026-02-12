@@ -6,9 +6,12 @@ import { PratiqueNarrativeIcon } from '@/components/ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PageBanner } from '@/components/ui/PageBanner';
+import { GenreCarousel } from '@/components/features/corpus/GenreCarousel';
 
 
 export const MisesEnRecits: React.FC = () => {
+  const [recits, setRecits] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState({
     totalRecits: 0,
     totalTypes: 0
@@ -16,27 +19,41 @@ export const MisesEnRecits: React.FC = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      setLoading(true);
       try {
-        const [recitsMediatiques, docsScientifiques, objetsTechno, recitsCitoyens] = await Promise.all([
-          Items.getRecitsMediatiques(),
-          Items.getRecitsScientifiques(),
-          Items.getRecitsTechnoIndustriels(),
-          Items.getRecitsCitoyensCards()
+        const [
+            recitsMediatiques, 
+            docsScientifiques, 
+            objetsTechno, 
+            recitsCitoyens,
+            recitsArtistiques
+        ] = await Promise.all([
+          Items.getRecitsMediatiquesCards(),
+          Items.getRecitsScientifiquesCards(),
+          Items.getRecitsTechnoCards(),
+          Items.getRecitsCitoyensCards(),
+          Items.getRecitsArtistiquesCards()
         ]);
 
-        const totalRecits =
-          recitsMediatiques.length +
-          docsScientifiques.length +
-          objetsTechno.length +
-          recitsCitoyens.length;
+        const allRecits = [
+            ...recitsMediatiques, 
+            ...docsScientifiques, 
+            ...objetsTechno, 
+            ...recitsCitoyens,
+            ...recitsArtistiques
+        ];
+
+        setRecits(allRecits);
 
         setMetrics({
-          totalRecits: totalRecits,
-          totalTypes: 4 // Fixed as per requirement (4 types)
+          totalRecits: allRecits.length,
+          totalTypes: 5 
         });
 
       } catch (error) {
         console.error("Failed to load Mises En Récits data", error);
+      } finally {
+        setLoading(false);
       }
     };
     loadData();
@@ -47,7 +64,7 @@ export const MisesEnRecits: React.FC = () => {
       id: 'artistiques',
       title: 'Récits Artistiques',
       description: 'Analyses des publications scientifiques et académiques.',
-      path: '/corpus/recits-artistiques', // Placeholder route
+      path: '/corpus/recits-artistiques', 
       icon: PratiqueNarrativeIcon,
       color: '#EDB9EB'
     },
@@ -55,7 +72,7 @@ export const MisesEnRecits: React.FC = () => {
       id: 'scientifiques',
       title: 'Récits Scientifiques',
       description: 'Analyses des publications scientifiques et académiques.',
-      path: '/corpus/recits-scientifiques', // Placeholder route
+      path: '/corpus/recits-scientifiques', 
       icon: PratiqueNarrativeIcon,
       color: '#86A4E7'
     },
@@ -63,7 +80,7 @@ export const MisesEnRecits: React.FC = () => {
       id: 'techno',
       title: 'Récits TechnoIndustriels',
       description: 'Analyses de discours industriels et technologiques.',
-      path: '/corpus/recits-techno-industriels', // Placeholder route
+      path: '/corpus/recits-techno-industriels', 
       icon: PratiqueNarrativeIcon,
       color: '#ADCFEC'
     },
@@ -71,7 +88,7 @@ export const MisesEnRecits: React.FC = () => {
       id: 'citoyens',
       title: 'Récits Citoyens',
       description: 'Exploration des perspectives citoyennes et sociales.',
-      path: '/corpus/recits-citoyens', // Placeholder route
+      path: '/corpus/recits-citoyens', 
       icon: PratiqueNarrativeIcon,
       color: '#C8F3C9'
     },
@@ -79,7 +96,7 @@ export const MisesEnRecits: React.FC = () => {
       id: 'mediatiques',
       title: 'Récits Médiatiques',
       description: 'Analyse de la couverture médiatique et de la presse.',
-      path: '/corpus/recits-mediatiques', // Placeholder route
+      path: '/corpus/recits-mediatiques', 
       icon: PratiqueNarrativeIcon,
       color: '#FFF1B8'
     }
@@ -97,13 +114,20 @@ export const MisesEnRecits: React.FC = () => {
         ]}
       />
 
-      <section className="w-full">
+      <section className="w-full flex flex-col gap-100">
         <FullCarrousel
           title="Explorer les Corpus"
           data={navCards}
           perPage={3}
           perMove={1}
           renderSlide={(card, index) => <NavCard card={card} index={index} key={card.id} />}
+        />
+
+        <GenreCarousel 
+            items={recits} 
+            loading={loading} 
+            title="Explorer par genres" 
+            basePath="/corpus/genre"
         />
       </section>
     </Layouts>

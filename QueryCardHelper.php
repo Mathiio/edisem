@@ -18,11 +18,11 @@ class QueryCardHelper
         // Experimentations
         108 => [
             'type' => 'experimentation',
-            'title_prop' => 1,          // dcterms:title
-            'date_prop' => 7,           // dcterms:date
+            'title_prop' => 1,
+            'date_prop' => 7,
             'thumbnail_source' => 'item',
-            'agent_prop' => 386,        // schema:agent
-            'agent_type' => 'actant'    // Fetch firstname/lastname/university
+            'agent_prop' => 386,
+            'agent_type' => 'actant'
         ],
         // Seminars
         71 => [
@@ -55,10 +55,11 @@ class QueryCardHelper
         119 => [
             'type' => 'recit_citoyen',
             'title_prop' => 1,
-            'date_prop' => 23,          // dcterms:issued
+            'date_prop' => 23,
             'thumbnail_source' => 'item',
-            'agent_prop' => 2,          // dcterms:creator
-            'agent_type' => 'creator'   // Use display_title
+            'agent_prop' => 2,
+            'agent_type' => 'creator',
+            'genre_prop' => 1621
         ],
         // Recits Mediatiques
         120 => [
@@ -67,7 +68,8 @@ class QueryCardHelper
             'date_prop' => 23,
             'thumbnail_source' => 'item',
             'agent_prop' => 2,
-            'agent_type' => 'creator'
+            'agent_type' => 'creator',
+            'genre_prop' => 1621
         ],
         // Recits Scientifiques
         124 => [
@@ -76,7 +78,8 @@ class QueryCardHelper
             'date_prop' => 23,
             'thumbnail_source' => 'item',
             'agent_prop' => 2,
-            'agent_type' => 'creator'
+            'agent_type' => 'creator',
+            'genre_prop' => 1621
         ],
         // Recits Techno-Industriels
         117 => [
@@ -85,24 +88,18 @@ class QueryCardHelper
             'date_prop' => 23,
             'thumbnail_source' => 'item',
             'agent_prop' => 2,
-            'agent_type' => 'creator'
+            'agent_type' => 'creator',
+            'genre_prop' => 1621
         ],
         // Recits Artistiques
-        131 => [
-            'type' => 'recit_artistique',
-            'title_prop' => 1,
-            'date_prop' => 23,
-            'thumbnail_source' => 'item',
-            'agent_prop' => 2,
-            'agent_type' => 'creator'
-        ],
         103 => [
             'type' => 'recit_artistique',
             'title_prop' => 1,
-            'date_prop' => 23,
+            'date_prop' => 7,
             'thumbnail_source' => 'item',
-            'agent_prop' => 2,
-            'agent_type' => 'creator'
+            'agent_prop' => 386,
+            'agent_type' => 'creator',
+            'genre_prop' => 1621
         ]
     ];
 
@@ -170,6 +167,10 @@ class QueryCardHelper
         // Fetch agents/creators
         $agents = $this->fetchAgents($idsStr, $config['agent_prop'], $config['agent_type']);
         
+        // Fetch genres if configured
+        $genres = isset($config['genre_prop']) ? $this->fetchGenres($idsStr, $config['genre_prop']) : [];
+
+        
         // Assemble results
         $results = [];
         foreach ($ids as $id) {
@@ -180,6 +181,7 @@ class QueryCardHelper
                 'thumbnail' => $thumbnails[$id] ?? null,
                 'type' => $config['type'],
                 'actants' => $agents[$id] ?? [],
+                'genres' => $genres[$id] ?? [],
                 'url' => null // TODO: Add URL fetching if needed
             ];
         }
@@ -485,6 +487,40 @@ class QueryCardHelper
                     'picture' => $thumbMap[$creatorId] ?? null
                 ];
             }
+        }
+        
+        return $results;
+    }
+    /**
+     * Fetch Genres (Property 1621 - schema:genre)
+     * Returns: [ {id, label, value_resource_id} ]
+     */
+    private function fetchGenres($idsStr, $genreProp)
+    {
+        $sql = "
+            SELECT 
+                v.resource_id,
+                v.value_resource_id as genre_id,
+                r.title as genre_label
+            FROM value v
+            INNER JOIN resource r ON v.value_resource_id = r.id
+            WHERE v.resource_id IN ($idsStr)
+            AND v.property_id = $genreProp
+            AND v.value_resource_id IS NOT NULL
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql);
+        
+        $results = [];
+        foreach ($rows as $row) {
+            $resId = $row['resource_id'];
+            if (!isset($results[$resId])) {
+                $results[$resId] = [];
+            }
+            $results[$resId][] = [
+                'id' => $row['genre_id'],
+                'label' => $row['genre_label']
+            ];
         }
         
         return $results;

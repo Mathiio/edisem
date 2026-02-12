@@ -25,7 +25,7 @@ export const PratiquesNarratives: React.FC = () => {
         const [stats, keywords, experimentations] = await Promise.all([
           Items.getNarrativePracticesStats(),
           Items.getNarrativeTopKeywords(8),
-          Items.getExperimentations() // Still need full data for display
+          Items.getExperimentationCards()
         ]);
 
         setMetrics({

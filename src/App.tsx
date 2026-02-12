@@ -17,10 +17,9 @@ import { JourneesEtudes } from '@/pages/corpus/JourneesEtudes';
 import { Seminaires } from '@/pages/corpus/Seminaires';
 import { Experimentations } from '@/pages/corpus/Experimentations';
 import { MisesEnRecits } from '@/pages/corpus/recits';
-import { Oeuvres } from '@/pages/corpus/Oeuvres';
 import { Personne } from '@/pages/personne';
-import { GenreDetail } from '@/pages/corpus/oeuvresByGenre';
 import { RecitsByGenre } from '@/pages/corpus/recitsByGenre';
+import { RecitsByType } from '@/pages/corpus/recitsByType';
 import { ConfigurableDetailPage } from '@/pages/generic/ConfigurableDetailPage';
 import { conferenceConfig } from '@/pages/generic/config/conferenceConfig';
 import { experimentationConfig } from '@/pages/generic/config/experimentationConfig';
@@ -131,11 +130,11 @@ function App() {
           <Route path='/corpus/mises-en-recits' Component={MisesEnRecits} />
 
           {/* Recits by Genre Routes */}
-          <Route path='/corpus/recits-scientifiques' Component={RecitsByGenre} />
-          <Route path='/corpus/recits-techno-industriels' Component={RecitsByGenre} />
-          <Route path='/corpus/recits-citoyens' Component={RecitsByGenre} />
-          <Route path='/corpus/recits-mediatiques' Component={RecitsByGenre} />
-          <Route path='/corpus/recits-artistiques' Component={Oeuvres} />
+          <Route path='/corpus/recits-scientifiques' Component={RecitsByType} />
+          <Route path='/corpus/recits-techno-industriels' Component={RecitsByType} />
+          <Route path='/corpus/recits-citoyens' Component={RecitsByType} />
+          <Route path='/corpus/recits-mediatiques' Component={RecitsByType} />
+          <Route path='/corpus/recits-artistiques' Component={RecitsByType} />
 
           {/* ============================================ */}
           {/* 🆕 NOUVELLE ARCHITECTURE GÉNÉRIQUE - ROUTES PRINCIPALES */}
@@ -162,7 +161,7 @@ function App() {
           <Route path='/corpus/journees-etudes/conference/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
 
           {/* Routes pour les items individuels */}
-          <Route path='/corpus/recits-artistiques/genre/:slug' Component={GenreDetail} />
+          <Route path='/corpus/genre/:slug' Component={RecitsByGenre} />
           <Route path='/corpus/experimentation/:id' element={<ConfigurableDetailPage config={experimentationConfig} />} />
           <Route path='/feedback/:id' element={<ConfigurableDetailPage config={feedbackConfig} />} />
           <Route path='/corpus/element-esthetique/:id' element={<ConfigurableDetailPage config={elementEsthetiqueConfig} />} />
