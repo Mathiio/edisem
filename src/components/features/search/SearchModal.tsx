@@ -1,6 +1,7 @@
 import { useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Modal, ModalContent, ModalBody, useDisclosure, Alert } from '@heroui/react';
 import { SearchIcon } from '@/components/ui/icons';
+import { Construction } from 'lucide-react';
 // import { useSearch } from '@/hooks/useSearch';
 // import { SearchInput } from './SearchInput';
 // import { SearchResults } from './SearchResults';
@@ -114,17 +115,22 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
           }}
         >
           <ModalContent>
-            <ModalBody className="flex justify-between p-40">
+            <ModalBody className="flex justify-center items-center p-40">
               <h1 className="font-semibold text-32 text-c6 flex flex-row justify-center py-20">
                 Rechercher
               </h1>
 
               {/* Maintenance message */}
-              <Alert
-                color="warning"
-                description="Cette section fait actuellement l’objet d’une restructuration technique. Des ralentissements ou dysfonctionnements temporaires peuvent survenir."
-                variant="faded"
-              />
+              <div className='max-w-md p-8 rounded-12 border-2 border-c3 bg-c2 shadow-lg flex flex-col items-center'>
+                <div className='text-datavisOrange mb-6'>
+                  <Construction size={48} />
+                </div>
+                <h2 className='text-2xl font-bold text-c6 mb-4'>Fonctionnalité indisponible</h2>
+                <p className='text-c4 leading-relaxed text-center'>
+                  Cette partie est inaccessible de manière temporaire pour restructuration.
+                  <br />
+                </p>
+              </div>
 
               {/* Commented out search functionality */}
               {/* <SearchInput

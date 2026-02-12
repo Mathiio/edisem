@@ -61,7 +61,9 @@ export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description,
         {medium && <p className='text-16 text-c6 font-semibold'>Support : {medium}</p>}
 
         {credits && credits.length > 0 && (
-          <p className='text-16  text-c4  transition-all ease-in-out duration-200 gap-10' style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
+          <p
+            className={`text-16  text-c4  transition-all ease-in-out duration-200 gap-10 ${expanded ? '' : 'line-clamp-3'}`}
+            style={{ lineHeight: '120%' }}>
             Crédits :{' '}
             {credits
               .map((credit: any) => {
@@ -75,8 +77,8 @@ export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description,
         )}
         {description && (
           <p
-            className='text-16 text-c6 font-semibold transition-all ease-in-out duration-200 gap-10'
-            style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}
+            className={`text-16 text-c6 font-semibold transition-all ease-in-out duration-200 gap-10 ${expanded ? '' : 'line-clamp-3'}`}
+            style={{ lineHeight: '120%' }}
             dangerouslySetInnerHTML={{ __html: description }}></p>
         )}
         {Array.isArray(actants) && actants.length > 0 && (
