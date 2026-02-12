@@ -23,7 +23,7 @@ const RESOURCE_TYPE_FETCHERS: Record<ResourceType, FetcherFunction> = {
   recit_scientifique: async (id) => getResourceDetails(id),
   recit_artistique: async (id) => getResourceDetails(id),
   recit_techno_industriel: async (id) => Items.getRecitsTechnoIndustriels(typeof id === 'string' ? parseInt(id) : id),
-  recit_citoyen: async (id) => Items.getRecitsCitoyens(typeof id === 'string' ? parseInt(id) : id),
+  recit_citoyen: async (id) => getResourceDetails(id),
   recit_mediatique: async (id) => getResourceDetails(id),
   annotation: async (id) => Items.getAnnotations(typeof id === 'string' ? parseInt(id) : id),
   // Use unified getAllConfs with type filtering

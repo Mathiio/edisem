@@ -29,7 +29,7 @@ import {
 } from '@heroui/react';
 import { ArrowIcon, SearchIcon } from '@/components/ui/icons';
 import { SidebarProvider, useSidebar } from '@/components/ui/AppSidebar';
-import { PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight, LibraryBig, Settings } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight, LibraryBig, Settings, Construction } from 'lucide-react';
 import SearchHistory from '@/components/features/datavisualisation/SearchHistory';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { EditModal } from '@/components/features/database/EditModal';
@@ -240,7 +240,7 @@ const Visualisation = () => {
   const [filteredLinks, setFilteredLinks] = useState<any[]>([]);
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
   const [showOverlay, setShowOverlay] = useState(true);
-  const [activeView, setActiveView] = useState<'datavis' | 'cahiers' | 'create' | 'radialTree' | 'oeuvres' | 'coverageMatrix' | 'activityHeatmap' | 'dashboard'>('datavis');
+  const [activeView, setActiveView] = useState<'datavis' | 'cahiers' | 'create' | 'radialTree' | 'oeuvres' | 'coverageMatrix' | 'activityHeatmap' | 'dashboard'>('oeuvres');
   const [dashboardView, setDashboardView] = useState<DashboardView>('overview');
   const [coverageTopKeywords, setCoverageTopKeywords] = useState(200);
   const [heatmapYear, setHeatmapYear] = useState(new Date().getFullYear());
@@ -1654,6 +1654,20 @@ const Visualisation = () => {
                   initial='hidden'
                   animate='visible'
                   style={{ display: activeView === 'datavis' ? 'flex' : 'none' }}>
+                  {/* Blocking Overlay for Maintenance */}
+                  <div className='absolute inset-0 z-20 bg-c1/95 flex flex-col items-center justify-center text-center p-8 backdrop-blur-sm'>
+                    <div className='max-w-md p-8 rounded-12 border-2 border-c3 bg-c2 shadow-lg flex flex-col items-center'>
+                      <div className='text-datavisOrange mb-6'>
+                        <Construction size={48} />
+                      </div>
+                      <h2 className='text-2xl font-bold text-c6 mb-4'>Fonctionnalité indisponible</h2>
+                      <p className='text-c4 mb-6 leading-relaxed'>
+                        Cette partie est inaccessible de manière temporaire pour restructuration.
+                        <br />
+                        Nous vous invitons à explorer les autres visualisations disponibles.
+                      </p>
+                    </div>
+                  </div>
                   {!showOverlay && filteredNodes.length > 0 && (
                     <BGPattern variant='grid' mask='fade-edges' size={40} fill='rgba(255, 255, 255, 0.15)' className='absolute inset-0 z-0 pointer-events-none' />
                   )}

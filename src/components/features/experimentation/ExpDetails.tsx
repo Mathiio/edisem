@@ -180,8 +180,8 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
         onClick={toggleExpansion}>
         <h3 className='text-16 text-c5 font-medium'>{date}</h3>
         <p
-          className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200 gap-10'
-          style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
+          className={`text-16 text-c4 font-extralight transition-all ease-in-out duration-200 gap-10 ${expanded ? '' : 'line-clamp-3'}`}
+          style={{ lineHeight: '120%' }}>
           {description}
         </p>
         {actants && actants.length > 0 && (
