@@ -1,28 +1,39 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
-import { getRecitsScientifiques, getKeywords, getAnnotationsWithTargets } from '@/services/Items';
+import { getResourceDetails } from '@/services/resourceDetails';
+import { getRecitsScientifiquesCards } from '@/services/Items';
 import { createCriticalAnalysisView, createCulturalReferencesView, createScientificReferencesView, createTextView } from '../helpers';
 
-export const documentationScientifiqueConfig: GenericDetailPageConfig = {
+export const recitScientifiqueConfig: GenericDetailPageConfig = {
   // Data fetching avec enrichissement des keywords
+  // Data fetching with unified endpoint
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const [doc, concepts] = await Promise.all([getRecitsScientifiques(Number(id)), getKeywords()]);
+    const data = await getResourceDetails(id);
 
-    // Enrichir les keywords si nécessaire
-    const docKeywords = concepts.filter((c: any) => doc?.keywords?.some((k: any) => String(k.id) === String(c.id)));
-
-    // Résoudre les targets et related des descriptions (annotations)
-    if (doc?.descriptions) {
-      doc.descriptions = await getAnnotationsWithTargets(doc.descriptions);
+    if (!data) {
+      throw new Error(`Recit Scientifique ${id} not found`);
     }
 
     return {
-      itemDetails: doc,
-      keywords: docKeywords,
-      // Pas de recommendations classiques pour déclencher les smart recommendations
+      itemDetails: {
+        ...data,
+         // Ensure specific fields are mapped/preserved
+         date: data.date, 
+         actants: data.actants || [],
+      },
+      keywords: (data.keywords || []).map((kw: any) => ({
+        ...kw,
+        title: kw.name || kw.title,
+      })),
+      viewData: {
+         // Pass references to viewData for helper functions
+         referencesScient: data.referencesScient || [],
+         referencesCultu: data.referencesCultu || [],
+      }
     };
   },
+
 
   // Composants UI réutilisés
   overviewComponent: RecitiaOverviewCard,
@@ -31,32 +42,36 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
   detailsSkeleton: RecitiaDetailsSkeleton,
 
   // Mapper les props pour l'overview
-  mapOverviewProps: (doc: any, currentVideoTime: number) => ({
-    id: doc.id,
-    title: doc.title,
-    personnes: doc.creator ? [doc.creator] : [],
-    medias: doc.associatedMedia || [],
-    fullUrl: doc.url || doc.source || '#',
+  mapOverviewProps: (recit: any, currentVideoTime: number) => ({
+    id: recit.id,
+    title: recit.title,
+    personnes: recit.actants || [],
+    medias: recit.associatedMedia || [],
+    fullUrl: recit.url || recit.source || '#',
     currentTime: currentVideoTime,
     buttonText: 'Voir plus',
   }),
 
   // Mapper les props pour les détails
-  mapDetailsProps: (doc: any) => ({
-    date: doc.dateIssued,
-    actants: doc.creator ? [doc.creator] : [],
+  mapDetailsProps: (recit: any) => ({
+    date: recit.date,
+    actants: recit.actants || [],
     description:
-      [doc.purpose ? `<strong>Objectif:</strong> ${doc.purpose}` : '', doc.application ? `<strong>Résumé:</strong> ${doc.application}` : ''].filter(Boolean).join('<br><br>') || '',
+      [
+        recit.purpose ? `<strong>Objectif:</strong> ${recit.purpose}` : '',
+        recit.application ? `<strong>Résumé:</strong> ${recit.application}` : '',
+        recit.conditionInitiale ? `<strong>Condition Initiale:</strong> ${recit.conditionInitiale}` : ''
+      ].filter(Boolean).join('<br><br>') || (recit.descriptions?.[0]?.description || ''),
   }),
 
   // Mapper pour les recommandations (format SmConfCard)
-  mapRecommendationProps: (doc: any) => ({
-    id: doc.id,
-    title: doc.title,
-    type: doc.type || 'recit_scientifique',
-    url: null, // url est pour YouTube, on ne l'utilise pas ici
-    thumbnail: doc.associatedMedia?.[0] || doc.thumbnail || null,
-    actant: doc.creator ? [doc.creator] : [],
+  mapRecommendationProps: (recit: any) => ({
+    id: recit.id,
+    title: recit.title,
+    type: recit.type || 'recit_scientifique',
+    url: null,
+    thumbnail: recit.associatedMedia?.[0]?.thumbnail || recit.thumbnail || null,
+    actant: recit.actants || [],
   }),
 
   // ✨ Vues personnalisées pour les documentations scientifiques
@@ -85,7 +100,7 @@ export const documentationScientifiqueConfig: GenericDetailPageConfig = {
   smartRecommendations: {
     // Retourne toutes les autres documentations scientifiques comme recommandations
     getRelatedItems: async (itemDetails: any) => {
-      const docs = await getRecitsScientifiques();
+      const docs = await getRecitsScientifiquesCards();
       // Retourner toutes les docs sauf celle actuelle
       return docs.filter((doc: any) => String(doc.id) !== String(itemDetails.id));
     },

@@ -6,6 +6,7 @@
 
 import { TEMPLATE_ID_TO_TYPE, ResourceType } from '@/config/resourceConfig';
 import * as Items from './Items';
+import { getResourceDetails } from './resourceDetails';
 
 /**
  * Type pour une fonction de fetching
@@ -19,25 +20,16 @@ type FetcherFunction = (id: number | string) => Promise<any>;
 const RESOURCE_TYPE_FETCHERS: Record<ResourceType, FetcherFunction> = {
   mediagraphie: async (id) => Items.getMediagraphies(typeof id === 'string' ? parseInt(id) : id),
   bibliographie: async (id) => Items.getBibliographies(typeof id === 'string' ? parseInt(id) : id),
-  recit_scientifique: async (id) => Items.getRecitsScientifiques(typeof id === 'string' ? parseInt(id) : id),
-  recit_artistique: async (id) => Items.getRecitsArtistiques(typeof id === 'string' ? parseInt(id) : id),
+  recit_scientifique: async (id) => getResourceDetails(id),
+  recit_artistique: async (id) => getResourceDetails(id),
   recit_techno_industriel: async (id) => Items.getRecitsTechnoIndustriels(typeof id === 'string' ? parseInt(id) : id),
   recit_citoyen: async (id) => Items.getRecitsCitoyens(typeof id === 'string' ? parseInt(id) : id),
-  recit_mediatique: async (id) => Items.getRecitsMediatiques(typeof id === 'string' ? parseInt(id) : id),
+  recit_mediatique: async (id) => getResourceDetails(id),
   annotation: async (id) => Items.getAnnotations(typeof id === 'string' ? parseInt(id) : id),
   // Use unified getAllConfs with type filtering
-  journee_etudes: async (id) => {
-    const allConfs = await Items.getAllConfs(typeof id === 'string' ? parseInt(id) : id);
-    return Array.isArray(allConfs) ? allConfs.find((c: any) => c.type === 'journee_etudes' && String(c.id) === String(id)) : allConfs;
-  },
-  seminaire: async (id) => {
-    const allConfs = await Items.getAllConfs(typeof id === 'string' ? parseInt(id) : id);
-    return Array.isArray(allConfs) ? allConfs.find((c: any) => c.type === 'seminaire' && String(c.id) === String(id)) : allConfs;
-  },
-  colloque: async (id) => {
-    const allConfs = await Items.getAllConfs(typeof id === 'string' ? parseInt(id) : id);
-    return Array.isArray(allConfs) ? allConfs.find((c: any) => c.type === 'colloque' && String(c.id) === String(id)) : allConfs;
-  },
+  journee_etudes: async (id) => getResourceDetails(id),
+  seminaire: async (id) => getResourceDetails(id),
+  colloque: async (id) => getResourceDetails(id),
   element_esthetique: async (id) => Items.getElementEsthetiques(typeof id === 'string' ? parseInt(id) : id),
   element_narratif: async (id) => Items.getElementNarratifs(typeof id === 'string' ? parseInt(id) : id),
   experimentation: async (id) => Items.getExperimentations(typeof id === 'string' ? parseInt(id) : id),

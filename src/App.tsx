@@ -30,9 +30,9 @@ import { feedbackConfig } from '@/pages/generic/config/feedbackConfig';
 import { analyseCritiqueConfig } from '@/pages/generic/config/analyseCritiqueConfig';
 import { objetTechnoConfig } from '@/pages/generic/config/recitTechnoConfig';
 import { toolConfig } from '@/pages/generic/config/toolConfig';
-import { documentationScientifiqueConfig } from '@/pages/generic/config/recitScientifiqueConfig';
-import { recitmediatiqueConfig } from '@/pages/generic/config/recitmediatiqueConfig';
-import { recitcitoyenConfig } from './pages/generic/config/recitcitoyenConfig';
+import { recitScientifiqueConfig } from '@/pages/generic/config/recitScientifiqueConfig';
+import { recitMediatiqueConfig } from '@/pages/generic/config/recitMediatiqueConfig';
+import { recitCitoyenConfig } from '@/pages/generic/config/recitCitoyenConfig';
 import { NavigationTrailProvider } from './hooks/useNavigationTrail';
 import { EspaceEtudiant } from './pages/espaceEtudiant';
 import { LoadingScreen } from './components/layout/LoadingScreen';
@@ -168,9 +168,9 @@ function App() {
           <Route path='/corpus/element-narratif/:id' element={<ConfigurableDetailPage config={elementNarratifConfig} />} />
           <Route path='/corpus/analyse-critique/:id' element={<ConfigurableDetailPage config={analyseCritiqueConfig} />} />
           <Route path='/corpus/tool/:id' element={<ConfigurableDetailPage config={toolConfig} />} />
-          <Route path='/corpus/recit-scientifique/:id' element={<ConfigurableDetailPage config={documentationScientifiqueConfig} />} />
-          <Route path='/corpus/recit-mediatique/:id' element={<ConfigurableDetailPage config={recitmediatiqueConfig} />} />
-          <Route path='/corpus/recit-citoyen/:id' element={<ConfigurableDetailPage config={recitcitoyenConfig} />} />
+          <Route path='/corpus/recit-scientifique/:id' element={<ConfigurableDetailPage config={recitScientifiqueConfig} />} />
+          <Route path='/corpus/recit-mediatique/:id' element={<ConfigurableDetailPage config={recitMediatiqueConfig} />} />
+          <Route path='/corpus/recit-citoyen/:id' element={<ConfigurableDetailPage config={recitCitoyenConfig} />} />
           <Route path='/corpus/recit-artistique/:id' element={<ConfigurableDetailPage config={recitArtitstiqueConfig} />} />
           <Route path='/corpus/recit-techno-industriel/:id' element={<ConfigurableDetailPage config={objetTechnoConfig} />} />
 

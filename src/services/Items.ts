@@ -652,10 +652,8 @@ export async function getAllItems() {
       tools,
       feedbacks,
       recitsArtistiques,
-      recitsScientifiques,
       recitsTechnoIndustriels,
       recitsCitoyens,
-      recitsMediatiques,
       personnes,
       comments,
     ] = await Promise.all([
@@ -675,10 +673,8 @@ export async function getAllItems() {
       getTools(),
       getFeedbacks(),
       getRecitsArtistiques(),
-      getRecitsScientifiques(),
       getRecitsTechnoIndustriels(),
       getRecitsCitoyens(),
-      getRecitsMediatiques(),
       getPersonnes(),
       getComments(),
     ]);
@@ -698,10 +694,8 @@ export async function getAllItems() {
       ...experimentations,
       ...feedbacks,
       ...recitsArtistiques,
-      ...(Array.isArray(recitsScientifiques) ? recitsScientifiques : []),
       ...(Array.isArray(recitsTechnoIndustriels) ? recitsTechnoIndustriels : []),
       ...(Array.isArray(recitsCitoyens) ? recitsCitoyens : []),
-      ...(Array.isArray(recitsMediatiques) ? recitsMediatiques : []),
       ...tools,
       ...(Array.isArray(recherches) ? recherches : []),
       ...(Array.isArray(personnes) ? personnes : []),
@@ -1620,236 +1614,6 @@ export async function getRecitsTechnoIndustriels(id?: number) {
   } catch (error) {
     console.error('Error fetching objets techno-industriels:', error);
     throw new Error('Failed to fetch objets techno-industriels');
-  }
-}
-
-export async function getRecitsScientifiques(id?: number) {
-  try {
-    checkAndClearDailyCache();
-    // 1. CACHE : Vérifier sessionStorage
-    const storedDocs = sessionStorage.getItem('recitsScientifiques');
-    if (storedDocs) {
-      const docs = JSON.parse(storedDocs);
-      return id ? docs.find((d: any) => d.id === String(id)) : docs;
-    }
-
-    // 2. FETCH : Récupérer données + dépendances en Promise.all
-    const [rawDocs, keywords, personnes, annotations, bibliographies, mediagraphies] = await Promise.all([
-      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsScientifiques&json=1'),
-      getKeywords(),
-      getPersonnes(),
-      getAnnotations(),
-      getBibliographies(),
-      getMediagraphies(),
-    ]);
-
-    // 3. MAPS : Créer maps pour accès rapide
-    const keywordsMap = new Map(keywords.map((k: any) => [String(k.id), k]));
-    const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
-    const annotationsMap = new Map(annotations.map((a: any) => [String(a.id), a]));
-    const bibliographiesMap = new Map(bibliographies.map((b: any) => [String(b.id), b]));
-    const mediagraphiesMap = new Map(mediagraphies.map((m: any) => [String(m.id), m]));
-    // 4. HYDRATATION : Remplacer IDs par objets complets
-    const docsFull = rawDocs.map((doc: any) => {
-      // Hydrater descriptions (items)
-      let descriptionsHydrated = [];
-      if (Array.isArray(doc.descriptions)) {
-        descriptionsHydrated = doc.descriptions.map((id: any) => annotationsMap.get(String(id))).filter(Boolean);
-      }
-
-      // Hydrater keywords
-      let keywordsHydrated = [];
-      if (Array.isArray(doc.keywords)) {
-        keywordsHydrated = doc.keywords.map((id: any) => keywordsMap.get(String(id))).filter(Boolean);
-      }
-
-      // Hydrater creator (personne)
-      let creatorHydrated = null;
-      if (doc.creator) {
-        // Vérifier si creator est un ID numérique ou une chaîne de caractères
-        const creatorStr = String(doc.creator).trim();
-        // Si c'est un ID numérique (chaîne qui peut être convertie en nombre, ex: "24323")
-        if (creatorStr !== '' && !isNaN(Number(creatorStr)) && /^\d+$/.test(creatorStr)) {
-          creatorHydrated = personnesMap.get(creatorStr) || null;
-        } else {
-          // Si c'est une chaîne de caractères (comme "BBC World Service"), garder la chaîne
-          creatorHydrated = creatorStr;
-        }
-      }
-
-      // Hydrater associatedMedia (items)
-      let associatedMediaHydrated = [];
-      if (Array.isArray(doc.associatedMedia)) {
-        associatedMediaHydrated = doc.associatedMedia.filter(Boolean);
-      }
-
-      // Hydrater isRelatedTo (items)
-      let isRelatedToHydrated = [];
-      if (Array.isArray(doc.isRelatedTo)) {
-        isRelatedToHydrated = doc.isRelatedTo.filter(Boolean);
-      }
-
-      // Hydrater referencesScient (items)
-      let referencesScientHydrated = [];
-      if (Array.isArray(doc.referencesScient)) {
-        // Vérifier si c'est déjà des objets complets ou des IDs
-        if (doc.referencesScient.length > 0 && typeof doc.referencesScient[0] === 'object' && doc.referencesScient[0] !== null) {
-          // Déjà des objets complets
-          referencesScientHydrated = doc.referencesScient;
-        } else {
-          // Ce sont des IDs, les hydrater
-          referencesScientHydrated = doc.referencesScient.map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id)).filter(Boolean);
-        }
-      }
-
-      // Hydrater referencesCultu (items)
-      let referencesCultuHydrated = [];
-      if (Array.isArray(doc.referencesCultu)) {
-        referencesCultuHydrated = doc.referencesCultu.map((id: string) => bibliographiesMap.get(id) || mediagraphiesMap.get(id)).filter(Boolean);
-      }
-
-      return {
-        ...doc,
-        type: 'recit_scientifique',
-        descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
-        keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
-        creator: creatorHydrated,
-        associatedMedia: associatedMediaHydrated.length > 0 ? associatedMediaHydrated : [],
-        isRelatedTo: isRelatedToHydrated.length > 0 ? isRelatedToHydrated : [],
-        referencesScient: referencesScientHydrated.length > 0 ? referencesScientHydrated : [],
-        referencesCultu: referencesCultuHydrated.length > 0 ? referencesCultuHydrated : [],
-      };
-    });
-
-    // 5. CACHE + RETURN : Stocker et retourner
-    sessionStorage.setItem('recitsScientifiques', JSON.stringify(docsFull));
-    return id ? docsFull.find((d: any) => d.id === String(id)) : docsFull;
-  } catch (error) {
-    console.error('Error fetching documentations scientifiques:', error);
-    throw new Error('Failed to fetch documentations scientifiques');
-  }
-}
-
-export async function getRecitsMediatiques(id?: number) {
-  try {
-    checkAndClearDailyCache();
-    // 1. CACHE : Vérifier sessionStorage
-    const storedRecits = sessionStorage.getItem('recitsMediatiques');
-    if (storedRecits) {
-      const recits = JSON.parse(storedRecits);
-      return id ? recits.find((r: any) => r.id === String(id)) : recits;
-    }
-
-    // 2. FETCH : Récupérer données + dépendances en Promise.all
-    const [rawRecits, keywords, personnes, annotations, bibliographies, mediagraphies, tools] = await Promise.all([
-      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getRecitsMediatiques&json=1'),
-      getKeywords(),
-      getPersonnes(),
-      getAnnotations(),
-      getBibliographies(),
-      getMediagraphies(),
-      getTools(),
-    ]);
-    console.log('rawRecits', rawRecits);
-    // 3. MAPS : Créer maps pour accès rapide
-    const keywordsMap = new Map(keywords.map((k: any) => [String(k.id), k]));
-    const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
-    const annotationsMap = new Map(annotations.map((a: any) => [String(a.id), a]));
-    const bibliographiesMap = new Map(bibliographies.map((b: any) => [String(b.id), b]));
-    const mediagraphiesMap = new Map(mediagraphies.map((m: any) => [String(m.id), m]));
-    const toolsMap = new Map(tools.map((t: any) => [String(t.id), t]));
-
-    // 4. HYDRATATION : Remplacer IDs par objets complets
-    const recitsFull = rawRecits.map((recit: any) => {
-      // Hydrater descriptions (annotations)
-      let descriptionsHydrated = [];
-      if (Array.isArray(recit.descriptions)) {
-        descriptionsHydrated = recit.descriptions.map((id: any) => annotationsMap.get(String(id))).filter(Boolean);
-      }
-
-      // Hydrater keywords
-      let keywordsHydrated = [];
-      if (Array.isArray(recit.keywords)) {
-        keywordsHydrated = recit.keywords.map((id: any) => keywordsMap.get(String(id))).filter(Boolean);
-      }
-
-      // Hydrater creator (personne)
-      let creatorHydrated = null;
-      if (recit.creator) {
-        // Vérifier si creator est un ID numérique ou une chaîne de caractères
-        const creatorStr = String(recit.creator).trim();
-        // Si c'est un ID numérique (chaîne qui peut être convertie en nombre, ex: "24323")
-        if (creatorStr !== '' && !isNaN(Number(creatorStr)) && /^\d+$/.test(creatorStr)) {
-          creatorHydrated = personnesMap.get(creatorStr);
-        } else {
-          // Si c'est une chaîne de caractères (comme "BBC World Service"), garder la chaîne
-          creatorHydrated = creatorStr;
-        }
-      }
-
-      // Hydrater isRelatedTo (objets avec id, title, thumbnail - déjà complets depuis le PHP)
-      let isRelatedToHydrated = [];
-      if (Array.isArray(recit.isRelatedTo)) {
-        isRelatedToHydrated = recit.isRelatedTo.filter(Boolean);
-      }
-
-      // Hydrater tools
-      let toolsHydrated = [];
-      if (Array.isArray(recit.tools)) {
-        toolsHydrated = recit.tools.map((id: any) => toolsMap.get(String(id))).filter(Boolean);
-      }
-
-      // Hydrater scientificContent (bibliographies/mediagraphies)
-      let scientificContentHydrated = [];
-      if (Array.isArray(recit.referencesScient)) {
-        scientificContentHydrated = recit.referencesScient
-          .map((id: string) => {
-            const biblio = bibliographiesMap.get(id);
-            const media = mediagraphiesMap.get(id);
-            const result = biblio || media;
-            if (result) {
-              console.log(`📖 referencesScient ID ${id} -> type: ${(result as any).type}, title: ${(result as any).title}`);
-            }
-            return result;
-          })
-          .filter(Boolean);
-      }
-
-      // Hydrater culturalContent (bibliographies/mediagraphies)
-      let culturalContentHydrated = [];
-      if (Array.isArray(recit.referencesCultu)) {
-        culturalContentHydrated = recit.referencesCultu
-          .map((id: string) => {
-            const biblio = bibliographiesMap.get(id);
-            const media = mediagraphiesMap.get(id);
-            const result = biblio || media;
-            if (result) {
-              console.log(`🎨 referencesCultu ID ${id} -> type: ${(result as any).type}, title: ${(result as any).title}`);
-            }
-            return result;
-          })
-          .filter(Boolean);
-      }
-
-      return {
-        ...recit,
-        type: 'recit_mediatique',
-        descriptions: descriptionsHydrated.length > 0 ? descriptionsHydrated : [],
-        keywords: keywordsHydrated.length > 0 ? keywordsHydrated : [],
-        creator: creatorHydrated,
-        isRelatedTo: isRelatedToHydrated.length > 0 ? isRelatedToHydrated : [],
-        tools: toolsHydrated.length > 0 ? toolsHydrated : [],
-        referencesScient: scientificContentHydrated.length > 0 ? scientificContentHydrated : [],
-        referencesCultu: culturalContentHydrated.length > 0 ? culturalContentHydrated : [],
-      };
-    });
-
-    // 5. CACHE + RETURN : Stocker et retourner
-    sessionStorage.setItem('recitsMediatiques', JSON.stringify(recitsFull));
-    return id ? recitsFull.find((r: any) => r.id === String(id)) : recitsFull;
-  } catch (error) {
-    console.error('Error fetching recits mediatiques:', error);
-    throw new Error('Failed to fetch recits mediatiques');
   }
 }
 

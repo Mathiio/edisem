@@ -105,20 +105,47 @@ class ResourceDetailsHelper
 
             $result['tools'] = $this->fetchTools($resourceId); // if applicable
         }
+
+        // Special handling for Recit Scientifique (124) and Recit Mediatique (120)
+        if ($templateId == 124 || $templateId == 120) {
+            $result['date'] = $this->fetchDate($resourceId, 23); // dcterms:issued (prop 23)
+            $result['purpose'] = $this->fetchProperty($resourceId, 193); // oa:hasPurpose
+            $result['application'] = $this->fetchProperty($resourceId, 408); // schema:application
+            $result['conditionInitiale'] = $this->fetchProperty($resourceId, 2083); // genstory:hasConditionInitial
+            
+            // Override/Specific fetches
+            $result['actants'] = $this->fetchCreator($resourceId); // dcterms:creator (prop 2)
+            $result['descriptions'] = $this->fetchLinkedResources($resourceId, 4); // dcterms:description (prop 4)
+            
+            if ($templateId == 124) {
+                $result['referencesScient'] = $this->fetchLinkedResources($resourceId, 11); // dcterms:source (prop 11)
+                $result['referencesCultu'] = $this->fetchLinkedResources($resourceId, 1659); // schema:review (prop 1659)
+            }
+
+            if ($templateId == 120) {
+                $result['citations'] = array_merge(
+                    $this->fetchCitationsWithDetails($resourceId) ?? [], 
+                    $this->fetchQuotes($resourceId) ?? []
+                );
+            }
+            $result['keywords'] = $this->fetchKeywords($resourceId); // jdc:hasConcept (prop 2097)
+            $result['isRelatedTo'] = $this->fetchLinkedResources($resourceId, 937); // schema:isRelatedTo (prop 937)
+            $result['isPartOf'] = $this->fetchLinkedResources($resourceId, 33); // dcterms:isPartOf (prop 33)
+            $result['descriptionLiteral'] = $this->fetchProperty($resourceId, 4); // dcterms:description (prop 4) - Literal
+        }
         
         return $result;
     }
 
     private function getResourceType($templateId) {
         switch ($templateId) {
-            // case 71: return 'seminaire'; // This was wrong in previous view?
             case 108: return 'experimentation';
             case 71: return 'seminaire';
             case 121: return 'journee_etudes';
             case 122: return 'colloque';
             case 119: return 'recit_citoyen';
             case 120: return 'recit_mediatique';
-            case 124: return 'recit_scientifique'; // Correction: 124 is likely Scientific based on context
+            case 124: return 'recit_scientifique';
             case 117: return 'recit_techno_industriel';
             case 103: return 'recit_artistique';
             default: return 'unknown';
@@ -171,7 +198,8 @@ class ResourceDetailsHelper
                  FROM media m 
                  WHERE m.item_id = r.id 
                  LIMIT 1) as thumbnail,
-                 (SELECT r.resource_template_id FROM resource r WHERE r.id = v.value_resource_id) as template_id
+                 (SELECT r.resource_template_id FROM resource r WHERE r.id = v.value_resource_id) as template_id,
+                 (SELECT v2.value FROM value v2 WHERE v2.resource_id = r.id AND v2.property_id = 4 LIMIT 1) as description
             FROM value v
             INNER JOIN resource r ON v.value_resource_id = r.id
             WHERE v.resource_id = ?
@@ -187,7 +215,8 @@ class ResourceDetailsHelper
                 'title' => $row['title'],
                 'thumbnail' => $row['thumbnail'] ? 'https://tests.arcanes.ca/omk/files/original/' . $row['thumbnail'] : null,
                 'type' => $this->getResourceType($row['template_id']),
-                'resource_template_id' => $row['template_id'] // Needed for frontend filters
+                'resource_template_id' => $row['template_id'], // Needed for frontend filters
+                'description' => $row['description']
             ];
         }, $rows);
     }
@@ -257,18 +286,18 @@ class ResourceDetailsHelper
     }
     
     /**
-     * Fetch date (prop 7)
+     * Fetch date (default prop 7, but can be overridden)
      */
-    private function fetchDate($resourceId)
+    private function fetchDate($resourceId, $propertyId = 7)
     {
         $sql = "
             SELECT value
             FROM value
-            WHERE resource_id = ? AND property_id = 7
+            WHERE resource_id = ? AND property_id = ?
             LIMIT 1
         ";
         
-        return $this->conn->fetchOne($sql, [$resourceId]) ?: null;
+        return $this->conn->fetchOne($sql, [$resourceId, $propertyId]) ?: null;
     }
     
     /**
@@ -1009,12 +1038,6 @@ class ResourceDetailsHelper
             ];
         }, $rows);
     }
-    
-    /**
-     * Fetch related recits artistiques (prop 1811 - ma:isRelatedTo)
-     * Returns complete card data for recommendations
-     */
-
 
     /**
      * Fetch media for Recit Artistique (Prop 438 - schema:associatedMedia)
@@ -1163,5 +1186,24 @@ class ResourceDetailsHelper
         }
         
         return $results;
+    }
+
+    /**
+     * Fetch quotes (prop 3236 - storyline:hasQuote)
+     * Returns as array of strings
+     */
+    private function fetchQuotes($resourceId)
+    {
+        $sql = "
+            SELECT value
+            FROM value
+            WHERE resource_id = ? AND property_id = 3236
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql, [$resourceId]);
+        
+        return array_map(function($row) {
+            return $row['value'];
+        }, $rows);
     }
 }
