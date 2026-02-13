@@ -26,14 +26,13 @@ const RESOURCE_TYPE_FETCHERS: Record<ResourceType, FetcherFunction> = {
   recit_citoyen: async (id) => getResourceDetails(id),
   recit_mediatique: async (id) => getResourceDetails(id),
   annotation: async (id) => Items.getAnnotations(typeof id === 'string' ? parseInt(id) : id),
-  // Use unified getAllConfs with type filtering
   journee_etudes: async (id) => getResourceDetails(id),
   seminaire: async (id) => getResourceDetails(id),
   colloque: async (id) => getResourceDetails(id),
   element_esthetique: async (id) => getResourceDetails(id),
   element_narratif: async (id) => getResourceDetails(id),
   experimentation: async (id) => getResourceDetails(id),
-  experimentation_etudiant: async (id) => "",
+  experimentation_etudiant: async () => "",
   tool: async (id) => getResourceDetails(id),
   feedback: async (id) => getResourceDetails(id),
 };

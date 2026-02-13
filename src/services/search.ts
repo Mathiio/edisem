@@ -257,52 +257,52 @@ export class SearchService {
   //   }
   // }
 
-  private static matchBasicOeuvreFields(recit_artistique: any, query: string): boolean {
-    const searchableFields = [
-      recit_artistique.title,
-      recit_artistique.description,
-      recit_artistique.abstract
-    ].filter(Boolean);
+  // private static matchBasicOeuvreFields(recit_artistique: any, query: string): boolean {
+  //   const searchableFields = [
+  //     recit_artistique.title,
+  //     recit_artistique.description,
+  //     recit_artistique.abstract
+  //   ].filter(Boolean);
 
-    return searchableFields.some(field =>
-      field.toLowerCase().includes(query)
-    );
-  }
+  //   return searchableFields.some(field =>
+  //     field.toLowerCase().includes(query)
+  //   );
+  // }
 
-  private static matchOeuvreGenre(recit_artistique: any, query: string): boolean {
-    if (!recit_artistique.genre) return false;
+  // private static matchOeuvreGenre(recit_artistique: any, query: string): boolean {
+  //   if (!recit_artistique.genre) return false;
 
-    return recit_artistique.genre.toLowerCase().includes(query);
-  }
+  //   return recit_artistique.genre.toLowerCase().includes(query);
+  // }
 
-  private static matchOeuvreActants(recit_artistique: any, actants: any[], query: string): boolean {
-    if (!recit_artistique.actants?.length) return false;
+  // private static matchOeuvreActants(recit_artistique: any, actants: any[], query: string): boolean {
+  //   if (!recit_artistique.actants?.length) return false;
 
-    const oeuvreActants = actants.filter(actant =>
-      recit_artistique.actants.includes(String(actant.id)) ||
-      recit_artistique.actants.includes(Number(actant.id))
-    );
+  //   const oeuvreActants = actants.filter(actant =>
+  //     recit_artistique.actants.includes(String(actant.id)) ||
+  //     recit_artistique.actants.includes(Number(actant.id))
+  //   );
 
-    return oeuvreActants.some(actant =>
-      actant.firstname?.toLowerCase().includes(query) ||
-      actant.lastname?.toLowerCase().includes(query) ||
-      `${actant.firstname} ${actant.lastname}`.toLowerCase().includes(query)
-    );
-  }
+  //   return oeuvreActants.some(actant =>
+  //     actant.firstname?.toLowerCase().includes(query) ||
+  //     actant.lastname?.toLowerCase().includes(query) ||
+  //     `${actant.firstname} ${actant.lastname}`.toLowerCase().includes(query)
+  //   );
+  // }
 
-  private static matchOeuvreKeywords(recit_artistique: any, keywords: any[], query: string): boolean {
-    if (!recit_artistique.keywords?.length) return false;
+  // private static matchOeuvreKeywords(recit_artistique: any, keywords: any[], query: string): boolean {
+  //   if (!recit_artistique.keywords?.length) return false;
 
-    const oeuvreKeywords = keywords.filter(kw =>
-      recit_artistique.keywords.includes(String(kw.id)) ||
-      recit_artistique.keywords.includes(Number(kw.id))
-    );
+  //   const oeuvreKeywords = keywords.filter(kw =>
+  //     recit_artistique.keywords.includes(String(kw.id)) ||
+  //     recit_artistique.keywords.includes(Number(kw.id))
+  //   );
 
-    return oeuvreKeywords.some(kw =>
-      kw.name?.toLowerCase().includes(query) ||
-      kw.title?.toLowerCase().includes(query)
-    );
-  }
+  //   return oeuvreKeywords.some(kw =>
+  //     kw.name?.toLowerCase().includes(query) ||
+  //     kw.title?.toLowerCase().includes(query)
+  //   );
+  // }
 
   static async searchAll(query: string): Promise<SearchFilters> {
     const [actants, conferences] = await Promise.all([

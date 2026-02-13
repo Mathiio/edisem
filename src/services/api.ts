@@ -51,34 +51,6 @@ export async function getResearchByActant(actantId: string) {
   }
 }
 
-export async function getOeuvresByPersonne(personneId: number) {
-  // const recitsArtistiques = await Items.getRecitsArtistiques();
-
-  // const filteredOeuvres = recitsArtistiques.filter((recit_artistique: any) => {
-  //   console.log('Checking recit_artistique:', recit_artistique.id, 'personne:', recit_artistique.personne);
-
-  //   if (!recit_artistique.personne) return false;
-
-  //   // Si personne est un tableau d'objets (nouvelle structure)
-  //   if (Array.isArray(recit_artistique.personne)) {
-  //     const found = recit_artistique.personne.some((p: any) => p.id === String(personneId));
-  //     console.log('Array check result:', found);
-  //     return found;
-  //   }
-
-  //   // Si personne est une chaîne (ancienne structure)
-  //   if (typeof recit_artistique.personne === 'string') {
-  //     const found = recit_artistique.personne.includes(String(personneId));
-  //     console.log('String check result:', found);
-  //     return found;
-  //   }
-
-  //   return false;
-  // });
-
-  return null;
-}
-
 /**
  * Créer un commentaire Edisem
  *
