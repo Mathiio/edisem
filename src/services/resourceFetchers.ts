@@ -7,7 +7,6 @@
 import { TEMPLATE_ID_TO_TYPE, ResourceType } from '@/config/resourceConfig';
 import * as Items from './Items';
 import { getResourceDetails } from './resourceDetails';
-import { getStudentResourceDetails } from './StudentSpace';
 
 /**
  * Type pour une fonction de fetching
