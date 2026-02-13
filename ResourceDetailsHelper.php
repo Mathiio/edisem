@@ -46,6 +46,10 @@ class ResourceDetailsHelper
         $isExperimentation = $templateId == 108;
         // Include all narrative types (Artistique, Citoyen, Mediatique, Scientifique, Techno)
         $isRecit = in_array($templateId, [103, 131, 119, 120, 124, 117]);
+        $isTool = $templateId == 114;
+        $isFeedback = $templateId == 110;
+        $isElementEsthetique = $templateId == 118;
+        $isElementNarratif = $templateId == 115;
         
         // 3. Build result structure
         $result = [
@@ -104,6 +108,79 @@ class ResourceDetailsHelper
             $result['keywords'] = $this->fetchKeywords($resourceId); // jdc:hasConcept (prop 2097)
 
             $result['tools'] = $this->fetchTools($resourceId); // if applicable
+        } elseif ($isTool) {
+            $result['description'] = $this->fetchProperty($resourceId, 4);
+            $result['purpose'] = $this->fetchProperty($resourceId, 193);
+            $result['category'] = $this->fetchProperty($resourceId, 3253);
+            $result['release'] = $this->fetchProperty($resourceId, 3249);
+            // Multiple values for fileRelease
+            $result['fileRelease'] = $this->fetchLiterals($resourceId, 3264);
+            $result['license'] = $this->fetchProperty($resourceId, 3254);
+            $result['homepage'] = $this->fetchProperty($resourceId, 3243); // uri
+            $result['repository'] = $this->fetchProperty($resourceId, 3255); // uri
+            $result['bugDatabase'] = $this->fetchProperty($resourceId, 3266); // uri
+            
+            // OS (3277)
+            $result['os'] = $this->fetchLiterals($resourceId, 3277);
+
+            // Programming languages (3276)
+            $result['programmingLanguages'] = $this->fetchLinkedResources($resourceId, 3276);
+            
+            // Is Part Of (33)
+            $result['isPartOf'] = $this->fetchLinkedResources($resourceId, 33);
+            
+            // Contributors (6)
+            $result['contributors'] = $this->fetchLinkedResources($resourceId, 6);
+            
+            // Usage (Resources using this tool via prop 2145)
+            $result['usedBy'] = $this->fetchUsedByResources($resourceId, 2145);
+            $result['usageCount'] = count($result['usedBy']);
+            
+            // Image (1701 or media)
+            $result['logo'] = $this->fetchToolLogo($resourceId);
+            
+        } elseif ($isFeedback) {
+            $result['description'] = $this->fetchProperty($resourceId, 4);
+            $result['achievements'] = $this->fetchProperty($resourceId, 2355);
+            $result['issues'] = $this->fetchProperty($resourceId, 103);
+            $result['methodsUsed'] = $this->fetchProperty($resourceId, 313);
+            $result['reviews'] = $this->fetchProperty($resourceId, 305);
+            $result['instructionalMethod'] = $this->fetchProperty($resourceId, 52);
+            $result['potentialActions'] = $this->fetchProperty($resourceId, 1198);
+            $result['coverage'] = $this->fetchProperty($resourceId, 14);
+            $result['workExamples'] = $this->fetchProperty($resourceId, 1705);
+            
+            // Contributors (581)
+            $result['contributors'] = $this->fetchLinkedResources($resourceId, 581);
+            
+        } elseif ($isElementEsthetique) {
+            $result['description'] = $this->fetchProperty($resourceId, 4);
+            $result['genre'] = $this->fetchProperty($resourceId, 3197);
+            $result['form'] = $this->fetchProperty($resourceId, 3194);
+            $result['duration'] = $this->fetchProperty($resourceId, 1825);
+            $result['language'] = $this->fetchProperty($resourceId, 12);
+            $result['audience'] = $this->fetchProperty($resourceId, 16);
+            $result['temporal'] = $this->fetchProperty($resourceId, 1457);
+            $result['imageCharacteristic'] = $this->fetchProperty($resourceId, 3201);
+            $result['colourCharacteristic'] = $this->fetchProperty($resourceId, 3187);
+            $result['soundCharacteristic'] = $this->fetchProperty($resourceId, 3208);
+            $result['eventDate'] = $this->fetchProperty($resourceId, 3225);
+            
+            $result['creator'] = $this->fetchLinkedResources($resourceId, 2);
+            $result['contributor'] = $this->fetchLinkedResources($resourceId, 581);
+            $result['relatedResource'] = $this->fetchLinkedResources($resourceId, 1794);
+            
+        } elseif ($isElementNarratif) {
+            $result['description'] = $this->fetchProperty($resourceId, 4);
+            $result['genre'] = $this->fetchProperty($resourceId, 3197);
+            $result['duration'] = $this->fetchProperty($resourceId, 1825);
+            $result['plotSummary'] = $this->fetchProperty($resourceId, 2491);
+            $result['characters'] = $this->fetchProperty($resourceId, 533);
+            $result['transcript'] = $this->fetchProperty($resourceId, 1497); // uri? check implementation
+            $result['eventDate'] = $this->fetchProperty($resourceId, 3225);
+
+            $result['creator'] = $this->fetchLinkedResources($resourceId, 2);
+            $result['references'] = $this->fetchLinkedResources($resourceId, 36);
         }
 
         // Special handling for Recit Scientifique (124), Recit Mediatique (120), Recit Citoyen (119) and Recit Techno-Industriel (117)
@@ -144,6 +221,7 @@ class ResourceDetailsHelper
     private function getResourceType($templateId) {
         switch ($templateId) {
             case 108: return 'experimentation';
+            case 127: return 'experimentation_etudiant';
             case 71: return 'seminaire';
             case 121: return 'journee_etudes';
             case 122: return 'colloque';
@@ -152,6 +230,10 @@ class ResourceDetailsHelper
             case 124: return 'recit_scientifique';
             case 117: return 'recit_techno_industriel';
             case 103: return 'recit_artistique';
+            case 114: return 'tool';
+            case 110: return 'feedback';
+            case 118: return 'element_esthetique';
+            case 115: return 'element_narratif';
             default: return 'unknown';
         }
     }
@@ -225,6 +307,80 @@ class ResourceDetailsHelper
         }, $rows);
     }
     
+    /**
+     * Generic fetch for multiple literal values
+     */
+    private function fetchLiterals($resourceId, $propertyId)
+    {
+        $sql = "
+            SELECT value
+            FROM value
+            WHERE resource_id = ? AND property_id = ?
+            ORDER BY id ASC
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql, [$resourceId, $propertyId]);
+        
+        return array_column($rows, 'value');
+    }
+
+    /**
+     * Fetch resources that link TO the current resource via a specific property
+     * (Reverse relationship)
+     */
+    private function fetchUsedByResources($resourceId, $propertyId)
+    {
+        $sql = "
+            SELECT r.id
+            FROM value v
+            INNER JOIN resource r ON v.resource_id = r.id
+            WHERE v.value_resource_id = ?
+            AND v.property_id = ?
+            AND r.resource_template_id != 127
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql, [$resourceId, $propertyId]);
+        
+        if (empty($rows)) {
+            return [];
+        }
+        
+        $ids = array_column($rows, 'id');
+        
+        return $this->cardHelper->fetchCards($ids);
+    }
+
+    /**
+     * Fetch tool logo from schema:image (1701)
+     * Returns the original file URL
+     */
+    private function fetchToolLogo($resourceId)
+    {
+        // Check if value links to an Item (then get its media) OR directly to a Media
+        $sql = "
+            SELECT 
+                COALESCE(
+                    CONCAT(m_item.storage_id, '.', m_item.extension),
+                    CONCAT(m_media.storage_id, '.', m_media.extension)
+                ) as filename
+            FROM value v
+            LEFT JOIN media m_item ON m_item.item_id = v.value_resource_id
+            LEFT JOIN media m_media ON m_media.id = v.value_resource_id
+            WHERE v.resource_id = ?
+            AND v.property_id = 1701
+            AND (m_item.id IS NOT NULL OR m_media.id IS NOT NULL)
+            LIMIT 1
+        ";
+        
+        $filename = $this->conn->fetchOne($sql, [$resourceId]);
+        
+        if ($filename) {
+            return 'https://tests.arcanes.ca/omk/files/original/' . $filename;
+        }
+        
+        return null;
+    }
+
     /**
      * Generic fetch for a single property value
      */
@@ -1045,7 +1201,6 @@ class ResourceDetailsHelper
 
     /**
      * Fetch media for Recit Artistique (Prop 438 - schema:associatedMedia)
-     * Aligne sur le comportement de getOeuvres() avec support des thumbnails
      */
     private function fetchRecitMedia($resourceId)
     {
@@ -1066,7 +1221,7 @@ class ResourceDetailsHelper
         
         $idsStr = implode(',', array_unique($associatedMediaIds));
         
-        // 2. Récupérer les informations des médias (UNION pour item_id ET id comme dans getOeuvres)
+        // 2. Récupérer les informations des médias (UNION pour item_id ET id)
         $mediaSql = "
             (SELECT item_id as resource_id, CONCAT(storage_id, '.', extension) AS media_file, source, ingester
             FROM `media`
@@ -1160,7 +1315,7 @@ class ResourceDetailsHelper
                 }
             }
             
-            // Construire l'objet selon le type (comme dans getOeuvres)
+            // Construire l'objet selon le type
             if ($isYouTube) {
                 // Si pas de thumbnail, essayer de générer depuis l'URL YouTube
                 if (!$thumbnail && $videoUrl) {
@@ -1179,7 +1334,7 @@ class ResourceDetailsHelper
                     'type' => 'video'
                 ];
             } else {
-                // Pour les images, retourner juste l'URL du thumbnail comme string (comportement getOeuvres)
+                // Pour les images, retourner juste l'URL du thumbnail comme string
                 if ($thumbnail) {
                     $results[] = $thumbnail;
                 } elseif (isset($associatedMediaMap[$mediaId])) {

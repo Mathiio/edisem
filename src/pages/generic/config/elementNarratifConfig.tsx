@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
-import { getElementNarratifs, getRecitsArtistiques } from '@/services/Items';
+import { getResourceDetails } from '@/services/Items';
 import { createItemsListView } from '../helpers';
 
 /**
@@ -9,7 +9,7 @@ import { createItemsListView } from '../helpers';
  */
 export const elementNarratifConfig: GenericDetailPageConfig = {
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const data = await getElementNarratifs(Number(id));
+    const data = await getResourceDetails(Number(id));
 
     return {
       itemDetails: data,
@@ -67,22 +67,10 @@ export const elementNarratifConfig: GenericDetailPageConfig = {
   // Smart recommendations
   smartRecommendations: {
     // Récupère tous les éléments narratifs pour trouver des similaires
-    getAllResourcesOfType: async () => {
-      const elements = await getElementNarratifs();
-      return elements;
-    },
-
-    // Récupère les autres éléments narratifs de la même recit_artistique
-    getRelatedItems: async (itemDetails) => {
-      const recitsArtistiques = await getRecitsArtistiques();
-      const parentOeuvre = recitsArtistiques.find((o: any) => o.elementsNarratifs?.some((e: any) => String(e.id) === String(itemDetails.id)));
-
-      if (parentOeuvre) {
-        return (parentOeuvre.elementsNarratifs || []).filter((e: any) => String(e.id) !== String(itemDetails.id));
-      }
-
-      return [];
-    },
+    // getAllResourcesOfType: async () => {
+    //   const elements = await getElementNarratifs();
+    //   return elements;
+    // },
 
     maxRecommendations: 5,
   },

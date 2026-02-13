@@ -267,9 +267,6 @@ export const createScientificReferencesView = (options?: { resourceTemplateIds?:
     editable: options?.editable !== false,
     resourceTemplateIds: options?.resourceTemplateIds || defaultTemplateIds,
     renderContent: ({ itemDetails, loading, isEditing, onLinkExisting, onCreateNew }) => {
-      console.log('🔍 [createScientificReferencesView] itemDetails:', itemDetails);
-      console.log('🔍 [createScientificReferencesView] referencesScient:', itemDetails?.referencesScient);
-      console.log('🔍 [createScientificReferencesView] references:', itemDetails?.references);
       let references = itemDetails?.referencesScient || itemDetails?.references || [];
 
       // En mode édition, vérifier aussi les ressources ajoutées via formData
@@ -347,9 +344,6 @@ export const createCulturalReferencesView = (options?: { resourceTemplateIds?: n
     editable: options?.editable !== false,
     resourceTemplateIds: options?.resourceTemplateIds || defaultTemplateIds,
     renderContent: ({ itemDetails, loading, isEditing, onLinkExisting, onCreateNew }) => {
-      console.log('🔍 [createCulturalReferencesView] itemDetails:', itemDetails);
-      console.log('🔍 [createCulturalReferencesView] referencesCultu:', itemDetails?.referencesCultu);
-      console.log('🔍 [createCulturalReferencesView] bibliographicCitations:', itemDetails?.bibliographicCitations);
       let references = itemDetails?.referencesCultu || itemDetails?.bibliographicCitations || [];
 
       // En mode édition, vérifier aussi les ressources ajoutées via formData
@@ -783,17 +777,12 @@ export const createTargetsListView = (options?: { key?: string; title?: string; 
       targets = flattenTargets(targets);
       targets = targets.filter((target: any) => target !== null && target !== undefined && target !== '');
 
-      console.log('Targets received:', targets);
-
       if (!targets || targets.length === 0) {
         return null;
       }
 
       // Grouper les targets par type pour un affichage organisé
       const targetsByType: Record<string, { typeInfo: any; items: any[] }> = targets.reduce((acc: Record<string, { typeInfo: any; items: any[] }>, target: any) => {
-        // Debug: afficher les targets pour comprendre la structure
-        console.log('Target debug:', target);
-
         // Si c'est une URL externe (juste uri + title, sans id), créer un type spécial
         if (target.uri && !target.id && !target.template_id && !target.resource_template_id) {
           const externalLinkType = 'Liens externes';
@@ -834,7 +823,6 @@ export const createTargetsListView = (options?: { key?: string; title?: string; 
         const resourceConfig = getResourceConfigByTemplateId(templateId);
 
         if (!resourceConfig) {
-          console.log('No resource config found for template_id:', templateId, 'target:', target);
           // Pour le debug, créons une config temporaire pour les template_id inconnus
           const unknownType = `Type inconnu (${templateId})`;
           if (!acc[unknownType]) {
@@ -864,12 +852,10 @@ export const createTargetsListView = (options?: { key?: string; title?: string; 
         return acc;
       }, {});
 
-      console.log('targetsByType:', targetsByType);
 
       return (
         <div className='space-y-8'>
           {Object.entries(targetsByType).map(([typeName, { typeInfo, items }]) => {
-            console.log('Rendering type:', typeName, 'with items:', items);
             return (
               <div key={typeName} className='space-y-3'>
                 <h3 className='text-lg font-semibold text-c5 flex items-center gap-2'>

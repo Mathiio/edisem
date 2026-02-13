@@ -24,6 +24,15 @@ class QueryCardHelper
             'agent_prop' => 386,
             'agent_type' => 'actant'
         ],
+        // Experimentations Etudiant
+        127 => [
+            'type' => 'experimentation_etudiant',
+            'title_prop' => 1,
+            'date_prop' => 7,
+            'thumbnail_source' => 'item',
+            'agent_prop' => 386,
+            'agent_type' => 'actant'
+        ],
         // Seminars
         71 => [
             'type' => 'seminaire',

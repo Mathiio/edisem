@@ -2,7 +2,7 @@ import { GenericDetailPageConfig, FetchResult } from '../config';
 import { ExpOverviewCard } from '@/components/features/experimentation/ExpOverview';
 import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/experimentation/ExpDetails';
 import { ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
-import { getExperimentations, getActants, getStudents } from '@/services/Items';
+import { getResourceDetails } from '@/services/Items';
 
 // Configuration des catégories avec leurs propriétés
 const FEEDBACK_CATEGORIES = [
@@ -39,102 +39,24 @@ const FEEDBACK_CATEGORIES = [
  */
 export const feedbackConfig: GenericDetailPageConfig = {
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const [experimentations, actants, students] = await Promise.all([getExperimentations(), getActants(), getStudents()]);
+    const feedback = await getResourceDetails(Number(id));
 
-    // Créer des maps pour recherche rapide
-    const actantMap = new Map();
-    actants.forEach((a: any) => {
-      actantMap.set(a.id, a);
-      actantMap.set(String(a.id), a);
-      actantMap.set(Number(a.id), a);
-    });
-
-    const studentMap = new Map();
-    students.forEach((s: any) => {
-      studentMap.set(s.id, s);
-      studentMap.set(String(s.id), s);
-      studentMap.set(Number(s.id), s);
-    });
-
-    // Recherche du feedback dans toutes les expérimentations
-    let feedbackFound: any = null;
-    let parentExperimentation: any = null;
-
-    for (const exp of experimentations) {
-      if (exp.feedbacks && Array.isArray(exp.feedbacks)) {
-        feedbackFound = exp.feedbacks.find((feedback: any) => String(feedback.id) === String(id));
-        if (feedbackFound) {
-          parentExperimentation = exp;
-          break;
+    // Enrichir le feedback pour l'affichage
+    if (feedback) {
+        // Enriched Actants (Contributors)
+        if (feedback.contributors) {
+            feedback.enrichedActants = feedback.contributors.map((c: any) => ({
+                id: c.id,
+                name: c.title || c.name,
+                thumbnail: c.thumbnail,
+                // ...other properties if needed
+            }));
+            feedback.primaryActant = feedback.enrichedActants.length > 0 ? feedback.enrichedActants[0] : null;
         }
-      }
-    }
-
-    if (feedbackFound && parentExperimentation) {
-      // Ajouter les infos de l'expérimentation parente
-      feedbackFound.experimentation = {
-        id: parentExperimentation.id,
-        title: parentExperimentation.title,
-        url: parentExperimentation.url,
-        date: parentExperimentation.date,
-      };
-
-      feedbackFound.url = `/corpus/experimentation/${parentExperimentation.id}`;
-      feedbackFound.date = parentExperimentation.date ?? null;
-
-      // Enrichir les contributeurs
-      let enrichedContributors = [];
-      let primaryActant = null;
-
-      if (feedbackFound.contributors && Array.isArray(feedbackFound.contributors)) {
-        if (feedbackFound.contributors.length > 0 && feedbackFound.contributors[0].firstname) {
-          enrichedContributors = feedbackFound.contributors;
-          primaryActant = enrichedContributors[0];
-        } else {
-          enrichedContributors = feedbackFound.contributors
-            .map((contributor: any) => {
-              const contributorId = contributor.id || contributor;
-              return (
-                actantMap.get(contributorId) ||
-                actantMap.get(Number(contributorId)) ||
-                actantMap.get(String(contributorId)) ||
-                studentMap.get(contributorId) ||
-                studentMap.get(Number(contributorId)) ||
-                studentMap.get(String(contributorId)) ||
-                contributor
-              );
-            })
-            .filter(Boolean);
-          primaryActant = enrichedContributors.length > 0 ? enrichedContributors[0] : null;
-        }
-      } else if (parentExperimentation.actants && Array.isArray(parentExperimentation.actants)) {
-        enrichedContributors = parentExperimentation.actants
-          .map((actantId: any) => {
-            return (
-              actantMap.get(actantId) ||
-              actantMap.get(Number(actantId)) ||
-              actantMap.get(String(actantId)) ||
-              studentMap.get(actantId) ||
-              studentMap.get(Number(actantId)) ||
-              studentMap.get(String(actantId)) ||
-              null
-            );
-          })
-          .filter(Boolean);
-        primaryActant = enrichedContributors.length > 0 ? enrichedContributors[0] : null;
-      }
-
-      feedbackFound.enrichedActants = enrichedContributors.map((contributor: any) => ({
-        ...contributor,
-        name: `${contributor.firstname} ${contributor.lastname}`,
-        thumbnail: contributor.picture || contributor.thumbnail,
-      }));
-
-      feedbackFound.primaryActant = primaryActant;
     }
 
     return {
-      itemDetails: feedbackFound,
+      itemDetails: feedback,
       keywords: [],
       recommendations: [],
     };
@@ -214,33 +136,6 @@ export const feedbackConfig: GenericDetailPageConfig = {
 
   // Smart recommendations
   smartRecommendations: {
-    // Récupère tous les feedbacks de toutes les expérimentations
-    getAllResourcesOfType: async () => {
-      const experimentations = await getExperimentations();
-      const allFeedbacks: any[] = [];
-
-      experimentations.forEach((exp: any) => {
-        if (exp.feedbacks && Array.isArray(exp.feedbacks)) {
-          allFeedbacks.push(...exp.feedbacks);
-        }
-      });
-
-      return allFeedbacks;
-    },
-
-    // Récupère les autres feedbacks de la même expérimentation
-    getRelatedItems: async (itemDetails) => {
-      if (!itemDetails?.experimentation?.id) return [];
-
-      const experimentations = await getExperimentations();
-      const parentExp = experimentations.find((e: any) => String(e.id) === String(itemDetails.experimentation.id));
-
-      if (parentExp && parentExp.feedbacks) {
-        return parentExp.feedbacks.filter((f: any) => String(f.id) !== String(itemDetails.id));
-      }
-
-      return [];
-    },
 
     maxRecommendations: 5,
   },

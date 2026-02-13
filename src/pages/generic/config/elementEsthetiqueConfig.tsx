@@ -1,14 +1,14 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
-import { getElementEsthetiques, getRecitsArtistiques } from '@/services/Items';
+import { getResourceDetails } from '@/services/Items';
 
 /**
  * Configuration pour les pages d'éléments esthétiques
  */
 export const elementEsthetiqueConfig: GenericDetailPageConfig = {
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const data = await getElementEsthetiques(Number(id));
+    const data = await getResourceDetails(Number(id));
 
     return {
       itemDetails: data,
@@ -103,22 +103,10 @@ export const elementEsthetiqueConfig: GenericDetailPageConfig = {
   // Smart recommendations
   smartRecommendations: {
     // Récupère tous les éléments esthétiques pour trouver des similaires
-    getAllResourcesOfType: async () => {
-      const elements = await getElementEsthetiques();
-      return elements;
-    },
-
-    // Récupère les autres éléments esthétiques de la même recit_artistique
-    getRelatedItems: async (itemDetails) => {
-      const recitsArtistiques = await getRecitsArtistiques();
-      const parentOeuvre = recitsArtistiques.find((o: any) => o.elementsEsthetique?.some((e: any) => String(e.id) === String(itemDetails.id)));
-
-      if (parentOeuvre) {
-        return (parentOeuvre.elementsEsthetique || []).filter((e: any) => String(e.id) !== String(itemDetails.id));
-      }
-
-      return [];
-    },
+    // getAllResourcesOfType: async () => {
+    //   const elements = await getElementEsthetiques();
+    //   return elements;
+    // },
 
     maxRecommendations: 5,
   },

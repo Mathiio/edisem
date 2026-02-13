@@ -1,6 +1,5 @@
 import { SimplifiedDetailConfig } from '../simplifiedConfig';
 import { convertToGenericConfig } from '../simplifiedConfigAdapter';
-import { getExperimentations } from '@/services/Items';
 
 /**
  * Configuration simplifiée pour les retours d'expérience (étudiants)
@@ -87,17 +86,17 @@ export const feedbackStudentConfigSimplified: SimplifiedDetailConfig = {
 
   // Smart recommendations
   smartRecommendations: {
-    getAllResourcesOfType: async () => {
-      const experimentations = await getExperimentations();
-      const allFeedbacks: any[] = [];
-      experimentations.forEach((exp: any) => {
-        if (exp.feedbacks && Array.isArray(exp.feedbacks)) {
-          allFeedbacks.push(...exp.feedbacks);
-        }
-      });
-      return allFeedbacks;
-    },
-    getRelatedItems: () => [],
+    // getAllResourcesOfType: async () => {
+    //   const experimentations = await getExperimentations();
+    //   const allFeedbacks: any[] = [];
+    //   experimentations.forEach((exp: any) => {
+    //     if (exp.feedbacks && Array.isArray(exp.feedbacks)) {
+    //       allFeedbacks.push(...exp.feedbacks);
+    //     }
+    //   });
+    //   return allFeedbacks;
+    // },
+    // getRelatedItems: () => [],
     maxRecommendations: 5,
   },
 };

@@ -18,6 +18,7 @@ import { Seminaires } from '@/pages/corpus/Seminaires';
 import { Experimentations } from '@/pages/corpus/Experimentations';
 import { MisesEnRecits } from '@/pages/corpus/recits';
 import { Personne } from '@/pages/personne';
+import { Tool } from '@/pages/corpus/Tool';
 import { RecitsByGenre } from '@/pages/corpus/recitsByGenre';
 import { RecitsByType } from '@/pages/corpus/recitsByType';
 import { ConfigurableDetailPage } from '@/pages/generic/ConfigurableDetailPage';
@@ -29,7 +30,6 @@ import { elementNarratifConfig } from '@/pages/generic/config/elementNarratifCon
 import { feedbackConfig } from '@/pages/generic/config/feedbackConfig';
 import { analyseCritiqueConfig } from '@/pages/generic/config/analyseCritiqueConfig';
 import { recitTechnoConfig } from '@/pages/generic/config/recitTechnoConfig';
-import { toolConfig } from '@/pages/generic/config/toolConfig';
 import { recitScientifiqueConfig } from '@/pages/generic/config/recitScientifiqueConfig';
 import { recitMediatiqueConfig } from '@/pages/generic/config/recitMediatiqueConfig';
 import { recitCitoyenConfig } from '@/pages/generic/config/recitCitoyenConfig';
@@ -42,7 +42,6 @@ import { toolStudentConfig } from './pages/generic/config/toolStudentConfig';
 import { feedbackStudentConfig } from './pages/generic/config/feedbackStudentConfig';
 import { MonEspace } from './pages/monespace';
 import TestOmekaEdit from './pages/test-omeka-edit';
-import TestConfigurableView from './pages/test-configurable-view';
 import { StudentManagement } from './pages/admin/StudentManagement';
 import { CourseManagement } from './pages/admin/CourseManagement';
 import { ActantManagement } from './pages/admin/ActantManagement';
@@ -108,7 +107,6 @@ function App() {
           <Route path='/espace-etudiant' Component={EspaceEtudiant} />
           <Route path='/mon-espace' Component={MonEspace} />
           <Route path='/test-omeka-edit' Component={TestOmekaEdit} />
-          <Route path='/test-configurable-view' Component={TestConfigurableView} />
 
           {/* Admin routes */}
           <Route path='/admin' Component={ProtectedAdminDashboard} />
@@ -167,7 +165,7 @@ function App() {
           <Route path='/corpus/element-esthetique/:id' element={<ConfigurableDetailPage config={elementEsthetiqueConfig} />} />
           <Route path='/corpus/element-narratif/:id' element={<ConfigurableDetailPage config={elementNarratifConfig} />} />
           <Route path='/corpus/analyse-critique/:id' element={<ConfigurableDetailPage config={analyseCritiqueConfig} />} />
-          <Route path='/corpus/tool/:id' element={<ConfigurableDetailPage config={toolConfig} />} />
+          <Route path='/corpus/tool/:id' Component={Tool} />
           <Route path='/corpus/recit-scientifique/:id' element={<ConfigurableDetailPage config={recitScientifiqueConfig} />} />
           <Route path='/corpus/recit-mediatique/:id' element={<ConfigurableDetailPage config={recitMediatiqueConfig} />} />
           <Route path='/corpus/recit-citoyen/:id' element={<ConfigurableDetailPage config={recitCitoyenConfig} />} />

@@ -4,7 +4,7 @@ import * as Items from "@/services/Items"
 export interface SearchFilters {
   actants: any[];
   conferences: FilteredConfs;
-  recitsArtistiques: any[];
+  // recitsArtistiques: any[];
 }
 
 export interface FilteredConfs {
@@ -233,29 +233,29 @@ export class SearchService {
     };
   }
 
-  static async searchOeuvres(query: string): Promise<any[]> {
-    try {
-      const [recitsArtistiques, actants, keywords] = await Promise.all([
-        Items.getRecitsArtistiques(),
-        Items.getActants(),
-        Items.getKeywords()
-      ]);
+  // static async searchOeuvres(query: string): Promise<any[]> {
+  //   try {
+  //     const [actants, keywords] = await Promise.all([
+  //       Items.getRecitsArtistiques(),
+  //       Items.getActants(),
+  //       Items.getKeywords()
+  //     ]);
 
-      const normalizedQuery = this.normalizeSearchQuery(query);
+  //     const normalizedQuery = this.normalizeSearchQuery(query);
 
-      return recitsArtistiques.filter((recit_artistique: any) => {
-        const basicMatch = this.matchBasicOeuvreFields(recit_artistique, normalizedQuery);
-        const genreMatch = this.matchOeuvreGenre(recit_artistique, normalizedQuery);
-        const actantMatch = this.matchOeuvreActants(recit_artistique, actants, normalizedQuery);
-        const keywordMatch = this.matchOeuvreKeywords(recit_artistique, keywords, normalizedQuery);
+  //     return recitsArtistiques.filter((recit_artistique: any) => {
+  //       const basicMatch = this.matchBasicOeuvreFields(recit_artistique, normalizedQuery);
+  //       const genreMatch = this.matchOeuvreGenre(recit_artistique, normalizedQuery);
+  //       const actantMatch = this.matchOeuvreActants(recit_artistique, actants, normalizedQuery);
+  //       const keywordMatch = this.matchOeuvreKeywords(recit_artistique, keywords, normalizedQuery);
 
-        return basicMatch || genreMatch || actantMatch || keywordMatch;
-      });
-    } catch (error) {
-      console.error('Erreur lors de la recherche d\'œuvres:', error);
-      return [];
-    }
-  }
+  //       return basicMatch || genreMatch || actantMatch || keywordMatch;
+  //     });
+  //   } catch (error) {
+  //     console.error('Erreur lors de la recherche d\'œuvres:', error);
+  //     return [];
+  //   }
+  // }
 
   private static matchBasicOeuvreFields(recit_artistique: any, query: string): boolean {
     const searchableFields = [
@@ -305,16 +305,16 @@ export class SearchService {
   }
 
   static async searchAll(query: string): Promise<SearchFilters> {
-    const [actants, conferences, recitsArtistiques] = await Promise.all([
+    const [actants, conferences] = await Promise.all([
       this.searchActants(query),
       this.searchConferences(query),
-      this.searchOeuvres(query)
+      // this.searchOeuvres(query)
     ]);
 
     return {
       actants,
       conferences,
-      recitsArtistiques,
+      // recitsArtistiques,
     };
   }
 }
