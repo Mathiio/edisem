@@ -247,7 +247,10 @@ class QueryCardHelper
             $map = [];
             foreach ($rows as $row) {
                 $ext = $row['extension'];
-                $map[$row['item_id']] = "https://tests.arcanes.ca/omk/files/original/{$row['storage_id']}.{$ext}";
+                // Skip media items without a valid extension
+                if (!empty($ext)) {
+                    $map[$row['item_id']] = "https://tests.arcanes.ca/omk/files/original/{$row['storage_id']}.{$ext}";
+                }
             }
             return $map;
         } elseif ($source === 'youtube') {
