@@ -96,7 +96,7 @@ type ExpOverviewProps = {
   id: number;
   title: string;
   personnes: any[];
-  medias: string[]; // Tableau de liens d'images
+  medias: (string | { url: string; thumbnail?: string; type?: string })[]; // Tableau de liens d'images ou d'objets
   fullUrl: string;
   currentTime: number;
   percentage: number;
@@ -147,15 +147,23 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
     ? [
         // Médias existants (URLs) - filtrer ceux qui ont été supprimés
         ...medias
-          .map((url, index) => ({
-            id: `existing-${index}`,
-            url,
-            preview: url,
-            type: (url.includes('.mov') || url.includes('.mp4') ? 'video' : 'image') as 'video' | 'image',
-            name: `Média existant ${index + 1}`,
-            isExisting: true,
-            originalIndex: index,
-          }))
+          .map((media, index) => {
+            const url = typeof media === 'string' ? media : media.url || '';
+            const isVideo =
+              typeof media === 'string'
+                ? media.includes('.mov') || media.includes('.mp4')
+                : (media as any).type === 'video' || (media as any).url?.includes('.mov') || (media as any).url?.includes('.mp4');
+
+            return {
+              id: `existing-${index}`,
+              url,
+              preview: url,
+              type: (isVideo ? 'video' : 'image') as 'video' | 'image',
+              name: `Média existant ${index + 1}`,
+              isExisting: true,
+              originalIndex: index,
+            };
+          })
           .filter((_, index) => !removedMediaIndexes.includes(index)),
         // Nouveaux fichiers uploadés
         ...mediaFiles.map((file) => ({
@@ -234,24 +242,14 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
     }
   };
 
-  // console.log('🎨 ExpOverviewCard - Received props:', {
-  //   id,
-  //   title,
-  //   personnes,
-  //   medias,
-  //   fullUrl,
-  //   buttonText,
-  //   percentage,
-  //   status,
-  //   type,
-  //   personnesTypes: personnes?.map((p) => ({ name: p?.name, type: p?.type, id: p?.id })),
-  //   personnesCount: personnes?.length,
-  // });
-
   const copyToClipboard = () => {
     // Copie l'image actuellement affichée
     if (medias && medias[currentMediaIndex]) {
-      navigator.clipboard.writeText(medias[currentMediaIndex]).then(() => {});
+      const media = medias[currentMediaIndex];
+      const url = typeof media === 'string' ? media : media.url;
+      if (url) {
+        navigator.clipboard.writeText(url).then(() => {});
+      }
     }
   };
 
@@ -458,7 +456,11 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
               src={medias[currentMediaIndex]}
               alt={`Média ${currentMediaIndex + 1}`}
               className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] rounded-12 overflow-hidden'
-              isVideo={medias[currentMediaIndex].includes('.mov') || medias[currentMediaIndex].includes('.mp4')}
+              isVideo={
+                typeof medias[currentMediaIndex] === 'string'
+                  ? (medias[currentMediaIndex] as string).includes('.mov') || (medias[currentMediaIndex] as string).includes('.mp4')
+                  : (medias[currentMediaIndex] as any).type === 'video' || (medias[currentMediaIndex] as any).url?.includes('.mov') || (medias[currentMediaIndex] as any).url?.includes('.mp4')
+              }
             />
 
             {medias.length > 1 && (
@@ -475,18 +477,28 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                 aria-label='Galerie de médias'
                 className='flex w-full justify-between items-center gap-25'>
                 <SplideTrack className='w-full'>
-                  {medias.map((media, index) => (
-                    <SplideSlide key={index}>
+                  {medias.map((_, index) => (
+                     <SplideSlide key={index}>
                       <button
                         onClick={() => setCurrentMediaIndex(index)}
                         className={`flex-shrink-0 w-[136px] h-[50px] rounded-12 overflow-hidden transition-all duration-200 ${
                           index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
                         }`}>
-                        {media.includes('.mov') || media.includes('.mp4') ? (
-                          <video src={media} className='w-full h-full object-cover' />
-                        ) : (
-                          <img src={media} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
-                        )}
+                        {(() => {
+                          const media = medias[index];
+                          const isVideo =
+                            typeof media === 'string'
+                              ? media.includes('.mov') || media.includes('.mp4')
+                              : (media as any).type === 'video' || (media as any).url?.includes('.mov') || (media as any).url?.includes('.mp4');
+
+                          const src = typeof media === 'string' ? media : (media as any).thumbnail || (media as any).url;
+
+                          return isVideo ? (
+                            <video src={src} className='w-full h-full object-cover' />
+                          ) : (
+                            <img src={src} alt={`Miniature ${index + 1}`} className='w-full h-full object-cover' />
+                          );
+                        })()}
                       </button>
                     </SplideSlide>
                   ))}
@@ -577,6 +589,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                             <DropdownItem
                               key={option.id || `person-${index}`}
                               className={`p-0`}
+                              textValue={getPersonDisplayName(option)}
                               onPress={() => option.id != null && navigate(getPersonRoute(option))}
                               isDisabled={option.id == null}>
                               <div className={`flex items-center gap-15 w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 text-c6`}>

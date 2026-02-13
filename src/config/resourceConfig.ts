@@ -36,7 +36,8 @@ export type ResourceType =
   | 'experimentation'
   | 'experimentation_etudiant'
   | 'recit_artistique'
-  | 'tool';
+  | 'tool'
+  | 'feedback';
 
 // ========================================
 // Configuration des types de ressources
@@ -173,7 +174,7 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     type: 'element_esthetique',
     label: 'Élément esthétique',
     icon: undefined,
-    templateIds: [104],
+    templateIds: [118],
     getUrl: (id) => `/corpus/element-esthetique/${id}`,
   },
 
@@ -181,7 +182,7 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     type: 'element_narratif',
     label: 'Élément narratif',
     icon: undefined,
-    templateIds: [105],
+    templateIds: [115],
     getUrl: (id) => `/corpus/element-narratif/${id}`,
   },
 
@@ -207,8 +208,16 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     type: 'tool',
     label: 'Outil',
     icon: undefined,
-    templateIds: [118],
+    templateIds: [114],
     getUrl: (id) => `/corpus/tool/${id}`,
+  },
+
+  feedback: {
+    type: 'feedback',
+    label: 'Retour d\'expérience',
+    icon: undefined,
+    templateIds: [110],
+    getUrl: (id) => `/corpus/feedback/${id}`,
   },
 };
 

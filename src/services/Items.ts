@@ -647,11 +647,9 @@ export async function getAllItems() {
       keywords,
       collections,
       students,
-      experimentations,
       recherches,
       tools,
       feedbacks,
-      recitsArtistiques,
       personnes,
       comments,
     ] = await Promise.all([
@@ -666,11 +664,9 @@ export async function getAllItems() {
       getKeywords(),
       getCollections(),
       getStudents(),
-      getExperimentations(),
       getRecherches(),
       getTools(),
       getFeedbacks(),
-      getRecitsArtistiques(),
       getPersonnes(),
       getComments(),
     ]);
@@ -687,9 +683,7 @@ export async function getAllItems() {
       ...keywords,
       ...collections,
       ...students,
-      ...experimentations,
       ...feedbacks,
-      ...recitsArtistiques,
       ...tools,
       ...(Array.isArray(recherches) ? recherches : []),
       ...(Array.isArray(personnes) ? personnes : []),
@@ -847,197 +841,6 @@ export async function getPersonnes(id?: number) {
   }
 }
 
-export async function getRecitsArtistiques(id?: number) {
-  try {
-    checkAndClearDailyCache();
-    const storedRecitsArtistiques = sessionStorage.getItem('recitsArtistiques');
-    if (storedRecitsArtistiques) {
-      const recitsArtistiques = JSON.parse(storedRecitsArtistiques);
-
-      return id ? recitsArtistiques.find((o: any) => o.id === String(id)) : recitsArtistiques;
-    }
-
-    // Use Promise.all to fetch all needed data (can fetch additional data for linking elements)
-    const [recitsArtistiques, personnes, actants, elementsNarratifs, elementsEsthetique, annotations, keywords, bibliographies, mediagraphies] = await Promise.all([
-      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOeuvres&json=1'),
-      getPersonnes(),
-      getActants(),
-      getElementNarratifs(),
-      getElementEsthetiques(),
-      getAnnotations(),
-      getKeywords(),
-      getBibliographies(),
-      getMediagraphies(),
-    ]);
-
-    // Build maps for fast lookups
-    const personnesMap = new Map(personnes.map((p: any) => [String(p.id), p]));
-    const actantsMap = new Map((actants || []).map((a: any) => [String(a.id), a]));
-    const elementsNarratifsMap = new Map((elementsNarratifs || []).map((e: any) => [String(e.id), { ...e, type: 'elementNarratif' }]));
-    const elementsEsthetiqueMap = new Map((elementsEsthetique || []).map((e: any) => [String(e.id), { ...e, type: 'elementEsthetique' }]));
-    const annotationsMap = new Map((annotations || []).map((a: any) => [String(a.id), { ...a, type: 'annotation' }]));
-    const keywordsMap = new Map((keywords || []).map((k: any) => [String(k.id), { ...k, type: 'keyword' }]));
-
-    // Créer aussi une map indexée par titre pour pouvoir chercher par titre
-    const keywordsMapByTitle = new Map((keywords || []).map((k: any) => [String(k.title || k.id), { ...k, type: 'keyword' }]));
-
-    const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
-    const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
-
-    const oeuvresFull = recitsArtistiques.map((recit_artistique: any) => {
-      // Parse les IDs multiples séparés par des virgules pour personne
-      let personneIds: string[] = [];
-      if (recit_artistique.personne) {
-        if (typeof recit_artistique.personne === 'string') {
-          personneIds = recit_artistique.personne.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(recit_artistique.personne)) {
-          personneIds = recit_artistique.personne.map((id: any) => String(id));
-        } else if (recit_artistique.personne != null) {
-          personneIds = [String(recit_artistique.personne)];
-        }
-      }
-
-      // Parse les IDs multiples pour actants
-      let actantsIds: string[] = [];
-      if (recit_artistique.actants) {
-        if (typeof recit_artistique.actants === 'string') {
-          actantsIds = recit_artistique.actants.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(recit_artistique.actants)) {
-          actantsIds = recit_artistique.actants.map((id: any) => String(id));
-        } else if (recit_artistique.actants != null) {
-          actantsIds = [String(recit_artistique.actants)];
-        }
-      }
-
-      // Parse les IDs multiples pour elementsNarratifs
-      let elementsNarratifsIds: string[] = [];
-      if (recit_artistique.elementsNarratifs) {
-        if (typeof recit_artistique.elementsNarratifs === 'string') {
-          elementsNarratifsIds = recit_artistique.elementsNarratifs.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(recit_artistique.elementsNarratifs)) {
-          elementsNarratifsIds = recit_artistique.elementsNarratifs.map((id: any) => String(id));
-        } else if (recit_artistique.elementsNarratifs != null) {
-          elementsNarratifsIds = [String(recit_artistique.elementsNarratifs)];
-        }
-      }
-
-      // Parse les IDs multiples pour elementsEsthetique
-      let elementsEsthetiqueIds: string[] = [];
-      if (recit_artistique.elementsEsthetique) {
-        if (typeof recit_artistique.elementsEsthetique === 'string') {
-          elementsEsthetiqueIds = recit_artistique.elementsEsthetique.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(recit_artistique.elementsEsthetique)) {
-          elementsEsthetiqueIds = recit_artistique.elementsEsthetique.map((id: any) => String(id));
-        } else if (recit_artistique.elementsEsthetique != null) {
-          elementsEsthetiqueIds = [String(recit_artistique.elementsEsthetique)];
-        }
-      }
-
-      // Parse les IDs multiples pour annotations
-      let annotationsIds: string[] = [];
-      if (recit_artistique.annotations) {
-        if (typeof recit_artistique.annotations === 'string') {
-          annotationsIds = recit_artistique.annotations.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(recit_artistique.annotations)) {
-          annotationsIds = recit_artistique.annotations.map((id: any) => String(id));
-        } else if (recit_artistique.annotations != null) {
-          annotationsIds = [String(recit_artistique.annotations)];
-        }
-      }
-
-      // Parse les IDs multiples pour keywords
-      let keywordsLinked: any[] = [];
-      if (recit_artistique.keywords) {
-        // Si keywords est déjà un tableau d'objets complets (déjà hydraté), on les garde tels quels
-        if (Array.isArray(recit_artistique.keywords) && recit_artistique.keywords.length > 0 && typeof recit_artistique.keywords[0] === 'object' && recit_artistique.keywords[0].title) {
-          // Keywords déjà hydratés (objets avec title), on les garde
-          keywordsLinked = recit_artistique.keywords.map((k: any) => ({ ...k, type: 'keyword' }));
-        } else {
-          // Sinon, on parse les IDs/titres et on les lie
-          let keywordsIds: string[] = [];
-          if (typeof recit_artistique.keywords === 'string') {
-            keywordsIds = recit_artistique.keywords.split(',').map((id: string) => id.trim());
-          } else if (Array.isArray(recit_artistique.keywords)) {
-            keywordsIds = recit_artistique.keywords.map((id: any) => String(id));
-          } else if (recit_artistique.keywords != null) {
-            keywordsIds = [String(recit_artistique.keywords)];
-          }
-
-          // Relink objects using the maps (chercher d'abord par ID, puis par titre)
-          keywordsLinked = keywordsIds
-            .map((idOrTitle: string) => {
-              // Essayer d'abord par ID
-              let keyword = keywordsMap.get(idOrTitle);
-              if (!keyword) {
-                // Si pas trouvé par ID, essayer par titre
-                keyword = keywordsMapByTitle.get(idOrTitle);
-              }
-              return keyword;
-            })
-            .filter(Boolean);
-
-          // Log pour debug si keywordsIds existe mais keywordsLinked est vide
-          if (keywordsIds.length > 0 && keywordsLinked.length === 0) {
-            console.log(`⚠️ Oeuvre ${recit_artistique.id}: keywordsIds/titres trouvés mais non liés`, { keywordsIds, keywordsMapSize: keywordsMap.size, sampleKeywordId: keywordsIds[0] });
-          }
-        }
-      }
-
-      // Parse les IDs multiples pour referencesScient
-      let referencesScientIds: string[] = [];
-      if (recit_artistique.referencesScient) {
-        if (typeof recit_artistique.referencesScient === 'string') {
-          referencesScientIds = recit_artistique.referencesScient.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(recit_artistique.referencesScient)) {
-          referencesScientIds = recit_artistique.referencesScient.map((id: any) => String(id));
-        } else if (recit_artistique.referencesScient != null) {
-          referencesScientIds = [String(recit_artistique.referencesScient)];
-        }
-      }
-
-      // Parse les IDs multiples pour referencesCultu
-      let referencesCultuIds: string[] = [];
-      if (recit_artistique.referencesCultu) {
-        if (typeof recit_artistique.referencesCultu === 'string') {
-          referencesCultuIds = recit_artistique.referencesCultu.split(',').map((id: string) => id.trim());
-        } else if (Array.isArray(recit_artistique.referencesCultu)) {
-          referencesCultuIds = recit_artistique.referencesCultu.map((id: any) => String(id));
-        } else if (recit_artistique.referencesCultu != null) {
-          referencesCultuIds = [String(recit_artistique.referencesCultu)];
-        }
-      }
-
-      // Relink objects using the maps
-      const personnesLinked = personneIds.map((id: string) => personnesMap.get(id)).filter(Boolean);
-      const actantsLinked = actantsIds.map((id: string) => actantsMap.get(id)).filter(Boolean);
-      const elementsNarratifsLinked = elementsNarratifsIds.map((id: string) => elementsNarratifsMap.get(id)).filter(Boolean);
-      const elementsEsthetiqueLinked = elementsEsthetiqueIds.map((id: string) => elementsEsthetiqueMap.get(id)).filter(Boolean);
-      const annotationsLinked = annotationsIds.map((id: string) => annotationsMap.get(id)).filter(Boolean);
-      const referencesScientLinked = referencesScientIds.map((id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id)).filter(Boolean);
-      const referencesCultuLinked = referencesCultuIds.map((id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id)).filter(Boolean);
-
-      return {
-        ...recit_artistique,
-        type: 'recit_artistique',
-        personne: personnesLinked.length > 0 ? personnesLinked : null,
-        actants: actantsLinked.length > 0 ? actantsLinked : null,
-        elementsNarratifs: elementsNarratifsLinked.length > 0 ? elementsNarratifsLinked : null,
-        elementsEsthetique: elementsEsthetiqueLinked.length > 0 ? elementsEsthetiqueLinked : null,
-        annotations: annotationsLinked.length > 0 ? annotationsLinked : null,
-        keywords: keywordsLinked.length > 0 ? keywordsLinked : null,
-        referencesScient: referencesScientLinked.length > 0 ? referencesScientLinked : null,
-        referencesCultu: referencesCultuLinked.length > 0 ? referencesCultuLinked : null,
-      };
-    });
-
-    sessionStorage.setItem('recitsArtistiques', JSON.stringify(oeuvresFull));
-    return id ? oeuvresFull.find((o: any) => o.id === String(id)) : oeuvresFull;
-  } catch (error) {
-    console.error('Error fetching recitsArtistiques:', error);
-    throw new Error('Failed to fetch recitsArtistiques');
-  }
-}
-
 export async function getKeywords() {
   try {
     checkAndClearDailyCache();
@@ -1117,105 +920,6 @@ export async function getFeedbacks() {
   } catch (error) {
     console.error('Error fetching feedbacks:', error);
     throw new Error('Failed to fetch feedbacks');
-  }
-}
-
-export async function getExperimentations(id?: number) {
-  try {
-    checkAndClearDailyCache();
-    const storedExperimentations = sessionStorage.getItem('experimentations');
-
-    if (storedExperimentations) {
-      const experimentations = JSON.parse(storedExperimentations);
-      return id ? experimentations.find((e: any) => String(e.id) === String(id)) : experimentations;
-    }
-
-    // Récupérer les expérimentations et les feedbacks en parallèle
-    const [experimentations, feedbacks, bibliographies, mediagraphies, students, actants, tools, keywords] = await Promise.all([
-      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getExperimentations&json=1'),
-      getFeedbacks(),
-      getBibliographies(),
-      getMediagraphies(),
-      getStudents(),
-      getActants(),
-      getTools(),
-      getKeywords(),
-    ]);
-    const toolsMap = new Map(tools.map((item: any) => [String(item.id), item]));
-    const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
-    const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
-    const studentsMap = new Map(students.map((item: any) => [String(item.id), item]));
-    const actantsMap = new Map(actants.map((item: any) => [String(item.id), item]));
-    const keywordsMap = new Map(keywords.map((item: any) => [String(item.id), item]));
-    // Créer un map des feedbacks pour un accès rapide par ID
-    const feedbacksMap = new Map(feedbacks.map((feedback: any) => [feedback.id.toString(), feedback]));
-
-    // Fusionner les feedbacks dans chaque expérimentation
-    const experimentationsFull = experimentations.map((experimentation: any) => {
-      // Traiter les actants (maintenant tous les crédits sont déjà dans actants comme IDs de strings)
-      const actantsMapped = experimentation.actants
-        ? experimentation.actants
-          .map((actantId: string) => {
-            // Chercher d'abord dans actants, puis dans students pour les crédits techniques
-            let mappedActant = actantsMap.get(actantId);
-            if (!mappedActant) {
-              mappedActant = studentsMap.get(actantId);
-            }
-            return mappedActant;
-          })
-          .filter(Boolean)
-        : [];
-
-      const experimentationWithFeedbacks = {
-        ...experimentation,
-        type: 'experimentation',
-        students: experimentation.students ? experimentation.students.map((studentId: string) => studentsMap.get(studentId)).filter(Boolean) : [],
-        actants: actantsMapped, // Tous les crédits mappés
-        keywords: experimentation.keywords ? experimentation.keywords.map((keywordId: string) => keywordsMap.get(keywordId)).filter(Boolean) : [],
-        tools: experimentation.technicalCredits ? experimentation.technicalCredits.map((toolId: string) => toolsMap.get(toolId)).filter(Boolean) : [],
-      };
-
-      // Si l'expérimentation a un tableau de feedbacks, remplacer les IDs par les objets complets
-      if (experimentation.feedbacks && Array.isArray(experimentation.feedbacks)) {
-        experimentationWithFeedbacks.feedbacks = experimentation.feedbacks.map((feedbackId: string) => feedbacksMap.get(feedbackId)).filter(Boolean); // Enlever les feedbacks non trouvés
-      }
-
-      // Gérer la relation references (mediagraphies et bibliographies)
-      if (experimentation.references) {
-        const getReference = (id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id);
-
-        if (typeof experimentation.references === 'string' && experimentation.references.includes(',')) {
-          const referencesIds = experimentation.references.split(',').map((id: string) => id.trim());
-          experimentationWithFeedbacks.references = referencesIds.map((id: string) => getReference(id)).filter(Boolean);
-        } else if (Array.isArray(experimentation.references)) {
-          experimentationWithFeedbacks.references = experimentation.references.map((id: any) => getReference(String(id))).filter(Boolean);
-        } else {
-          experimentationWithFeedbacks.references = getReference(String(experimentation.references));
-        }
-      }
-
-      // Gérer la relation bibliographicCitations (mediagraphies et bibliographies)
-      if (experimentation.bibliographicCitations) {
-        const getCitation = (id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id);
-
-        if (typeof experimentation.bibliographicCitations === 'string' && experimentation.bibliographicCitations.includes(',')) {
-          const citationsIds = experimentation.bibliographicCitations.split(',').map((id: string) => id.trim());
-          experimentationWithFeedbacks.bibliographicCitations = citationsIds.map((id: string) => getCitation(id)).filter(Boolean);
-        } else if (Array.isArray(experimentation.bibliographicCitations)) {
-          experimentationWithFeedbacks.bibliographicCitations = experimentation.bibliographicCitations.map((id: any) => getCitation(String(id))).filter(Boolean);
-        } else {
-          experimentationWithFeedbacks.bibliographicCitations = getCitation(String(experimentation.bibliographicCitations));
-        }
-      }
-
-      return experimentationWithFeedbacks;
-    });
-
-    sessionStorage.setItem('experimentations', JSON.stringify(experimentationsFull));
-    return id ? experimentationsFull.find((e: any) => String(e.id) === String(id)) : experimentationsFull;
-  } catch (error) {
-    console.error('Error fetching experimentations:', error);
-    throw new Error('Failed to fetch experimentations');
   }
 }
 
@@ -1336,142 +1040,6 @@ export async function getStudents(id?: number) {
   } catch (error) {
     console.error('Error fetching students:', error);
     throw new Error('Failed to fetch students');
-  }
-}
-
-export async function getElementNarratifs(id?: number): Promise<any> {
-  try {
-    checkAndClearDailyCache();
-    const storedElementNarratifs = sessionStorage.getItem('elementNarratifs');
-    if (storedElementNarratifs) {
-      const elementNarratifs = JSON.parse(storedElementNarratifs);
-      return id ? elementNarratifs.find((e: any) => e.id === String(id)) : elementNarratifs;
-    }
-
-    const [elementNarratifs, personnes, mediagraphies, bibliographies] = await Promise.all([
-      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getElementNarratifs&json=1'),
-      getPersonnes(),
-      getMediagraphies(),
-      getBibliographies(),
-    ]);
-
-    const personnesMap = new Map(personnes.map((item: any) => [String(item.id), item]));
-    const mediagraphiesMap = new Map(mediagraphies.map((item: any) => [String(item.id), item]));
-    const bibliographiesMap = new Map(bibliographies.map((item: any) => [String(item.id), item]));
-
-    const elementNarratifsFull = elementNarratifs.map((element: any) => {
-      // Gérer la relation creator (personnes)
-      let creator = [];
-      if (element.creator) {
-        if (typeof element.creator === 'string' && element.creator.includes(',')) {
-          const creatorIds = element.creator.split(',').map((id: string) => id.trim());
-          creator = creatorIds.map((id: string) => personnesMap.get(id)).filter(Boolean);
-        } else if (Array.isArray(element.creator)) {
-          creator = element.creator.map((id: any) => personnesMap.get(String(id))).filter(Boolean);
-        } else {
-          const creatorObj = personnesMap.get(String(element.creator));
-          creator = creatorObj ? [creatorObj] : [];
-        }
-      }
-      // Gérer la relation references (mediagraphies et bibliographies)
-      let references = null;
-      if (element.references) {
-        const getReference = (id: string) => mediagraphiesMap.get(id) || bibliographiesMap.get(id);
-
-        if (typeof element.references === 'string' && element.references.includes(',')) {
-          const referencesIds = element.references.split(',').map((id: string) => id.trim());
-          references = referencesIds.map((id: string) => getReference(id)).filter(Boolean);
-        } else if (Array.isArray(element.references)) {
-          references = element.references.map((id: any) => getReference(String(id))).filter(Boolean);
-        } else {
-          references = getReference(String(element.references));
-        }
-      }
-
-      return {
-        ...element,
-        type: 'elementNarratifs',
-        creator,
-        references,
-        // Gérer associatedMedia comme tableau
-        associatedMedia: Array.isArray(element.associatedMedia) ? element.associatedMedia : element.associatedMedia ? [element.associatedMedia] : [],
-      };
-    });
-
-    sessionStorage.setItem('elementNarratifs', JSON.stringify(elementNarratifsFull));
-    return id ? elementNarratifsFull.find((e: any) => e.id === String(id)) : elementNarratifsFull;
-  } catch (error) {
-    console.error('Error fetching elementNarratifs:', error);
-    throw new Error('Failed to fetch elementNarratifs');
-  }
-}
-
-export async function getElementEsthetiques(id?: number) {
-  try {
-    checkAndClearDailyCache();
-    const storedElementEsthetiques = sessionStorage.getItem('elementEsthetiques');
-
-    if (storedElementEsthetiques) {
-      const elementEsthetiques = JSON.parse(storedElementEsthetiques);
-      return id ? elementEsthetiques.find((e: any) => e.id === String(id)) : elementEsthetiques;
-    }
-
-    // Récupérer elementEsthetique et les personnes, actants en parallèle
-    const [elementEsthetiques, personnes, actants] = await Promise.all([
-      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getElementEsthetique&json=1'),
-      getPersonnes(),
-      getActants(),
-    ]);
-
-    // Créer des maps pour un accès rapide par ID
-    const personnesMap = new Map(personnes.map((personne: any) => [personne.id.toString(), personne]));
-    const actantsMap = new Map(actants.map((actant: any) => [actant.id.toString(), actant]));
-
-    // Créer une map des elementEsthetique pour les relations relatedResource
-    const elementEsthetiquesMap = new Map(elementEsthetiques.map((element: any) => [element.id.toString(), element]));
-
-    // Fusionner les relations dans chaque elementEsthetique
-    const elementEsthetiquesFull = elementEsthetiques.map((elementEsthetique: any) => {
-      const elementWithRelations = {
-        ...elementEsthetique,
-        type: 'elementEsthetique',
-      };
-
-      // Si elementEsthetique a des creator, remplacer les IDs par les objets complets
-      if (elementEsthetique.creator) {
-        if (Array.isArray(elementEsthetique.creator)) {
-          elementWithRelations.creator = elementEsthetique.creator.map((creatoId: string) => personnesMap.get(creatoId)).filter(Boolean);
-        } else {
-          const creatorObj = personnesMap.get(elementEsthetique.creator);
-          elementWithRelations.creator = creatorObj ? [creatorObj] : [];
-        }
-      } else {
-        elementWithRelations.creator = [];
-      }
-      // Si elementEsthetique a des contributor, remplacer les IDs par les objets complets
-      if (elementEsthetique.contributor) {
-        if (Array.isArray(elementEsthetique.contributor)) {
-          elementWithRelations.contributor = elementEsthetique.contributor.map((contributoId: string) => actantsMap.get(contributoId)).filter(Boolean);
-        } else {
-          elementWithRelations.contributor = actantsMap.get(elementEsthetique.contributor);
-        }
-      }
-      // Si elementEsthetique a des relatedResource, remplacer les IDs par les objets complets
-      if (elementEsthetique.relatedResource) {
-        if (Array.isArray(elementEsthetique.relatedResource)) {
-          elementWithRelations.relatedResource = elementEsthetique.relatedResource.map((resourceId: string) => elementEsthetiquesMap.get(resourceId)).filter(Boolean);
-        } else {
-          elementWithRelations.relatedResource = elementEsthetiquesMap.get(elementEsthetique.relatedResource);
-        }
-      }
-      return elementWithRelations;
-    });
-
-    sessionStorage.setItem('elementEsthetiques', JSON.stringify(elementEsthetiquesFull));
-    return elementEsthetiquesFull;
-  } catch (error) {
-    console.error('Error fetching elementEsthetique:', error);
-    throw new Error('Failed to fetch elementEsthetique');
   }
 }
 
@@ -1684,3 +1252,5 @@ export async function getMicroResumes(id?: number) {
     throw new Error('Failed to fetch micro resumes');
   }
 }
+
+export * from './resourceDetails';

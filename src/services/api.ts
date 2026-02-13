@@ -51,78 +51,32 @@ export async function getResearchByActant(actantId: string) {
   }
 }
 
-export async function filterActants(searchQuery: string) {
-  try {
-    const actants = await Items.getActants();
-    const normalizedQuery = searchQuery.toLowerCase();
-
-    const filteredActants = actants.filter(
-      (actant: { firstname: string; lastname: string; universities: any[] | null; doctoralSchools: any[] | null; laboratories: any[] | null }) => {
-        return (
-          (actant.firstname && actant.firstname.toLowerCase().includes(normalizedQuery)) ||
-          (actant.lastname && actant.lastname.toLowerCase().includes(normalizedQuery)) ||
-          actant.universities?.some((university: { name: string }) => university && university.name.toLowerCase().includes(normalizedQuery)) ||
-          actant.doctoralSchools?.some((school: { name: string }) => school && school.name.toLowerCase().includes(normalizedQuery)) ||
-          actant.laboratories?.some((laboratory: { name: string }) => laboratory && laboratory.name.toLowerCase().includes(normalizedQuery))
-        );
-      },
-    );
-
-    return filteredActants;
-  } catch (error) {
-    console.error('Error fetching actants:', error);
-    throw new Error('Failed to fetch actants');
-  }
-}
-
-export async function getConfByCitation(citationId: string) {
-  try {
-    const confs = await Items.getAllConfs();
-    const citations = await Items.getCitations();
-
-    // Vérifie si la citation existe
-    const citation = citations.find((citation: { id: string }) => citation.id === citationId);
-
-    if (!citation) {
-      return null; // Retourne null si la citation n'existe pas
-    }
-
-    // Recherche la conférence qui contient cet ID de citation
-    const conf = confs.find((conf: { citations: string[] }) => conf.citations.includes(citationId));
-
-    return conf;
-  } catch (error) {
-    console.error('Error fetching conference by citation:', error);
-    throw new Error('Failed to fetch conference by citation');
-  }
-}
-
 export async function getOeuvresByPersonne(personneId: number) {
-  const recitsArtistiques = await Items.getRecitsArtistiques();
+  // const recitsArtistiques = await Items.getRecitsArtistiques();
 
-  const filteredOeuvres = recitsArtistiques.filter((recit_artistique: any) => {
-    console.log('Checking recit_artistique:', recit_artistique.id, 'personne:', recit_artistique.personne);
+  // const filteredOeuvres = recitsArtistiques.filter((recit_artistique: any) => {
+  //   console.log('Checking recit_artistique:', recit_artistique.id, 'personne:', recit_artistique.personne);
 
-    if (!recit_artistique.personne) return false;
+  //   if (!recit_artistique.personne) return false;
 
-    // Si personne est un tableau d'objets (nouvelle structure)
-    if (Array.isArray(recit_artistique.personne)) {
-      const found = recit_artistique.personne.some((p: any) => p.id === String(personneId));
-      console.log('Array check result:', found);
-      return found;
-    }
+  //   // Si personne est un tableau d'objets (nouvelle structure)
+  //   if (Array.isArray(recit_artistique.personne)) {
+  //     const found = recit_artistique.personne.some((p: any) => p.id === String(personneId));
+  //     console.log('Array check result:', found);
+  //     return found;
+  //   }
 
-    // Si personne est une chaîne (ancienne structure)
-    if (typeof recit_artistique.personne === 'string') {
-      const found = recit_artistique.personne.includes(String(personneId));
-      console.log('String check result:', found);
-      return found;
-    }
+  //   // Si personne est une chaîne (ancienne structure)
+  //   if (typeof recit_artistique.personne === 'string') {
+  //     const found = recit_artistique.personne.includes(String(personneId));
+  //     console.log('String check result:', found);
+  //     return found;
+  //   }
 
-    return false;
-  });
+  //   return false;
+  // });
 
-  return filteredOeuvres;
+  return null;
 }
 
 /**

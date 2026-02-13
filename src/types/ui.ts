@@ -189,7 +189,7 @@ export type ResourceDetails = {
   relatedRecits: never[];
   id: string;
   title: string;
-  type: 'seminaire' | 'journee_etudes' | 'colloque' | 'experimentation';
+  type: 'seminaire' | 'journee_etudes' | 'colloque' | 'experimentation' | 'recit_scientifique' | 'recit_artistique' | 'recit_techno_industriel' | 'recit_citoyen' | 'recit_mediatique' | 'tool' | 'feedback' | 'element_esthetique' | 'element_narratif';
   template_id: number;
 
   // Common fields
@@ -233,4 +233,47 @@ export type ResourceDetails = {
   referencesCultu?: ResourceReference[];
   descriptions?: any[]; // definitions/descriptions
 
+  // Tool specific
+  category?: string;
+  release?: string;
+  fileRelease?: string;
+  license?: string;
+  homepage?: string;
+  repository?: string;
+  bugDatabase?: string;
+  programmingLanguages?: ResourceReference[];
+  isPartOf?: any; // Can be ResourceReference or Object
+  contributors?: any[]; // Can be mixed types
+  enrichedContributors?: any[];
+
+  // Feedback specific
+  achievements?: string;
+  issues?: string;
+  methodsUsed?: string;
+  reviews?: string;
+  instructionalMethod?: string;
+  potentialActions?: string;
+  coverage?: string;
+  workExamples?: string;
+  primaryActant?: any;
+  enrichedActants?: any[];
+  experimentation?: any;
+
+  // Element specific
+  genre?: string;
+  form?: string;
+  duration?: string;
+  language?: string;
+  audience?: string;
+  temporal?: string;
+  imageCharacteristic?: string;
+  colourCharacteristic?: string;
+  soundCharacteristic?: string;
+  eventDate?: string;
+  plotSummary?: string;
+  characters?: string;
+  transcript?: string;
+  creator?: any[];
+  contributor?: any[];
+  relatedResource?: any[];
 };

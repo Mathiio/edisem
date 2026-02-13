@@ -7,6 +7,7 @@
 import { TEMPLATE_ID_TO_TYPE, ResourceType } from '@/config/resourceConfig';
 import * as Items from './Items';
 import { getResourceDetails } from './resourceDetails';
+import { getStudentResourceDetails } from './StudentSpace';
 
 /**
  * Type pour une fonction de fetching
@@ -30,11 +31,12 @@ const RESOURCE_TYPE_FETCHERS: Record<ResourceType, FetcherFunction> = {
   journee_etudes: async (id) => getResourceDetails(id),
   seminaire: async (id) => getResourceDetails(id),
   colloque: async (id) => getResourceDetails(id),
-  element_esthetique: async (id) => Items.getElementEsthetiques(typeof id === 'string' ? parseInt(id) : id),
-  element_narratif: async (id) => Items.getElementNarratifs(typeof id === 'string' ? parseInt(id) : id),
-  experimentation: async (id) => Items.getExperimentations(typeof id === 'string' ? parseInt(id) : id),
-  experimentation_etudiant: async (id) => Items.getExperimentations(typeof id === 'string' ? parseInt(id) : id),
-  tool: async (id) => Items.getTools(typeof id === 'string' ? parseInt(id) : id),
+  element_esthetique: async (id) => getResourceDetails(id),
+  element_narratif: async (id) => getResourceDetails(id),
+  experimentation: async (id) => getResourceDetails(id),
+  experimentation_etudiant: async (id) => "",
+  tool: async (id) => getResourceDetails(id),
+  feedback: async (id) => getResourceDetails(id),
 };
 
 /**
