@@ -1,28 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { getOeuvresByPersonne } from '@/services/api';
 import * as Items from '@/services/Items';
 import { LinkIcon, UniversityIcon, SchoolIcon, LaboritoryIcon } from '@/components/ui/icons';
 import { InfoCard, InfoSkeleton } from '@/components/features/intervenants/IntervenantCards';
 import { Link } from '@heroui/react';
-import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
-import { motion, Variants } from 'framer-motion';
 import { Layouts } from '@/components/layout/Layouts';
 
-const fadeIn: Variants = {
-  hidden: { opacity: 0, y: 6 },
-  visible: (index: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, delay: index * 0.1 },
-  }),
-};
 
 export const Personne: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [personne, setPersonne] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [recitsArtistiques, setOeuvres] = useState<any[]>([]);
 
   const fetchPersonneData = useCallback(async () => {
     setLoading(true);
@@ -34,12 +22,10 @@ export const Personne: React.FC = () => {
       sessionStorage.removeItem('elementEsthetique');
       sessionStorage.removeItem('annotations');
 
-      const [personne, recitsArtistiques] = await Promise.all([Items.getPersonnes(Number(id)), getOeuvresByPersonne(Number(id))]);
+      const [personne] = await Promise.all([Items.getPersonnes(Number(id))]);
 
       // Les données sont déjà normalisées dans le service
       setPersonne(personne);
-
-      setOeuvres(Array.isArray(recitsArtistiques) ? recitsArtistiques : []);
 
     } catch (error) {
       console.error('Error fetching personne data:', error);
@@ -136,18 +122,6 @@ export const Personne: React.FC = () => {
               )}
             </div>
           </div>
-        </div>
-      </div>
-      <div className='gap-25 flex flex-col'>
-        <h2 className='text-24 font-medium text-c6'>Dernière(s) recit_artistique(s)</h2>
-        <div className='grid grid-cols-4 grid-rows-2 gap-25'>
-          {loading
-            ? Array.from({ length: 8 }).map((_, index) => <ResourceCardSkeleton key={index} />)
-            : recitsArtistiques.map((recit_artistique, index) => (
-              <motion.div initial='hidden' animate='visible' variants={fadeIn} key={recit_artistique.id} custom={index}>
-                <ResourceCard item={recit_artistique} type="recit_artistique" />
-              </motion.div>
-            ))}
         </div>
       </div>
     </Layouts>

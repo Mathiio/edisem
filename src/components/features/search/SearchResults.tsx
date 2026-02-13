@@ -69,14 +69,14 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ results, loading, 
             </motion.div>
           ))}
         </SearchResultSection>
-
+{/* 
         <SearchResultSection title='Récits Artistiques/Oeuvres' count={results.recitsArtistiques.length} loading={loading.recitsArtistiques}>
           {results.recitsArtistiques.map((recit_artistique) => (
             <motion.div key={recit_artistique.id} initial='hidden' animate='visible' variants={cardVariants} custom={getNextIndex()}>
               <ResourceCard item={recit_artistique} type="recit_artistique" />
             </motion.div>
           ))}
-        </SearchResultSection>
+        </SearchResultSection> */}
 
         <SearchResultSection
           title={`Intervenant${results.actants.length > 1 ? 's' : ''}`}
