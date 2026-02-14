@@ -351,35 +351,56 @@ class ResourceDetailsHelper
     }
 
     /**
-     * Fetch tool logo from schema:image (1701)
-     * Returns the original file URL
-     */
-    private function fetchToolLogo($resourceId)
-    {
-        // Check if value links to an Item (then get its media) OR directly to a Media
-        $sql = "
-            SELECT 
-                COALESCE(
-                    CONCAT(m_item.storage_id, '.', m_item.extension),
-                    CONCAT(m_media.storage_id, '.', m_media.extension)
-                ) as filename
-            FROM value v
-            LEFT JOIN media m_item ON m_item.item_id = v.value_resource_id
-            LEFT JOIN media m_media ON m_media.id = v.value_resource_id
-            WHERE v.resource_id = ?
-            AND v.property_id = 1701
-            AND (m_item.id IS NOT NULL OR m_media.id IS NOT NULL)
-            LIMIT 1
-        ";
-        
-        $filename = $this->conn->fetchOne($sql, [$resourceId]);
-        
-        if ($filename) {
-            return 'https://tests.arcanes.ca/omk/files/original/' . $filename;
-        }
-        
-        return null;
+ * Fetch tool logo from schema:image (1701)
+ * Falls back to item's first media if property 1701 doesn't exist
+ * Returns the original file URL
+ */
+private function fetchToolLogo($resourceId)
+{
+    // First, try property 1701 (schema:image)
+    $sql = "
+        SELECT 
+            COALESCE(
+                m_item.storage_id,
+                m_media.storage_id
+            ) as storage_id,
+            COALESCE(
+                m_item.extension,
+                m_media.extension
+            ) as extension
+        FROM value v
+        LEFT JOIN media m_item ON m_item.item_id = v.value_resource_id
+        LEFT JOIN media m_media ON m_media.id = v.value_resource_id
+        WHERE v.resource_id = ?
+        AND v.property_id = 1701
+        AND (m_item.id IS NOT NULL OR m_media.id IS NOT NULL)
+        LIMIT 1
+    ";
+    
+    $result = $this->conn->fetchAssociative($sql, [$resourceId]);
+    
+    if ($result && !empty($result['extension']) && !empty($result['storage_id'])) {
+        return 'https://tests.arcanes.ca/omk/files/original/' . $result['storage_id'] . '.' . $result['extension'];
     }
+    
+    // Fallback: use the first media directly attached to this item
+    $fallbackSql = "
+        SELECT storage_id, extension
+        FROM media
+        WHERE item_id = ?
+        AND extension IS NOT NULL
+        AND extension != ''
+        LIMIT 1
+    ";
+    
+    $fallback = $this->conn->fetchAssociative($fallbackSql, [$resourceId]);
+    
+    if ($fallback && !empty($fallback['extension']) && !empty($fallback['storage_id'])) {
+        return 'https://tests.arcanes.ca/omk/files/original/' . $fallback['storage_id'] . '.' . $fallback['extension'];
+    }
+    
+    return null;
+}    
 
     /**
      * Generic fetch for a single property value
@@ -900,12 +921,11 @@ class ResourceDetailsHelper
             SELECT 
                 v.value_resource_id as id,
                 r.title as title,
-                (SELECT CONCAT(m.storage_id, '.', m.extension) 
-                 FROM media m 
-                 WHERE m.item_id = r.id 
-                 LIMIT 1) as thumbnail
+                m.storage_id,
+                m.extension
             FROM value v
             INNER JOIN resource r ON v.value_resource_id = r.id
+            LEFT JOIN media m ON m.item_id = r.id
             WHERE v.resource_id = ?
             AND v.property_id = 438
             AND v.value_resource_id IS NOT NULL
@@ -914,10 +934,16 @@ class ResourceDetailsHelper
         $rows = $this->conn->fetchAllAssociative($sql, [$resourceId]);
         
         return array_map(function($row) {
+            $thumbnail = null;
+            // Only construct URL if both storage_id and extension are valid
+            if (!empty($row['storage_id']) && !empty($row['extension'])) {
+                $thumbnail = 'https://tests.arcanes.ca/omk/files/original/' . $row['storage_id'] . '.' . $row['extension'];
+            }
+            
             return [
                 'id' => $row['id'],
                 'title' => $row['title'],
-                'thumbnail' => $row['thumbnail'] ? 'https://tests.arcanes.ca/omk/files/original/' . $row['thumbnail'] : null
+                'thumbnail' => $thumbnail
             ];
         }, $rows);
     }
@@ -927,24 +953,69 @@ class ResourceDetailsHelper
      */
     private function fetchMicroResumes($resourceId)
     {
-        // Find micro-résumés that reference this conference
+        // Find micro-résumés linked FROM this conference via property 86 (bibo:abstract)
         $sql = "
-            SELECT r.id, r.title
-            FROM resource r
-            INNER JOIN value v ON r.id = v.resource_id
-            WHERE v.property_id = 1794
-            AND v.value_resource_id = ?
+            SELECT v.value_resource_id as id
+            FROM value v
+            INNER JOIN resource r ON v.value_resource_id = r.id
+            WHERE v.resource_id = ?
+            AND v.property_id = 86
             AND r.resource_template_id = 125
         ";
         
         $rows = $this->conn->fetchAllAssociative($sql, [$resourceId]);
         
-        return array_map(function($row) {
-            return [
-                'id' => $row['id'],
-                'title' => $row['title']
+        $microResumes = [];
+        foreach ($rows as $row) {
+            $microResumeId = $row['id'];
+            
+            // Fetch title (property 1)
+            $titleSql = "SELECT value FROM value WHERE resource_id = ? AND property_id = 1 LIMIT 1";
+            $title = $this->conn->fetchOne($titleSql, [$microResumeId]);
+            
+            // Fetch description (property 4 - dcterms:description)
+            $descSql = "SELECT value FROM value WHERE resource_id = ? AND property_id = 4 LIMIT 1";
+            $description = $this->conn->fetchOne($descSql, [$microResumeId]);
+            
+            // Fetch startTime (property 1417 - schema:startTime)
+            $startSql = "SELECT value FROM value WHERE resource_id = ? AND property_id = 1417 LIMIT 1";
+            $startTime = $this->conn->fetchOne($startSql, [$microResumeId]);
+            
+            // Fetch endTime (property 735 - schema:endTime)
+            $endSql = "SELECT value FROM value WHERE resource_id = ? AND property_id = 735 LIMIT 1";
+            $endTime = $this->conn->fetchOne($endSql, [$microResumeId]);
+            
+            // Fetch instruments (property 1710 - schema:instrument) - returns linked resources
+            $instrumentsSql = "
+                SELECT 
+                    r.id,
+                    (SELECT v.value FROM value v WHERE v.resource_id = r.id AND v.property_id = 1 LIMIT 1) as title,
+                    (SELECT CONCAT('https://tests.arcanes.ca/omk/files/square/', m.storage_id, '.', m.extension) 
+                     FROM media m WHERE m.item_id = r.id LIMIT 1) as thumbnail
+                FROM value v_link
+                INNER JOIN resource r ON v_link.value_resource_id = r.id
+                WHERE v_link.resource_id = ?
+                AND v_link.property_id = 1710
+            ";
+            $instruments = $this->conn->fetchAllAssociative($instrumentsSql, [$microResumeId]);
+            
+            $microResumes[] = [
+                'id' => $microResumeId,
+                'title' => $title,
+                'description' => $description,
+                'startTime' => $startTime,
+                'endTime' => $endTime,
+                'outils' => array_map(function($instr) {
+                    return [
+                        'id' => $instr['id'],
+                        'title' => $instr['title'],
+                        'thumbnail' => $instr['thumbnail']
+                    ];
+                }, $instruments)
             ];
-        }, $rows);
+        }
+        
+        return $microResumes;
     }
     
     /**

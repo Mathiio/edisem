@@ -361,8 +361,6 @@ export const compareValues = async (itemValue: any, searchValue: any, operator: 
 
 export const getDataByType = async (type: string): Promise<any[]> => {
   switch (type) {
-    case 'citation':
-      return (await Items.getCitations()) || [];
     case 'conference':
     case 'seminaire':
     case 'journee_etudes':

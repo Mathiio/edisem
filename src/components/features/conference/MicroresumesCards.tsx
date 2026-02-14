@@ -19,16 +19,15 @@ interface MicroresumeCardProps {
   description: string;
   startTime: number;
   endTime: number;
-  outil: {
+  outils: {
     id: string;
     title: string;
-    description: string;
     thumbnail: string;
-  };
+  }[];
   onTimeChange: (time: number) => void;
 }
 
-export const MicroresumeCard: React.FC<MicroresumeCardProps> = ({ title, description, startTime, endTime, outil, onTimeChange }) => {
+export const MicroresumeCard: React.FC<MicroresumeCardProps> = ({ title, description, startTime, endTime, outils, onTimeChange }) => {
   const [expanded, setExpanded] = useState(false);
   const CHARACTER_LIMIT = 350;
   const shouldTruncate = description.length > CHARACTER_LIMIT;
@@ -80,14 +79,16 @@ export const MicroresumeCard: React.FC<MicroresumeCardProps> = ({ title, descrip
             </div>
           )}
         </div>
-        <div className='w-full flex flex-row justify-start items-center gap-10'>
-          <Link
-            href={'/corpus/tool/' + outil.id}
-            className='p-2 w-fit flex flex-row border-2 border-c3 hover:border-c6 transition-all ease-in-out duration-200 rounded-8 items-center gap-10'>
-            <img src={outil.thumbnail} alt={outil.title} className='w-50 object-cover rounded-[4px]' />
-            <p className='text-16 text-c6'>{outil.title}</p>
-          </Link>
-        </div>
+        {outils && outils.length > 0 && (
+          <div className='w-full flex flex-row justify-start items-center gap-10'>
+            <Link
+              href={'/corpus/tool/' + outils[0].id}
+              className='p-2 w-fit flex flex-row border-2 border-c3 hover:border-c6 transition-all ease-in-out duration-200 rounded-8 items-center gap-10'>
+              <img src={outils[0].thumbnail} alt={outils[0].title} className='w-50 object-cover rounded-[4px]' />
+              <p className='text-16 text-c6'>{outils[0].title}</p>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -117,7 +118,7 @@ interface MicroresumesProps {
     description: string;
     startTime: number;
     endTime: number;
-    outil: { id: string; title: string; description: string; thumbnail: string };
+    outils: { id: string; title: string; thumbnail: string }[];
   }[];
   loading: boolean;
   onTimeChange: (time: number) => void;
@@ -143,7 +144,7 @@ export const Microresumes: React.FC<MicroresumesProps> = ({ microresumes, loadin
                   endTime={microresume.endTime}
                   title={microresume.title}
                   description={microresume.description}
-                  outil={microresume.outil}
+                  outils={microresume.outils}
                   onTimeChange={onTimeChange}
                 />
               </motion.div>

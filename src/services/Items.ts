@@ -97,33 +97,6 @@ export const getDataByClass = async (resourceClassId: number): Promise<Data[]> =
   return allData;
 };
 
-export const getDataByRT = async (resourceTemplateId: number): Promise<Data[]> => {
-  let page = 1;
-  const perPage = 100;
-  let allData: Data[] = [];
-  let morePages = true;
-
-  while (morePages) {
-    try {
-      const response = await fetch(`${API_URL}/items?resource_template_id=${resourceTemplateId}&page=${page}&per_page=${perPage}`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data: Data[] = await response.json();
-      if (data.length > 0) {
-        allData = allData.concat(data);
-        page++;
-      } else {
-        morePages = false;
-      }
-    } catch (error) {
-      console.error('Fetch error:', error);
-      throw error;
-    }
-  }
-  return allData;
-};
-
 export const fetchRT = async (resourceTemplateId: number): Promise<Data[]> => {
   try {
     const response = await fetch(`${API_URL}/resource_templates/${resourceTemplateId}`);
