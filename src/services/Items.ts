@@ -681,12 +681,11 @@ export async function getAllConfs(id?: number) {
     checkAndClearDailyCache();
 
     // Fetch all conference types, keywords, and microResumes in parallel
-    const [rawSeminarConfs, rawColloqueConfs, rawStudyDayConfs, keywords, microResumes] = await Promise.all([
+    const [rawSeminarConfs, rawColloqueConfs, rawStudyDayConfs, keywords] = await Promise.all([
       getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
       getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getColloqueConfs&json=1'),
       getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
       getKeywords(),
-      getMicroResumes(),
     ]);
 
     // Create keyword map for lookups
@@ -717,44 +716,10 @@ export async function getAllConfs(id?: number) {
       fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
     }));
 
-    // Créer une map des micro-résumés indexée par relatedResource (ID de conférence)
-    const microResumesByConfId = new Map<string, any[]>();
-    microResumes.forEach((microResume: any) => {
-      if (microResume.relatedResource) {
-        const confId = String(microResume.relatedResource);
-        if (!microResumesByConfId.has(confId)) {
-          microResumesByConfId.set(confId, []);
-        }
-        microResumesByConfId.get(confId)!.push(microResume);
-      }
-    });
 
     const allConfs = [...seminarConfs, ...colloqueConfs, ...studyDayConfs];
 
-    // Lier les micro-résumés aux conférences
-    const allConfsWithMicroResumes = allConfs.map((conf: any) => {
-      const confId = String(conf.id);
-      const linkedMicroResumes = microResumesByConfId.get(confId) || [];
-      return {
-        ...conf,
-        micro_resumes: linkedMicroResumes.length > 0 ? linkedMicroResumes : null,
-      };
-    });
-
-    if (id !== undefined) {
-      const conf = allConfsWithMicroResumes.find((conf) => String(conf.id) === String(id));
-      if (!conf) {
-        throw new Error(`Conference with id ${id} not found`);
-      }
-
-      if (conf.actant) {
-        conf.actant = await getActants(conf.actant);
-      }
-
-      return conf;
-    }
-
-    return allConfsWithMicroResumes;
+    return allConfs;
   } catch (error) {
     console.error('Error fetching all confs:', error);
     throw new Error('Failed to fetch all confs');
@@ -1186,43 +1151,6 @@ export async function getRecitTypeBreakdown() {
   } catch (error) {
     console.error('Error fetching recit type breakdown:', error);
     return [];
-  }
-}
-
-
-
-export async function getMicroResumes(id?: number) {
-  try {
-    checkAndClearDailyCache();
-    // 1. CACHE : Vérifier sessionStorage
-    const storedMicroResumes = sessionStorage.getItem('microResumes');
-    if (storedMicroResumes) {
-      const microResumes = JSON.parse(storedMicroResumes);
-      return id ? microResumes.find((m: any) => m.id === String(id)) : microResumes;
-    }
-
-    // 2. FETCH : Récupérer données + dépendances en Promise.all
-    const [rawMicroResumes, outil] = await Promise.all([getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getMicroResumes&json=1'), getTools()]);
-
-    const outilMap = new Map(outil.map((o: any) => [String(o.id), o]));
-    const microResumesFull = rawMicroResumes.map((microResume: any) => {
-      // Hydrater outil
-      let outilHydrated = null;
-      if (microResume.outil) {
-        outilHydrated = outilMap.get(String(microResume.outil)) || null;
-      }
-      return {
-        ...microResume,
-        type: 'microResume',
-        outil: outilHydrated,
-      };
-    });
-
-    sessionStorage.setItem('microResumes', JSON.stringify(microResumesFull));
-    return id ? microResumesFull.find((m: any) => m.id === String(id)) : microResumesFull;
-  } catch (error) {
-    console.error('Error fetching micro resumes:', error);
-    throw new Error('Failed to fetch micro resumes');
   }
 }
 
