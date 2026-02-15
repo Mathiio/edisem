@@ -23,6 +23,7 @@ export const Intervenant: React.FC = () => {
 
     setLoading(true);
     try {
+      // Fetches actant details with keyword stats always included
       const actantData = await Items.getActantDetails(id);
       setActant(actantData);
       setConf(actantData?.interventionsList || []);
@@ -86,7 +87,10 @@ export const Intervenant: React.FC = () => {
         </div>
       </div>
 
-      <IntervenantKeywordCloud intervenantConfs={conf} />
+      {/* Keyword Cloud - using keyword stats from merged API call */}
+      {actant?.keywordStats && (
+        <IntervenantKeywordCloud keywordStats={actant.keywordStats} />
+      )}
 
       {/* Proximity Graph */}
       <div className='w-full flex flex-col items-center gap-50'>

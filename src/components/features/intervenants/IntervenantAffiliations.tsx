@@ -18,7 +18,7 @@ interface AffiliationCardProps {
 const AffiliationCard: React.FC<AffiliationCardProps> = ({ title, icon, items, emptyMessage, loading }) => {
   return (
     <div className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-25 rounded-20 flex flex-col gap-1.5 h-full'>
-      <div className='flex items-center gap-10 border-b border-c3 pb-15'>
+      <div className='flex items-center gap-10 border-b-1 border-c3 pb-10'>
         <div className='text-c6'>
           {icon}
         </div>

@@ -622,7 +622,6 @@ export async function getAllItems() {
       students,
       recherches,
       tools,
-      feedbacks,
       personnes,
       comments,
     ] = await Promise.all([
@@ -639,7 +638,6 @@ export async function getAllItems() {
       getStudents(),
       getRecherches(),
       getTools(),
-      getFeedbacks(),
       getPersonnes(),
       getComments(),
     ]);
@@ -656,7 +654,6 @@ export async function getAllItems() {
       ...keywords,
       ...collections,
       ...students,
-      ...feedbacks,
       ...tools,
       ...(Array.isArray(recherches) ? recherches : []),
       ...(Array.isArray(personnes) ? personnes : []),
@@ -676,7 +673,7 @@ export async function getAllItems() {
   }
 }
 
-export async function getAllConfs(id?: number) {
+export async function getAllConfs() {
   try {
     checkAndClearDailyCache();
 
@@ -835,29 +832,6 @@ export async function getRecherches() {
   } catch (error) {
     console.error('Error fetching recherches:', error);
     throw new Error('Failed to fetch recherches');
-  }
-}
-
-export async function getFeedbacks() {
-  try {
-    checkAndClearDailyCache();
-    const storedFeedbacks = sessionStorage.getItem('feedbacks');
-    if (storedFeedbacks) {
-      return JSON.parse(storedFeedbacks);
-    }
-
-    const feedbacks = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getFeedbacks&json=1');
-
-    feedbacks.forEach((feedback: any) => {
-      feedback.url = '/feedback/' + feedback.id;
-      feedback.type = 'feedback';
-    });
-
-    sessionStorage.setItem('feedbacks', JSON.stringify(feedbacks));
-    return feedbacks;
-  } catch (error) {
-    console.error('Error fetching feedbacks:', error);
-    throw new Error('Failed to fetch feedbacks');
   }
 }
 
