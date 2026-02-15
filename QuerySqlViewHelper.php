@@ -83,9 +83,6 @@ class QuerySqlViewHelper extends AbstractHelper
             case 'complexityInsertValue':
                 $result = $this->complexityInsertValue($params);
                 break;
-            case 'getActants':
-                $result = $this->getActants();
-                break;
             case 'getStudents':
                 $result = $this->getStudents();
                 break;
@@ -101,14 +98,8 @@ class QuerySqlViewHelper extends AbstractHelper
             case 'getCitations':
                 $result = $this->getCitations();
                 break;
-            case 'getUniversities':
-                $result = $this->getUniversities();
-                break;
             case 'getLaboratories':
                 $result = $this->getLaboratories();
-                break;
-            case 'getDoctoralSchools':
-                $result = $this->getDoctoralSchools();
                 break;
             case 'getBibliographies':
                 $result = $this->getBibliographies();
@@ -124,9 +115,6 @@ class QuerySqlViewHelper extends AbstractHelper
                 break;
             case 'getRecherches':
                 $result = $this->getRecherches();
-                break;
-            case 'getAnnotations':
-                $result = $this->getAnnotations();
                 break;
             case 'getPersonnes':
                 $result = $this->getPersonnes();
@@ -1827,7 +1815,53 @@ class QuerySqlViewHelper extends AbstractHelper
             $result[] = $item;
         }
 
+        // Enrich actants (resolve IDs to full card data)
+        $this->enrichCommentActants($result);
+
         return $result;
+    }
+
+    /**
+     * Enrich comments with actant details
+     * Resolves actant IDs to full card data in one query
+     */
+    private function enrichCommentActants(&$comments)
+    {
+        // 1. Collect all actant IDs
+        $actantIds = [];
+        foreach ($comments as $comment) {
+            if (!empty($comment['actant'])) {
+                $actantIds[] = (int)$comment['actant'];
+            }
+        }
+        
+        if (empty($actantIds)) {
+            return; // No actants to resolve
+        }
+        
+        // 2. Fetch all actants in ONE query using fetchResourceCardData
+        $actantIds = array_unique($actantIds);
+        $resolvedActants = $this->fetchResourceCardData($actantIds);
+        
+        // 3. Index by ID for O(1) lookup
+        $actantMap = [];
+        foreach ($resolvedActants as $actant) {
+            $actantMap[$actant['id']] = $actant;
+        }
+        
+        // 4. Replace actant ID with full actant object
+        foreach ($comments as &$comment) {
+            if (!empty($comment['actant'])) {
+                $actantId = $comment['actant'];
+                if (isset($actantMap[$actantId])) {
+                    $comment['actant'] = $actantMap[$actantId];
+                } else {
+                    $comment['actant'] = null;
+                }
+            } else {
+                $comment['actant'] = null;
+            }
+        }
     }
 
     function getStudents()
@@ -1897,11 +1931,9 @@ class QuerySqlViewHelper extends AbstractHelper
             $result[] = $student;
         }
 
-        return $result;
-    }
-
-    function getAnnotations()
-    {
+    /**
+     * Get recherches (template 126)
+     */
         // 1) Récupération des ressources
         $resourceQuery = "
             SELECT r.id, r.created
@@ -2007,12 +2039,10 @@ class QuerySqlViewHelper extends AbstractHelper
                         break;
 
                     case 199:
-                        // TARGET - peut avoir plusieurs ressources
-                        if ($value['value_resource_id']) {
-                            $annotation['target'][] = [
-                                'id' => $value['value_resource_id']
-                            ];
-                        }
+                    // TARGET - track IDs for batch resolution
+                    if ($value['value_resource_id']) {
+                        $annotation['target'][] = $value['value_resource_id'];
+                    }
                         break;
 
                     case 581:
@@ -2020,19 +2050,16 @@ class QuerySqlViewHelper extends AbstractHelper
                         break;
 
                     case 1794:
-                        // RELATED - peut être un ID de ressource ou une URI externe
-                        if ($value['value_resource_id']) {
-                            // ID de ressource Omeka
-                            $annotation['related'][] = [
-                                'id' => $value['value_resource_id']
-                            ];
-                        } elseif ($value['uri']) {
-                            // URI externe
-                            $annotation['related'][] = [
-                                'uri' => $value['uri'],
-                                'title' => $value['value'] ?: basename($value['uri'])
-                            ];
-                        }
+                    // RELATED - track IDs for batch resolution, or store URI directly
+                    if ($value['value_resource_id']) {
+                        $annotation['related'][] = $value['value_resource_id'];
+                    } elseif ($value['uri']) {
+                        // Store URI directly (will not be resolved)
+                        $annotation['related'][] = [
+                            'uri' => $value['uri'],
+                            'title' => $value['value'] ?: basename($value['uri'])
+                        ];
+                    }
                         break;
 
                     // MÉDIAS INDIRECTS
@@ -2115,62 +2142,151 @@ class QuerySqlViewHelper extends AbstractHelper
                 }
             }
 
-            // -------------------------------------------------------------
-            // 🟩 ENRICHISSEMENT AUTOMATIQUE DU TARGET (ID + TEMPLATE + TITLE)
-            // -------------------------------------------------------------
-            if (!empty($annotation['target']) && is_array($annotation['target'])) {
-                foreach ($annotation['target'] as &$targetItem) {
-                    if (!empty($targetItem['id'])) {
-                        $targetId = $targetItem['id'];
-
-                        $targetRow = $this->conn->executeQuery("
-                            SELECT r.resource_template_id,
-                                   COALESCE(v.value, r.id) AS title
-                            FROM resource r
-                            LEFT JOIN value v
-                                ON v.resource_id = r.id AND v.property_id = 1
-                            WHERE r.id = ?
-                        ", [$targetId])->fetchAssociative();
-
-                        if ($targetRow) {
-                            $targetItem['template_id'] = $targetRow['resource_template_id'];
-                            $targetItem['title'] = $targetRow['title'];
-                        }
-                    }
-                }
-            }
-
-            // -------------------------------------------------------------
-            // 🟩 ENRICHISSEMENT AUTOMATIQUE DU RELATED (ID + TEMPLATE + TITLE)
-            // -------------------------------------------------------------
-            if (!empty($annotation['related']) && is_array($annotation['related'])) {
-                foreach ($annotation['related'] as &$relatedItem) {
-                    if (!empty($relatedItem['id'])) {
-                        $relatedId = $relatedItem['id'];
-
-                        $relatedRow = $this->conn->executeQuery("
-                            SELECT r.resource_template_id,
-                                   COALESCE(v.value, r.id) AS title
-                            FROM resource r
-                            LEFT JOIN value v
-                                ON v.resource_id = r.id AND v.property_id = 1
-                            WHERE r.id = ?
-                        ", [$relatedId])->fetchAssociative();
-
-                        if ($relatedRow) {
-                            $relatedItem['template_id'] = $relatedRow['resource_template_id'];
-                            $relatedItem['title'] = $relatedRow['title'];
-                        }
-                    }
-                }
-            }
-
-
             // FIN
             $result[] = $annotation;
         }
 
+        // Batch resolve all targets and related resources
+        $this->resolveAnnotationReferences($result);
+        
+        // Enrich contributors (actants/personnes/students)
+        $this->enrichAnnotationContributors($result);
+
         return $result;
+    }
+
+    /**
+     * Enrich annotations with contributor details (actants, personnes, students)
+     * Resolves contributor IDs to full card data in one query
+     */
+    private function enrichAnnotationContributors(&$annotations)
+    {
+        // 1. Collect all contributor IDs
+        $contributorIds = [];
+        foreach ($annotations as $annotation) {
+            if (!empty($annotation['contributor'])) {
+                $contributorIds[] = (int)$annotation['contributor'];
+            }
+        }
+        
+        if (empty($contributorIds)) {
+            return; // No contributors to resolve
+        }
+        
+        // 2. Fetch all contributors in ONE query
+        // Templates: 105 (Actant), 107 (Personne), 130 (Student)
+        $contributorIds = array_unique($contributorIds);
+        $idsStr = implode(',', $contributorIds);
+        
+        $sql = "
+            SELECT 
+                r.id,
+                r.title,
+                r.resource_template_id
+            FROM resource r
+            WHERE r.id IN ($idsStr)
+            AND r.resource_template_id IN (105, 107, 130)
+        ";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $contributors = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        // 3. Fetch card data for contributors
+        $resolvedContributors = $this->fetchResourceCardData($contributorIds);
+        
+        // 4. Index by ID for O(1) lookup
+        $contributorMap = [];
+        foreach ($resolvedContributors as $contributor) {
+            $contributorMap[$contributor['id']] = $contributor;
+        }
+        
+        // 5. Replace contributor ID with full contributor object
+        foreach ($annotations as &$annotation) {
+            if (!empty($annotation['contributor'])) {
+                $contributorId = $annotation['contributor'];
+                if (isset($contributorMap[$contributorId])) {
+                    // Replace ID with full contributor object
+                    $annotation['contributor'] = $contributorMap[$contributorId];
+                } else {
+                    // Keep ID if not found (fallback)
+                    $annotation['contributor'] = null;
+                }
+            } else {
+                $annotation['contributor'] = null;
+            }
+        }
+    }
+
+    /**
+     * Batch resolve target & related resources in annotations
+     * Converts resource IDs to full card data
+     */
+    private function resolveAnnotationReferences(&$annotations)
+    {        // 1. Collect all unique resource IDs to resolve
+        $idsToResolve = [];
+        
+        foreach ($annotations as &$annotation) {
+            // Collect target IDs (only integers, not URI objects)
+            if (!empty($annotation['target'])) {
+                foreach ($annotation['target'] as $item) {
+                    if (is_numeric($item)) {
+                        $idsToResolve[] = (int)$item;
+                    }
+                }
+            }
+            
+            // Collect related IDs (only integers, not URI objects)
+            if (!empty($annotation['related'])) {
+                foreach ($annotation['related'] as $item) {
+                    if (is_numeric($item)) {
+                        $idsToResolve[] = (int)$item;
+                    }
+                }
+            }
+        }
+        
+        if (empty($idsToResolve)) {
+            return; // Nothing to resolve
+        }
+        
+        // 2. Fetch all cards in ONE query
+        $idsToResolve = array_unique($idsToResolve);
+        $resolvedCards = $this->fetchResourceCardData($idsToResolve);
+        
+        // 3. Index by ID for O(1) lookup
+        $cardMap = [];
+        foreach ($resolvedCards as $card) {
+            $cardMap[$card['id']] = $card;
+        }
+        
+        // 4. Replace IDs with full card data
+        foreach ($annotations as &$annotation) {
+            // Resolve targets
+            if (!empty($annotation['target'])) {
+                $resolved = [];
+                foreach ($annotation['target'] as $item) {
+                    if (is_numeric($item) && isset($cardMap[$item])) {
+                        $resolved[] = $cardMap[$item];
+                    }
+                }
+                $annotation['target'] = $resolved;
+            }
+            
+            // Resolve related (preserve URI objects)
+            if (!empty($annotation['related'])) {
+                $resolved = [];
+                foreach ($annotation['related'] as $item) {
+                    if (is_numeric($item) && isset($cardMap[$item])) {
+                        $resolved[] = $cardMap[$item];
+                    } elseif (is_array($item) && isset($item['uri'])) {
+                        // Keep URI objects as-is
+                        $resolved[] = $item;
+                    }
+                }
+                $annotation['related'] = $resolved;
+            }
+        }
     }
 
     function getRecherches()
@@ -3345,62 +3461,6 @@ class QuerySqlViewHelper extends AbstractHelper
         return $result;
     }
 
-    function getUniversities()
-    {
-        $universityQuery = "
-            SELECT
-                r.id AS resource_id,
-                MAX(CASE WHEN v.property_id = 1 THEN v.value END) AS title,  -- dcterms:title
-                MAX(CASE WHEN v.property_id = 17 THEN v.value END) AS shortName,  -- dcterms:alternative
-                MAX(CASE WHEN v.property_id = 1517 THEN v.uri END) AS url,  -- schema:url
-                MAX(CASE WHEN v.property_id = 377 THEN v.value_resource_id END) AS country_id,  -- pays (linked resource)
-                MAX(CASE WHEN v.property_id = 1701 THEN m.storage_id END) AS logo_storage_id,
-                MAX(CASE WHEN v.property_id = 1701 THEN m.extension END) AS logo_extension
-            FROM resource r
-            LEFT JOIN value v ON v.resource_id = r.id
-            LEFT JOIN media m ON v.value_resource_id = m.id AND v.property_id = 1701
-            WHERE r.resource_template_id = 73
-            GROUP BY r.id
-        ";
-
-        $universityResult = $this->conn->executeQuery($universityQuery)->fetchAllAssociative();
-
-        if (empty($universityResult)) {
-            return null;
-        }
-
-        $universities = [];
-        foreach ($universityResult as $university) {
-            // Récupération du pays
-            $countryName = '';
-            if (!empty($university['country_id'])) {
-                $countryQuery = "
-                    SELECT value
-                    FROM value
-                    WHERE resource_id = :countryId
-                    AND property_id = 1
-                ";
-                $countryName = $this->conn->executeQuery($countryQuery, ['countryId' => $university['country_id']])->fetchOne();
-            }
-
-            $logo = '';
-            if (!empty($university['logo_storage_id']) && !empty($university['logo_extension'])) {
-                $logo = $this->generateThumbnailUrl($university['logo_storage_id'] . '.' . $university['logo_extension']);
-            }
-
-            $universities[] = [
-                'id' => $university['resource_id'],
-                'name' => $university['title'],
-                'shortName' => $university['shortName'] ?? null,
-                'logo' => $logo,
-                'url' => $university['url'] ?? '',
-                'country' => $countryName ?? ''
-            ];
-        }
-
-        return $universities;
-    }
-
     function getLaboratories()
     {
         $laboratoryQuery = "
@@ -3448,47 +3508,6 @@ class QuerySqlViewHelper extends AbstractHelper
         }
 
         return $laboratories;
-    }
-
-    function getDoctoralSchools()
-    {
-        $doctoralSchoolQuery = "
-            SELECT
-                r.id AS resource_id,  -- Ajouter l'ID de la ressource
-                (SELECT v.value
-                 FROM `value` v
-                 WHERE v.resource_id = r.id
-                 AND v.property_id = 1
-                 LIMIT 1) AS title,  -- Titre de la ressource
-
-                (SELECT v.uri
-                 FROM `value` v
-                 WHERE v.resource_id = r.id
-                 AND v.property_id = 1517
-                 LIMIT 1) AS url  -- URL de la ressource
-
-            FROM `resource` r
-            WHERE r.resource_template_id = 74  -- Utilisation du template 74
-        ";
-
-        // Exécution de la requête
-        $doctoralSchoolResult = $this->conn->executeQuery($doctoralSchoolQuery)->fetchAllAssociative();
-
-        if (empty($doctoralSchoolResult)) {
-            return null;
-        }
-
-        // Parcourir les résultats et préparer le tableau de données
-        $doctoralSchools = [];
-        foreach ($doctoralSchoolResult as $doctoralSchool) {
-            $doctoralSchools[] = [
-                'id' => $doctoralSchool['resource_id'],  // Ajouter l'ID de la ressource
-                'name' => $doctoralSchool['title'],
-                'url' => $doctoralSchool['url'] ?? ''  // URL de la ressource
-            ];
-        }
-
-        return $doctoralSchools;
     }
 
     function getBibliographies()
@@ -4293,94 +4312,6 @@ class QuerySqlViewHelper extends AbstractHelper
 
         return $map;
     }
-
-    function getActants()
-    {
-        $resourceQuery = "
-            SELECT r.id
-            FROM `resource` r
-            WHERE r.resource_template_id = 72
-            ORDER BY RAND()
-        ";
-
-        $resources = $this->conn->executeQuery($resourceQuery)->fetchAllAssociative();
-
-        if (empty($resources)) {
-            return [];
-        }
-
-        $resourceIds = array_column($resources, 'id');
-
-        $valueQuery = "
-            SELECT v.resource_id, v.value, v.property_id, v.value_resource_id, v.uri, v.type,
-                   m.id as media_id, m.storage_id, m.extension
-            FROM `value` v
-            LEFT JOIN `media` m ON v.value_resource_id = m.id
-            WHERE v.resource_id IN (" . implode(',', $resourceIds) . ")
-            AND v.property_id IN (139, 140, 1517, 1701, 3038, 3043, 3044, 724)
-        ";
-
-        $values = $this->conn->executeQuery($valueQuery)->fetchAllAssociative();
-
-        $result = [];
-        foreach ($resources as $resource) {
-            $actant = [
-                'id' => $resource['id'],
-                'firstname' => '',
-                'lastname' => '',
-                'picture' => '',
-                'mail' => '',
-                'url' => '',
-                'universities' => [],
-                'doctoralSchools' => [],
-                'laboratories' => []
-            ];
-
-            foreach ($values as $value) {
-                if ($value['resource_id'] == $resource['id']) {
-                    switch ($value['property_id']) {
-                        case 139:
-                            $actant['firstname'] = $value['value'];
-                            break;
-                        case 140:
-                            $actant['lastname'] = $value['value'];
-                            break;
-                        case 1517:
-                            $actant['url'] = $value['uri'];
-                            break;
-                        case 724:
-                            $actant['mail'] = $value['value'];
-                            break;
-                        case 1701:
-                            if ($value['storage_id'] && $value['extension']) {
-                                $actant['picture'] = $this->generateThumbnailUrl($value['storage_id'], $value['extension']);
-                            }
-                            break;
-                        case 3038:  // Universities
-                            if ($value['value_resource_id']) {
-                                $actant['universities'][] = $value['value_resource_id'];
-                            }
-                            break;
-                        case 3043:  // Doctoral Schools
-                            if ($value['value_resource_id']) {
-                                $actant['doctoralSchools'][] = $value['value_resource_id'];
-                            }
-                            break;
-                        case 3044:  // Laboratories
-                            if ($value['value_resource_id']) {
-                                $actant['laboratories'][] = $value['value_resource_id'];
-                            }
-                            break;
-                    }
-                }
-            }
-
-            $result[] = $actant;
-        }
-
-        return $result;
-    }
-
 
     function getNavbarEditions()
     {

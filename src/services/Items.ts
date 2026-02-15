@@ -206,130 +206,6 @@ export async function getDataByUrl(url: string) {
     throw error;
   }
 }
-
-export async function getCitations() {
-  try {
-    checkAndClearDailyCache();
-    const storedCitations = sessionStorage.getItem('citations');
-
-    if (storedCitations) {
-      return JSON.parse(storedCitations);
-    }
-
-    const citations = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCitations&json=1');
-    const citationsFull = citations.map((citation: any) => ({
-      ...citation,
-      title: citation.citation,
-      type: 'citation',
-    }));
-
-    sessionStorage.setItem('citations', JSON.stringify(citationsFull));
-    return citationsFull;
-  } catch (error) {
-    console.error('Error fetching actants:', error);
-    throw new Error('Failed to fetch actants');
-  }
-}
-
-export async function getAnnotations(id?: string | number) {
-  try {
-    checkAndClearDailyCache();
-
-    const storedAnnotations = sessionStorage.getItem('annotations');
-
-    // 📦 CACHE : Si les données sont en cache
-    if (storedAnnotations) {
-      const allAnnotations = JSON.parse(storedAnnotations);
-
-      // Si un ID est spécifié, retourner l'annotation spécifique
-      if (id) {
-        const foundAnnotation = allAnnotations.find((annotation: any) => String(annotation.id) === String(id));
-
-        if (foundAnnotation) {
-          return [foundAnnotation];
-        } else {
-          console.log(`❌ No cached annotation found with ID: "${id}"`);
-          return [];
-        }
-      }
-
-      return allAnnotations;
-    }
-
-    // 🌐 FETCH : Récupérer les données depuis l'API
-    const [annotations, personnes, actants, students] = await Promise.all([
-      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getAnnotations&json=1'),
-      getPersonnes(),
-      getActants(),
-      getStudents(),
-    ]);
-
-    // 🏗️ CONSTRUCTION : Créer les objets annotations de base
-    const annotationsFull = annotations.map((annotation: any) => ({
-      ...annotation,
-      type: 'annotation',
-    }));
-
-    // 👥 ASSOCIATION : Associer les contributeurs (personnes, actants, students)
-    annotationsFull.forEach((annotation: any) => {
-      const contributorId = annotation.contributor;
-      annotation.actant = [
-        ...personnes.filter((personne: any) => personne.id === contributorId),
-        ...actants.filter((actant: any) => actant.id === contributorId),
-        ...students.filter((student: any) => student.id === contributorId),
-      ];
-    });
-
-    // 💾 CACHE : Mettre en cache les annotations avec targets résolus
-    sessionStorage.setItem('annotations', JSON.stringify(annotationsFull));
-
-    // 🎯 FILTRAGE : Si un ID est spécifié, retourner l'annotation spécifique
-    if (id) {
-      const foundAnnotation = annotationsFull.find((annotation: any) => String(annotation.id) === String(id));
-      return foundAnnotation ? [foundAnnotation] : [];
-    }
-
-    return annotationsFull;
-  } catch (error) {
-    console.error('❌ Error fetching annotations:', error);
-    throw new Error('Failed to fetch annotations');
-  }
-}
-
-export async function getAnnotationsWithTargets(annotations: any) {
-  if (!annotations) return annotations;
-
-  // Import dynamique pour éviter les imports circulaires
-  const { fetchResourceByTemplateId } = await import('./resourceFetchers');
-
-  // Toujours travailler sur un tableau
-  const list = Array.isArray(annotations) ? annotations : [annotations];
-
-  async function resolveTarget(target: any): Promise<any> {
-    if (!target || !target.id || !target.template_id) return target;
-
-    const id = parseInt(target.id);
-    const templateId = parseInt(target.template_id);
-
-    // Utiliser le fetcher centralisé au lieu du switch/case
-    const resolved = await fetchResourceByTemplateId(templateId, id);
-    return resolved || target;
-  }
-
-  return await Promise.all(
-    list.map(async (annotation) => {
-      if (annotation.target && Array.isArray(annotation.target)) {
-        annotation.target = await Promise.all(annotation.target.map(resolveTarget));
-      }
-
-      if (annotation.related && Array.isArray(annotation.related)) {
-        annotation.related = await Promise.all(annotation.related.map(resolveTarget));
-      }
-      return annotation;
-    }),
-  );
-}
-
 export async function getBibliographies(id?: number) {
   try {
     checkAndClearDailyCache();
@@ -377,150 +253,6 @@ export async function getMediagraphies(id?: number) {
   } catch (error) {
     console.error('Error fetching mediagraphies:', error);
     throw new Error('Failed to fetch mediagraphies');
-  }
-}
-
-export async function getDoctoralSchools() {
-  try {
-    checkAndClearDailyCache();
-    const storedDoctoralSchools = sessionStorage.getItem('doctoralSchools');
-
-    if (storedDoctoralSchools) {
-      return JSON.parse(storedDoctoralSchools);
-    }
-
-    const doctoralSchools = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getDoctoralSchools&json=1');
-    const doctoralSchoolsFull = doctoralSchools.map((doctoralSchool: any) => ({
-      ...doctoralSchool,
-      title: doctoralSchool.name,
-      type: 'doctoralchool',
-    }));
-
-    sessionStorage.setItem('doctoralSchools', JSON.stringify(doctoralSchoolsFull));
-    return doctoralSchoolsFull;
-  } catch (error) {
-    console.error('Error fetching doctoralSchools:', error);
-    throw new Error('Failed to fetch doctoralSchools');
-  }
-}
-
-export async function getLaboratories() {
-  try {
-    checkAndClearDailyCache();
-    const storedLaboritories = sessionStorage.getItem('laboratories');
-
-    if (storedLaboritories) {
-      return JSON.parse(storedLaboritories);
-    }
-
-    const laboratories = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getLaboratories&json=1');
-    const laboratoriesFull = laboratories.map((laboritory: any) => ({
-      ...laboritory,
-      title: laboritory.name,
-      type: 'laboritory',
-    }));
-
-    sessionStorage.setItem('laboratories', JSON.stringify(laboratoriesFull));
-    return laboratoriesFull;
-  } catch (error) {
-    console.error('Error fetching laboratories:', error);
-    throw new Error('Failed to fetch laboratories');
-  }
-}
-
-export async function getUniversities() {
-  try {
-    checkAndClearDailyCache();
-    const storedUniversities = sessionStorage.getItem('universities');
-
-    if (storedUniversities) {
-      return JSON.parse(storedUniversities);
-    }
-
-    const universities = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getUniversities&json=1');
-
-    const universitiesFull = universities.map((university: any) => ({
-      ...university,
-      title: university.name,
-      shortName: university.shortName,
-      type: 'university',
-    }));
-
-    sessionStorage.setItem('universities', JSON.stringify(universitiesFull));
-    return universitiesFull;
-  } catch (error) {
-    console.error('Error fetching universities:', error);
-    throw new Error('Failed to fetch universities');
-  }
-}
-
-export async function getActants(actantIds?: string | string[]) {
-  try {
-    checkAndClearDailyCache();
-    const actants = sessionStorage.getItem('actants')
-      ? JSON.parse(sessionStorage.getItem('actants')!)
-      : await (async () => {
-        const [rawActants, confs, universities, doctoralSchools, laboratories] = await Promise.all([
-          getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getActants&json=1'),
-          getAllConfs(),
-          getUniversities(),
-          getDoctoralSchools(),
-          getLaboratories(),
-        ]);
-
-        const universityMap = new Map(universities.map((u: any) => [u.id, u]));
-        const doctoralSchoolMap = new Map(doctoralSchools.map((s: any) => [s.id, s]));
-        const laboratoryMap = new Map(laboratories.map((l: any) => [l.id, l]));
-
-        return rawActants.map((actant: any) => {
-          const interventions = confs.filter((c: any) => {
-            if (typeof c.actant === 'string' && c.actant.includes(',')) {
-              const actantIds = c.actant.split(',').map((id: string) => id.trim());
-              return actantIds.includes(String(actant.id));
-            } else if (Array.isArray(c.actant)) {
-              return c.actant.map(String).includes(String(actant.id));
-            } else {
-              return String(c.actant) === String(actant.id);
-            }
-          }).length;
-
-          return {
-            ...actant,
-            title: `${actant.firstname} ${actant.lastname}`,
-            type: 'actant',
-            interventions,
-            universities: actant.universities.map((id: string) => universityMap.get(id)),
-            doctoralSchools: actant.doctoralSchools.map((id: string) => doctoralSchoolMap.get(id)),
-            laboratories: actant.laboratories.map((id: string) => laboratoryMap.get(id)),
-          };
-        });
-      })();
-
-    if (!sessionStorage.getItem('actants')) {
-      sessionStorage.setItem('actants', JSON.stringify(actants));
-    }
-
-    // Si aucun ID spécifié, retourner tous les actants
-    if (!actantIds) {
-      return actants;
-    }
-
-    // Normaliser les IDs en tableau de strings
-    const normalizedIds = Array.isArray(actantIds) ? actantIds.map((id) => String(id)) : [String(actantIds)];
-
-    // Filtrer les actants correspondants
-    const foundActants = actants.filter((a: any) => normalizedIds.includes(String(a.id)));
-
-    // Si un seul ID était demandé (pas un tableau), retourner l'objet unique
-    if (!Array.isArray(actantIds) && foundActants.length > 0) {
-      return foundActants[0];
-    }
-
-    // Sinon retourner le tableau (même si vide)
-    return foundActants;
-  } catch (error) {
-    console.error('Error fetching actants:', error);
-    throw new Error('Failed to fetch actants');
   }
 }
 
@@ -610,11 +342,6 @@ export async function getAllItems() {
 
     const [
       allConfs,
-      actants,
-      universities,
-      laboratories,
-      schools,
-      citations,
       bibliographies,
       mediagraphies,
       keywords,
@@ -626,11 +353,6 @@ export async function getAllItems() {
       comments,
     ] = await Promise.all([
       getAllConfs(),
-      getActants(),
-      getUniversities(),
-      getLaboratories(),
-      getDoctoralSchools(),
-      getCitations(),
       getBibliographies(),
       getMediagraphies(),
       getKeywords(),
@@ -644,11 +366,6 @@ export async function getAllItems() {
 
     const allItems = [
       ...allConfs,
-      ...actants,
-      ...universities,
-      ...laboratories,
-      ...schools,
-      ...citations,
       ...bibliographies,
       ...mediagraphies,
       ...keywords,
@@ -863,23 +580,10 @@ export async function getStudents(id?: number) {
   }
 }
 
-export async function getComments(forceRefresh = false) {
+export async function getComments() {
   try {
-    checkAndClearDailyCache();
-    const storedComments = sessionStorage.getItem('comments');
-    if (storedComments && !forceRefresh) {
-      return JSON.parse(storedComments);
-    }
-
-    const [comments, actants] = await Promise.all([getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getComments&json=1'), getActants()]);
-
-    const actantsMap = new Map(actants.map((actant: any) => [actant.id.toString(), actant]));
-    comments.forEach((comment: any) => {
-      comment.actant = actantsMap.get(comment.actant);
-    });
-
-    sessionStorage.setItem('comments', JSON.stringify(comments));
-    return comments;
+    const data = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getComments&json=1');
+    return data;
   } catch (error) {
     console.error('Error fetching comments:', error);
     throw new Error('Failed to fetch comments');
@@ -993,4 +697,3 @@ export async function getResourceCardsByKeyword(keywordId: string | number, limi
 }
 
 export * from './resourceDetails';
-

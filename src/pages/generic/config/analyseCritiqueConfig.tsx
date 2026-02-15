@@ -1,7 +1,7 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
 import { RecitiaOverviewCard, RecitiaOverviewSkeleton } from '@/components/features/misesEnRecits/RecitiaOverview';
 import { RecitiaDetailsCard, RecitiaDetailsSkeleton } from '@/components/features/misesEnRecits/RecitiaDetails';
-import { getAnnotations, getAnnotationsWithTargets } from '@/services/Items';
+import { getResourceDetails } from '@/services/resourceDetails';
 import { createTargetsListView, createTextView } from '../helpers';
 
 /**
@@ -9,15 +9,13 @@ import { createTargetsListView, createTextView } from '../helpers';
  */
 export const analyseCritiqueConfig: GenericDetailPageConfig = {
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const annotation = await getAnnotations(id);
-    const annotationFull = await getAnnotationsWithTargets(annotation);
-
-    // getAnnotations retourne un tableau, prendre le premier élément
-    const annotationData = Array.isArray(annotationFull) && annotationFull.length > 0 ? annotationFull[0] : annotationFull;
-    console.log('annotationData', annotationData);
+    const annotationData = await getResourceDetails(id);
     return {
       itemDetails: annotationData,
-      keywords: [],
+      keywords: (annotationData?.keywords || []).map((kw: any) => ({
+        ...kw,
+        title: kw.name || kw.title,
+      })),
       recommendations: [],
     };
   },
@@ -30,7 +28,7 @@ export const analyseCritiqueConfig: GenericDetailPageConfig = {
   mapOverviewProps: (analyse: any, currentVideoTime: number) => ({
     id: analyse.id,
     title: analyse.title,
-    personnes: analyse.actants,
+    personnes: analyse.contributor ? [analyse.contributor] : [],
     medias: analyse.associatedMedia,
     fullUrl: analyse.fullUrl,
     currentTime: currentVideoTime,
@@ -38,8 +36,9 @@ export const analyseCritiqueConfig: GenericDetailPageConfig = {
   }),
 
   mapDetailsProps: (analyse: any) => ({
-    actants: analyse.actants,
-    date: analyse.date,
+    actants: analyse.contributor ? [analyse.contributor] : [],
+    date: analyse.created,
+    description: analyse.description,
     genre: analyse.genre,
     medium: analyse.medium,
   }),
@@ -51,7 +50,8 @@ export const analyseCritiqueConfig: GenericDetailPageConfig = {
     type: 'annotation',
     url: null, // url est pour YouTube, on ne l'utilise pas ici
     thumbnail: analyse.associatedMedia?.[0] || analyse.thumbnail || null,
-    actant: analyse.actant || [],
+    actant: analyse.contributor ? [analyse.contributor] : [],
+    date: analyse.created,
   }),
 
   // Vue unique : Références
@@ -74,21 +74,10 @@ export const analyseCritiqueConfig: GenericDetailPageConfig = {
     }),
   ],
 
-  showKeywords: false,
-  showRecommendations: true,
+  showKeywords: true,
+  showRecommendations: false, // Will implement with QueryCardHelper later
   showComments: true,
   recommendationsTitle: 'Autres analyses critiques',
-
-  // Smart recommendations
-  smartRecommendations: {
-    // Récupère toutes les analyses critiques pour trouver des similaires
-    getAllResourcesOfType: async () => {
-      const annotations = await getAnnotations();
-      return annotations;
-    },
-
-    maxRecommendations: 5,
-  },
 
   // Type à afficher
   type: 'Analyse critique',
