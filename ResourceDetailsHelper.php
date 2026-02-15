@@ -29,7 +29,7 @@ class ResourceDetailsHelper
     {
         // 1. Fetch basic resource info and template
         $basicSql = "
-            SELECT r.id, r.title, r.resource_template_id
+            SELECT r.id, r.title, r.resource_template_id, r.created
             FROM resource r
             WHERE r.id = ?
         ";
@@ -50,13 +50,15 @@ class ResourceDetailsHelper
         $isFeedback = $templateId == 110;
         $isElementEsthetique = $templateId == 118;
         $isElementNarratif = $templateId == 115;
+        $isAnnotation = $templateId == 101; // Annotation/Analysis Critique
         
         // 3. Build result structure
         $result = [
             'id' => $basic['id'],
             'title' => $basic['title'],
             'resource_template_id' => $templateId,
-            'type' => $this->getResourceType($templateId)
+            'type' => $this->getResourceType($templateId),
+            'created' => $basic['created']
         ];
         
         // 4. Fetch common components
@@ -213,6 +215,71 @@ class ResourceDetailsHelper
             if ($templateId == 117) {
                 $result['slogan'] = $this->fetchProperty($resourceId, 1810); // ma:slogan (prop 1810) if exists
             }
+        } elseif ($isAnnotation) {
+            // Annotation/Analysis Critique specific
+            $result['description'] = $this->fetchProperty($resourceId, 4); // dcterms:description
+            $result['commentTime'] = $this->fetchProperty($resourceId, 562); // Keep this if valid, or remove if not in JSON
+            
+            // Target resources (199 - oa:hasTarget)
+            $result['target'] = $this->fetchLinkedResources($resourceId, 199);
+            
+            // Related resources (1794 - ma:hasRelatedResource) - includes URIs
+            $result['related'] = $this->fetchAnnotationRelated($resourceId, 1794);
+            $result['keywords'] = $this->fetchKeywords($resourceId); // jdc:hasConcept (2097)
+            
+            // Contributor (581 - schema:contributor)
+            $contributorId = $this->fetchValueResourceId($resourceId, 581);
+            if ($contributorId) {
+                // Fetch contributor details using custom person fetcher
+                $result['contributor'] = $this->fetchPersonDetails($contributorId);
+            } else {
+                // Check if owner is available (o:owner) -> usually not in value table but in resource table owner_id
+                // But let's stick to what we found in JSON -> schema:contributor
+                $result['contributor'] = null;
+            }
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Fetch related resources for annotations (handles both resource IDs and URIs)
+     */
+    private function fetchAnnotationRelated($resourceId, $propertyId)
+    {
+        $sql = "
+            SELECT v.value_resource_id, v.uri, v.type
+            FROM value v
+            WHERE v.resource_id = ?
+            AND v.property_id = ?
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql, [$resourceId, $propertyId]);
+        
+        if (empty($rows)) {
+            return [];
+        }
+        
+        $result = [];
+        $resourceIds = [];
+        
+        // Separate resource IDs from URIs
+        foreach ($rows as $row) {
+            if (!empty($row['value_resource_id'])) {
+                $resourceIds[] = $row['value_resource_id'];
+            } elseif (!empty($row['uri'])) {
+                // Keep URI objects
+                $result[] = [
+                    'uri' => $row['uri'],
+                    'type' => $row['type']
+                ];
+            }
+        }
+        
+        // Fetch card data for resource IDs
+        if (!empty($resourceIds)) {
+            $cards = $this->cardHelper->fetchCards($resourceIds);
+            $result = array_merge($result, $cards);
         }
         
         return $result;
@@ -234,6 +301,7 @@ class ResourceDetailsHelper
             case 110: return 'feedback';
             case 118: return 'element_esthetique';
             case 115: return 'element_narratif';
+            case 101: return 'annotation';
             default: return 'unknown';
         }
     }
@@ -411,6 +479,22 @@ private function fetchToolLogo($resourceId)
             SELECT value
             FROM value
             WHERE resource_id = ? AND property_id = ?
+            LIMIT 1
+        ";
+        
+        return $this->conn->fetchOne($sql, [$resourceId, $propertyId]) ?: null;
+    }
+
+    /**
+     * Fetch a single value_resource_id for a property
+     */
+    private function fetchValueResourceId($resourceId, $propertyId)
+    {
+        $sql = "
+            SELECT value_resource_id
+            FROM value
+            WHERE resource_id = ? AND property_id = ?
+            AND value_resource_id IS NOT NULL
             LIMIT 1
         ";
         
@@ -1150,10 +1234,6 @@ private function fetchToolLogo($resourceId)
     }
     
 
-    /**
-     * Fetch creator (prop 2 - dcterms:creator)
-     * Handles both literal values and resource links
-     */
     private function fetchCreator($resourceId)
     {
         $sql = "
@@ -1186,6 +1266,45 @@ private function fetchToolLogo($resourceId)
             ];
         }, $rows);
     }
+
+    /**
+     * Fetch Person Details by ID (for single contributor/author)
+     */
+    private function fetchPersonDetails($personId)
+    {
+        $sql = "
+            SELECT 
+                r.title,
+                (SELECT value FROM value WHERE resource_id = r.id AND property_id = 139 LIMIT 1) as firstname,
+                (SELECT value FROM value WHERE resource_id = r.id AND property_id = 140 LIMIT 1) as lastname
+            FROM resource r
+            WHERE r.id = ?
+        ";
+        $row = $this->conn->fetchAssociative($sql, [$personId]);
+        
+        if (!$row) return null;
+        
+        $name = $row['title'];
+        if (($row['firstname'] ?? false) || ($row['lastname'] ?? false)) {
+            $name = trim(($row['firstname'] ?? '') . ' ' . ($row['lastname'] ?? ''));
+        }
+        
+        // Fetch Thumbnail
+        $sql = "SELECT storage_id, extension FROM media WHERE item_id = ? LIMIT 1";
+        $media = $this->conn->fetchAssociative($sql, [$personId]);
+        
+        $picture = null;
+        if ($media) {
+             $picture = "https://tests.arcanes.ca/omk/files/original/{$media['storage_id']}.{$media['extension']}";
+        }
+        
+        return [
+            'id' => $personId,
+            'name' => $name,
+            'picture' => $picture
+        ];
+    }
+
 
     /**
      * Fetch actants for Recit Artistique (Prop 581 - schema:contributor)

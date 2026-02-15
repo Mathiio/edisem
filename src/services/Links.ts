@@ -13,7 +13,7 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
       links = await getLinksFromConf(item);
       break
     case 'citation':
-      links = await getLinksFromCitation(item);
+      // links = await getLinksFromCitation(item);
       break
     case 'actant':
       links = await getLinksFromActant(item);
@@ -33,13 +33,13 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
     }
       break
     case 'university':
-      links = await getLinksFromUniv(item);
+      // links = await getLinksFromUniv(item);
       break
     case 'laboratory':
-      links = await getLinksFromLab(item);
+      // links = await getLinksFromLab(item);
       break
     case 'doctoralschool':
-      links = await getLinksFromSchool(item);
+      // links = await getLinksFromSchool(item);
       break
     default:
       links = [];
@@ -102,132 +102,132 @@ export async function getLinksFromCollections(collections: { id: string }[]): Pr
 
 
 
-export async function getLinksFromUniv(university: any): Promise<string[]> {
-  if (!university || !university.id) return [];
+// export async function getLinksFromUniv(university: any): Promise<string[]> {
+//   if (!university || !university.id) return [];
 
-  const actants = await Items.getActants();
+//   const actants = await Items.getActants();
 
-  return actants
-    .filter((actant: any) =>
-      actant &&
-      Array.isArray(actant.universities) &&
-      actant.universities.some((univ: any) => univ && univ.id === university.id)
-    )
-    .map((actant: any) => actant.id);
-}
-
-
-
-export async function getLinksFromSchool(school: any): Promise<string[]> {
-  if (!school || !school.id) return [];
-
-  const actants = await Items.getActants();
-
-  return actants
-    .filter((actant: any) =>
-      actant &&
-      Array.isArray(actant.doctoralSchools) &&
-      actant.doctoralSchools.some((docSchool: any) => docSchool && docSchool.id === school.id)
-    )
-    .map((actant: any) => actant.id);
-}
+//   return actants
+//     .filter((actant: any) =>
+//       actant &&
+//       Array.isArray(actant.universities) &&
+//       actant.universities.some((univ: any) => univ && univ.id === university.id)
+//     )
+//     .map((actant: any) => actant.id);
+// }
 
 
 
-export async function getLinksFromLab(laboratory: any): Promise<string[]> {
-  if (!laboratory || !laboratory.id) return [];
+// export async function getLinksFromSchool(school: any): Promise<string[]> {
+//   if (!school || !school.id) return [];
 
-  const actants = await Items.getActants();
+//   const actants = await Items.getActants();
 
-  return actants
-    .filter((actant: any) =>
-      actant &&
-      Array.isArray(actant.laboratories) &&
-      actant.laboratories.some((lab: any) => lab && lab.id === laboratory.id)
-    )
-    .map((actant: any) => actant.id);
-}
+//   return actants
+//     .filter((actant: any) =>
+//       actant &&
+//       Array.isArray(actant.doctoralSchools) &&
+//       actant.doctoralSchools.some((docSchool: any) => docSchool && docSchool.id === school.id)
+//     )
+//     .map((actant: any) => actant.id);
+// }
 
 
 
-export async function getLinksFromCitation(identifiant: any): Promise<string[]> {
+// export async function getLinksFromLab(laboratory: any): Promise<string[]> {
+//   if (!laboratory || !laboratory.id) return [];
 
-  const links: string[] = [];
-  const confs = await Items.getAllConfs();
-  const citations = await Items.getCitations();
+//   const actants = await Items.getActants();
 
-  // Trouver la citation
-  const citation = citations.find((c: any) => c.id === identifiant.id);
+//   return actants
+//     .filter((actant: any) =>
+//       actant &&
+//       Array.isArray(actant.laboratories) &&
+//       actant.laboratories.some((lab: any) => lab && lab.id === laboratory.id)
+//     )
+//     .map((actant: any) => actant.id);
+// }
 
-  if (citation && citation.actants && Array.isArray(citation.actants)) {
-    citation.actants.forEach((actant: any) => {
-      const actantId = actant?.id || actant;
-      if (actantId) {
-        links.push(String(actantId));
-      }
-    });
-  }
 
-  if (citation && Array.isArray(citation.motcles)) {
-    citation.motcles.forEach((motcle: any) => {
-      const motcleId = motcle?.id || motcle;
-      if (motcleId) {
-        links.push(String(motcleId));
-      }
-    });
-  }
 
-  confs.forEach((conf: any) => {
-    let confContainsCitation = false;
+// export async function getLinksFromCitation(identifiant: any): Promise<string[]> {
 
-    if (conf && Array.isArray(conf.citations)) {
-      confContainsCitation = conf.citations.some((citationRef: any) => {
-        const citationId = citationRef?.id || citationRef;
-        return String(citationId) === String(identifiant.id);
-      });
-    }
+//   const links: string[] = [];
+//   const confs = await Items.getAllConfs();
+//   const citations = await Items.getCitations();
 
-    if (confContainsCitation) {
-      if (conf.id) {
-        links.push(String(conf.id));
-      }
+//   // Trouver la citation
+//   const citation = citations.find((c: any) => c.id === identifiant.id);
 
-      if (conf.actant && Array.isArray(conf.actant)) {
-        conf.actant.forEach((actant: any) => {
-          if (actant) {
-            links.push(String(actant));
-          }
-        });
-      }
+//   if (citation && citation.actants && Array.isArray(citation.actants)) {
+//     citation.actants.forEach((actant: any) => {
+//       const actantId = actant?.id || actant;
+//       if (actantId) {
+//         links.push(String(actantId));
+//       }
+//     });
+//   }
 
-      [
-        'motcles',
-        'bibliographies',
-        'mediagraphies',
-        'collection',
-      ].forEach(attr => {
-        const val = conf[attr];
-        if (Array.isArray(val)) {
-          val.forEach((x: any) => {
-            const xId = x?.id || x;
-            if (xId) {
-              links.push(String(xId));
-            }
-          });
-        } else if (val) {
-          const valId = val?.id || val;
-          if (valId) {
-            links.push(String(valId));
-          }
-        }
-      });
-    }
-  });
+//   if (citation && Array.isArray(citation.motcles)) {
+//     citation.motcles.forEach((motcle: any) => {
+//       const motcleId = motcle?.id || motcle;
+//       if (motcleId) {
+//         links.push(String(motcleId));
+//       }
+//     });
+//   }
 
-  const uniqueLinks = Array.from(new Set(links)).filter(id => id !== identifiant.id);
+//   confs.forEach((conf: any) => {
+//     let confContainsCitation = false;
 
-  return uniqueLinks;
-}
+//     if (conf && Array.isArray(conf.citations)) {
+//       confContainsCitation = conf.citations.some((citationRef: any) => {
+//         const citationId = citationRef?.id || citationRef;
+//         return String(citationId) === String(identifiant.id);
+//       });
+//     }
+
+//     if (confContainsCitation) {
+//       if (conf.id) {
+//         links.push(String(conf.id));
+//       }
+
+//       if (conf.actant && Array.isArray(conf.actant)) {
+//         conf.actant.forEach((actant: any) => {
+//           if (actant) {
+//             links.push(String(actant));
+//           }
+//         });
+//       }
+
+//       [
+//         'motcles',
+//         'bibliographies',
+//         'mediagraphies',
+//         'collection',
+//       ].forEach(attr => {
+//         const val = conf[attr];
+//         if (Array.isArray(val)) {
+//           val.forEach((x: any) => {
+//             const xId = x?.id || x;
+//             if (xId) {
+//               links.push(String(xId));
+//             }
+//           });
+//         } else if (val) {
+//           const valId = val?.id || val;
+//           if (valId) {
+//             links.push(String(valId));
+//           }
+//         }
+//       });
+//     }
+//   });
+
+//   const uniqueLinks = Array.from(new Set(links)).filter(id => id !== identifiant.id);
+
+//   return uniqueLinks;
+// }
 
 
 
@@ -368,22 +368,22 @@ export async function getLinksFromKeywords(keyword: any): Promise<string[]> {
     }
   });
 
-  const citations = await Items.getCitations();
-  citations.forEach((citation: any) => {
-    if (citation &&
-      Array.isArray(citation.motcles) &&
-      citation.motcles.includes(keyword.id)) {
-      links.push(citation.id);
-      // Ajouter les actants de la citation
-      if (citation.actants && Array.isArray(citation.actants)) {
-        citation.actants.forEach((actant: any) => {
-          if (actant && actant.id) {
-            links.push(actant.id);
-          }
-        });
-      }
-    }
-  });
+  // const citations = await Items.getCitations();
+  // citations.forEach((citation: any) => {
+  //   if (citation &&
+  //     Array.isArray(citation.motcles) &&
+  //     citation.motcles.includes(keyword.id)) {
+  //     links.push(citation.id);
+  //     // Ajouter les actants de la citation
+  //     if (citation.actants && Array.isArray(citation.actants)) {
+  //       citation.actants.forEach((actant: any) => {
+  //         if (actant && actant.id) {
+  //           links.push(actant.id);
+  //         }
+  //       });
+  //     }
+  //   }
+  // });
 
   return links;
 }

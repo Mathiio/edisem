@@ -65,7 +65,7 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
       if (result.success) {
         // Forcer le rechargement des commentaires depuis l'API
         try {
-          const updatedComments = await getComments(true); // Force refresh
+          const updatedComments = await getComments(); // Force refresh
 
           // Filtrer les commentaires selon le LinkedResourceId
           const filteredComments = updatedComments.filter((comment: Comment) => comment.relatedResource === LinkedResourceId.toString());

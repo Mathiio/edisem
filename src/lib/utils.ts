@@ -1,41 +1,3 @@
-// Navigation utilities
-export const buildConfsRoute = (confType: string, id: number): string => {
-  switch (confType) {
-    case 'seminaire':
-      return `/corpus/seminaires/conference/${id}`;
-    case 'colloque':
-      return `/corpus/colloques/conference/${id}`;
-    case 'journee_etudes':
-      return `/corpus/journees-etudes/conference/${id}`;
-    case 'recit_artistique':
-      return `/corpus/recit_artistique/${id}`;
-    case 'recit_techno_industriel':
-      return `/corpus/recit-techno-industriel/${id}`;
-    case 'experimentation':
-      return `/corpus/experimentation/${id}`;
-    case 'experimentationStudents':
-      return `/espace-etudiant/experimentation/${id}`;
-    case 'elementNarratif':
-      return `/corpus/element-narratif/${id}`;
-    case 'elementEsthetique':
-      return `/corpus/element-esthetique/${id}`;
-    case 'annotation':
-      return `/corpus/analyse-critique/${id}`;
-    case 'feedback':
-      return `/feedback/${id}`;
-    case 'tool':
-      return `/corpus/tool/${id}`;
-    case 'miseEnRecit':
-      return `/corpus/mise-en-recit/${id}`;
-    case 'recit_scientifique':
-      return `/corpus/recit-scientifique/${id}`;
-    case 'recit_mediatique':
-      return `/corpus/recit-mediatique/${id}`;
-    default:
-      return `/`;
-  }
-};
-
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////////    DATE UTILITIES    ///////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -125,16 +87,6 @@ export const isValidYouTubeUrl = (url: string): boolean => {
 ////////////////////////////////////////////////////////////////////////////
 //////////////////////////    STRING UTILITIES    //////////////////////////
 ////////////////////////////////////////////////////////////////////////////
-
-export const truncateText = (text: string, maxLength: number): string => {
-  // Vérifier que text est une chaîne de caractères
-  if (typeof text !== 'string' || !text) {
-    return '';
-  }
-
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength).trim() + '...';
-};
 
 export const slugUtils = {
   toSlug: (text: string): string => {

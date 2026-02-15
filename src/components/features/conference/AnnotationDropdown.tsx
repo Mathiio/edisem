@@ -1,9 +1,9 @@
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Link, Modal, ModalBody, ModalContent, ModalHeader, Textarea } from '@heroui/react';
 import React, { useEffect, useState } from 'react';
 import { CrossIcon, DotsIcon, UserIcon } from '@/components/ui/icons';
-import { IconSvgProps } from '@/types/ui';
+import { IconSvgProps, ResourceDetails } from '@/types/ui';
 import Omk from '@/components/features/database/CreateModal';
-import { getActants, getAnnotations, getStudents } from '@/services/Items';
+import { getResourceDetails } from '@/services/resourceDetails';
 
 const API_URL = 'https://edisem.arcanes.ca/omk/api/';
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -48,7 +48,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
 
   // États pour voir les annotations
   const [isViewOpen, setIsViewOpen] = useState(false);
-  const [annotations, setAnnotations] = useState([]);
+  const [annotations, setAnnotations] = useState<ResourceDetails[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Gestion des états selon le mode
@@ -88,25 +88,10 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
     setIsLoading(true);
 
     try {
-      // Maintenant getAnnotations() peut filtrer directement par ID
-      const [fetchedAnnotations, actants, students] = await Promise.all([
-        getAnnotations(id as string | number), // Passe l'ID pour filtrer directement
-        getActants(),
-        getStudents(),
-      ]);
-
-      const annotationsWithContributors = fetchedAnnotations.map((annotation: any) => {
-        const contributor =
-          actants.find((actant: any) => actant.id.toString() === annotation.contributor.toString()) ||
-          students.find((student: any) => student.id.toString() === annotation.contributor.toString());
-
-        return {
-          ...annotation,
-          contributor: contributor,
-        };
-      });
-
-      setAnnotations(annotationsWithContributors);
+      // Backend now returns fully enriched annotation with contributor resolved
+      const annotation = await getResourceDetails(id as string | number);
+      // Wrap in array since setAnnotations expects array
+      setAnnotations(annotation ? [annotation] : []);
     } catch (error) {
       console.error('Error loading annotations:', error);
     } finally {

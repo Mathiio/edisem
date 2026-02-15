@@ -17,7 +17,6 @@ import {
   SelectItem,
 } from '@heroui/react';
 import { ArrowIcon, CrossIcon, PlusIcon, DotsIcon } from '@/components/ui/icons';
-import * as Items from '@/services/Items';
 import { getItemByID } from '@/services/api';
 
 const generateSearchTitle = (filterGroups: any[]): string => {
@@ -361,29 +360,29 @@ export const compareValues = async (itemValue: any, searchValue: any, operator: 
 
 export const getDataByType = async (type: string): Promise<any[]> => {
   switch (type) {
-    case 'conference':
-    case 'seminaire':
-    case 'journee_etudes':
-    case 'colloque':
-      const confs = (await Items.getAllConfs()) || [];
-      // Filtrer par le type spécifique demandé
-      return confs.filter((conf: any) => conf.type === type);
-    case 'actant':
-      return (await Items.getActants()) || [];
-    case 'keyword':
-      return (await Items.getKeywords()) || [];
-    case 'bibliography':
-      return (await Items.getBibliographies()) || [];
-    case 'mediagraphie':
-      return (await Items.getMediagraphies()) || [];
-    case 'collection':
-      return (await Items.getCollections()) || [];
-    case 'university':
-      return (await Items.getUniversities()) || [];
-    case 'laboratory':
-      return (await Items.getLaboratories()) || [];
-    case 'doctoralschool':
-      return (await Items.getDoctoralSchools()) || [];
+    // case 'conference':
+    // case 'seminaire':
+    // case 'journee_etudes':
+    // case 'colloque':
+    //   const confs = (await Items.getAllConfs()) || [];
+    //   // Filtrer par le type spécifique demandé
+    //   return confs.filter((conf: any) => conf.type === type);
+    // case 'actant':
+    //   return (await Items.getActants()) || [];
+    // case 'keyword':
+    //   return (await Items.getKeywords()) || [];
+    // case 'bibliography':
+    //   return (await Items.getBibliographies()) || [];
+    // case 'mediagraphie':
+    //   return (await Items.getMediagraphies()) || [];
+    // case 'collection':
+    //   return (await Items.getCollections()) || [];
+    // case 'university':
+    //   return (await Items.getUniversities()) || [];
+    // case 'laboratory':
+    //   return (await Items.getLaboratories()) || [];
+    // case 'doctoralschool':
+    //   return (await Items.getDoctoralSchools()) || [];
     default:
       return [];
   }

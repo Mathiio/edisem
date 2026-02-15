@@ -234,11 +234,6 @@ class StudentSpaceViewHelper extends AbstractHelper
 
             // ========== ACTANT ACTIONS ==========
 
-            // Liste des actants avec leur ID utilisateur Omeka S
-            case 'getActants':
-                $result = $this->getActantsWithOmekaId();
-                break;
-
             // Lier un actant à un utilisateur Omeka S
             case 'linkActantToUser':
                 $actantId = isset($params['actantId']) ? (int)$params['actantId'] : 0;
