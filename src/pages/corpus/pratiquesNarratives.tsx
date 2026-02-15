@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Layouts } from '@/components/layout/Layouts';
 import * as Items from '@/services/Items';
+import * as Analytics from '@/services/Analytics';
 import { FullCarrousel } from '@/components/ui/Carrousels';
 import { PratiqueNarrativeIcon } from '@/components/ui/icons';
 import { useNavigate } from 'react-router-dom';
@@ -21,10 +22,10 @@ export const PratiquesNarratives: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Use optimized backend stats instead of loading all data
+        // Use optimized backend stats from Analytics service
         const [stats, keywords, experimentations] = await Promise.all([
-          Items.getNarrativePracticesStats(),
-          Items.getNarrativeTopKeywords(8),
+          Analytics.getNarrativePracticesStats(),
+          Analytics.getNarrativeTopKeywords(8),
           Items.getExperimentationCards()
         ]);
 
@@ -95,7 +96,7 @@ export const PratiquesNarratives: React.FC = () => {
         <h2 className="text-24 font-medium text-c6">Dernières Expérimentations</h2>
         <div className="grid grid-cols-4 grid-rows-auto gap-20">
           {experimentationsData.slice(0, 5).map((exp) => (
-            <ExpCard {...exp} />
+            <ExpCard key={exp.id} {...exp} />
           ))}
         </div>
       </section>

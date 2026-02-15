@@ -442,3 +442,55 @@ export function getAvailableYears(): number[] {
   // Retourner les 5 dernières années par défaut
   return Array.from({ length: 5 }, (_, i) => currentYear - i);
 }
+
+// ========== NARRATIVE STATISTICS ==========
+
+/**
+ * Get comprehensive stats for narrative practices page
+ * @returns {Promise<{recits: number, experimentations: number, recitsByType: object}>}
+ */
+export async function getNarrativePracticesStats(): Promise<{
+  recits: number;
+  experimentations: number;
+  recitsByType: Record<string, number>;
+}> {
+  const response = await fetch(`${API_BASE}&action=getNarrativePracticesStats&json=1`);
+  if (!response.ok) {
+    console.error('Error fetching narrative practices stats');
+    return { recits: 0, experimentations: 0, recitsByType: {} };
+  }
+  return response.json();
+}
+
+/**
+ * Get top keywords for narrative practices
+ * @param limit - Maximum number of keywords to return
+ * @returns {Promise<Array<{label: string, value: number}>>}
+ */
+export async function getNarrativeTopKeywords(limit: number = 8): Promise<Array<{
+  label: string;
+  value: number;
+}>> {
+  const response = await fetch(`${API_BASE}&action=getTopNarrativeKeywords&limit=${limit}&json=1`);
+  if (!response.ok) {
+    console.error('Error fetching narrative top keywords');
+    return [];
+  }
+  return response.json();
+}
+
+/**
+ * Get detailed breakdown of recits by type with counts
+ * @returns {Promise<Array<{type: string, count: number}>>}
+ */
+export async function getRecitTypeBreakdown(): Promise<Array<{
+  type: string;
+  count: number;
+}>> {
+  const response = await fetch(`${API_BASE}&action=getRecitTypeBreakdown&json=1`);
+  if (!response.ok) {
+    console.error('Error fetching recit type breakdown');
+    return [];
+  }
+  return response.json();
+}

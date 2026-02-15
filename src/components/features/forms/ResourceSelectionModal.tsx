@@ -37,9 +37,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
 
   // Charger les ressources quand la modal s'ouvre
   useEffect(() => {
-    console.log('[ResourceSelectionModal] useEffect triggered - isOpen:', isOpen, 'resourceTemplateIds:', resourceTemplateIds);
     if (isOpen && resourceTemplateIds.length > 0) {
-      console.log('[ResourceSelectionModal] Chargement des ressources...');
       loadResources();
     }
   }, [isOpen, resourceTemplateIds.join(',')]);
@@ -53,7 +51,6 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
   }, [isOpen]);
 
   const loadResources = async () => {
-    console.log('[ResourceSelectionModal] loadResources() appelé');
     setLoading(true);
     setError(null);
 
@@ -63,11 +60,8 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
 
       for (const templateId of resourceTemplateIds) {
         const url = `${API_BASE}items?resource_template_id=${templateId}&per_page=100`;
-        console.log('[ResourceSelectionModal] Fetching:', url);
 
         const response = await fetch(url);
-
-        console.log('[ResourceSelectionModal] Response status:', response.status);
 
         if (!response.ok) {
           console.warn(`[ResourceSelectionModal] Erreur chargement template ${templateId}`, response.status);
@@ -75,10 +69,6 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
         }
 
         const data = await response.json();
-        console.log("[ResourceSelectionModal] Nombre d'items reçus:", data.length);
-
-        // Debug: afficher les données brutes de l'API
-        console.log(`[ResourceSelectionModal] Données brutes pour template ${templateId}:`, data);
 
         const mapped = data.map((item: any) => {
           // Récupérer l'image/thumbnail de différentes sources possibles
@@ -105,13 +95,9 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
           };
         });
 
-        // Debug: afficher les données mappées
-        console.log(`[ResourceSelectionModal] Données mappées pour template ${templateId}:`, mapped);
-
         allResources.push(...mapped);
       }
 
-      // Dédupliquer par ID
       const uniqueResources = allResources.filter((resource, index, self) => index === self.findIndex((r) => r.id === resource.id));
 
       setResources(uniqueResources);

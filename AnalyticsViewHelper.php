@@ -254,8 +254,27 @@ class AnalyticsViewHelper extends AbstractHelper
                 $result = $this->getCoverageStats($topKeywords);
                 break;
 
+            // ========== STATISTIQUES NARRATIVES ==========
+
+            // Stats pour pratiques narratives
+            case 'getNarrativePracticesStats':
+                $result = $this->getNarrativePracticesStats();
+                break;
+
+            // Top keywords narratifs
+            case 'getTopNarrativeKeywords':
+                $limit = isset($params['limit']) ? (int)$params['limit'] : 8;
+                $result = $this->getTopNarrativeKeywords($limit);
+                break;
+
+            // Breakdown récits par type
+            case 'getRecitTypeBreakdown':
+                $result = $this->getRecitTypeBreakdown();
+                break;
+
             default:
                 $result = ['error' => 'Action inconnue: ' . $action];
+
         }
 
         return $result;
@@ -1214,5 +1233,214 @@ class AnalyticsViewHelper extends AbstractHelper
             'stats' => $stats,
             'topKeywordsCount' => $topKeywords
         ];
+    }
+
+    // ========== BASIC COUNTING (Migrated from QueryStatsHelper) ==========
+
+    /**
+     * Get count of resources by a single template ID
+     * Migrated from QueryStatsHelper
+     * 
+     * @param int $templateId Resource template ID
+     * @return int Count of resources
+     */
+    public function getResourceCount($templateId)
+    {
+        $sql = "
+            SELECT COUNT(*) as count
+            FROM resource
+            WHERE resource_template_id = :templateId
+        ";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['templateId' => (int)$templateId]);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return (int)($result['count'] ?? 0);
+    }
+    
+    /**
+     * Get counts for multiple template IDs in one query
+     * Migrated from QueryStatsHelper
+     * 
+     * @param array $templateIds Array of template IDs
+     * @return array Map of [templateId => count]
+     */
+    public function getResourceCounts(array $templateIds)
+    {
+        if (empty($templateIds)) {
+            return [];
+        }
+        
+        $ids = implode(',', array_map('intval', $templateIds));
+        
+        $sql = "
+            SELECT resource_template_id, COUNT(*) as count
+            FROM resource
+            WHERE resource_template_id IN ($ids)
+            GROUP BY resource_template_id
+        ";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        $result = [];
+        foreach ($rows as $row) {
+            $result[(int)$row['resource_template_id']] = (int)$row['count'];
+        }
+        
+        // Fill zeros for templates with no resources
+        foreach ($templateIds as $tmplId) {
+            if (!isset($result[$tmplId])) {
+                $result[$tmplId] = 0;
+            }
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Get count of resources matching a WHERE condition
+     * Migrated from QueryStatsHelper
+     * 
+     * @param string $whereClause SQL WHERE clause (without WHERE keyword)
+     * @param array $params Query parameters
+     * @return int Count
+     */
+    public function getCountWhere($whereClause, array $params = [])
+    {
+        $sql = "
+            SELECT COUNT(*) as count
+            FROM resource r
+            WHERE $whereClause
+        ";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return (int)($result['count'] ?? 0);
+    }
+
+    // ========== NARRATIVE STATISTICS (Migrated from NarrativeStatsHelper) ==========
+
+    /**
+     * Template mapping for narrative resource types
+     */
+    private $narrativeTemplates = [
+        119 => 'citoyens',           // Recits Citoyens
+        120 => 'mediatiques',         // Recits Mediatiques
+        124 => 'scientifiques',       // Recits Scientifiques
+        117 => 'techno',              // Recits Techno-Industriels
+        131 => 'artistiques',         // Recits Artistiques (primary)
+        103 => 'artistiques'          // Recits Artistiques (secondary)
+    ];
+
+    /**
+     * Get comprehensive stats for pratiquesNarratives page
+     * Migrated from NarrativeStatsHelper
+     * Returns total counts and breakdown by recit type
+     * 
+     * @return array {recits, experimentations, recitsByType}
+     */
+    public function getNarrativePracticesStats()
+    {
+        $allTemplates = array_merge(
+            array_keys($this->narrativeTemplates),
+            [108] // experimentation template
+        );
+        
+        $counts = $this->getResourceCounts($allTemplates);
+        
+        $totalRecits = 0;
+        $recitsByType = [
+            'citoyens' => 0,
+            'mediatiques' => 0,
+            'scientifiques' => 0,
+            'techno' => 0,
+            'artistiques' => 0
+        ];
+        
+        // Aggregate counts by type
+        foreach ($this->narrativeTemplates as $tmplId => $type) {
+            $count = $counts[$tmplId] ?? 0;
+            $totalRecits += $count;
+            $recitsByType[$type] += $count;
+        }
+        
+        return [
+            'recits' => $totalRecits,
+            'experimentations' => $counts[108] ?? 0,
+            'recitsByType' => $recitsByType
+        ];
+    }
+    
+    /**
+     * Get top keywords across all narrative practices
+     * Migrated from NarrativeStatsHelper
+     * Aggregates keywords from recits and experimentations
+     * 
+     * @param int $limit Number of keywords to return (default: 8)
+     * @return array [{label, value}, ...]
+     */
+    public function getTopNarrativeKeywords($limit = 8)
+    {
+        $limit = (int)$limit;
+        $allTemplates = array_merge(
+            array_keys($this->narrativeTemplates),
+            [108] // experimentation template
+        );
+        $templateStr = implode(',', $allTemplates);
+        
+        $sql = "
+            SELECT 
+                r_keyword.title as label,
+                COUNT(*) as value
+            FROM value v
+            INNER JOIN resource r ON r.id = v.resource_id
+            INNER JOIN resource r_keyword ON v.value_resource_id = r_keyword.id
+            WHERE v.property_id = 2097
+            AND r.resource_template_id IN ($templateStr)
+            GROUP BY r_keyword.id, r_keyword.title
+            ORDER BY value DESC
+            LIMIT $limit
+        ";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Get detailed breakdown of recits by type with counts
+     * Migrated from NarrativeStatsHelper
+     * Useful for navigation cards
+     * 
+     * @return array [{type, count}, ...]
+     */
+    public function getRecitTypeBreakdown()
+    {
+        $counts = $this->getResourceCounts(array_keys($this->narrativeTemplates));
+        
+        $breakdown = [
+            'citoyens' => 0,
+            'mediatiques' => 0,
+            'scientifiques' => 0,
+            'techno' => 0,
+            'artistiques' => 0
+        ];
+        
+        foreach ($this->narrativeTemplates as $tmplId => $type) {
+            $breakdown[$type] += $counts[$tmplId] ?? 0;
+        }
+        
+        $result = [];
+        foreach ($breakdown as $type => $count) {
+            $result[] = [
+                'type' => $type,
+                'count' => $count
+            ];
+        }
+        
+        return $result;
     }
 }
