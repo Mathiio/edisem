@@ -1443,4 +1443,87 @@ class AnalyticsViewHelper extends AbstractHelper
         
         return $result;
     }
+
+    // ========== ACTANT ANALYSIS ==========
+
+    /**
+     * Get keyword statistics for a specific actant
+     * Returns popular keywords from corpus with local (actant) and global usage counts.
+     * 
+     * Scopes: Experimentations (108), Seminars (71), Study Days (121), Colloquiums (122)
+     * 
+     * @param int $actantId
+     * @return array [{id, title, localCount, globalCount}, ...]
+     */
+    public function getActantKeywordStats($actantId)
+    {
+        $actantId = (int)$actantId;
+        $templates = [108, 71, 121, 122]; // Exp, Sem, Day, Conf
+        $templateStr = implode(',', $templates);
+        
+        // 1. Get top 100 most popular keywords in corpus
+        $popularSql = "
+            SELECT 
+                k.id,
+                k.title,
+                COUNT(DISTINCT r.id) as global_count
+            FROM resource r
+            JOIN value v_kw ON v_kw.resource_id = r.id
+            JOIN resource k ON v_kw.value_resource_id = k.id
+            WHERE r.resource_template_id IN ($templateStr)
+            AND v_kw.property_id = 2097
+            AND r.is_public = 1
+            GROUP BY k.id, k.title
+            ORDER BY global_count DESC
+            LIMIT 100
+        ";
+        
+        $stmt = $this->conn->prepare($popularSql);
+        $stmt->execute();
+        $popularKeywords = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if (empty($popularKeywords)) {
+            return [];
+        }
+        
+        // 2. Get local counts for this actant for these keywords
+        $keywordIds = array_column($popularKeywords, 'id');
+        $keywordIdsStr = implode(',', array_map('intval', $keywordIds));
+        
+        $localSql = "
+            SELECT 
+                k.id,
+                COUNT(DISTINCT r.id) as local_count
+            FROM resource r
+            JOIN value v_link ON v_link.resource_id = r.id
+            JOIN value v_kw ON v_kw.resource_id = r.id
+            JOIN resource k ON v_kw.value_resource_id = k.id
+            WHERE v_link.value_resource_id = :actantId
+            AND v_link.property_id IN (386, 2095, 581)
+            AND r.resource_template_id IN ($templateStr)
+            AND v_kw.property_id = 2097
+            AND k.id IN ($keywordIdsStr)
+            AND r.is_public = 1
+            GROUP BY k.id
+        ";
+        
+        $stmt = $this->conn->prepare($localSql);
+        $stmt->execute(['actantId' => $actantId]);
+        $localStats = $stmt->fetchAll(\PDO::FETCH_KEY_PAIR); // [id => count]
+        
+        // 3. Merge Results
+        $result = [];
+        foreach ($popularKeywords as $keyword) {
+            $id = $keyword['id'];
+            $result[] = [
+                'id' => (string)$id,
+                'title' => $keyword['title'],
+                'localCount' => (int)($localStats[$id] ?? 0),
+                'globalCount' => (int)$keyword['global_count']
+            ];
+        }
+        
+        // Already sorted by global count DESC from the query
+        return $result;
+    }
 }

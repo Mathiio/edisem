@@ -1242,6 +1242,10 @@ class QuerySqlViewHelper extends AbstractHelper
          
          $actant['interventionsList'] = $interventions;
 
+         // Always include keyword statistics for intervenant page
+         $analyticsHelper = new AnalyticsViewHelper($this->api, $this->conn);
+         $actant['keywordStats'] = $analyticsHelper->getActantKeywordStats($id);
+
          return $actant;
     }
 
