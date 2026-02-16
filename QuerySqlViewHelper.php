@@ -151,13 +151,9 @@ class QuerySqlViewHelper extends AbstractHelper
                 $limit = $params['limit'] ?? 12;
                 $result = $this->getResourceCardsByKeyword($keywordId, $limit);
                 break;
-            
-
             case 'getResourceDetails':
                 $result = $this->resourceDetailsHelper->getResourceDetails($params['id']);
                 break;
-
-
             case 'getNavbarEditions':
                 $result = $this->getNavbarEditions();
                 break;
@@ -4904,11 +4900,11 @@ class QuerySqlViewHelper extends AbstractHelper
         $keywordId = (int)$keywordId;
         $limit = (int)$limit;
         
-        // Template IDs for various resource types
+        // Template IDs for various resource types (Refer to resourceConfig.ts)
         // Conferences: 71 (seminaire), 122 (colloque), 121 (journée d'études)
-        // Récits: 127 (artistique), 126 (scientifique), 128 (médiatique), 129 (techno), 130 (citoyen)
-        // Others: 124 (experimentation), 125 (tool), 84 (feedback)
-        $templateIds = [71, 122, 121, 127, 126, 128, 129, 130, 124, 125, 84];
+        // Récits: 103 (artistique), 124 (scientifique), 120 (médiatique), 117 (techno), 119 (citoyen)
+        // Others: 108 (experimentation)
+        $templateIds = [71, 122, 121, 103, 124, 120, 117, 119, 108];
         $templateIdsStr = implode(',', $templateIds);
         
         // Get all resources linked to this keyword (Property 2097 - jdc:hasConcept)

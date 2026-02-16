@@ -103,9 +103,9 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     templateIds: [117],
     getUrl: (id) => `/corpus/recit-techno-industriel/${id}`,
     collectionUrl: '/corpus/recits-techno-industriels',
-    collectionLabel: 'Récits Techno-industriels',
+    collectionLabel: 'Récits TechnoIndustriels',
     color: '#A9E2DA',
-    description: 'Étude des discours industriels et technologiques.',
+    description: 'Étude autour de discours industriels et technologiques.',
   },
 
   recit_citoyen: {
