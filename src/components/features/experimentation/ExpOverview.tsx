@@ -673,20 +673,47 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
     </motion.div>
   );
 };
-export const ConfOverviewSkeleton: React.FC = () => {
+export const ExpOverviewSkeleton: React.FC = () => {
   return (
-    <div className='flex flex-col gap-20'>
-      <Skeleton className='rounded-14 lg:w-full lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'></Skeleton>
-      <div className='flex flex-col gap-20'>
-        <div className='flex flex-col gap-5'>
-          <Skeleton className='w-[100%] h-6 rounded-8' />
-          <Skeleton className='w-[80%] h-6 rounded-8' />
-        </div>
-        <div className='flex justify-between items-center'>
-          <Skeleton className='w-[50%] h-4 rounded-8' />
-          <Skeleton className='w-[30%] h-6rounded-8' />
+    <div className='w-full flex flex-col gap-25'>
+      {/* Video skeleton */}
+      <div className='w-full flex flex-col gap-10'>
+        <div className='rounded-14 lg:w-full h-[400px] bg-c2 animate-pulse' />
+        <div className='flex w-full gap-10'>
+          <div className='w-full h-60 bg-c2 rounded-6 animate-pulse' />
+          <div className='w-full h-60 bg-c2 rounded-6 animate-pulse' />
+          <div className='w-full h-60 bg-c2 rounded-6 animate-pulse' />
+          <div className='w-full h-60 bg-c2 rounded-6 animate-pulse' />
         </div>
       </div>
+      
+      {/* Content skeleton */}
+      <div className='flex flex-col gap-20'>
+        {/* Title skeleton */}
+        <div className='flex flex-col gap-10'>
+          <div className='w-[80%] h-8 bg-c2 rounded-8 animate-pulse' />
+          <div className='w-[60%] h-8 bg-c2 rounded-8 animate-pulse' />
+        </div>
+        
+        {/* Actant & buttons row skeleton */}
+        <div className='flex justify-between items-center gap-10'>
+          {/* Actant skeleton */}
+          <div className='flex items-center gap-10'>
+            <div className='w-9 h-9 bg-c2 rounded-8 animate-pulse' />
+            <div className='flex flex-col gap-5'>
+              <div className='w-32 h-4 bg-c2 rounded-8 animate-pulse' />
+              <div className='w-24 h-3 bg-c2 rounded-8 animate-pulse' />
+            </div>
+          </div>
+          
+          {/* Buttons skeleton */}
+          <div className='flex gap-10'>
+            <div className='w-24 h-9 bg-c2 rounded-8 animate-pulse' />
+            <div className='w-24 h-9 bg-c2 rounded-8 animate-pulse' />
+          </div>
+        </div>
+      </div>
+      <div className='rounded-14 w-full h-2 bg-c2 animate-pulse' />
     </div>
   );
 };
@@ -698,7 +725,7 @@ export const UnloadedCard: React.FC = () => {
       <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
         <h2 className='text-c5 text-32 font-semibold'>Oups !</h2>
         <p className='w-[400px] text-c5 text-16 text-regular text-center'>
-          Aucune vidéo n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
+          Aucune Image ou Vidéo n'est liée à ce contenu. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
         </p>
       </div>
     </div>

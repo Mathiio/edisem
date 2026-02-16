@@ -201,19 +201,21 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
 
 export const ExpDetailsSkeleton: React.FC = () => {
   return (
-    <div className='flex w-full p-20 bg-c3 rounded-14'>
-      <div className='flex w-full flex-col gap-10'>
-        <Skeleton className='w-[35%] h-4 rounded-8' />
-        <div className='flex flex-col gap-5'>
-          <Skeleton className='w-[100%] h-4 rounded-8' />
-          <Skeleton className='w-[100%] h-4 rounded-8' />
-          <Skeleton className='w-[100%] h-4 rounded-8' />
-          <Skeleton className='w-[100%] h-4 rounded-8' />
-          <Skeleton className='w-[100%] h-4 rounded-8' />
-          <Skeleton className='w-[100%] h-4 rounded-8' />
-        </div>
-        <Skeleton className='w-[20%] h-4 rounded-8' />
+    <div className='flex w-full flex-col gap-10 p-25 bg-c2 rounded-8'>
+      {/* Header skeleton (date + edition) */}
+      <div className='w-[50%] h-4 bg-c3 rounded-6 animate-pulse' />
+      
+      {/* Description lines skeleton */}
+      <div className='flex flex-col gap-5'>
+        <div className='w-[100%] h-4 bg-c3 rounded-6 animate-pulse' />
+        <div className='w-[100%] h-4 bg-c3 rounded-6 animate-pulse' />
+        <div className='w-[100%] h-4 bg-c3 rounded-6 animate-pulse' />
+        <div className='w-[90%] h-4 bg-c3 rounded-6 animate-pulse' />
+        <div className='w-[75%] h-4 bg-c3 rounded-6 animate-pulse' />
       </div>
+      
+      {/* Expand button skeleton */}
+      <div className='w-[20%] h-4 bg-c3 rounded-6 animate-pulse' />
     </div>
   );
 };

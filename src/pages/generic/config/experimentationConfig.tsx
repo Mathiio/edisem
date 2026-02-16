@@ -1,7 +1,6 @@
 import { GenericDetailPageConfig, FetchResult } from '../config';
-import { ExpOverviewCard } from '@/components/features/experimentation/ExpOverview';
+import { ExpOverviewCard, ExpOverviewSkeleton } from '@/components/features/experimentation/ExpOverview';
 import { ExpDetailsCard, ExpDetailsSkeleton } from '@/components/features/experimentation/ExpDetails';
-import { ConfOverviewSkeleton } from '@/components/features/conference/ConfOverview';
 import { getResourceDetails } from '@/services/resourceDetails';
 import { createExperimentationViews } from '@/pages/generic/helpers';
 
@@ -70,7 +69,7 @@ export const experimentationConfig: GenericDetailPageConfig = {
   // Composants
   overviewComponent: ExpOverviewCard,
   detailsComponent: ExpDetailsCard,
-  overviewSkeleton: ConfOverviewSkeleton,
+  overviewSkeleton: ExpOverviewSkeleton,
   detailsSkeleton: ExpDetailsSkeleton,
 
   // Mappers de props - ici on ajoute percentage et status pour la barre de progression
