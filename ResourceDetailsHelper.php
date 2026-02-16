@@ -1005,11 +1005,18 @@ private function fetchToolLogo($resourceId)
             SELECT 
                 v.value_resource_id as id,
                 r.title as title,
-                m.storage_id,
-                m.extension
+                COALESCE(
+                    m_item.storage_id,
+                    m_media.storage_id
+                ) as storage_id,
+                COALESCE(
+                    m_item.extension,
+                    m_media.extension
+                ) as extension
             FROM value v
             INNER JOIN resource r ON v.value_resource_id = r.id
-            LEFT JOIN media m ON m.item_id = r.id
+            LEFT JOIN media m_item ON m_item.item_id = r.id
+            LEFT JOIN media m_media ON m_media.id = r.id
             WHERE v.resource_id = ?
             AND v.property_id = 438
             AND v.value_resource_id IS NOT NULL

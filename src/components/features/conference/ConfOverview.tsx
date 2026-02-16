@@ -287,7 +287,7 @@ export const UnloadedCard: React.FC = () => {
       <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
         <h2 className='text-c5 text-32 font-semibold'>Oups !</h2>
         <p className='w-[400px] text-c5 text-16 text-regular text-center'>
-          Aucune vidéo n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
+          Aucune Image ou Vidéo n'est liée à ce contenu. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
         </p>
       </div>
     </div>
