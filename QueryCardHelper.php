@@ -68,7 +68,8 @@ class QueryCardHelper
             'thumbnail_source' => 'item',
             'agent_prop' => 2,
             'agent_type' => 'creator',
-            'genre_prop' => 1621
+            'genre_prop' => 1621,
+            'subject_prop' => 3
         ],
         // Recits Mediatiques
         120 => [
@@ -78,7 +79,8 @@ class QueryCardHelper
             'thumbnail_source' => 'item',
             'agent_prop' => 2,
             'agent_type' => 'creator',
-            'genre_prop' => 1621
+            'genre_prop' => 1621,
+            'subject_prop' => 3
         ],
         // Recits Scientifiques
         124 => [
@@ -88,7 +90,8 @@ class QueryCardHelper
             'thumbnail_source' => 'item',
             'agent_prop' => 2,
             'agent_type' => 'creator',
-            'genre_prop' => 1621
+            'genre_prop' => 1621,
+            'subject_prop' => 3
         ],
         // Recits Techno-Industriels
         117 => [
@@ -98,7 +101,8 @@ class QueryCardHelper
             'thumbnail_source' => 'item',
             'agent_prop' => 2,
             'agent_type' => 'creator',
-            'genre_prop' => 1621
+            'genre_prop' => 1621,
+            'subject_prop' => 3
         ],
         // Recits Artistiques
         103 => [
@@ -108,7 +112,8 @@ class QueryCardHelper
             'thumbnail_source' => 'item',
             'agent_prop' => 386,
             'agent_type' => 'creator',
-            'genre_prop' => 1621
+            'genre_prop' => 1621,
+            'subject_prop' => 3
         ]
     ];
 
@@ -178,6 +183,9 @@ class QueryCardHelper
         
         // Fetch genres if configured
         $genres = isset($config['genre_prop']) ? $this->fetchGenres($idsStr, $config['genre_prop']) : [];
+        
+        // Fetch subjects if configured
+        $subjects = isset($config['subject_prop']) ? $this->fetchSubjects($idsStr, $config['subject_prop']) : [];
 
         
         // Assemble results
@@ -191,6 +199,7 @@ class QueryCardHelper
                 'type' => $config['type'],
                 'actants' => $agents[$id] ?? [],
                 'genres' => $genres[$id] ?? [],
+                'subjects' => $subjects[$id] ?? [],
                 'url' => null // TODO: Add URL fetching if needed
             ];
         }
@@ -532,6 +541,41 @@ class QueryCardHelper
             $results[$resId][] = [
                 'id' => $row['genre_id'],
                 'label' => $row['genre_label']
+            ];
+        }
+        
+        return $results;
+    }
+
+    /**
+     * Fetch Subjects (Property 3 - dcterms:subject)
+     * Returns: [ {id, label, value_resource_id} ]
+     */
+    private function fetchSubjects($idsStr, $subjectProp)
+    {
+        $sql = "
+            SELECT 
+                v.resource_id,
+                v.value_resource_id as subject_id,
+                r.title as subject_label
+            FROM value v
+            INNER JOIN resource r ON v.value_resource_id = r.id
+            WHERE v.resource_id IN ($idsStr)
+            AND v.property_id = $subjectProp
+            AND v.value_resource_id IS NOT NULL
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql);
+        
+        $results = [];
+        foreach ($rows as $row) {
+            $resId = $row['resource_id'];
+            if (!isset($results[$resId])) {
+                $results[$resId] = [];
+            }
+            $results[$resId][] = [
+                'id' => $row['subject_id'],
+                'label' => $row['subject_label']
             ];
         }
         

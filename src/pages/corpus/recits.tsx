@@ -6,7 +6,8 @@ import { PratiqueNarrativeIcon } from '@/components/ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PageBanner } from '@/components/ui/PageBanner';
-import { GenreCarousel } from '@/components/features/corpus/GenreCarousel';
+import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
+import { RESOURCE_TYPES } from '@/config/resourceConfig';
 
 
 export const MisesEnRecits: React.FC = () => {
@@ -59,48 +60,24 @@ export const MisesEnRecits: React.FC = () => {
     loadData();
   }, []);
 
-  const navCards = useMemo(() => [
-    {
-      id: 'artistiques',
-      title: 'Récits Artistiques',
-      description: 'Analyses des publications scientifiques et académiques.',
-      path: '/corpus/recits-artistiques', 
-      icon: PratiqueNarrativeIcon,
-      color: '#EDB9EB'
-    },
-    {
-      id: 'scientifiques',
-      title: 'Récits Scientifiques',
-      description: 'Analyses des publications scientifiques et académiques.',
-      path: '/corpus/recits-scientifiques', 
-      icon: PratiqueNarrativeIcon,
-      color: '#86A4E7'
-    },
-    {
-      id: 'techno',
-      title: 'Récits TechnoIndustriels',
-      description: 'Analyses de discours industriels et technologiques.',
-      path: '/corpus/recits-techno-industriels', 
-      icon: PratiqueNarrativeIcon,
-      color: '#ADCFEC'
-    },
-    {
-      id: 'citoyens',
-      title: 'Récits Citoyens',
-      description: 'Exploration des perspectives citoyennes et sociales.',
-      path: '/corpus/recits-citoyens', 
-      icon: PratiqueNarrativeIcon,
-      color: '#C8F3C9'
-    },
-    {
-      id: 'mediatiques',
-      title: 'Récits Médiatiques',
-      description: 'Analyse de la couverture médiatique et de la presse.',
-      path: '/corpus/recits-mediatiques', 
-      icon: PratiqueNarrativeIcon,
-      color: '#FFF1B8'
-    }
-  ], []);
+  const navCards = useMemo(() => {
+     const types = [
+        RESOURCE_TYPES.recit_artistique,
+        RESOURCE_TYPES.recit_scientifique,
+        RESOURCE_TYPES.recit_techno_industriel,
+        RESOURCE_TYPES.recit_citoyen,
+        RESOURCE_TYPES.recit_mediatique,
+     ];
+
+     return types.map(config => ({
+        id: config.type,
+        title: config.collectionLabel || config.label,
+        description: config.description || '',
+        path: config.collectionUrl || '#',
+        icon: config.icon || PratiqueNarrativeIcon,
+        color: config.color || '#cccccc'
+     }));
+  }, []);
 
   return (
     <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
@@ -123,11 +100,9 @@ export const MisesEnRecits: React.FC = () => {
           renderSlide={(card, index) => <NavCard card={card} index={index} key={card.id} />}
         />
 
-        <GenreCarousel 
+        <SubjectCarousels 
             items={recits} 
             loading={loading} 
-            title="Explorer par genres" 
-            basePath="/corpus/genre"
         />
       </section>
     </Layouts>
@@ -151,5 +126,73 @@ const NavCard = ({ card, index }: { card: any, index: number }) => {
         <p className='text-16 text-c5 font-extralight transition-all ease-in-out duration-200'>{card.description}</p>
       </div>
     </motion.div>
+  );
+};
+
+const SubjectCarousels = ({ items, loading }: { items: any[], loading: boolean }) => {
+  const groupedSubjects = useMemo(() => {
+    if (loading || items.length === 0) return [];
+
+    const subjectMap: { [key: string]: { id: string, label: string, items: any[] } } = {};
+
+    items.forEach((item) => {
+      if (!item.subjects || !Array.isArray(item.subjects)) return;
+
+      item.subjects.forEach((subject: any) => {
+        const subjectId = String(subject.id);
+        
+        if (!subjectMap[subjectId]) {
+            subjectMap[subjectId] = { 
+                id: subject.id,
+                label: subject.label, 
+                items: []
+            };
+        }
+        
+        // Avoid duplicates
+        if (!subjectMap[subjectId].items.some(i => i.id === item.id)) {
+            subjectMap[subjectId].items.push(item);
+        }
+      });
+    });
+
+    return Object.values(subjectMap)
+      .sort((a, b) => b.items.length - a.items.length);
+  }, [items, loading]);
+
+  if (loading) {
+    return (
+        <div className="flex flex-col gap-100 w-full">
+            {Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="flex flex-col gap-20">
+                    <div className="h-40 w-300 bg-c2 animate-pulse rounded-10" />
+                    <div className="grid grid-cols-4 gap-20">
+                         {Array.from({ length: 4 }).map((_, j) => (
+                            <ResourceCardSkeleton key={j} />
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+  }
+
+  if (groupedSubjects.length === 0) return null;
+
+  return (
+    <div className="flex flex-col gap-100 w-full">
+      {groupedSubjects.map((subject) => (
+        <FullCarrousel
+          key={subject.id}
+          title={"Récits sur le domaine : " + subject.label}
+          data={subject.items}
+          perPage={4}
+          perMove={1}
+          renderSlide={(item) => (
+             <ResourceCard item={item} />
+          )}
+        />
+      ))}
+    </div>
   );
 };
