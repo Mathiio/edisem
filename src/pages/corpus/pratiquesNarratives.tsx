@@ -7,7 +7,7 @@ import { PratiqueNarrativeIcon } from '@/components/ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { KeywordsBarChart } from '@/components/features/pratiquesNarratives/KeywordsBarChart';
-import { ExpCard } from '@/components/features/experimentation/ExpCards';
+import { ResourceCard } from '@/components/features/corpus/ResourceCard';
 import { PageBanner } from '@/components/ui/PageBanner';
 import { RESOURCE_TYPES } from '@/config/resourceConfig';
 
@@ -96,7 +96,15 @@ export const PratiquesNarratives: React.FC = () => {
         <h2 className="text-24 font-medium text-c6">Dernières Expérimentations</h2>
         <div className="grid grid-cols-4 grid-rows-auto gap-20">
           {experimentationsData.slice(0, 5).map((exp) => (
-            <ExpCard key={exp.id} {...exp} />
+            <ResourceCard 
+              title={exp.title}
+              thumbnailUrl={exp.thumbnail}
+              authors={exp.authors}
+              subtitle={exp.subtitle}
+              type={exp.type}
+              item={{ ...exp }}
+              key={exp.id}
+            />
           ))}
         </div>
       </section>

@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
 import { FullCarrousel } from '@/components/ui/Carrousels';
+import { RESOURCE_TYPES } from '@/config/resourceConfig';
 
 // Animation variants for cards
 const cardVariants: Variants = {
@@ -22,21 +23,21 @@ const cardVariants: Variants = {
 const corpusCards = [
   {
     id: 'experimentations',
-    title: 'Expérimentations',
+    title: RESOURCE_TYPES.experimentation_etudiant.label,
     description: 'Expérimentations par les étudiants',
-    path: '/espace-etudiant/experimentations',
+    path: '/espace-etudiant/experimentations', // TODO: Add collectionUrl to config if needed
   },
   {
     id: 'feedbacks',
-    title: 'Feedbacks',
-    description: 'Feedbacks par les étudiants',
-    path: '/espace-etudiant/feedbacks',
+    title: RESOURCE_TYPES.retour_experience_etudiant.label,
+    description: 'Retours d\'expérience par les étudiants',
+    path: '/espace-etudiant/retour-experience',
   },
   {
     id: 'tools',
-    title: 'Outils',
+    title: RESOURCE_TYPES.outil_etudiant.label,
     description: 'Outils par les étudiants',
-    path: '/espace-etudiant/tools',
+    path: '/espace-etudiant/outils',
   },
 ];
 

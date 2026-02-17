@@ -82,7 +82,7 @@ export const MicroresumeCard: React.FC<MicroresumeCardProps> = ({ title, descrip
         {outils && outils.length > 0 && (
           <div className='w-full flex flex-row justify-start items-center gap-10'>
             <Link
-              href={'/corpus/tool/' + outils[0].id}
+              href={'/corpus/outil/' + outils[0].id}
               className='p-2 w-fit flex flex-row border-2 border-c3 hover:border-c6 transition-all ease-in-out duration-200 rounded-8 items-center gap-10'>
               <img src={outils[0].thumbnail} alt={outils[0].title} className='w-50 object-cover rounded-[4px]' />
               <p className='text-16 text-c6'>{outils[0].title}</p>

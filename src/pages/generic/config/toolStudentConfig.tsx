@@ -1,6 +1,5 @@
 import { SimplifiedDetailConfig } from '../simplifiedConfig';
 import { convertToGenericConfig } from '../simplifiedConfigAdapter';
-import { getTools } from '@/services/Items';
 
 /**
  * Configuration simplifiée pour les outils (étudiants)
@@ -87,16 +86,6 @@ export const toolStudentConfigSimplified: SimplifiedDetailConfig = {
   recommendationsTitle: 'Outils similaires',
   defaultView: 'caracteristiques',
   formEnabled: true,
-
-  // Smart recommendations
-  smartRecommendations: {
-    getAllResourcesOfType: async () => {
-      const tools = await getTools();
-      return tools;
-    },
-    getRelatedItems: () => [],
-    maxRecommendations: 5,
-  },
 };
 
 // Export de la config convertie pour utilisation avec ConfigurableDetailPage/GenericDetailPage

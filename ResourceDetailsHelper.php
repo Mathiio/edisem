@@ -288,7 +288,6 @@ class ResourceDetailsHelper
     private function getResourceType($templateId) {
         switch ($templateId) {
             case 108: return 'experimentation';
-            case 127: return 'experimentation_etudiant';
             case 71: return 'seminaire';
             case 121: return 'journee_etudes';
             case 122: return 'colloque';
@@ -297,8 +296,8 @@ class ResourceDetailsHelper
             case 124: return 'recit_scientifique';
             case 117: return 'recit_techno_industriel';
             case 103: return 'recit_artistique';
-            case 114: return 'tool';
-            case 110: return 'feedback';
+            case 114: return 'outil';
+            case 110: return 'retour_experience';
             case 118: return 'element_esthetique';
             case 115: return 'element_narratif';
             case 101: return 'annotation';

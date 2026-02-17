@@ -189,7 +189,7 @@ export type ResourceDetails = {
   relatedRecits: never[];
   id: string;
   title: string;
-  type: 'seminaire' | 'journee_etudes' | 'colloque' | 'experimentation' | 'recit_scientifique' | 'recit_artistique' | 'recit_techno_industriel' | 'recit_citoyen' | 'recit_mediatique' | 'tool' | 'feedback' | 'element_esthetique' | 'element_narratif' | 'annotation';
+  type: 'seminaire' | 'journee_etudes' | 'colloque' | 'experimentation' | 'recit_scientifique' | 'recit_artistique' | 'recit_techno_industriel' | 'recit_citoyen' | 'recit_mediatique' | 'tool' | 'retour_experience' | 'element_esthetique' | 'element_narratif' | 'annotation';
   template_id: number;
   created: string;
 

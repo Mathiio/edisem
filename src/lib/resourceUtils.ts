@@ -9,7 +9,7 @@ import { getResourceUrl } from '@/config/resourceConfig';
  * Supports 'actants', 'personne', 'actant' keys.
  */
 export const getResourceAuthors = (item: any) => {
-    const people = item.actants || item.personne || item.actant || [];
+    const people = item.actants || item.personne || item.personnes || item.actant || [];
     if (!Array.isArray(people)) return [];
 
     return people
@@ -42,7 +42,7 @@ export const getResourceSubtitle = (item: any) => {
     }
 
     // For other resources, use universities
-    const people = item.actants || item.personne || item.actant || [];
+    const people = item.actants || item.personne || item.personnes || item.actant || [];
     if (!Array.isArray(people) || people.length === 0) return undefined;
 
     const universities = people

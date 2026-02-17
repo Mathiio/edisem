@@ -36,8 +36,10 @@ export type ResourceType =
   | 'experimentation'
   | 'experimentation_etudiant'
   | 'recit_artistique'
-  | 'tool'
-  | 'feedback';
+  | 'outil'
+  | 'outil_etudiant'
+  | 'retour_experience'
+  | 'retour_experience_etudiant';
 
 // ========================================
 // Configuration des types de ressources
@@ -204,20 +206,36 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     getUrl: (id) => `/espace-etudiant/experimentation/${id}`,
   },
 
-  tool: {
-    type: 'tool',
+  outil: {
+    type: 'outil',
     label: 'Outil',
     icon: undefined,
     templateIds: [114],
-    getUrl: (id) => `/corpus/tool/${id}`,
+    getUrl: (id) => `/corpus/outil/${id}`,
   },
 
-  feedback: {
-    type: 'feedback',
+  retour_experience: {
+    type: 'retour_experience',
     label: 'Retour d\'expérience',
     icon: undefined,
     templateIds: [110],
-    getUrl: (id) => `/corpus/feedback/${id}`,
+    getUrl: (id) => `/corpus/retour-experience/${id}`,
+  },
+
+  outil_etudiant: {
+    type: 'outil_etudiant',
+    label: 'Outil (Étudiant)',
+    icon: undefined,
+    templateIds: [129],
+    getUrl: (id) => `/espace-etudiant/outil/${id}`,
+  },
+
+  retour_experience_etudiant: {
+    type: 'retour_experience_etudiant',
+    label: 'Retour d\'expérience (Étudiant)',
+    icon: undefined,
+    templateIds: [128],
+    getUrl: (id) => `/espace-etudiant/retour-experience/${id}`,
   },
 };
 

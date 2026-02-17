@@ -15,9 +15,9 @@ class StudentSpaceViewHelper extends AbstractHelper
 
     // Templates pour les ressources étudiantes
     private $templates = [
-        'experimentation' => 127,  // Expérimentation étudiante
-        'feedback' => 128,         // Retour d'expérience
-        'tool' => 129,             // Outil
+        'experimentation_etudiant' => 127,  // Expérimentation étudiante
+        'retour_experience_etudiant' => 128,         // Retour d'expérience
+        'outil_etudiant' => 129,             // Outil
         'student' => 96,           // Étudiant
         'actant' => 72,            // Actant (enseignant/chercheur)
         'course' => 130,           // Cours
@@ -338,7 +338,7 @@ class StudentSpaceViewHelper extends AbstractHelper
      */
     private function getExperimentations()
     {
-        $templateId = $this->templates['experimentation'];
+        $templateId = $this->templates['experimentation_etudiant'];
 
         $sql = "
             SELECT DISTINCT
@@ -357,7 +357,7 @@ class StudentSpaceViewHelper extends AbstractHelper
 
         // Enrichir avec les actants et thumbnail
         foreach ($items as &$item) {
-            $item['type'] = 'experimentation';
+            $item['type'] = 'experimentation_etudiant';
             $item['actants'] = $this->getFirstActant($item['id']);
             $item['thumbnail'] = $this->getThumbnail($item['id']);
         }
@@ -370,7 +370,7 @@ class StudentSpaceViewHelper extends AbstractHelper
      */
     private function getTools()
     {
-        $templateId = $this->templates['tool'];
+        $templateId = $this->templates['outil_etudiant'];
 
         $sql = "
             SELECT DISTINCT
@@ -388,7 +388,7 @@ class StudentSpaceViewHelper extends AbstractHelper
         $items = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach ($items as &$item) {
-            $item['type'] = 'tool';
+            $item['type'] = 'outil_etudiant';
             $item['actants'] = $this->getFirstContributor($item['id']);
             $item['thumbnail'] = $this->getThumbnail($item['id']);
         }
@@ -401,7 +401,7 @@ class StudentSpaceViewHelper extends AbstractHelper
      */
     private function getFeedbacks()
     {
-        $templateId = $this->templates['feedback'];
+        $templateId = $this->templates['retour_experience_etudiant'];
 
         $sql = "
             SELECT DISTINCT
@@ -419,7 +419,7 @@ class StudentSpaceViewHelper extends AbstractHelper
         $items = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach ($items as &$item) {
-            $item['type'] = 'feedback';
+            $item['type'] = 'retour_experience_etudiant';
             $item['actants'] = $this->getFirstContributor($item['id']);
             $item['thumbnail'] = $this->getThumbnail($item['id']);
         }
@@ -1857,9 +1857,9 @@ class StudentSpaceViewHelper extends AbstractHelper
         }
 
         // Récupérer les ressources liées au cours via dcterms:isPartOf (property_id = 33)
-        $experimentations = $this->getResourcesByCourseAndType($courseId, 'experimentation');
-        $tools = $this->getResourcesByCourseAndType($courseId, 'tool');
-        $feedbacks = $this->getResourcesByCourseAndType($courseId, 'feedback');
+        $experimentations = $this->getResourcesByCourseAndType($courseId, 'experimentation_etudiant');
+        $tools = $this->getResourcesByCourseAndType($courseId, 'outil_etudiant');
+        $feedbacks = $this->getResourcesByCourseAndType($courseId, 'retour_experience_etudiant');
 
         return [
             'experimentations' => $experimentations,
@@ -1894,7 +1894,7 @@ class StudentSpaceViewHelper extends AbstractHelper
 
         foreach ($items as &$item) {
             $item['type'] = $type;
-            $item['actants'] = $type === 'experimentation'
+            $item['actants'] = $type === 'experimentation_etudiant'
                 ? $this->getFirstActant($item['id'])
                 : $this->getFirstContributor($item['id']);
             $item['thumbnail'] = $this->getThumbnail($item['id']);
@@ -1947,7 +1947,7 @@ class StudentSpaceViewHelper extends AbstractHelper
             LIMIT :limit
         ";
 
-        $templateId = $this->templates['experimentation']; // 127
+        $templateId = $this->templates['experimentation_etudiant']; // 127
 
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(':templateId', $templateId, \PDO::PARAM_INT);
@@ -1959,7 +1959,7 @@ class StudentSpaceViewHelper extends AbstractHelper
 
         // 3. Enrichir les données avec actants et thumbnail
         foreach ($items as &$item) {
-            $item['type'] = 'experimentation';
+            $item['type'] = 'experimentation_etudiant';
             $item['actants'] = $this->getFirstActant($item['id']);
             $item['thumbnail'] = $this->getThumbnail($item['id']);
         }
@@ -2000,7 +2000,7 @@ class StudentSpaceViewHelper extends AbstractHelper
 
         foreach ($items as &$item) {
             $item['type'] = $type;
-            $item['actants'] = $type === 'experimentation'
+            $item['actants'] = $type === 'experimentation_etudiant'
                 ? $this->getFirstActant($item['id'])
                 : $this->getFirstContributor($item['id']);
             $item['thumbnail'] = $this->getThumbnail($item['id']);
@@ -2511,9 +2511,9 @@ class StudentSpaceViewHelper extends AbstractHelper
     private function getTeacherResources()
     {
         // Récupérer les ressources créées par des utilisateurs avec rôle admin/author
-        $experimentations = $this->getTeacherResourcesByType('experimentation');
-        $tools = $this->getTeacherResourcesByType('tool');
-        $feedbacks = $this->getTeacherResourcesByType('feedback');
+        $experimentations = $this->getTeacherResourcesByType('experimentation_etudiant');
+        $tools = $this->getTeacherResourcesByType('outil_etudiant');
+        $feedbacks = $this->getTeacherResourcesByType('retour_experience_etudiant');
 
         return [
             'experimentations' => $experimentations,
@@ -2556,7 +2556,7 @@ class StudentSpaceViewHelper extends AbstractHelper
 
         foreach ($items as &$item) {
             $item['type'] = $type;
-            $item['actants'] = $type === 'experimentation'
+            $item['actants'] = $type === 'experimentation_etudiant'
                 ? $this->getFirstActant($item['id'])
                 : $this->getFirstContributor($item['id']);
             $item['thumbnail'] = $this->getThumbnail($item['id']);
@@ -2571,9 +2571,9 @@ class StudentSpaceViewHelper extends AbstractHelper
     private function getAllResourcesAdmin()
     {
         $templateIds = [
-            $this->templates['experimentation'],
-            $this->templates['feedback'],
-            $this->templates['tool']
+            $this->templates['experimentation_etudiant'],
+            $this->templates['retour_experience_etudiant'],
+            $this->templates['outil_etudiant']
         ];
 
         // Récupérer toutes les ressources des templates concernés (exclure les supprimées)
@@ -2632,11 +2632,11 @@ class StudentSpaceViewHelper extends AbstractHelper
             $courseId = isset($courseLinks[$resourceId]) ? $courseLinks[$resourceId] : null;
 
             // Déterminer le type
-            $type = 'experimentation';
-            if ($resource['resource_template_id'] == $this->templates['feedback']) {
-                $type = 'feedback';
-            } elseif ($resource['resource_template_id'] == $this->templates['tool']) {
-                $type = 'tool';
+            $type = 'experimentation_etudiant';
+            if ($resource['resource_template_id'] == $this->templates['retour_experience_etudiant']) {
+                $type = 'retour_experience_etudiant';
+            } elseif ($resource['resource_template_id'] == $this->templates['outil_etudiant']) {
+                $type = 'outil_etudiant';
             }
 
             $result[] = [
@@ -2647,7 +2647,7 @@ class StudentSpaceViewHelper extends AbstractHelper
                 'courseId' => $courseId,
                 'courseTitle' => $courseId ? (isset($courseTitles[$courseId]) ? $courseTitles[$courseId] : null) : null,
                 'thumbnail' => $this->getThumbnail($resourceId),
-                'actants' => $type === 'experimentation'
+                'actants' => $type === 'experimentation_etudiant'
                     ? $this->getFirstActant($resourceId)
                     : $this->getFirstContributor($resourceId),
             ];

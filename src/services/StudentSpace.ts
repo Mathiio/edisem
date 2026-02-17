@@ -12,7 +12,7 @@ export interface StudentResourceCard {
   id: number | string;
   title: string;
   thumbnail: string | null;
-  type: 'experimentation' | 'tool' | 'feedback';
+  type: 'experimentation_etudiant' | 'outil_etudiant' | 'retour_experience_etudiant';
   actants: {
     id: number | string;
     title: string;
@@ -31,7 +31,7 @@ export interface AllStudentResources {
 export interface StudentResourceDetails {
   id: number;
   title: string;
-  type: 'experimentation' | 'tool' | 'feedback';
+  type: 'experimentation_etudiant' | 'outil_etudiant' | 'retour_experience_etudiant';
   resource_template_id: number;
   created: string;
   modified: string;
@@ -209,17 +209,6 @@ export async function getStudentsForLogin(): Promise<Student[]> {
     throw error;
   }
 }
-
-/**
- * Constantes des templates étudiants
- */
-export const STUDENT_TEMPLATES = {
-  experimentation: 127,
-  feedback: 128,
-  tool: 129,
-  course: 130,
-  bibliography: 81,
-} as const;
 
 // ========== COURSE TYPES & FUNCTIONS ==========
 

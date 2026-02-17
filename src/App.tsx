@@ -117,7 +117,7 @@ function App() {
 
           <Route path='/espace-etudiant/experimentation/:id' element={<ConfigurableDetailPage config={experimentationStudentConfig} />} />
           <Route path='/espace-etudiant/outil/:id' element={<ConfigurableDetailPage config={toolStudentConfig} />} />
-          <Route path='/espace-etudiant/feedback/:id' element={<ConfigurableDetailPage config={feedbackStudentConfig} />} />
+          <Route path='/espace-etudiant/retour-experience/:id' element={<ConfigurableDetailPage config={feedbackStudentConfig} />} />
 
           {/* Main corpus routes */}
           <Route path='/corpus/seminaires' Component={Seminaires} />
@@ -161,11 +161,11 @@ function App() {
           {/* Routes pour les items individuels */}
           <Route path='/corpus/genre/:slug' Component={RecitsByGenre} />
           <Route path='/corpus/experimentation/:id' element={<ConfigurableDetailPage config={experimentationConfig} />} />
-          <Route path='/feedback/:id' element={<ConfigurableDetailPage config={feedbackConfig} />} />
+          <Route path='/corpus/retour-experience/:id' element={<ConfigurableDetailPage config={feedbackConfig} />} />
           <Route path='/corpus/element-esthetique/:id' element={<ConfigurableDetailPage config={elementEsthetiqueConfig} />} />
           <Route path='/corpus/element-narratif/:id' element={<ConfigurableDetailPage config={elementNarratifConfig} />} />
           <Route path='/corpus/analyse-critique/:id' element={<ConfigurableDetailPage config={analyseCritiqueConfig} />} />
-          <Route path='/corpus/tool/:id' Component={Tool} />
+          <Route path='/corpus/outil/:id' Component={Tool} />
           <Route path='/corpus/recit-scientifique/:id' element={<ConfigurableDetailPage config={recitScientifiqueConfig} />} />
           <Route path='/corpus/recit-mediatique/:id' element={<ConfigurableDetailPage config={recitMediatiqueConfig} />} />
           <Route path='/corpus/recit-citoyen/:id' element={<ConfigurableDetailPage config={recitCitoyenConfig} />} />

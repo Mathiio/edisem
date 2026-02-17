@@ -60,7 +60,7 @@ const GRID_PAGES: Record<string, string> = {
 const isDetailPage = (path: string): boolean => {
   const detailPatterns = [
     /^\/corpus\/experimentation\/\d+/,
-    /^\/corpus\/tool\/\d+/,
+    /^\/corpus\/outil\/\d+/,
     /^\/corpus\/recit-scientifique\/\d+/,
     /^\/corpus\/recit-artistique\/\d+/,
     /^\/corpus\/recit-mediatique\/\d+/,
@@ -72,12 +72,12 @@ const isDetailPage = (path: string): boolean => {
     /^\/corpus\/seminaires\/conference\/\d+/,
     /^\/corpus\/colloques\/conference\/\d+/,
     /^\/corpus\/journees-etudes\/conference\/\d+/,
-    /^\/feedback\/\d+/,
+    /^\/corpus\/retour-experience\/\d+/,
     /^\/intervenant\/\d+/,
     /^\/personne\/\d+/,
     /^\/espace-etudiant\/experimentation\/\d+/,
     /^\/espace-etudiant\/outil\/\d+/,
-    /^\/espace-etudiant\/feedback\/\d+/,
+    /^\/espace-etudiant\/retour-experience\/\d+/
   ];
 
   return detailPatterns.some((pattern) => pattern.test(path));
@@ -88,8 +88,8 @@ const isDetailPage = (path: string): boolean => {
  */
 const getLabelFromPath = (path: string): string => {
   const typeLabels: Record<string, string> = {
-    experimentation: 'Expérimentation',
-    tool: 'Outil',
+    'experimentation': 'Expérimentation',
+    'outil': 'Outil',
     'recit-scientifique': 'Récit scientifique',
     'recit-artistique': 'Récit artistique',
     'recit-mediatique': 'Récit médiatique',
@@ -98,11 +98,10 @@ const getLabelFromPath = (path: string): string => {
     'element-narratif': 'Élément narratif',
     'element-esthetique': 'Élément esthétique',
     'analyse-critique': 'Analyse critique',
-    conference: 'Conférence',
-    feedback: 'Feedback',
-    intervenant: 'Intervenant',
-    personne: 'Personne',
-    outil: 'Outil',
+    'conference': 'Conférence',
+    'retour-experience': 'Retour d\'expérience',
+    'intervenant': 'Intervenant',
+    'personne': 'Personne',
   };
 
   const segments = path.split('/').filter(Boolean);
