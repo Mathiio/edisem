@@ -326,7 +326,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
           relative cursor-pointer rounded-12 border-2 transition-all ease-in-out duration-200
           ${
             selected
-              ? 'border-primary bg-primary/10 shadow-[inset_0_0px_30px_rgba(var(--primary-rgb),0.1)]'
+              ? 'border-action bg-action/10 shadow-[inset_0_0px_30px_rgba(var(--action-rgb),0.1)]'
               : 'border-c3 hover:border-c4 hover:bg-c2 shadow-[inset_0_0px_30px_rgba(255,255,255,0.04)]'
           }
         `}>
@@ -336,7 +336,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
             isSelected={selected}
             onValueChange={() => toggleSelection(resource)}
             classNames={{
-              wrapper: 'w-6 h-6 before:border-c4 before:border-2 after:bg-primary',
+              wrapper: 'w-6 h-6 before:border-c4 before:border-2 after:bg-action',
               icon: 'w-4 h-4',
             }}
           />
@@ -401,7 +401,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                 onSelectionChange={(key) => setActiveTab(String(key))}
                 classNames={{
                   tabList: 'bg-c2 border-2 border-c3 rounded-12 p-1 gap-1',
-                  cursor: 'bg-primary rounded-8',
+                  cursor: 'bg-action rounded-8',
                   tab: 'px-4 py-2 text-c5 data-[selected=true]:text-white',
                   tabContent: 'group-data-[selected=true]:text-white',
                 }}>
@@ -555,7 +555,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
 
                       return sortedLetters.map((letter) => (
                         <div key={letter} className='mb-4'>
-                          <div className='text-primary font-bold text-lg mb-2 border-b border-c3 pb-1'>{letter}</div>
+                          <div className='text-action font-bold text-lg mb-2 border-b border-c3 pb-1'>{letter}</div>
                           <div className='flex flex-col gap-1'>
                             {grouped[letter].map((resource: any) => {
                               const selected = isSelected(resource);
@@ -565,14 +565,14 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                                   onClick={() => toggleSelection(resource)}
                                   className={`
                                     flex items-center gap-2 px-2 py-1.5 rounded-8 cursor-pointer transition-all
-                                    ${selected ? 'bg-primary/20 text-primary' : 'hover:bg-c2 text-c6'}
+                                    ${selected ? 'bg-action/20 text-action' : 'hover:bg-c2 text-c6'}
                                   `}>
                                   <Checkbox
                                     isSelected={selected}
                                     onValueChange={() => toggleSelection(resource)}
                                     size='sm'
                                     classNames={{
-                                      wrapper: 'w-5 h-5 before:border-c4 before:border-2 after:bg-primary',
+                                      wrapper: 'w-5 h-5 before:border-c4 before:border-2 after:bg-action',
                                       icon: 'w-3 h-3',
                                     }}
                                   />
@@ -602,7 +602,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
           <Button onPress={onClose} className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-6 min-h-[40px] font-medium'>
             Annuler
           </Button>
-          <Button onPress={handleConfirm} className='bg-primary hover:bg-primary/80 text-c6 rounded-8 px-6 min-h-[40px] font-medium' isDisabled={localSelectedIds.size === 0}>
+          <Button onPress={handleConfirm} className='bg-action hover:bg-action/80 text-c6 rounded-8 px-6 min-h-[40px] font-medium' isDisabled={localSelectedIds.size === 0}>
             Confirmer ({localSelectedIds.size})
           </Button>
         </ModalFooter>
