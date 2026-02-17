@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Spinner, addToast } from '@heroui/react';
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Spinner, addToast, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@heroui/react';
 import { LongCarrousel, FullCarrousel } from '@/components/ui/Carrousels';
 import { KeywordsCard } from '@/components/features/conference/KeywordsCards';
 import { Layouts } from '@/components/layout/Layouts';
 import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
 import { SearchModal, SearchModalRef } from '@/components/features/search/SearchModal';
-import { ArrowIcon, CrossIcon, EditIcon } from '@/components/ui/icons';
+import { ArrowIcon, CrossIcon, EditIcon, TrashIcon } from '@/components/ui/icons';
 import { EditSaveBar } from '@/components/ui/EditSaveBar';
 import { PageBanner } from '@/components/ui/PageBanner';
 import { getPersonDisplayName, getPersonPicture } from '@/components/features/experimentation/ExpOverview';
@@ -18,6 +18,7 @@ import { generateSmartRecommendations } from './helpers';
 import { ResourcePicker } from '@/components/features/forms/ResourcePicker';
 import { ResourceFormTabs, ResourceTabInfo } from '@/components/features/forms/ResourceFormTabs';
 import { getTemplatePropertiesMap } from '@/services/Items';
+import { getRessourceLabel } from '@/config/resourceConfig';
 import { useFormState } from '@/hooks/useFormState';
 import { MediaFile } from '@/components/features/forms/MediaDropzone';
 
@@ -49,6 +50,7 @@ interface GenericDetailPageProps {
   onCancel?: () => void;
   onCreateNewResource?: (viewKey: string, resourceTemplateId?: number) => void;
   onSaveComplete?: (savedItemId: string | number, savedItemTitle?: string) => void; // Callback après sauvegarde réussie
+  onEditResource?: (viewKey: string, resourceId: string | number) => void; // Callback pour éditer une ressource existante
   onDirtyChange?: (isDirty: boolean) => void; // Callback quand l'état dirty change
   pendingLinks?: PendingLink[]; // Ressources à lier automatiquement (créées dans un onglet enfant)
   onPendingLinksProcessed?: () => void; // Callback après avoir traité les pendingLinks
@@ -57,6 +59,7 @@ interface GenericDetailPageProps {
   activeTabId?: string;
   onTabChange?: (tabId: string) => void;
   onTabClose?: (tabId: string) => void;
+  updatedResources?: Record<string, { title?: string; thumbnail?: string }>; // Ressources mises à jour dans les onglets enfants
 }
 
 /**
@@ -79,6 +82,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
   onSave,
   onCancel,
   onCreateNewResource,
+  onEditResource,
   onSaveComplete,
   onDirtyChange,
   pendingLinks,
@@ -87,6 +91,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
   activeTabId,
   onTabChange,
   onTabClose,
+  updatedResources,
 }) => {
   const { id: paramId } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -182,7 +187,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
         const alreadyLinked = currentItems.some((item: any) => item.id === link.resourceId || item['o:id'] === link.resourceId);
         if (!alreadyLinked) {
           setValue(link.linkedField, [...currentItems, newItem]);
-          console.log('[GenericDetailPage] Added pending link:', link.linkedField, link.resourceId, link.resourceTitle);
         }
 
         // Mark as processed
@@ -625,7 +629,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
       addToast({
         title: 'Sauvegardé',
         description: 'Les modifications ont été enregistrées.',
-        classNames: { base: 'bg-success', title: 'text-c6', description: 'text-c6', icon: 'text-c6' },
+        classNames: { base: 'bg-success border-success', title: 'text-c6', description: 'text-c6', icon: 'text-c6' },
       });
 
       // Réinitialiser les états après sauvegarde
@@ -744,7 +748,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
                     is_public: true,
                   },
                 ];
-                console.log(`[saveToOmekaS] Created new URI property: ${omekaPropertyKey}`);
               } else {
                 // Créer comme type literal
                 updatedItem[omekaPropertyKey] = [
@@ -755,7 +758,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
                     is_public: true,
                   },
                 ];
-                console.log(`[saveToOmekaS] Created new string property: ${omekaPropertyKey}`);
               }
             }
           }
@@ -802,12 +804,10 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     }
 
     const result = await saveResponse.json();
-    console.log('[saveToOmekaS] Save successful, response:', result['o:id']);
 
     // 5. Créer les médias YouTube (si présents)
     const youtubeUrlsToCreate = data.youtubeUrls || [];
     if (Array.isArray(youtubeUrlsToCreate) && youtubeUrlsToCreate.length > 0) {
-      console.log('[saveToOmekaS] Creating', youtubeUrlsToCreate.length, 'YouTube media');
       for (const ytUrl of youtubeUrlsToCreate) {
         try {
           // Extraire l'ID de la vidéo YouTube
@@ -847,7 +847,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     // 6. Upload des nouveaux fichiers médias (images/vidéos)
     const mediaFilesToUpload = data.mediaFiles || [];
     if (Array.isArray(mediaFilesToUpload) && mediaFilesToUpload.length > 0) {
-      console.log('[saveToOmekaS] Uploading', mediaFilesToUpload.length, 'media files');
       for (const mediaFile of mediaFilesToUpload) {
         const file = mediaFile.file || mediaFile;
         if (file instanceof File) {
@@ -910,20 +909,12 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
 
     const possibleKeys = keyMappings[simpleKey] || [simpleKey];
 
-    console.log(`[saveToOmekaS] Looking for property '${simpleKey}', trying:`, possibleKeys);
-    console.log(
-      `[saveToOmekaS] rawItem keys:`,
-      Object.keys(rawItem).filter((k) => k.includes(':')),
-    );
-
     for (const omekaKey of possibleKeys) {
       if (rawItem[omekaKey] !== undefined) {
-        console.log(`[saveToOmekaS] Found property: ${omekaKey}`);
         return omekaKey;
       }
     }
 
-    console.log(`[saveToOmekaS] Property not found for '${simpleKey}'`);
     // Si la propriété n'existe pas encore, retourner la première clé possible pour la créer
     return possibleKeys[0] || null;
   };
@@ -940,7 +931,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
       return map[localName];
     }
 
-    console.warn(`[getPropertyId] Property not found: ${omekaPropertyKey}`);
     return null;
   };
 
@@ -950,20 +940,14 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
       throw new Error('resourceTemplateId non défini dans la config');
     }
 
-    console.log('[createInOmekaS] Starting creation with data:', data);
-
     // Récupérer l'utilisateur connecté pour l'ajouter comme créateur
     // userId = ID de l'item actant/étudiant (pour dcterms:creator)
     // omekaUserId = ID de l'utilisateur Omeka S (table user, pour o:owner)
     const userId = localStorage.getItem('userId');
     const omekaUserId = localStorage.getItem('omekaUserId');
-    console.log('[createInOmekaS] Current user (actant/student item) ID:', userId);
-    console.log('[createInOmekaS] Omeka S user ID (for o:owner):', omekaUserId);
 
     // S'assurer que les properties sont chargées (utilise le cache si déjà fetché)
     const propMap = Object.keys(propertiesMap).length > 0 ? propertiesMap : await getTemplatePropertiesMap(config.resourceTemplateId!);
-
-    console.log('[createInOmekaS] Properties map loaded with', Object.keys(propMap).length, 'properties');
 
     // Construire l'objet de données pour Omeka S
     const itemData: Record<string, any> = {
@@ -974,7 +958,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     // Cela permet d'attribuer la ressource au bon utilisateur au lieu de l'API
     if (omekaUserId) {
       itemData['o:owner'] = { 'o:id': parseInt(omekaUserId, 10) };
-      console.log('[createInOmekaS] Set o:owner to Omeka S user:', omekaUserId);
     }
 
     // Lier la ressource au cours via dcterms:isPartOf (property_id: 33)
@@ -991,7 +974,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
           is_public: true,
         },
       ];
-      console.log('[createInOmekaS] Linked to course:', courseId);
     }
 
     // Ajouter l'utilisateur connecté comme créateur/contributeur
@@ -1020,7 +1002,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
             is_public: true,
           },
         ];
-        console.log('[createInOmekaS] Added creator:', creatorProp, '=', userId);
       }
     }
 
@@ -1337,12 +1318,10 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
 
     const result = await response.json();
     const newItemId = result['o:id'];
-    console.log('[createInOmekaS] Creation successful, id:', newItemId);
 
     // Upload des médias après création de l'item
     const mediaFilesToUpload = data.mediaFiles || [];
     if (Array.isArray(mediaFilesToUpload) && mediaFilesToUpload.length > 0) {
-      console.log('[createInOmekaS] Uploading', mediaFilesToUpload.length, 'media files');
       for (const mediaFile of mediaFilesToUpload) {
         const file = mediaFile.file || mediaFile;
         if (file instanceof File) {
@@ -1380,7 +1359,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     // Créer les médias YouTube
     const youtubeUrlsToCreate = data.youtubeUrls || [];
     if (Array.isArray(youtubeUrlsToCreate) && youtubeUrlsToCreate.length > 0) {
-      console.log('[createInOmekaS] Creating', youtubeUrlsToCreate.length, 'YouTube media');
       for (const ytUrl of youtubeUrlsToCreate) {
         try {
           // Extraire l'ID de la vidéo YouTube
@@ -1434,17 +1412,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
 
   // Handle opening resource picker for a view
   const handleLinkExisting = (viewKey: string) => {
-    console.log('[handleLinkExisting] viewKey:', viewKey);
-    console.log(
-      '[handleLinkExisting] config.viewOptions:',
-      config.viewOptions.map((v) => ({ key: v.key, resourceTemplateId: v.resourceTemplateId, resourceTemplateIds: v.resourceTemplateIds })),
-    );
-
     const viewOption = config.viewOptions.find((v) => v.key === viewKey);
-    console.log(
-      '[handleLinkExisting] viewOption found:',
-      viewOption ? { key: viewOption.key, resourceTemplateId: viewOption.resourceTemplateId, resourceTemplateIds: viewOption.resourceTemplateIds } : 'NOT FOUND',
-    );
 
     // Template IDs par défaut pour les types courants
     const defaultTemplateIds: Record<string, number> = {
@@ -1456,9 +1424,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     // Vérifier si on a plusieurs template IDs (pour les références bibliographiques/médiagraphiques)
     const resourceTemplateIds = viewOption?.resourceTemplateIds;
     const resourceTemplateId = viewOption?.resourceTemplateId || defaultTemplateIds[viewKey];
-
-    console.log('[handleLinkExisting] resourceTemplateId:', resourceTemplateId);
-    console.log('[handleLinkExisting] resourceTemplateIds:', resourceTemplateIds);
 
     setPickerState({
       isOpen: true,
@@ -1477,12 +1442,41 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     }
   };
 
-  // Handle removing an item from a view
+  // Delete Modal State
+  const [deleteModalState, setDeleteModalState] = useState<{ isOpen: boolean; viewKey: string; itemId: string | number | null; itemTitle?: string }>({
+    isOpen: false,
+    viewKey: '',
+    itemId: null,
+    itemTitle: '',
+  });
+
+  // Handle removing an item from a view (opens confirmation modal)
   const handleRemoveItem = (viewKey: string, itemId: string | number) => {
-    // Update the formData to remove the item
+    // Find the item to get its title
     const currentItems = formData[viewKey] || itemDetails?.[viewKey] || [];
-    const updatedItems = currentItems.filter((item: any) => item.id !== itemId);
-    setValue(viewKey, updatedItems);
+    const itemToDelete = currentItems.find((item: any) => item.id === itemId);
+    const itemTitle = itemToDelete?.title || '';
+    
+    setDeleteModalState({ isOpen: true, viewKey, itemId, itemTitle });
+  };
+
+  // Confirm deletion
+  const handleConfirmDelete = () => {
+    const { viewKey, itemId } = deleteModalState;
+    if (itemId !== null) {
+      // Update the formData to remove the item
+      const currentItems = formData[viewKey] || itemDetails?.[viewKey] || [];
+      const updatedItems = currentItems.filter((item: any) => item.id !== itemId);
+      setValue(viewKey, updatedItems);
+      
+      addToast({
+        title: 'Suppression réussie',
+        description: "L'élément a été retiré de la liste.",
+        classNames: { base: 'bg-success', title: 'text-c6', description: 'text-c6', icon: 'text-c6' },
+        timeout: 2000,
+      });
+    }
+    setDeleteModalState({ isOpen: false, viewKey: '', itemId: null });
   };
 
   // Handle items change (for text views)
@@ -1499,11 +1493,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
   // Handle resource selection from picker
   const handleResourceSelect = (resources: any[]) => {
     const { viewKey, resourceTemplateId } = pickerState;
-    console.log('[handleResourceSelect] viewKey:', viewKey);
-    console.log('[handleResourceSelect] resources:', resources);
-    console.log('[handleResourceSelect] resourceTemplateId:', resourceTemplateId);
     const currentItems = formData[viewKey] || itemDetails?.[viewKey] || [];
-    console.log('[handleResourceSelect] currentItems:', currentItems);
 
     // Normaliser les ressources Omeka S vers le format interne attendu par les composants
     const normalizedResources = resources.map((r) => {
@@ -1656,13 +1646,26 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
       onCreateNew: handleCreateNew,
       onRemoveItem: handleRemoveItem,
       onItemsChange: handleItemsChange,
+      onEditResource: onEditResource, // Pass callback to view
       formData, // Pour que les vues texte puissent lire les valeurs éditées
       onNavigate: handleRightColumnNavigate, // Pour déclencher l'animation de sortie
+      updatedResources, // Passer les mises à jour
     });
 
     // Return null if content is null or undefined
     return content || null || undefined;
-  }, [itemDetails, formData, selected, viewData, loading, loadingViews, config.viewOptions, isEditing]);
+  }, [
+    itemDetails,
+    formData,
+    selected,
+    viewData,
+    loading,
+    loadingViews,
+    config.viewOptions,
+    isEditing,
+    updatedResources,
+    onEditResource,
+  ]);
 
   // Helper function to extract text from a React element recursively
   const extractTextFromElement = (element: React.ReactElement | React.ReactNode): string => {
@@ -1892,15 +1895,15 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     return (
       <Layouts className='grid grid-cols-10 col-span-10 gap-50 overflow-visible z-0'>
         <div className='col-span-10 overflow-visible'>
-          <PageBanner title={mode === 'create' ? 'Mode création' : 'Mode édition'} icon={<EditIcon />} description={`${config.type || 'Ressource'}`} edition />
+          <PageBanner title={mode === 'create' ? 'Mode création' : 'Mode édition'} icon={<EditIcon />} description={getRessourceLabel(config.type || 'Ressource')} edition />
         </div>
         {/* Onglets toujours visibles même pendant le chargement */}
         {tabs && activeTabId && onTabChange && onTabClose && <ResourceFormTabs tabs={tabs} activeTabId={activeTabId} onTabChange={onTabChange} onTabClose={onTabClose} />}
         
         {/* Left column skeleton - matching loaded state structure */}
-        <motion.div className='col-span-10 lg:col-span-6 flex flex-col gap-25 h-fit' variants={fadeIn}>
-          {OverviewSkeleton && <OverviewSkeleton />}
-          {DetailsSkeleton && <DetailsSkeleton />}
+        <motion.div className='col-span-10 flex flex-col gap-4 h-fit items-center justify-center py-20' variants={fadeIn}>
+          <Spinner color="current" className="text-c6" />
+          <p className="text-c6">Chargement en cours...</p>
         </motion.div>
 
       </Layouts>
@@ -1913,7 +1916,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
         {/* Edit Mode Banner */}
         {isEditing && (
           <div className='col-span-10 overflow-visible'>
-            <PageBanner title={mode === 'create' ? 'Mode création' : 'Mode édition'} icon={<EditIcon />} description={`${config.type || 'Ressource'}`} edition />
+            <PageBanner title={mode === 'create' ? 'Mode création' : 'Mode édition'} icon={<EditIcon />} description={getRessourceLabel(config.type || 'Ressource')} edition />
           </div>
         )}
 
@@ -2339,7 +2342,48 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
           selectedIds={[]}
           displayMode={pickerState.viewKey === 'keywords' ? 'alphabetic' : 'grid'}
         />
-      </Layouts>
+        {/* Delete Confirmation Modal */}
+      <Modal 
+        isOpen={deleteModalState.isOpen} 
+        onClose={() => setDeleteModalState(prev => ({ ...prev, isOpen: false }))}
+        classNames={{
+          base: 'bg-c1 border-2 border-c3',
+          header: 'border-b border-c3',
+          body: 'py-6',
+          footer: 'border-t border-c3',
+        }}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className='flex flex-col gap-1'>
+                <div className='flex items-center gap-2'>
+                  <div className='p-1 rounded-10 bg-red-500/20'>
+                    <TrashIcon size={20} className='text-[#FF0000]' />
+                  </div>
+                  <span className='text-c6'>Confirmer la suppression</span>
+                </div>
+              </ModalHeader>
+              <ModalBody>
+                <div className='flex flex-col justify-center gap-[30px]'>
+                  <p className='text-c5'>
+                    Cette action retirera l'élément de la liste (il ne sera pas supprimé de la base de données).
+                  </p>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant='light' onPress={onClose} className='text-c5 hover:text-c6 p-4 rounded-6'>
+                  Annuler
+                </Button>
+                <Button onPress={handleConfirmDelete} className='bg-danger/100 hover:bg-danger/90 text-white p-4 rounded-6'>
+                  Supprimer
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </Layouts>
 
       {/* Fixed bottom save bar for edit/create mode - Outside Layouts for proper fixed positioning */}
       <EditSaveBar
@@ -2348,7 +2392,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
         onCancel={handleCancelEdit}
         isSubmitting={isSubmitting}
         isDirty={isDirty}
-        resourceType={config.type || 'Ressource'}
         mode={mode}
       />
     </>

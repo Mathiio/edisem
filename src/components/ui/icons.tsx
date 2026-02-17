@@ -530,8 +530,8 @@ export const DataIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...
 export const SortIcon: React.FC<IconSvgProps> = ({ size = 14, width, height, ...props }) => (
   <svg width={size || width} height={size || height} viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' {...props} fill='currentColor'>
     <path
-      fill-rule='evenodd'
-      clip-rule='evenodd'
+      fillRule='evenodd'
+      clipRule='evenodd'
       d='M22 6C22 5.44772 21.5523 5 21 5H1C0.447714 5 0 5.44772 0 6C0 6.55228 0.447714 7 1 7H21C21.5523 7 22 6.55228 22 6ZM18.4286 11C18.4286 10.4477 17.9809 10 17.4286 10H4.57143C4.01914 10 3.57143 10.4477 3.57143 11C3.57143 11.5523 4.01914 12 4.57143 12H17.4286C17.9809 12 18.4286 11.5523 18.4286 11ZM14.1429 16C14.1429 15.4477 13.6951 15 13.1429 15H8.85714C8.30486 15 7.85714 15.4477 7.85714 16C7.85714 16.5523 8.30486 17 8.85714 17H13.1429C13.6951 17 14.1429 16.5523 14.1429 16Z'
     />
   </svg>

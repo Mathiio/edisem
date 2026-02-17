@@ -92,7 +92,15 @@ function App() {
 
   return (
     <HeroUIProvider>
-      <ToastProvider />
+      <ToastProvider
+        placement="bottom-center"
+        toastProps={{
+          classNames: {
+            closeButton: "opacity-100 absolute right-4 top-1/2 -translate-y-1/2",
+            base: "relative",
+          },
+        }}
+      />
       <LoadingScreen isLoading={isLoading} />
       <NavbarReadyContext.Provider value={{ onNavbarReady: handleNavbarReady }}>
         <NavigationTrailProvider>

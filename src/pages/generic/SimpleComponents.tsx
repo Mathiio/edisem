@@ -788,6 +788,7 @@ export const SimpleOverviewSkeleton: React.FC = () => (
   </div>
 );
 
+
 export const SimpleDetailsSkeleton: React.FC = () => (
   <div className='flex w-full p-20 bg-c3 rounded-14'>
     <div className='flex w-full flex-col gap-10'>

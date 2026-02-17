@@ -831,7 +831,7 @@ const createViewFromSimpleView = (view: SimplifiedViewConfig): ViewOption => {
     resourceLabel: view.title,
     resourceTemplateId: view.resourceTemplateId,
     resourceTemplateIds: view.resourceTemplateIds,
-    renderContent: ({ itemDetails, loadingViews, isEditing, onLinkExisting, onCreateNew, onRemoveItem, onItemsChange }) => {
+    renderContent: ({ itemDetails, loadingViews, isEditing, onLinkExisting, onCreateNew, onRemoveItem, onItemsChange, onEditResource, updatedResources }) => {
       switch (view.renderType) {
         case 'items': {
           let resourceIds = getResourceIds(itemDetails, view.property || '');
@@ -854,11 +854,17 @@ const createViewFromSimpleView = (view: SimplifiedViewConfig): ViewOption => {
             });
           }
 
-          const items = resourceIds.map((id) => ({
-            id,
-            title: resourceCache[id]?.title || `Item #${id}`,
-            thumbnail: resourceCache[id]?.thumbnailUrl,
-          }));
+          const items = resourceIds.map((id) => {
+            const cached = resourceCache[id];
+            // Check for updates first
+            const update = updatedResources?.[id];
+            
+            return {
+              id,
+              title: update?.title || cached?.title || `Item #${id}`,
+              thumbnail: update?.thumbnail || cached?.thumbnailUrl,
+            };
+          });
 
           const mapUrl = view.urlPattern ? (item: any) => view.urlPattern!.replace(':id', item.id) : undefined;
 
@@ -872,6 +878,7 @@ const createViewFromSimpleView = (view: SimplifiedViewConfig): ViewOption => {
               onLinkExisting={onLinkExisting ? () => onLinkExisting(view.key) : undefined}
               onCreateNew={onCreateNew ? () => onCreateNew(view.key) : undefined}
               onRemoveItem={onRemoveItem ? (id: string | number) => onRemoveItem(view.key, id) : undefined}
+              onEdit={onEditResource ? (id: string | number) => onEditResource(view.key, id) : undefined}
             />
           );
         }
@@ -1265,11 +1272,18 @@ interface SimpleDetailPageProps {
   itemId?: string;
 }
 
-export const SimpleDetailPage: React.FC<SimpleDetailPageProps> = ({ config, itemId }) => {
-  const fields = React.useMemo(() => extractFieldsFromConfig(config.fields), [config.fields]);
-  const fullConfig = React.useMemo(() => convertToGenericConfig(config), [config]);
+// ========================================
+// Fonction helper pour créer le handler de sauvegarde
+// ========================================
 
-  const handleSave = async (data: any): Promise<void> => {
+/**
+ * Crée un gestionnaire de sauvegarde compatible avec GenericDetailPage
+ * qui gère la logique complexe de mapping des SimplifiedDetailConfig
+ */
+export const createHandleSave = (config: SimplifiedDetailConfig) => {
+  const fields = extractFieldsFromConfig(config.fields);
+
+  return async (data: any, itemId?: string | number): Promise<void> => {
     if (!itemId) {
       throw new Error('itemId est requis pour la sauvegarde');
     }
@@ -1316,6 +1330,10 @@ export const SimpleDetailPage: React.FC<SimpleDetailPageProps> = ({ config, item
             view.categories.forEach((cat) => {
               cat.subcategories.forEach((sub) => {
                 keyToProperty[sub.property] = sub.property;
+                // Important: Mapper aussi la clé de la sous-catégorie vers la propriété
+                if (sub.key) {
+                  keyToProperty[sub.key] = sub.property;
+                }
               });
             });
           }
@@ -1452,7 +1470,7 @@ export const SimpleDetailPage: React.FC<SimpleDetailPageProps> = ({ config, item
         for (const file of mediaFilesToUpload) {
           const actualFile = file.file || file;
           if (actualFile instanceof File) {
-            const uploaded = await uploadMedia(actualFile, itemId);
+            const uploaded = await uploadMedia(actualFile, String(itemId));
             if (!uploaded) {
               mediaErrors.push(`Erreur upload ${actualFile.name}`);
             }
@@ -1468,8 +1486,22 @@ export const SimpleDetailPage: React.FC<SimpleDetailPageProps> = ({ config, item
       throw err;
     }
   };
+};
 
-  return <GenericDetailPage config={fullConfig} itemId={itemId} onSave={handleSave} />;
+export const SimpleDetailPage: React.FC<SimpleDetailPageProps> = ({ config, itemId }) => {
+  const fullConfig = React.useMemo(() => convertToGenericConfig(config), [config]);
+  const handleSave = React.useMemo(() => createHandleSave(config), [config]);
+
+  // Adapter la signature de handleSave pour qu'elle corresponde à celle attendue par GenericDetailPage
+  // GenericDetailPage passe (data) mais createHandleSave retourne une fonction qui attend (data, itemId)
+  // Cependant, dans SimpleDetailPage, itemId est dans les props.
+  const handleSaveAdapter = async (data: any) => {
+    if (itemId) {
+      await handleSave(data, itemId);
+    }
+  };
+
+  return <GenericDetailPage config={fullConfig} itemId={itemId} onSave={handleSaveAdapter} />;
 };
 
 export default SimpleDetailPage;

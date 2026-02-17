@@ -664,6 +664,7 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
 
       // Toast de succès
       addToast({
+        
         title: 'Succès',
         description: "L'item a été créé avec succès",
         color: 'success',
