@@ -111,8 +111,8 @@ export const FormTabManager: React.FC<FormTabManagerProps> = ({ initialTabs = []
       // Find the config for this resource type
       // For now, we'll use a simple mapping based on viewKey
       const resourceTypeMap: Record<string, string> = {
-        Feedback: 'feedback',
-        Outils: 'tool',
+        Feedback: 'retour_experience_etudiant',
+        Outils: 'outil_etudiant',
         personnes: 'actant',
         actants: 'actant',
         keywords: 'keyword',

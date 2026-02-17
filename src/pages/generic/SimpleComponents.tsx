@@ -19,6 +19,7 @@ import { ResourceSelectionModal } from '@/components/features/forms/ResourceSele
 import { InternalFieldConfig, getOverviewFields, getDetailsFields, getHeaderFields } from './simplifiedConfig';
 import { getOmekaValue, getResourceIds } from './simplifiedConfigAdapter';
 import { isValidYouTubeUrl, getYouTubeThumbnailUrl } from '@/lib/utils';
+import { getResourceConfigByType } from '@/config/resourceConfig';
 
 // ========================================
 // Animation variants
@@ -322,7 +323,11 @@ export const SimpleOverviewCard: React.FC<SimpleOverviewProps> = ({
           <div className='flex items-center gap-15'>
             <h1 className='font-medium text-c6 text-24'>{title}</h1>
             {/* Badge affichant le type de ressource si disponible */}
-            {(type || resourceType) && <span className='text-14 text-c5 px-10 py-5 bg-c2 rounded-8 border border-c3 whitespace-nowrap'>{type || resourceType}</span>}
+            {(type || resourceType) && (
+              <span className='text-14 text-c5 px-10 py-5 bg-c2 rounded-8 border border-c3 whitespace-nowrap'>
+                {getResourceConfigByType(type || resourceType)?.label || type || resourceType}
+              </span>
+            )}
           </div>
 
           {/* Personnes/Actants */}
@@ -799,7 +804,7 @@ export const UnloadedCard: React.FC = () => (
     <CameraIcon size={42} className='text-c4' />
     <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
       <h2 className='text-c5 text-32 font-semibold'>Oups !</h2>
-      <p className='w-[400px] text-c5 text-16 text-regular text-center'>Aucun média n'est lié au contenu. Veuillez vérifier plus tard ou explorer d'autres sections.</p>
+      <p className='w-[400px] text-c5 text-16 text-regular text-center'>Aucun média n'est lié à ce contenu. Veuillez vérifier plus tard ou explorer d'autres sections.</p>
     </div>
   </div>
 );

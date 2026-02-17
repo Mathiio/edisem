@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CameraIcon, UserIcon, ShareIcon, ArrowIcon, PlusIcon, CrossIcon, UploadIcon, LinkIcon } from '@/components/ui/icons';
 import { isValidYouTubeUrl } from '@/lib/utils';
 import { motion, Variants } from 'framer-motion';
-import { addToast, Skeleton, Link, Button, cn, DropdownMenu, Dropdown, DropdownItem, DropdownTrigger } from '@heroui/react';
+import { addToast, Link, Button, cn, DropdownMenu, Dropdown, DropdownItem, DropdownTrigger } from '@heroui/react';
 import { AnnotationDropdown } from '../conference/AnnotationDropdown';
 import { Splide, SplideTrack, SplideSlide } from '@splidejs/react-splide';
 import MediaViewer from '../conference/MediaViewer';

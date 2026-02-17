@@ -567,6 +567,17 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     setIsSubmitting(true);
     try {
       const changedData = getChangedFields();
+      
+      // Fusionner avec les valeurs des vues (schema:description, theatre:credit)
+      // Ces valeurs ne sont pas détectées par getChangedFields car ce ne sont pas des champs dirty
+      // mais des mises à jour directes via setValue
+      Object.assign(changedData, {
+        'schema:description': formData['schema:description'],
+        'theatre:credit': formData['theatre:credit'],
+        'Feedback': formData['Feedback'], 
+        'Outils': formData['Outils'],
+      });
+
       // Add media files to the data
       changedData.mediaFiles = mediaFiles;
       // Add YouTube URLs to create as media
@@ -582,7 +593,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
           }
         });
         changedData.mediaToDelete = mediaToDelete;
-        console.log('[handleSave] Media to delete:', mediaToDelete);
       }
 
       if (mode === 'create') {
@@ -642,14 +652,10 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
   const saveToOmekaS = async (data: any) => {
     if (!id) throw new Error('No item ID');
 
-    console.log('[saveToOmekaS] Starting save with data:', data);
-    console.log('[saveToOmekaS] data.keywords:', data.keywords);
-
     // 1. Récupérer les données brutes de l'item
     const rawResponse = await fetch(`${API_BASE}items/${id}`);
     if (!rawResponse.ok) throw new Error('Failed to fetch item');
     const rawItem = await rawResponse.json();
-    console.log('[saveToOmekaS] Raw item fetched, id:', rawItem['o:id']);
 
     // 1b. Charger les propriétés du template (comme en mode création) pour avoir toutes les propriétés disponibles
     const templateId = rawItem['o:resource_template']?.['o:id'] || config.resourceTemplateId;
@@ -660,8 +666,9 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
 
     // 3. Appliquer les modifications de ressources liées (keywords, etc.)
     Object.entries(data).forEach(([key, value]) => {
-      // Si c'est un tableau de ressources liées (objets avec id)
-      if (Array.isArray(value) && value.length > 0 && (value as any[])[0]?.id !== undefined) {
+      // Si c'est un tableau de ressources liées (objets avec id ou o:id ou value_resource_id)
+      const firstItem = Array.isArray(value) && value.length > 0 ? (value as any[])[0] : null;
+      if (firstItem && (firstItem.id !== undefined || firstItem['o:id'] !== undefined || firstItem.value_resource_id !== undefined)) {
         // Chercher la propriété Omeka correspondante
         let omekaPropertyKey = findOmekaPropertyKey(updatedItem, key);
         let propertyId: number | null = null;
@@ -681,6 +688,8 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
             // Propriétés pour les ressources liées (outils, feedbacks, etc.)
             'theatre:credit': 'theatre:credit',
             'schema:description': 'schema:description',
+            'Outils': 'theatre:credit', // Support ancien
+            'Feedback': 'schema:description', // Support ancien
             // Propriétés pour les bibliographies/références
             references: 'dcterms:references',
             'dcterms:references': 'dcterms:references',
@@ -699,7 +708,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
           updatedItem[omekaPropertyKey] = (value as any[]).map((item: any) => ({
             type: 'resource',
             property_id: propertyId,
-            value_resource_id: item.id || item['o:id'],
+            value_resource_id: item.id || item['o:id'] || item.value_resource_id,
             is_public: true,
           }));
         }
@@ -890,6 +899,10 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
       fullUrl: ['schema:url'],
       externalLink: ['schema:url'],
       url: ['schema:url'],
+      'schema:description': ['schema:description'],
+      'theatre:credit': ['theatre:credit'],
+      'Outils': ['theatre:credit'],
+      'Feedback': ['schema:description'],
       references: ['dcterms:references'],
       'dcterms:references': ['dcterms:references'],
       'dcterms:bibliographicCitation': ['dcterms:bibliographicCitation'],
@@ -1133,10 +1146,12 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     }
 
     // Mapper les feedbacks (schema:description = 1606)
-    if (data.Feedback && Array.isArray(data.Feedback) && data.Feedback.length > 0) {
+    // Vérifier à la fois la clé 'Feedback' (ancien) et 'schema:description' (nouveau config)
+    const feedbacks = data['schema:description'] || data.Feedback;
+    if (feedbacks && Array.isArray(feedbacks) && feedbacks.length > 0) {
       const propertyId = getPropertyId('schema:description', propMap);
       if (propertyId) {
-        itemData['schema:description'] = data.Feedback.map((fb: any) => ({
+        itemData['schema:description'] = feedbacks.map((fb: any) => ({
           type: 'resource',
           property_id: propertyId,
           value_resource_id: fb.id || fb['o:id'],
@@ -1146,10 +1161,12 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     }
 
     // Mapper les outils (theatre:credit = 2145)
-    if (data.Outils && Array.isArray(data.Outils) && data.Outils.length > 0) {
+    // Vérifier à la fois la clé 'Outils' (ancien) et 'theatre:credit' (nouveau config)
+    const outils = data['theatre:credit'] || data.Outils;
+    if (outils && Array.isArray(outils) && outils.length > 0) {
       const propertyId = getPropertyId('theatre:credit', propMap);
       if (propertyId) {
-        itemData['theatre:credit'] = data.Outils.map((tool: any) => ({
+        itemData['theatre:credit'] = outils.map((tool: any) => ({
           type: 'resource',
           property_id: propertyId,
           value_resource_id: tool.id || tool['o:id'],

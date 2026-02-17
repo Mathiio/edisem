@@ -519,7 +519,7 @@ export const createFeedbacksView = (options?: { resourceTemplateId?: number }): 
     key: 'Feedback',
     title: "Retours d'expérience",
     getItems: (itemDetails) => itemDetails?.feedbacks || [],
-    mapUrl: (item) => `/feedback/${item.id}`,
+    mapUrl: (item) => `/corpus/retour-experience/${item.id}`,
     resourceLabel: "un retour d'expérience",
     resourceTemplateId: options?.resourceTemplateId || defaultTemplateId,
     editable: true,

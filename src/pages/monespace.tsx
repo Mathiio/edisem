@@ -1,7 +1,7 @@
 import { Layouts } from '@/components/layout/Layouts';
 import { PageBanner } from '@/components/ui/PageBanner';
 import { motion, Variants } from 'framer-motion';
-import { ExpCard, ExpCardSkeleton } from '@/components/features/experimentation/ExpCards';
+import { StudentCard, StudentCardSkeleton } from '@/components/features/espaceEtudiant/StudentCard';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { getAllStudentResources, getStudentCourses, getCourses, type StudentResourceCard, type Course } from '@/services/StudentSpace';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, addToast, Select, SelectItem } from '@heroui/react';
@@ -149,9 +149,7 @@ export const MonEspace: React.FC = () => {
         if (isActant) {
           // Les actants voient tous les cours
           const allCourses = await getCourses();
-          console.log('[MonEspace] Actant - allCourses:', allCourses);
           const coursesArray = Array.isArray(allCourses) ? allCourses : [];
-          console.log('[MonEspace] Setting courses:', coursesArray.length, 'courses');
           setCourses(coursesArray);
         } else if (userId) {
           // Les étudiants ne voient que leurs cours
@@ -199,8 +197,19 @@ export const MonEspace: React.FC = () => {
 
   // Handler pour modifier une ressource - navigue vers la page de détail en mode édition
   const handleEdit = useCallback(
-    (id: string) => {
-      navigate(`/espace-etudiant/experimentation/${id}?mode=edit`);
+    (id: string, type?: string) => {
+      // Déterminer la route de base en fonction du type
+      let baseRoute = 'experimentation';
+      
+      if (type) {
+        if (type.includes('outil')) {
+          baseRoute = 'outil';
+        } else if (type.includes('retour') || type.includes('experience')) {
+          baseRoute = 'retour-experience';
+        }
+      }
+      
+      navigate(`/espace-etudiant/${baseRoute}/${id}?mode=edit`);
     },
     [navigate],
   );
@@ -268,19 +277,6 @@ export const MonEspace: React.FC = () => {
         description='Un espace personnel pensé pour centraliser vos activités, suivre vos démarches et accéder facilement aux ressources qui vous accompagnent tout au long de votre parcours.'
       />
 
-      {/* Section Profil Utilisateur */}
-      {/*<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className='flex justify-center'>
-        <div className='flex items-center gap-15 bg-c2 border-2 border-c3 rounded-12 px-20 py-15'>
-          <Avatar src={userData?.picture || undefined} fallback={<UserIcon className='text-c4' size={20} />} className='w-[50px] h-[50px] border-2 border-c3 bg-c3' radius='md' />
-          <div className='flex flex-col'>
-            <span className='text-18 font-medium text-c6'>{fullName}</span>
-            <span className='text-14 text-c5'>
-              {userTypeLabel} · {experimentationsStudents.length} ressource{experimentationsStudents.length > 1 ? 's' : ''}
-            </span>
-          </div>
-        </div>
-      </motion.div>*/}
-
       {/* Avertissement si étudiant sans cours */}
       {!isActant && !loadingCourses && courses.length === 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className='flex justify-center w-full'>
@@ -338,7 +334,6 @@ export const MonEspace: React.FC = () => {
                   isTeacher: false,
                 })),
               ];
-              console.log('[MonEspace] Select options:', options);
               return options;
             })().map((option) => (
               <SelectItem key={option.id} className={option.isTeacher ? 'text-action font-medium hover:bg-c3' : 'text-c6 hover:bg-c3'}>
@@ -380,10 +375,10 @@ export const MonEspace: React.FC = () => {
         <h1 className='text-64 text-c6 font-medium flex flex-col items-center text-center'>Mes ressources</h1>
         <div className='grid grid-cols-4 w-full gap-25'>
           {loading
-            ? Array.from({ length: 8 }).map((_, index) => <ExpCardSkeleton key={index} />)
+            ? Array.from({ length: 8 }).map((_, index) => <StudentCardSkeleton key={index} />)
             : experimentationsStudents.map((item, index) => (
                 <motion.div key={`${item.type}-${item.id}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                  <ExpCard
+                  <StudentCard
                     id={String(item.id)}
                     title={item.title}
                     thumbnail={item.thumbnail ? (item.thumbnail.startsWith('http') ? item.thumbnail : `https://tests.arcanes.ca/omk${item.thumbnail}`) : undefined}

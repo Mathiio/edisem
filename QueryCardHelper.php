@@ -42,6 +42,12 @@ class QueryCardHelper
             'agent_prop' => 386,
             'agent_type' => 'actant'
         ],
+        // Outils
+        114 => [
+            'type' => 'outil',
+            'title_prop' => 1,
+            'thumbnail_source' => 'item',
+        ],
         // Study Days
         121 => [
             'type' => 'journee_etudes',
@@ -172,14 +178,16 @@ class QueryCardHelper
     {
         $idsStr = implode(',', $ids);
         
-        // Fetch dates
-        $dates = $this->fetchDates($idsStr, $config['date_prop']);
+        // Fetch dates if configured
+        $dates = isset($config['date_prop']) ? $this->fetchDates($idsStr, $config['date_prop']) : [];
         
         // Fetch thumbnails
         $thumbnails = $this->fetchThumbnails($idsStr, $config['thumbnail_source']);
         
-        // Fetch agents/creators
-        $agents = $this->fetchAgents($idsStr, $config['agent_prop'], $config['agent_type']);
+        // Fetch agents/creators if configured
+        $agents = (isset($config['agent_prop']) && isset($config['agent_type'])) 
+            ? $this->fetchAgents($idsStr, $config['agent_prop'], $config['agent_type']) 
+            : [];
         
         // Fetch genres if configured
         $genres = isset($config['genre_prop']) ? $this->fetchGenres($idsStr, $config['genre_prop']) : [];

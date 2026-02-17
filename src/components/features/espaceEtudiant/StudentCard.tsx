@@ -1,84 +1,93 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { IconSvgProps } from '@/types/ui';
-import { ThumbnailIcon, UserIcon, SeminaireIcon } from '@/components/ui/icons';
+
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/react';
+import { Conference } from '@/types/ui';
+import { EditIcon, TrashIcon, UserIcon, ThumbnailIcon, SeminaireIcon } from '@/components/ui/icons';
 import { getResourceAuthors, getResourceSubtitle, getSafeResourceUrl, getResourceThumbnail } from '@/lib/resourceUtils';
 import { getRessourceLabel, getResourceIcon } from '@/config/resourceConfig';
+import { useNavigate } from 'react-router-dom';
 
-export interface ResourceCardProps {
-  title?: string;
-  thumbnailUrl?: string;
-  authors?: {
-    name: string;
-    picture?: string;
-  }[];
-  subtitle?: string; // For universities or extra date info
-  date?: string;     // Explicit date line if needed (e.g. for Recits)
-  
-  type?: string;     // Standardized backend type key
-  typeLabel?: string; // Manual override
-  TypeIcon?: React.FC<IconSvgProps>; // Optional Override
-  typeColor?: string; // Optional override color for the type icon
-  
-  className?: string;
-
-  // Optional: Raw item to derive data from
-  item?: any;
+interface ExpCardProps extends Omit<Conference, 'type'> {
+  type?: string;
+  showActions?: boolean;
+  onEdit?: (id: string, type?: string) => void;
+  onDelete?: (id: string) => void;
 }
 
-export const ResourceCard: React.FC<ResourceCardProps> = ({
-  title,
-  thumbnailUrl,
-  authors,
-  subtitle,
-  date,
-  type,
-  typeLabel,
-  TypeIcon,
-  typeColor,
-  className = '',
-  item
-}) => {
+export const StudentCard: React.FC<ExpCardProps> = (props) => {
+  const { type = 'experimentation_etudiant', showActions = false, onEdit, onDelete, ...experimentation } = props;
   const navigate = useNavigate();
 
-  // Derive data if item is provided and props are missing
-  const finalTitle = title || item?.title || '';
-  const finalThumbnail = thumbnailUrl || (item ? getResourceThumbnail(item) : '') || '';
-  const finalAuthors = authors || (item ? getResourceAuthors(item) : []);
-  const finalSubtitle = subtitle || (item ? getResourceSubtitle(item) : undefined);
-  const finalType = type || item?.type;
+  const handleEdit = () => {
+    if (onEdit && experimentation.id) {
+      onEdit(experimentation.id, type);
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete && experimentation.id) {
+      onDelete(experimentation.id);
+    }
+  };
+
+  // Actions Dropdown
+  const actionsContent = showActions ? (
+     <Dropdown shouldBlockScroll={false}>
+        <DropdownTrigger>
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c4 items-center justify-center p-2 text-c6 transition-all ease-in-out duration-200'
+          >
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor'>
+              <circle cx='12' cy='5' r='2' />
+              <circle cx='12' cy='12' r='2' />
+              <circle cx='12' cy='19' r='2' />
+            </svg>
+          </button>
+        </DropdownTrigger>
+        <DropdownMenu aria-label='Actions' className='bg-c2 rounded-12 border-2 border-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] p-2 min-w-[140px]'>
+          <DropdownItem
+            key='edit'
+            className='hover:bg-c3 text-c6 px-3 py-2 rounded-8 transition-all duration-200'
+            startContent={<EditIcon size={14} className='text-c5' />}
+            onPress={handleEdit}
+          >
+            Modifier
+          </DropdownItem>
+          <DropdownItem
+            key='delete'
+            className='hover:bg-c3 text-c6 px-3 py-2 rounded-8 transition-all duration-200'
+            startContent={<TrashIcon size={14} className='text-c5' />}
+            onPress={handleDelete}
+          >
+            Supprimer
+          </DropdownItem>
+        </DropdownMenu>
+     </Dropdown>
+  ) : undefined;
 
 
-  const finalTypeLabel = typeLabel || (finalType ? getRessourceLabel(finalType) : 'Ressource');
-  
-  // Determine Icon
-  const FinalTypeIcon = TypeIcon || (finalType ? getResourceIcon(finalType) : SeminaireIcon) || SeminaireIcon;
+  // --- ResourceCard Logic ---
+  const item: any = { ...experimentation, type };
+  const finalTitle = experimentation.title || '';
+  const finalThumbnail = experimentation.thumbnail || getResourceThumbnail(item) || '';
+  const finalAuthors = getResourceAuthors(item);
+  const finalSubtitle = getResourceSubtitle(item);
+  const finalType = type;
 
-  // Determine Click Handler
+  const finalTypeLabel = getRessourceLabel(finalType);
+  const FinalTypeIcon = getResourceIcon(finalType) || SeminaireIcon; 
+
   const handleClick = () => {
-      // 1. Try to get URL from item (most robust)
-      if (item) {
-          const url = getSafeResourceUrl(item);
-          if (url && url !== '#') {
-            navigate(url);
-            return;
-          }
-      } 
-      
-      // 2. Fallback: construct from type and explicitly passed properties or item id
-      // Since 'id' is not a prop, we check item.id from the optional item
-      if (type && item?.id) {
-           const url = getSafeResourceUrl({ type, id: item.id });
-           if (url && url !== '#') {
-             navigate(url);
-             return;
-           }
+      const url = getSafeResourceUrl(item);
+      if (url && url !== '#') {
+        navigate(url);
+        return;
       }
       
       console.warn('Navigation impossible: ID manquant pour ce type', { type, item });
   };
 
-  // Helper to format multiple authors
   const renderAuthorNames = () => {
     if (finalAuthors.length === 0) return 'Aucun intervenant';
     
@@ -86,7 +95,6 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
     
     const displayAuthors = finalAuthors.slice(0, 3);
     const names = displayAuthors.map(a => {
-        // Simple heuristic for "F. Lastname" or just name
         const parts = a.name.split(' ');
         if (parts.length > 1) {
              return `${parts[0].charAt(0)}. ${parts[parts.length - 1]}`;
@@ -98,12 +106,20 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
   };
 
   const hasAuthors = finalAuthors.length > 0;
+  const typeColor = undefined; // Or define via props if needed
 
   return (
     <div
       onClick={handleClick}
-      className={`group shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-20 rounded-18 justify-between flex flex-col gap-20 hover:bg-c2 h-full transition-all ease-in-out duration-300 relative ${className}`}
+      className={`group shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-20 rounded-18 justify-between flex flex-col gap-20 hover:bg-c2 h-full transition-all ease-in-out duration-300 relative`}
     >
+      {/* Optional Actions (Dropdowns, etc) */}
+      {actionsContent && (
+        <div className="absolute bottom-20 right-20 z-10 opacity-20 group-hover:opacity-100 transition-opacity duration-200">
+           {actionsContent}
+        </div>
+      )}
+
       <div className="flex flex-col gap-10 justify-between">
         {/* Thumbnail */}
         <div
@@ -119,12 +135,11 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
 
         {/* Content */}
         <div className='flex flex-col gap-2 w-full'>
-          {/* Title & Optional Date */}
+          {/* Title */}
           <div className='flex flex-col gap-1.5 w-full'>
             <p className='text-16 text-c6 font-medium overflow-hidden line-clamp-2 leading-[1.2]'>
               {finalTitle}
             </p>
-            {date && <p className='text-12 text-c5 font-extralight'>{date}</p>}
           </div>
 
           {/* Authors Section */}
@@ -177,7 +192,7 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({
   );
 };
 
-export const ResourceCardSkeleton: React.FC = () => {
+export const StudentCardSkeleton: React.FC = () => {
     return (
       <div className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-20 rounded-18 flex flex-col gap-20 h-full animate-pulse'>
         <div className="flex flex-col gap-10 justify-between">

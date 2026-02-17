@@ -137,6 +137,9 @@ class QuerySqlViewHelper extends AbstractHelper
             case 'getRecitsArtistiquesCards':
                 $result = $this->getRecitsArtistiquesCards();
                 break;
+            case 'getOutilsCards':
+                $result = $this->getOutilsCards();
+                break;
             case 'getCardsByEdition':
                 $editionId = $params['editionId'] ?? null;
                 $result = $this->getCardsByEdition($editionId);
@@ -4479,6 +4482,24 @@ class QuerySqlViewHelper extends AbstractHelper
         }
 
         return $result;
+    }
+
+    function getOutilsCards() {
+        $resourceQuery = "
+            SELECT r.id
+            FROM `resource` r
+            WHERE r.resource_template_id = 114
+            ORDER BY r.created DESC
+        ";
+        $resources = $this->conn->fetchAllAssociative($resourceQuery);
+        
+        if (empty($resources)) {
+            return [];
+        }
+
+        $resourceIds = array_column($resources, 'id');
+        
+        return $this->cardHelper->fetchCards($resourceIds);
     }
 
     /**

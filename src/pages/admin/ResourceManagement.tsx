@@ -123,9 +123,9 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
   // Statistiques
   const stats = {
     total: resources.length,
-    experimentations: resources.filter((r) => r.type === 'experimentation').length,
-    tools: resources.filter((r) => r.type === 'tool').length,
-    feedbacks: resources.filter((r) => r.type === 'feedback').length,
+    experimentations: resources.filter((r) => r.type === 'experimentation_etudiant').length,
+    tools: resources.filter((r) => r.type === 'outil_etudiant').length,
+    feedbacks: resources.filter((r) => r.type === 'retour_experience_etudiant').length,
     withCourse: resources.filter((r) => r.courseId !== null).length,
     teacherResources: resources.filter((r) => r.courseId === null).length,
   };
@@ -214,9 +214,9 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
     switch (type) {
       case 'experimentation':
         return 'Expérimentation';
-      case 'tool':
+      case 'outil':
         return 'Outil';
-      case 'feedback':
+      case 'retour_experience':
         return "Retour d'expérience";
       default:
         return type;
@@ -267,8 +267,8 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
             {[
               { id: 'all', label: 'Tous les types' },
               { id: 'experimentation', label: 'Expérimentations' },
-              { id: 'tool', label: 'Outils' },
-              { id: 'feedback', label: "Retours d'expérience" },
+              { id: 'outil', label: 'Outils' },
+              { id: 'retour_experience', label: "Retours d'expérience" },
             ].map((option) => (
               <SelectItem key={option.id} className='text-c6'>
                 {option.label}

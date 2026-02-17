@@ -52,7 +52,7 @@ const TYPE_LABELS: Record<string, string> = {
   tool: 'Outils',
   experimentation: 'Expérimentations',
   experimentationStudents: 'Expérimentations Étudiants',
-  feedback: "Retours d'expérience",
+  retour_experience: "Retours d'expérience",
   // Autres
   collection: 'Collections',
   edition: 'Éditions',
@@ -98,7 +98,7 @@ const TYPE_COLORS: Record<string, string> = {
   tool: '#64748b',
   experimentation: '#0ea5e9',
   experimentationStudents: '#38bdf8',
-  feedback: '#eab308',
+  retour_experience: '#eab308',
   // Autres
   collection: '#14b8a6',
   edition: '#a78bfa',

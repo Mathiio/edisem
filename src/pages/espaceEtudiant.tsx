@@ -2,7 +2,7 @@ import { Layouts } from '@/components/layout/Layouts';
 import { PageBanner } from '@/components/ui/PageBanner';
 import { UniversityIcon, ExperimentationIcon, SettingsIcon, CitationIcon, SchoolIcon } from '@/components/ui/icons';
 import { motion, Variants } from 'framer-motion';
-import { ExpCard, ExpCardSkeleton } from '@/components/features/experimentation/ExpCards';
+import { StudentCard, StudentCardSkeleton } from '@/components/features/espaceEtudiant/StudentCard';
 import { useEffect, useState } from 'react';
 import { getCourses, getResourcesByCourse, getTeacherResources, type AllStudentResources, type StudentResourceCard, type Course } from '@/services/StudentSpace';
 import { CorpusSection } from '@/components/features/home/CorpusSection';
@@ -22,11 +22,11 @@ const resourceTypeConfig = {
     label: 'Expérimentation',
     icon: ExperimentationIcon,
   },
-  tool: {
+  outil: {
     label: 'Outil',
     icon: SettingsIcon,
   },
-  feedback: {
+  retour_experience: {
     label: "Retour d'expérience",
     icon: CitationIcon,
   },
@@ -40,12 +40,12 @@ interface CourseWithResources extends Course {
 export const EspaceEtudiant: React.FC = () => {
   const [coursesWithResources, setCoursesWithResources] = useState<CourseWithResources[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
-  const [filters, setFilters] = useState<Record<number, 'all' | 'experimentation' | 'tool' | 'feedback'>>({});
+  const [filters, setFilters] = useState<Record<number, 'all' | 'experimentation' | 'outil' | 'retour_experience'>>({});
 
   // État pour les ressources enseignantes
   const [teacherResources, setTeacherResources] = useState<AllStudentResources | null>(null);
   const [loadingTeacher, setLoadingTeacher] = useState(true);
-  const [teacherFilter, setTeacherFilter] = useState<'all' | 'experimentation' | 'tool' | 'feedback'>('all');
+  const [teacherFilter, setTeacherFilter] = useState<'all' | 'experimentation' | 'outil' | 'retour_experience'>('all');
 
   // Charger les cours et leurs ressources
   useEffect(() => {
@@ -126,9 +126,9 @@ export const EspaceEtudiant: React.FC = () => {
     switch (filter) {
       case 'experimentation':
         return resources.experimentations;
-      case 'tool':
+      case 'outil':
         return resources.tools;
-      case 'feedback':
+      case 'retour_experience':
         return resources.feedbacks;
       default:
         return [];
@@ -136,7 +136,7 @@ export const EspaceEtudiant: React.FC = () => {
   };
 
   // Mettre à jour le filtre d'un cours
-  const setFilterForCourse = (courseId: number, filter: 'all' | 'experimentation' | 'tool' | 'feedback') => {
+  const setFilterForCourse = (courseId: number, filter: 'all' | 'experimentation' | 'outil' | 'retour_experience') => {
     setFilters((prev) => ({ ...prev, [courseId]: filter }));
   };
 
@@ -153,9 +153,9 @@ export const EspaceEtudiant: React.FC = () => {
     switch (teacherFilter) {
       case 'experimentation':
         return teacherResources.experimentations;
-      case 'tool':
+      case 'outil':
         return teacherResources.tools;
-      case 'feedback':
+      case 'retour_experience':
         return teacherResources.feedbacks;
       default:
         return [];
@@ -191,15 +191,15 @@ export const EspaceEtudiant: React.FC = () => {
 
             {/* Filtres par type */}
             <div className='flex gap-15'>
-              {(['all', 'experimentation', 'tool', 'feedback'] as const).map((type) => {
+              {(['all', 'experimentation', 'outil', 'retour_experience'] as const).map((type) => {
                 const isActive = teacherFilter === type;
                 const Icon = type !== 'all' ? resourceTypeConfig[type].icon : null;
                 const count = (() => {
                   if (!teacherResources) return 0;
                   if (type === 'all') return teacherResources.total;
                   if (type === 'experimentation') return teacherResources.experimentations.length;
-                  if (type === 'tool') return teacherResources.tools.length;
-                  if (type === 'feedback') return teacherResources.feedbacks.length;
+                  if (type === 'outil') return teacherResources.tools.length;
+                  if (type === 'retour_experience') return teacherResources.feedbacks.length;
                   return 0;
                 })();
 
@@ -224,7 +224,7 @@ export const EspaceEtudiant: React.FC = () => {
           <div className='grid grid-cols-4 w-full gap-25'>
             {getFilteredTeacherResources().map((item, index) => (
               <motion.div key={`teacher-${item.type}-${item.id}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                <ExpCard
+                <StudentCard
                   id={String(item.id)}
                   title={item.title}
                   thumbnail={item.thumbnail || undefined}
@@ -233,7 +233,7 @@ export const EspaceEtudiant: React.FC = () => {
                     title: a.title,
                     picture: a.picture || undefined,
                   }))}
-                  type={item.type === 'experimentation' ? 'experimentation_etudiant' : item.type}
+                  type={item.type}
                 />
               </motion.div>
             ))}
@@ -249,7 +249,7 @@ export const EspaceEtudiant: React.FC = () => {
               <div className='h-[60px] w-[300px] bg-c3 rounded-20 animate-pulse' />
               <div className='grid grid-cols-4 w-full gap-25'>
                 {Array.from({ length: 4 }).map((_, index) => (
-                  <ExpCardSkeleton key={index} />
+                  <StudentCardSkeleton key={index} />
                 ))}
               </div>
             </div>
@@ -283,15 +283,15 @@ export const EspaceEtudiant: React.FC = () => {
 
                   {/* Filtres par type pour ce cours */}
                   <div className='flex gap-15 '>
-                    {(['all', 'experimentation', 'tool', 'feedback'] as const).map((type) => {
+                    {(['all', 'experimentation', 'outil', 'retour_experience'] as const).map((type) => {
                       const isActive = currentFilter === type;
                       const Icon = type !== 'all' ? resourceTypeConfig[type].icon : null;
                       const count = (() => {
                         if (!course.resources) return 0;
                         if (type === 'all') return course.resources.total;
                         if (type === 'experimentation') return course.resources.experimentations.length;
-                        if (type === 'tool') return course.resources.tools.length;
-                        if (type === 'feedback') return course.resources.feedbacks.length;
+                        if (type === 'outil') return course.resources.tools.length;
+                        if (type === 'retour_experience') return course.resources.feedbacks.length;
                         return 0;
                       })();
 
@@ -315,7 +315,7 @@ export const EspaceEtudiant: React.FC = () => {
                 {/* Grille des ressources */}
                 <div className='grid grid-cols-4 w-full gap-25'>
                   {course.loading ? (
-                    Array.from({ length: 4 }).map((_, index) => <ExpCardSkeleton key={index} />)
+                    Array.from({ length: 4 }).map((_, index) => <StudentCardSkeleton key={index} />)
                   ) : !hasResources ? (
                     <div className='col-span-4 flex items-center justify-center py-40 text-c4 rounded-20 border-2 border-c3'>
                       <p className='text-16'>Aucune ressource pour ce cours</p>
@@ -323,7 +323,7 @@ export const EspaceEtudiant: React.FC = () => {
                   ) : (
                     filteredResources.map((item, index) => (
                       <motion.div key={`${item.type}-${item.id}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                        <ExpCard
+                        <StudentCard
                           id={String(item.id)}
                           title={item.title}
                           thumbnail={item.thumbnail || undefined}
@@ -332,7 +332,7 @@ export const EspaceEtudiant: React.FC = () => {
                             title: a.title,
                             picture: a.picture || undefined,
                           }))}
-                          type={item.type === 'experimentation' ? 'experimentation_etudiant' : item.type}
+                          type={item.type}
                         />
                       </motion.div>
                     ))

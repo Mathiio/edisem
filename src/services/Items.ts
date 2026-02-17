@@ -348,7 +348,6 @@ export async function getAllItems() {
       collections,
       students,
       recherches,
-      tools,
       personnes,
       comments,
     ] = await Promise.all([
@@ -359,7 +358,6 @@ export async function getAllItems() {
       getCollections(),
       getStudents(),
       getRecherches(),
-      getTools(),
       getPersonnes(),
       getComments(),
     ]);
@@ -371,7 +369,6 @@ export async function getAllItems() {
       ...keywords,
       ...collections,
       ...students,
-      ...tools,
       ...(Array.isArray(recherches) ? recherches : []),
       ...(Array.isArray(personnes) ? personnes : []),
       ...(Array.isArray(comments) ? comments : []),
@@ -437,36 +434,6 @@ export async function getAllConfs() {
   } catch (error) {
     console.error('Error fetching all confs:', error);
     throw new Error('Failed to fetch all confs');
-  }
-}
-
-export async function getTools(id?: number): Promise<any> {
-  try {
-    checkAndClearDailyCache();
-    // 1. CACHE : Vérifier sessionStorage
-    const storedTools = sessionStorage.getItem('tools');
-    if (storedTools) {
-      const tools = JSON.parse(storedTools);
-      return id ? tools.find((t: any) => t.id === String(id) || t.id === id) : tools;
-    }
-
-    // 2. FETCH : Récupérer les données (pas d'hydratation nécessaire car PHP fait déjà les maps)
-    const rawTools = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getTools&json=1');
-
-    // 3. TRANSFORMATION : Ajouter le type et s'assurer que tout est correct
-    const toolsFull = rawTools.map((tool: any) => ({
-      ...tool,
-      type: 'tool',
-      // programmingLanguages, contributors, isPartOf sont déjà hydratés dans PHP
-      // associatedMedia est déjà un tableau d'URLs
-    }));
-
-    // 4. CACHE + RETURN : Stocker et retourner
-    sessionStorage.setItem('tools', JSON.stringify(toolsFull));
-    return id ? toolsFull.find((t: any) => t.id === String(id) || t.id === id) : toolsFull;
-  } catch (error) {
-    console.error('Error fetching tools:', error);
-    throw new Error('Failed to fetch tools');
   }
 }
 
@@ -600,6 +567,15 @@ export async function getRecitsCitoyensCards() {
   }
 }
 
+export async function getOutilsCards() {
+  try {
+    const data = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getOutilsCards&json=1');
+    return data;
+  } catch (error) {
+    console.error('Error fetching outils cards:', error);
+    return [];
+  }
+}
 
 export async function getRecitsMediatiquesCards() {
   try {

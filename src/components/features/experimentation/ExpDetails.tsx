@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Skeleton, Textarea, Slider, Button } from '@heroui/react';
+import { Textarea, Slider, Button } from '@heroui/react';
 import { DatePicker } from '@heroui/react';
 import { motion, Variants } from 'framer-motion';
 import { parseDate } from '@internationalized/date';

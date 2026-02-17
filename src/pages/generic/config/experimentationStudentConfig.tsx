@@ -48,7 +48,7 @@ export const experimentationStudentConfigSimplified: SimplifiedDetailConfig = {
       title: 'Outils',
       property: 'theatre:credit',
       renderType: 'items',
-      urlPattern: '/corpus/tool/:id',
+      urlPattern: '/espace-etudiant/outil/:id',
       resourceTemplateIds: [114, 129],
     },
     {
@@ -56,8 +56,8 @@ export const experimentationStudentConfigSimplified: SimplifiedDetailConfig = {
       title: "Retours d'expérience",
       property: 'schema:description',
       renderType: 'items',
-      urlPattern: '/feedback/:id',
-      resourceTemplateId: 110,
+      urlPattern: '/espace-etudiant/retour-experience/:id',
+      resourceTemplateId: 128,
     },
     {
       key: 'dcterms:references',
@@ -81,7 +81,7 @@ export const experimentationStudentConfigSimplified: SimplifiedDetailConfig = {
   showRecommendations: true,
   showComments: true,
   recommendationsTitle: 'Expérimentations du même cours',
-  recommendationType: 'experimentationStudents',
+  recommendationType: 'experimentation_etudiant',
   defaultView: 'bibo:abstract',
   formEnabled: true,
 

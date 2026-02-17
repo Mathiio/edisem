@@ -35,28 +35,28 @@ const FEEDBACK_CATEGORIES = [
 ];
 
 /**
- * Configuration pour les pages de feedback
+ * Configuration pour les pages de retour d'expérience
  */
 export const feedbackConfig: GenericDetailPageConfig = {
   dataFetcher: async (id: string): Promise<FetchResult> => {
-    const feedback = await getResourceDetails(Number(id));
+    const retour_experience = await getResourceDetails(Number(id));
 
-    // Enrichir le feedback pour l'affichage
-    if (feedback) {
+    // Enrichir le retour d'expérience pour l'affichage
+    if (retour_experience) {
         // Enriched Actants (Contributors)
-        if (feedback.contributors) {
-            feedback.enrichedActants = feedback.contributors.map((c: any) => ({
+        if (retour_experience.contributors) {
+            retour_experience.enrichedActants = retour_experience.contributors.map((c: any) => ({
                 id: c.id,
                 name: c.title || c.name,
                 thumbnail: c.thumbnail,
                 // ...other properties if needed
             }));
-            feedback.primaryActant = feedback.enrichedActants.length > 0 ? feedback.enrichedActants[0] : null;
+            retour_experience.primaryActant = retour_experience.enrichedActants.length > 0 ? retour_experience.enrichedActants[0] : null;
         }
     }
 
     return {
-      itemDetails: feedback,
+      itemDetails: retour_experience,
       keywords: [],
       recommendations: [],
     };
@@ -67,35 +67,35 @@ export const feedbackConfig: GenericDetailPageConfig = {
   overviewSkeleton: ConfOverviewSkeleton,
   detailsSkeleton: ExpDetailsSkeleton,
 
-  mapOverviewProps: (feedback: any, currentVideoTime: number) => ({
-    id: feedback.id,
-    title: feedback.title,
-    personnes: feedback.enrichedActants,
-    fullUrl: feedback.url,
-    medias: feedback.associatedMedia,
+  mapOverviewProps: (retour_experience: any, currentVideoTime: number) => ({
+    id: retour_experience.id,
+    title: retour_experience.title,
+    personnes: retour_experience.enrichedActants,
+    fullUrl: retour_experience.url,
+    medias: retour_experience.associatedMedia,
     currentTime: currentVideoTime,
     buttonText: 'Expérience associée',
-    percentage: feedback.percentage,
-    status: feedback.status,
+    percentage: retour_experience.percentage,
+    status: retour_experience.status,
   }),
 
-  mapDetailsProps: (feedback: any) => ({
-    actants: feedback.enrichedActants,
-    date: feedback.date,
-    description: feedback.description,
+  mapDetailsProps: (retour_experience: any) => ({
+    actants: retour_experience.enrichedActants,
+    date: retour_experience.date,
+    description: retour_experience.description,
   }),
 
   // Mapper pour les recommandations (format SmConfCard)
-  mapRecommendationProps: (feedback: any) => ({
-    id: feedback.id,
-    title: feedback.title,
-    type: 'feedback',
+  mapRecommendationProps: (retour_experience: any) => ({
+    id: retour_experience.id,
+    title: retour_experience.title,
+    type: 'retour_experience',
     url: null, // url est pour YouTube, on ne l'utilise pas ici
-    thumbnail: feedback.thumbnail || null,
-    actant: feedback.enrichedActants || [],
+    thumbnail: retour_experience.thumbnail || null,
+    actant: retour_experience.enrichedActants || [],
   }),
 
-  // Vues basées sur les catégories de feedback
+  // Vues basées sur les catégories de retour d'éxperience
   viewOptions: FEEDBACK_CATEGORIES.map((category) => ({
     key: category.key,
     title: category.title,

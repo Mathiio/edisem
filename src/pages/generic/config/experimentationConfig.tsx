@@ -104,7 +104,7 @@ export const experimentationConfig: GenericDetailPageConfig = {
   //  Options de vue - tools, feedbacks, citations, références affichées dans la colonne de droite
   viewOptions: createExperimentationViews(
     (_itemDetails, viewData) => viewData?.tools || [],
-    (tool) => `/corpus/tool/${tool.id}`
+    (outil) => `/corpus/outil/${outil.id}`
   ),
 
   // Sections optionnelles

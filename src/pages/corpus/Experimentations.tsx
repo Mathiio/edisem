@@ -1,4 +1,4 @@
-import { ExpCard, ExpCardSkeleton } from '@/components/features/experimentation/ExpCards';
+import { ResourceCard, ResourceCardSkeleton } from '@/components/features/corpus/ResourceCard';
 import { Layouts } from '@/components/layout/Layouts';
 import { ExperimentationIcon } from '@/components/ui/icons';
 import { PageBanner } from '@/components/ui/PageBanner';
@@ -43,10 +43,17 @@ export const Experimentations: React.FC = () => {
       />
       <div className='grid grid-cols-4 w-full gap-25'>
         {loading
-          ? Array.from({ length: 8 }).map((_, index) => <ExpCardSkeleton key={index} />)
-          : experimentations.map((item: any, index: number) => (
-              <motion.div key={item.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
-                <ExpCard {...item} />
+          ? Array.from({ length: 8 }).map((_, index) => <ResourceCardSkeleton key={index} />)
+          : experimentations.map((exp: any, index: number) => (
+              <motion.div key={exp.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
+                <ResourceCard 
+                  title={exp.title}
+                  thumbnailUrl={exp.thumbnail}
+                  authors={exp.authors}
+                  subtitle={exp.subtitle}
+                  type={exp.type}
+                  item={{ ...exp }} 
+                />
               </motion.div>
             ))}
       </div>
