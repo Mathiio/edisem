@@ -155,7 +155,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
           relative cursor-pointer rounded-12 border-2 transition-all ease-in-out duration-200
           ${
             isSelected
-              ? 'border-primary bg-primary/10 shadow-[inset_0_0px_30px_rgba(var(--primary-rgb),0.1)]'
+              ? 'border-action bg-action/10 shadow-[inset_0_0px_30px_rgba(var(--action-rgb),0.1)]'
               : 'border-c3 hover:border-c4 hover:bg-c2 shadow-[inset_0_0px_30px_rgba(255,255,255,0.04)]'
           }
         `}>
@@ -165,7 +165,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
             isSelected={isSelected}
             onValueChange={() => handleToggleSelect(item.id)}
             classNames={{
-              wrapper: 'w-6 h-6 before:border-c4 before:border-2 after:bg-primary',
+              wrapper: 'w-6 h-6 before:border-c4 before:border-2 after:bg-action',
               icon: 'w-4 h-4',
             }}
           />
@@ -290,7 +290,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
               <Button onPress={onModalClose} className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-6 min-h-[40px] font-medium'>
                 Annuler
               </Button>
-              <Button onPress={handleConfirm} isDisabled={selectedIds.size === 0} className='bg-primary hover:bg-primary/80 text-white rounded-8 px-6 min-h-[40px] font-medium'>
+              <Button onPress={handleConfirm} isDisabled={selectedIds.size === 0} className='bg-action hover:bg-action/80 text-white rounded-8 px-6 min-h-[40px] font-medium'>
                 Valider ({selectedIds.size})
               </Button>
             </ModalFooter>

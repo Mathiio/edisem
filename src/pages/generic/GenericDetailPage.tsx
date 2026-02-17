@@ -1664,9 +1664,6 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     return content || null || undefined;
   }, [itemDetails, formData, selected, viewData, loading, loadingViews, config.viewOptions, isEditing]);
 
-  // Check if the rendered content is empty
-  const hasRenderedContent = renderedContent !== null && renderedContent !== undefined;
-
   // Helper function to extract text from a React element recursively
   const extractTextFromElement = (element: React.ReactElement | React.ReactNode): string => {
     if (!element) return '';
@@ -1848,11 +1845,8 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     }
 
     // Filter views to only include those with content (or all editable in edit mode)
-    return config.viewOptions.filter((viewOption) => viewHasContent(viewOption));
-  }, [itemDetails, loading, config.viewOptions, viewData, isEditing]);
-
-  // Check if right column has content to display
-  const hasRightColumnContent = availableViews.length > 0;
+    return config.viewOptions; // .filter((viewOption) => viewHasContent(viewOption));
+  }, [itemDetails, loading, config.viewOptions]); // Removed viewData and isEditing from deps as they are no longer used
 
   // Ensure selected view is available, if not select the first available view
   useEffect(() => {
@@ -1871,7 +1865,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
   const OverviewSkeleton = config.overviewSkeleton;
   const DetailsSkeleton = config.detailsSkeleton;
 
-  const shouldShowRightColumn = hasRightColumnContent || loadingViews;
+  const shouldShowRightColumn = true; // hasRightColumnContent || loadingViews;
   const leftColumnSpan = shouldShowRightColumn ? 'col-span-10 lg:col-span-6' : 'col-span-10';
 
   // Use availableViews instead of config.viewOptions for the selected option
@@ -1888,7 +1882,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     } else {
       allKeywords = keywords || [];
     }
-
+    
     if (allKeywords.length === 0) return [];
     return [...allKeywords].sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
   }, [keywords, isEditing, formData.keywords]);
@@ -2203,7 +2197,8 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
         </motion.div>
 
         {/* Colonne secondaire - Vues multiples */}
-        {(shouldShowRightColumn && hasRenderedContent) || loadingViews ? (
+        {/* Modified: Removed hasRenderedContent check to force display even if empty */}
+        {(shouldShowRightColumn) || loadingViews ? (
           <motion.div
             style={{ height: equalHeight || 'auto' }}
             className='col-span-10 lg:col-span-4 flex flex-col gap-50 overflow-hidden'
@@ -2234,47 +2229,57 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
               <div className='flex items-center justify-between w-full'>
                 <h2 className='text-24 font-medium text-c6'>{selectedOption?.title}</h2>
 
-                {availableViews.length > 1 && (
-                  <div className='relative'>
-                    <Dropdown>
-                      <DropdownTrigger className='p-0'>
-                        <div
-                          className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-15 py-10 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
-                          onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-                          <span className='text-16 font-normal text-c6'>Autres choix</span>
-                          <ArrowIcon size={12} className='rotate-90 text-c6' />
-                        </div>
-                      </DropdownTrigger>
+                {/* Forcing dropdown visibility as requested by user - even if availableViews.length === 1 or 0 (though 0 is unlikely if config is correct) */}
+                <div className='relative'>
+                  <Dropdown>
+                    <DropdownTrigger className='p-0'>
+                      <div
+                        className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-15 py-10 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                        <span className='text-16 font-normal text-c6'>Autres choix</span>
+                        <ArrowIcon size={12} className='rotate-90 text-c6' />
+                      </div>
+                    </DropdownTrigger>
 
-                      <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
-                        {config.viewOptions.map((option) => {
-                          const isAvailable = availableViews.some((v) => v.key === option.key);
-                          const isLoading = !isAvailable && loadingViews;
+                    <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
+                      {/* Use config.viewOptions directly if availableViews is empty (fallback) */}
+                      {(availableViews.length > 0 ? availableViews : config.viewOptions).map((option) => {
+                        const isAvailable = availableViews.some((v) => v.key === option.key);
+                        // If option is not in availableViews but we force show it, it might mean it has no content.
+                        const isLoading = loadingViews && !isAvailable; 
 
-                          return (
-                            <DropdownItem
-                              key={option.key}
-                              className={`p-0 ${selected === option.key ? 'bg-action' : ''}`}
-                              onClick={() => (isAvailable ? handleOptionSelect(option.key) : undefined)}
-                              isDisabled={isLoading}>
-                              <div
-                                className={`flex items-center w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 ${
-                                  isLoading ? 'text-c4 cursor-not-allowed' : selected === option.key ? 'bg-action text-selected font-medium' : 'text-c6 hover:bg-c3'
-                                }`}>
-                                {isLoading && <Spinner size='sm' className='mr-2' />}
-                                <span className='text-16'>{option.title}</span>
-                              </div>
-                            </DropdownItem>
-                          );
-                        })}
-                      </DropdownMenu>
-                    </Dropdown>
+                        return (
+                          <DropdownItem
+                            key={option.key}
+                            className={`p-0 ${selected === option.key ? 'bg-action' : ''}`}
+                            onClick={() => handleOptionSelect(option.key)}
+                            isDisabled={isLoading}>
+                            <div
+                              className={`flex items-center w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 ${
+                                isLoading ? 'text-c4 cursor-not-allowed' : selected === option.key ? 'bg-action text-selected font-medium' : 'text-c6 hover:bg-c3'
+                              }`}>
+                              {isLoading && <Spinner size='sm' className='mr-2' />}
+                              <span className='text-16'>{option.title}</span>
+                            </div>
+                          </DropdownItem>
+                        );
+                      })}
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
+              </div>
+
+              {/* Contenu de la vue sélectionnée ou message vide */}
+              <div className='flex-grow min-h-0 overflow-auto'>
+                {/* Modified: Use viewHasContent(selectedOption) to check for content availability */}
+                {viewHasContent(selectedOption) ? (
+                  renderedContent
+                ) : (
+                  <div className='flex flex-col items-center justify-center w-full h-full py-20 text-center bg-c2 rounded-12 border border-dashed border-c3'>
+                    <p className='text-c5 text-16'>Aucun contenu renseigné pour {selectedOption?.title?.toLowerCase() || 'cette section'}.</p>
                   </div>
                 )}
               </div>
-
-              {/* Contenu de la vue sélectionnée */}
-              <div className='flex-grow min-h-0 overflow-auto'>{renderedContent}</div>
             </div>
             )}
           </motion.div>
