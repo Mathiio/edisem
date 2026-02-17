@@ -65,10 +65,12 @@ export interface RenderContentContext {
   isEditing?: boolean;
   onLinkExisting?: (viewKey: string) => void;
   onCreateNew?: (viewKey: string) => void;
+  onEditResource?: (viewKey: string, resourceId: string | number) => void;
   onRemoveItem?: (viewKey: string, itemId: string | number) => void;
   onItemsChange?: (viewKey: string, items: any) => void;
   formData?: Record<string, any>; // Données du formulaire en mode édition
   onNavigate?: (path: string) => void; // Pour déclencher la navigation avec animation
+  updatedResources?: Record<string, { title?: string; thumbnail?: string }>; // Titres/thumbnails mis à jour
 }
 
 /**

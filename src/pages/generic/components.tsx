@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Spinner } from '@heroui/react';
 import { getYouTubeThumbnailUrl, isValidYouTubeUrl } from '@/lib/utils';
 import { AddResourceCard } from '@/components/features/forms/AddResourceCard';
+import { TrashIcon } from '@/components/ui/icons';
 
 /**
  * Composants réutilisables pour les viewOptions
@@ -28,9 +29,10 @@ interface ToolItemProps {
   tool: ToolItemData;
   onNavigate?: (url: string) => void; // Callback pour navigation avec animation
   animationDelay?: number; // Délai en ms avant navigation (pour laisser l'animation jouer)
+  onEdit?: (id: string | number) => void; // Callback pour édition (ouvre un onglet)
 }
 
-export const ToolItem: React.FC<ToolItemProps> = ({ tool, onNavigate, animationDelay = 450 }) => {
+export const ToolItem: React.FC<ToolItemProps> = ({ tool, onNavigate, onEdit, animationDelay = 450 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const navigate = useNavigate();
@@ -40,6 +42,13 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, onNavigate, animationD
 
   // Gestion du clic avec animation
   const handleClick = (e: React.MouseEvent) => {
+    // Si on a un callback d'édition, l'utiliser en priorité
+    if (onEdit) { // En mode edit, on peut passer '#' comme url
+       e.preventDefault();
+       onEdit(tool.id);
+       return;
+    }
+
     // Si c'est un lien externe, laisser le comportement par défaut
     if (itemUrl.startsWith('http')) {
       return;
@@ -55,13 +64,13 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, onNavigate, animationD
     if (onNavigate) {
       console.log('[ToolItem] Calling onNavigate');
       onNavigate(itemUrl);
+    } else {
+        // Fallback standard navigation
+        setTimeout(() => {
+          console.log('[ToolItem] Navigating after delay');
+          navigate(itemUrl);
+        }, animationDelay);
     }
-
-    // Naviguer après le délai d'animation
-    setTimeout(() => {
-      console.log('[ToolItem] Navigating after delay');
-      navigate(itemUrl);
-    }, animationDelay);
   };
 
   // Récupérer la thumbnail
@@ -170,6 +179,7 @@ interface ItemsListProps {
   onCreateNew?: () => void;
   onRemoveItem?: (id: string | number) => void;
   onNavigate?: (url: string) => void; // Callback pour animation avant navigation
+  onEdit?: (id: string | number) => void; // Callback pour édition
 }
 
 export const ItemsList: React.FC<ItemsListProps> = ({
@@ -182,6 +192,7 @@ export const ItemsList: React.FC<ItemsListProps> = ({
   onCreateNew,
   onRemoveItem,
   onNavigate,
+  onEdit,
 }) => {
   // Normaliser items pour s'assurer que c'est toujours un tableau
   const itemsArray = Array.isArray(items) ? items : items ? [items] : [];
@@ -209,15 +220,17 @@ export const ItemsList: React.FC<ItemsListProps> = ({
 
         return (
           <div key={item.id} className='relative group'>
-            <ToolItem tool={mappedItem} onNavigate={onNavigate} />
+            <ToolItem tool={mappedItem} onNavigate={onNavigate} onEdit={onEdit} />
             {/* Bouton de suppression en mode édition */}
             {isEditing && onRemoveItem && (
-              <button
-                onClick={() => onRemoveItem(item.id)}
-                className='absolute top-2 right-2 w-6 h-6 bg-danger text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-sm'
-                title='Supprimer'>
-                ×
-              </button>
+              <div className='absolute top-0 right-4 h-full flex items-center'>
+                <button
+                  onClick={() => onRemoveItem(item.id)}
+                  className='hover:bg-c2/80 bg-c2 p-2 text-c5 hover:text-danger/80 text-danger rounded-full transition-all flex items-center justify-center rounded-6 border-c3 border-1'
+                  title='Supprimer'>
+                  <TrashIcon size={20} />
+                </button>
+              </div>
             )}
           </div>
         );

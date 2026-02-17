@@ -404,8 +404,8 @@ export const MonEspace: React.FC = () => {
         classNames={{ base: 'bg-c1 border-2 border-c3', header: 'border-b border-c3', body: 'py-6', footer: 'border-t border-c3' }}>
         <ModalContent>
           <ModalHeader className='flex flex-col gap-1'>
-            <div className='flex items-center gap-3'>
-              <div className='p-2 rounded-10 bg-red-500/20'>
+            <div className='flex items-center gap-2'>
+              <div className='p-1 rounded-10 bg-red-500/20'>
                 <TrashIcon size={20} className='text-[#FF0000]' />
               </div>
               <span className='text-c6'>Confirmer la suppression</span>

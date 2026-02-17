@@ -71,7 +71,7 @@ export const feedbackStudentConfigSimplified: SimplifiedDetailConfig = {
       title: 'Outils',
       property: 'schema:tool',
       renderType: 'items',
-      urlPattern: '/corpus/tool/:id',
+      urlPattern: '/corpus/outil/:id',
       resourceTemplateIds: [114, 129],
     },
   ],

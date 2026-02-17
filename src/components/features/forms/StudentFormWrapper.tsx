@@ -6,9 +6,10 @@ import { GenericDetailPageConfig } from '@/pages/generic/config';
 
 // Import des configs étudiantes
 import { toolStudentConfig } from '@/pages/generic/config/toolStudentConfig';
-import { feedbackStudentConfig } from '@/pages/generic/config/feedbackStudentConfig';
+import { feedbackStudentConfig, feedbackStudentConfigSimplified } from '@/pages/generic/config/feedbackStudentConfig';
 import { experimentationStudentConfig } from '@/pages/generic/config/experimentationStudentConfig';
 import { bibliographyStudentConfig } from '@/pages/generic/config/bibliographyStudentConfig';
+import { createHandleSave } from '@/pages/generic/simplifiedConfigAdapter';
 
 /**
  * Configuration complète d'un onglet (interne au wrapper)
@@ -97,6 +98,39 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
     [activeTabId],
   );
 
+  const handleEditResource = useCallback(
+    (viewKey: string, resourceId: string | number) => {
+      const mapping = getConfigForViewKey(viewKey);
+      if (!mapping) {
+        console.warn(`No config found for viewKey: ${viewKey}`);
+        return;
+      }
+
+      // Check if tab already exists
+      const existingTab = tabs.find((t) => t.itemId === String(resourceId) && t.config === mapping.config);
+      if (existingTab) {
+        setActiveTabId(existingTab.id);
+        return;
+      }
+
+      const newTab: InternalTab = {
+        id: generateTabId(),
+        title: mapping.label, // Ideally we would want the specific item title here
+        config: mapping.config,
+        mode: 'edit',
+        itemId: String(resourceId),
+        isDirty: false,
+        parentTabId: activeTabId,
+        linkedField: viewKey,
+        hasBeenActivated: true,
+      };
+
+      setTabs((prev) => [...prev, newTab]);
+      setActiveTabId(newTab.id);
+    },
+    [activeTabId, tabs],
+  );
+
   const handleSaveComplete = useCallback((tabId: string, savedItemId: string | number, savedItemTitle?: string) => {
     setTabs((prevTabs) => {
       const tab = prevTabs.find((t) => t.id === tabId);
@@ -105,21 +139,41 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
         const parentId = tab.parentTabId;
         const linkedField = tab.linkedField; // Extract to ensure TypeScript knows it's defined
 
-        // Ajouter le lien aux pendingLinks via setState (pas ref)
-        // Cela va déclencher un re-render et passer les liens au parent
-        setPendingLinksToPass((prev) => ({
-          ...prev,
-          [parentId]: [
-            ...(prev[parentId] || []),
-            {
-              linkedField,
-              resourceId: savedItemId,
-              resourceTitle: savedItemTitle,
+        // Mettre à jour le titre dans updatedResources si disponible
+        if (savedItemTitle) {
+          setUpdatedResources((prev) => ({
+            ...prev,
+            [String(savedItemId)]: {
+              title: savedItemTitle,
+              // On pourrait aussi mettre à jour le thumbnail si on l'avait
             },
-          ],
-        }));
+          }));
+        }
+
+        // Only add to pendingLinks if the tab was in create mode
+        // In edit mode, the link already exists, so we don't need to add it again
+        if (tab.mode === 'create') {
+          // Ajouter le lien aux pendingLinks via setState (pas ref)
+          // Cela va déclencher un re-render et passer les liens au parent
+          setPendingLinksToPass((prev) => ({
+            ...prev,
+            [parentId]: [
+              ...(prev[parentId] || []),
+              {
+                linkedField,
+                resourceId: savedItemId,
+                resourceTitle: savedItemTitle,
+              },
+            ],
+          }));
+        }
 
         // Marquer le parent comme dirty et supprimer l'onglet enfant
+        // Even in edit mode, we might want to mark parent as dirty if we want to force a refresh,
+        // but for now let's assume parent doesn't need to be dirty if we just edited a child.
+        // Actually, if we edited a child, the parent might show outdated info (e.g. title), so maybe keep it dirty?
+        // But the user issue is duplication, which comes from pendingLinks.
+        // So we just filter tabs and optionally mark parent dirty.
         const newTabs = prevTabs.map((t) => (t.id === parentId ? { ...t, isDirty: true } : t)).filter((t) => t.id !== tabId);
 
         // Changer vers le parent
@@ -178,6 +232,9 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
   // État pour passer les pendingLinks de manière contrôlée
   // On ne passe les liens qu'une seule fois quand on switch vers le tab parent
   const [pendingLinksToPass, setPendingLinksToPass] = useState<Record<string, { linkedField: string; resourceId: string | number; resourceTitle?: string }[]>>({});
+  
+  // État pour passer les mises à jour des ressources (titre, thumbnail)
+  const [updatedResources, setUpdatedResources] = useState<Record<string, { title?: string; thumbnail?: string }>>({});
 
   const clearPendingLinks = useCallback((tabId: string) => {
     setPendingLinksToPass((prev) => {
@@ -199,9 +256,6 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
     [tabs],
   );
 
-  // Liste des IDs de tabs pour les dépendances (mémorisée)
-  const tabIds = useMemo(() => tabs.map((t) => t.id), [tabs]);
-
   // Créer des callbacks stables pour chaque tab en utilisant useMemo
   // Cela évite de recréer les callbacks à chaque render
   const tabCallbacksMap = useMemo(() => {
@@ -211,17 +265,46 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
         onSaveComplete: (savedId: string | number, savedTitle?: string) => void;
         onDirtyChange: (isDirty: boolean) => void;
         onPendingLinksProcessed: () => void;
+        onSave?: (data: any) => Promise<void>;
       }
     > = {};
-    tabIds.forEach((tabId) => {
-      map[tabId] = {
-        onSaveComplete: (savedId: string | number, savedTitle?: string) => handleSaveComplete(tabId, savedId, savedTitle),
-        onDirtyChange: (isDirty: boolean) => handleDirtyChange(tabId, isDirty),
-        onPendingLinksProcessed: () => clearPendingLinks(tabId),
+    
+    tabs.forEach((tab) => {
+      // Déterminer la config simplifiée correspondante pour générer le handleSave
+      let simplifiedConfig: any = null;
+      
+      // Essayer de trouver la config simplifiée source
+      if (tab.config === feedbackStudentConfig) simplifiedConfig = feedbackStudentConfigSimplified;
+      // Il faudrait importer les autres configs simplifiées ici si nécessaire (toolStudentConfigSimplified, etc.)
+      
+      let onSaveHandler: ((data: any) => Promise<void>) | undefined = undefined;
+      
+      if (simplifiedConfig) {
+        // Créer le handler de sauvegarde
+        const saveHandler = createHandleSave(simplifiedConfig);
+        onSaveHandler = async (data: any) => {
+          if (tab.itemId) {
+            await saveHandler(data, tab.itemId);
+          } else {
+             // Cas de création: GenericDetailPage gère la création si pas d'itemId, 
+             // mais ici on a besoin de l'URL de création qui est différente de celle de mise à jour.
+             // createHandleSave pour l'instant ne gère que l'update (PUT).
+             // Pour la création, GenericDetailPage a sa propre logique, donc on peut laisser undefined
+             // SAUF si on veut supporter la logique de mapping complexe aussi à la création.
+             // Pour l'instant, le problème est sur l'édition (PUT), donc on se concentre là-dessus.
+          }
+        };
+      }
+
+      map[tab.id] = {
+        onSaveComplete: (savedId: string | number, savedTitle?: string) => handleSaveComplete(tab.id, savedId, savedTitle),
+        onDirtyChange: (isDirty: boolean) => handleDirtyChange(tab.id, isDirty),
+        onPendingLinksProcessed: () => clearPendingLinks(tab.id),
+        onSave: onSaveHandler,
       };
     });
     return map;
-  }, [tabIds, handleSaveComplete, handleDirtyChange, clearPendingLinks]);
+  }, [tabs, handleSaveComplete, handleDirtyChange, clearPendingLinks]);
 
   return (
     <>
@@ -241,9 +324,12 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
               initialMode={tab.mode}
               itemId={tab.itemId}
               onCreateNewResource={handleCreateNewResource}
+              onEditResource={handleEditResource}
+              onSave={callbacks?.onSave}
               onSaveComplete={callbacks?.onSaveComplete}
               onDirtyChange={callbacks?.onDirtyChange}
               pendingLinks={isActive ? pendingLinksToPass[tab.id] : undefined}
+              updatedResources={isActive ? updatedResources : undefined}
               onPendingLinksProcessed={callbacks?.onPendingLinksProcessed}
               tabs={tabsForDisplay}
               activeTabId={activeTabId}
