@@ -204,6 +204,11 @@ class QuerySqlViewHelper extends AbstractHelper
                 $type = isset($params['type']) ? $params['type'] : 'seminaire';
                 $result = $this->getEditionsByType($type);
                 break;
+            case 'advancedSearch':
+                $query = $params['query'] ?? '';
+                $types = isset($params['types']) ? explode(',', $params['types']) : [];
+                $result = $this->advancedSearch($query, $types);
+                break;
             default:
                 error_log('QuerySqlViewHelper: Unknown action: ' . ($params['action'] ?? 'null'));
                 $result = [];
@@ -420,19 +425,6 @@ class QuerySqlViewHelper extends AbstractHelper
                         break;
                  }
              }
-
-             // Fallback names
-             // Fallback names
-             /*
-             if (!$actant['title'] && $actant['firstname'] && $actant['lastname']) {
-                 $actant['title'] = $actant['firstname'] . ' ' . $actant['lastname'];
-             }
-             if ($actant['title'] && (!$actant['firstname'] || !$actant['lastname'])) {
-                 $parts = explode(' ', $actant['title']);
-                 if (!$actant['firstname']) $actant['firstname'] = $parts[0];
-                 if (!$actant['lastname']) $actant['lastname'] = isset($parts[1]) ? end($parts) : '';
-             }
-             */
 
              $results[] = $actant;
         }
@@ -819,6 +811,136 @@ class QuerySqlViewHelper extends AbstractHelper
             'edition' => $edition,
             'conferences' => $conferences
         ];
+    }
+
+    /**
+     * Recherche avancée multi-critères
+     * - Titre de la ressource
+     * - Nom des intervenants/créateurs
+     * - Université/Pays des intervenants
+     */
+    public function advancedSearch($query, $types = [])
+    {
+        $query = trim($query);
+        if (empty($query)) return [];
+
+        // Mapping des types vers Template IDs
+        $templateMap = [
+            'experimentation' => 108,
+            'seminaire' => 71,
+            'journee_etudes' => 121,
+            'colloque' => 122,
+            'recit_citoyen' => 119,
+            'recit_mediatique' => 120,
+            'recit_scientifique' => 124,
+            'recit_techno_industriel' => 117,
+            'recit_artistique' => 103,
+            'outil' => 114,
+            'intervenant' => 72
+        ];
+        
+        $templateIds = [];
+        if (empty($types)) {
+            $templateIds = array_values($templateMap);
+        } else {
+            foreach ($types as $type) {
+                if (isset($templateMap[$type])) {
+                    $templateIds[] = $templateMap[$type];
+                }
+            }
+        }
+        
+        if (empty($templateIds)) return [];
+        
+        $idsStr = implode(',', $templateIds);
+        $likeQuery = '%' . $query . '%';
+        $quotedQuery = $this->conn->quote($likeQuery);
+
+        $sql = "
+            SELECT DISTINCT r.id, r.resource_template_id
+            FROM resource r
+            WHERE r.resource_template_id IN ($idsStr)
+            AND (
+                -- 1. Titre de la ressource (Works for Actants too if they have a Title)
+                r.title LIKE $quotedQuery
+                
+                OR EXISTS (
+                    -- 2. Nom de l'agent lié (Créateur ou Actant)
+                    SELECT 1 
+                    FROM value v_agent
+                    JOIN resource agent ON v_agent.value_resource_id = agent.id
+                    WHERE v_agent.resource_id = r.id
+                    AND v_agent.property_id IN (2, 386) -- Creator (2), Actant (386)
+                    AND agent.title LIKE $quotedQuery
+                )
+                
+                OR EXISTS (
+                    -- 3. Attributs de l'actant (Université, Pays)
+                    SELECT 1 
+                    FROM value v_link
+                    JOIN value v_attr ON v_link.value_resource_id = v_attr.resource_id
+                    LEFT JOIN resource attr_res ON v_attr.value_resource_id = attr_res.id
+                    WHERE v_link.resource_id = r.id
+                    AND v_link.property_id = 386 -- On cherche via les actants
+                    AND (
+                        -- Match via Resource (Université, Pays Resource)
+                        (v_attr.property_id IN (73, 3038, 377) AND attr_res.title LIKE $quotedQuery)
+                        OR
+                        -- Match via Literal (Pays Literal)
+                        (v_attr.property_id IN (94) AND v_attr.value LIKE $quotedQuery)
+                    )
+                )
+            )
+            LIMIT 50
+        ";
+        
+        $rows = $this->conn->fetchAllAssociative($sql);
+        
+        $actantIds = [];
+        $resourceIds = [];
+        
+        foreach ($rows as $row) {
+            if ($row['resource_template_id'] == 72) {
+                $actantIds[] = $row['id'];
+            } else {
+                $resourceIds[] = $row['id'];
+            }
+        }
+        
+        $results = [];
+        
+        // Fetch Resources
+        if (!empty($resourceIds)) {
+            $resources = $this->cardHelper->fetchCards($resourceIds);
+            $results = array_merge($results, $resources);
+        }
+        
+        // Fetch Actants
+        if (!empty($actantIds)) {
+            $actants = $this->getActantBasicInfo($actantIds);
+            foreach ($actants as $actant) {
+                // Map Actant to Card Format
+                $subtitle = '';
+                if (!empty($actant['universities'])) {
+                    $subtitle = $actant['universities'][0]['name'];
+                } elseif (!empty($actant['laboratories'])) {
+                    $subtitle = $actant['laboratories'][0]['name'];
+                }
+                
+                $results[] = [
+                    'id' => (string)$actant['id'],
+                    'title' => trim($actant['firstname'] . ' ' . $actant['lastname']),
+                    'thumbnail' => $actant['picture'],
+                    'type' => 'intervenant', 
+                    'subtitle' => $subtitle,
+                    'actants' => [], 
+                    'date' => null,
+                    'url' => null 
+                ];
+            }
+        }
+        
+        return $results;
     }
 
     function getActantsGlobalStats() {

@@ -672,4 +672,14 @@ export async function getResourceCardsByKeyword(keywordId: string | number, limi
   }
 }
 
+export async function advancedSearch(query: string, types: string[] = []) {
+  try {
+    const typesParam = types.length > 0 ? `&types=${types.join(',')}` : '';
+    return await getDataByUrl(`https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=advancedSearch&query=${encodeURIComponent(query)}${typesParam}&json=1`);
+  } catch (error) {
+    console.error('Error in advanced search:', error);
+    return [];
+  }
+}
+
 export * from './resourceDetails';
