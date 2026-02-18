@@ -157,7 +157,7 @@ const SubjectCarousels = ({ items, loading }: { items: any[], loading: boolean }
     });
 
     return Object.values(subjectMap)
-      .sort((a, b) => b.items.length - a.items.length);
+      .sort((a, b) => a.label.localeCompare(b.label, 'fr', { sensitivity: 'base' }));
   }, [items, loading]);
 
   if (loading) {
