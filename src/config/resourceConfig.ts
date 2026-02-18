@@ -39,7 +39,8 @@ export type ResourceType =
   | 'outil'
   | 'outil_etudiant'
   | 'retour_experience'
-  | 'retour_experience_etudiant';
+  | 'retour_experience_etudiant'
+  | 'intervenant';
 
 // ========================================
 // Configuration des types de ressources
@@ -236,6 +237,15 @@ export const RESOURCE_TYPES: Record<ResourceType, ResourceTypeConfig> = {
     icon: undefined,
     templateIds: [128],
     getUrl: (id) => `/espace-etudiant/retour-experience/${id}`,
+  },
+
+  intervenant: {
+    type: 'intervenant',
+    label: 'Intervenant',
+    collectionLabel: 'Intervenants',
+    icon: undefined,
+    templateIds: [72],
+    getUrl: (id) => `/intervenant/${id}`,
   },
 };
 
