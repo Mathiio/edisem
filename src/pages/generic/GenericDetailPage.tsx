@@ -546,14 +546,19 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
   // Cancel edit and reset to view mode
   const handleCancelEdit = () => {
     reset();
+    
+    // Si une fonction onCancel est fournie, on lui laisse la priorité
+    // C'est utile pour les onglets (StudentFormWrapper) qui doivent fermer l'onglet au lieu de naviguer
+    if (onCancel) {
+      onCancel();
+      return;
+    }
+
     if (mode === 'create') {
-      // En mode create, retourner à la page précédente
+      // En mode create, retourner à la page précédente par défaut
       navigate(-1);
     } else {
       setMode('view');
-      if (onCancel) {
-        onCancel();
-      }
     }
   };
 

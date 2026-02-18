@@ -1,3 +1,4 @@
+import { RESOURCE_TYPES } from '@/config/resourceConfig';
 import { SimplifiedDetailConfig } from '../simplifiedConfig';
 import { convertToGenericConfig } from '../simplifiedConfigAdapter';
 
@@ -7,7 +8,7 @@ import { convertToGenericConfig } from '../simplifiedConfigAdapter';
  * les formulaires en mode édition/création.
  */
 export const toolStudentConfigSimplified: SimplifiedDetailConfig = {
-  resourceType: 'Outil',
+  resourceType: RESOURCE_TYPES.outil_etudiant.type,
   templateId: 129,
 
   // Mapping des propriétés principales avec types explicites

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ResourceTabInfo } from './ResourceFormTabs';
 import { GenericDetailPage } from '@/pages/generic/GenericDetailPage';
 import { GenericDetailPageConfig } from '@/pages/generic/config';
@@ -10,6 +10,7 @@ import { feedbackStudentConfig, feedbackStudentConfigSimplified } from '@/pages/
 import { experimentationStudentConfig } from '@/pages/generic/config/experimentationStudentConfig';
 import { bibliographyStudentConfig } from '@/pages/generic/config/bibliographyStudentConfig';
 import { createHandleSave } from '@/pages/generic/simplifiedConfigAdapter';
+import { getRessourceLabel } from '@/config/resourceConfig';
 
 /**
  * Configuration complète d'un onglet (interne au wrapper)
@@ -26,20 +27,20 @@ interface InternalTab extends ResourceTabInfo {
 /**
  * Mapping viewKey → config pour créer le bon type de ressource
  */
-const VIEW_KEY_CONFIG_MAP: Record<string, { config: GenericDetailPageConfig; label: string }> = {
+const VIEW_KEY_CONFIG_MAP: Record<string, { config: GenericDetailPageConfig }> = {
   // Depuis experimentationStudentConfig (views)
-  'theatre:credit': { config: toolStudentConfig, label: 'Outil' },
-  'schema:description': { config: feedbackStudentConfig, label: "Retour d'expérience" },
-  'dcterms:references': { config: bibliographyStudentConfig, label: 'Bibliographie' },
-  'dcterms:bibliographicCitation': { config: bibliographyStudentConfig, label: 'Bibliographie' },
+  'theatre:credit': { config: toolStudentConfig },
+  'schema:description': { config: feedbackStudentConfig },
+  'dcterms:references': { config: bibliographyStudentConfig },
+  'dcterms:bibliographicCitation': { config: bibliographyStudentConfig },
 
   // Depuis feedbackStudentConfig (views)
-  outils: { config: toolStudentConfig, label: 'Outil' },
-  'schema:tool': { config: toolStudentConfig, label: 'Outil' },
+  outils: { config: toolStudentConfig },
+  'schema:tool': { config: toolStudentConfig },
 
   // Depuis toolStudentConfig (views)
-  projets: { config: experimentationStudentConfig, label: 'Expérimentation' },
-  'dcterms:isPartOf': { config: experimentationStudentConfig, label: 'Expérimentation' },
+  projets: { config: experimentationStudentConfig },
+  'dcterms:isPartOf': { config: experimentationStudentConfig },
 };
 
 const getConfigForViewKey = (viewKey: string) => VIEW_KEY_CONFIG_MAP[viewKey];
@@ -56,12 +57,13 @@ interface StudentFormWrapperProps {
  */
 export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialConfig, initialMode }) => {
   const { id: paramId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   // État des onglets
   const [tabs, setTabs] = useState<InternalTab[]>([
     {
       id: 'main',
-      title: initialConfig.type || 'Ressource',
+      title: getRessourceLabel(initialConfig.type || 'Ressource'),
       config: initialConfig,
       mode: initialMode,
       itemId: paramId,
@@ -83,7 +85,7 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
 
       const newTab: InternalTab = {
         id: generateTabId(),
-        title: mapping.label,
+        title: getRessourceLabel(mapping.config.type || 'Ressource'),
         config: mapping.config,
         mode: 'create',
         isDirty: false,
@@ -115,7 +117,7 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
 
       const newTab: InternalTab = {
         id: generateTabId(),
-        title: mapping.label, // Ideally we would want the specific item title here
+        title: getRessourceLabel(mapping.config.type || 'Ressource'), // Ideally we would want the specific item title here
         config: mapping.config,
         mode: 'edit',
         itemId: String(resourceId),
@@ -130,6 +132,8 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
     },
     [activeTabId, tabs],
   );
+
+
 
   const handleSaveComplete = useCallback((tabId: string, savedItemId: string | number, savedItemTitle?: string) => {
     setTabs((prevTabs) => {
@@ -266,6 +270,7 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
         onDirtyChange: (isDirty: boolean) => void;
         onPendingLinksProcessed: () => void;
         onSave?: (data: any) => Promise<void>;
+        onCancel?: () => void;
       }
     > = {};
     
@@ -285,26 +290,32 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
         onSaveHandler = async (data: any) => {
           if (tab.itemId) {
             await saveHandler(data, tab.itemId);
-          } else {
-             // Cas de création: GenericDetailPage gère la création si pas d'itemId, 
-             // mais ici on a besoin de l'URL de création qui est différente de celle de mise à jour.
-             // createHandleSave pour l'instant ne gère que l'update (PUT).
-             // Pour la création, GenericDetailPage a sa propre logique, donc on peut laisser undefined
-             // SAUF si on veut supporter la logique de mapping complexe aussi à la création.
-             // Pour l'instant, le problème est sur l'édition (PUT), donc on se concentre là-dessus.
           }
         };
       }
+
+      // Déterminer le comportement d'annulation
+      let onCancelHandler: (() => void) | undefined = undefined;
+      
+      if (tab.parentTabId) {
+        // Cas 1: Onglet enfant -> Fermer l'onglet
+        onCancelHandler = () => handleCloseTab(tab.id);
+      } else if (tab.mode === 'create') {
+        // Cas 2: Onglet principal en création -> Retour arrière navigation
+        onCancelHandler = () => navigate(-1);
+      }
+      // Cas 3: Onglet principal en édition -> undefined (laisser GenericDetailPage passer en mode view)
 
       map[tab.id] = {
         onSaveComplete: (savedId: string | number, savedTitle?: string) => handleSaveComplete(tab.id, savedId, savedTitle),
         onDirtyChange: (isDirty: boolean) => handleDirtyChange(tab.id, isDirty),
         onPendingLinksProcessed: () => clearPendingLinks(tab.id),
         onSave: onSaveHandler,
+        onCancel: onCancelHandler,
       };
     });
     return map;
-  }, [tabs, handleSaveComplete, handleDirtyChange, clearPendingLinks]);
+  }, [tabs, handleSaveComplete, handleDirtyChange, clearPendingLinks, handleCloseTab, navigate]);
 
   return (
     <>
@@ -326,6 +337,7 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
               onCreateNewResource={handleCreateNewResource}
               onEditResource={handleEditResource}
               onSave={callbacks?.onSave}
+              onCancel={callbacks?.onCancel}
               onSaveComplete={callbacks?.onSaveComplete}
               onDirtyChange={callbacks?.onDirtyChange}
               pendingLinks={isActive ? pendingLinksToPass[tab.id] : undefined}

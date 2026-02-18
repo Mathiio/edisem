@@ -1,3 +1,4 @@
+import { RESOURCE_TYPES } from '@/config/resourceConfig';
 import { SimplifiedDetailConfig } from '../simplifiedConfig';
 import { convertToGenericConfig } from '../simplifiedConfigAdapter';
 
@@ -6,7 +7,7 @@ import { convertToGenericConfig } from '../simplifiedConfigAdapter';
  * Template Omeka S: 81 (EdiSem bibliographie)
  */
 export const bibliographyStudentConfigSimplified: SimplifiedDetailConfig = {
-  resourceType: 'Bibliographie',
+  resourceType: RESOURCE_TYPES.bibliographie.type,
   templateId: 81,
 
   fields: {

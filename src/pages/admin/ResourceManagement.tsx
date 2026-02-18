@@ -21,6 +21,7 @@ import { Button } from '@/theme/components/button';
 import { Layouts } from '@/components/layout/Layouts';
 import { TrashIcon, EditIcon, ExperimentationIcon, UserIcon } from '@/components/ui/icons';
 import { getCourses, type Course, type StudentResourceCard } from '@/services/StudentSpace';
+import { getRessourceLabel } from '@/config/resourceConfig';
 
 const API_BASE = 'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=StudentSpace';
 
@@ -43,10 +44,8 @@ async function fetchAllResources(): Promise<ResourceWithCourse[]> {
 // Mettre à jour le cours d'une ressource
 async function updateResourceCourse(resourceId: number, courseId: number | null): Promise<{ success: boolean; error?: string }> {
   const url = `${API_BASE}&action=updateResourceCourse&resourceId=${resourceId}&courseId=${courseId ?? ''}&json=1`;
-  console.log('[ResourceManagement] updateResourceCourse URL:', url);
   const response = await fetch(url);
   const data = await response.json();
-  console.log('[ResourceManagement] updateResourceCourse response:', data);
   if (!response.ok || data.error) {
     throw new Error(data.error || 'Erreur lors de la mise à jour');
   }
@@ -179,11 +178,8 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
     setIsDeleting(true);
     try {
       const url = `${API_BASE}&action=deleteResource&id=${resourceToDelete.id}&json=1`;
-      console.log('[ResourceManagement] Delete URL:', url);
       const response = await fetch(url);
-      console.log('[ResourceManagement] Delete response status:', response.status);
       const result = await response.json();
-      console.log('[ResourceManagement] Delete result:', result);
 
       if (result.success) {
         addToast({
@@ -209,19 +205,16 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
     }
   };
 
-  // Label du type de ressource
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'experimentation':
-        return 'Expérimentation';
-      case 'outil':
-        return 'Outil';
-      case 'retour_experience':
-        return "Retour d'expérience";
-      default:
-        return type;
-    }
-  };
+  if (loading) {
+    return (
+      <Wrapper embedded={embedded}>
+        <div className='flex flex-col gap-4 min-h-[400px] items-center justify-center py-20'>
+          <Spinner color="current" className="text-c6" />
+          <p className="text-c6">Chargement en cours...</p>
+        </div>
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper embedded={embedded}>
@@ -266,9 +259,9 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
             }}>
             {[
               { id: 'all', label: 'Tous les types' },
-              { id: 'experimentation', label: 'Expérimentations' },
-              { id: 'outil', label: 'Outils' },
-              { id: 'retour_experience', label: "Retours d'expérience" },
+              { id: 'experimentation_etudiant', label: 'Expérimentations' },
+              { id: 'outil_etudiant', label: 'Outils' },
+              { id: 'retour_experience_etudiant', label: "Retours d'expérience" },
             ].map((option) => (
               <SelectItem key={option.id} className='text-c6'>
                 {option.label}
@@ -294,7 +287,9 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
             <TableColumn>CRÉATEUR(S)</TableColumn>
             <TableColumn>ACTIONS</TableColumn>
           </TableHeader>
-          <TableBody isLoading={loading} loadingContent={<Spinner />} emptyContent='Aucune ressource trouvée'>
+          <TableBody 
+            emptyContent='Aucune ressource trouvée'
+          >
             {filteredResources.map((resource) => (
               <TableRow key={resource.id}>
                 <TableCell>
@@ -309,7 +304,7 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
                     <span className='font-medium'>{resource.title}</span>
                   </div>
                 </TableCell>
-                <TableCell>{getTypeLabel(resource.type)}</TableCell>
+                <TableCell>{getRessourceLabel(resource.type)}</TableCell>
                 <TableCell>
                   {resource.courseId ? (
                     <span
@@ -379,7 +374,7 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
                 )}
                 <div>
                   <p className='text-c6 font-medium'>{selectedResource?.title}</p>
-                  <p className='text-c5 text-12'>{getTypeLabel(selectedResource?.type || '')}</p>
+                  <p className='text-c5 text-12'>{getRessourceLabel(selectedResource?.type || '')}</p>
                 </div>
               </div>
 

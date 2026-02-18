@@ -345,8 +345,9 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
   if (loading) {
     return (
       <Wrapper {...wrapperProps}>
-        <div className='flex items-center justify-center min-h-[400px]'>
-          <Spinner size='lg' />
+        <div className='flex flex-col gap-4 min-h-[400px] items-center justify-center py-20'>
+          <Spinner color="current" className="text-c6" />
+          <p className="text-c6">Chargement en cours...</p>
         </div>
       </Wrapper>
     );
