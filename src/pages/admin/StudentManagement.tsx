@@ -79,32 +79,26 @@ const API_BASE = 'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Student
 // Récupérer les étudiants
 async function fetchStudents(): Promise<StudentItem[]> {
   const url = `${API_BASE}&action=getStudentsAdmin&json=1`;
-  console.log('[StudentManagement] Fetching students from:', url);
   const response = await fetch(url);
-  console.log('[StudentManagement] Response status:', response.status);
   if (!response.ok) {
     const text = await response.text();
     console.error('[StudentManagement] Error response:', text);
     throw new Error('Erreur lors de la récupération des étudiants');
   }
   const data = await response.json();
-  console.log('[StudentManagement] Students received:', data);
   return data;
 }
 
 // Récupérer les utilisateurs Omeka S
 async function fetchOmekaUsers(): Promise<OmekaUser[]> {
   const url = `${API_BASE}&action=getOmekaUsers&json=1`;
-  console.log('[StudentManagement] Fetching Omeka users from:', url);
   const response = await fetch(url);
-  console.log('[StudentManagement] Users response status:', response.status);
   if (!response.ok) {
     const text = await response.text();
     console.error('[StudentManagement] Users error response:', text);
     throw new Error('Erreur lors de la récupération des utilisateurs');
   }
   const data = await response.json();
-  console.log('[StudentManagement] Omeka users received:', data);
   return data;
 }
 
@@ -120,14 +114,10 @@ async function createStudent(data: FormData): Promise<any> {
     createUser: data.createUser ? '1' : '0',
   });
   const url = `${API_BASE}&action=createStudent&json=1&${params.toString()}`;
-  console.log('[StudentManagement] Creating student:', data);
-  console.log('[StudentManagement] GET to:', url);
 
   const response = await fetch(url);
 
-  console.log('[StudentManagement] Create response status:', response.status);
   const responseText = await response.text();
-  console.log('[StudentManagement] Create response text:', responseText);
 
   let result;
   try {
@@ -139,7 +129,6 @@ async function createStudent(data: FormData): Promise<any> {
 
   // Afficher les logs de debug
   if (result.debug) {
-    console.log('[StudentManagement] Server debug logs:');
     result.debug.forEach((log: string) => console.log('  -', log));
   }
   if (result.userError) {
@@ -238,12 +227,9 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
   const [deletingBatch, setDeletingBatch] = useState(false);
 
   const loadData = useCallback(async () => {
-    console.log('[StudentManagement] loadData called');
     setLoading(true);
     try {
-      console.log('[StudentManagement] Fetching students, users and courses...');
       const [studentsData, usersData, coursesData] = await Promise.all([fetchStudents(), fetchOmekaUsers(), getCourses()]);
-      console.log('[StudentManagement] Data loaded:', { students: studentsData, users: usersData, courses: coursesData });
 
       const studentsArray = Array.isArray(studentsData) ? studentsData : [];
       const coursesArray = Array.isArray(coursesData) ? coursesData : [];
@@ -856,8 +842,9 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
   if (loading) {
     return (
       <Wrapper {...wrapperProps}>
-        <div className='flex items-center justify-center min-h-[400px]'>
-          <Spinner size='lg' />
+        <div className='flex flex-col gap-4 min-h-[400px] items-center justify-center py-20'>
+          <Spinner color="current" className="text-c6" />
+          <p className="text-c6">Chargement en cours...</p>
         </div>
       </Wrapper>
     );

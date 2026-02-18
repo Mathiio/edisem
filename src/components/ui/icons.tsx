@@ -1097,3 +1097,69 @@ export const BookIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...
     <path d='M8 10.5H13' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
   </svg>
 );
+
+export const EyeIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+  <svg
+    width={size || width}
+    height={size || height}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      d="M2.03578 12.3218C1.82393 12.1245 1.82393 11.8755 2.03578 11.6782C4.19231 9.67026 7.82869 6.75 12 6.75C16.1713 6.75 19.8077 9.67026 21.9642 11.6782C22.1761 11.8755 22.1761 12.1245 21.9642 12.3218C19.8077 14.3297 16.1713 17.25 12 17.25C7.82869 17.25 4.19231 14.3297 2.03578 12.3218Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const EyeSlashIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+  <svg
+    width={size || width}
+    height={size || height}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      d="M9.60943 9.60742C9.15049 10.1773 8.94052 10.9239 9.07684 11.6433C9.21316 12.3626 9.6791 12.9663 10.3724 13.3219C11.0657 13.6775 11.8986 13.7418 12.6469 13.4947C13.3951 13.2476 13.9682 12.7196 14.2386 12.0254"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M16.9208 16.2736C15.4293 17.0673 13.7388 17.3917 12 17.25C7.82869 17.25 4.19231 14.3297 2.03578 12.3218C1.82393 12.1245 1.82393 11.8755 2.03578 11.6782C2.69577 11.0637 3.49079 10.3952 4.38245 9.72083"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M7.67578 7.82031C8.98595 7.08779 10.4635 6.71181 12 6.75C16.1713 6.75 19.8077 9.67026 21.9642 11.6782C22.1761 11.8755 22.1761 12.1245 21.9642 12.3218C21.4397 12.8101 20.8359 13.3278 20.166 13.8569"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M3 3L21 21"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);

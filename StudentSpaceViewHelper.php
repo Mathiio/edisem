@@ -140,6 +140,11 @@ class StudentSpaceViewHelper extends AbstractHelper
                 $result = $this->getStudents();
                 break;
 
+            // Liste des actants avec leur ID utilisateur Omeka S
+            case 'getActants':
+                $result = $this->getActantsWithOmekaId();
+                break;
+
             // ========== ADMIN ACTIONS ==========
 
             // Liste des étudiants pour l'admin (avec plus d'infos)

@@ -1,3 +1,4 @@
+import { RESOURCE_TYPES } from '@/config/resourceConfig';
 import { SimplifiedDetailConfig } from '../simplifiedConfig';
 import { convertToGenericConfig } from '../simplifiedConfigAdapter';
 
@@ -7,7 +8,7 @@ import { convertToGenericConfig } from '../simplifiedConfigAdapter';
  * les formulaires en mode édition/création.
  */
 export const feedbackStudentConfigSimplified: SimplifiedDetailConfig = {
-  resourceType: "Retour d'expérience",
+  resourceType: RESOURCE_TYPES.retour_experience_etudiant.type,
   templateId: 128,
 
   // Mapping des propriétés principales avec types explicites
