@@ -271,9 +271,13 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
   };
 
   // Callback pour déclencher l'animation de sortie avant navigation
-  const handleRightColumnNavigate = useCallback(() => {
+  const handleRightColumnNavigate = useCallback((url: string) => {
     setIsExitingRightColumn(true);
-  }, []);
+    // Naviguer vers l'URL après un court délai pour laisser l'animation jouer
+    setTimeout(() => {
+      navigate(url);
+    }, 300);
+  }, [navigate]);
 
   // Sync height
   useEffect(() => {
