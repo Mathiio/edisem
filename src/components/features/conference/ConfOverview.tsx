@@ -30,28 +30,25 @@ type ConfOverviewProps = {
 
 export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTime, type }) => {
   const [videoUrl, setVideoUrl] = useState<string>(conf.url);
+  const [isShowingSession, setIsShowingSession] = useState<boolean>(false);
   const [buttonText, setButtonText] = useState<string>('séance complète');
   const navigate = useNavigate();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // Remettre videoUrl à conf.url quand on change de conférence
   useEffect(() => {
-    // Vérifier si conf.url est une URL valide avant de créer l'objet URL
+    setIsShowingSession(false);
+    setButtonText('séance complète');
     if (conf.url && typeof conf.url === 'string' && conf.url.trim() !== '') {
       try {
-        // Ajouter un timestamp pour forcer le rechargement de l'iframe même avec la même URL
-        const baseUrl = conf.url;
-        const urlWithTimestamp = new URL(baseUrl);
+        const urlWithTimestamp = new URL(conf.url);
         urlWithTimestamp.searchParams.set('t', Date.now().toString());
         setVideoUrl(urlWithTimestamp.toString());
-        setButtonText('séance complète');
       } catch (urlError) {
         console.warn('Invalid URL provided:', conf.url, urlError);
-        // Si l'URL n'est pas valide, utiliser une chaîne vide pour éviter l'erreur
         setVideoUrl('');
       }
     } else {
-      // Si pas d'URL valide, définir une URL vide
       setVideoUrl('');
     }
   }, [conf.url]);
@@ -98,18 +95,20 @@ export const ConfOverviewCard: React.FC<ConfOverviewProps> = ({ conf, currentTim
   };
 
   const changeLink = () => {
-    if (videoUrl === conf.url) {
-      // Vérifier si conf.fullUrl est une URL valide
+    if (!isShowingSession) {
+      // Passer à la séance complète
       if (conf.fullUrl && typeof conf.fullUrl === 'string' && conf.fullUrl.trim() !== '') {
         setVideoUrl(conf.fullUrl);
+        setIsShowingSession(true);
         setButtonText('conférence');
       } else {
         console.warn('Invalid fullUrl:', conf.fullUrl);
       }
     } else {
-      // Vérifier si conf.url est une URL valide
+      // Revenir à la vidéo de la conférence
       if (conf.url && typeof conf.url === 'string' && conf.url.trim() !== '') {
         setVideoUrl(conf.url);
+        setIsShowingSession(false);
         setButtonText('séance complète');
       } else {
         console.warn('Invalid url:', conf.url);

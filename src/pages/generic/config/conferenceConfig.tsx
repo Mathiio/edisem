@@ -22,6 +22,12 @@ export const conferenceConfig: GenericDetailPageConfig = {
     }
 
     // Backend now provides complete structures, minimal transformation needed
+    // Cas 1 : La conférence a sa propre vidéo ET une séance complète différente
+    //   → url = video de la conférence, fullUrl = séance complète (bouton toggle visible)
+    // Cas 2 : La conférence n'a PAS de vidéo propre mais a une séance complète
+    //   → url = séance complète (affichée directement), fullUrl = '' (pas de toggle)
+    const ownVideo = details.videoUrl || '';
+    const sessionUrl = details.fullSessionUrl || '';
     const conf = {
       id: details.id,
       title: details.title,
@@ -30,8 +36,8 @@ export const conferenceConfig: GenericDetailPageConfig = {
       motcles: details.keywords || [],
       actant: details.actants || [],
       type: details.type,
-      url: details.videoUrl || '',
-      fullUrl: details.videoUrl || '',
+      url: ownVideo || sessionUrl,
+      fullUrl: ownVideo && sessionUrl && ownVideo !== sessionUrl ? sessionUrl : '',
       event: details.type,
       season: '',
       edition: '',

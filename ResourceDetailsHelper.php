@@ -81,6 +81,7 @@ class ResourceDetailsHelper
             $result['citations'] = $this->fetchCitationsWithDetails($resourceId);
             $result['references'] = $this->fetchReferences($resourceId);
             $result['microResumes'] = $this->fetchMicroResumes($resourceId);
+            $result['fullSessionUrl'] = $this->fetchIsPartOfSessionUrl($resourceId);
         } elseif ($isExperimentation) {
             // Description from property 4 (dcterms:description)
             $result['description'] = $this->fetchProperty($resourceId, 4);
@@ -948,6 +949,40 @@ private function fetchToolLogo($resourceId)
         return $url;
     }
     
+    /**
+     * Fetch the session URL from the parent item linked via dcterms:isPartOf (prop 33)
+     * The parent item (e.g. a colloque/séminaire session) has a schema:url (prop 1517)
+     * which is the URL of the full session recording.
+     * Returns embed URL or null if not found.
+     */
+    private function fetchIsPartOfSessionUrl($resourceId)
+    {
+        // 1. Find the parent item ID via dcterms:isPartOf (prop 33)
+        $sql = "
+            SELECT value_resource_id
+            FROM value
+            WHERE resource_id = ? AND property_id = 33
+            AND value_resource_id IS NOT NULL
+            LIMIT 1
+        ";
+        $parentId = $this->conn->fetchOne($sql, [$resourceId]);
+
+        if (!$parentId) {
+            return null;
+        }
+
+        // 2. Get schema:url (prop 1517) from the parent item
+        $urlSql = "
+            SELECT uri
+            FROM value
+            WHERE resource_id = ? AND property_id = 1517
+            LIMIT 1
+        ";
+        $url = $this->conn->fetchOne($urlSql, [$parentId]) ?: null;
+
+        return $this->convertToYouTubeEmbed($url);
+    }
+
     /**
      * Fetch video URL (schema:url property 1517) and convert to YouTube embed format
      */
