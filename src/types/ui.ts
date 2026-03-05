@@ -206,6 +206,7 @@ export type ResourceDetails = {
   citations?: ResourceCitation[];
   references?: ResourceReference[];
   microResumes?: MicroResume[];
+  fullSessionUrl?: string | null;
 
   // Experimentation-specific fields
   description?: string;
