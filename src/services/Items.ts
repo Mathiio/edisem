@@ -341,7 +341,6 @@ export async function getAllItems() {
     }
 
     const [
-      allConfs,
       bibliographies,
       mediagraphies,
       keywords,
@@ -351,7 +350,6 @@ export async function getAllItems() {
       personnes,
       comments,
     ] = await Promise.all([
-      getAllConfs(),
       getBibliographies(),
       getMediagraphies(),
       getKeywords(),
@@ -363,7 +361,6 @@ export async function getAllItems() {
     ]);
 
     const allItems = [
-      ...allConfs,
       ...bibliographies,
       ...mediagraphies,
       ...keywords,
@@ -384,56 +381,6 @@ export async function getAllItems() {
   } catch (error) {
     console.error('Erreur lors de la récupération des éléments:', error);
     throw new Error('Échec de la récupération des éléments');
-  }
-}
-
-export async function getAllConfs() {
-  try {
-    checkAndClearDailyCache();
-
-    // Fetch all conference types, keywords, and microResumes in parallel
-    const [rawSeminarConfs, rawColloqueConfs, rawStudyDayConfs, keywords] = await Promise.all([
-      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getSeminarConfs&json=1'),
-      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getColloqueConfs&json=1'),
-      getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getStudyDayConfs&json=1'),
-      getKeywords(),
-    ]);
-
-    // Create keyword map for lookups
-    const keywordsMap = new Map(keywords.map((k: any) => [k.id, k]));
-
-    // Process each conference type
-    const seminarConfs = rawSeminarConfs.map((conf: any) => ({
-      ...conf,
-      type: 'seminaire',
-      motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
-      url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-      fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
-    }));
-
-    const colloqueConfs = rawColloqueConfs.map((conf: any) => ({
-      ...conf,
-      type: 'colloque',
-      motcles: conf.motcles.map((id: string) => keywordsMap.get(id)).filter(Boolean),
-      url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-      fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
-    }));
-
-    const studyDayConfs = (rawStudyDayConfs || []).map((conf: any) => ({
-      ...conf,
-      type: 'journee_etudes',
-      motcles: (conf.motcles || []).map((id: string) => keywordsMap.get(id)).filter(Boolean),
-      url: conf.url ? `https://www.youtube.com/embed/${conf.url.substr(-11)}` : conf.url,
-      fullUrl: conf.fullUrl ? `https://www.youtube.com/embed/${conf.fullUrl.substr(-11)}` : conf.fullUrl,
-    }));
-
-
-    const allConfs = [...seminarConfs, ...colloqueConfs, ...studyDayConfs];
-
-    return allConfs;
-  } catch (error) {
-    console.error('Error fetching all confs:', error);
-    throw new Error('Failed to fetch all confs');
   }
 }
 

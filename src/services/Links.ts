@@ -1,4 +1,4 @@
-import * as Items from "@/services/Items"
+// import * as Items from "@/services/Items"
 import { Actant } from "@/types/ui";
 
 
@@ -28,8 +28,8 @@ export const getLinksFromType = async (item: any, type: string): Promise<string[
       links = await getLinksFromMediagraphies(item);
       break
     case 'collection': {
-      const result = await getLinksFromCollections([item]);
-      links = result[0]?.links || [];
+      // const result = await getLinksFromCollections([item]);
+      // links = result[0]?.links || [];
     }
       break
     case 'university':
@@ -79,26 +79,26 @@ export async function getLinksFromConf(conf: { actant?: Actant[]; collection?: s
 
 
 
-export async function getLinksFromCollections(collections: { id: string }[]): Promise<{ id: string; links: string[] }[]> {
-  if (!Array.isArray(collections)) return [];
+// export async function getLinksFromCollections(collections: { id: string }[]): Promise<{ id: string; links: string[] }[]> {
+//   if (!Array.isArray(collections)) return [];
 
-  const confs = await Items.getAllConfs();
+//   const confs = await Items.getAllConfs();
 
-  return collections.map(collection => {
-    const links: string[] = [];
+//   return collections.map(collection => {
+//     const links: string[] = [];
 
-    confs
-      .filter((conf: any) => conf.collection === collection.id)
-      .forEach((conf: any) => {
-        links.push(conf.id);
-      });
+//     confs
+//       .filter((conf: any) => conf.collection === collection.id)
+//       .forEach((conf: any) => {
+//         links.push(conf.id);
+//       });
 
-    return {
-      id: collection.id,
-      links
-    };
-  });
-}
+//     return {
+//       id: collection.id,
+//       links
+//     };
+//   });
+// }
 
 
 
@@ -242,40 +242,40 @@ export async function getLinksFromActant(actant: any) {
   if (Array.isArray(actant.doctoralSchools)) actant.doctoralSchools.forEach((id: any) => id && links.add(id));
 
   // Conférences
-  const confs = await Items.getAllConfs();
+  // const confs = await Items.getAllConfs();
 
-  confs.forEach((conf: any) => {
-    if (conf.actant && Array.isArray(conf.actant) && conf.actant.some((a: any) => {
-      const matches = a === actant.id;
-      return matches;
-    })) {
+  // confs.forEach((conf: any) => {
+  //   if (conf.actant && Array.isArray(conf.actant) && conf.actant.some((a: any) => {
+  //     const matches = a === actant.id;
+  //     return matches;
+  //   })) {
 
 
-      if (conf.id) {
-        links.add(String(conf.id));
-      }
-      [
-        'citations',
-        'motcles',
-        'bibliographies',
-        'mediagraphies',
-        'collection',
-        'recommendation'
-      ].forEach(attr => {
-        const val = conf[attr];
-        if (Array.isArray(val)) {
-          val.forEach(x => {
-            // Si item est objets { id }, sinon direct string
-            if (x && typeof x === 'object' && x.id) links.add(x.id);
-            else if (typeof x === 'string') links.add(x);
-          });
-        } else if (val) {
-          if (typeof val === 'object' && val.id) links.add(val.id);
-          else if (typeof val === 'string') links.add(val);
-        }
-      });
-    }
-  });
+  //     if (conf.id) {
+  //       links.add(String(conf.id));
+  //     }
+  //     [
+  //       'citations',
+  //       'motcles',
+  //       'bibliographies',
+  //       'mediagraphies',
+  //       'collection',
+  //       'recommendation'
+  //     ].forEach(attr => {
+  //       const val = conf[attr];
+  //       if (Array.isArray(val)) {
+  //         val.forEach(x => {
+  //           // Si item est objets { id }, sinon direct string
+  //           if (x && typeof x === 'object' && x.id) links.add(x.id);
+  //           else if (typeof x === 'string') links.add(x);
+  //         });
+  //       } else if (val) {
+  //         if (typeof val === 'object' && val.id) links.add(val.id);
+  //         else if (typeof val === 'string') links.add(val);
+  //       }
+  //     });
+  //   }
+  // });
 
   return Array.from(links) as string[];
 }
@@ -285,25 +285,25 @@ export async function getLinksFromActant(actant: any) {
 export async function getLinksFromBibliographies(bibliography: any): Promise<string[]> {
   if (!bibliography || !bibliography.id) return [];
   const links: string[] = [];
-  const confs = await Items.getAllConfs();
-  confs.forEach((conf: any) => {
-    if (conf && Array.isArray(conf.bibliographies) && conf.bibliographies.includes(bibliography.id)) {
-      links.push(conf.id);
-      if (Array.isArray(conf.motcles)) {
-        links.push(...conf.motcles
-          .filter((motcle: any) => motcle && motcle.id)
-          .map((motcle: any) => motcle.id)
-        );
-      }
-      if (conf.actant && Array.isArray(conf.actant)) {
-        conf.actant.forEach((actant: any) => {
-          if (actant && actant.id) {
-            links.push(actant.id);
-          }
-        });
-      }
-    }
-  });
+  // const confs = await Items.getAllConfs();
+  // confs.forEach((conf: any) => {
+  //   if (conf && Array.isArray(conf.bibliographies) && conf.bibliographies.includes(bibliography.id)) {
+  //     links.push(conf.id);
+  //     if (Array.isArray(conf.motcles)) {
+  //       links.push(...conf.motcles
+  //         .filter((motcle: any) => motcle && motcle.id)
+  //         .map((motcle: any) => motcle.id)
+  //       );
+  //     }
+  //     if (conf.actant && Array.isArray(conf.actant)) {
+  //       conf.actant.forEach((actant: any) => {
+  //         if (actant && actant.id) {
+  //           links.push(actant.id);
+  //         }
+  //       });
+  //     }
+  //   }
+  // });
 
   return links;
 }
@@ -314,25 +314,25 @@ export async function getLinksFromMediagraphies(mediagraphie: any,): Promise<str
   if (!mediagraphie || !mediagraphie.id) return [];
 
   const links: string[] = [];
-  const confs = await Items.getAllConfs();
-  confs.forEach((conf: any) => {
-    if (conf && Array.isArray(conf.mediagraphies) && conf.mediagraphies.includes(mediagraphie.id)) {
-      links.push(conf.id);
-      if (Array.isArray(conf.motcles)) {
-        links.push(...conf.motcles
-          .filter((motcle: any) => motcle && motcle.id)
-          .map((motcle: any) => motcle.id)
-        );
-      }
-      if (conf.actant && Array.isArray(conf.actant)) {
-        conf.actant.forEach((actant: any) => {
-          if (actant && actant.id) {
-            links.push(actant.id);
-          }
-        });
-      }
-    }
-  });
+  // const confs = await Items.getAllConfs();
+  // confs.forEach((conf: any) => {
+  //   if (conf && Array.isArray(conf.mediagraphies) && conf.mediagraphies.includes(mediagraphie.id)) {
+  //     links.push(conf.id);
+  //     if (Array.isArray(conf.motcles)) {
+  //       links.push(...conf.motcles
+  //         .filter((motcle: any) => motcle && motcle.id)
+  //         .map((motcle: any) => motcle.id)
+  //       );
+  //     }
+  //     if (conf.actant && Array.isArray(conf.actant)) {
+  //       conf.actant.forEach((actant: any) => {
+  //         if (actant && actant.id) {
+  //           links.push(actant.id);
+  //         }
+  //       });
+  //     }
+  //   }
+  // });
 
   return links;
 }
@@ -343,30 +343,30 @@ export async function getLinksFromKeywords(keyword: any): Promise<string[]> {
   if (!keyword || !keyword.id) return [];
 
   const links: string[] = [];
-  const confs = await Items.getAllConfs();
-  confs.forEach((conf: any) => {
-    if (conf &&
-      Array.isArray(conf.motcles) &&
-      conf.motcles.some((motcle: any) => motcle && motcle.id === keyword.id)) {
-      links.push(conf.id);
-      if (conf.actant && Array.isArray(conf.actant)) {
-        conf.actant.forEach((actant: any) => {
-          if (actant && actant.id) {
-            links.push(actant.id);
-          }
-        });
-      }
-      if (Array.isArray(conf.citations)) {
-        links.push(...conf.citations.filter(Boolean));
-      }
-      if (Array.isArray(conf.bibliographies)) {
-        links.push(...conf.bibliographies.filter(Boolean));
-      }
-      if (Array.isArray(conf.mediagraphies)) {
-        links.push(...conf.mediagraphies.filter(Boolean));
-      }
-    }
-  });
+  // const confs = await Items.getAllConfs();
+  // confs.forEach((conf: any) => {
+  //   if (conf &&
+  //     Array.isArray(conf.motcles) &&
+  //     conf.motcles.some((motcle: any) => motcle && motcle.id === keyword.id)) {
+  //     links.push(conf.id);
+  //     if (conf.actant && Array.isArray(conf.actant)) {
+  //       conf.actant.forEach((actant: any) => {
+  //         if (actant && actant.id) {
+  //           links.push(actant.id);
+  //         }
+  //       });
+  //     }
+  //     if (Array.isArray(conf.citations)) {
+  //       links.push(...conf.citations.filter(Boolean));
+  //     }
+  //     if (Array.isArray(conf.bibliographies)) {
+  //       links.push(...conf.bibliographies.filter(Boolean));
+  //     }
+  //     if (Array.isArray(conf.mediagraphies)) {
+  //       links.push(...conf.mediagraphies.filter(Boolean));
+  //     }
+  //   }
+  // });
 
   // const citations = await Items.getCitations();
   // citations.forEach((citation: any) => {
