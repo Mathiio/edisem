@@ -31,31 +31,17 @@ jobs:
       - name: Build
         run: npm run build
 
-      # ── 5. Deploy via FTP (only on push to main) ─────────
-      - name: Deploy to server via FTP
-        # Only deploy when pushing to main (not on PRs)
+      # ── 5. Deploy via SFTP (only on push to main) ─────────
+      - name: Deploy to server via SFTP
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ${{ secrets.FTP_SERVER }}
+          host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-
-          # Upload the built app
-          local-dir: ./dist/
-
-          # Root of the webserver — NEVER deletes files not in dist/
-          # (so the /omk folder stays untouched)
-          server-dir: /
-
-          # Protect the Omeka installation and other non-app files
-          exclude: |
-            **/.git*
-            **/node_modules/**
-            **/omk/**
-            **/omk
-            **/.htaccess
-            **/php.ini
+          source: "dist/*"
+          target: "/"
+          strip_components: 1
 
       # ── 6. Playwright browsers ─────────────────────────────────────────────
       - name: Install Playwright Chromium
