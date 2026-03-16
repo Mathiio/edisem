@@ -41,3 +41,8 @@ CLAUDE.md
 .claude/
 docs/
 temp_api_response.json
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/

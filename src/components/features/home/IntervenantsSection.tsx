@@ -1,40 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { IntervenantCard, IntervenantSkeleton } from '@/components/features/intervenants/IntervenantCards';
-import { InfiniteSlider } from '@/components/features/home/InfiniteSlider';
-    import { getRandomActants } from '@/services/Items';
+import { IntervenantCard } from '@/components/features/intervenants/IntervenantCards';
+import { getRandomActants } from '@/services/Items';
+import { BGPattern } from '@/components/ui/bg-pattern';
 
-    export const IntervenantsSection: React.FC = () => {
-    const [loading, setLoading] = useState(true);
-    const [sliderGroups, setSliderGroups] = useState<any[][]>([]);
+// Table for dynamic placement mapping
+const CARD_LAYOUTS = [
+  "top-1/2 left-1/2 -translate-x-[40%] -translate-y-[50%] z-30 opacity-100",  // Card 1: Main Center Large
+  "top-[15%] left-[-15%] z-10 scale-[0.75] origin-top-left opacity-70",       // Card 2: Top Left, behind
+  "top-[40%] left-[0%] z-40 scale-[0.85] opacity-95",                         // Card 3: Middle Left, front
+  "top-[6%] right-[-5%] z-0 scale-[0.75] origin-top-right opacity-70",        // Card 4: Top Right, far behind
+  "bottom-[5%] right-[0%] z-50 scale-[0.95] origin-bottom-right opacity-100", // Card 5: Bottom Right, over edge
+  "top-[-2%] left-[20%] z-0 scale-[0.65] origin-top opacity-70"               // Card 6: Top Center, furthest behind
+];
 
+export const IntervenantsSection: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  const [actants, setActants] = useState<any[]>([]);
 
-    useEffect(() => {
-    const fetchAndGroupActants = async () => {
-        setLoading(true);
-        try {
-          // Fetch 24 random actants to fill 3 sliders of 8 cards each
-          const data = await getRandomActants(24);
-          const groups = Array.from({ length: 3 }, (_, i) =>
-              data.slice(i * 8, (i + 1) * 8)
-        );
-        setSliderGroups(groups);
-        } catch (error) {
-            console.error("Erreur lors du chargement des intervenants", error);
-        } finally {
-            setLoading(false);
-        }
+  useEffect(() => {
+    const fetchActants = async () => {
+      setLoading(true);
+      try {
+        const data = await getRandomActants(6);
+        setActants(data);
+      } catch (error) {
+        console.error("Erreur lors du chargement des intervenants", error);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchAndGroupActants();
-    }, []);
-
+    fetchActants();
+  }, []);
 
   return (
-    <section className="flex gap-50 h-[600px]">
+    <section className="flex gap-50 h-[600px] items-center">
       {/* Left side - Title and description */}
-      <div className="flex-1 flex flex-col justify-center gap-20 max-w-40">
-        <h2 className="text-c6 text-64 transition-all ease-in-out duration-200"> Intervenants & <br/> Conférenciers </h2>
-        <p className="text-c5 text-16 transition-all ease-in-out duration-200 max-w-md">
+      <div className="flex-1 flex flex-col justify-center gap-20 max-w-md relative z-50">
+        <h2 className="text-c6 text-64 transition-all ease-in-out duration-200 leading-[1.1]"> 
+          Intervenants & <br/> Conférenciers 
+        </h2>
+        <p className="text-c5 text-16 transition-all ease-in-out duration-200">
           Découvrez les chercheur·e·s, artistes et invité·e·s ayant contribué aux séminaires, colloques, journées d'études et œuvres d'EdiSem.
         </p>
         <Link 
@@ -45,40 +51,32 @@ import { InfiniteSlider } from '@/components/features/home/InfiniteSlider';
         </Link>
       </div>
 
-      {/* Right side - 3 infinite sliders */}
-      <div className="flex-1 flex gap-4 relative">
-        {/* Fade overlays */}
-        <div className="pointer-events-none absolute bottom-0 z-10 h-60 w-full bg-gradient-to-t from-c1 to-transparent" />
-        <div className="pointer-events-none absolute top-0 z-10 h-60 w-full bg-gradient-to-b from-c1 to-transparent" />
+      {/* Right side - Abstract overlapping grid layout */}
+      <div className="flex-1 h-full relative flex items-center justify-center rounded-3xl group ml-5">
         
+        {/* Background Dot Pattern */}
+        <BGPattern 
+            variant="dots" 
+            mask="fade-edges" 
+            fill="rgba(255,255,255,0.15)"
+            size={24}
+        />
+
         {loading ? (
-          // Loading state: 3 skeleton columns
-          Array.from({ length: 3 }).map((_, sliderIndex) => (
-            <InfiniteSlider
-              key={sliderIndex}
-              cards={Array.from({ length: 8 }).map((_,) => 
-                <IntervenantSkeleton />
-              )}
-              direction={sliderIndex % 2 === 0 ? 'down' : 'up'}
-              speed={0.5 + (sliderIndex * 0.2)}
-              className="flex-1"
-              cardHeight={240}
-            />
-          ))
+          <div className="relative w-full h-[500px] flex items-center justify-center">
+             <div className="w-[260px] h-[320px] animate-pulse bg-c3/20 rounded-[30px] border border-c3/50 shadow-2xl" />
+          </div>
         ) : (
-          // Loaded state: 3 sliders with actual data
-          sliderGroups.map((group, sliderIndex) => (
-            <InfiniteSlider
-              key={sliderIndex}
-              cards={group.map((item) => 
-                <IntervenantCard {...item} />
-              )}
-              direction={sliderIndex % 2 === 0 ? 'down' : 'up'}
-              speed={0.5 + (sliderIndex * 0.2)}
-              className="flex-1"
-              cardHeight={240}
-            />
-          ))
+          <div className="relative w-[600px] h-[500px] flex items-center justify-center">
+            {actants.slice(0, 6).map((actant, index) => (
+              <IntervenantCard 
+                key={actant.id}
+                {...actant}
+                disableClick
+                className={`absolute w-[260px] !h-fit p-40 transition-all duration-300 ${CARD_LAYOUTS[index] || ''}`}
+              />
+            ))}
+          </div>
         )}
       </div>
     </section>

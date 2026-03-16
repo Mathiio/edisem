@@ -6,18 +6,21 @@ import { ParticipateIcon, UserIcon } from '@/components/ui/icons';
 import { Actant } from '@/types/ui';
 
 // Card displaying an intervenant with name, photo, university and intervention count
-export const IntervenantCard: React.FC<Actant> = ({ id, firstname, lastname, picture, interventions, universities }) => {
+export const IntervenantCard: React.FC<Actant & { disableClick?: boolean }> = ({ id, firstname, lastname, picture, interventions, universities, className, disableClick }) => {
   const navigate = useNavigate();
 
   // Navigate to intervenant's page
   const openIntervenantPage = () => {
-    navigate(`/intervenant/${id}`);
+    if (!disableClick) {
+      navigate(`/intervenant/${id}`);
+    }
   };
 
   return (
     <div
-      onClick={openIntervenantPage}
-      className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] h-full border-c3 border-2 cursor-pointer p-20 rounded-30 flex flex-col items-center justify-center gap-20 hover:bg-c2 transition-all duration-200'>
+      data-testid="intervenant-card"
+      onClick={disableClick ? undefined : openIntervenantPage}
+      className={`shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] bg-c1 h-full border-c3 border-2 ${disableClick ? '' : 'cursor-pointer hover:bg-c2'} p-20 rounded-30 flex flex-col items-center justify-center gap-20 transition-all duration-200 ${className || ''}`}>
       {/* Picture or fallback icon */}
       {picture ? (
         <img src={picture} alt={`${firstname} ${lastname}`} className='w-60 h-60 object-cover rounded-14' />
@@ -116,7 +119,7 @@ export const InfoSkeleton: React.FC = () => {
   );
 };
 
-export const IntervenantLongCard: React.FC<Actant> = ({ id, firstname, lastname, picture, interventions, universities }) => {
+export const IntervenantLongCard: React.FC<Actant> = ({ id, firstname, lastname, picture, interventions, universities, className }) => {
   const navigate = useNavigate();
 
   // Navigate to intervenant's page
@@ -127,7 +130,7 @@ export const IntervenantLongCard: React.FC<Actant> = ({ id, firstname, lastname,
   return (
     <div
       onClick={openIntervenantPage}
-      className='shadow-[inset_0_0px_25px_rgba(255,255,255,0.05)] border-c3 border-2 hover:bg-c3 cursor-pointer h-full rounded-24 flex items-center justify-between p-20 gap-20 transition-transform-all duration-200'>
+      className={`shadow-[inset_0_0px_25px_rgba(255,255,255,0.05)] border-c3 border-2 hover:bg-c3 cursor-pointer h-full rounded-24 flex items-center justify-between p-20 gap-20 transition-transform-all duration-200 ${className || ''}`}>
       <div className='flex items-center justify-start gap-20'>
         {/* Picture or fallback icon */}
         {picture ? (

@@ -38,7 +38,7 @@ export const Colloques = () => {
           { label: 'conférences', value: totalConferences || 0 }
         ]}
       />
-      <CorpusCarousel editions={colloqueEditions} loading={loading} title="Tous nos colloques"/>
+      <CorpusCarousel editions={colloqueEditions} loading={loading} title="Tous nos colloques" basePath="/corpus/colloques" />
     </Layouts>
   );
 };

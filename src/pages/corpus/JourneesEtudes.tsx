@@ -37,7 +37,7 @@ export const JourneesEtudes = () => {
           { label: 'conférences', value: totalConferences || 0 }
         ]}
       />
-      <CorpusCarousel editions={studyDayEditions} loading={loading} title="Toutes nos Journées d'études"/>
+      <CorpusCarousel editions={studyDayEditions} loading={loading} title="Toutes nos Journées d'études" basePath="/corpus/journees-etudes" />
     </Layouts>
   );
 };

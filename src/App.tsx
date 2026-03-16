@@ -159,9 +159,9 @@ function App() {
         */}
 
           {/* Routes contextuelles pour les conférences (séminaires, colloques, journées d'études) */}
-          <Route path='/corpus/seminaires/edition/:id/:title?' Component={Edition} />
-          <Route path='/corpus/colloques/edition/:id/:title?' Component={Edition} />
-          <Route path='/corpus/journees-etudes/edition/:id/:title?' Component={Edition} />
+          <Route path='/corpus/seminaires/edition/:id' Component={Edition} />
+          <Route path='/corpus/colloques/edition/:id' Component={Edition} />
+          <Route path='/corpus/journees-etudes/edition/:id' Component={Edition} />
           <Route path='/corpus/seminaires/conference/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
           <Route path='/corpus/colloques/conference/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />
           <Route path='/corpus/journees-etudes/conference/:id' element={<ConfigurableDetailPage config={conferenceConfig} />} />

@@ -53,11 +53,6 @@ class QuerySqlViewHelper extends AbstractHelper
             case 'getTemplateProperties':
                 $result = $this->getTemplateProperties($params);
                 break;
-            case 'getTemplatePropertiesFull':
-                $templateId = isset($params['template_id']) ? (int)$params['template_id'] : 0;
-                $result = $this->resourceDetailsHelper->getTemplatePropertiesFull($templateId);
-                break;
-
             case 'getDistinctPropertyVal':
                 $result = $this->getDistinctPropertyVal($params['idRT'], $params['idP']);
                 break;

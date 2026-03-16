@@ -61,6 +61,7 @@ export type Actant = {
   universities: University[];
   doctoralSchools: DoctoralSchool[];
   laboratories: Laboratory[];
+  className?: string; // Optional class for layout overrides
 };
 
 export type Citation = {

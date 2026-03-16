@@ -73,6 +73,7 @@ export const CorpusSection: React.FC = () => {
         initial='hidden'
         animate='visible'
         variants={cardVariants}
+        data-testid="corpus-section-card"
         onClick={() => handleNavigation(card.path)}
         className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-40 rounded-30 justify-between flex flex-col gap-40 hover:bg-c2 h-full transition-all ease-in-out duration-200'>
         <IconComponent size={40} className='text-c6' />

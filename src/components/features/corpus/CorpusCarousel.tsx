@@ -9,6 +9,7 @@ interface CorpusCarouselProps {
   editions: Edition[];
   loading?: boolean;
   title: string;
+  basePath?: string;
 }
 
 // Card animation configuration
@@ -25,12 +26,11 @@ const cardVariants: Variants = {
 };
 
 // Generic Edition Card Component
-const EditionCard = ({ edition }: { edition: Edition }) => {
+const EditionCard = ({ edition, basePath = '/corpus/seminaires' }: { edition: Edition, basePath?: string }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    const slug = edition.title.toLowerCase().replace(/\s+/g, '-');
-    navigate(`/corpus/seminaires/edition/${edition.id}/${slug}`);
+    navigate(`${basePath}/edition/${edition.id}`);
   };
 
   return (
@@ -39,6 +39,7 @@ const EditionCard = ({ edition }: { edition: Edition }) => {
       animate="visible"
       variants={cardVariants}
       onClick={handleClick}
+      data-testid="edition-card"
       className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-40 rounded-30 flex flex-col gap-40 hover:bg-c2 h-full transition-all ease-in-out duration-200"
     >
       <h2 className='text-32 text-c6'>{edition.title}</h2>
@@ -71,7 +72,7 @@ const EditionCardSkeleton = () => {
 };
 
 // Main Carousel Component
-export const CorpusCarousel = ({ editions, loading = false, title }: CorpusCarouselProps) => {
+export const CorpusCarousel = ({ editions, loading = false, title, basePath = '/corpus/seminaires' }: CorpusCarouselProps) => {
   
   const sortedEditions = [...editions].sort((a, b) => {
     if (b.year !== a.year) return Number(b.year) - Number(a.year);
@@ -101,7 +102,7 @@ export const CorpusCarousel = ({ editions, loading = false, title }: CorpusCarou
           data={sortedEditions}
           perPage={3}
           perMove={1}
-          renderSlide={(edition, index) => <EditionCard edition={edition} key={index} />}
+          renderSlide={(edition, index) => <EditionCard edition={edition} basePath={basePath} key={index} />}
         />
     </div>
   );
