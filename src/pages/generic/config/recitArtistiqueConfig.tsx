@@ -13,7 +13,7 @@ import { createOeuvreViews } from '../helpers';
  * - Enrichissement des keywords depuis plusieurs sources
  * - Mapping complexe pour les éléments narratifs/esthétiques
  */
-export const recitArtitstiqueConfig: GenericDetailPageConfig = {
+export const recitArtistiqueConfig: GenericDetailPageConfig = {
   // Data fetching optimisé via getResourceDetails
   dataFetcher: async (id: string): Promise<FetchResult> => {
     try {
