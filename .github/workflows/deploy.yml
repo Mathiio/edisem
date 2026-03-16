@@ -41,6 +41,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local_path: './dist/*'
           remote_path: '/'
+          sftp_only: true
 
       # ── 6. Playwright browsers ─────────────────────────────────────────────
       - name: Install Playwright Chromium
