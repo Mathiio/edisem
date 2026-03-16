@@ -34,15 +34,13 @@ jobs:
       # ── 5. Deploy via SFTP (only on push to main) ─────────
       - name: Deploy to server via SFTP
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: appleboy/scp-action@v0.1.7
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
-          host: ${{ secrets.FTP_SERVER }}
+          server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          source: "dist/*"
-          target: "./"
-          strip_components: 1
-          debug: true
+          local_path: './dist/*'
+          remote_path: '/'
 
       # ── 6. Playwright browsers ─────────────────────────────────────────────
       - name: Install Playwright Chromium
