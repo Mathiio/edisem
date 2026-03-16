@@ -31,28 +31,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      # ── 5. Playwright browsers ─────────────────────────────────────────────
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
-
-      # ── 6. E2E tests ───────────────────────────────────────────────────────
-      - name: Run Playwright E2E tests
-        run: npx playwright test
-        env:
-          # Tests run against the already-deployed production site
-          BASE_URL: https://tests.arcanes.ca
-          CI: true
-
-      # ── 7. Upload test report on failure ───────────────────────────────────
-      - name: Upload Playwright report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
-
-      # ── 8. Deploy via FTP (only on push to main, after tests pass) ─────────
+      # ── 5. Deploy via FTP (only on push to main) ─────────
       - name: Deploy to server via FTP
         # Only deploy when pushing to main (not on PRs)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -77,3 +56,24 @@ jobs:
             **/omk
             **/.htaccess
             **/php.ini
+
+      # ── 6. Playwright browsers ─────────────────────────────────────────────
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      # ── 7. E2E tests ───────────────────────────────────────────────────────
+      - name: Run Playwright E2E tests
+        run: npx playwright test
+        env:
+          # Tests run against the already-deployed production site
+          BASE_URL: https://tests.arcanes.ca
+          CI: true
+
+      # ── 8. Upload test report on failure ───────────────────────────────────
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
