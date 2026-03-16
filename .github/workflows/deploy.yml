@@ -30,6 +30,8 @@ jobs:
       # ── 4. Build ───────────────────────────────────────────────────────────
       - name: Build
         run: npm run build
+        env:
+          VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
 
       # ── 5. Deploy via SFTP (only on push to main) ─────────
       - name: Deploy to server via SFTP
