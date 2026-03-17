@@ -55,7 +55,6 @@ class AnalyticsViewHelper extends AbstractHelper
         'recit_mediatique' => 120,
         'recit_scientifique' => 124,
         'recit_techno_industriel' => 117,
-        'seance' => 76,
         'thematiquesAnalyses' => 106,
         'travauxEtudiants' => 97,
         'universite' => 73,

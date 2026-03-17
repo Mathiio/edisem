@@ -950,35 +950,19 @@ private function fetchToolLogo($resourceId)
     }
     
     /**
-     * Fetch the session URL from the parent item linked via dcterms:isPartOf (prop 33)
-     * The parent item (e.g. a colloque/séminaire session) has a schema:url (prop 1517)
-     * which is the URL of the full session recording.
+     * Fetch the session URL (property 579 - schema:contentUrl) directly from the current resource.
      * Returns embed URL or null if not found.
      */
     private function fetchIsPartOfSessionUrl($resourceId)
     {
-        // 1. Find the parent item ID via dcterms:isPartOf (prop 33)
-        $sql = "
-            SELECT value_resource_id
-            FROM value
-            WHERE resource_id = ? AND property_id = 33
-            AND value_resource_id IS NOT NULL
-            LIMIT 1
-        ";
-        $parentId = $this->conn->fetchOne($sql, [$resourceId]);
-
-        if (!$parentId) {
-            return null;
-        }
-
-        // 2. Get schema:url (prop 1517) from the parent item
+        // Get schema:contentUrl (prop 579) from the current item
         $urlSql = "
             SELECT uri
             FROM value
-            WHERE resource_id = ? AND property_id = 1517
+            WHERE resource_id = ? AND property_id = 579
             LIMIT 1
         ";
-        $url = $this->conn->fetchOne($urlSql, [$parentId]) ?: null;
+        $url = $this->conn->fetchOne($urlSql, [$resourceId]) ?: null;
 
         return $this->convertToYouTubeEmbed($url);
     }
