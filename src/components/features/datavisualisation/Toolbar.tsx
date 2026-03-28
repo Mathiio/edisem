@@ -107,10 +107,13 @@ export const Toolbar: React.FC<ItemsProps> = ({
   }, [activeIcon]);
 
   useEffect(() => {
-    if (containerRef.current) {
-      setContainerWidth(containerRef.current.offsetWidth);
-    }
-  }, [containerRef.current]);
+    const el = containerRef.current;
+    if (!el) return;
+    setContainerWidth(el.offsetWidth);
+    const ro = new ResizeObserver(() => setContainerWidth(el.offsetWidth));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const handleAdvancedSearch = async (typesearch: FilterGroup[]) => {
     onSearch(typesearch, true);

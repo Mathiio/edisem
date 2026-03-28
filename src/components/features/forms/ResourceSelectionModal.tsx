@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Spinner, Checkbox } from '@heroui/react';
 import { ThumbnailIcon, UserIcon } from '@/components/ui/icons';
 
@@ -35,27 +35,13 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [searchFilter, setSearchFilter] = useState('');
 
-  // Charger les ressources quand la modal s'ouvre
-  useEffect(() => {
-    if (isOpen && resourceTemplateIds.length > 0) {
-      loadResources();
-    }
-  }, [isOpen, resourceTemplateIds.join(',')]);
+  const templateIdsKey = useMemo(() => resourceTemplateIds.join(','), [resourceTemplateIds]);
 
-  // Reset la sélection quand la modal s'ouvre
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedIds(new Set());
-      setSearchFilter('');
-    }
-  }, [isOpen]);
-
-  const loadResources = async () => {
+  const loadResources = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Charger les ressources pour chaque templateId
       const allResources: ResourceItem[] = [];
 
       for (const templateId of resourceTemplateIds) {
@@ -71,7 +57,6 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
         const data = await response.json();
 
         const mapped = data.map((item: any) => {
-          // Récupérer l'image/thumbnail de différentes sources possibles
           const thumbnailUrl =
             item['thumbnail_display_urls']?.medium ||
             item['thumbnail_display_urls']?.square ||
@@ -80,7 +65,6 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
             item['o:primary_media']?.['thumbnail_display_urls']?.medium ||
             null;
 
-          // Récupérer le premier actant s'il existe
           const actant = item['jdc:hasActant']?.[0];
           const actantName = actant?.['display_title'] || actant?.['@value'] || null;
 
@@ -107,7 +91,20 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
     } finally {
       setLoading(false);
     }
-  };
+  }, [resourceTemplateIds]);
+
+  useEffect(() => {
+    if (isOpen && resourceTemplateIds.length > 0) {
+      void loadResources();
+    }
+  }, [isOpen, loadResources, templateIdsKey, resourceTemplateIds.length]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedIds(new Set());
+      setSearchFilter('');
+    }
+  }, [isOpen]);
 
   // Filtrer les ressources (exclure celles déjà sélectionnées et appliquer la recherche)
   const availableResources = resources.filter((r) => !excludeIds.includes(r.id));

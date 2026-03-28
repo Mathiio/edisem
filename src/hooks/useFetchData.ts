@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getDataByClass, getDataByUrl, fetchRT, Data, getAllProperties } from '../services/Items';
 
 export const useGetDataByClass = (resourceClassId: number | null, refreshTrigger: number = 0) => {
@@ -40,12 +40,12 @@ export const useGetDataByClassDetails = (ItemUrl: string | null) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const getDataByClass = async () => {
+  const fetchDetails = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       if (ItemUrl !== null) {
-        const fetchedData = await getDataByUrl(ItemUrl); // Replace with your actual fetching function
+        const fetchedData = await getDataByUrl(ItemUrl);
         setData(Array.isArray(fetchedData) ? fetchedData : [fetchedData]);
       } else {
         setData(undefined);
@@ -61,17 +61,13 @@ export const useGetDataByClassDetails = (ItemUrl: string | null) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    getDataByClass();
   }, [ItemUrl]);
 
-  const refetch = () => {
-    getDataByClass(); // Call getDataByClass function again to refetch data
-  };
+  useEffect(() => {
+    void fetchDetails();
+  }, [fetchDetails]);
 
-  return { data, loading, error, refetch };
+  return { data, loading, error, refetch: fetchDetails };
 };
 
 
@@ -81,7 +77,7 @@ export const useFetchRT = (resourceTemplateId: number | null) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const getData = async () => {
+  const fetchRTData = useCallback(async () => {
     setLoading(true);
     setError(null);
     if (resourceTemplateId !== null) {
@@ -103,17 +99,13 @@ export const useFetchRT = (resourceTemplateId: number | null) => {
       setData(undefined);
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    getData();
   }, [resourceTemplateId]);
 
-  const refetch = () => {
-    getData();
-  };
+  useEffect(() => {
+    void fetchRTData();
+  }, [fetchRTData]);
 
-  return { data, loading, error, refetch };
+  return { data, loading, error, refetch: fetchRTData };
 };
 
 export const useGetAllProperties = () => {

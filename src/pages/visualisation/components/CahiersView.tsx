@@ -208,8 +208,9 @@ export const CahiersView: React.FC<CahiersViewProps> = ({ onSelectConfig }) => {
       }
     };
 
-    loadData();
-  }, []);
+    void loadData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- user recréé chaque render ; on se base sur user?.id
+  }, [user?.id]);
 
   if (!user) {
     return (

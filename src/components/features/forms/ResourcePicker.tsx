@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Spinner, Chip, Checkbox, Tabs, Tab } from '@heroui/react';
 import { SearchIcon, SortIcon, ThumbnailIcon, UserIcon } from '@/components/ui/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
@@ -182,29 +182,28 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
     }
   }, [isOpen, selectedIds]);
 
-  // Extract display value from resource
-  const getDisplayValue = (resource: any): string => {
-    // Handle nested path like 'dcterms:title.0.@value'
-    if (displayProperty.includes('.')) {
-      const parts = displayProperty.split('.');
-      let value = resource;
-      for (const part of parts) {
-        if (value === undefined || value === null) return '';
-        value = value[part];
+  const getDisplayValue = useCallback(
+    (resource: any): string => {
+      if (displayProperty.includes('.')) {
+        const parts = displayProperty.split('.');
+        let value = resource;
+        for (const part of parts) {
+          if (value === undefined || value === null) return '';
+          value = value[part];
+        }
+        return String(value || '');
       }
-      return String(value || '');
-    }
 
-    // Handle standard Omeka S format
-    const prop = resource[displayProperty];
-    if (Array.isArray(prop) && prop[0]) {
-      return prop[0]['@value'] || prop[0]['display_title'] || '';
-    }
-    if (typeof prop === 'string') return prop;
+      const prop = resource[displayProperty];
+      if (Array.isArray(prop) && prop[0]) {
+        return prop[0]['@value'] || prop[0]['display_title'] || '';
+      }
+      if (typeof prop === 'string') return prop;
 
-    // Fallback to o:title or display_title
-    return resource['o:title'] || resource['display_title'] || resource['title'] || '';
-  };
+      return resource['o:title'] || resource['display_title'] || resource['title'] || '';
+    },
+    [displayProperty],
+  );
 
   // Extract thumbnail URL from resource
   const getThumbnailUrl = (resource: any): string | null => {
@@ -262,7 +261,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
     });
 
     return result;
-  }, [resourcesForActiveTab, searchTerm, sortOrder, filterFn]);
+  }, [resourcesForActiveTab, searchTerm, sortOrder, filterFn, getDisplayValue]);
 
   // Toggle selection
   const toggleSelection = (resource: any) => {

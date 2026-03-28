@@ -871,6 +871,7 @@ const Visualisation = () => {
     }
   };
 
+  /* eslint-disable react-hooks/exhaustive-deps -- rendu D3 : dimensions / handlers utilisés dans la closure sans redessin systématique */
   useEffect(() => {
     if (!filteredNodes.length) return;
     clearSvg();
@@ -1192,6 +1193,7 @@ const Visualisation = () => {
       d3.select('body').selectAll('.link-tooltip').remove();
     };
   }, [filteredNodes, filteredLinks, isEditMode, isLinkMode, isAnnoteMode, visibleTypes, typesInUse]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const generateVisualizationImage = async (): Promise<GeneratedImage> => {
     const svg = svgRef.current;
@@ -1329,9 +1331,13 @@ const Visualisation = () => {
   }, []);
 
   // Fonction pour gérer l'import
-  const handleImport = useCallback((groups: FilterGroup[], nodePositions?: NodePosition[]) => {
-    handleOverlaySelect(groups, true, nodePositions);
-  }, []);
+  const handleImport = useCallback(
+    (groups: FilterGroup[], nodePositions?: NodePosition[]) => {
+      handleOverlaySelect(groups, true, nodePositions);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleOverlaySelect non mémoïsé volontairement
+    [],
+  );
 
   // Toggle un type visible/invisible
   const handleToggleVisibleType = (type: string) => {
@@ -1364,6 +1370,7 @@ const Visualisation = () => {
         console.error('Erreur de parsing double :', e);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- appliquer la config URL une fois par changement de query
   }, [searchParams]);
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { TimeInput } from '@heroui/date-input';
 import { Time, CalendarDate } from '@internationalized/date';
 import { Calendar } from '@heroui/react';
@@ -195,26 +195,30 @@ interface DateInputProps {
 }
 
 export const DatePicker: React.FC<DateInputProps> = ({ label, date, handleInputChange }) => {
-  const getInitialDateValue = (): CalendarDate | null => {
-    if (date) {
-      const parsedDate = new Date(date);
-      if (isValidDate(parsedDate)) {
-        // Convertir en CalendarDate si nécessaire
-        return new CalendarDate(parsedDate.getFullYear(), parsedDate.getMonth() + 1, parsedDate.getDate());
-      }
-    }
-    return null;
-  };
-
   const isValidDate = (d: Date): boolean => {
     return d instanceof Date && !isNaN(d.getTime());
   };
 
-  const [selectedDate, setSelectedDate] = useState<CalendarDate | null>(getInitialDateValue());
+  const getInitialDateValue = useCallback((): CalendarDate | null => {
+    if (date) {
+      const parsedDate = new Date(date);
+      if (isValidDate(parsedDate)) {
+        return new CalendarDate(parsedDate.getFullYear(), parsedDate.getMonth() + 1, parsedDate.getDate());
+      }
+    }
+    return null;
+  }, [date]);
+
+  const [selectedDate, setSelectedDate] = useState<CalendarDate | null>(() => {
+    if (!date) return null;
+    const parsedDate = new Date(date);
+    if (!(parsedDate instanceof Date) || Number.isNaN(parsedDate.getTime())) return null;
+    return new CalendarDate(parsedDate.getFullYear(), parsedDate.getMonth() + 1, parsedDate.getDate());
+  });
 
   useEffect(() => {
     setSelectedDate(getInitialDateValue());
-  }, [date]);
+  }, [getInitialDateValue]);
 
   const handleDateChange = (newDate: any) => {
     if (newDate instanceof CalendarDate) {

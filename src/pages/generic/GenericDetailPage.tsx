@@ -114,7 +114,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     if (initialMode === 'view' && urlMode === 'edit' && mode !== 'edit') {
       setMode('edit');
     }
-  }, [urlMode, initialMode]);
+  }, [urlMode, initialMode, mode]);
 
   // Sync URL parameter with mode state (keep ?mode=edit while editing)
   useEffect(() => {
@@ -1601,6 +1601,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
   void _addLinkedResource;
 
   // Render content based on selected view
+  /* eslint-disable react-hooks/exhaustive-deps -- deps partielles : inclure tous les handlers recalculerait trop souvent */
   const renderedContent = useMemo(() => {
     if (!itemDetails) {
       return <div>Loading...</div>;
@@ -1646,6 +1647,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     updatedResources,
     onEditResource,
   ]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Helper function to extract text from a React element recursively
   const extractTextFromElement = (element: React.ReactElement | React.ReactNode): string => {

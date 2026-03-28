@@ -51,6 +51,7 @@ function useResizeObserver(
 
     callback();
     return () => observers.forEach(o => o?.disconnect());
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps fourni par l'appelant (ResizeObserver partagé)
   }, deps);
 }
 
@@ -87,6 +88,7 @@ function useImageLoader(
         img.removeEventListener('error', done);
       });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps fourni par l'appelant (chargement images)
   }, deps);
 }
 

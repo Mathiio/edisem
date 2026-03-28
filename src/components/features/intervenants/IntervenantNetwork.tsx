@@ -219,7 +219,7 @@ export const IntervenantNetwork: React.FC<IntervenantNetworkProps> = ({ currentA
     
     return () => { simulation.stop(); };
 
-  }, [nodes, links, loading, zoomLevel, dimensions]); // Re-render on zoom or dimension change
+  }, [nodes, links, loading, zoomLevel, dimensions, navigate]); // Re-render on zoom or dimension change; navigate stable from react-router
 
 
   const drag = (simulation: d3.Simulation<NetworkNode, undefined>) => {

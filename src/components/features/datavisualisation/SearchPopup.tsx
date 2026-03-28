@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { LongCarrouselFilter } from '@/components/ui/Carrousels';
 import { Button } from '@heroui/react';
@@ -14,27 +14,30 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<Set<string>>(new Set(['Tout']));
 
+  const performSearch = useCallback(
+    (term: string) => {
+      if (!term) {
+        const allFilteredItems = itemsDataviz.filter(
+          (item) => selectedFilters.has('Tout') || selectedFilters.has(item.type.toLowerCase()),
+        );
+        setSearchResults(allFilteredItems);
+        return;
+      }
+
+      const filteredItems = itemsDataviz.filter((item) => {
+        const matchesSearchTerm = item.title.toLowerCase().includes(term.toLowerCase());
+        const matchesFilters = selectedFilters.has('Tout') || selectedFilters.has(item.type.toLowerCase());
+        return matchesSearchTerm && matchesFilters;
+      });
+
+      setSearchResults(filteredItems);
+    },
+    [itemsDataviz, selectedFilters],
+  );
+
   useEffect(() => {
     performSearch(searchTerm);
-  }, [selectedFilters, searchTerm, itemsDataviz]);
-
-  const performSearch = (term: string) => {
-    if (!term) {
-      const allFilteredItems = itemsDataviz.filter(
-        (item) => selectedFilters.has('Tout') || selectedFilters.has(item.type.toLowerCase()),
-      );
-      setSearchResults(allFilteredItems);
-      return;
-    }
-
-    const filteredItems = itemsDataviz.filter((item) => {
-      const matchesSearchTerm = item.title.toLowerCase().includes(term.toLowerCase());
-      const matchesFilters = selectedFilters.has('Tout') || selectedFilters.has(item.type.toLowerCase());
-      return matchesSearchTerm && matchesFilters;
-    });
-
-    setSearchResults(filteredItems);
-  };
+  }, [performSearch, searchTerm]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;

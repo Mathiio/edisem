@@ -74,7 +74,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
         setNonSelectedValues(nonSelectedValues);
       }
     }
-  }, [speakersData, selectionId, selectedValues, justView]);
+  }, [speakersData, selectionId, selectedValues, justView, col]);
 
   if (loading) {
     return (

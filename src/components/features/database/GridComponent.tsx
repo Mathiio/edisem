@@ -25,8 +25,10 @@ interface GridProps {
 }
 
 const GridComponent: React.FC<GridProps> = ({ handleCardClick, initializePropertiesLoading }) => {
+  // Une seule fois au montage : le parent ne garantit pas un callback stable.
   useEffect(() => {
     initializePropertiesLoading();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionnel au mount
   }, []);
   return (
     <div className='flex flex-col gap-6'>

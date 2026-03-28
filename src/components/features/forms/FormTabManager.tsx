@@ -43,28 +43,11 @@ export const FormTabManager: React.FC<FormTabManagerProps> = ({ initialTabs = []
     tabId: null,
   });
 
-  // Close a tab
-  const closeTab = useCallback(
-    (tabId: string) => {
-      const tab = tabs.find((t) => t.id === tabId);
-
-      // Check if tab has unsaved changes
-      if (tab?.isDirty) {
-        setConfirmConfig({ isOpen: true, tabId });
-        return;
-      }
-
-      performCloseTab(tabId);
-    },
-    [tabs],
-  );
-
   const performCloseTab = useCallback(
     (tabId: string) => {
       setTabs((prev) => {
         const newTabs = prev.filter((t) => t.id !== tabId);
 
-        // If we closed the active tab, activate another one
         if (activeTabId === tabId && newTabs.length > 0) {
           const closedIndex = prev.findIndex((t) => t.id === tabId);
           const newActiveIndex = Math.min(closedIndex, newTabs.length - 1);
@@ -80,6 +63,20 @@ export const FormTabManager: React.FC<FormTabManagerProps> = ({ initialTabs = []
       setConfirmConfig({ isOpen: false, tabId: null });
     },
     [activeTabId, onTabClose],
+  );
+
+  const closeTab = useCallback(
+    (tabId: string) => {
+      const tab = tabs.find((t) => t.id === tabId);
+
+      if (tab?.isDirty) {
+        setConfirmConfig({ isOpen: true, tabId });
+        return;
+      }
+
+      performCloseTab(tabId);
+    },
+    [tabs, performCloseTab],
   );
 
   // Switch to a tab

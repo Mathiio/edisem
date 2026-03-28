@@ -45,6 +45,9 @@ const getYouTubeEmbedUrl = (url: string): string => {
   return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
 };
 
+const REJECTED_MIME_TYPES = ['image/webp'] as const;
+const REJECTED_FILE_EXTENSIONS = ['.webp'] as const;
+
 export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
   value = [],
   onChange,
@@ -115,10 +118,6 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
 
   const currentMedia = allMediaItems[currentIndex];
 
-  // Types de fichiers rejetés par Omeka S
-  const rejectedTypes = ['image/webp'];
-  const rejectedExtensions = ['.webp'];
-
   // Handle file selection
   const handleFiles = useCallback(
     (files: FileList | null) => {
@@ -132,8 +131,8 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
         .slice(0, remainingSlots)
         .forEach((file) => {
           // Vérifier si le type ou l'extension est rejeté
-          const isRejectedType = rejectedTypes.includes(file.type);
-          const isRejectedExtension = rejectedExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
+          const isRejectedType = (REJECTED_MIME_TYPES as readonly string[]).includes(file.type);
+          const isRejectedExtension = REJECTED_FILE_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext));
 
           if (isRejectedType || isRejectedExtension) {
             rejectedFiles.push(file.name);
