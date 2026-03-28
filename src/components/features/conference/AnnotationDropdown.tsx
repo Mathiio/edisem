@@ -2,7 +2,7 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, L
 import React, { useEffect, useState } from 'react';
 import { CrossIcon, DotsIcon, UserIcon } from '@/components/ui/icons';
 import { IconSvgProps, ResourceDetails } from '@/types/ui';
-import { getResourceDetails, getAnnotations } from '@/services/resourceDetails';
+import { getAnnotations } from '@/services/resourceDetails';
 
 import { ApiProxy } from '@/services/ApiProxy';
 
