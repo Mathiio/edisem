@@ -11,6 +11,7 @@ import { experimentationStudentConfig } from '@/pages/generic/config/experimenta
 import { bibliographyStudentConfig } from '@/pages/generic/config/bibliographyStudentConfig';
 import { createHandleSave } from '@/pages/generic/simplifiedConfigAdapter';
 import { getRessourceLabel } from '@/config/resourceConfig';
+import { AlertModal } from '@/components/ui/AlertModal';
 
 /**
  * Configuration complète d'un onglet (interne au wrapper)
@@ -190,18 +191,19 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
     });
   }, []);
 
-  const handleCloseTab = useCallback(
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    tabId: string | null;
+  }>({
+    isOpen: false,
+    tabId: null,
+  });
+
+  const performCloseTab = useCallback(
     (tabId: string) => {
       setTabs((prevTabs) => {
-        const tab = prevTabs.find((t) => t.id === tabId);
-
         if (prevTabs.length === 1) {
           return prevTabs;
-        }
-
-        if (tab?.isDirty) {
-          const confirmClose = window.confirm('Cette ressource a des modifications non sauvegardées. Voulez-vous vraiment fermer cet onglet ?');
-          if (!confirmClose) return prevTabs;
         }
 
         const currentIndex = prevTabs.findIndex((t) => t.id === tabId);
@@ -214,8 +216,27 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
 
         return newTabs;
       });
+      setConfirmConfig({ isOpen: false, tabId: null });
     },
     [activeTabId],
+  );
+
+  const handleCloseTab = useCallback(
+    (tabId: string) => {
+      const tab = tabs.find((t) => t.id === tabId);
+
+      if (tabs.length === 1) {
+        return;
+      }
+
+      if (tab?.isDirty) {
+        setConfirmConfig({ isOpen: true, tabId });
+        return;
+      }
+
+      performCloseTab(tabId);
+    },
+    [tabs, performCloseTab],
   );
 
   const handleTabChange = useCallback((tabId: string) => {
@@ -351,6 +372,16 @@ export const StudentFormWrapper: React.FC<StudentFormWrapperProps> = ({ initialC
           </div>
         );
       })}
+
+      <AlertModal
+        isOpen={confirmConfig.isOpen}
+        onClose={() => setConfirmConfig({ isOpen: false, tabId: null })}
+        title="Fermer l'onglet"
+        description="Cette ressource a des modifications non sauvegardées. Voulez-vous vraiment fermer cet onglet ?"
+        type="warning"
+        confirmLabel="Fermer"
+        onConfirm={() => confirmConfig.tabId && performCloseTab(confirmConfig.tabId)}
+      />
     </>
   );
 };

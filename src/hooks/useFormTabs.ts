@@ -147,14 +147,16 @@ export function useFormTabs(options: UseFormTabsOptions = {}) {
   }, [tabs]);
 
   // Fermer un onglet avec confirmation si dirty
+  // NOTE: La confirmation doit être gérée par le composant UI car window.confirm est déprécié
   const closeTabWithConfirm = useCallback(
     async (tabId: string): Promise<boolean> => {
       const tab = tabs.find((t) => t.id === tabId);
       if (!tab) return false;
 
+      // Si l'onglet est dirty, on laisse le composant UI gérer la confirmation
+      // et appeler removeTab si nécessaire.
       if (tab.isDirty) {
-        const confirmed = window.confirm('Vous avez des modifications non sauvegardées. Voulez-vous vraiment fermer cet onglet ?');
-        if (!confirmed) return false;
+        return false;
       }
 
       return removeTab(tabId);

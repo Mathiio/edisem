@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button, Tooltip } from '@heroui/react';
 import { CrossIcon, PlusIcon } from '@/components/ui/icons';
+import { AlertModal } from '@/components/ui/AlertModal';
 import { GenericDetailPage } from '@/pages/generic/GenericDetailPage';
 import { FormTabConfig, GenericDetailPageConfig } from '@/pages/generic/config';
 
@@ -34,6 +35,14 @@ export const FormTabManager: React.FC<FormTabManagerProps> = ({ initialTabs = []
     return newTab.id;
   }, []);
 
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    tabId: string | null;
+  }>({
+    isOpen: false,
+    tabId: null,
+  });
+
   // Close a tab
   const closeTab = useCallback(
     (tabId: string) => {
@@ -41,10 +50,17 @@ export const FormTabManager: React.FC<FormTabManagerProps> = ({ initialTabs = []
 
       // Check if tab has unsaved changes
       if (tab?.isDirty) {
-        const confirmClose = window.confirm('Cette ressource a des modifications non sauvegardées. Voulez-vous vraiment fermer cet onglet ?');
-        if (!confirmClose) return;
+        setConfirmConfig({ isOpen: true, tabId });
+        return;
       }
 
+      performCloseTab(tabId);
+    },
+    [tabs],
+  );
+
+  const performCloseTab = useCallback(
+    (tabId: string) => {
       setTabs((prev) => {
         const newTabs = prev.filter((t) => t.id !== tabId);
 
@@ -53,14 +69,17 @@ export const FormTabManager: React.FC<FormTabManagerProps> = ({ initialTabs = []
           const closedIndex = prev.findIndex((t) => t.id === tabId);
           const newActiveIndex = Math.min(closedIndex, newTabs.length - 1);
           setActiveTabId(newTabs[newActiveIndex].id);
+        } else if (newTabs.length === 0) {
+          setActiveTabId('');
         }
 
         return newTabs;
       });
 
       onTabClose?.(tabId);
+      setConfirmConfig({ isOpen: false, tabId: null });
     },
-    [tabs, activeTabId, onTabClose],
+    [activeTabId, onTabClose],
   );
 
   // Switch to a tab
@@ -212,6 +231,16 @@ export const FormTabManager: React.FC<FormTabManagerProps> = ({ initialTabs = []
           />
         )}
       </div>
+
+      <AlertModal
+        isOpen={confirmConfig.isOpen}
+        onClose={() => setConfirmConfig({ isOpen: false, tabId: null })}
+        title="Fermer l'onglet"
+        description="Cette ressource a des modifications non sauvegardées. Voulez-vous vraiment fermer cet onglet ?"
+        type="warning"
+        confirmLabel="Fermer"
+        onConfirm={() => confirmConfig.tabId && performCloseTab(confirmConfig.tabId)}
+      />
     </div>
   );
 };

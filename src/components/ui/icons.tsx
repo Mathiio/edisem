@@ -1163,3 +1163,40 @@ export const EyeSlashIcon: React.FC<IconSvgProps> = ({ size = 24, width, height,
     />
   </svg>
 );
+
+export const InfoIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+  <svg width={size || width} height={size || height} viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' {...props}>
+    <path d='M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
+    <path d='M12 8V13' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
+    <path d='M11.995 16H12.004' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+  </svg>
+);
+
+export const LockIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+  <svg height={size || height} viewBox='0 0 24 24' width={size || width} fill='none' {...props}>
+    <path
+      d='M19 11H5C3.89543 11 3 11.8954 3 13V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V13C21 11.8954 20.1046 11 19 11Z'
+      stroke='currentColor'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
+    <path
+      d='M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11'
+      stroke='currentColor'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
+  </svg>
+);
+
+export const TableIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+  <svg height={size || height} viewBox='0 0 24 24' width={size || width} fill='none' {...props}>
+    <path d='M21 5H3C1.89543 5 1 5.89543 1 7V17C1 18.1046 1.89543 19 3 19H21C22.1046 19 23 18.1046 23 17V7C23 5.89543 22.1046 5 21 5Z' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'/>
+    <path d='M1 10H23' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'/>
+    <path d='M1 15H23' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'/>
+    <path d='M8 10V19' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'/>
+    <path d='M16 10V19' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'/>
+  </svg>
+);

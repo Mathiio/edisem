@@ -3,8 +3,8 @@ import { addToast, Button, Checkbox, cn, Divider } from '@heroui/react';
 import { Input } from '@heroui/react';
 import { useState } from 'react';
 import { GeneratedImage } from '@/pages/visualisation';
-
 import { ShareIcon } from '@/components/ui/icons';
+import { AlertModal } from '@/components/ui/AlertModal';
 
 const STORAGE_KEY = 'filterGroups';
 
@@ -69,6 +69,22 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
     setTimeout(() => setCopyConfirmation(null), 3000);
   };
 
+  const [alertConfig, setAlertConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'danger' | 'warning' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+  });
+
+  const showAlert = (title: string, message: string, type: 'danger' | 'warning' | 'info' | 'success' = 'info') => {
+    setAlertConfig({ isOpen: true, title, message, type });
+  };
+
   const handleCopyConfig = () => {
     const savedFilters = localStorage.getItem(STORAGE_KEY);
     const configToCopy = savedFilters || 'Aucune configuration trouvée';
@@ -80,7 +96,7 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
       })
       .catch((error) => {
         console.error('Erreur lors de la copie:', error);
-        alert('Erreur lors de la copie');
+        showAlert('Erreur', 'Erreur lors de la copie de la configuration.', 'danger');
       });
   };
 
@@ -167,6 +183,16 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
           </Button>
         </div>
       </div>
+
+      <AlertModal
+        isOpen={alertConfig.isOpen}
+        onClose={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+        title={alertConfig.title}
+        description={alertConfig.message}
+        type={alertConfig.type}
+        confirmLabel='Ok'
+        onConfirm={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

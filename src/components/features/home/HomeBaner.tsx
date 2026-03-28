@@ -1,5 +1,4 @@
 import { BackgroundEllipse } from '@/assets/svg/BackgroundEllipse';
-import { Alert } from '@heroui/react';
 import { motion } from 'framer-motion';
 
 
@@ -19,12 +18,6 @@ export const HomeBaner: React.FC = () => {
 
         {/* Subtitle */}
         <p className='text-c5 text-base z-[12]'>Explorer les récits, la créativité, l'authenticité et l’auctorialité à l’ère des IA génératives.</p>
-
-        <Alert
-          color="warning"
-          description="Le site rencontre actuellement des difficultés sur Safari. Merci de privilégier Chrome pour une expérience optimale."
-          variant="faded"
-        />
 
         {/* Animated SVG background shape */}
         <motion.div

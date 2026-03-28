@@ -6,6 +6,8 @@ import { ApiProxy } from '@/services/ApiProxy';
 import { getComments } from '@/services/Items';
 import { formatDate } from '@/lib/utils';
 
+import { AlertModal } from '../ui/AlertModal';
+
 interface Comment {
   id: number;
   titre: string;
@@ -39,16 +41,32 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [lastAddedId, setLastAddedId] = useState<number | null>(null);
 
+  const [alertConfig, setAlertConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'danger' | 'warning' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+  });
+
+  const showAlert = (title: string, message: string, type: 'danger' | 'warning' | 'info' | 'success' = 'info') => {
+    setAlertConfig({ isOpen: true, title, message, type });
+  };
+
   const handleSubmit = async () => {
     if (!newContenu.trim()) {
-      alert('Veuillez saisir votre commentaire');
+      showAlert('Champs requis', 'Veuillez saisir votre commentaire', 'warning');
       return;
     }
 
     setIsLoading(true);
 
     if (!isAuthenticated) {
-      alert('Vous devez être connecté pour commenter');
+      showAlert('Connexion requise', 'Vous devez être connecté pour commenter', 'warning');
       setIsLoading(false);
       return;
     }
@@ -97,7 +115,7 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
       }
     } catch (error) {
       console.error('Erreur lors de la création du commentaire:', error);
-      alert('Erreur lors de la création du commentaire. Veuillez réessayer.');
+      showAlert('Erreur', 'Erreur lors de la création du commentaire. Veuillez réessayer.', 'danger');
 
       // Réinitialiser l'animation après 500ms
       setTimeout(() => setLastAddedId(null), 500);
@@ -209,6 +227,16 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
           ))
         )}
       </div>
+
+      <AlertModal
+        isOpen={alertConfig.isOpen}
+        onClose={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+        title={alertConfig.title}
+        description={alertConfig.message}
+        type={alertConfig.type}
+        confirmLabel='Ok'
+        onConfirm={() => setAlertConfig((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

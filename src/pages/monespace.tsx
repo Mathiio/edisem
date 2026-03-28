@@ -4,15 +4,15 @@ import { motion, Variants } from 'framer-motion';
 import { StudentCard, StudentCardSkeleton } from '@/components/features/espaceEtudiant/StudentCard';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { getAllStudentResources, getStudentCourses, getCourses, type StudentResourceCard, type Course } from '@/services/StudentSpace';
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, addToast, Select, SelectItem } from '@heroui/react';
-import { ExperimentationIcon, UniversityIcon, TrashIcon, PlusIcon, WarningIcon } from '@/components/ui/icons';
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, addToast, Select, SelectItem } from '@heroui/react';
+import { ExperimentationIcon, UniversityIcon, PlusIcon, WarningIcon } from '@/components/ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { experimentationStudentConfigSimplified } from '@/pages/generic/config/experimentationStudentConfig';
 import { feedbackStudentConfigSimplified } from '@/pages/generic/config/feedbackStudentConfig';
 import { toolStudentConfigSimplified } from '@/pages/generic/config/toolStudentConfig';
 import { useAuth } from '@/hooks/useAuth';
 import type { Key } from 'react';
-import { Button } from '@/theme/components/button';
+import { AlertModal } from '@/components/ui/AlertModal';
 
 const API_BASE = 'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=StudentSpace';
 
@@ -319,6 +319,7 @@ export const MonEspace: React.FC = () => {
         {canCreate && (isActant || courses.length > 1) && (
           <Select
             label='Destination'
+            labelPlacement="outside"
             placeholder='Sélectionnez une destination'
             selectedKeys={selectedCourseId ? [String(selectedCourseId)] : []}
             onSelectionChange={(keys) => {
@@ -333,8 +334,8 @@ export const MonEspace: React.FC = () => {
             isRequired={isActant}
             className='max-w-xs'
             classNames={{
-              trigger: 'bg-c2 border-2 border-c3 hover:bg-c3',
-              label: 'text-c5',
+              trigger: 'bg-c2 border-2 border-c3 data-[hover=true]:border-c4 group-data-[focus=true]:bg-c3 group-data-[focus=true]:border-action',
+              label: 'text-c6 font-medium mb-1.5',
               value: 'text-c6',
               popoverContent: 'bg-c2 border-2 border-c3',
             }}>
@@ -429,37 +430,23 @@ export const MonEspace: React.FC = () => {
       </div>
 
       {/* Modal de confirmation de suppression */}
-      <Modal
+      <AlertModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
-        classNames={{ base: 'bg-c1 border-2 border-c3', header: 'border-b border-c3', body: 'py-6', footer: 'border-t border-c3' }}>
-        <ModalContent>
-          <ModalHeader className='flex flex-col gap-px'>
-            <div className='flex items-center gap-2'>
-              <div className='p-px rounded-lg bg-red-500/20'>
-                <TrashIcon size={20} className='text-[#FF0000]' />
-              </div>
-              <span className='text-c6'>Confirmer la suppression</span>
-            </div>
-          </ModalHeader>
-          <ModalBody>
-            <div className='flex flex-col justify-center gap-8'>
-              <p className='text-c5'>
-                Êtes-vous sûr de vouloir supprimer la ressource <span className='text-c6 font-medium'>"{itemToDelete?.title}"</span> ?
-              </p>
-              <p className='text-c4 text-sm'>Cette action est irréversible.</p>
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant='light' onPress={() => setDeleteModalOpen(false)} className='text-c5 hover:text-c6 min-h'>
-              Annuler
-            </Button>
-            <Button onPress={handleConfirmDelete} isLoading={isDeleting} className='bg-[#FF0000]/70 hover:bg-[#FF0000]/90'>
-              Supprimer
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+        title='Confirmer la suppression'
+        type='danger'
+        description={
+          <div className='flex flex-col gap-4'>
+            <p>
+              Êtes-vous sûr de vouloir supprimer la ressource <span className='text-c6 font-medium'>"{itemToDelete?.title}"</span> ?
+            </p>
+            <p className='text-c4 text-sm'>Cette action est irréversible.</p>
+          </div>
+        }
+        confirmLabel='Supprimer'
+        onConfirm={handleConfirmDelete}
+        isLoading={isDeleting}
+      />
     </Layouts>
   );
 };

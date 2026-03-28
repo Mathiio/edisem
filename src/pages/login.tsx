@@ -132,21 +132,42 @@ export const LoginPage: React.FC = () => {
         login(response.user, response.token);
         navigate('/');
       } else {
-        setErrors({ general: response.message || response.error || 'Échec de la connexion' });
+        // En cas d'échec, on marque les champs comme invalides
+        const msg = response.message || response.error || 'Échec de la connexion';
+        if (selected === 'Actant') {
+          setErrors({ email: ' ', password: msg });
+        } else {
+          setErrors({ email: ' ', studentNumber: msg });
+        }
       }
     } catch (error) {
       console.error('Submit error:', error);
-      setErrors({ general: 'Une erreur technique est survenue' });
+      setErrors({ general: 'Une erreur technique est survenue. Veuillez réessayer.' });
     } finally {
       setSubmitting(false);
     }
   };
 
   const inputClassNames = {
-    inputWrapper: 'bg-c2 data-[hover=true]:bg-c3/50 group-data-[focus=true]:bg-c2 border-1 border-c3/50 shadow-none rounded-xl transition-all duration-200 min-h-[50px] !mt-0',
+    inputWrapper: [
+      'bg-c2',
+      'border-2',
+      'border-c3',
+      'data-[hover=true]:border-c4',
+      'group-data-[focus=true]:bg-c3',
+      'group-data-[focus=true]:border-action',
+      'group-data-[invalid=true]:!border-[#ef4444]',
+      'shadow-none',
+      'rounded-xl',
+      'transition-all',
+      'duration-200',
+      'min-h-[50px]',
+      '!mt-0'
+    ].join(' '),
     input: 'text-c6 placeholder:text-c4/60 !mt-0',
     mainWrapper: 'w-full',
-    errorMessage: '!text-[#ef4444] text-xs font-medium mt-px'
+    errorMessage: '!text-[#ef4444] text-xs font-medium mt-1',
+    label: 'text-c6 font-medium mb-1.5'
   };
 
   const renderInput = (
@@ -160,11 +181,11 @@ export const LoginPage: React.FC = () => {
     endContent?: React.ReactNode,
     isDisabled: boolean = false
   ) => (
-    <div className='flex flex-col gap-2'>
-      <label className='text-c6 font-medium text-sm'>{label}</label>
       <Input
         classNames={inputClassNames}
         type={type}
+        label={label}
+        labelPlacement="outside"
         placeholder={placeholder}
         value={value}
         onChange={onChange}
@@ -174,7 +195,6 @@ export const LoginPage: React.FC = () => {
         endContent={endContent}
         isDisabled={isDisabled}
       />
-    </div>
   );
 
   return (
@@ -207,7 +227,7 @@ export const LoginPage: React.FC = () => {
               <div className='flex flex-col gap-4'>
                 {renderInput('Email', 'votre@email.com', email, (e) => setEmail(e.target.value), 'email', errors.email)}
                 {renderInput('Numéro étudiant', 'ex: 20230001', studentNumber, (e) => setStudentNumber(e.target.value), 'text', errors.studentNumber)}
-                {errors.general && <p className="text-[#ef4444] text-center text-sm font-medium bg-[#ef4444]/10 py-2 rounded-lg border border-[#ef4444]/20">{errors.general}</p>}
+                {errors.general && <p className="text-[#ef4444] text-xs font-medium mt-1">{errors.general}</p>}
               </div>
               <div className='flex flex-col gap-4'>
                 <Button type='submit' className='w-full h-[50px] bg-action text-selected font-medium text-base rounded-xl shadow-lg shadow-action/20' isLoading={submitting}>
@@ -220,7 +240,7 @@ export const LoginPage: React.FC = () => {
           <Tab key='Actant' title='Actant' className='py-0'>
             <form onSubmit={handleSubmit} noValidate className='flex flex-col w-full gap-10'>
               <div className='flex flex-col gap-4'>
-                {renderInput('Email', 'votre@email.com', email, (e) => { setEmail(e.target.value); if (actantStatus !== 'idle') setActantStatus('idle'); setErrors({}); }, 'email', errors.email, handleActantEmailBlur, actantStatus === 'checking' ? <Spinner size="sm" /> : null)}
+                {renderInput('Email', 'votre@email.com', email, (e) => { setEmail(e.target.value); if (actantStatus !== 'idle') setActantStatus('idle'); setErrors({}); }, 'email', errors.email, handleActantEmailBlur, actantStatus === 'checking' ? <Spinner size="sm" color="current" className='text-c6'/> : null)}
                 <div className="flex flex-col gap-4">
                   {renderInput(actantStatus === 'needs_registration' ? 'Définir un mot de passe' : 'Mot de passe', 'Entrez votre mot de passe', password, (e) => setPassword(e.target.value), showPassword ? "text" : "password", errors.password, undefined, <button className="focus:outline-none" type="button" onClick={toggleVisibility}>{showPassword ? <EyeSlashIcon className="text-c4 text-2xl pointer-events-none" /> : <EyeIcon className="text-c4 text-2xl pointer-events-none" />}</button>, actantStatus !== 'recognized' && actantStatus !== 'needs_registration')}
                   {actantStatus === 'needs_registration' && (
@@ -229,11 +249,11 @@ export const LoginPage: React.FC = () => {
                     </div>
                   )}
                 </div>
-                {errors.general && <p className="text-[#ef4444] text-center text-sm font-medium bg-[#ef4444]/10 py-2 rounded-lg border border-[#ef4444]/20">{errors.general}</p>}
+                {errors.general && <p className="text-[#ef4444] text-xs font-medium mt-1">{errors.general}</p>}
               </div>
               <div className='flex flex-col gap-4'>
                 <Button type='submit' className='w-full h-[50px] bg-action text-selected font-medium text-base rounded-xl shadow-lg shadow-action/20' isLoading={submitting} isDisabled={actantStatus === 'not_found' || actantStatus === 'idle' || actantStatus === 'checking'}>
-                  {submitting ? 'Traitement en cours...' : actantStatus === 'needs_registration' ? 'Créer mon compte' : 'Se connecter'}
+                  {submitting ? 'Connexion en cours...' : actantStatus === 'needs_registration' ? 'Créer mon compte' : 'Se connecter'}
                 </Button>
                 <Link to="/" className="mx-auto text-center text-c4/80 hover:text-c4/60 text-sm font-normal transition-all ease-in-out duration-300">Revenir au site Edisem</Link>
               </div>
