@@ -189,24 +189,24 @@ const ZoomControl: FC<ZoomControlProps> = ({ svgRef, availableControl }) => {
 
   return (
     <div
-      className={` rounded-12 p-2 bg-c2 flex flex-col shadow-lg gap-4 ${
+      className={` rounded-xl p-2 bg-c2 flex flex-col shadow-lg gap-4 ${
         availableControl ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}>
       <Button
         size='md'
-        className='cursor-pointer group text-16 h-[40px] p-10 rounded-8 text-c6 bg-c2 hover:bg-action transition-all ease-in-out duration-200'
+        className='cursor-pointer group text-base h-[40px] p-2.5 rounded-lg text-c6 bg-c2 hover:bg-action transition-all ease-in-out duration-200'
         onPress={zoomIn}>
         <ZoomInIcon size={20} className='text-c6 group-hover:text-selected transition-all ease-in-out duration-200' />
       </Button>
       <Button
         size='md'
-        className='cursor-pointer group text-16 h-[40px] p-10 rounded-8 text-c6 bg-c2 hover:bg-action transition-all ease-in-out duration-200'
+        className='cursor-pointer group text-base h-[40px] p-2.5 rounded-lg text-c6 bg-c2 hover:bg-action transition-all ease-in-out duration-200'
         onPress={zoomOut}>
         <ZoomOutIcon size={20} className='text-c6 group-hover:text-selected transition-all ease-in-out duration-200' />
       </Button>
       <Button
         size='md'
-        className='cursor-pointer group text-16 h-[40px] p-10 rounded-8 text-c6 bg-c2 hover:bg-action transition-all ease-in-out duration-200'
+        className='cursor-pointer group text-base h-[40px] p-2.5 rounded-lg text-c6 bg-c2 hover:bg-action transition-all ease-in-out duration-200'
         onPress={resetZoom}>
         <CenterIcon size={20} className='text-c6 group-hover:text-selected transition-all ease-in-out duration-200' />
       </Button>

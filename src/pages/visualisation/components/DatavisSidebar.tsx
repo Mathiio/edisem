@@ -107,7 +107,7 @@ export const DatavisSidebar = ({
               <SidebarMenuItem icon={<SearchIcon size={15} />} label='Recherche' onClick={onShowDatavis} isActive={activeView === 'datavis'} />
               {!isCollapsed && (
                 <div
-                  className={`ml-20 flex flex-col gap-2 overflow-hidden transition-all duration-300 ease-in-out ${
+                  className={`ml-5 flex flex-col gap-2 overflow-hidden transition-all duration-300 ease-in-out ${
                     activeView === 'datavis' || activeView === 'create' ? 'max-h-96 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'
                   }`}>
                   <SidebarMenuItem

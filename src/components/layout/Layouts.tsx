@@ -43,13 +43,13 @@ export const Layouts: React.FC<LayoutsProps> = ({ children, className, fullWidth
           initial='hidden'
           animate='visible'
           variants={containerVariants}>
-          <motion.div className={`${className} w-full h-full ${noPadding ? '' : 'p-25'}`} variants={itemVariants}>
+          <motion.div className={`${className} w-full h-full ${noPadding ? '' : 'p-6'}`} variants={itemVariants}>
             {children}
           </motion.div>
         </motion.main>
       ) : (
         <motion.main
-          className={`mx-auto max-w-screen-2xl w-full grid grid-cols-10 xl:gap-75 gap-50 p-25 transition-all ease-in-out duration-200 ${noFooter ? 'h-[calc(100vh-80px)] overflow-hidden' : ''}`}
+          className={`mx-auto max-w-screen-2xl w-full grid grid-cols-10 xl:gap-20 gap-12 p-6 transition-all ease-in-out duration-200 ${noFooter ? 'h-[calc(100vh-80px)] overflow-hidden' : ''}`}
           initial='hidden'
           animate='visible'
           variants={containerVariants}>

@@ -28,14 +28,13 @@ import { AddResourceCard } from '@/components/features/forms/AddResourceCard';
 import { GenericDetailPage } from './GenericDetailPage';
 import { getResourceUrl } from '@/config/resourceConfig';
 import AutoResizingField from '@/components/features/database/AutoResizingTextarea';
+import { ApiProxy } from '@/services/ApiProxy';
 
 // ========================================
 // API Constants
 // ========================================
 
 const API_BASE = '/omk/api/';
-const API_KEY = import.meta.env.VITE_API_KEY;
-const API_IDENT = 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj';
 
 // ========================================
 // Helpers pour extraire les valeurs Omeka S
@@ -153,7 +152,7 @@ export const fieldToFormField = (field: InternalFieldConfig): FormFieldConfig =>
 async function fetchWithRetry(url: string, retries = 2, delay = 500): Promise<Response | null> {
   for (let i = 0; i <= retries; i++) {
     try {
-      const response = await fetch(url);
+      const response = await ApiProxy.request(url);
       if (response.ok) {
         return response;
       }
@@ -181,26 +180,12 @@ async function fetchWithRetry(url: string, retries = 2, delay = 500): Promise<Re
 // ========================================
 
 /**
- * Uploader un nouveau média vers Omeka S
+ * Uploader un nouveau média vers Omeka S via Proxy
  */
 export const uploadMedia = async (file: File, itemId: string): Promise<boolean> => {
-  const url = `${API_BASE}media?key_identity=${API_IDENT}&key_credential=${API_KEY}`;
-
-  const formData = new FormData();
-  const mediaData = {
-    'o:ingester': 'upload',
-    'o:item': { 'o:id': parseInt(itemId) },
-    file_index: '0',
-  };
-  formData.append('data', JSON.stringify(mediaData));
-  formData.append('file[0]', file);
-
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      body: formData,
-    });
-    return response.ok;
+    const result = await ApiProxy.uploadMedia(file, itemId);
+    return !result.error;
   } catch (err) {
     console.error('Erreur upload média:', err);
     return false;
@@ -208,14 +193,12 @@ export const uploadMedia = async (file: File, itemId: string): Promise<boolean> 
 };
 
 /**
- * Supprimer un média depuis Omeka S
+ * Supprimer un média depuis Omeka S via Proxy
  */
 export const deleteMedia = async (mediaId: number): Promise<boolean> => {
-  const url = `${API_BASE}media/${mediaId}?key_identity=${API_IDENT}&key_credential=${API_KEY}`;
-
   try {
-    const response = await fetch(url, { method: 'DELETE' });
-    return response.ok;
+    const result = await ApiProxy.deleteMedia(mediaId);
+    return !result.error;
   } catch (err) {
     console.error('Erreur suppression média:', err);
     return false;
@@ -898,12 +881,12 @@ const createViewFromSimpleView = (view: SimplifiedViewConfig): ViewOption => {
                 <AutoResizingField
                   textareaProps={{
                     className:
-                      'w-full min-h-[150px] !bg-c1 hover:!bg-c1 border-2 border-c3 rounded-12 text-c6 !text-16 resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0 data-[focus=true]:outline-none',
+                      'w-full min-h-[150px] !bg-c1 hover:!bg-c1 border-2 border-c3 rounded-xl text-c6 !text-base resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0 data-[focus=true]:outline-none',
                     classNames: {
-                      inputWrapper: 'bg-c1 rounded-12 text-c6 text-16 resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0',
-                      input: 'text-c6 !text-16 resize-y !outline-none data-[focus=true]:outline-none',
-                      innerWrapper: 'px-20 py-20 data-[focus=true]:border-0 data-[focus=true]:outline-none !focus-visible:outline-hidden',
-                      base: 'bg-c1 rounded-12 text-c6 text-16 resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0 data-[focus=true]:outline-none',
+                      inputWrapper: 'bg-c1 rounded-xl text-c6 text-base resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0',
+                      input: 'text-c6 !text-base resize-y !outline-none data-[focus=true]:outline-none',
+                      innerWrapper: 'px-5 py-5 data-[focus=true]:border-0 data-[focus=true]:outline-none !focus-visible:outline-hidden',
+                      base: 'bg-c1 rounded-xl text-c6 text-base resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0 data-[focus=true]:outline-none',
                     },
                   }}
                   value={text || ''}
@@ -965,13 +948,13 @@ const createViewFromSimpleView = (view: SimplifiedViewConfig): ViewOption => {
             <div className='space-y-6'>
               {mediagraphies.length > 0 && (
                 <div>
-                  <h3 className='text-lg text-c5 font-semibold mb-4'>Médias</h3>
+                  <h3 className='text-lg text-c5 font-medium mb-4'>Médias</h3>
                   <Mediagraphies items={mediagraphies} loading={loadingViews ?? false} notitle />
                 </div>
               )}
               {bibliographies.length > 0 && (
                 <div>
-                  <h3 className='text-lg text-c5 font-semibold mb-4'>Bibliographies</h3>
+                  <h3 className='text-lg text-c5 font-medium mb-4'>Bibliographies</h3>
                   <Bibliographies sections={[{ title: 'Bibliographies', bibliographies }]} loading={loadingViews ?? false} notitle />
                 </div>
               )}
@@ -1005,7 +988,7 @@ const createViewFromSimpleView = (view: SimplifiedViewConfig): ViewOption => {
           const showCategoryTitle = view.categories.length > 1;
 
           return (
-            <div className='flex flex-col gap-25'>
+            <div className='flex flex-col gap-6'>
               {view.categories.map((category) => {
                 if (!canEdit) {
                   const categoryHasContent = category.subcategories.some((sub) => {
@@ -1016,9 +999,9 @@ const createViewFromSimpleView = (view: SimplifiedViewConfig): ViewOption => {
                 }
 
                 return (
-                  <div key={category.key} className='flex flex-col gap-15'>
-                    {showCategoryTitle && <h2 className='text-20 font-semibold text-c6'>{category.title}</h2>}
-                    <div className='flex flex-col gap-20'>
+                  <div key={category.key} className='flex flex-col gap-4'>
+                    {showCategoryTitle && <h2 className='text-xl font-medium text-c6'>{category.title}</h2>}
+                    <div className='flex flex-col gap-5'>
                       {category.subcategories.map((subcategory) => {
                         const allValues = getAllOmekaValues(itemDetails, subcategory.property);
 
@@ -1034,20 +1017,20 @@ const createViewFromSimpleView = (view: SimplifiedViewConfig): ViewOption => {
                           const displayValues = editValues.length > 0 ? editValues : [''];
 
                           return (
-                            <div key={subcategory.key} className='flex flex-col gap-10'>
-                              <h3 className='text-c6 font-semibold text-16'>{subcategory.label}</h3>
+                            <div key={subcategory.key} className='flex flex-col gap-2.5'>
+                              <h3 className='text-c6 font-medium text-base'>{subcategory.label}</h3>
 
                               {displayValues.map((value, index) => (
                                 <div key={index} className='flex gap-8 items-start'>
                                   <AutoResizingField
                                     textareaProps={{
                                       className:
-                                        'w-full min-h-[80px] !bg-c1 hover:!bg-c1 border-2 border-c3 rounded-12 text-c6 !text-14 resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0 data-[focus=true]:outline-none',
+                                        'w-full min-h-[80px] !bg-c1 hover:!bg-c1 border-2 border-c3 rounded-xl text-c6 !text-sm resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0 data-[focus=true]:outline-none',
                                       classNames: {
-                                        inputWrapper: 'bg-c1 rounded-12 text-c6 text-14 resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0',
-                                        input: 'text-c6 !text-14 resize-y !outline-none data-[focus=true]:outline-none',
-                                        innerWrapper: 'px-15 py-15 data-[focus=true]:border-0 data-[focus=true]:outline-none !focus-visible:outline-hidden',
-                                        base: 'bg-c1 rounded-12 text-c6 text-14 resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0 data-[focus=true]:outline-none',
+                                        inputWrapper: 'bg-c1 rounded-xl text-c6 text-sm resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0',
+                                        input: 'text-c6 !text-sm resize-y !outline-none data-[focus=true]:outline-none',
+                                        innerWrapper: 'px-4 py-4 data-[focus=true]:border-0 data-[focus=true]:outline-none !focus-visible:outline-hidden',
+                                        base: 'bg-c1 rounded-xl text-c6 text-sm resize-y data-[hover=true]:bg-c2 data-[focus=true]:border-0 data-[focus=true]:outline-none',
                                       },
                                     }}
                                     value={value}
@@ -1096,18 +1079,18 @@ const createViewFromSimpleView = (view: SimplifiedViewConfig): ViewOption => {
                         const isUri = isUriProperty(itemDetails, subcategory.property);
 
                         return (
-                          <div key={subcategory.key} className='flex flex-col gap-10'>
-                            <h3 className='text-c6 font-semibold text-16'>{subcategory.label}</h3>
+                          <div key={subcategory.key} className='flex flex-col gap-2.5'>
+                            <h3 className='text-c6 font-medium text-base'>{subcategory.label}</h3>
                             {allValues.map(
                               (val, i) =>
                                 val.trim() !== '' && (
-                                  <div key={i} className='bg-c1 rounded-8 p-25 border-2 border-c3'>
+                                  <div key={i} className='bg-c1 rounded-lg p-6 border-2 border-c3'>
                                     {isUri ? (
-                                      <a href={val} target='_blank' rel='noopener noreferrer' className='text-action text-14 leading-[125%] hover:underline break-all'>
+                                      <a href={val} target='_blank' rel='noopener noreferrer' className='text-action text-sm leading-[125%] hover:underline break-all'>
                                         {val}
                                       </a>
                                     ) : (
-                                      <p className='text-c5 text-14 leading-[125%]'>{val}</p>
+                                      <p className='text-c5 text-sm leading-[125%]'>{val}</p>
                                     )}
                                   </div>
                                 ),
@@ -1290,7 +1273,7 @@ export const createHandleSave = (config: SimplifiedDetailConfig) => {
 
     try {
       // 1. Récupérer l'item existant
-      const response = await fetch(`${API_BASE}items/${itemId}`);
+      const response = await ApiProxy.request(`${API_BASE}items/${itemId}`);
       if (!response.ok) {
         throw new Error(`Erreur ${response.status}: Item non trouvé`);
       }
@@ -1437,20 +1420,12 @@ export const createHandleSave = (config: SimplifiedDetailConfig) => {
 
       console.log('[handleSave] Item data to send:', updatedItem);
 
-      // 7. Sauvegarder
-      const url = `${API_BASE}items/${itemId}?key_identity=${API_IDENT}&key_credential=${API_KEY}`;
-      const saveResponse = await fetch(url, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedItem),
-      });
+      // 7. Sauvegarder via Proxy
+      const result = await ApiProxy.updateItem(itemId, updatedItem);
 
-      if (!saveResponse.ok) {
-        const errorData = await saveResponse.json();
-        throw new Error(errorData.errors?.[0]?.message || 'Erreur lors de la sauvegarde');
+      if (result.error) {
+        throw new Error(result.error || 'Erreur lors de la sauvegarde');
       }
-
-      await saveResponse.json();
       console.log('[handleSave] Item saved successfully');
 
       // 8. Gérer les médias

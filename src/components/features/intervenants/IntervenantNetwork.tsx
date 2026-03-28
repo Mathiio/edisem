@@ -244,7 +244,7 @@ export const IntervenantNetwork: React.FC<IntervenantNetworkProps> = ({ currentA
   if (nodes.length < 2) return null;
 
   return (
-    <div ref={containerRef} className="relative h-[750px] w-full bg-c1 rounded-30 border border-c3 group">
+    <div ref={containerRef} className="relative h-[750px] w-full bg-c1 rounded-xl border border-c3 group">
       <svg 
         ref={svgRef} 
         className="w-full h-full transition-transform duration-300 ease-out"
@@ -255,17 +255,17 @@ export const IntervenantNetwork: React.FC<IntervenantNetworkProps> = ({ currentA
       ></svg>
       
       {/* Zoom Controls (Bottom Right) */}
-      <div className="absolute bottom-5 right-5 flex z-20">
+      <div className='absolute bottom-1.5 right-1.5 flex z-20'>
         <div className='flex flex-col gap-2'>
           <button
-            className="focus:outline-none focus-visible:outline-none hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 text-16 p-10 border-c3 border-2 rounded-8 text-c6 transition-colors ease-in-out duration-200"
+            className="focus:outline-none focus-visible:outline-none hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 text-base p-2.5 border-c3 border-2 rounded-lg text-c6 transition-colors ease-in-out duration-200"
             onClick={() => setZoomLevel(z => Math.max(0.6, z - 0.2))}
             title="Dézoomer"
           >
             <ZoomOutIcon size={20} className="text-c6" />
           </button>
           <button
-            className="focus:outline-none focus-visible:outline-none hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 text-16 p-10 border-c3 border-2 rounded-8 text-c6 transition-colors ease-in-out duration-200"
+            className="focus:outline-none focus-visible:outline-none hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 text-base p-2.5 border-c3 border-2 rounded-lg text-c6 transition-colors ease-in-out duration-200"
             onClick={() => setZoomLevel(z => Math.min(2.0, z + 0.2))}
             title="Zoomer"
           >
@@ -276,54 +276,54 @@ export const IntervenantNetwork: React.FC<IntervenantNetworkProps> = ({ currentA
 
       {hoveredNode && hoveredNode.details && (
         <div 
-             className="absolute w-250 p-15 bg-c2 rounded-16 border border-c3 shadow-xl z-20 flex flex-col gap-20 animate-fade-in pointer-events-none -translate-x-1/2 -translate-y-[calc(100%+20px)] shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] border-c3 border-2"
+             className="absolute w-64 p-4 bg-c2 rounded-2xl border border-c3 shadow-xl z-20 flex flex-col gap-5 animate-fade-in pointer-events-none -translate-x-1/2 -translate-y-[calc(100%+20px)] shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] border-c3 border-2"
              style={{
                  left: tooltipPos.x,
                  top: tooltipPos.y
              }}
         >
            {/* Header with Avatar and Name */}
-           <div className='bg-c3 p-10 rounded-10 flex flex-row items-center gap-3'>
+           <div className='bg-c3 p-2.5 rounded-lg flex flex-row items-center gap-3'>
               {hoveredNode.picture ? (
-                <img src={hoveredNode.picture} alt='Avatar' className='w-40 h-40 rounded-6 object-cover bg-c1' />
+                <img src={hoveredNode.picture} alt='Avatar' className='w-10 h-10 shrink-0 rounded-lg object-cover bg-c1' />
               ) : (
-                <div className="w-40 h-40 rounded-6 bg-c1 flex items-center justify-center">
-                    <UserIcon size={20} className='text-c6' />
+                <div className='w-10 h-10 shrink-0 rounded-md bg-c1 flex items-center justify-center'>
+                  <UserIcon size={22} className='text-c6' />
                 </div>
               )}
-              <div className="flex flex-col gap-1">
-                  <span className='text-16 font-semibold text-c6 leading-tight'>{hoveredNode.name}</span>
-                  <span className='text-14 text-c5 font-medium'>Proximité de {Math.round(hoveredNode.similarity * 100)}%</span>
+              <div className="flex flex-col gap-px">
+                  <span className='text-base font-medium text-c6 leading-tight'>{hoveredNode.name}</span>
+                  <span className='text-sm text-c5 font-medium'>Proximité de {Math.round(hoveredNode.similarity * 100)}%</span>
               </div>
            </div>
 
            {/* Metrics List */}
-           <div className="flex flex-col gap-10 px-5">
+           <div className="flex flex-col gap-2.5 px-1.5">
                
                {hoveredNode.details.sharedEventsCount > 0 && (
                    <div className="flex justify-between items-center">
-                       <span className="text-14 text-c5">Évènements communs</span>
-                       <span className="text-14 text-c6 font-semibold">{hoveredNode.details.sharedEventsCount}</span>
+                       <span className="text-sm text-c5">Évènements communs</span>
+                       <span className="text-sm text-c6 font-medium">{hoveredNode.details.sharedEventsCount}</span>
                    </div>
                )}
                 {hoveredNode.details.sharedRefsCount > 0 && (
                    <div className="flex justify-between items-center">
-                       <span className="text-14 text-c5">Références partagées</span>
-                       <span className="text-14 text-c6 font-semibold">{hoveredNode.details.sharedRefsCount}</span>
+                       <span className="text-sm text-c5">Références partagées</span>
+                       <span className="text-sm text-c6 font-medium">{hoveredNode.details.sharedRefsCount}</span>
                    </div>
                )}
 
                {(hoveredNode.details.sharedEventsCount > 0 || hoveredNode.details.sharedRefsCount > 0) && (
-                   <div className="h-[1px] bg-c3 w-full my-5"></div>
+                   <div className="h-[1px] bg-c3 w-full my-1.5"></div>
                )}
 
                <div className="flex justify-between items-center">
-                   <span className="text-14 text-c5">Thématiques</span>
-                   <span className="text-14 text-c6 font-semibold">{Math.round(hoveredNode.details.k * 100)}%</span>
+                   <span className="text-sm text-c5">Thématiques</span>
+                   <span className="text-sm text-c6 font-medium">{Math.round(hoveredNode.details.k * 100)}%</span>
                </div>
                <div className="flex justify-between items-center">
-                   <span className="text-14 text-c5">Institutionnelle</span>
-                   <span className="text-14 text-c6 font-semibold">{Math.round(((hoveredNode.details.u + hoveredNode.details.l + hoveredNode.details.s) / 3) * 100)}%</span>
+                   <span className="text-sm text-c5">Institutionnelle</span>
+                   <span className="text-sm text-c6 font-medium">{Math.round(((hoveredNode.details.u + hoveredNode.details.l + hoveredNode.details.s) / 3) * 100)}%</span>
                </div>
            </div>
         </div>

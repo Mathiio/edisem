@@ -312,9 +312,9 @@ export default function VisualFilterOverlay({ onSelect, renderBreadcrumb, onNavi
   };
 
   return (
-    <div className='absolute z-[9] inset-0 bg-c1 flex flex-col items-center justify-center p-20 overflow-y-auto'>
+    <div className='absolute z-[9] inset-0 bg-c1 flex flex-col items-center justify-center p-5 overflow-y-auto'>
 
-      <div className='w-full max-w-3xl flex flex-col gap-20'>
+      <div className='w-full max-w-3xl flex flex-col gap-5'>
         <Alert
           color="warning"
           description="Cette section fait actuellement l’objet d’une restructuration technique. Des ralentissements ou dysfonctionnements temporaires peuvent survenir."
@@ -329,37 +329,37 @@ export default function VisualFilterOverlay({ onSelect, renderBreadcrumb, onNavi
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.15 }}
-              className='flex flex-col gap-20'>
+              className='flex flex-col gap-5'>
               {/* Titre */}
               <div className='text-center'>
-                <h1 className='text-24 text-c6 font-semibold mb-5'>Que recherchez-vous ?</h1>
-                <p className='text-14 text-c4'>Sélectionnez un type d'élément pour commencer</p>
+                <h1 className='text-2xl text-c6 font-medium mb-1.5'>Que recherchez-vous ?</h1>
+                <p className='text-sm text-c4'>Sélectionnez un type d'élément pour commencer</p>
               </div>
 
               {/* Grille de types - carrés */}
-              <div className='grid grid-cols-5 gap-10'>
+              <div className='grid grid-cols-5 gap-2.5'>
                 {VISUAL_TYPES.map((type) => (
                   <motion.button
                     key={type.key}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => handleTypeSelect(type.key)}
-                    className='aspect-square flex flex-col items-center justify-center gap-8 p-10 rounded-12 border-2 border-c3 bg-c2 hover:bg-c3 hover:border-c4 transition-all duration-200 cursor-pointer group'>
-                    <div className='w-40 h-40 flex items-center justify-center'>
+                    className='aspect-square flex flex-col items-center justify-center gap-8 p-2.5 rounded-xl border-2 border-c3 bg-c2 hover:bg-c3 hover:border-c4 transition-all duration-200 cursor-pointer group'>
+                    <div className='w-10 h-10 flex items-center justify-center'>
                       <img src={type.image} alt={type.label} className='w-full h-full object-contain group-hover:scale-110 transition-transform duration-200' />
                     </div>
-                    <span className='text-12 text-c6 font-medium text-center leading-tight'>{type.label}</span>
+                    <span className='text-xs text-c6 font-medium text-center leading-tight'>{type.label}</span>
                   </motion.button>
                 ))}
               </div>
 
               {/* Suggestions */}
-              <div className='flex flex-col gap-10'>
+              <div className='flex flex-col gap-2.5'>
                 <Divider className='bg-c3' />
-                <p className='text-13 text-c4 text-center'>Ou essayez une recherche suggérée</p>
+                <p className='text-sm text-c4 text-center'>Ou essayez une recherche suggérée</p>
                 <div className='flex flex-wrap justify-center gap-6'>
                   {QUICK_SUGGESTIONS.map((suggestion, index) => (
-                    <Button key={index} size='sm' variant='bordered' className='border-c3 text-c6 hover:bg-c3 text-12' onPress={() => onSelect(suggestion.groups)}>
+                    <Button key={index} size='sm' variant='bordered' className='border-c3 text-c6 hover:bg-c3 text-xs' onPress={() => onSelect(suggestion.groups)}>
                       {suggestion.label}
                     </Button>
                   ))}
@@ -376,19 +376,19 @@ export default function VisualFilterOverlay({ onSelect, renderBreadcrumb, onNavi
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.15 }}
-              className='flex flex-col gap-20'>
+              className='flex flex-col gap-5'>
               {/* Titre avec type sélectionné */}
               <div className='text-center'>
-                <div className='flex items-center justify-center gap-10 mb-5'>
+                <div className='flex items-center justify-center gap-2.5 mb-1.5'>
                   <img src={VISUAL_TYPES.find((t) => t.key === selectedType)?.image} alt='' className='w-32 h-32 object-contain' />
-                  <h1 className='text-24 text-c6 font-semibold'>{VISUAL_TYPES.find((t) => t.key === selectedType)?.label}</h1>
+                  <h1 className='text-2xl text-c6 font-medium'>{VISUAL_TYPES.find((t) => t.key === selectedType)?.label}</h1>
                 </div>
-                <p className='text-14 text-c4'>Recherchez ou explorez tous les éléments</p>
+                <p className='text-sm text-c4'>Recherchez ou explorez tous les éléments</p>
               </div>
 
               {/* Recherche rapide */}
-              <div className='bg-c2 border-2 border-c3 rounded-8 p-15'>
-                <p className='text-13 text-c6 font-medium mb-10'>Recherche</p>
+              <div className='bg-c2 border-2 border-c3 rounded-lg p-4'>
+                <p className='text-sm text-c6 font-medium mb-2.5'>Recherche</p>
                 <div className='flex gap-8'>
                   <Input
                     value={searchValue}
@@ -398,10 +398,10 @@ export default function VisualFilterOverlay({ onSelect, renderBreadcrumb, onNavi
                     size='sm'
                     classNames={{
                       inputWrapper: 'bg-c1 border-2 border-c3 hover:bg-c1 group-data-[focus=true]:bg-c1 h-[36px]',
-                      input: 'text-c6 text-13',
+                      input: 'text-c6 text-sm',
                     }}
                   />
-                  <Button size='sm' color='primary' className='bg-action text-selected h-[36px] px-15' onPress={handleQuickSearch} isDisabled={!searchValue.trim()}>
+                  <Button size='sm' color='primary' className='bg-action text-selected h-[36px] px-4' onPress={handleQuickSearch} isDisabled={!searchValue.trim()}>
                     <SearchIcon size={14} />
                     Rechercher
                   </Button>
@@ -409,7 +409,7 @@ export default function VisualFilterOverlay({ onSelect, renderBreadcrumb, onNavi
               </div>
 
               {/* Actions */}
-              <div className='flex justify-center gap-10'>
+              <div className='flex justify-center gap-2.5'>
                 <Button size='sm' variant='light' className='text-c4 hover:text-c6' onPress={handleReset} startContent={<ChevronLeft size={14} />}>
                   Changer de type
                 </Button>
@@ -432,17 +432,17 @@ export default function VisualFilterOverlay({ onSelect, renderBreadcrumb, onNavi
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.15 }}
-              className='flex flex-col gap-15'>
+              className='flex flex-col gap-4'>
               {/* Titre */}
               <div className='text-center'>
-                <h1 className='text-24 text-c6 font-semibold mb-5'>Filtrage avancé</h1>
-                <p className='text-14 text-c4'>Ajoutez des conditions pour affiner votre recherche</p>
+                <h1 className='text-2xl text-c6 font-medium mb-1.5'>Filtrage avancé</h1>
+                <p className='text-sm text-c4'>Ajoutez des conditions pour affiner votre recherche</p>
               </div>
 
               {/* Conditions */}
-              <div className='bg-c2 border-2 border-c3 rounded-8 p-15'>
-                <div className='flex items-center justify-between mb-10'>
-                  <p className='text-13 text-c6 font-medium'>Conditions</p>
+              <div className='bg-c2 border-2 border-c3 rounded-lg p-4'>
+                <div className='flex items-center justify-between mb-2.5'>
+                  <p className='text-sm text-c6 font-medium'>Conditions</p>
                   <Button size='sm' variant='light' className='text-c6 h-[28px]' onPress={addCondition}>
                     <PlusIcon size={12} />
                     Ajouter
@@ -451,11 +451,11 @@ export default function VisualFilterOverlay({ onSelect, renderBreadcrumb, onNavi
 
                 <div className='flex flex-col gap-8'>
                   {conditions.map((condition, index) => (
-                    <div key={index} className='flex items-center gap-6 p-8 bg-c3 rounded-6'>
+                    <div key={index} className='flex items-center gap-6 p-8 bg-c3 rounded-md'>
                       <select
                         value={condition.property}
                         onChange={(e) => updateCondition(index, 'property', e.target.value)}
-                        className='flex-1 h-[32px] px-8 rounded-6 bg-c2 border-2 border-c3 text-12 text-c6 outline-none focus:border-c4'>
+                        className='flex-1 h-[32px] px-8 rounded-md bg-c2 border-2 border-c3 text-xs text-c6 outline-none focus:border-c4'>
                         {getPropertiesForType(selectedType || '').map((prop: any) => (
                           <option key={prop.key} value={prop.key}>
                             {prop.label}
@@ -466,7 +466,7 @@ export default function VisualFilterOverlay({ onSelect, renderBreadcrumb, onNavi
                       <select
                         value={condition.operator}
                         onChange={(e) => updateCondition(index, 'operator', e.target.value)}
-                        className='h-[32px] px-8 rounded-6 bg-c2 border-2 border-c3 text-12 text-c6 outline-none focus:border-c4'>
+                        className='h-[32px] px-8 rounded-md bg-c2 border-2 border-c3 text-xs text-c6 outline-none focus:border-c4'>
                         <option value='contains'>Contient</option>
                         <option value='notEquals'>Différent de</option>
                       </select>
@@ -479,7 +479,7 @@ export default function VisualFilterOverlay({ onSelect, renderBreadcrumb, onNavi
                         classNames={{
                           mainWrapper: 'flex-1',
                           inputWrapper: 'bg-c2 border-2 border-c3 h-[32px]',
-                          input: 'text-c6 text-12',
+                          input: 'text-c6 text-xs',
                         }}
                       />
 
@@ -489,7 +489,7 @@ export default function VisualFilterOverlay({ onSelect, renderBreadcrumb, onNavi
                     </div>
                   ))}
 
-                  {conditions.length === 0 && <p className='text-12 text-c4 text-center py-10'>Aucune condition. Cliquez sur "Ajouter" pour filtrer les résultats.</p>}
+                  {conditions.length === 0 && <p className='text-xs text-c4 text-center py-2.5'>Aucune condition. Cliquez sur "Ajouter" pour filtrer les résultats.</p>}
                 </div>
               </div>
 

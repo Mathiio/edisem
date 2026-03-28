@@ -34,7 +34,7 @@ export default function ImportPopup({ onSelect }: ImportPopupProps) {
   return (
     <div className='w-full flex flex-col gap-4 h-full overflow-hidden justify-between'>
       <div className='flex flex-col gap-4'>
-        <div className='text-14 flex justify-start leading-[150%] w-full gap-2 rounded-0 text-c6 bg-transparent'>
+        <div className='text-sm flex justify-start leading-[150%] w-full gap-2 rounded-none text-c6 bg-transparent'>
           Importer une recherche
         </div>
         <Divider />
@@ -46,15 +46,15 @@ export default function ImportPopup({ onSelect }: ImportPopupProps) {
           className='focus:bg-c3 bg-c3 h-full'
           classNames={{
             inputWrapper: 'bg-c3 !bg-c3 h-full text-c6',
-            base: 'rounded-8 h-full',
+            base: 'rounded-lg h-full',
             innerWrapper: 'focus:bg-c3 bg-c3 h-full',
           }}
         />
-        {importError && <div className='text-red-500 text-12'>{importError}</div>}
+        {importError && <div className='text-red-500 text-xs'>{importError}</div>}
       </div>
       <div className='flex justify-end gap-2 mt-4'>
         <Button
-          className='text-16 h-auto px-10 py-5 rounded-8 text-selected gap-2 bg-action transition-all ease-in-out duration-200 disabled:opacity-50 disabled:hover:opacity-50 disabled:cursor-not-allowed'
+          className='text-base h-auto px-2.5 py-1.5 rounded-lg text-selected gap-2 bg-action transition-all ease-in-out duration-200 disabled:opacity-50 disabled:hover:opacity-50 disabled:cursor-not-allowed'
           onClick={handleImport}>
           Lancer la recherche
         </Button>

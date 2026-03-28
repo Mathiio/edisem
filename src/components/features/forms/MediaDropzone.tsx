@@ -265,11 +265,11 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
   };
 
   return (
-    <div className={`flex flex-col gap-15 `}>
+    <div className={`flex flex-col gap-4 `}>
       {/* Main display area */}
       <div
         className={`
-          relative rounded-12 overflow-hidden
+          relative rounded-xl overflow-hidden
           transition-all duration-200
           ${isDragging ? 'ring-2 ring-action bg-c2' : ''}
           ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
@@ -288,7 +288,7 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
                 // Afficher iframe YouTube
                 <iframe
                   src={currentMedia.url}
-                  className='w-full h-full rounded-12'
+                  className='w-full h-full rounded-xl'
                   allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
                   allowFullScreen
                   title={currentMedia.name}
@@ -304,17 +304,17 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
                 <Button
                   isIconOnly
                   size='sm'
-                  className='absolute top-3 right-3 bg-c1/80 hover:bg-danger text-c6 hover:text-white rounded-full z-10 px-4 py-2 w-fit h-fit flex items-center justify-center !gap-[10px] rounded-12'
+                  className='absolute top-3 right-3 bg-c1/80 hover:bg-danger text-c6 hover:text-white rounded-full z-10 px-4 py-2 w-fit h-fit flex items-center justify-center !gap-2.5 rounded-xl'
                   onPress={() => handleRemoveClick(currentMedia)}>
                   <span>Supprimer</span>
-                  <CrossIcon size={14} className='text-14 w-[14px] h-[14px]' />
+                  <CrossIcon size={14} className='text-sm w-[14px] h-[14px]' />
                 </Button>
               )}
             </div>
 
             {/* Champ d'édition URL YouTube sous la preview */}
             {currentMedia.isYouTube && !disabled && (
-              <div className='flex items-center gap-10 mt-10 p-10 bg-c2 rounded-12 border border-c3'>
+              <div className='flex items-center gap-2.5 mt-2.5 p-2.5 bg-c2 rounded-xl border border-c3'>
                 <MovieIcon size={16} className='text-c5 flex-shrink-0' />
                 <Input
                   type='url'
@@ -334,8 +334,8 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
                   }}
                   placeholder='URL YouTube'
                   classNames={{
-                    inputWrapper: 'bg-c1 border border-c3 rounded-8 flex-1 min-h-[36px]',
-                    input: 'text-c6 text-14',
+                    inputWrapper: 'bg-c1 border border-c3 rounded-lg flex-1 min-h-[36px]',
+                    input: 'text-c6 text-sm',
                   }}
                 />
               </div>
@@ -343,13 +343,13 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
           </div>
         ) : (
           // Interface d'ajout - divisée en deux (dropzone + YouTube)
-          <div className={`flex w-full h-full gap-15`}>
+          <div className={`flex w-full h-full gap-4`}>
             {/* Zone de drop pour fichiers */}
             <div
               className={`
                 flex flex-col items-center justify-center
                 ${onYouTubeUrlsChange ? 'flex-1' : 'w-full'} h-full bg-c3
-                border-2 border-dashed rounded-12
+                border-2 border-dashed rounded-xl
                 ${isDragging ? 'border-action' : 'border-c4'}
                 cursor-pointer
               `}
@@ -359,32 +359,32 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
               onDrop={handleDrop}
               onClick={handleClick}>
               <CameraIcon size={40} className='text-c4 mb-4' />
-              <p className='text-c5 text-14 font-medium mb-2 text-center px-4'>Glissez-déposez vos images ici</p>
-              <p className='text-c4 text-12 mb-4'>ou</p>
-              <Button size='sm' className='bg-action text-selected rounded-8' startContent={<UploadIcon size={14} />} onPress={handleClick}>
+              <p className='text-c5 text-sm font-medium mb-2 text-center px-4'>Glissez-déposez vos images ici</p>
+              <p className='text-c4 text-xs mb-4'>ou</p>
+              <Button size='sm' className='bg-action text-selected rounded-lg' startContent={<UploadIcon size={14} />} onPress={handleClick}>
                 Charger des fichiers
               </Button>
             </div>
 
             {/* Zone YouTube séparée */}
             {onYouTubeUrlsChange && (
-              <div className='flex flex-col items-center justify-center flex-1 h-full bg-c3 border-2 border-dashed border-c4 rounded-12 px-15'>
+              <div className='flex flex-col items-center justify-center flex-1 h-full bg-c3 border-2 border-dashed border-c4 rounded-xl px-4'>
                 <MovieIcon size={40} className='text-c4 mb-4' />
-                <p className='text-c5 text-14 font-medium mb-4 text-center'>Ajouter une vidéo YouTube</p>
-                <div className='flex flex-col gap-10 w-full max-w-[300px]'>
+                <p className='text-c5 text-sm font-medium mb-4 text-center'>Ajouter une vidéo YouTube</p>
+                <div className='flex flex-col gap-2.5 w-full max-w-[300px]'>
                   <Input
                     type='url'
                     placeholder='https://www.youtube.com/watch?v=...'
                     value={youtubeUrlInput}
                     onChange={(e) => setYoutubeUrlInput(e.target.value)}
                     classNames={{
-                      inputWrapper: 'bg-c1 border border-c3 rounded-8 w-full min-h-[40px]',
-                      input: 'text-c6 text-14',
+                      inputWrapper: 'bg-c1 border border-c3 rounded-lg w-full min-h-[40px]',
+                      input: 'text-c6 text-sm',
                     }}
                   />
                   <Button
                     size='sm'
-                    className='bg-action text-selected rounded-8 w-full'
+                    className='bg-action text-selected rounded-lg w-full'
                     isDisabled={!isValidYouTubeUrl(youtubeUrlInput)}
                     onPress={() => {
                       if (isValidYouTubeUrl(youtubeUrlInput)) {
@@ -405,7 +405,7 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
       </div>
 
       {/* Thumbnails Carousel - Toujours visible */}
-      <div className='flex w-full justify-start items-center gap-10 flex-wrap'>
+      <div className='flex w-full justify-start items-center gap-2.5 flex-wrap'>
         {/* Thumbnails des médias existants */}
         {allMediaItems.map((media, index) => (
           <div key={media.id} className='relative'>
@@ -416,7 +416,7 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
                 setEditingYoutubeUrl(null);
               }}
               className={`
-                flex-shrink-0 w-[136px] h-[70px] rounded-12 overflow-hidden
+                flex-shrink-0 w-[136px] h-[70px] rounded-xl overflow-hidden
                 transition-all duration-200
                 ${index === currentIndex && !showAddInterface ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'}
               `}>
@@ -436,10 +436,10 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
             </button>
             {/* Badge for new files */}
             {!media.isExisting && !media.isYouTube && (
-              <span className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-action text-selected text-[10px] px-2 py-1 rounded-[4px] z-10'>+</span>
+              <span className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-action text-selected text-[10px] px-2 py-px rounded-sm z-10'>+</span>
             )}
             {/* Badge YouTube */}
-            {media.isYouTube && <span className='absolute bottom-1 right-1 bg-red-600 text-white text-[8px] px-1 rounded z-10'>YT</span>}
+            {media.isYouTube && <span className='absolute bottom-px right-px bg-red-600 text-white text-[8px] px-px rounded z-10'>YT</span>}
           </div>
         ))}
 
@@ -447,7 +447,7 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
         {!disabled && allMediaItems.length < maxFiles && (
           <button
             onClick={() => setShowAddInterface(true)} // Afficher l'interface d'ajout
-            className={`flex-shrink-0 w-[136px] h-[70px] rounded-12 border-2 border-dashed flex items-center justify-center transition-all duration-200 ${
+            className={`flex-shrink-0 w-[136px] h-[70px] rounded-xl border-2 border-dashed flex items-center justify-center transition-all duration-200 ${
               showAddInterface ? 'border-action bg-action/10' : 'border-c4 hover:border-action'
             }`}>
             <PlusIcon size={20} className={showAddInterface ? 'text-action' : 'text-c4'} />
@@ -461,7 +461,7 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
       {/* Delete confirmation modal */}
       <Modal isOpen={isDeleteModalOpen} onClose={handleCancelRemove} size='sm'>
         <ModalContent>
-          <ModalHeader className='flex flex-col gap-1 !text-c6 text-16 font-medium'>Confirmer la suppression</ModalHeader>
+          <ModalHeader className='flex flex-col gap-px !text-c6 text-base font-medium'>Confirmer la suppression</ModalHeader>
           <ModalBody>
             <p className='text-c4'>
               {mediaToDelete?.isExisting ? 'Ce média sera définitivement supprimé. Cette action est irréversible.' : 'Voulez-vous retirer ce fichier de la liste ?'}

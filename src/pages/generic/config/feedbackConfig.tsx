@@ -110,16 +110,16 @@ export const feedbackConfig: GenericDetailPageConfig = {
       }
 
       return (
-        <div className='flex flex-col gap-10'>
+        <div className='flex flex-col gap-2.5'>
           {category.subcategories.map((subcategory) => {
             const content = itemDetails[subcategory.key];
             if (!content || content.trim() === '') return null;
 
             return (
-              <div key={subcategory.key} className='flex flex-col gap-10'>
-                <h3 className='text-c6 font-semibold text-16'>{subcategory.label}</h3>
-                <div className='bg-c1 rounded-8 p-25 border-2 border-c3'>
-                  <p className='text-c5 text-14 leading-[125%]'>{content}</p>
+              <div key={subcategory.key} className='flex flex-col gap-2.5'>
+                <h3 className='text-c6 font-medium text-base'>{subcategory.label}</h3>
+                <div className='bg-c1 rounded-lg p-6 border-2 border-c3'>
+                  <p className='text-c5 text-sm leading-[125%]'>{content}</p>
                 </div>
               </div>
             );

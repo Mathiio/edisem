@@ -245,15 +245,15 @@ export const MediagraphyCard: React.FC<Mediagraphy> = ({
 
   return (
     <div
-      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
+      className={`w-full flex flex-row justify-between border-2 rounded-xl items-center gap-6  transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
-      <Link className='w-full gap-25 p-25 flex flex-row justify-between' to={uri ?? '#'} target='_blank'>
+      <Link className='w-full gap-6 p-6 flex flex-row justify-between' to={uri ?? '#'} target='_blank'>
         <div className={`flex flex-col justify-center transition-transform-colors-opacity ${isHovered ? 'text-c6' : 'text-c4'}`}>
-          {thumbnail ? <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' /> : getIcon(mediaType)}
+          {thumbnail ? <img src={thumbnail} alt='thumbnail' className='w-12 object-cover rounded-md' /> : getIcon(mediaType)}
         </div>
 
-        <div className='w-full text-16 text-c6 font-extralight'>
+        <div className='w-full text-base text-c6 font-normal'>
           {ensureEndsWithPeriod(
             template({
               id,
@@ -274,7 +274,7 @@ export const MediagraphyCard: React.FC<Mediagraphy> = ({
           )}
         </div>
       </Link>
-      <div className='flex flex-col h-full p-25'>
+      <div className='flex flex-col h-full p-6'>
         <AnnotationDropdown
           id={id}
           content={ensureEndsWithPeriod(
@@ -336,8 +336,8 @@ export const Mediagraphies: React.FC<{ items: Mediagraphy[]; loading: boolean; n
   const sortedComplementaryMediagraphies = complementaryMediagraphies.sort(sortByLastName);
 
   return (
-    <div className='w-full h-full overflow-hidden flex flex-col gap-20'>
-      <div className='flex flex-col gap-20 overflow-y-auto scroll-container'>
+    <div className='w-full h-full overflow-hidden flex flex-col gap-5'>
+      <div className='flex flex-col gap-5 overflow-y-auto scroll-container'>
         {loading ? (
           Array.from({ length: items.length }).map((_, index) => <MediagraphySkeleton key={index} />)
         ) : (
@@ -345,8 +345,8 @@ export const Mediagraphies: React.FC<{ items: Mediagraphy[]; loading: boolean; n
             {/* Mediagraphies de conférence */}
             {sortedConferenceMediagraphies.length > 0 && (
               <>
-                {!notitle && <h2 className='text-16 text-c5 font-medium'>Médiagraphies de Conférence</h2>}
-                <div className='flex flex-col gap-10'>
+                {!notitle && <h2 className='text-base text-c5 font-medium'>Médiagraphies de Conférence</h2>}
+                <div className='flex flex-col gap-2.5'>
                   {sortedConferenceMediagraphies.map((item, index) => (
                     <MediagraphyCard key={index} {...item} />
                   ))}
@@ -357,8 +357,8 @@ export const Mediagraphies: React.FC<{ items: Mediagraphy[]; loading: boolean; n
             {/* Médiagraphies complémentaires */}
             {sortedComplementaryMediagraphies.length > 0 && (
               <>
-                {!notitle && <h2 className='text-16 text-c5 font-medium'>Médiagraphies Complémentaires</h2>}
-                <div className='flex flex-col gap-10'>
+                {!notitle && <h2 className='text-base text-c5 font-medium'>Médiagraphies Complémentaires</h2>}
+                <div className='flex flex-col gap-2.5'>
                   {sortedComplementaryMediagraphies.map((item, index) => (
                     <MediagraphyCard key={index} {...item} />
                   ))}
@@ -376,11 +376,11 @@ export const Mediagraphies: React.FC<{ items: Mediagraphy[]; loading: boolean; n
 };
 
 export const UnloadedCard: React.FC = () => (
-  <div className='w-full h-full flex flex-col justify-center items-center gap-20 mt-50'>
+  <div className='w-full h-full flex flex-col justify-center items-center gap-5 mt-12'>
     <FileIcon size={42} className='text-c6' />
-    <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
-      <h2 className='text-c6 text-32 font-semibold'>Oups !</h2>
-      <p className='text-c5 text-16 text-center'>
+    <div className='w-[80%] flex flex-col justify-center items-center gap-2.5'>
+      <h2 className='text-c6 text-3xl font-medium'>Oups !</h2>
+      <p className='text-c5 text-base text-center'>
         Aucune médiagraphie n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
       </p>
     </div>
@@ -388,16 +388,16 @@ export const UnloadedCard: React.FC = () => (
 );
 
 export const MediagraphySkeleton: React.FC = () => (
-  <div className='w-full flex justify-between rounded-12 items-center bg-c3 gap-25 p-25'>
-    <div className='w-[30px] h-[24px] bg-gray-300 rounded-6'></div>
-    <div className='w-full flex flex-col gap-10'>
-      <div className='flex flex-col gap-5'>
-        <div className='w-full h-[16px] bg-gray-300 rounded-6'></div>
-        <div className='w-[80%] h-[16px] bg-gray-300 rounded-6'></div>
-        <div className='w-[50%] h-[14px] bg-gray-300 rounded-6'></div>
+  <div className='w-full flex justify-between rounded-xl items-center bg-c3 gap-6 p-6'>
+    <div className='w-[30px] h-[24px] bg-gray-300 rounded-md'></div>
+    <div className='w-full flex flex-col gap-2.5'>
+      <div className='flex flex-col gap-1.5'>
+        <div className='w-full h-[16px] bg-gray-300 rounded-md'></div>
+        <div className='w-[80%] h-[16px] bg-gray-300 rounded-md'></div>
+        <div className='w-1/2 h-[14px] bg-gray-300 rounded-md'></div>
       </div>
-      <div className='w-[30%] h-[14px] bg-gray-300 rounded-6'></div>
+      <div className='w-[30%] h-[14px] bg-gray-300 rounded-md'></div>
     </div>
-    <div className='w-[30px] h-[24px] bg-gray-300 rounded-6'></div>
+    <div className='w-[30px] h-[24px] bg-gray-300 rounded-md'></div>
   </div>
 );

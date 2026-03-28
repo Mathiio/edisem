@@ -51,7 +51,7 @@ export default function HeaderExportButton({ handleExportClick, generatedImage, 
               <Button
                 size='sm'
                 variant='flat'
-                className='text-action text-12 h-[24px]'
+                className='text-action text-xs h-[24px]'
                 onPress={() => {
                   onNavigateToCahiers();
                 }}>
@@ -124,14 +124,14 @@ export default function HeaderExportButton({ handleExportClick, generatedImage, 
   return (
     <Popover isOpen={isOpen} onOpenChange={setIsOpen} placement='bottom-end'>
       <PopoverTrigger>
-        <Button size='sm' variant='bordered' className='border-c3 text-c6 hover:bg-c3 gap-5 h-[32px]' isDisabled={!exportEnabled}>
+        <Button size='sm' variant='bordered' className='border-c3 text-c6 hover:bg-c3 gap-1.5 h-[32px]' isDisabled={!exportEnabled}>
           <ExportIcon size={14} />
-          <span className='text-12'>Exporter</span>
+          <span className='text-xs'>Exporter</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='bg-c2 border-2 border-c3 rounded-8 p-0 w-[320px]'>
-        <div className='p-10 flex flex-col gap-10'>
-          <p className='text-13 text-c6 font-medium'>Exporter la recherche</p>
+      <PopoverContent className='bg-c2 border-2 border-c3 rounded-lg p-0 w-[320px]'>
+        <div className='p-2.5 flex flex-col gap-2.5'>
+          <p className='text-sm text-c6 font-medium'>Exporter la recherche</p>
 
           <Input
             value={title}
@@ -140,7 +140,7 @@ export default function HeaderExportButton({ handleExportClick, generatedImage, 
             placeholder='Titre de la recherche...'
             classNames={{
               inputWrapper: 'bg-c3 border-2 border-c3 hover:bg-c3 group-data-[focus=true]:bg-c3 h-[36px]',
-              input: 'text-c6 text-12',
+              input: 'text-c6 text-xs',
             }}
           />
 
@@ -153,7 +153,7 @@ export default function HeaderExportButton({ handleExportClick, generatedImage, 
               classNames={{
                 wrapper: 'w-[14px] h-[14px]',
                 icon: 'w-[8px] h-[8px]',
-                label: 'text-12 text-c6',
+                label: 'text-xs text-c6',
               }}>
               Sauvegarder dans mon cahier
             </Checkbox>
@@ -165,26 +165,26 @@ export default function HeaderExportButton({ handleExportClick, generatedImage, 
               classNames={{
                 wrapper: 'w-[14px] h-[14px]',
                 icon: 'w-[8px] h-[8px]',
-                label: 'text-12 text-c6',
+                label: 'text-xs text-c6',
               }}>
               Télécharger l'image
             </Checkbox>
           </div>
 
           {generatedImage && shouldExportImage && (
-            <div className='rounded-6 overflow-hidden border-2 border-c3'>
+            <div className='rounded-md overflow-hidden border-2 border-c3'>
               <img src={generatedImage.dataUrl} alt='Aperçu' className='w-full h-auto object-cover' />
             </div>
           )}
 
-          <div className='flex items-center justify-between pt-5 border-t border-c3'>
-            <Button size='sm' variant='light' className='text-c4 hover:text-c6 h-[28px] gap-4 text-11' onPress={handleCopyConfig}>
+          <div className='flex items-center justify-between pt-1.5 border-t border-c3'>
+            <Button size='sm' variant='light' className='text-c4 hover:text-c6 h-[28px] gap-4 text-[11px]' onPress={handleCopyConfig}>
               <ShareIcon size={10} />
               Copier config
             </Button>
             <Button
               size='sm'
-              className='bg-action text-selected h-[28px] px-12 text-12'
+              className='bg-action text-selected h-[28px] px-12 text-xs'
               onPress={() => {
                 const exportPromise = handleExport();
                 addToast({

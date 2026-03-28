@@ -162,33 +162,33 @@ export const Database: React.FC = () => {
   }, [speakersData]);
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-50'>
+    <Layouts className='col-span-10 flex flex-col gap-12'>
       <div>
         {currentView === 'grid' && <GridComponent handleCardClick={handleCardClick} initializePropertiesLoading={initializePropertiesLoading} />}
         {currentView === 'table' && (
           <>
-            <div className='flex flex-col gap-50'>
+            <div className='flex flex-col gap-12'>
               <div className='flex flex-row justify-between'>
                 <div>
                   {selectedCard && (
                     <>
                       <button
                         onClick={handleReturn}
-                        className=' min-w-fit border-2 border-c3 hover:border-c4 transition-colors duration-300 text-c6 font-semibold px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 '>
+                        className=' min-w-fit border-2 border-c3 hover:border-c4 transition-colors duration-300 text-c6 font-medium px-5 py-2.5 flex flex-row items-center justify-center gap-2.5 rounded-lg '>
                         <BackIcon className='text-c6 flex flex-col items-center justify-center' size={14} />
                         <div className='text-c6'>Retour</div>
                       </button>
                     </>
                   )}
                 </div>
-                <div className='flex flex-row gap-20'>
+                <div className='flex flex-row gap-5'>
                   <Input
                     classNames={{
                       base: '',
                       clearButton: 'bg-600',
                       mainWrapper: ' h-[48px] ',
-                      input: 'text-c5  Inter  text-16 nav_searchbar h-[48px] px-[10px]',
-                      inputWrapper: ' shadow-none bg-c2 group-data-[focus=true]:bg-c3 rounded-8 font-normal text-c6 opacity-1 dark:bg-c3 px-[15px] py-[10px] h-full ',
+                      input: 'text-c5 text-base nav_searchbar h-[48px] px-[10px]',
+                      inputWrapper: ' shadow-none bg-c2 group-data-[focus=true]:bg-c3 rounded-lg font-normal text-c6 opacity-1 dark:bg-c3 px-[15px] py-[10px] h-full ',
                     }}
                     placeholder='Recherche avancée...'
                     startContent={<SearchIcon size={16} />}
@@ -197,15 +197,15 @@ export const Database: React.FC = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                  <button className=' min-w-fit bg-action text-100 px-20 py-10 flex flex-row items-center justify-center gap-10 rounded-8 ' onClick={() => handleCreateClick()}>
+                  <button className=' min-w-fit bg-action text-100 px-5 py-2.5 flex flex-row items-center justify-center gap-2.5 rounded-lg ' onClick={() => handleCreateClick()}>
                     <div className='text-selected'>Créer un item</div>
                     <PlusIcon size={14} className='text-selected ' />
                   </button>
                 </div>
               </div>
-              <div className='flex flex-col gap-20'>
+              <div className='flex flex-col gap-5'>
                 <div>
-                  <h2 className='text-24 font-bold text-c6'>{selectedCard}</h2>
+                  <h2 className='text-2xl font-bold text-c6'>{selectedCard}</h2>
                 </div>
                 <Table
                   aria-label='Speakers Table'
@@ -231,10 +231,10 @@ export const Database: React.FC = () => {
                   }
                   classNames={{
                     wrapper: 'shadow-none shadow-none border-1 border-200 min-h-[400px] bg-c2', // Ensure wrapper has a fixed height
-                    table: 'rounded-8 shadow-none min-h-[400px]', // Ensure table has a fixed height
-                    thead: 'rounded-8 ',
+                    table: 'rounded-lg shadow-none min-h-[400px]', // Ensure table has a fixed height
+                    thead: 'rounded-lg ',
                     th: ['bg-transparent', 'text-c6', 'border-b', 'border-divider'],
-                    tr: ['rounded-8'],
+                    tr: ['rounded-lg'],
                   }}>
                   <TableHeader className='min-h-[40px]'>
                     {columns.map((col) => (

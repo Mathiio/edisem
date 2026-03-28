@@ -39,9 +39,9 @@ const SimpleToolCard = ({ outil }: { outil: any }) => {
     const imageSrc = outil.logo || outil.thumbnail || (media ? (media.thumbnail || media.url) : null);
     
     return (
-      <Link href={`/corpus/outil/${outil.id}`} className="group shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer py-40 px-20 rounded-18 justify-between flex flex-col gap-4 hover:bg-c2 h-full transition-all ease-in-out duration-300 relative">
+      <Link href={`/corpus/outil/${outil.id}`} className="group shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer py-10 px-5 rounded-2xl justify-between flex flex-col gap-4 hover:bg-c2 h-full transition-all ease-in-out duration-300 relative">
             {imageSrc ? (
-               <div className="w-60 h-60 rounded-10 overflow-hidden bg-c3 flex-shrink-0">
+               <div className="w-14 h-14 rounded-lg overflow-hidden bg-c3 flex-shrink-0">
                   <img
                     alt={outil.title}
                     className="w-full h-full object-cover"
@@ -49,11 +49,11 @@ const SimpleToolCard = ({ outil }: { outil: any }) => {
                   />
                </div>
             ) : (
-                <div className="w-60 h-60 rounded-8 flex items-center justify-center bg-c3 flex-shrink-0">
+                <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-c3 flex-shrink-0">
                     <ThumbnailIcon className="text-c4/20" size={40} />
                 </div>
             )}
-            <p className="text-c6 text-16">{outil.title}</p>
+            <p className="text-c6 text-base">{outil.title}</p>
       </Link>
     );
 };
@@ -117,75 +117,75 @@ export const Tool: React.FC = () => {
   if (!loading && !outil) return <div>Outil non trouvé</div>;
 
   return (
-    <Layouts className='col-span-12 flex flex-col gap-100'>
+    <Layouts className='col-span-12 flex flex-col gap-24'>
       <DynamicBreadcrumbs itemTitle={outil?.title || ''} />
 
-      <div className='flex flex-col items-center gap-50'>      
-        <div className='gap-20 text-c6 w-full flex flex-col items-center'>
+      <div className='flex flex-col items-center gap-12'>      
+        <div className='gap-5 text-c6 w-full flex flex-col items-center'>
             {loading ? 
-                <div className='gap-20 w-full flex flex-col items-center'>
-                    <Skeleton className="rounded-18 w-100 h-100 bg-c2" />
-                    <Skeleton className="w-[400px] h-60 rounded-10 bg-c3" />
+                <div className='gap-5 w-full flex flex-col items-center'>
+                    <Skeleton className="rounded-2xl w-24 h-24 bg-c2" />
+                    <Skeleton className="w-[400px] h-14 rounded-lg bg-c3" />
                 </div>
             : 
             <>
             {mainImage ? (
-               <img className='w-100 h-100 object-cover rounded-18' src={mainImage} alt={outil?.title} />
+               <img className='w-24 h-24 object-cover rounded-2xl' src={mainImage} alt={outil?.title} />
             ) : (
-               <div className='w-100 h-100 rounded-18 object-cover flex items-center justify-center bg-c3'>
+               <div className='w-24 h-24 rounded-2xl object-cover flex items-center justify-center bg-c3'>
                   <div className="text-c6 text-4xl font-bold opacity-30">{outil?.title?.charAt(0)}</div>
                </div>
             )}
-            <h1 className='text-64 font-medium text-c6 leading-none'>{outil?.title}</h1>
+            <h1 className='text-6xl font-medium text-c6 leading-none'>{outil?.title}</h1>
             </>
             }
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-25 w-2/3'>
-            <div className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-25 rounded-20 flex flex-col gap-1.5 h-full'>
-                <div className='flex items-center gap-10 border-b-2 border-c3 pb-2'>
-                    <h3 className='text-16 font-medium text-c6 w-full text-center'>Date De Publication</h3>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-2/3'>
+            <div className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-6 rounded-3xl flex flex-col gap-1.5 h-full'>
+                <div className='flex items-center gap-2.5 border-b-2 border-c3 pb-2'>
+                    <h3 className='text-base font-medium text-c6 w-full text-center'>Date De Publication</h3>
                 </div>
                 
-                <div className='flex flex-col gap-10'>
+                <div className='flex flex-col gap-2.5'>
                     {loading ? (
-                    <div className="flex flex-col gap-10">
-                        <Skeleton className="h-6 w-full rounded-8" />
+                    <div className="flex flex-col gap-2.5">
+                        <Skeleton className="h-6 w-full rounded-lg" />
                     </div>
                     ) : (
-                        <p className='text-14 text-c5 py-3 w-full text-center'>{outil?.release}</p>
+                        <p className='text-sm text-c5 py-3 w-full text-center'>{outil?.release}</p>
                     )}
                 </div>
             </div>
 
-            <div className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-25 rounded-20 flex flex-col gap-1.5 h-full'>
-                <div className='flex items-center gap-10 border-b-2 border-c3 pb-2'>
-                    <h3 className='text-16 font-medium text-c6 w-full text-center'>Lien Externe</h3>
+            <div className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-6 rounded-3xl flex flex-col gap-1.5 h-full'>
+                <div className='flex items-center gap-2.5 border-b-2 border-c3 pb-2'>
+                    <h3 className='text-base font-medium text-c6 w-full text-center'>Lien Externe</h3>
                 </div>
                 
-                <div className='flex flex-col gap-10'>
+                <div className='flex flex-col gap-2.5'>
                     {loading ? (
-                    <div className="flex flex-col gap-10">
-                        <Skeleton className="h-6 w-full rounded-8" />
+                    <div className="flex flex-col gap-2.5">
+                        <Skeleton className="h-6 w-full rounded-lg" />
                     </div>
                     ) : (
-                        <a href={outil?.homepage} className='text-14 text-c5 py-3 px-4 hover:bg-c2 w-full text-center transition-all duration-300 ease-in-out rounded-8 cursor-pointer'>Page de l’outil</a>
+                        <a href={outil?.homepage} className='text-sm text-c5 py-3 px-4 hover:bg-c2 w-full text-center transition-all duration-300 ease-in-out rounded-lg cursor-pointer'>Page de l’outil</a>
                     )}
                 </div>
             </div>
 
-            <div className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-25 rounded-20 flex flex-col gap-1.5 h-full'>
-                <div className='flex items-center gap-10 border-b-2 border-c3 pb-2'>
-                    <h3 className='text-16 font-medium text-c6 w-full text-center'>Popularité</h3>
+            <div className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-6 rounded-3xl flex flex-col gap-1.5 h-full'>
+                <div className='flex items-center gap-2.5 border-b-2 border-c3 pb-2'>
+                    <h3 className='text-base font-medium text-c6 w-full text-center'>Popularité</h3>
                 </div>
                 
-                <div className='flex flex-col gap-10'>
+                <div className='flex flex-col gap-2.5'>
                     {loading ? (
-                    <div className="flex flex-col gap-10">
-                        <Skeleton className="h-6 w-full rounded-8" />
+                    <div className="flex flex-col gap-2.5">
+                        <Skeleton className="h-6 w-full rounded-lg" />
                     </div>
                     ) : (
-                        <p className='text-14 text-c5 py-3 w-full text-center'>Utilisé dans {outil?.usageCount} ressource{Number(outil?.usageCount) > 1 ? 's' : ''}</p>
+                        <p className='text-sm text-c5 py-3 w-full text-center'>Utilisé dans {outil?.usageCount} ressource{Number(outil?.usageCount) > 1 ? 's' : ''}</p>
                     )}
                 </div>
             </div>
@@ -194,9 +194,9 @@ export const Tool: React.FC = () => {
 
         {/* Thumbnails Gallery */}
         {outil?.associatedMedia && outil.associatedMedia.length > 0 && (
-            <div className={`mx-auto mt-10 gap-6 ${outil.associatedMedia.length === 1 ? 'w-2/3' : 'w-full grid grid-cols-1 md:grid-cols-2'}`}>
+            <div className={`mx-auto mt-2.5 gap-6 ${outil.associatedMedia.length === 1 ? 'w-2/3' : 'w-full grid grid-cols-1 md:grid-cols-2'}`}>
                 {outil.associatedMedia.map((media: any) => (
-                    <div key={media.id} className="rounded-18 overflow-hidden relative shadow-lg">
+                    <div key={media.id} className="rounded-2xl overflow-hidden relative shadow-lg">
                         <MediaViewer
                             src={media.thumbnail || media.url}
                             alt={media.title || outil.title}
@@ -208,12 +208,12 @@ export const Tool: React.FC = () => {
         )}
 
           {/* Detailed Info List */}
-          <div className="w-2/3 mx-auto flex flex-col mt-10 border-t border-c3">
+          <div className="w-2/3 mx-auto flex flex-col mt-2.5 border-t border-c3">
                {/* Descriptif général */}
                {outil?.description && (
                    <div className="border-b-2 border-c3 py-6">
-                       <h3 className="text-18 font-bold text-c6 mb-2">Descriptif général</h3>
-                       <div className="text-c5 text-16 leading-relaxed whitespace-pre-wrap">
+                       <h3 className="text-lg font-bold text-c6 mb-2">Descriptif général</h3>
+                       <div className="text-c5 text-base leading-relaxed whitespace-pre-wrap">
                            {outil.description}
                        </div>
                    </div>
@@ -222,48 +222,48 @@ export const Tool: React.FC = () => {
                {/* Type de l'outil */}
                {outil?.category && (
                    <div className="border-b-2 border-c3 py-6">
-                       <h3 className="text-18 font-bold text-c6 mb-2">Type de l'outil</h3>
-                       <p className="text-c5 text-16">{outil.category}</p>
+                       <h3 className="text-lg font-bold text-c6 mb-2">Type de l'outil</h3>
+                       <p className="text-c5 text-base">{outil.category}</p>
                    </div>
                )}
 
                {/* Fonction */}
                {outil?.purpose && (
                    <div className="border-b-2 border-c3 py-6">
-                       <h3 className="text-18 font-bold text-c6 mb-2">Fonction</h3>
-                       <p className="text-c5 text-16">{outil.purpose}</p>
+                       <h3 className="text-lg font-bold text-c6 mb-2">Fonction</h3>
+                       <p className="text-c5 text-base">{outil.purpose}</p>
                    </div>
                )}
 
                {/* Systèmes d'exploitation */}
                {outil?.os && outil.os.length > 0 && (
                    <div className="border-b-2 border-c3 py-6">
-                       <h3 className="text-18 font-bold text-c6 mb-2">Systèmes d'exploitation</h3>
-                       <p className="text-c5 text-16">{outil.os.join(', ')}</p>
+                       <h3 className="text-lg font-bold text-c6 mb-2">Systèmes d'exploitation</h3>
+                       <p className="text-c5 text-base">{outil.os.join(', ')}</p>
                    </div>
                )}
 
                {/* License */}
                {outil?.license && (
                    <div className="border-b-2 border-c3 py-6">
-                       <h3 className="text-18 font-bold text-c6 mb-2">License</h3>
-                       <p className="text-c5 text-16">{outil.license}</p>
+                       <h3 className="text-lg font-bold text-c6 mb-2">License</h3>
+                       <p className="text-c5 text-base">{outil.license}</p>
                    </div>
                )}
 
                {/* Format de fichier */}
                {outil?.fileRelease && outil.fileRelease.length > 0 && (
                    <div className="border-b-2 border-c3 py-6">
-                       <h3 className="text-18 font-bold text-c6 mb-2">Format de fichier</h3>
-                       <p className="text-c5 text-16">{outil.fileRelease.join(', ')}</p>
+                       <h3 className="text-lg font-bold text-c6 mb-2">Format de fichier</h3>
+                       <p className="text-c5 text-base">{outil.fileRelease.join(', ')}</p>
                    </div>
                )}
 
                {/* Langage de programmation de l'outil */}
                {outil?.programmingLanguages && outil.programmingLanguages.length > 0 && (
                    <div className="border-b-2 border-c3 py-6">
-                       <h3 className="text-18 font-bold text-c6 mb-2">Langage de programmation de l'outil</h3>
-                       <p className="text-c5 text-16">
+                       <h3 className="text-lg font-bold text-c6 mb-2">Langage de programmation de l'outil</h3>
+                       <p className="text-c5 text-base">
                            {outil.programmingLanguages.map((lang: any) => lang.title).join(', ')}
                        </p>
                    </div>
@@ -272,7 +272,7 @@ export const Tool: React.FC = () => {
 
       {/* Carousel 1: Resources using this outil (usedBy) */}
       {outil?.usedBy && outil.usedBy.length > 0 && (
-          <div className="w-full flex flex-col items-center gap-50 mt-20">
+          <div className="w-full flex flex-col items-center gap-12 mt-5">
               <div className="w-full">
                   <FullCarrousel
                     title="Ressources utilisant cet outil"
@@ -295,7 +295,7 @@ export const Tool: React.FC = () => {
         <div className="w-full">
             {loadingRelated ? (
                 <div className="w-full h-[200px] flex items-center justify-center">
-                    <Skeleton className="w-full h-full bg-c3 rounded-xl"/>
+                    <Skeleton className="w-full h-full bg-c3 rounded-full"/>
                 </div>
             ) : (
                 <FullCarrousel

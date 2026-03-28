@@ -49,20 +49,20 @@ export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description,
   }
 
   return (
-    <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
+    <motion.div className='w-full flex flex-col gap-6' initial='hidden' animate='visible' variants={containerVariants}>
       <motion.div
         variants={itemVariants}
-        className='cursor-pointer flex flex-col bg-c2 hover:bg-c3 p-25 rounded-8 gap-10 transition-all ease-in-out duration-200'
+        className='cursor-pointer flex flex-col bg-c2 hover:bg-c3 p-6 rounded-lg gap-2.5 transition-all ease-in-out duration-200'
         onClick={toggleExpansion}>
-        <h3 className='text-16 text-c5 font-medium'>{date}</h3>
+        <h3 className='text-base text-c5 font-medium'>{date}</h3>
 
-        {genre && <p className='text-16 text-c6 font-semibold'>Genre : {genre}</p>}
+        {genre && <p className='text-base text-c6 font-medium'>Genre : {genre}</p>}
 
-        {medium && <p className='text-16 text-c6 font-semibold'>Support : {medium}</p>}
+        {medium && <p className='text-base text-c6 font-medium'>Support : {medium}</p>}
 
         {credits && credits.length > 0 && (
           <p
-            className={`text-16  text-c4  transition-all ease-in-out duration-200 gap-10 ${expanded ? '' : 'line-clamp-3'}`}
+            className={`text-base  text-c4  transition-all ease-in-out duration-200 gap-2.5 ${expanded ? '' : 'line-clamp-3'}`}
             style={{ lineHeight: '120%' }}>
             Crédits :{' '}
             {credits
@@ -77,14 +77,14 @@ export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description,
         )}
         {description && (
           <p
-            className={`text-16 text-c6 font-semibold transition-all ease-in-out duration-200 gap-10 ${expanded ? '' : 'line-clamp-3'}`}
+            className={`text-base text-c6 font-medium transition-all ease-in-out duration-200 gap-2.5 ${expanded ? '' : 'line-clamp-3'}`}
             style={{ lineHeight: '120%' }}
             dangerouslySetInnerHTML={{ __html: description }}></p>
         )}
         {Array.isArray(actants) && actants.length > 0 && (
-          <p className='text-14 text-end text-c4 italic  transition-all ease-in-out duration-200'>Ajouté par : {actants.map((actant: any) => actant.name).join(', ')}</p>
+          <p className='text-sm text-end text-c4 italic  transition-all ease-in-out duration-200'>Ajouté par : {actants.map((actant: any) => actant.name).join(', ')}</p>
         )}
-        {description && <p className='text-16 text-c5 font-semibold transition-all ease-in-out duration-200'>{expanded ? 'affichez moins' : '...affichez plus'}</p>}
+        {description && <p className='text-base text-c5 font-medium transition-all ease-in-out duration-200'>{expanded ? 'affichez moins' : '...affichez plus'}</p>}
       </motion.div>
     </motion.div>
   );
@@ -92,16 +92,16 @@ export const RecitiaDetailsCard: React.FC<RecitiaDetailsProps> = ({ description,
 
 export const RecitiaDetailsSkeleton: React.FC = () => {
   return (
-    <div className='flex w-full p-20 bg-c3 rounded-14'>
-      <div className='flex w-full flex-col gap-10'>
-        <Skeleton className='w-[35%] h-4 rounded-8' />
-        <div className='flex flex-col gap-5'>
-          <Skeleton className='w-[100%] h-4 rounded-8' />
-          <Skeleton className='w-[100%] h-4 rounded-8' />
-          <Skeleton className='w-[100%] h-4 rounded-8' />
-          <Skeleton className='w-[100%] h-4 rounded-8' />
+    <div className='flex w-full p-5 bg-c3 rounded-xl'>
+      <div className='flex w-full flex-col gap-2.5'>
+        <Skeleton className='w-[35%] h-4 rounded-lg' />
+        <div className='flex flex-col gap-1.5'>
+          <Skeleton className='w-full h-4 rounded-lg' />
+          <Skeleton className='w-full h-4 rounded-lg' />
+          <Skeleton className='w-full h-4 rounded-lg' />
+          <Skeleton className='w-full h-4 rounded-lg' />
         </div>
-        <Skeleton className='w-[20%] h-4 rounded-8' />
+        <Skeleton className='w-[20%] h-4 rounded-lg' />
       </div>
     </div>
   );

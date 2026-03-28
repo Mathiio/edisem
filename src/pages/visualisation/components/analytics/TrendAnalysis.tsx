@@ -304,38 +304,38 @@ export const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ onKeywordClick }) 
       loadingMessage='Chargement des tendances...'>
       <div className='flex-1 w-full h-full bg-c1 overflow-hidden flex flex-col'>
         {/* Header avec titre et contrôles */}
-        <div className='p-15 border-b border-c3 flex items-center justify-between'>
-          <div className='flex items-center gap-12'>
+        <div className='p-4 border-b border-c3 flex items-center justify-between'>
+          <div className='flex items-center gap-3'>
             <TrendingUp size={20} className='text-c5' />
             <div>
-              <h2 className='text-c6 font-semibold'>Évolution des mots-clés par année</h2>
+              <h2 className='text-c6 font-medium'>Évolution des mots-clés par année</h2>
               <p className='text-c4 text-xs mt-2'>
                 Visualisez comment les thématiques évoluent dans le temps ({data?.timeline[0]?.year} - {data?.timeline[data?.timeline.length - 1]?.year})
               </p>
             </div>
           </div>
 
-          <div className='flex items-center gap-20'>
+          <div className='flex items-center gap-5'>
             {/* Type de graphique */}
-            <div className='flex items-center gap-4 bg-c2 rounded-8 p-4'>
+            <div className='flex items-center gap-4 bg-c2 rounded-lg p-4'>
               <button
                 onClick={() => setChartType('area')}
-                className={`px-12 py-6 rounded-6 text-xs font-medium transition-colors flex items-center gap-6 ${chartType === 'area' ? 'bg-c3 text-c6' : 'text-c4 hover:text-c5'}`}>
+                className={`px-12 py-6 rounded-md text-xs font-medium transition-colors flex items-center gap-6 ${chartType === 'area' ? 'bg-c3 text-c6' : 'text-c4 hover:text-c5'}`}>
                 <Layers size={14} />
                 Aires
               </button>
               <button
                 onClick={() => setChartType('line')}
-                className={`px-12 py-6 rounded-6 text-xs font-medium transition-colors flex items-center gap-6 ${chartType === 'line' ? 'bg-c3 text-c6' : 'text-c4 hover:text-c5'}`}>
+                className={`px-12 py-6 rounded-md text-xs font-medium transition-colors flex items-center gap-6 ${chartType === 'line' ? 'bg-c3 text-c6' : 'text-c4 hover:text-c5'}`}>
                 <TrendingUp size={14} />
                 Lignes
               </button>
             </div>
 
             {/* Slider nombre de keywords */}
-            <div className='flex items-center gap-10'>
+            <div className='flex items-center gap-2.5'>
               <span className='text-c4 text-xs'>Mots-clés:</span>
-              <Slider size='md' step={2} minValue={4} maxValue={15} defaultValue={keywordLimit} onChangeEnd={(val) => setKeywordLimit(val as number)} className='w-100' />
+              <Slider size='md' step={2} minValue={4} maxValue={15} defaultValue={keywordLimit} onChangeEnd={(val) => setKeywordLimit(val as number)} className='w-24' />
               <span className='text-c6 text-sm font-medium'>{keywordLimit}</span>
             </div>
           </div>
@@ -344,13 +344,13 @@ export const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ onKeywordClick }) 
         {/* Corps: Graphique + Légende */}
         <div className='flex-1 flex overflow-hidden'>
           {/* Graphique */}
-          <div ref={containerRef} className='flex-1 overflow-hidden p-15'>
+          <div ref={containerRef} className='flex-1 overflow-hidden p-4'>
             <svg ref={svgRef} className='w-full h-full text-c5' />
           </div>
 
           {/* Légende à droite */}
-          <div className='w-220 border-l border-c3 p-15 overflow-y-auto'>
-            <h3 className='text-c6 font-semibold text-sm mb-4'>Légende</h3>
+          <div className='w-56 border-l border-c3 p-4 overflow-y-auto'>
+            <h3 className='text-c6 font-medium text-sm mb-4'>Légende</h3>
             <p className='text-c4 text-xs mb-12'>Cliquez pour afficher/masquer un mot-clé</p>
 
             <div className='flex flex-col gap-6'>
@@ -363,7 +363,7 @@ export const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ onKeywordClick }) 
                   <button
                     key={kw.id}
                     onClick={() => toggleKeyword(kw.id)}
-                    className={`flex items-center gap-8 p-8 rounded-8 transition-all text-left ${isVisible ? 'bg-c2' : 'bg-transparent opacity-40'}`}>
+                    className={`flex items-center gap-8 p-8 rounded-lg transition-all text-left ${isVisible ? 'bg-c2' : 'bg-transparent opacity-40'}`}>
                     {/* Pastille couleur */}
                     <div className='w-12 h-12 rounded-4 flex-shrink-0' style={{ backgroundColor: color }} />
 
@@ -385,7 +385,7 @@ export const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ onKeywordClick }) 
             </div>
 
             {/* Explication tendances */}
-            <div className='mt-15 pt-15 border-t border-c3'>
+            <div className='mt-4 pt-4 border-t border-c3'>
               <h4 className='text-c5 text-xs font-medium mb-8'>Indicateurs de tendance</h4>
               <div className='flex flex-col gap-4 text-xs'>
                 <div className='flex items-center gap-6'>
@@ -404,7 +404,7 @@ export const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ onKeywordClick }) 
             </div>
 
             {/* Mode d'affichage */}
-            <div className='mt-15 pt-15 border-t border-c3'>
+            <div className='mt-4 pt-4 border-t border-c3'>
               <h4 className='text-c5 text-xs font-medium mb-8'>Mode d'affichage</h4>
               <div className='flex flex-col gap-4 text-xs text-c4'>
                 <p>

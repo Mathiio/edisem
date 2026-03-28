@@ -344,7 +344,6 @@ export async function getAllItems() {
       bibliographies,
       mediagraphies,
       keywords,
-      collections,
       students,
       recherches,
       personnes,
@@ -353,7 +352,6 @@ export async function getAllItems() {
       getBibliographies(),
       getMediagraphies(),
       getKeywords(),
-      getCollections(),
       getStudents(),
       getRecherches(),
       getPersonnes(),
@@ -364,7 +362,6 @@ export async function getAllItems() {
       ...bibliographies,
       ...mediagraphies,
       ...keywords,
-      ...collections,
       ...students,
       ...(Array.isArray(recherches) ? recherches : []),
       ...(Array.isArray(personnes) ? personnes : []),
@@ -430,28 +427,6 @@ export async function getKeywords() {
     console.error('Error fetching keywords:', error);
     // Return an empty array instead of throwing an error
     return [];
-  }
-}
-
-export async function getCollections() {
-  try {
-    checkAndClearDailyCache();
-    const storedCollections = sessionStorage.getItem('collections');
-    if (storedCollections) {
-      return JSON.parse(storedCollections);
-    }
-
-    const collections = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getCollections&json=1');
-
-    collections.forEach((collection: any) => {
-      collection.type = 'collection';
-    });
-
-    sessionStorage.setItem('collections', JSON.stringify(collections));
-    return collections;
-  } catch (error) {
-    console.error('Error fetching collections:', error);
-    throw new Error('Failed to fetch collections');
   }
 }
 

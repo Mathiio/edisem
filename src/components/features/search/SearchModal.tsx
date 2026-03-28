@@ -99,7 +99,7 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
       <>
         {!notrigger && (
           <button
-            className="focus:outline-none focus-visible:outline-none hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 text-16 p-15 border-c3 border-2 rounded-8 text-c6 transition-colors ease-in-out duration-200"
+            className="focus:outline-none focus-visible:outline-none hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 text-base p-4 border-c3 border-2 rounded-lg text-c6 transition-colors ease-in-out duration-200"
             onClick={onOpen}
             title="Rechercher"
           >
@@ -109,7 +109,7 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
 
         <Modal
           backdrop="blur"
-          className="bg-c2 rounded-24 p-0"
+          className="bg-c2 rounded-3xl p-0"
           size="2xl"
           isOpen={isOpen}
           onClose={onClose}
@@ -122,9 +122,9 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
             },
           }}
         >
-          <ModalContent className="h-[90vh] max-h-[900px] px-40 py-20">
-            <ModalHeader className="w-full flex items-center justify-center py-20">
-              <h2 className="text-24 font-regular text-c6">Rechercher un Contenu</h2>
+          <ModalContent className="h-[90vh] max-h-[900px] px-10 py-5">
+            <ModalHeader className="w-full flex items-center justify-center py-5">
+              <h2 className="text-2xl font-regular text-c6">Rechercher un Contenu</h2>
             </ModalHeader>
             <ModalBody className="p-0 flex flex-col h-full overflow-hidden">
               {/* Header / Input Section */}
@@ -135,8 +135,8 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
                 placeholder="Rechercher par titre, intervenant..."
                 startContent={<SearchIcon className="text-c4 mr-2" size={20} />}
                 classNames={{
-                    inputWrapper: "w-full h-16 bg-c3/60 hover:!bg-c3 focus-within:!bg-c3/80 data-[hover=true]:!bg-c3/80 data-[focus=true]:!bg-c3/80 border-2 !border-c4/5 hover:!border-c4/5 focus-within:!border-c4/5 data-[hover=true]:!border-c4/5 data-[focus=true]:!border-c4/5 px-6 transition-all duration-300 rounded-12 shadow-none",
-                    input: "text-16 text-c1 placeholder:text-c4/50"
+                    inputWrapper: "w-full h-16 bg-c3/60 hover:!bg-c3 focus-within:!bg-c3/80 data-[hover=true]:!bg-c3/80 data-[focus=true]:!bg-c3/80 border-2 !border-c4/5 hover:!border-c4/5 focus-within:!border-c4/5 data-[hover=true]:!border-c4/5 data-[focus=true]:!border-c4/5 px-6 transition-all duration-300 rounded-xl shadow-none",
+                    input: "text-base text-c1 placeholder:text-c4/50"
                 }}
                 isClearable
                 onClear={() => setQuery('')}
@@ -145,15 +145,15 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
               {/* Results Section */}
               <div className="relative flex-1 overflow-hidden h-full flex flex-col">
                   {/* Top Gradient */}
-                  <div className="pointer-events-none absolute top-0 left-0 z-10 w-full h-20 bg-gradient-to-b from-c2 to-transparent" />
+                  <div className="pointer-events-none absolute top-0 left-0 z-10 w-full h-5 bg-gradient-to-b from-c2 to-transparent" />
 
                   {/* Scrollable Content */}
-                  <div className="flex-1 overflow-y-auto h-full pt-20 scrollbar-hide">
+                  <div className="flex-1 overflow-y-auto h-full pt-5 scrollbar-hide">
                       <div className="max-w-4xl mx-auto min-h-full flex flex-col">
                         {loading ? (
-                            <div className="flex flex-col items-center justify-center flex-1 gap-2 mb-40">
+                            <div className="flex flex-col items-center justify-center flex-1 gap-2 mb-10">
                                 <Spinner color="current" className="text-c6" />
-                                <p className="text-c6 text-16">Recherche en cours...</p>
+                                <p className="text-c6 text-base">Recherche en cours...</p>
                             </div>
                         ) : (
                             <>
@@ -174,8 +174,8 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
                                             <div key={type} className="mb-6 mt-4">
                                                 <div className="flex items-center gap-2 mb-4 px-2">
                                                     {Icon && <Icon className="text-c4" size={16} />}
-                                                    <h3 className="text-16 font-medium text-c4 uppercase tracking-wider mt-0.5">
-                                                        {label} <span className="opacity-60 text-14">({(items as any[]).length})</span>
+                                                    <h3 className="text-base font-medium text-c4 uppercase tracking-wider mt-0.5">
+                                                        {label} <span className="opacity-60 text-sm">({(items as any[]).length})</span>
                                                     </h3>
                                                 </div>
                                                 <div className="grid grid-cols-1 gap-4">
@@ -190,18 +190,18 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
                                     })}
                                 </div>
                                 {hasSearched && results.length === 0 && (
-                                    <div className="flex flex-col items-center justify-center flex-1 gap-1 text-center mb-40">
+                                    <div className="flex flex-col items-center justify-center flex-1 gap-px text-center mb-10">
                                         <SearchIcon size={28} className="text-c4 mb-2 animate-pulse" />
-                                        <p className="text-18 font-medium text-c4/80">Aucun résultat trouvé</p>
-                                        <p className="text-14 font-regular text-c4/60">Réessayez avec d'autres termes ou filtres</p>
+                                        <p className="text-lg font-medium text-c4/80">Aucun résultat trouvé</p>
+                                        <p className="text-sm font-regular text-c4/60">Réessayez avec d'autres termes ou filtres</p>
                                     </div>
                                 )}
                                 
                                 {!hasSearched && query === '' && selectedTypes.length === 0 && (
-                                    <div className="flex flex-col items-center justify-center flex-1 gap-1 mb-40">
+                                    <div className="flex flex-col items-center justify-center flex-1 gap-px mb-10">
                                         <SearchIcon size={28} className="text-c4 mb-2 animate-pulse" />
-                                        <p className="text-18 font-medium text-c4/80">Commencez à taper...</p>
-                                        <p className="text-14 font-regular text-c4/60">Pour rechercher un contenu Edisem</p>
+                                        <p className="text-lg font-medium text-c4/80">Commencez à taper...</p>
+                                        <p className="text-sm font-regular text-c4/60">Pour rechercher un contenu Edisem</p>
                                     </div>
                                 )}
                             </>
@@ -210,7 +210,7 @@ export const SearchModal = forwardRef<SearchModalRef, SearchModalProps>(
                   </div>
 
                   {/* Bottom Gradient */}
-                  <div className="pointer-events-none absolute bottom-0 left-0 z-10 w-full h-20 bg-gradient-to-t from-c2 to-transparent" />
+                  <div className="pointer-events-none absolute bottom-0 left-0 z-10 w-full h-5 bg-gradient-to-t from-c2 to-transparent" />
               </div>
             </ModalBody>
           </ModalContent>

@@ -17,14 +17,14 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           base: 'w-full',
           clearButton: 'bg-c3',
           mainWrapper: 'h-full',
-          input: 'text-100 Inter font-semibold text-16 nav_searchbar block focus:outline-none focus-visible:outline-none',
-          inputWrapper: 'group-data-[focus=true]:bg-c1 rounded-12 font-normal text-c6 bg-c1 px-20 py-15 h-auto',
+          input: 'text-100 font-medium text-base nav_searchbar block focus:outline-none focus-visible:outline-none',
+          inputWrapper: 'group-data-[focus=true]:bg-c1 rounded-xl font-normal text-c6 bg-c1 px-5 py-4 h-auto',
           innerWrapper: 'h-auto',
         }}
         placeholder={placeholder}
         size="sm"
         startContent={<SearchIcon size={18} />}
-        endContent={<Kbd className="flex sm:flex font-semibold text-c6 text-12 px-[8px] py-5 bg-c3 gap-5">ESC</Kbd>}
+        endContent={<Kbd className="flex sm:flex font-medium text-c6 text-xs px-[8px] py-1.5 bg-c3 gap-1.5">ESC</Kbd>}
         type="search"
         fullWidth
         value={value}

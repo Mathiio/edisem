@@ -38,12 +38,12 @@ export const EditSaveBar: React.FC<EditSaveBarProps> = ({
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className='fixed bottom-0 left-0 right-0 z-50'>
           {/* Gradient fade effect */}
-          <div className='h-20 bg-gradient-to-t from-c1 to-transparent pointer-events-none' />
+          <div className='h-5 bg-gradient-to-t from-c1 to-transparent pointer-events-none' />
 
           {/* Main bar */}
           <div className='bg-c2 border-t-2 border-c3 '>
-            <div className='px-25 py-[10px]'>
-              <div className='flex items-center justify-between gap-20'>
+            <div className='px-6 py-[10px]'>
+              <div className='flex items-center justify-between gap-5'>
                 {/* Left side - Status info */}
                 <div className='flex items-center gap-2'>                  
                   
@@ -51,7 +51,7 @@ export const EditSaveBar: React.FC<EditSaveBarProps> = ({
                   {isDirty && !isSubmitting && (
                     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className='flex items-center gap-2 text-c4'>
                       <WarningIcon size={20} className='text-c5'/>
-                      <span className='text-14'>Modifications non sauvegardées</span>
+                      <span className='text-sm'>Modifications non sauvegardées</span>
                     </motion.div>
                   )}
 
@@ -59,7 +59,7 @@ export const EditSaveBar: React.FC<EditSaveBarProps> = ({
                   {isSubmitting && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='flex items-center gap-2 text-c5'>
                       <Spinner color="current" className="text-c6" size="sm"/>
-                      <span className='text-14'>Sauvegarde en cours...</span>
+                      <span className='text-sm'>Sauvegarde en cours...</span>
                     </motion.div>
                   )}
 
@@ -67,7 +67,7 @@ export const EditSaveBar: React.FC<EditSaveBarProps> = ({
                   {lastSaved && !isDirty && !isSubmitting && (
                     <div className='flex items-center gap-6 text-green-500'>
                       <CheckIcon size={14} />
-                      <span className='text-14'>
+                      <span className='text-sm'>
                         Sauvegarde le{' '}
                         {lastSaved.toLocaleTimeString('fr-FR', {
                           hour: '2-digit',
@@ -84,7 +84,7 @@ export const EditSaveBar: React.FC<EditSaveBarProps> = ({
                   <Button
                     size='md'
                     variant='flat'
-                    className='text-c6 hover:bg-c3/80 bg-c3 rounded-8 p-6 font-medium transition-all duration-200'
+                    className='text-c6 hover:bg-c3/80 bg-c3 rounded-lg p-6 font-medium transition-all duration-200'
                     onPress={onCancel}
                     isDisabled={isSubmitting}
                     startContent={<CrossIcon size={16} />}>
@@ -94,7 +94,7 @@ export const EditSaveBar: React.FC<EditSaveBarProps> = ({
                   {/* Save button */}
                   <Button
                     size='md'
-                    className={`rounded-8 p-6 font-medium transition-all duration-200 ${
+                    className={`rounded-lg p-6 font-medium transition-all duration-200 ${
                       isDirty || isCreateMode ? 'bg-action text-selected hover:bg-action/90 shadow-[0_0_15px_rgba(var(--action-rgb),0.3)]' : 'bg-c3 text-c5 cursor-not-allowed'
                     }`}
                     onPress={onSave}

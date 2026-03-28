@@ -68,7 +68,7 @@ const MediaViewer: React.FC<MediaViewerProps> = ({ src, alt = 'Media', className
 
   const mediaClasses = `transition-all duration-500 ease-out transform ${
     isFullscreen
-      ? `rounded-12 shadow-2xl ${objectFit === 'cover' ? 'object-cover w-full h-full' : 'object-contain'} animate-in zoom-in-95 duration-300`
+      ? `rounded-xl shadow-2xl ${objectFit === 'cover' ? 'object-cover w-full h-full' : 'object-contain'} animate-in zoom-in-95 duration-300`
       : `w-full h-full ${objectFit === 'cover' ? 'object-cover' : 'object-contain'}`
   }`;
 
@@ -87,7 +87,7 @@ const MediaViewer: React.FC<MediaViewerProps> = ({ src, alt = 'Media', className
     return (
       <iframe
         src={embedUrl}
-        className={`${mediaClasses} rounded-12`}
+        className={`${mediaClasses} rounded-xl`}
         allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
         allowFullScreen
         title={alt}
@@ -115,15 +115,15 @@ const MediaViewer: React.FC<MediaViewerProps> = ({ src, alt = 'Media', className
         {/* Contrôles en bas à droite de l'IMAGE (pas pour YouTube) */}
         {!isYouTube && (
           <div
-            className={`absolute bottom-4 right-4 flex items-center gap-10 bg-[#000] bg-opacity-30 backdrop-blur-[16px] rounded-12 px-3 py-2 transition-all duration-300 ease-out z-10 transform ${
+            className={`absolute bottom-4 right-4 flex items-center gap-2.5 bg-[#000] bg-opacity-30 backdrop-blur-[16px] rounded-xl px-3 py-2 transition-all duration-300 ease-out z-10 transform ${
               showControls ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-95'
             }`}>
-            <div className='flex gap-1'>
+            <div className='flex gap-px'>
               {/* Bouton mode d'affichage */}
               {!isFullscreen && (
                 <button
                   onClick={toggleObjectFit}
-                  className='text-[#fff] p-2 rounded-12 hover:bg-[#fff] hover:bg-opacity-20 transition-all duration-200'
+                  className='text-[#fff] p-2 rounded-xl hover:bg-[#fff] hover:bg-opacity-20 transition-all duration-200'
                   title={objectFit === 'cover' ? 'Mode Contain (ajuster)' : 'Mode Cover (remplir)'}>
                   <div style={iconShadowStyle}>{objectFit === 'cover' ? <MinimizeIcon size={20} /> : <SquareIcon size={20} />}</div>
                 </button>
@@ -132,7 +132,7 @@ const MediaViewer: React.FC<MediaViewerProps> = ({ src, alt = 'Media', className
               {/* Bouton plein écran */}
               <button
                 onClick={toggleFullscreen}
-                className='text-[#fff] p-2 rounded-12 hover:bg-[#fff] hover:bg-opacity-20 transition-all duration-200'
+                className='text-[#fff] p-2 rounded-xl hover:bg-[#fff] hover:bg-opacity-20 transition-all duration-200'
                 title={isFullscreen ? 'Quitter le plein écran (Échap)' : 'Plein écran'}>
                 <div style={iconShadowStyle}>{isFullscreen ? <GalleryIcon size={20} /> : <MaximizeIcon size={20} />}</div>
               </button>

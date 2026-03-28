@@ -68,11 +68,11 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
   };
 
   return (
-    <div className='flex flex-col gap-25'>
+    <div className='flex flex-col gap-6'>
       {/* Informations générales */}
       <Card className='bg-c2 border border-c3'>
-        <CardBody className='p-25 flex flex-col gap-25'>
-          <h3 className='text-20 font-semibold text-c6 mb-10'>Informations générales</h3>
+        <CardBody className='p-6 flex flex-col gap-6'>
+          <h3 className='text-xl font-medium text-c6 mb-2.5'>Informations générales</h3>
 
           {/* Titre */}
           <div>
@@ -86,7 +86,7 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
               isInvalid={!!errors.title}
               errorMessage={errors.title}
               classNames={{
-                label: 'text-semibold !text-c6 text-18 mb-5',
+                label: 'text-semibold !text-c6 text-lg mb-1.5',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}
@@ -103,7 +103,7 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
               onChange={(e) => handleChange('description', e.target.value)}
               minRows={4}
               classNames={{
-                label: 'text-semibold text-c6 text-18 mb-5',
+                label: 'text-semibold text-c6 text-lg mb-1.5',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}
@@ -120,7 +120,7 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
               onChange={(e) => handleChange('abstract', e.target.value)}
               minRows={3}
               classNames={{
-                label: 'text-semibold text-c6 text-18 mb-5',
+                label: 'text-semibold text-c6 text-lg mb-1.5',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}
@@ -131,12 +131,12 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
 
       {/* État et progression */}
       <Card className='bg-c2 border border-c3'>
-        <CardBody className='p-25 flex flex-col gap-25'>
-          <h3 className='text-20 font-semibold text-c6 mb-10'>État et progression</h3>
+        <CardBody className='p-6 flex flex-col gap-6'>
+          <h3 className='text-xl font-medium text-c6 mb-2.5'>État et progression</h3>
 
           {/* Avancement */}
           <div>
-            <label className='text-semibold text-c6 text-18 mb-10 block'>
+            <label className='text-semibold text-c6 text-lg mb-2.5 block'>
               Avancement: {formData.percentage}%
             </label>
             <Slider
@@ -164,7 +164,7 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
               value={formData.status}
               onChange={(e) => handleChange('status', e.target.value)}
               classNames={{
-                label: 'text-semibold !text-c6 text-18 mb-5',
+                label: 'text-semibold !text-c6 text-lg mb-1.5',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}
@@ -180,7 +180,7 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
               value={formData.date}
               onChange={(e) => handleChange('date', e.target.value)}
               classNames={{
-                label: 'text-semibold !text-c6 text-18 mb-5',
+                label: 'text-semibold !text-c6 text-lg mb-1.5',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}
@@ -191,8 +191,8 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
 
       {/* Liens externes */}
       <Card className='bg-c2 border border-c3'>
-        <CardBody className='p-25 flex flex-col gap-25'>
-          <h3 className='text-20 font-semibold text-c6 mb-10'>Liens externes</h3>
+        <CardBody className='p-6 flex flex-col gap-6'>
+          <h3 className='text-xl font-medium text-c6 mb-2.5'>Liens externes</h3>
 
           {/* URL */}
           <div>
@@ -204,7 +204,7 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
               value={formData.url}
               onChange={(e) => handleChange('url', e.target.value)}
               classNames={{
-                label: 'text-semibold !text-c6 text-18 mb-5',
+                label: 'text-semibold !text-c6 text-lg mb-1.5',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}
@@ -214,10 +214,10 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
       </Card>
 
       {/* Boutons d'action */}
-      <div className='flex items-center justify-end gap-10 pt-25'>
+      <div className='flex items-center justify-end gap-2.5 pt-6'>
         <Button
           size='md'
-          className='bg-c3 text-c6 hover:bg-c4 rounded-8'
+          className='bg-c3 text-c6 hover:bg-c4 rounded-lg'
           onPress={onCancel}
           isDisabled={isSubmitting}
         >
@@ -225,7 +225,7 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
         </Button>
         <Button
           size='md'
-          className='bg-action text-selected rounded-8'
+          className='bg-action text-selected rounded-lg'
           onPress={handleSubmit}
           isLoading={isSubmitting}
         >

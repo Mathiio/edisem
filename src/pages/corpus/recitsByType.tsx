@@ -48,13 +48,13 @@ const GenreCard = ({ genre, basePath }: { genre: Genre, basePath: string }) => {
   return (
     <div
       onClick={handleClick}
-      className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-40 rounded-30 flex flex-col gap-30 hover:bg-c2 h-full transition-all ease-in-out duration-200 group"
+      className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-10 rounded-4xl flex flex-col gap-8 hover:bg-c2 h-full transition-all ease-in-out duration-200 group"
     >
-      <div className="flex flex-col gap-20">
-        <h2 className='text-32 text-c6 font-semibold transition-colors duration-200'>
+      <div className="flex flex-col gap-5">
+        <h2 className='text-3xl text-c6 font-medium transition-colors duration-200'>
           {genre.name}
         </h2>
-        <p className="text-18 text-c4">
+        <p className="text-lg text-c4">
           {genre.count} {genre.count === 1 ? 'récit' : 'récits'}
         </p>
       </div>
@@ -141,18 +141,18 @@ export const RecitsByType: React.FC = () => {
     const Icon = config.icon;
 
     return (
-        <Layouts className='col-span-10 flex flex-col gap-100'>
+        <Layouts className='col-span-10 flex flex-col gap-24'>
              {/* Header section */}
-            <div className='pt-100 justify-center flex items-center flex-col gap-20 relative'>
-                <div className='gap-10 justify-between flex items-center flex-col'>
+            <div className='pt-24 justify-center flex items-center flex-col gap-5 relative'>
+                <div className='gap-2.5 justify-between flex items-center flex-col'>
                     {/* Icon with custom color */}
                     {Icon && <Icon size={40} style={{ color: config.color }} />}
 
                     {/* Title and description */}
-                    <h1 className='z-[12] text-64 text-c6 font-medium flex text-center flex-col items-center max-w-[850px] leading-tight'>
+                    <h1 className='z-[12] text-6xl text-c6 font-medium flex text-center flex-col items-center max-w-[850px] leading-tight'>
                         {config.collectionLabel || config.label}
                     </h1>
-                    <p className='text-c5 text-16 z-[12] text-center max-w-[600px]'>
+                    <p className='text-c5 text-base z-[12] text-center max-w-[600px]'>
                         Découvrez les {recits.length} éléments dans cette collection.
                     </p>
 
@@ -171,10 +171,10 @@ export const RecitsByType: React.FC = () => {
             </div>
 
             {/* Carousel */}
-             <div className="w-full pb-50">
+             <div className="w-full pb-12">
             {/* Carousel */}
             {!loading && genres.length > 0 && (
-             <div className="w-full pb-50">
+             <div className="w-full pb-12">
                 <FullCarrousel
                     title="Filtrer par genres"
                     data={genres}
@@ -187,7 +187,7 @@ export const RecitsByType: React.FC = () => {
             </div>
 
             {/* Grid of Recits */}
-            <div className='grid grid-cols-4 grid-rows-auto gap-20 pb-100'>
+            <div className='grid grid-cols-4 grid-rows-auto gap-5 pb-24'>
                 {loading
                     ? Array.from({ length: 8 }).map((_, index) => (
                         <div key={index} className="h-full">
@@ -209,10 +209,10 @@ export const RecitsByType: React.FC = () => {
             </div>
             
             {!loading && recits.length === 0 && (
-                <div className='flex flex-col items-center justify-center py-20 gap-20'>
-                  <div className='flex flex-col gap-10 text-center'>
-                    <h3 className='text-24 font-medium text-c6'>Aucun récit trouvé</h3>
-                    <p className='text-16 text-c4'>Il n'y a pas encore d'éléments dans cette collection.</p>
+                <div className='flex flex-col items-center justify-center py-5 gap-5'>
+                  <div className='flex flex-col gap-2.5 text-center'>
+                    <h3 className='text-2xl font-medium text-c6'>Aucun récit trouvé</h3>
+                    <p className='text-base text-c4'>Il n'y a pas encore d'éléments dans cette collection.</p>
                   </div>
                 </div>
             )}

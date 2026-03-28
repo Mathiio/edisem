@@ -152,7 +152,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
       <div
         onClick={() => handleToggleSelect(item.id)}
         className={`
-          relative cursor-pointer rounded-12 border-2 transition-all ease-in-out duration-200
+          relative cursor-pointer rounded-xl border-2 transition-all ease-in-out duration-200
           ${
             isSelected
               ? 'border-action bg-action/10 shadow-[inset_0_0px_30px_rgba(var(--action-rgb),0.1)]'
@@ -174,23 +174,23 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
         <div className='p-3 flex flex-col gap-2'>
           {/* Thumbnail ou placeholder */}
           <div
-            className={`w-full h-[80px] rounded-8 flex justify-center items-center overflow-hidden ${item.thumbnailUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'}`}
+            className={`w-full h-[80px] rounded-lg flex justify-center items-center overflow-hidden ${item.thumbnailUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'}`}
             style={item.thumbnailUrl ? { backgroundImage: `url(${item.thumbnailUrl})` } : {}}>
             {!item.thumbnailUrl && <ThumbnailIcon className='text-c4/30' size={28} />}
           </div>
 
           {/* Contenu */}
-          <div className='flex flex-col gap-1'>
+          <div className='flex flex-col gap-px'>
             {/* Titre */}
-            <p className='text-13 text-c6 font-medium line-clamp-2 leading-tight'>{item.title}</p>
+            <p className='text-sm text-c6 font-medium line-clamp-2 leading-tight'>{item.title}</p>
 
             {/* Actant ou classe */}
             {(item.actantName || item.resourceClass) && (
               <div className='flex gap-1.5 items-center'>
-                <div className='w-5 h-5 flex items-center justify-center bg-c3 rounded-6'>
+                <div className='w-1.5 h-1.5 flex items-center justify-center bg-c3 rounded-md'>
                   <UserIcon className='text-c4' size={10} />
                 </div>
-                <p className='text-11 text-c4 font-extralight truncate'>{item.actantName || item.resourceClass}</p>
+                <p className='text-[11px] text-c4 font-normal truncate'>{item.actantName || item.resourceClass}</p>
               </div>
             )}
           </div>
@@ -214,7 +214,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
       <ModalContent>
         {(onModalClose) => (
           <>
-            <ModalHeader className='flex flex-col gap-1'>
+            <ModalHeader className='flex flex-col gap-px'>
               <span className='text-c6'>{title}</span>
               <span className='text-sm font-normal text-c5'>
                 {selectedIds.size} sélectionné(s) sur {availableResources.length} disponibles
@@ -245,7 +245,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
                       size='md'
                       className='flex-1'
                       classNames={{
-                        inputWrapper: 'bg-c3 border-2 border-c3 hover:bg-c4 hover:border-c4 rounded-8 min-h-[40px]',
+                        inputWrapper: 'bg-c3 border-2 border-c3 hover:bg-c4 hover:border-c4 rounded-lg min-h-[40px]',
                         input: 'text-c6',
                       }}
                       isClearable
@@ -258,13 +258,13 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
                         <Button
                           size='md'
                           onPress={handleSelectAll}
-                          className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-4 min-h-[40px] font-medium'>
+                          className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-lg px-4 min-h-[40px] font-medium'>
                           Tout sélectionner
                         </Button>
                         <Button
                           size='md'
                           onPress={handleDeselectAll}
-                          className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-4 min-h-[40px] font-medium'>
+                          className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-lg px-4 min-h-[40px] font-medium'>
                           Tout désélectionner
                         </Button>
                       </div>
@@ -272,7 +272,7 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
                   </div>
 
                   {/* Grille de cartes */}
-                  <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[450px] overflow-y-auto pr-1'>
+                  <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[450px] overflow-y-auto pr-px'>
                     {filteredResources.length === 0 ? (
                       <div className='col-span-full text-center py-12'>
                         <ThumbnailIcon className='text-c4/30 mx-auto mb-3' size={40} />
@@ -287,10 +287,10 @@ export const ResourceSelectionModal: React.FC<ResourceSelectionModalProps> = ({ 
             </ModalBody>
 
             <ModalFooter>
-              <Button onPress={onModalClose} className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-6 min-h-[40px] font-medium'>
+              <Button onPress={onModalClose} className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-lg px-6 min-h-[40px] font-medium'>
                 Annuler
               </Button>
-              <Button onPress={handleConfirm} isDisabled={selectedIds.size === 0} className='bg-action hover:bg-action/80 text-white rounded-8 px-6 min-h-[40px] font-medium'>
+              <Button onPress={handleConfirm} isDisabled={selectedIds.size === 0} className='bg-action hover:bg-action/80 text-white rounded-lg px-6 min-h-[40px] font-medium'>
                 Valider ({selectedIds.size})
               </Button>
             </ModalFooter>

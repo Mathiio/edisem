@@ -40,14 +40,14 @@ const EditionCard = ({ edition, basePath = '/corpus/seminaires' }: { edition: Ed
       variants={cardVariants}
       onClick={handleClick}
       data-testid="edition-card"
-      className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-40 rounded-30 flex flex-col gap-40 hover:bg-c2 h-full transition-all ease-in-out duration-200"
+      className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-10 rounded-4xl flex flex-col justify-between gap-10 hover:bg-c2 h-full transition-all ease-in-out duration-200"
     >
-      <h2 className='text-32 text-c6'>{edition.title}</h2>
+      <h2 className='text-3xl text-c6'>{edition.title}</h2>
       <div className='flex flex-col items-start'>
-        <p className="text-18 text-c4">
+        <p className="text-lg text-c4">
           Édition {edition.season} {edition.year}
         </p>
-        <p className="text-18 text-c4">
+        <p className="text-lg text-c4">
           {edition.conferences?.length ?? 0} conférences
         </p>
       </div>
@@ -57,15 +57,15 @@ const EditionCard = ({ edition, basePath = '/corpus/seminaires' }: { edition: Ed
 
 const EditionCardSkeleton = () => {
   return (
-    <div className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-40 rounded-30 flex flex-col gap-40 h-full">
+    <div className="shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-10 rounded-4xl flex flex-col gap-10 h-full">
         <div className='flex flex-col items-start gap-2'>
-            <Skeleton className="rounded-8 w-full h-8"/>
-            <Skeleton className="rounded-8 w-full h-8"/>
-            <Skeleton className="rounded-8 w-3/4 h-8"/>
+            <Skeleton className="rounded-lg w-full h-8"/>
+            <Skeleton className="rounded-lg w-full h-8"/>
+            <Skeleton className="rounded-lg w-3/4 h-8"/>
         </div>
         <div className='flex flex-col items-start gap-2'>
-            <Skeleton className="rounded-8 w-1/2 h-4"/>
-            <Skeleton className="rounded-8 w-1/4 h-4"/>
+            <Skeleton className="rounded-lg w-px/2 h-4"/>
+            <Skeleton className="rounded-lg w-px/4 h-4"/>
         </div>
     </div>
   );

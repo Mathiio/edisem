@@ -91,10 +91,10 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   // Si justView est true, afficher seulement les valeurs sélectionnées
   if (justView) {
     return selectedValues.length > 0 ? (
-      <div className='flex flex-col gap-10 w-full' key={col.key}>
+      <div className='flex flex-col gap-2.5 w-full' key={col.key}>
         <label className='text-c6'>{col.label}</label>
         <div className='flex flex-col w-full'>
-          <ul className='flex items-center gap-10 pt-10 pb-20 flex-wrap'>
+          <ul className='flex items-center gap-2.5 pt-2.5 pb-5 flex-wrap'>
             {selectedValues.map((id) => (
               <AutoResizingField
                 value={idToDisplayNameMap[id]}
@@ -170,17 +170,17 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
 
   // Mode édition (justView = false)
   return (
-    <div className='flex flex-col gap-10 w-full' key={col.key}>
+    <div className='flex flex-col gap-2.5 w-full' key={col.key}>
       <label className='text-c6'>{col.label}</label>
-      <div className='flex flex-row gap-10 items-center'>
+      <div className='flex flex-row gap-2.5 items-center'>
         <Input
           classNames={{
             base: '',
             clearButton: 'bg-600',
             mainWrapper: ' h-[40px] ',
-            input: 'text-c5  Inter  text-16 nav_searchbar h-[40px] px-[10px]',
+            input: 'text-c5 text-base nav_searchbar h-[40px] px-[10px]',
             inputWrapper:
-              ' shadow-none border-1 border-200 group-data-[focus=true]:bg-c3 rounded-8 font-normal text-c6 bg-c1 dark:bg-c3 px-[15px] py-[10px] h-[40px] ',
+              ' shadow-none border-1 border-200 group-data-[focus=true]:bg-c3 rounded-lg font-normal text-c6 bg-c1 dark:bg-c3 px-[15px] py-[10px] h-[40px] ',
           }}
           placeholder='Recherche avancée...'
           startContent={<SearchIcon size={16} />}
@@ -190,11 +190,15 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
           fullWidth
         />
 
-        <Dropdown>
+        <Dropdown
+          classNames={{
+            content:
+              'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3 min-w-[140px]',
+          }}>
           <DropdownTrigger>
             <Button
               startContent={<SortIcon size={16} className='text-c6' />}
-              className='px-[15px] py-10 h-full flex gap-10 bg-c3 border-none rounded-8'>
+              className='px-[15px] py-2.5 h-full flex gap-2.5 bg-c3 border-none rounded-lg'>
               Trier
             </Button>
           </DropdownTrigger>
@@ -204,37 +208,46 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
             disallowEmptySelection
             selectedKeys={new Set([sortOrder])}
             onSelectionChange={handleSortOrderChange}
-            selectionMode='single'>
-            <DropdownItem key='asc' className='text-c6'>
+            selectionMode='single'
+            className='p-2'
+            classNames={{
+              base: 'bg-transparent shadow-none border-0',
+              list: 'bg-transparent',
+            }}>
+            <DropdownItem
+              key='asc'
+              className='cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'>
               A - Z
             </DropdownItem>
-            <DropdownItem key='desc' className='text-c6'>
+            <DropdownItem
+              key='desc'
+              className='cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'>
               Z - A
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </div>
       <div className='flex flex-col w-full'>
-        <ul className='flex items-center gap-10 pt-10 pb-20 flex-wrap'>
+        <ul className='flex items-center gap-2.5 pt-2.5 pb-5 flex-wrap'>
           <p className='text-c5'>Selection :</p>
           {selectedValues.map((id, index) => (
             <Button
               key={index}
               onClick={() => handleDeselect(id)}
               radius='none'
-              className={`py-10 h-full px-10 gap-10 text-14 rounded-8 bg-action text-selected transition-all ease-in-out duration-200 navfilter flex items-center`}
+              className={`py-2.5 h-full px-2.5 gap-2.5 text-sm rounded-lg bg-action text-selected transition-all ease-in-out duration-200 navfilter flex items-center`}
               endContent={<CrossIcon size={18} />}>
               {reducer(idToDisplayNameMap[id], 30)}
             </Button>
           ))}
         </ul>
-        <ul className='flex items-center gap-20 py-10 flex-wrap max-h-[150px] overflow-y-auto'>
+        <ul className='flex items-center gap-5 py-2.5 flex-wrap max-h-[150px] overflow-y-auto'>
           {filteredNonSelectedValues.map((id, index) => (
             <Button
               key={index}
               onClick={() => handleSelect(id)}
               radius='none'
-              className={` py-10 h-full px-10 text-14 rounded-8 text-c6 bg-c1 hover:text-selected hover:bg-action transition-all ease-in-out duration-200  flex items-center`}>
+              className={` py-2.5 h-full px-2.5 text-sm rounded-lg text-c6 bg-c1 hover:text-selected hover:bg-action transition-all ease-in-out duration-200  flex items-center`}>
               {reducer(idToDisplayNameMap[id])}
             </Button>
           ))}

@@ -261,12 +261,12 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
   };
 
   const Wrapper = embedded ? React.Fragment : Layouts;
-  const wrapperProps = embedded ? {} : { className: 'flex flex-col col-span-10 gap-25' };
+  const wrapperProps = embedded ? {} : { className: 'flex flex-col col-span-10 gap-6' };
 
   if (loading) {
     return (
       <Wrapper {...wrapperProps}>
-        <div className='flex flex-col gap-4 min-h-[400px] items-center justify-center py-20'>
+        <div className='flex flex-col gap-4 min-h-[400px] items-center justify-center py-5'>
           <Spinner color="current" className="text-c6" />
           <p className="text-c6">Chargement en cours...</p>
         </div>
@@ -280,8 +280,8 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
         {/* Header */}
         <div className='flex items-center justify-between'>
           <div>
-            <h1 className='text-28 font-semibold text-c6'>Gestion des Cours</h1>
-            <p className='text-14 text-c5 mt-1'>{courses.length} cours</p>
+            <h1 className='text-3xl font-medium text-c6'>Gestion des Cours</h1>
+            <p className='text-sm text-c5 mt-px'>{courses.length} cours</p>
             {/* Bouton de test du highlight - À SUPPRIMER */}
           </div>
           <Button className='bg-action text-selected' startContent={<PlusIcon size={16} />} onPress={handleOpenCreate}>
@@ -290,11 +290,11 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
         </div>
 
         {/* Table des cours */}
-        <div className='bg-c2 rounded-12 p-20'>
+        <div className='bg-c2 rounded-xl p-5'>
           <Table
             aria-label='Liste des cours'
             classNames={{
-              wrapper: 'bg-transparent shadow-none rounded-12',
+              wrapper: 'bg-transparent shadow-none rounded-xl',
               th: 'bg-c3 text-c6 h-12 first:rounded-l-8 last:rounded-r-8',
               td: 'text-c6',
             }}>
@@ -314,7 +314,7 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
                     <span id={`course-marker-${course.id}`} className='hidden' />
                     <div>
                       <p className='font-medium'>{course.title}</p>
-                      {course.description && <p className='text-12 text-c4 truncate max-w-[300px]'>{course.description}</p>}
+                      {course.description && <p className='text-xs text-c4 truncate max-w-[300px]'>{course.description}</p>}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -469,18 +469,18 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
               ) : (
                 <div className='flex flex-col gap-2 max-h-[400px] overflow-y-auto'>
                   {courseStudents.map((student) => (
-                    <div key={student.id} className='flex items-center gap-3 p-3 bg-c3 rounded-8'>
+                    <div key={student.id} className='flex items-center gap-3 p-3 bg-c3 rounded-lg'>
                       {student.picture ? (
-                        <img src={student.picture} alt={student.title} className='w-10 h-10 rounded-full object-cover' />
+                        <img src={student.picture} alt={student.title} className='w-2.5 h-2.5 rounded-full object-cover' />
                       ) : (
-                        <div className='w-10 h-10 rounded-full bg-c4 flex items-center justify-center text-c6 font-medium'>
+                        <div className='w-2.5 h-2.5 rounded-full bg-c4 flex items-center justify-center text-c6 font-medium'>
                           {student.firstname?.[0]}
                           {student.lastname?.[0]}
                         </div>
                       )}
                       <div className='flex-1'>
                         <p className='text-c6 font-medium'>{student.title}</p>
-                        <p className='text-c5 text-12'>{student.mail}</p>
+                        <p className='text-c5 text-xs'>{student.mail}</p>
                       </div>
                       {student.studentNumber && (
                         <Chip size='sm' variant='flat' className='bg-c4'>

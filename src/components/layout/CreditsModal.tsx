@@ -13,7 +13,7 @@ const CreditsModal = () => {
     <>
       <div className='flex flex-wrap'>
         <Link onPress={handleOpen} className='cursor-pointer'>
-          <p className='text-16 text-c5 font-extralight'>Crédits</p>
+          <p className='text-base text-c5 font-normal'>Crédits</p>
         </Link>
       </div>
 
@@ -48,8 +48,8 @@ const CreditsModal = () => {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex justify-between p-25 border-b-2 border-c3'>
-                <h2 className='text-c6 text-32 font-medium'>Crédits</h2>
+              <ModalHeader className='flex justify-between p-6 border-b-2 border-c3'>
+                <h2 className='text-c6 text-3xl font-medium'>Crédits</h2>
                 <Link onPress={onClose}>
                   <CrossIcon
                     className='text-c4 cursor-pointer hover:text-c6 transition-all ease-in-out duration-200'
@@ -57,9 +57,9 @@ const CreditsModal = () => {
                   />
                 </Link>
               </ModalHeader>
-              <ModalBody className='flex p-25'>
-                <div className='flex flex-col gap-25 scroll-y-auto'>
-                  <h3 className='text-c6 font-medium text-16'>Equipe Arcanes</h3>
+              <ModalBody className='flex p-6'>
+                <div className='flex flex-col gap-6 scroll-y-auto'>
+                  <h3 className='text-c6 font-medium text-base'>Equipe Arcanes</h3>
                   <CreditCard
                     name='Gabrielle Godin'
                     job=''

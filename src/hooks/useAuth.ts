@@ -5,8 +5,10 @@ export interface UserData {
   firstname?: string;
   lastname?: string;
   picture?: string;
-  type?: 'actant' | 'student'  | string;
-  omekaUserId?: number | null;  // ID utilisateur Omeka S (table user) pour o:owner
+  type?: 'actant' | 'student' | string;
+  role?: string;
+  omekaUserId?: number | null;
+  email?: string;
 }
 
 export const useAuth = () => {
@@ -17,17 +19,13 @@ export const useAuth = () => {
   const checkAuth = useCallback(() => {
     try {
       const user = localStorage.getItem('user');
-      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
 
-      
-
-      const authenticated = !!(user && user !== 'null' && user !== 'undefined') || !!(userId && userId !== 'null' && userId !== 'undefined');
-
-     
+      const authenticated = !!(user && user !== 'null' && token);
 
       setIsAuthenticated(authenticated);
 
-      if (user && user !== 'null' && user !== 'undefined') {
+      if (user && user !== 'null') {
         try {
           setUserData(JSON.parse(user));
         } catch (parseError) {
@@ -51,28 +49,30 @@ export const useAuth = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('userType');
     localStorage.removeItem('omekaUserId');
+    localStorage.removeItem('token');
     setIsAuthenticated(false);
     setUserData(null);
   }, []);
 
-  const login = useCallback((user: UserData, userId: string, omekaUserId?: number | null) => {
-    // Stocker l'omekaUserId dans l'objet user
-    const userWithOmekaId = { ...user, omekaUserId };
-    localStorage.setItem('user', JSON.stringify(userWithOmekaId));
-    localStorage.setItem('userId', userId);
-    // Stocker l'omekaUserId séparément pour un accès rapide
-    if (omekaUserId) {
-      localStorage.setItem('omekaUserId', String(omekaUserId));
+  const login = useCallback((user: UserData, token: string) => {
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('userId', String(user.id));
+    localStorage.setItem('userType', user.type || '');
+    localStorage.setItem('token', token);
+    
+    if (user.omekaUserId) {
+      localStorage.setItem('omekaUserId', String(user.omekaUserId));
     }
+    
     setIsAuthenticated(true);
-    setUserData(userWithOmekaId);
+    setUserData(user);
   }, []);
 
   useEffect(() => {
     checkAuth();
     
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'user' || e.key === 'userId') {
+      if (e.key === 'user' || e.key === 'token') {
         checkAuth();
       }
     };

@@ -186,22 +186,22 @@ export const BibliographyCard: React.FC<Bibliography & { uniqueKey?: number }> =
 
   return (
     <div
-      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25  transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
+      className={`w-full flex flex-row justify-between border-2 rounded-xl items-center gap-6  transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
-      <Link className='w-full gap-25 p-25 flex flex-row justify-between' to={url ?? '#'} target='_blank'>
+      <Link className='w-full gap-6 p-6 flex flex-row justify-between' to={url ?? '#'} target='_blank'>
         <div className={`flex  ${thumbnail ? 'flex-row' : 'flex-col'} gap-4 items-start`}>
           {thumbnail && (
             <div className='flex-shrink-0'>
-              <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' />
+              <img src={thumbnail} alt='thumbnail' className='w-12 object-cover rounded-md' />
             </div>
           )}
-          <div className='w-full flex flex-col gap-10'>
-            <p className='text-c6 text-16'>{formatBibliography(props)}</p>
+          <div className='w-full flex flex-col gap-2.5'>
+            <p className='text-c6 text-base'>{formatBibliography(props)}</p>
           </div>
         </div>
       </Link>
-      <div className='flex flex-col h-full p-25'>
+      <div className='flex flex-col h-full p-6'>
         <AnnotationDropdown id={props.id} content={formatBibliography(props)} image={thumbnail} type='Bibliographie' />
       </div>
     </div>
@@ -210,13 +210,13 @@ export const BibliographyCard: React.FC<Bibliography & { uniqueKey?: number }> =
 
 export const BibliographySkeleton: React.FC = () => {
   return (
-    <div className='w-full flex flex-col justify-start rounded-12 items-start bg-c3 p-10 gap-10'>
-      <div className='w-full flex flex-col justify-start items-start gap-5'>
-        <div className='w-[30%] rounded-6 bg-gray-300 h-6'></div>
-        <div className='w-full rounded-6 bg-gray-300 h-4'></div>
-        <div className='w-[80%] rounded-6 bg-gray-300 h-4'></div>
+    <div className='w-full flex flex-col justify-start rounded-xl items-start bg-c3 p-2.5 gap-2.5'>
+      <div className='w-full flex flex-col justify-start items-start gap-1.5'>
+        <div className='w-[30%] rounded-md bg-gray-300 h-6'></div>
+        <div className='w-full rounded-md bg-gray-300 h-4'></div>
+        <div className='w-[80%] rounded-md bg-gray-300 h-4'></div>
       </div>
-      <div className='w-[30%] rounded-6 bg-gray-300 h-4'></div>
+      <div className='w-[30%] rounded-md bg-gray-300 h-4'></div>
     </div>
   );
 };
@@ -267,8 +267,8 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ sections = [], b
   }
 
   return (
-    <div className='w-full h-full overflow-hidden flex flex-col gap-20'>
-      <div className='flex flex-col gap-20 overflow-y-auto scroll-container'>
+    <div className='w-full h-full overflow-hidden flex flex-col gap-5'>
+      <div className='flex flex-col gap-5 overflow-y-auto scroll-container'>
         {loading ? (
           Array.from({ length: totalBibliographies }).map((_, index) => <BibliographySkeleton key={index} />)
         ) : (
@@ -278,8 +278,8 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ sections = [], b
               (section, sectionIndex) =>
                 section.bibliographies.length > 0 && (
                   <div key={sectionIndex}>
-                    {!notitle && <h2 className='text-16 text-c5 font-medium'>{section.title}</h2>}
-                    <div className='flex flex-col gap-10'>
+                    {!notitle && <h2 className='text-base text-c5 font-medium'>{section.title}</h2>}
+                    <div className='flex flex-col gap-2.5'>
                       {section.bibliographies.map((bibliography, index) => (
                         <BibliographyCard key={`${sectionIndex}-${index}`} {...bibliography} uniqueKey={index} />
                       ))}
@@ -299,11 +299,11 @@ export const Bibliographies: React.FC<BibliographiesProps> = ({ sections = [], b
 
 export const UnloadedCard: React.FC = () => {
   return (
-    <div className='w-full h-full flex flex-col justify-center items-center gap-20 mt-50'>
+    <div className='w-full h-full flex flex-col justify-center items-center gap-5 mt-12'>
       <FileIcon size={42} className='text-c6' />
-      <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
-        <h2 className='text-c6 text-32 font-semibold'>Oups !</h2>
-        <p className='text-c5 text-16 text-center'>Aucune bibliographie n'est liée à cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections.</p>
+      <div className='w-[80%] flex flex-col justify-center items-center gap-2.5'>
+        <h2 className='text-c6 text-3xl font-medium'>Oups !</h2>
+        <p className='text-c5 text-base text-center'>Aucune bibliographie n'est liée à cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections.</p>
       </div>
     </div>
   );

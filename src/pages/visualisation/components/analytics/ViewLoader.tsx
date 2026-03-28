@@ -37,9 +37,9 @@ export const ViewLoader: React.FC<ViewLoaderProps> = ({
   // État de chargement
   if (isLoading) {
     return (
-      <div className='flex-1 w-full h-full flex items-center justify-center bg-c1 p-20'>
-        <div className='flex flex-col items-center gap-12'>
-          <Skeleton className='w-[500px] h-[280px] rounded-12' />
+      <div className='flex-1 w-full h-full flex items-center justify-center bg-c1 p-5'>
+        <div className='flex flex-col items-center gap-3'>
+          <Skeleton className='w-[500px] h-[280px] rounded-xl' />
           {loadingMessage && <p className='text-c4 text-sm'>{loadingMessage}</p>}
         </div>
       </div>
@@ -49,10 +49,10 @@ export const ViewLoader: React.FC<ViewLoaderProps> = ({
   // État d'erreur
   if (error) {
     return (
-      <div className='flex-1 w-full h-full flex flex-col justify-center items-center gap-12 py-50 bg-c1'>
+      <div className='flex-1 w-full h-full flex flex-col justify-center items-center gap-3 py-12 bg-c1'>
         <div className='text-red-500'>{React.cloneElement(icon as React.ReactElement, { size: 42 })}</div>
         <div className='flex flex-col justify-center items-center gap-4'>
-          <h2 className='text-c6 text-xl font-semibold'>Erreur</h2>
+          <h2 className='text-c6 text-xl font-medium'>Erreur</h2>
           <p className='text-c4 text-sm text-center max-w-400'>{error}</p>
         </div>
       </div>
@@ -62,10 +62,10 @@ export const ViewLoader: React.FC<ViewLoaderProps> = ({
   // État vide
   if (isEmpty) {
     return (
-      <div className='flex-1 w-full h-full flex flex-col justify-center items-center gap-12 py-50 bg-c1'>
+      <div className='flex-1 w-full h-full flex flex-col justify-center items-center gap-3 py-12 bg-c1'>
         <div className='text-c4'>{React.cloneElement(icon as React.ReactElement, { size: 42 })}</div>
         <div className='flex flex-col justify-center items-center gap-4'>
-          <h2 className='text-c6 text-xl font-semibold'>{title}</h2>
+          <h2 className='text-c6 text-xl font-medium'>{title}</h2>
           <p className='text-c4 text-sm text-center max-w-400'>{emptyMessage}</p>
         </div>
       </div>

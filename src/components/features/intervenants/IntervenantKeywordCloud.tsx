@@ -76,13 +76,13 @@ export const IntervenantKeywordCloud: React.FC<IntervenantKeywordCloudProps> = (
   }
 
   return (
-    <div className="relative w-full h-[300px] overflow-hidden group rounded-20 border border-c3 bg-c1">
+    <div className="relative w-full h-[300px] overflow-hidden group rounded-3xl bg-c1">
       {/* Gradient Masks */}
-      <div className="absolute top-0 left-0 w-full h-60 bg-gradient-to-b from-c1 to-transparent z-[20] pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-full h-60 bg-gradient-to-t from-c1 to-transparent z-[20] pointer-events-none"></div>
+      <div className="absolute top-0 left-0 w-full h-14 bg-gradient-to-b from-c1 to-transparent z-[20] pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-full h-14 bg-gradient-to-t from-c1 to-transparent z-[20] pointer-events-none"></div>
 
       <div className="flex flex-col justify-center h-full w-full">
-         <div className="block text-center px-20 py-4 w-full overflow-hidden leading-[0.9] select-none">
+         <div className="block text-center px-5 py-4 w-full overflow-hidden leading-[0.9] select-none">
             {keywordStats.map((stat, index) => {
             const fontSize = getFontSize(stat.globalCount, maxGlobalCount);
             const isUsedByIntervenant = stat.localCount > 0;
@@ -97,15 +97,15 @@ export const IntervenantKeywordCloud: React.FC<IntervenantKeywordCloudProps> = (
                 <Tooltip 
                 key={`${stat.id}-${index}`}
                 content={
-                    <div className="p-10 gap-2 flex flex-col pointer-events-none ">
-                      <p className="text-16 font-bold uppercase">{stat.title}</p>
-                      <div className="flex flex-col gap-1">
+                    <div className="p-2.5 gap-2 flex flex-col pointer-events-none ">
+                      <p className="text-base font-bold uppercase">{stat.title}</p>
+                      <div className="flex flex-col gap-px">
                         {isUsedByIntervenant ? (
-                            <p className="text-12 text-c5">Utilisé {stat.localCount} fois par cet intervenant</p>
+                            <p className="text-xs text-c5">Utilisé {stat.localCount} fois par cet intervenant</p>
                         ) : (
-                            <p className="text-12 text-c5">Non utilisé par cet intervenant</p>
+                            <p className="text-xs text-c5">Non utilisé par cet intervenant</p>
                         )}
-                        <p className="text-10 opacity-60">Total global: {stat.globalCount}</p>
+                        <p className="text-[10px] opacity-60">Total global: {stat.globalCount}</p>
                       </div>
                     </div>
                 }
@@ -117,7 +117,7 @@ export const IntervenantKeywordCloud: React.FC<IntervenantKeywordCloudProps> = (
                     onClick={() => searchModalRef.current?.openWithSearch(stat.title)}
                     className={`
                         relative inline-block
-                        font-black uppercase tracking-tight 
+                        font-medium uppercase tracking-tight 
                         transition-all duration-300 ease-out
                         mx-[6px] my-0 align-middle
                         ${colorClass}

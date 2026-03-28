@@ -150,7 +150,7 @@ export const FormTabManager: React.FC<FormTabManagerProps> = ({ initialTabs = []
 
   if (tabs.length === 0) {
     return (
-      <div className='flex items-center justify-center h-64 bg-c2 rounded-12'>
+      <div className='flex items-center justify-center h-64 bg-c2 rounded-xl'>
         <p className='text-c4'>Aucun onglet ouvert</p>
       </div>
     );
@@ -159,7 +159,7 @@ export const FormTabManager: React.FC<FormTabManagerProps> = ({ initialTabs = []
   return (
     <div className='flex flex-col h-full'>
       {/* Tab bar */}
-      <div className='flex items-center gap-1 bg-c2 border-b border-c3 px-4 py-2 overflow-x-auto'>
+      <div className='flex items-center gap-px bg-c2 border-b border-c3 px-4 py-2 overflow-x-auto'>
         {tabs.map((tab) => (
           <div
             key={tab.id}
@@ -170,9 +170,9 @@ export const FormTabManager: React.FC<FormTabManagerProps> = ({ initialTabs = []
             `}
             onClick={() => switchTab(tab.id)}>
             <Tooltip content={tab.title}>
-              <span className='text-14 font-medium whitespace-nowrap'>
+              <span className='text-sm font-medium whitespace-nowrap'>
                 {getTruncatedTitle(tab.title)}
-                {tab.isDirty && <span className='text-action ml-1'>*</span>}
+                {tab.isDirty && <span className='text-action ml-px'>*</span>}
               </span>
             </Tooltip>
             <button
@@ -180,7 +180,7 @@ export const FormTabManager: React.FC<FormTabManagerProps> = ({ initialTabs = []
                 e.stopPropagation();
                 closeTab(tab.id);
               }}
-              className='p-1 rounded-full hover:bg-c5 hover:text-c1 transition-colors'>
+              className='p-px rounded-full hover:bg-c5 hover:text-c1 transition-colors'>
               <CrossIcon size={12} />
             </button>
           </div>

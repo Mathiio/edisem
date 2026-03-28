@@ -46,14 +46,14 @@ export default function HeaderImportButton({ onImport }: HeaderImportButtonProps
   return (
     <Popover isOpen={isOpen} onOpenChange={setIsOpen} placement='bottom-end'>
       <PopoverTrigger>
-        <Button size='sm' variant='bordered' className='border-c3 text-c6 hover:bg-c3 gap-5 h-[32px]'>
+        <Button size='sm' variant='bordered' className='border-c3 text-c6 hover:bg-c3 gap-1.5 h-[32px]'>
           <ImportIcon size={14} />
-          <span className='text-12'>Importer</span>
+          <span className='text-xs'>Importer</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='bg-c2 border-2 border-c3 rounded-8 p-2 w-fit'>
-        <div className='p-10 flex flex-col gap-10'>
-          <p className='text-13 text-c6 font-medium'>Importer une recherche</p>
+      <PopoverContent className='bg-c2 border-2 border-c3 rounded-lg p-2 w-fit'>
+        <div className='p-2.5 flex flex-col gap-2.5'>
+          <p className='text-sm text-c6 font-medium'>Importer une recherche</p>
           <Textarea
             value={textValue}
             onValueChange={setTextValue}
@@ -63,13 +63,13 @@ export default function HeaderImportButton({ onImport }: HeaderImportButtonProps
             placeholder='Coller votre configuration JSON ici...'
             classNames={{
               inputWrapper: 'bg-c3 border-2 border-c3 hover:bg-c3 group-data-[focus=true]:bg-c3',
-              input: 'text-c6 text-12',
-              base: 'rounded-6 w-[280px]',
+              input: 'text-c6 text-xs',
+              base: 'rounded-md w-[280px]',
             }}
           />
-          {importError && <p className='text-11 text-red-400'>{importError}</p>}
+          {importError && <p className='text-[11px] text-red-400'>{importError}</p>}
           <div className='flex justify-end'>
-            <Button size='sm' className='bg-action !text-c6 h-[28px] w-fit px-4 text-12' onPress={handleImport}>
+            <Button size='sm' className='bg-action !text-c6 h-[28px] w-fit px-4 text-xs' onPress={handleImport}>
               Lancer
             </Button>
           </div>

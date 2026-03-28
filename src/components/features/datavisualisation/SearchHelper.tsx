@@ -136,27 +136,27 @@ export const SearchHelper: React.FC<SearchHelperProps> = ({ onSearchItemClick })
       key={index}
       variants={itemVariants}
       onClick={() => handleConfigClick(item.config)}
-      className='cursor-pointer flex-1 flex flex-col border-200 border-2 hover:bg-c3 p-25 rounded-8 gap-10 transition-all ease-in-out duration-200'>
+      className='cursor-pointer flex-1 flex flex-col border-200 border-2 hover:bg-c3 p-6 rounded-lg gap-2.5 transition-all ease-in-out duration-200'>
       {item.title}
     </motion.div>
   );
 
   return (
-    <div className='flex  justify-center flex-col items-center gap-50'>
-      <div className='flex flex-col items-center gap-5'>
-        <div className='text-14'>Edisem - Datavisualisation</div>
-        <div className='text-32 font-medium'>Que recherchez vous ?</div>
+    <div className='flex  justify-center flex-col items-center gap-12'>
+      <div className='flex flex-col items-center gap-1.5'>
+        <div className='text-sm'>Edisem - Datavisualisation</div>
+        <div className='text-3xl font-medium'>Que recherchez vous ?</div>
       </div>
-      <div className='flex flex-col gap-25 items-center'>
+      <div className='flex flex-col gap-6 items-center'>
         <motion.div
-          className='w-[80%] flex flex-row gap-25'
+          className='w-[80%] flex flex-row gap-6'
           initial='hidden'
           animate='visible'
           variants={containerVariants}>
           {SEARCH_CONFIGURATIONS.slice(0, 3).map(renderSearchItem)}
         </motion.div>
         <motion.div
-          className='w-[80%] flex flex-row gap-25'
+          className='w-[80%] flex flex-row gap-6'
           initial='hidden'
           animate='visible'
           variants={containerVariants}>

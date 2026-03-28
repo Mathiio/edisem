@@ -837,12 +837,12 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
   const availableUsers = omekaUsers.filter((user) => !students.some((s) => s.omekaUserId === user.id) || user.id === linkingStudent?.omekaUserId);
 
   const Wrapper = embedded ? React.Fragment : Layouts;
-  const wrapperProps = embedded ? {} : { className: 'flex flex-col col-span-10 gap-25' };
+  const wrapperProps = embedded ? {} : { className: 'flex flex-col col-span-10 gap-6' };
 
   if (loading) {
     return (
       <Wrapper {...wrapperProps}>
-        <div className='flex flex-col gap-4 min-h-[400px] items-center justify-center py-20'>
+        <div className='flex flex-col gap-4 min-h-[400px] items-center justify-center py-5'>
           <Spinner color="current" className="text-c6" />
           <p className="text-c6">Chargement en cours...</p>
         </div>
@@ -856,8 +856,8 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
         {/* Header */}
         <div className='flex items-center justify-between'>
           <div>
-            <h1 className='text-28 font-semibold text-c6'>Gestion des Étudiants</h1>
-            <p className='text-14 text-c5 mt-1'>
+            <h1 className='text-3xl font-medium text-c6'>Gestion des Étudiants</h1>
+            <p className='text-sm text-c5 mt-px'>
               {students.length} étudiant{students.length > 1 ? 's' : ''} • {omekaUsers.length} utilisateur{omekaUsers.length > 1 ? 's' : ''} Omeka S
             </p>
           </div>
@@ -876,7 +876,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
 
         {/* Barre d'actions batch */}
         {selectedStudentIds.size > 0 && (
-          <div className='bg-c3 rounded-12 p-4 flex items-center justify-between'>
+          <div className='bg-c3 rounded-xl p-4 flex items-center justify-between'>
             <div className='flex items-center gap-3'>
               <span className='text-c6 font-medium'>
                 {selectedStudentIds.size} étudiant{selectedStudentIds.size > 1 ? 's' : ''} sélectionné{selectedStudentIds.size > 1 ? 's' : ''}
@@ -894,11 +894,11 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
         )}
 
         {/* Table des étudiants */}
-        <div className='bg-c2 rounded-12 p-20'>
+        <div className='bg-c2 rounded-xl p-5'>
           <Table
             aria-label='Liste des étudiants'
             classNames={{
-              wrapper: 'bg-transparent shadow-none rounded-12',
+              wrapper: 'bg-transparent shadow-none rounded-xl',
               th: 'bg-c3 text-c6 h-12 first:rounded-l-8 last:rounded-r-8',
               td: 'text-c6',
             }}>
@@ -936,7 +936,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                     </TableCell>
                     <TableCell>{student.studentNumber || <span className='text-c4'>-</span>}</TableCell>
                     <TableCell>
-                      <div className='flex flex-wrap gap-1 items-center'>
+                      <div className='flex flex-wrap gap-px items-center'>
                         {student.courses && student.courses.length > 0 ? (
                           <>
                             {student.courses.slice(0, 2).map((course) => (
@@ -944,8 +944,8 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                                 key={course.id}
                                 className={
                                   onNavigateToCourse
-                                    ? 'text-c6 border-2 border-c4 hover:text-c1 cursor-pointer transition-colors px-4 py-1.5 bg-c3 hover:bg-c4 rounded-8'
-                                    : 'text-c6 border-2 border-c4 px-4 py-1.5 bg-c3 rounded-8'
+                                    ? 'text-c6 border-2 border-c4 hover:text-c1 cursor-pointer transition-colors px-4 py-1.5 bg-c3 hover:bg-c4 rounded-lg'
+                                    : 'text-c6 border-2 border-c4 px-4 py-1.5 bg-c3 rounded-lg'
                                 }
                                 onClick={() => onNavigateToCourse?.(course.id)}>
                                 {course.code || course.title.substring(0, 12)}
@@ -967,12 +967,12 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                     <TableCell>{student.mail}</TableCell>
                     <TableCell>
                       {student.omekaUserId ? (
-                        <div className='flex flex-col gap-1'>
+                        <div className='flex flex-col gap-px'>
                           <Chip size='sm' color='success' variant='flat'>
                             ID: {student.omekaUserId}
                           </Chip>
                           {student.linkedUser && (
-                            <span className='text-c5 text-12'>
+                            <span className='text-c5 text-xs'>
                               {student.linkedUser.name} ({student.linkedUser.role})
                             </span>
                           )}
@@ -985,7 +985,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                     </TableCell>
                     <TableCell>
                       {hasSelection ? (
-                        <span className='text-c4 text-12 italic'>Sélection active</span>
+                        <span className='text-c4 text-xs italic'>Sélection active</span>
                       ) : (
                         <div className='flex items-center gap-2'>
                           <Button isIconOnly variant='flat' className='bg-c3' onPress={() => handleOpenCourses(student)} title='Gérer les cours'>
@@ -1070,7 +1070,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                     onChange={(e) => setFormData({ ...formData, createUser: e.target.checked })}
                     className='w-4 h-4'
                   />
-                  <label htmlFor='createUser' className='text-c6 text-14'>
+                  <label htmlFor='createUser' className='text-c6 text-sm'>
                     Créer automatiquement un compte utilisateur Omeka S
                   </label>
                 </div>
@@ -1078,8 +1078,8 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
               {/* Sélection des cours (uniquement en création) */}
               {!editingStudent && allCourses.length > 0 && (
                 <div className='flex flex-col gap-2'>
-                  <label className='text-c5 text-14'>Inscrire à des cours (optionnel)</label>
-                  <div className='flex flex-col gap-2 max-h-[150px] overflow-y-auto bg-c1 p-3 rounded-8'>
+                  <label className='text-c5 text-sm'>Inscrire à des cours (optionnel)</label>
+                  <div className='flex flex-col gap-2 max-h-[150px] overflow-y-auto bg-c1 p-3 rounded-lg'>
                     {allCourses.map((course) => {
                       const isSelected = formData.courseIds.includes(course.id);
                       return (
@@ -1092,7 +1092,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                               setFormData({ ...formData, courseIds: [...formData.courseIds, course.id] });
                             }
                           }}
-                          className={`flex items-center justify-between p-2 rounded-8 cursor-pointer transition-colors ${
+                          className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
                             isSelected ? 'bg-action/20 border border-action/30' : 'bg-c3 hover:bg-c4'
                           }`}>
                           <div className='flex items-center gap-2'>
@@ -1108,9 +1108,9 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                               size='sm'
                               classNames={{ wrapper: 'before:border-c4' }}
                             />
-                            <span className='text-c6 text-14'>{course.title}</span>
+                            <span className='text-c6 text-sm'>{course.title}</span>
                             {course.code && (
-                              <Chip size='sm' variant='flat' className='bg-c4 text-12'>
+                              <Chip size='sm' variant='flat' className='bg-c4 text-xs'>
                                 {course.code}
                               </Chip>
                             )}
@@ -1120,7 +1120,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                     })}
                   </div>
                   {formData.courseIds.length > 0 && (
-                    <p className='text-c5 text-12'>
+                    <p className='text-c5 text-xs'>
                       {formData.courseIds.length} cours sélectionné{formData.courseIds.length > 1 ? 's' : ''}
                     </p>
                   )}
@@ -1143,7 +1143,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
           <ModalContent className='bg-c2'>
             <ModalHeader className='text-c6'>Lier {linkingStudent?.title} à un utilisateur</ModalHeader>
             <ModalBody>
-              <p className='text-c5 text-14 mb-4'>
+              <p className='text-c5 text-sm mb-4'>
                 Sélectionnez l'utilisateur Omeka S à associer à cet étudiant. Cela permettra de définir le bon propriétaire lors de la création de ressources.
               </p>
               <div className='flex flex-col gap-2 max-h-[300px] overflow-y-auto'>
@@ -1154,12 +1154,12 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                     <div
                       key={user.id}
                       onClick={() => setSelectedUserId(user.id)}
-                      className={`flex items-center justify-between p-3 rounded-8 cursor-pointer transition-colors ${
+                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
                         selectedUserId === user.id ? 'bg-action/20 border-2 border-action' : 'bg-c3 hover:bg-c4'
                       }`}>
                       <div>
                         <p className='text-c6 font-medium'>{user.name}</p>
-                        <p className='text-c5 text-12'>{user.email}</p>
+                        <p className='text-c5 text-xs'>{user.email}</p>
                       </div>
                       <Chip size='sm' variant='flat'>
                         {user.role}
@@ -1191,19 +1191,19 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
           <ModalContent className='bg-c2'>
             <ModalHeader className='text-c6'>Importer des étudiants depuis un fichier CSV</ModalHeader>
             <ModalBody className='gap-4'>
-              <div className='bg-c3 p-4 rounded-8'>
-                <p className='text-c5 text-14 mb-2'>Format attendu (séparateur: virgule ou point-virgule):</p>
-                <code className='text-12 text-c6 bg-c1 p-2 rounded block'>Prenom,Nom,Email,NumeroEtudiant,...</code>
-                <p className='text-c4 text-12 mt-2'>Téléchargez le template CSV pour avoir le bon format.</p>
+              <div className='bg-c3 p-4 rounded-lg'>
+                <p className='text-c5 text-sm mb-2'>Format attendu (séparateur: virgule ou point-virgule):</p>
+                <code className='text-xs text-c6 bg-c1 p-2 rounded block'>Prenom,Nom,Email,NumeroEtudiant,...</code>
+                <p className='text-c4 text-xs mt-2'>Téléchargez le template CSV pour avoir le bon format.</p>
               </div>
 
               <div className='flex flex-col gap-2'>
-                <label className='text-c5 text-14'>Fichier CSV</label>
+                <label className='text-c5 text-sm'>Fichier CSV</label>
                 <input
                   type='file'
                   accept='.csv'
                   onChange={(e) => setImportFile(e.target.files?.[0] || null)}
-                  className='bg-c1 text-c6 p-3 rounded-8 border border-c3 file:mr-4 file:py-2 file:px-4 file:rounded-8 file:border-0 file:bg-action file:text-selected file:cursor-pointer'
+                  className='bg-c1 text-c6 p-3 rounded-lg border border-c3 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-action file:text-selected file:cursor-pointer'
                 />
               </div>
             </ModalBody>
@@ -1227,9 +1227,9 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
         {/* Modal Prévisualisation Import CSV */}
         <Modal isOpen={isPreviewModalOpen} onClose={handleClosePreview} size='5xl' scrollBehavior='inside'>
           <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6 flex flex-col gap-1'>
+            <ModalHeader className='text-c6 flex flex-col gap-px'>
               <span>Prévisualisation de l'import</span>
-              <span className='text-14 font-normal text-c5'>
+              <span className='text-sm font-normal text-c5'>
                 {previewRows.length} étudiant(s) trouvé(s) • {previewRows.filter((r) => r.selected).length} sélectionné(s) •{' '}
                 <span className='text-warning'>{previewRows.filter((r) => r.isDuplicate).length} doublon(s)</span>
               </span>
@@ -1254,7 +1254,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                   aria-label='Prévisualisation import CSV'
                   classNames={{
                     wrapper: 'bg-transparent shadow-none',
-                    th: 'bg-c3 text-c6 h-10 first:rounded-l-8 last:rounded-r-8',
+                    th: 'bg-c3 text-c6 h-2.5 first:rounded-l-8 last:rounded-r-8',
                     td: 'text-c6 py-2',
                   }}>
                   <TableHeader>
@@ -1291,7 +1291,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                               size='sm'
                               value={row.firstname}
                               onChange={(e) => handleUpdatePreviewRow(row.id, 'firstname', e.target.value)}
-                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-13' }}
+                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-sm' }}
                             />
                           ) : (
                             <span className='cursor-pointer hover:text-action' onClick={() => setEditingRowId(row.id)} title='Cliquer pour modifier'>
@@ -1305,7 +1305,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                               size='sm'
                               value={row.lastname}
                               onChange={(e) => handleUpdatePreviewRow(row.id, 'lastname', e.target.value)}
-                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-13' }}
+                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-sm' }}
                             />
                           ) : (
                             <span className='cursor-pointer hover:text-action' onClick={() => setEditingRowId(row.id)} title='Cliquer pour modifier'>
@@ -1319,7 +1319,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                               size='sm'
                               value={row.email}
                               onChange={(e) => handleUpdatePreviewRow(row.id, 'email', e.target.value)}
-                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-13' }}
+                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-sm' }}
                             />
                           ) : (
                             <span className='cursor-pointer hover:text-action' onClick={() => setEditingRowId(row.id)} title='Cliquer pour modifier'>
@@ -1333,7 +1333,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                               size='sm'
                               value={row.studentNumber}
                               onChange={(e) => handleUpdatePreviewRow(row.id, 'studentNumber', e.target.value)}
-                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-13' }}
+                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-sm' }}
                             />
                           ) : (
                             <span className='cursor-pointer hover:text-action' onClick={() => setEditingRowId(row.id)} title='Cliquer pour modifier'>
@@ -1343,11 +1343,11 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                         </TableCell>
                         <TableCell>
                           {row.courseId ? (
-                            <Chip size='sm' color='primary' variant='flat' className='text-12'>
+                            <Chip size='sm' color='primary' variant='flat' className='text-xs'>
                               {row.courseCode}
                             </Chip>
                           ) : row.courseCode ? (
-                            <Chip size='sm' color='danger' variant='flat' className='text-12' title='Cours non trouvé'>
+                            <Chip size='sm' color='danger' variant='flat' className='text-xs' title='Cours non trouvé'>
                               {row.courseCode} ?
                             </Chip>
                           ) : (
@@ -1356,15 +1356,15 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                         </TableCell>
                         <TableCell>
                           {row.isDuplicate ? (
-                            <Chip size='sm' color='warning' variant='flat' className='text-12'>
+                            <Chip size='sm' color='warning' variant='flat' className='text-xs'>
                               {row.duplicateReason}
                             </Chip>
                           ) : !row.firstname || !row.lastname || !row.email ? (
-                            <Chip size='sm' color='danger' variant='flat' className='text-12'>
+                            <Chip size='sm' color='danger' variant='flat' className='text-xs'>
                               Données manquantes
                             </Chip>
                           ) : (
-                            <Chip size='sm' color='success' variant='flat' className='text-12'>
+                            <Chip size='sm' color='success' variant='flat' className='text-xs'>
                               Prêt à importer
                             </Chip>
                           )}
@@ -1377,13 +1377,13 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
 
               {/* Zone de progression (visible pendant l'import) */}
               {importProgress.length > 0 && (
-                <div className='bg-c1 p-4 rounded-8 max-h-[150px] overflow-y-auto'>
-                  <p className='text-c5 text-12 mb-2 font-medium'>Progression:</p>
-                  <div className='flex flex-col gap-1'>
+                <div className='bg-c1 p-4 rounded-lg max-h-[150px] overflow-y-auto'>
+                  <p className='text-c5 text-xs mb-2 font-medium'>Progression:</p>
+                  <div className='flex flex-col gap-px'>
                     {importProgress.map((line, idx) => (
                       <p
                         key={idx}
-                        className={`text-12 ${line.startsWith('✓') ? 'text-success' : line.startsWith('✗') ? 'text-danger' : line.startsWith('⚠️') ? 'text-warning' : 'text-c5'}`}>
+                        className={`text-xs ${line.startsWith('✓') ? 'text-success' : line.startsWith('✗') ? 'text-danger' : line.startsWith('⚠️') ? 'text-warning' : 'text-c5'}`}>
                         {line}
                       </p>
                     ))}
@@ -1392,8 +1392,8 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
               )}
 
               {/* Info création utilisateur Omeka */}
-              <div className='bg-action/10 border border-action/30 p-3 rounded-8'>
-                <p className='text-c6 text-13'>Un compte utilisateur Omeka S sera automatiquement créé pour chaque étudiant importé.</p>
+              <div className='bg-action/10 border border-action/30 p-3 rounded-lg'>
+                <p className='text-c6 text-sm'>Un compte utilisateur Omeka S sera automatiquement créé pour chaque étudiant importé.</p>
               </div>
             </ModalBody>
             <ModalFooter>
@@ -1435,20 +1435,20 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                       <div
                         key={course.id}
                         onClick={() => !submitting && handleToggleCourse(course.id, isEnrolled)}
-                        className={`flex items-center justify-between p-4 rounded-12 transition-all cursor-pointer  ${isEnrolled ? 'bg-action/15 border-2 border-action' : 'bg-c3 border-2 border-transparent hover:border-c4'}`}>
+                        className={`flex items-center justify-between p-4 rounded-xl transition-all cursor-pointer  ${isEnrolled ? 'bg-action/15 border-2 border-action' : 'bg-c3 border-2 border-transparent hover:border-c4'}`}>
                         <div className='flex-1'>
                           <div className='flex items-center gap-3'>
-                            <p className='text-c6 font-semibold text-16'>{course.title}</p>
+                            <p className='text-c6 font-medium text-base'>{course.title}</p>
                             {course.code && (
-                              <Chip size='sm' variant='flat' className='bg-c6 text-c1 font-medium rounded-8 px-2'>
+                              <Chip size='sm' variant='flat' className='bg-c6 text-c1 font-medium rounded-lg px-2'>
                                 {course.code}
                               </Chip>
                             )}
                           </div>
-                          <p className='text-c5 text-13 mt-1'>{[course.level, course.session, course.year].filter(Boolean).join(' • ') || 'Aucune info'}</p>
+                          <p className='text-c5 text-sm mt-px'>{[course.level, course.session, course.year].filter(Boolean).join(' • ') || 'Aucune info'}</p>
                         </div>
                         <div
-                          className={`w-7 h-7 rounded-8 border-2 flex items-center justify-center transition-all ${isEnrolled ? 'bg-action border-action' : 'bg-transparent border-c4'}`}>
+                          className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${isEnrolled ? 'bg-action border-action' : 'bg-transparent border-c4'}`}>
                           {isEnrolled && (
                             <svg className='w-4 h-4 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={3}>
                               <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
@@ -1460,7 +1460,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                   })}
                 </div>
               )}
-              <p className='text-c4 text-12 mt-4'>
+              <p className='text-c4 text-xs mt-4'>
                 {studentCourseIds.length} cours sélectionné{studentCourseIds.length !== 1 ? 's' : ''}
               </p>
             </ModalBody>

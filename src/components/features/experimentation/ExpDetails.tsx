@@ -91,18 +91,18 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
   // Mode édition
   if (isEditing) {
     return (
-      <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
-        <motion.div variants={itemVariants} className='flex flex-col bg-c2 p-25 rounded-8 gap-20'>
+      <motion.div className='w-full flex flex-col gap-6' initial='hidden' animate='visible' variants={containerVariants}>
+        <motion.div variants={itemVariants} className='flex flex-col bg-c2 p-6 rounded-lg gap-5'>
           {/* Date */}
           <div className='flex flex-col gap-2'>
-            <label className='text-14 text-c5 font-medium'>Date</label>
+            <label className='text-sm text-c5 font-medium'>Date</label>
             <DatePicker
               aria-label="Date de l'expérimentation"
               value={parsedDate as any}
               onChange={handleDateChange}
               classNames={{
                 base: 'w-full',
-                inputWrapper: 'bg-c1 border border-c3 rounded-8',
+                inputWrapper: 'bg-c1 border border-c3 rounded-lg',
                 input: 'text-c6',
               }}
             />
@@ -110,7 +110,7 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
 
           {/* Description */}
           <div className='flex flex-col gap-2'>
-            <label className='text-14 text-c5 font-medium'>Description</label>
+            <label className='text-sm text-c5 font-medium'>Description</label>
             <Textarea
               aria-label="Description de l'expérimentation"
               value={description || ''}
@@ -118,8 +118,8 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
               placeholder='Décrivez votre expérimentation...'
               minRows={4}
               classNames={{
-                inputWrapper: 'bg-c1 border border-c3 rounded-8',
-                input: 'text-c6 text-16',
+                inputWrapper: 'bg-c1 border border-c3 rounded-lg',
+                input: 'text-c6 text-base',
               }}
             />
           </div>
@@ -127,8 +127,8 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
           {/* Slider d'avancement */}
           <div className='flex flex-col gap-2'>
             <div className='flex justify-between items-center'>
-              <label className='text-14 text-c5 font-medium'>Avancement</label>
-              <span className='text-14 text-c6 font-semibold'>{percentage}%</span>
+              <label className='text-sm text-c5 font-medium'>Avancement</label>
+              <span className='text-sm text-c6 font-medium'>{percentage}%</span>
             </div>
             <Slider
               aria-label="Pourcentage d'avancement"
@@ -144,7 +144,7 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
                 thumb: 'bg-action',
               }}
             />
-            <div className='flex justify-between text-12 text-c4'>
+            <div className='flex justify-between text-xs text-c4'>
               <span>0%</span>
               <span>50%</span>
               <span>100%</span>
@@ -153,11 +153,11 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
 
           {/* Actants */}
           <div className='flex flex-col gap-2'>
-            <label className='text-14 text-c5 font-medium'>Contributeurs</label>
+            <label className='text-sm text-c5 font-medium'>Contributeurs</label>
             <div className='flex flex-wrap gap-2 items-center'>
               {actants &&
                 actants.map((actant: any, index: number) => (
-                  <span key={actant.id || index} className='px-3 py-1 bg-c3 text-c6 rounded-8 text-14'>
+                  <span key={actant.id || index} className='px-3 py-px bg-c3 text-c6 rounded-lg text-sm'>
                     {actant.name || actant.firstname + ' ' + actant.lastname}
                   </span>
                 ))}
@@ -173,19 +173,19 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
 
   // Mode affichage (inchangé)
   return (
-    <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
+    <motion.div className='w-full flex flex-col gap-6' initial='hidden' animate='visible' variants={containerVariants}>
       <motion.div
         variants={itemVariants}
-        className='cursor-pointer flex flex-col bg-c2 hover:bg-c3 p-25 rounded-8 gap-10 transition-all ease-in-out duration-200'
+        className='cursor-pointer flex flex-col bg-c2 hover:bg-c3 p-6 rounded-lg gap-2.5 transition-all ease-in-out duration-200'
         onClick={toggleExpansion}>
-        <h3 className='text-16 text-c5 font-medium'>{date}</h3>
+        <h3 className='text-base text-c5 font-medium'>{date}</h3>
         <p
-          className={`text-16 text-c4 font-extralight transition-all ease-in-out duration-200 gap-10 ${expanded ? '' : 'line-clamp-3'}`}
+          className={`text-base text-c4 font-normal transition-all ease-in-out duration-200 gap-2.5 ${expanded ? '' : 'line-clamp-3'}`}
           style={{ lineHeight: '120%' }}>
           {description}
         </p>
         {actants && actants.length > 0 && (
-          <p className='text-14 text-end text-c4 italic transition-all ease-in-out duration-200'>
+          <p className='text-sm text-end text-c4 italic transition-all ease-in-out duration-200'>
             Ajouté par : {actants.map((actant: any) => {
               const name = actant.name || `${actant.firstname} ${actant.lastname}`;
               const uni = actant.universities?.[0] ? ` (${actant.universities[0]})` : '';
@@ -193,7 +193,7 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
             }).join(', ')}
           </p>
         )}
-        <p className='text-16 text-c5 font-semibold transition-all ease-in-out duration-200'>{expanded ? 'affichez moins' : '...affichez plus'}</p>
+        <p className='text-base text-c5 font-medium transition-all ease-in-out duration-200'>{expanded ? 'affichez moins' : '...affichez plus'}</p>
       </motion.div>
     </motion.div>
   );
@@ -201,21 +201,21 @@ export const ExpDetailsCard: React.FC<ExpDetailsProps> = ({
 
 export const ExpDetailsSkeleton: React.FC = () => {
   return (
-    <div className='flex w-full flex-col gap-10 p-25 bg-c2 rounded-8'>
+    <div className='flex w-full flex-col gap-2.5 p-6 bg-c2 rounded-lg'>
       {/* Header skeleton (date + edition) */}
-      <div className='w-[50%] h-4 bg-c3 rounded-6 animate-pulse' />
+      <div className='w-1/2 h-4 bg-c3 rounded-md animate-pulse' />
       
       {/* Description lines skeleton */}
-      <div className='flex flex-col gap-5'>
-        <div className='w-[100%] h-4 bg-c3 rounded-6 animate-pulse' />
-        <div className='w-[100%] h-4 bg-c3 rounded-6 animate-pulse' />
-        <div className='w-[100%] h-4 bg-c3 rounded-6 animate-pulse' />
-        <div className='w-[90%] h-4 bg-c3 rounded-6 animate-pulse' />
-        <div className='w-[75%] h-4 bg-c3 rounded-6 animate-pulse' />
+      <div className='flex flex-col gap-1.5'>
+        <div className='w-full h-4 bg-c3 rounded-md animate-pulse' />
+        <div className='w-full h-4 bg-c3 rounded-md animate-pulse' />
+        <div className='w-full h-4 bg-c3 rounded-md animate-pulse' />
+        <div className='w-[90%] h-4 bg-c3 rounded-md animate-pulse' />
+        <div className='w-3/4 h-4 bg-c3 rounded-md animate-pulse' />
       </div>
       
       {/* Expand button skeleton */}
-      <div className='w-[20%] h-4 bg-c3 rounded-6 animate-pulse' />
+      <div className='w-[20%] h-4 bg-c3 rounded-md animate-pulse' />
     </div>
   );
 };

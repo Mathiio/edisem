@@ -99,9 +99,9 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
   };
 
   return (
-    <div className='rounded-8 h-full overflow-hidden'>
+    <div className='rounded-lg h-full overflow-hidden'>
       <div className='flex flex-col items-start'>
-        <div className='flex items-center bg-c3 rounded-8 p-10 w-full mb-4'>
+        <div className='flex items-center bg-c3 rounded-lg p-2.5 w-full mb-4'>
           <FiSearch className='text-gray-400' size={20} />
           <input
             type='text'
@@ -121,7 +121,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
             <Button
               key={filter}
               onClick={() => toggleFilter(filter)}
-              className={`rounded-8 py-1.5 px-2
+              className={`rounded-lg py-1.5 px-2
               ${selectedFilters.has(filter) ? 'bg-action text-white' : 'bg-c3 text-black'}
               hover:bg-hover transition-all`}>
               {filterLabels[filter] || filter}
@@ -130,17 +130,17 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ itemsDataviz, onSearch, onIte
         />
       </div>
 
-      <div className='mt-20 h-full overflow-y-auto'>
+      <div className='mt-5 h-full overflow-y-auto'>
         {searchTerm.trim() === '' ? (
           <p className='text-gray-400 text-start'>Tapez quelque chose pour commencer</p>
         ) : searchResults.length > 0 ? (
-          <ul className='flex flex-col gap-5'>
+          <ul className='flex flex-col gap-1.5'>
             {searchResults.map((item, index) => (
               <li
                 key={index}
-                className='w-full flex justify-between gap-10 items-center rounded-8 hover:bg-c4 cursor-pointer p-5'
+                className='w-full flex justify-between gap-2.5 items-center rounded-lg hover:bg-c4 cursor-pointer p-1.5'
                 onClick={() => handleItemSelect(item)}>
-                <span className='text-14'>{truncateText(item.title, 2, 40)}</span>
+                <span className='text-sm'>{truncateText(item.title, 2, 40)}</span>
                 <span className='text-[10px]'>{item.type}</span>
               </li>
             ))}

@@ -37,7 +37,7 @@ export default function DrawerDataviz() {
               <div className='flex justify-between items-center mb-6'>
                 <h2 className='text-lg font-bold'>Menu</h2>
                 <button onClick={toggleDrawer} className='p-2 rounded hover:bg-c2 transition'>
-                  <SunIcon className='w-5 h-5' />
+                  <SunIcon className='w-px.5 h-px.5' />
                 </button>
               </div>
 

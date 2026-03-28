@@ -340,12 +340,12 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
   const unlinkedCount = actants.length - linkedCount;
 
   const Wrapper = embedded ? React.Fragment : Layouts;
-  const wrapperProps = embedded ? {} : { className: 'flex flex-col col-span-10 gap-25' };
+  const wrapperProps = embedded ? {} : { className: 'flex flex-col col-span-10 gap-6' };
 
   if (loading) {
     return (
       <Wrapper {...wrapperProps}>
-        <div className='flex flex-col gap-4 min-h-[400px] items-center justify-center py-20'>
+        <div className='flex flex-col gap-4 min-h-[400px] items-center justify-center py-5'>
           <Spinner color="current" className="text-c6" />
           <p className="text-c6">Chargement en cours...</p>
         </div>
@@ -359,15 +359,15 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
         {/* Header */}
         <div className='flex items-center justify-between'>
           <div>
-            <h1 className='text-28 font-semibold text-c6'>Gestion des Actants</h1>
-            <p className='text-14 text-c5 mt-1'>
+            <h1 className='text-3xl font-medium text-c6'>Gestion des Actants</h1>
+            <p className='text-sm text-c5 mt-px'>
               {actants.length} actant{actants.length > 1 ? 's' : ''} (template 72) | {linkedCount} lié{linkedCount > 1 ? 's' : ''} | {unlinkedCount} non lié
               {unlinkedCount > 1 ? 's' : ''}
             </p>
           </div>
           <div className='flex gap-2 items-center'>
             <Chip variant='flat' className='bg-c3 text-c5'>
-              <UserIcon size={14} className='mr-1' />
+              <UserIcon size={14} className='mr-px' />
               {omekaUsers.length} utilisateur{omekaUsers.length > 1 ? 's' : ''} Omeka S
             </Chip>
             <Button
@@ -384,19 +384,19 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
         </div>
 
         {/* Info box */}
-        <div className='bg-action/10 border-2 border-action/30 rounded-12 p-15'>
-          <p className='text-c6 text-14'>
+        <div className='bg-action/10 border-2 border-action/30 rounded-xl p-4'>
+          <p className='text-c6 text-sm'>
             Les actants sont les enseignants, chercheurs et contributeurs (items template 72). Pour qu'un actant puisse créer des ressources avec son propre compte, il doit être
             lié à un utilisateur Omeka S. Vous pouvez lier un actant à un utilisateur existant ou créer un nouvel utilisateur.
           </p>
         </div>
 
         {/* Table des actants */}
-        <div className='bg-c2 rounded-12 p-20'>
+        <div className='bg-c2 rounded-xl p-5'>
           <Table
             aria-label='Liste des actants'
             classNames={{
-              wrapper: 'bg-transparent shadow-none rounded-12',
+              wrapper: 'bg-transparent shadow-none rounded-xl',
               th: 'bg-c3 text-c6 h-12 first:rounded-l-8 last:rounded-r-8',
               td: 'text-c6',
             }}>
@@ -414,18 +414,18 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                       <Avatar src={actant.picture || undefined} name={actant.title} size='sm' className='bg-c4' />
                       <div className='flex flex-col'>
                         <span className='font-medium'>{actant.title || `${actant.firstname} ${actant.lastname}`.trim() || 'Sans nom'}</span>
-                        <span className='text-c4 text-12'>Item #{actant.id}</span>
+                        <span className='text-c4 text-xs'>Item #{actant.id}</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>{actant.mail || <span className='text-c4'>-</span>}</TableCell>
                   <TableCell>
                     {actant.omekaUserId ? (
-                      <div className='flex flex-col gap-1'>
+                      <div className='flex flex-col gap-px'>
                         <Chip size='sm' color='success' variant='flat'>
                           ID: {actant.omekaUserId}
                         </Chip>
-                        <span className='text-c5 text-12'>
+                        <span className='text-c5 text-xs'>
                           {actant.omekaUserName} ({actant.omekaUserRole})
                         </span>
                       </div>
@@ -465,19 +465,19 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
               <div className='flex gap-2 border-b border-c3 pb-2'>
                 <button
                   onClick={() => setLinkMode('link')}
-                  className={`px-4 py-2 rounded-t-8 text-14 transition-colors ${linkMode === 'link' ? 'bg-action text-selected' : 'bg-c3 text-c5 hover:bg-c4'}`}>
+                  className={`px-4 py-2 rounded-t-8 text-sm transition-colors ${linkMode === 'link' ? 'bg-action text-selected' : 'bg-c3 text-c5 hover:bg-c4'}`}>
                   Utilisateur existant
                 </button>
                 <button
                   onClick={() => setLinkMode('create')}
-                  className={`px-4 py-2 rounded-t-8 text-14 transition-colors ${linkMode === 'create' ? 'bg-action text-selected' : 'bg-c3 text-c5 hover:bg-c4'}`}>
+                  className={`px-4 py-2 rounded-t-8 text-sm transition-colors ${linkMode === 'create' ? 'bg-action text-selected' : 'bg-c3 text-c5 hover:bg-c4'}`}>
                   Créer un utilisateur
                 </button>
               </div>
 
               {linkMode === 'link' ? (
                 <>
-                  <p className='text-c5 text-14'>Sélectionnez l'utilisateur Omeka S à associer à cet actant.</p>
+                  <p className='text-c5 text-sm'>Sélectionnez l'utilisateur Omeka S à associer à cet actant.</p>
                   <div className='flex flex-col gap-2 max-h-[300px] overflow-y-auto'>
                     {availableUsers.length === 0 ? (
                       <p className='text-c4 text-center py-4'>Aucun utilisateur disponible</p>
@@ -486,12 +486,12 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                         <div
                           key={user.id}
                           onClick={() => setSelectedUserId(user.id)}
-                          className={`flex items-center justify-between p-3 rounded-8 cursor-pointer transition-colors ${
+                          className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
                             selectedUserId === user.id ? 'bg-action/20 border-2 border-action' : 'bg-c3 hover:bg-c4'
                           }`}>
                           <div>
                             <p className='text-c6 font-medium'>{user.name}</p>
-                            <p className='text-c5 text-12'>{user.email}</p>
+                            <p className='text-c5 text-xs'>{user.email}</p>
                           </div>
                           <Chip size='sm' variant='flat' className={user.role === 'admin' || user.role === 'global_admin' ? 'bg-action/20 text-action' : 'bg-c3'}>
                             {user.role}
@@ -503,7 +503,7 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                 </>
               ) : (
                 <>
-                  <p className='text-c5 text-14'>Créez un nouvel utilisateur Omeka S qui sera automatiquement lié à cet actant.</p>
+                  <p className='text-c5 text-sm'>Créez un nouvel utilisateur Omeka S qui sera automatiquement lié à cet actant.</p>
                   <Input
                     label='Email'
                     placeholder='email@exemple.com'
@@ -550,7 +550,7 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                       Administrateur (admin)
                     </SelectItem>
                   </Select>
-                  <p className='text-c4 text-12'>Un mot de passe temporaire sera généré. L'utilisateur devra le réinitialiser via Omeka S.</p>
+                  <p className='text-c4 text-xs'>Un mot de passe temporaire sera généré. L'utilisateur devra le réinitialiser via Omeka S.</p>
                 </>
               )}
             </ModalBody>
@@ -576,14 +576,14 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
           <ModalContent className='bg-c2'>
             <ModalHeader className='text-c6'>Import batch d'actants</ModalHeader>
             <ModalBody className='gap-4'>
-              <p className='text-c5 text-14'>Collez une liste d'actants avec leurs emails. Chaque ligne créera un actant et un utilisateur Omeka S.</p>
-              <div className='bg-c3 rounded-8 p-10'>
-                <p className='text-c4 text-12 mb-2'>Formats supportés :</p>
-                <code className='text-c5 text-12 block'>Prénom Nom &lt;email@domain.com&gt;</code>
-                <code className='text-c5 text-12 block'>Nom, Prénom &lt;email@domain.com&gt;</code>
+              <p className='text-c5 text-sm'>Collez une liste d'actants avec leurs emails. Chaque ligne créera un actant et un utilisateur Omeka S.</p>
+              <div className='bg-c3 rounded-lg p-2.5'>
+                <p className='text-c4 text-xs mb-2'>Formats supportés :</p>
+                <code className='text-c5 text-xs block'>Prénom Nom &lt;email@domain.com&gt;</code>
+                <code className='text-c5 text-xs block'>Nom, Prénom &lt;email@domain.com&gt;</code>
               </div>
               <textarea
-                className='w-full h-[200px] bg-c1 border-2 border-c3 rounded-8 p-10 text-c6 text-14 resize-none focus:outline-none focus:border-action'
+                className='w-full h-[200px] bg-c1 border-2 border-c3 rounded-lg p-2.5 text-c6 text-sm resize-none focus:outline-none focus:border-action'
                 placeholder={`Maxime Girard <maxime.girard@example.com>\nJean-Marc Larrue <jean-marc.larrue@example.com>\nRichert, Fabien <fabien.richert@example.com>`}
                 value={batchInput}
                 onChange={(e) => setBatchInput(e.target.value)}
@@ -617,12 +617,12 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
               {/* Résultats */}
               {batchResults.length > 0 && (
                 <div className='flex flex-col gap-2 max-h-[200px] overflow-y-auto'>
-                  <p className='text-c5 text-14 font-medium'>Résultats :</p>
+                  <p className='text-c5 text-sm font-medium'>Résultats :</p>
                   {batchResults.map((result, idx) => (
-                    <div key={idx} className={`flex items-center justify-between p-2 rounded-8 ${result.success ? 'bg-success/20' : 'bg-danger/20'}`}>
+                    <div key={idx} className={`flex items-center justify-between p-2 rounded-lg ${result.success ? 'bg-success/20' : 'bg-danger/20'}`}>
                       <div>
-                        <p className='text-c6 text-14'>{result.name}</p>
-                        <p className='text-c5 text-12'>{result.email}</p>
+                        <p className='text-c6 text-sm'>{result.name}</p>
+                        <p className='text-c5 text-xs'>{result.email}</p>
                       </div>
                       {result.success ? (
                         <Chip size='sm' color='success' variant='flat'>
@@ -658,12 +658,12 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                 Êtes-vous sûr de vouloir supprimer l'actant <span className='text-c6 font-medium'>"{actantToDelete?.title}"</span> ?
               </p>
               {actantToDelete?.omekaUserId && (
-                <div className='mt-4 p-3 bg-c3 rounded-8'>
+                <div className='mt-4 p-3 bg-c3 rounded-lg'>
                   <label className='flex items-center gap-2 cursor-pointer'>
                     <input type='checkbox' checked={deleteUserToo} onChange={(e) => setDeleteUserToo(e.target.checked)} className='w-4 h-4 accent-action' />
-                    <span className='text-c6 text-14'>Supprimer aussi l'utilisateur Omeka S ({actantToDelete.omekaUserName})</span>
+                    <span className='text-c6 text-sm'>Supprimer aussi l'utilisateur Omeka S ({actantToDelete.omekaUserName})</span>
                   </label>
-                  <p className='text-c4 text-12 mt-2'>L'utilisateur sera supprimé uniquement s'il n'a pas d'autres ressources.</p>
+                  <p className='text-c4 text-xs mt-2'>L'utilisateur sera supprimé uniquement s'il n'a pas d'autres ressources.</p>
                 </div>
               )}
             </ModalBody>
@@ -727,7 +727,7 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                 }}
               />
               {editingActant?.omekaUserId && (
-                <p className='text-c4 text-12'>
+                <p className='text-c4 text-xs'>
                   Lié à l'utilisateur Omeka S : {editingActant.omekaUserName} (ID: {editingActant.omekaUserId})
                 </p>
               )}

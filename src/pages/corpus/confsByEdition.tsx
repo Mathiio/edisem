@@ -48,20 +48,20 @@ export const Edition: React.FC = () => {
   }, [id]);
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-100'>
-      <div className='pt-100 justify-center flex items-center flex-col gap-20 relative'>
-        <div className='gap-20 justify-between flex items-center flex-col'>
+    <Layouts className='col-span-10 flex flex-col gap-24'>
+      <div className='pt-24 justify-center flex items-center flex-col gap-5 relative'>
+        <div className='gap-5 justify-between flex items-center flex-col'>
           {loading ?
             <>
-              <Skeleton className='w-[850px] h-60 rounded-8' />
-              <Skeleton className='w-[650px] h-60 rounded-8' />
+              <Skeleton className='w-[850px] h-14 rounded-lg' />
+              <Skeleton className='w-[650px] h-14 rounded-lg' />
             </>
           : 
-            <h1 className='z-[12] text-64 text-c6 font-medium flex text-center flex-col items-center max-w-[850px]'>
+            <h1 className='z-[12] text-6xl text-c6 font-medium flex text-center flex-col items-center max-w-[850px]'>
             {edition?.title}
           </h1>
           }
-          <p className='text-c5 text-16 z-[12] text-center max-w-[600px]'>
+          <p className='text-c5 text-base z-[12] text-center max-w-[600px]'>
             {edition?.editionType ? edition.editionType.charAt(0).toUpperCase() + edition.editionType.slice(1) : ''} Edisem - Édition {edition?.season} {edition?.year}
           </p>
           <motion.div
@@ -76,7 +76,7 @@ export const Edition: React.FC = () => {
           </motion.div>
         </div>
       </div>
-      <div className='grid grid-cols-4 grid-rows-3 gap-25'>
+      <div className='grid grid-cols-4 grid-rows-3 gap-6'>
         {loading
           ? Array.from({ length: 12 }).map((_, index) => <ResourceCardSkeleton key={index} />)
           : conferences.length > 0 ? (
@@ -86,7 +86,7 @@ export const Edition: React.FC = () => {
                 </motion.div>
               ))
           ) : (
-             <div className="col-span-4 text-center text-c5 py-20">Aucune conférence trouvée pour cette édition.</div>
+             <div className="col-span-4 text-center text-c5 py-5">Aucune conférence trouvée pour cette édition.</div>
           )
         }
       </div>

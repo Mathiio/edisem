@@ -49,29 +49,29 @@ export const Intervenant: React.FC = () => {
   }, [id, fetchActantData]);
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-100'>
+    <Layouts className='col-span-10 flex flex-col gap-24'>
       <DynamicBreadcrumbs itemTitle={breadcrumbTitle} />
-      <div className='flex flex-col items-center gap-75'>
+      <div className='flex flex-col items-center gap-20'>
         {loading ? (
-          <div className='gap-20 w-full flex flex-col items-center'>
-            <Skeleton className="rounded-18 w-100 h-100 bg-c2" />
-            <div className='flex flex-col items-center gap-10 w-full'>
-              <Skeleton className="w-[400px] h-60 rounded-10 bg-c3" />
-              <Skeleton className="rounded-10 w-[200px] h-6 bg-c3" />
+          <div className='gap-5 w-full flex flex-col items-center'>
+            <Skeleton className="rounded-2xl w-24 h-24 bg-c2" />
+            <div className='flex flex-col items-center gap-2.5 w-full'>
+              <Skeleton className="w-[400px] h-14 rounded-lg bg-c3" />
+              <Skeleton className="rounded-lg w-[200px] h-6 bg-c3" />
             </div>
           </div>
         ) : (
-          <div className='gap-20 text-c6 w-full flex flex-col items-center'>
+          <div className='gap-5 text-c6 w-full flex flex-col items-center'>
             {actant?.picture ? (
-              <img className='w-100 h-100 object-cover rounded-18' src={actant.picture} alt='' />
+              <img className='w-24 h-24 object-cover rounded-2xl' src={actant.picture} alt='' />
             ) : (
-              <div className='w-100 h-100 rounded-18 object-cover flex items-center justify-center bg-c3'>
+              <div className='w-24 h-24 rounded-2xl object-cover flex items-center justify-center bg-c3'>
                 <UserIcon size={40} className='text-c6' />
               </div>
             )}
-            <Link isExternal className='flex flex-col items-center gap-10' href={actant?.url || '#'}>
-              <h1 className='text-64 font-medium text-c6'>{actant?.firstname} {actant?.lastname}</h1>
-              <p className='text-16 text-c6'>{actant?.interventions} participations</p>
+            <Link isExternal className='flex flex-col items-center gap-2.5' href={actant?.url || '#'}>
+              <h1 className='text-6xl font-medium text-c6'>{actant?.firstname} {actant?.lastname}</h1>
+              <p className='text-base text-c6'>{actant?.interventions} participations</p>
             </Link>
           </div>
         )}
@@ -93,10 +93,10 @@ export const Intervenant: React.FC = () => {
       )}
 
       {/* Proximity Graph */}
-      <div className='w-full flex flex-col items-center gap-50'>
+      <div className='w-full flex flex-col items-center gap-12'>
         <div className='flex flex-col gap-2 justify-center items-center'>
-          <h2 className='text-c6 text-32 transition-all ease-in-out'>Réseau de proximité</h2>
-          <p className='text-16 text-c5'>Explorez les intervenants qui partagent des thématiques similaires.</p>
+          <h2 className='text-c6 text-3xl transition-all ease-in-out'>Réseau de proximité</h2>
+          <p className='text-base text-c5'>Explorez les intervenants qui partagent des thématiques similaires.</p>
         </div>
         <IntervenantNetwork currentActantId={id!} />
       </div>

@@ -55,14 +55,14 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
   };
 
   return (
-    <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
+    <motion.div className='w-full flex flex-col gap-6' initial='hidden' animate='visible' variants={containerVariants}>
       <motion.div variants={itemVariants} className=' lg:w-full overflow-hidden relative'>
         {medias && medias.length > 0 ? (
-          <div className='flex flex-col gap-10'>
+          <div className='flex flex-col gap-2.5'>
             <MediaViewer
               src={medias[currentMediaIndex]}
               alt={`Média ${currentMediaIndex + 1}`}
-              className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] rounded-12 overflow-hidden'
+              className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] rounded-xl overflow-hidden'
               isVideo={(() => {
                 const currentMedia = medias[currentMediaIndex];
                 if (typeof currentMedia === 'string') {
@@ -86,7 +86,7 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                 }}
                 hasTrack={false}
                 aria-label='...'
-                className='flex w-full justify-between items-center gap-25'>
+                className='flex w-full justify-between items-center gap-6'>
                 <SplideTrack className='w-full'>
                   {medias.map((media, index) => {
                     // Obtenir la thumbnail appropriée
@@ -116,7 +116,7 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                       <SplideSlide key={index}>
                         <button
                           onClick={() => setCurrentMediaIndex(index)}
-                          className={`flex-shrink-0 w-[136px] h-[60px] rounded-12 overflow-hidden transition-all duration-200 ${
+                          className={`flex-shrink-0 w-[136px] h-[60px] rounded-xl overflow-hidden transition-all duration-200 ${
                             index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
                           }`}>
                           <div className='relative w-full h-full'>
@@ -138,7 +138,7 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                   })}
                 </SplideTrack>
                 <div className=' flex justify-between items-center'>
-                  <div className='splide__arrows relative flex gap-10'>
+                  <div className='splide__arrows relative flex gap-2.5'>
                     <Button
                       size='sm'
                       className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
@@ -159,17 +159,17 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
         )}
       </motion.div>
 
-      <motion.div variants={itemVariants} className={`w-full flex flex-col ${!Array.isArray(personnes) ? 'gap-0' : 'gap-25'}`}>
-        <div className='flex items-center gap-15 justify-between'>
-          <div className='flex items-center gap-15'>
-            <h1 className='font-medium text-c6 text-24'>{title}</h1>
-            {type && <span className='text-14 w-fit text-c5 px-10 py-5 bg-c2 rounded-8 border border-c3 whitespace-nowrap'>{type}</span>}
+      <motion.div variants={itemVariants} className={`w-full flex flex-col ${!Array.isArray(personnes) ? 'gap-0' : 'gap-6'}`}>
+        <div className='flex items-center gap-4 justify-between'>
+          <div className='flex items-center gap-4'>
+            <h1 className='font-medium text-c6 text-2xl'>{title}</h1>
+            {type && <span className='text-sm w-fit text-c5 px-2.5 py-1.5 bg-c2 rounded-lg border border-c3 whitespace-nowrap'>{type}</span>}
           </div>
           {(!Array.isArray(personnes) || personnes.length === 0) && (
-            <div className='w-fit flex justify-between gap-10 items-center'>
+            <div className='w-fit flex justify-between gap-2.5 items-center'>
               <Button
                 size='md'
-                className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                className='text-base h-auto px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
                 onClick={copyToClipboard}
                 onPress={() => {
                   addToast({
@@ -189,7 +189,7 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                 (fullUrl !== undefined && (
                   <Button
                     size='md'
-                    className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                    className='text-base h-auto px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
                     onClick={() => window.open(fullUrl, '_blank')}>
                     <MovieIcon size={12} />
                     {buttonText}
@@ -199,7 +199,7 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
               {((Array.isArray(credits) && credits.length > 0) || (typeof credits === 'string' && credits.trim() !== '')) && (
                 <Button
                   size='md'
-                  className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                  className='text-base h-auto px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
                   onClick={() => {
                     if (typeof credits === 'string') {
                       window.open(credits, '_blank');
@@ -218,69 +218,78 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
             </div>
           )}
         </div>
-        <div className='w-full flex flex-col gap-10'>
-          <div className='w-full flex justify-between gap-10 items-center'>
-            <div className='w-fit flex justify-start gap-10 items-center'>
+        <div className='w-full flex flex-col gap-2.5'>
+          <div className='w-full flex justify-between gap-2.5 items-center'>
+            <div className='w-fit flex justify-start gap-2.5 items-center'>
               {Array.isArray(personnes) && personnes.length > 0 && (
                 personnes[0]?.id != null ? (
-                  <Link to={`/personne/${personnes[0].id}`} className='w-fit flex justify-start gap-10 items-center'>
+                  <Link to={`/personne/${personnes[0].id}`} className='w-fit flex justify-start gap-2.5 items-center'>
                     {personnes[0]?.picture ? (
-                      <img src={personnes[0].picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                      <img src={personnes[0].picture} alt='Avatar' className='w-9 h-9 rounded-md object-cover' />
                     ) : (
                       <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                     )}
                       <div className='flex flex-col items-start gap-0.5'>
-                        <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
+                        <h3 className='text-c6 font-medium text-base gap-2.5 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
                         {(personnes[0]?.role || (personnes[0]?.jobTitle && Array.isArray(personnes[0].jobTitle) && personnes[0].jobTitle.length > 0)) && (
-                          <p className='text-c4 font-extralight text-14'>{personnes[0].role || personnes[0].jobTitle[0]?.title}</p>
+                          <p className='text-c4 font-normal text-sm'>{personnes[0].role || personnes[0].jobTitle[0]?.title}</p>
                         )}
                       </div>
                     </Link>
                   ) : (
-                    <div className='w-fit flex justify-start gap-10 items-center'>
+                    <div className='w-fit flex justify-start gap-2.5 items-center'>
                       {personnes[0]?.picture ? (
-                        <img src={personnes[0].picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                        <img src={personnes[0].picture} alt='Avatar' className='w-9 h-9 rounded-md object-cover' />
                       ) : (
                         <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                       )}
                       <div className='flex flex-col items-start gap-0.5'>
-                        <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
+                        <h3 className='text-c6 font-medium text-base gap-2.5 transition-all ease-in-out duration-200'>{personnes[0]?.name}</h3>
                         {(personnes[0]?.role || (personnes[0]?.jobTitle && Array.isArray(personnes[0].jobTitle) && personnes[0].jobTitle.length > 0)) && (
-                          <p className='text-c4 font-extralight text-14'>{personnes[0].role || personnes[0].jobTitle[0]?.title}</p>
+                          <p className='text-c4 font-normal text-sm'>{personnes[0].role || personnes[0].jobTitle[0]?.title}</p>
                         )}
                       </div>
                     </div>
                   )
                 )}
                 {Array.isArray(personnes) && personnes.length > 1 && (
-                  <Dropdown>
+                  <Dropdown
+                    classNames={{
+                      content:
+                        'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3 min-w-[240px]',
+                    }}>
                     <DropdownTrigger className='p-0'>
                       <Button
                         size='md'
-                        className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
-                        <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1}</h3>
+                        className='text-base h-full min-h-[36px]  px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
+                        <h3 className='text-c6 font-medium h-full text-sm gap-2.5 transition-all ease-in-out duration-200'>+ {personnes.length - 1}</h3>
                       </Button>
                     </DropdownTrigger>
-  
-                    <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
+
+                    <DropdownMenu
+                      aria-label='View options'
+                      className='p-2'
+                      classNames={{
+                        base: 'bg-transparent shadow-none border-0',
+                        list: 'bg-transparent',
+                      }}>
                       {Array.isArray(personnes) && personnes.length > 1
                         ? personnes.slice(1).map((option: any, index: number) => (
-                            <DropdownItem 
-                              key={option.id || `person-${index}`} 
-                              className={`p-0`} 
+                            <DropdownItem
+                              key={option.id || `person-${index}`}
+                              className='p-0 cursor-pointer rounded-lg bg-transparent data-[hover=true]:!bg-transparent data-[selectable=true]:focus:!bg-transparent'
                               onClick={() => option.id != null && openPersonne(option.id)}
-                              isDisabled={option.id == null}
-                            >
-                              <div className={`flex items-center gap-15 w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 text-c6`}>
+                              isDisabled={option.id == null}>
+                              <div className='flex items-center gap-4 w-full py-2 px-3 rounded-lg transition-all ease-in-out duration-200 hover:bg-c3 text-c6'>
                                 {option.picture ? (
-                                  <img src={option.picture} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                                  <img src={option.picture} alt='Avatar' className='w-9 h-9 rounded-md object-cover' />
                                 ) : (
                                   <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                                 )}
                                 <div className='flex flex-col items-start gap-0.5'>
-                                  <span className='text-16'>{option.name}</span>
+                                  <span className='text-base'>{option.name}</span>
                                   {(option.role || (option.jobTitle && Array.isArray(option.jobTitle) && option.jobTitle.length > 0)) && (
-                                    <span className='text-14 text-c4 font-extralight'>{option.role || option.jobTitle[0]?.title}</span>
+                                    <span className='text-sm text-c4 font-normal'>{option.role || option.jobTitle[0]?.title}</span>
                                   )}
                                 </div>
                               </div>
@@ -288,15 +297,15 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                           ))
                         : null}
                     </DropdownMenu>
-                </Dropdown>
+                  </Dropdown>
               )}
             </div>
 
             {Array.isArray(personnes) && personnes.length > 0 && (
-              <div className='w-fit flex justify-between gap-10 items-center'>
+              <div className='w-fit flex justify-between gap-2.5 items-center'>
                 <Button
                   size='md'
-                  className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                  className='text-base h-auto px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
                   onClick={copyToClipboard}
                   onPress={() => {
                     addToast({
@@ -314,7 +323,7 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                 {fullUrl !== '' && (
                   <Button
                     size='md'
-                    className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                    className='text-base h-auto px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
                     onClick={() => window.open(fullUrl, '_blank')}>
                     <MovieIcon size={12} />
                     {buttonText}
@@ -324,7 +333,7 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
                 {((Array.isArray(credits) && credits.length > 0) || (typeof credits === 'string' && credits.trim() !== '')) && (
                   <Button
                     size='md'
-                    className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                    className='text-base h-auto px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
                     onClick={() => {
                       if (typeof credits === 'string') {
                         window.open(credits, '_blank');
@@ -351,16 +360,16 @@ export const RecitiaOverviewCard: React.FC<RecitiaOverviewProps> = ({ id, title,
 
 export const RecitiaOverviewSkeleton: React.FC = () => {
   return (
-    <div className='flex flex-col gap-20'>
-      <Skeleton className='rounded-14 lg:w-full lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'></Skeleton>
-      <div className='flex flex-col gap-20'>
-        <div className='flex flex-col gap-5'>
-          <Skeleton className='w-[100%] h-6 rounded-8' />
-          <Skeleton className='w-[80%] h-6 rounded-8' />
+    <div className='flex flex-col gap-5'>
+      <Skeleton className='rounded-xl lg:w-full lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px]'></Skeleton>
+      <div className='flex flex-col gap-5'>
+        <div className='flex flex-col gap-1.5'>
+          <Skeleton className='w-[100%] h-6 rounded-lg' />
+          <Skeleton className='w-[80%] h-6 rounded-lg' />
         </div>
         <div className='flex justify-between items-center'>
-          <Skeleton className='w-[50%] h-4 rounded-8' />
-          <Skeleton className='w-[30%] h-6 rounded-8' />
+          <Skeleton className='w-[50%] h-4 rounded-lg' />
+          <Skeleton className='w-[30%] h-6 rounded-lg' />
         </div>
       </div>
     </div>
@@ -369,11 +378,11 @@ export const RecitiaOverviewSkeleton: React.FC = () => {
 
 export const UnloadedCard: React.FC = () => {
   return (
-    <div className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] flex flex-col items-center justify-center p-20 bg-c3 rounded-14 gap-20'>
+    <div className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] flex flex-col items-center justify-center p-5 bg-c3 rounded-xl gap-5'>
       <CameraIcon size={42} className='text-c4' />
-      <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
-        <h2 className='text-c5 text-32 font-semibold'>Oups !</h2>
-        <p className='w-[400px] text-c5 text-16 text-regular text-center'>
+      <div className='w-[80%] flex flex-col justify-center items-center gap-2.5'>
+        <h2 className='text-c5 text-3xl font-medium'>Oups !</h2>
+        <p className='w-[400px] text-c5 text-base text-regular text-center'>
           Aucun média n'est lié au contenu de cette œuvre. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
         </p>
       </div>

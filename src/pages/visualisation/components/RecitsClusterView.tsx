@@ -348,11 +348,11 @@ export const RecitsClusterView: React.FC<RecitsClusterViewProps> = ({ onNodeClic
 
   if (!hierarchyData || totalRecits === 0) {
     return (
-      <div className='flex-1 w-full h-full flex flex-col justify-center items-center gap-8 py-50 bg-c1'>
-        <div className='max-w-lg flex flex-col justify-center items-center gap-15'>
+      <div className='flex-1 w-full h-full flex flex-col justify-center items-center gap-8 py-12 bg-c1'>
+        <div className='max-w-lg flex flex-col justify-center items-center gap-4'>
           <Sparkles size={42} className='text-c4' />
           <div className='flex flex-col justify-center items-center gap-3'>
-            <h2 className='text-c6 text-xl font-semibold'>Aucun récit</h2>
+            <h2 className='text-c6 text-xl font-medium'>Aucun récit</h2>
             <p className='text-c4 text-sm text-center'>Aucun récit disponible pour afficher.</p>
           </div>
         </div>
@@ -362,7 +362,7 @@ export const RecitsClusterView: React.FC<RecitsClusterViewProps> = ({ onNodeClic
 
   return (
     <div ref={containerRef} className='flex-1 w-full h-full bg-c1 overflow-hidden relative'>
-      <div className='absolute top-4 left-4 z-10 bg-c2/80 backdrop-blur-sm rounded-8 p-3 text-xs text-c4'>{totalRecits} mises en récits de l'IA</div>
+      <div className='absolute top-4 left-4 z-10 bg-c2/80 backdrop-blur-sm rounded-lg p-3 text-xs text-c4'>{totalRecits} mises en récits de l'IA</div>
       <svg ref={svgRef} className='w-full h-full' />
     </div>
   );

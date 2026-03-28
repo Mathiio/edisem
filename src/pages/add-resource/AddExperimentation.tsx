@@ -21,22 +21,15 @@ const AddExperimentation: React.FC = () => {
     if (!omkRef.current) {
       console.log('🚀 Initializing Omk...');
 
-      const pa = {
-        mail: 'erwan.tbd@gmail.com',
-        api: 'https://edisem.arcanes.ca/omk/api/',
-        ident: 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj',
-        key: import.meta.env.VITE_API_KEY,
-      };
-
-      const omk = new Omk(pa);
+      const omk = new Omk();
       omkRef.current = omk;
       omk.init();
 
-      // Marquer comme initialisé après un délai
+      // Marquer comme initialisé après un cours délai
       setTimeout(() => {
         console.log('✅ Omk initialized');
         setIsInitialized(true);
-      }, 2000);
+      }, 1000);
     }
   }, []);
 
@@ -145,13 +138,13 @@ const AddExperimentation: React.FC = () => {
   if (!isInitialized) {
     return (
       <Layouts className='col-span-10'>
-        <div className='mb-25'>
+        <div className='mb-6'>
           <DynamicBreadcrumbs itemTitle='Nouvelle Expérimentation' underline='hover' />
         </div>
-        <div className='flex items-center justify-center p-50'>
-          <div className='flex flex-col items-center gap-20'>
+        <div className='flex items-center justify-center p-12'>
+          <div className='flex flex-col items-center gap-5'>
             <div className='w-16 h-16 border-4 border-action border-t-transparent rounded-full animate-spin'></div>
-            <p className='text-c5 text-16'>Chargement du formulaire...</p>
+            <p className='text-c5 text-base'>Chargement du formulaire...</p>
           </div>
         </div>
       </Layouts>
@@ -160,7 +153,7 @@ const AddExperimentation: React.FC = () => {
 
   return (
     <Layouts className='col-span-10'>
-      <div className='mb-25'>
+      <div className='mb-6'>
         <DynamicBreadcrumbs itemTitle='Nouvelle Expérimentation' underline='hover' />
       </div>
 

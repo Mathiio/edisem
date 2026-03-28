@@ -83,7 +83,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ onSelectSearch, onClose, 
   return (
     <div className='flex flex-col gap-4 w-full'>
       <div className='flex flex-row items-center justify-between mb-4'>
-        <h2 className='text-16 font-semibold flex items-center gap-2'>Historique des recherches</h2>
+        <h2 className='text-base font-medium flex items-center gap-2'>Historique des recherches</h2>
         {historyItems.length > 0 && (
           <Button size='sm' className='bg-c2' onClick={handleClearHistory}>
             Tout effacer
@@ -99,10 +99,10 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ onSelectSearch, onClose, 
             <li
               key={item.id}
               onClick={() => handleRerunSearch(item)}
-              className='p-4 bg-c2 rounded-12 cursor-pointer hover:bg-c3 transition-colors flex justify-between items-center'>
+              className='p-4 bg-c2 rounded-xl cursor-pointer hover:bg-c3 transition-colors flex justify-between items-center'>
               <div className='flex flex-col gap-2'>
                 <span className='font-medium'>{item.title}</span>
-                {/* <span className='text-14 text-c5'>{formatDate(item.timestamp)}</span> */}
+                {/* <span className='text-sm text-c5'>{formatDate(item.timestamp)}</span> */}
               </div>
             </li>
           ))}

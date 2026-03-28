@@ -119,19 +119,19 @@ export const ToolItem: React.FC<ToolItemProps> = ({ tool, onNavigate, onEdit, an
 
   return (
     <div
-      className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'} ${isNavigating ? 'opacity-50 pointer-events-none' : ''}`}
+      className={`w-full flex flex-row justify-between border-2 rounded-xl items-center gap-6 transition-transform-colors-opacity ${isHovered ? 'border-c6' : 'border-c3'} ${isNavigating ? 'opacity-50 pointer-events-none' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
-      <Link className='w-full gap-25 p-25  flex flex-row justify-between' to={itemUrl} target={itemUrl.startsWith('http') ? '_blank' : undefined} onClick={handleClick}>
+      <Link className='w-full gap-6 p-6  flex flex-row justify-between' to={itemUrl} target={itemUrl.startsWith('http') ? '_blank' : undefined} onClick={handleClick}>
         <div className='flex flex-row gap-4 items-start'>
           {thumbnail && (
             <div className='flex-shrink-0'>
-              <img src={thumbnail} alt='thumbnail' className='w-50 object-cover rounded-6' />
+              <img src={thumbnail} alt='thumbnail' className='w-12 object-cover rounded-md' />
             </div>
           )}
-          <div className='w-full flex flex-col gap-10'>
-            <p className='text-c6 text-16'>{tool.title}</p>
-            {tool.description && <p className='text-c4 text-14 leading-[120%] text-overflow-ellipsis line-clamp-3 w-full'>{tool.description}</p>}
+          <div className='w-full flex flex-col gap-2.5'>
+            <p className='text-c6 text-base'>{tool.title}</p>
+            {tool.description && <p className='text-c4 text-sm leading-[120%] text-overflow-ellipsis line-clamp-3 w-full'>{tool.description}</p>}
           </div>
         </div>
       </Link>
@@ -150,11 +150,11 @@ interface SimpleTextBlockProps {
 
 export const SimpleTextBlock: React.FC<SimpleTextBlockProps> = ({ content, className = '' }) => {
   return (
-    <div className={`w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 transition-transform-colors-opacity border-c3 ${className}`}>
-      <div className='w-full gap-25 p-25 flex flex-row justify-between'>
+    <div className={`w-full flex flex-row justify-between border-2 rounded-xl items-center gap-6 transition-transform-colors-opacity border-c3 ${className}`}>
+      <div className='w-full gap-6 p-6 flex flex-row justify-between'>
         <div className='flex flex-col gap-4 items-start w-full'>
-          <div className='w-full flex flex-col gap-10'>
-            <p className='text-c6 text-16 h-full' style={{ whiteSpace: 'pre-line', wordBreak: 'break-word' }}>
+          <div className='w-full flex flex-col gap-2.5'>
+            <p className='text-c6 text-base h-full' style={{ whiteSpace: 'pre-line', wordBreak: 'break-word' }}>
               {content}
             </p>
           </div>
@@ -213,7 +213,7 @@ export const ItemsList: React.FC<ItemsListProps> = ({
   }
 
   return (
-    <div className='flex flex-col gap-10'>
+    <div className='flex flex-col gap-2.5'>
       {itemsArray.map((item) => {
         // Si mapUrl est fourni, créer un nouvel objet avec l'URL mappée
         const mappedItem = mapUrl ? { ...item, url: mapUrl(item) } : item;
@@ -226,7 +226,7 @@ export const ItemsList: React.FC<ItemsListProps> = ({
               <div className='absolute top-0 right-4 h-full flex items-center'>
                 <button
                   onClick={() => onRemoveItem(item.id)}
-                  className='hover:bg-c2/80 bg-c2 p-2 text-c5 hover:text-danger/80 text-danger rounded-full transition-all flex items-center justify-center rounded-6 border-c3 border-1'
+                  className='hover:bg-c2/80 bg-c2 p-2 text-c5 hover:text-danger/80 text-danger rounded-full transition-all flex items-center justify-center rounded-md border-c3 border-1'
                   title='Supprimer'>
                   <TrashIcon size={20} />
                 </button>

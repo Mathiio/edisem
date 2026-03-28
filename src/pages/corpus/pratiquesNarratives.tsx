@@ -66,7 +66,7 @@ export const PratiquesNarratives: React.FC = () => {
   }, []);
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
+    <Layouts className='col-span-10 flex flex-col gap-36 z-0 overflow-visible'>
       <PageBanner
         icon={<PratiqueNarrativeIcon size={40} />}
         title="IA et Pratiques Narratives"
@@ -92,9 +92,9 @@ export const PratiquesNarratives: React.FC = () => {
       <KeywordsBarChart data={keywordCounts} />
 
       {/* Section 4: Latest Experimentations */}
-      <section className="w-full flex flex-col gap-20">
-        <h2 className="text-24 font-medium text-c6">Dernières Expérimentations</h2>
-        <div className="grid grid-cols-4 grid-rows-auto gap-20">
+      <section className="w-full flex flex-col gap-5">
+        <h2 className="text-2xl font-medium text-c6">Dernières Expérimentations</h2>
+        <div className="grid grid-cols-4 grid-rows-auto gap-5">
           {experimentationsData.slice(0, 5).map((exp) => (
             <ResourceCard 
               title={exp.title}
@@ -121,12 +121,12 @@ const NavCard = ({ card, index }: { card: any, index: number }) => {
       animate={{ opacity: 1 }}
       transition={{ delay: index * 0.2 }}
       onClick={() => navigate(card.path)}
-      className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-40 rounded-30 justify-between flex flex-col gap-40 hover:bg-c2 h-full transition-all ease-in-out duration-300'
+      className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-10 rounded-4xl justify-between flex flex-col gap-10 hover:bg-c2 h-full transition-all ease-in-out duration-300'
     >
       <card.icon size={40} className='text-c6' />
-      <div className='flex flex-col gap-10'>
-        <p className='text-32 font-semibold transition-all ease-in-out duration-200 text-c6'>{card.title}</p>
-        <p className='text-16 text-c5 font-extralight transition-all ease-in-out duration-200'>{card.description}</p>
+      <div className='flex flex-col gap-2.5'>
+        <p className='text-3xl font-medium transition-all ease-in-out duration-200 text-c6'>{card.title}</p>
+        <p className='text-base text-c5 font-normal transition-all ease-in-out duration-200'>{card.description}</p>
       </div>
     </motion.div>
   );

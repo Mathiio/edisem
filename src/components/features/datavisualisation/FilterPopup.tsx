@@ -568,7 +568,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
           onClick={addGroup}
           underline='none'
           size={'sm'}
-          className='text-14 flex justify-start w-full gap-2 rounded-0 text-c6 bg-transparent cursor-pointer'>
+          className='text-sm flex justify-start w-full gap-2 rounded-none text-c6 bg-transparent cursor-pointer'>
           <PlusIcon size={12} />
           Ajouter un groupe de filtres
         </Link>
@@ -577,7 +577,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
 
       <div className='flex flex-col flex-1 gap-3 overflow-y-auto'>
         {filterGroups.map((group, groupIndex) => (
-          <div key={groupIndex} className='border rounded-lg gap-4 p-4 bg-c3 rounded-12'>
+          <div key={groupIndex} className='border rounded-lg gap-4 p-4 bg-c3 rounded-xl'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <Button
@@ -588,30 +588,43 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                     className={`transition-all duration-200 ${group.isExpanded ? 'rotate-90' : ''}`}
                   />
                 </Button>
-                <span className='text-14 font-semibold text-c6'>{group.name}</span>
+                <span className='text-sm font-medium text-c6'>{group.name}</span>
               </div>
 
-              <Dropdown className='min-w-0 w-fit p-2'>
+              <Dropdown
+                className='min-w-0 w-fit'
+                classNames={{
+                  content:
+                    'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3 min-w-[8rem]',
+                }}>
                 <DropdownTrigger>
                   <Button className='text-c6 bg-transparent px-0.5 py-0.5 h-auto'>
                     <DotsIcon size={14} className='text-c6' />
                   </Button>
                 </DropdownTrigger>
-                <DropdownMenu className='w-32 text-c6'>
+                <DropdownMenu
+                  className='p-2 w-32 text-c6'
+                  classNames={{ base: 'bg-transparent shadow-none border-0', list: 'bg-transparent' }}>
                   <DropdownItem
-                    className='flex gap-1.5 w-32'
-                    onClick={() => {
+                    className='cursor-pointer rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
+                    onPress={() => {
                       setActiveGroupIndex(groupIndex);
                       setNewGroupName(group.name);
                       onOpen();
                     }}
-                    key={''}>
+                    key='rename'>
                     Renommer
                   </DropdownItem>
-                  <DropdownItem onClick={() => duplicateGroup(groupIndex)} key={''}>
+                  <DropdownItem
+                    className='cursor-pointer rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
+                    onPress={() => duplicateGroup(groupIndex)}
+                    key='duplicate'>
                     Dupliquer
                   </DropdownItem>
-                  <DropdownItem onClick={() => removeGroup(groupIndex)} key={''}>
+                  <DropdownItem
+                    className='cursor-pointer rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
+                    onPress={() => removeGroup(groupIndex)}
+                    key='remove'>
                     Supprimer
                   </DropdownItem>
                 </DropdownMenu>
@@ -621,10 +634,15 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
             {group.isExpanded && (
               <div className='flex flex-col gap-4 mt-4'>
                 <div className='w-full flex gap-2 items-center'>
-                  <p className='text-14 font-medium text-c6'>Ou</p>
-                  <Dropdown className='min-w-0 w-full p-2'>
+                  <p className='text-sm font-medium text-c6'>Ou</p>
+                  <Dropdown
+                    className='min-w-0 w-full'
+                    classNames={{
+                      content:
+                        'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3',
+                    }}>
                     <DropdownTrigger className='min-w-0 w-full'>
-                      <Button className='h-auto text-14 text-extralight text-c6 px-2 py-1.5 flex justify-between gap-10 bg-transparent border-1.5 border-c4 rounded-8 w-full'>
+                      <Button className='h-auto text-sm text-extralight text-c6 px-2 py-1.5 flex justify-between gap-2.5 bg-transparent border-1.5 border-c4 rounded-lg w-full'>
                         {group.itemType
                           ? Object.entries(ITEM_TYPES).find(([, value]) => value === group.itemType)?.[0]
                           : "Sélectionner un type d'item"}
@@ -632,7 +650,8 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                       </Button>
                     </DropdownTrigger>
                     <DropdownMenu
-                      className='w-full'
+                      className='p-2 w-full'
+                      classNames={{ base: 'bg-transparent shadow-none border-0', list: 'bg-transparent' }}
                       selectionMode='single'
                       selectedKeys={group.itemType ? [group.itemType] : []}
                       onSelectionChange={(keys) => {
@@ -640,7 +659,9 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                         updateGroupType(groupIndex, type);
                       }}>
                       {Object.entries(ITEM_TYPES).map(([label, value]) => (
-                        <DropdownItem className='min-w-0 w-full text-c4' key={value}>
+                        <DropdownItem
+                          className='min-w-0 w-full text-c4 cursor-pointer rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
+                          key={value}>
                           {label}
                         </DropdownItem>
                       ))}
@@ -673,7 +694,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                     }}
                     variant='bordered'
                     className='w-full'
-                    classNames={{ trigger: 'rounded-8 h-[34px] border-1 border-c4', selectorIcon: 'text-c6' }}>
+                    classNames={{ trigger: 'rounded-lg h-[34px] border-1 border-c4', selectorIcon: 'text-c6' }}>
                     {Object.entries(ITEM_TYPES)
                       .filter(([, type]) => type !== group.itemType) // Filtrer le type sélectionné dans le dropdown
                       .map(([label, type]) => (
@@ -690,9 +711,14 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                 <div className={`flex flex-col gap-2 ${group.conditions.length > 0 ? 'mb-4' : ''}`}>
                   {group.conditions.map((condition, conditionIndex) => (
                     <div key={conditionIndex} className='flex items-center gap-2'>
-                      <Dropdown className='min-w-0 w-fit p-2'>
+                      <Dropdown
+                        className='min-w-0 w-fit'
+                        classNames={{
+                          content:
+                            'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3',
+                        }}>
                         <DropdownTrigger>
-                          <Button className='h-auto text-14 text-extralight text-c6 px-2 py-1.5 flex gap-10 justify-between bg-transparent border-1.5 border-c4 rounded-8 min-w-[118px]'>
+                          <Button className='h-auto text-sm text-extralight text-c6 px-2 py-1.5 flex gap-2.5 justify-between bg-transparent border-1.5 border-c4 rounded-lg min-w-[118px]'>
                             {(() => {
                               const props = getPropertiesByType(group.itemType);
                               const selectedKey = condition.property || props[0]?.key;
@@ -704,6 +730,8 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                           </Button>
                         </DropdownTrigger>
                         <DropdownMenu
+                          className='p-2'
+                          classNames={{ base: 'bg-transparent shadow-none border-0', list: 'bg-transparent' }}
                           selectionMode='single'
                           selectedKeys={[condition.property || getPropertiesByType(group.itemType)[0]?.key]}
                           onSelectionChange={(keys) => {
@@ -711,16 +739,23 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                             updateCondition(groupIndex, conditionIndex, 'property', prop);
                           }}>
                           {getPropertiesByType(group.itemType).map((prop: any) => (
-                            <DropdownItem className='text-c4' key={prop.key}>
+                            <DropdownItem
+                              className='min-w-0 text-c4 cursor-pointer rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
+                              key={prop.key}>
                               {prop.label}
                             </DropdownItem>
                           ))}
                         </DropdownMenu>
                       </Dropdown>
 
-                      <Dropdown className='min-w-0 w-fit'>
+                      <Dropdown
+                        className='min-w-0 w-fit'
+                        classNames={{
+                          content:
+                            'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3',
+                        }}>
                         <DropdownTrigger>
-                          <Button className='h-auto text-14 text-extralight text-c6 px-2 py-1.5 flex justify-between gap-10 bg-transparent border-1.5 border-c4 rounded-8 min-w-[110px]'>
+                          <Button className='h-auto text-sm text-extralight text-c6 px-2 py-1.5 flex justify-between gap-2.5 bg-transparent border-1.5 border-c4 rounded-lg min-w-[110px]'>
                             {(() => {
                               const label = OPERATORS.find((op) => op.key === condition.operator)?.label || 'Opérateur';
                               return label.length > 10 ? `${label.slice(0, 8)}...` : label;
@@ -729,6 +764,8 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                           </Button>
                         </DropdownTrigger>
                         <DropdownMenu
+                          className='p-2'
+                          classNames={{ base: 'bg-transparent shadow-none border-0', list: 'bg-transparent' }}
                           selectionMode='single'
                           selectedKeys={[condition.operator]}
                           onSelectionChange={(keys) => {
@@ -736,7 +773,9 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                             updateCondition(groupIndex, conditionIndex, 'operator', op);
                           }}>
                           {OPERATORS.map((op) => (
-                            <DropdownItem className='text-c4' key={op.key}>
+                            <DropdownItem
+                              className='min-w-0 text-c4 cursor-pointer rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
+                              key={op.key}>
                               {op.label}
                             </DropdownItem>
                           ))}
@@ -751,7 +790,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                           mainWrapper: 'h-full',
                           input: 'text-c5 ',
                           inputWrapper:
-                            'text-14 shadow-none border-1.5 border-c2 px-2 py-1.5 group-data-[focus=true]:bg-c2 hover:bg-c2 rounded-8 font-normal text-c6 bg-c2 h-full',
+                            'text-sm shadow-none border-1.5 border-c2 px-2 py-1.5 group-data-[focus=true]:bg-c2 hover:bg-c2 rounded-lg font-normal text-c6 bg-c2 h-full',
                         }}
                       />
 
@@ -772,7 +811,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                         onClick={() => addCondition(groupIndex)}
                         underline='none'
                         size={'sm'}
-                        className='text-14 flex justify-start w-full gap-2 rounded-0 text-c6 bg-transparent cursor-pointer'>
+                        className='text-sm flex justify-start w-full gap-2 rounded-none text-c6 bg-transparent cursor-pointer'>
                         <PlusIcon size={12} />
                         Ajouter une condition
                       </Link>
@@ -794,7 +833,7 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
                 mainWrapper: 'h-full',
                 input: 'text-c5 ',
                 inputWrapper:
-                  'shadow-none bg-c2 border-1 border-100 group-data-[focus=true]:bg-c2 rounded-8 font-normal text-c6 bg-c2 dark:bg-c2 h-full',
+                  'shadow-none bg-c2 border-1 border-100 group-data-[focus=true]:bg-c2 rounded-lg font-normal text-c6 bg-c2 dark:bg-c2 h-full',
               }}
               value={newGroupName}
               onChange={(e) => setNewGroupName(e.target.value)}
@@ -802,11 +841,11 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
               autoFocus
             />
             <div className='flex justify-end gap-2'>
-              <Button className='px-10 py-5 rounded-8 bg-transparent' variant='flat' onClick={onClose}>
+              <Button className='px-2.5 py-1.5 rounded-lg bg-transparent' variant='flat' onClick={onClose}>
                 Annuler
               </Button>
               <Button
-                className='px-10 py-5 rounded-8 bg-action text-selected'
+                className='px-2.5 py-1.5 rounded-lg bg-action text-selected'
                 color='primary'
                 onClick={() => {
                   if (activeGroupIndex !== null && newGroupName.trim()) {
@@ -827,13 +866,13 @@ export default function FilterPopup({ onSearch }: FilterPopupProps) {
 
       <div className='flex justify-end gap-2 mt-4'>
         <Button
-          className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+          className='text-base h-auto px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
           variant='flat'
           onClick={resetFilters}>
           Réinitialiser
         </Button>
         <Button
-          className='text-16 h-auto px-10 py-5 rounded-8 text-selected gap-2 bg-action transition-all ease-in-out duration-200'
+          className='text-base h-auto px-2.5 py-1.5 rounded-lg text-selected gap-2 bg-action transition-all ease-in-out duration-200'
           color='primary'
           onClick={applyFilters}>
           Rechercher

@@ -165,7 +165,7 @@ export const Toolbar: React.FC<ItemsProps> = ({
       <Button
         key={key}
         ref={(el) => (iconRefs.current[key] = el)}
-        className={`cursor-pointer group text-16 p-10 rounded-8 h-11 w-11 ${
+        className={`cursor-pointer group text-base p-2.5 rounded-lg h-11 w-11 ${
           isActive ? `text-selected ${getBackgroundColor()}` : 'text-c6 bg-transparent hover:bg-c3 hover:text-selected'
         } transition-all ease-in-out duration-200`}
         onPress={() => {
@@ -230,7 +230,7 @@ export const Toolbar: React.FC<ItemsProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
             transition={{ type: 'spring', stiffness: 500, damping: 40 }}
-            className={`flex bg-c2/50 p-4 rounded-12 shadow-lg ${
+            className={`flex bg-c2/50 p-4 rounded-xl shadow-lg ${
               activeIcon === 'add'
                 ? 'h-fit border-2 border-datavisGreen'
                 : activeIcon === 'annotate'
@@ -250,7 +250,7 @@ export const Toolbar: React.FC<ItemsProps> = ({
       </AnimatePresence>
 
       <div
-        className={`relative w-auto flex items-center rounded-12 p-2 bg-c2 gap-4 shadow-lg transition-all duration-500 ${
+        className={`relative w-auto flex items-center rounded-xl p-2 bg-c2 gap-4 shadow-lg transition-all duration-500 ${
           isEditMode
             ? 'border-2 border-datavisOrange'
             : isLinkMode

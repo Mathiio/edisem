@@ -48,12 +48,12 @@ export default function LinkPopup({ firstSelectedNode, secondSelectedNode, onCon
 
   return (
     <div className='w-full flex flex-col gap-4 h-full overflow-hidden justify-between'>
-      <div className='text-14 flex justify-start leading-[150%] w-full gap-2 rounded-0 text-c6 bg-transparent'>Connecter des données</div>
+      <div className='text-sm flex justify-start leading-[150%] w-full gap-2 rounded-none text-c6 bg-transparent'>Connecter des données</div>
       <Divider />
 
-      <div className='flex flex-row gap-20 items-center'>
+      <div className='flex flex-row gap-5 items-center'>
         {/* Premier nœud */}
-        <div className={`text-14 text-c6 py-4 w-full bg-c3 rounded-8 flex flex-col justify-center items-center ${!firstSelectedNode ? 'border-2 border-white' : ''}`}>
+        <div className={`text-sm text-c6 py-4 w-full bg-c3 rounded-lg flex flex-col justify-center items-center ${!firstSelectedNode ? 'border-2 border-white' : ''}`}>
           {firstSelectedNode ? firstSelectedNode.fullTitle : <div className='loader'></div>}
         </div>
 
@@ -63,7 +63,7 @@ export default function LinkPopup({ firstSelectedNode, secondSelectedNode, onCon
 
         {/* Deuxième nœud */}
         <div
-          className={`text-14 text-c6 py-4 w-full bg-c3 rounded-8 flex flex-col justify-center items-center ${
+          className={`text-sm text-c6 py-4 w-full bg-c3 rounded-lg flex flex-col justify-center items-center ${
             firstSelectedNode && !secondSelectedNode ? 'border-2 border-white opacity-100' : ''
           } ${!firstSelectedNode ? 'opacity-50' : firstSelectedNode && !secondSelectedNode ? '' : !secondSelectedNode ? 'opacity-50' : ''}`}>
           {secondSelectedNode ? secondSelectedNode.fullTitle : <div className='loader'></div>}
@@ -76,7 +76,7 @@ export default function LinkPopup({ firstSelectedNode, secondSelectedNode, onCon
         classNames={{
           base: 'flex flex-row gap-2',
           innerWrapper: '',
-          trigger: 'h-[40px] rounded-8 bg-c3',
+          trigger: 'h-[40px] rounded-lg bg-c3',
           selectorIcon: 'text-c6',
           listboxWrapper: 'bg-c3',
         }}
@@ -92,13 +92,13 @@ export default function LinkPopup({ firstSelectedNode, secondSelectedNode, onCon
 
       <div className='flex justify-end gap-2 mt-4'>
         <Button
-          className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+          className='text-base h-auto px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
           variant='flat'
           onClick={handleCancelClick}>
           Réinitialiser
         </Button>
         <Button
-          className='text-16 h-auto px-10 py-5 rounded-8 text-selected gap-2 bg-action disabled:opacity-50 disabled:hover:opacity-50 transition-all ease-in-out duration-200'
+          className='text-base h-auto px-2.5 py-1.5 rounded-lg text-selected gap-2 bg-action disabled:opacity-50 disabled:hover:opacity-50 transition-all ease-in-out duration-200'
           color='primary'
           onClick={handleConnectClick}
           disabled={isConnectDisabled}>

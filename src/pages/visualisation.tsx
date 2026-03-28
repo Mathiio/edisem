@@ -141,11 +141,11 @@ export interface GeneratedImage {
 // Composant boutons navigation
 const NavigationButtons = ({ canGoBack, canGoForward, onBack, onForward }: { canGoBack: boolean; canGoForward: boolean; onBack: () => void; onForward: () => void }) => {
   return (
-    <div className='flex items-center bg-c1  rounded-[100px]'>
+    <div className='flex items-center bg-c1  rounded-full'>
       <button
         onClick={onBack}
         disabled={!canGoBack}
-        className={`w-22 h-22 flex items-center justify-center rounded-full transition-all duration-200 rounded-[100px] p-[5px] ${
+        className={`w-22 h-22 flex items-center justify-center rounded-full transition-all duration-200 rounded-full p-[5px] ${
           canGoBack ? 'text-c5 hover:text-c6 hover:bg-c3 cursor-pointer' : 'text-c4/30 cursor-not-allowed'
         }`}>
         <ChevronLeft size={16} />
@@ -153,7 +153,7 @@ const NavigationButtons = ({ canGoBack, canGoForward, onBack, onForward }: { can
       <button
         onClick={onForward}
         disabled={!canGoForward}
-        className={`w-22 h-22 flex items-center justify-center rounded-full transition-all duration-200 rounded-[100px] p-[5px] ${
+        className={`w-22 h-22 flex items-center justify-center rounded-full transition-all duration-200 rounded-full p-[5px] ${
           canGoForward ? 'text-c5 hover:text-c6 hover:bg-c3 cursor-pointer' : 'text-c4/30 cursor-not-allowed'
         }`}>
         <ChevronRight size={16} />
@@ -191,25 +191,25 @@ const UnifiedHeader = ({
     <div className='flex items-center w-full h-[62px] border-b-2 border-c3 bg-c2 shadow-[inset_0_0px_15px_rgba(255,255,255,0.03)]'>
       {/* Partie Sidebar */}
       <div
-        className={`flex items-center justify-between px-15 border-r-2 border-c3 h-full transition-all ease-in-out duration-300 ${
+        className={`flex items-center justify-between px-4 border-r-2 border-c3 h-full transition-all ease-in-out duration-300 ${
           isCollapsed ? 'w-[72px] min-w-[72px]' : 'w-[280px] min-w-[280px]'
         }`}>
         {!isCollapsed && <p className='text-c6'>Datavisualisation</p>}
-        <button onClick={toggleSidebar} className='p-2 rounded-6 text-c5 hover:text-c6 hover:bg-c3 transition-all ease-in-out duration-200'>
+        <button onClick={toggleSidebar} className='p-2 rounded-md text-c5 hover:text-c6 hover:bg-c3 transition-all ease-in-out duration-200'>
           {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
         </button>
       </div>
 
       {/* Partie zone principale */}
-      <div className='flex-1 flex items-center justify-between px-15 h-full'>
-        <div className='flex items-center gap-[12px]'>
+      <div className='flex-1 flex items-center justify-between px-4 h-full'>
+        <div className='flex items-center gap-3'>
           {showNavigationButtons && <NavigationButtons canGoBack={canGoBack} canGoForward={canGoForward} onBack={onBack || (() => {})} onForward={onForward || (() => {})} />}
           {breadcrumb}
         </div>
-        <div className='flex items-center gap-10'>
+        <div className='flex items-center gap-2.5'>
           {rightActions}
           {filterDropdown}
-          {nodeCount > 0 && <span className='text-14 text-c4'>{nodeCount} noeuds</span>}
+          {nodeCount > 0 && <span className='text-sm text-c4'>{nodeCount} noeuds</span>}
         </div>
       </div>
     </div>
@@ -1368,7 +1368,7 @@ const Visualisation = () => {
 
   return (
     <Layouts className='col-span-10' fullWidth={isFullWidth} noFooter noPadding={isFullWidth}>
-      <div className={`relative w-full bg-c1 overflow-hidden ${isFullWidth ? 'h-[calc(100vh-80px)]' : 'h-[calc(100vh-130px)] rounded-12'}`}>
+      <div className={`relative w-full bg-c1 overflow-hidden ${isFullWidth ? 'h-[calc(100vh-80px)]' : 'h-[calc(100vh-130px)] rounded-xl'}`}>
         <SidebarProvider>
           <div className='h-full w-full flex flex-col overflow-hidden'>
             {/* Header unifié sur toute la largeur */}
@@ -1510,7 +1510,7 @@ const Visualisation = () => {
                         <span className='text-xs'>Top {coverageTopKeywords}</span>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className='bg-c2 border border-c3 p-15 w-220'>
+                    <PopoverContent className='bg-c2 border border-c3 p-4 w-220'>
                       <div className='flex flex-col gap-4'>
                         <span className='text-c5 text-xs font-medium'>Nombre de mots-clés</span>
                         <Slider
@@ -1526,7 +1526,7 @@ const Visualisation = () => {
                             base: 'w-full',
                             filler: 'bg-[#fff]',
                             thumb:
-                              'w-[16px] h-[16px] after:w-[16px] after:h-[16px] bg-[#fff] after:bg-[#fff] !rounded-[50%] after:!rounded-[50%] focus:ring-0 focus:ring-offset-0 data-[focus-visible=true]:ring-0 data-[focus-visible=true]:ring-offset-0',
+                              'w-[16px] h-[16px] after:w-[16px] after:h-[16px] bg-[#fff] after:bg-[#fff] !rounded-full after:!rounded-full focus:ring-0 focus:ring-offset-0 data-[focus-visible=true]:ring-0 data-[focus-visible=true]:ring-offset-0',
                             track: 'bg-c3',
                             trackWrapper: 'focus:ring-0',
                           }}
@@ -1535,7 +1535,7 @@ const Visualisation = () => {
                             placement: 'bottom',
                             classNames: {
                               base: 'before:bg-[#fff]',
-                              content: 'py-1 px-2 text-xs text-c1 bg-[#fff]',
+                              content: 'py-px px-2 text-xs text-c1 bg-[#fff]',
                             },
                           }}
                         />
@@ -1552,7 +1552,7 @@ const Visualisation = () => {
                     size='sm'
                     selectedKeys={[String(heatmapYear)]}
                     onChange={(e) => setHeatmapYear(Number(e.target.value))}
-                    className='w-100 !text-c6'
+                    className='w-24 !text-c6'
                     aria-label='Année'
                     classNames={{
                       trigger: 'bg-c2 border border-c3',
@@ -1656,7 +1656,7 @@ const Visualisation = () => {
                   style={{ display: activeView === 'datavis' ? 'flex' : 'none' }}>
                   {/* Blocking Overlay for Maintenance */}
                   <div className='absolute inset-0 z-20 bg-c1/95 flex flex-col items-center justify-center text-center p-8 backdrop-blur-sm'>
-                    <div className='max-w-md p-8 rounded-12 border-2 border-c3 bg-c2 shadow-lg flex flex-col items-center'>
+                    <div className='max-w-md p-8 rounded-xl border-2 border-c3 bg-c2 shadow-lg flex flex-col items-center'>
                       <div className='text-datavisOrange mb-6'>
                         <Construction size={48} />
                       </div>
@@ -1673,7 +1673,7 @@ const Visualisation = () => {
                   )}
                   {!showOverlay && noResultsFound && filteredNodes.length === 0 && (
                     <div className='absolute inset-0 flex items-center justify-center z-10'>
-                      <div className='text-center p-8 rounded-12 bg-c2/50 border-2 border-c3 max-w-md'>
+                      <div className='text-center p-8 rounded-xl bg-c2/50 border-2 border-c3 max-w-md'>
                         <div className='text-c4 mb-4'>
                           <svg className='w-16 h-16 mx-auto' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                             <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' />
@@ -1686,7 +1686,7 @@ const Visualisation = () => {
                             setShowOverlay(true);
                             setNoResultsFound(false);
                           }}
-                          className='px-4 py-2 bg-c3 hover:bg-c4 text-c6 rounded-8 transition-colors text-sm'>
+                          className='px-4 py-2 bg-c3 hover:bg-c4 text-c6 rounded-lg transition-colors text-sm'>
                           Nouvelle recherche
                         </button>
                       </div>
@@ -1737,7 +1737,7 @@ const Visualisation = () => {
             {(onClose) => (
               <>
                 <DrawerHeader className='flex flex-row items-center justify-between text-c6'>
-                  <Button onPress={onClose} size='lg' className='px-4 py-4 flex justify-between  bg-c2 text-c6 rounded-8 hover:bg-c3 '>
+                  <Button onPress={onClose} size='lg' className='px-4 py-4 flex justify-between  bg-c2 text-c6 rounded-lg hover:bg-c3 '>
                     <ArrowIcon size={16} transform='rotate(180deg)' />
                   </Button>
                   <Button
@@ -1752,13 +1752,13 @@ const Visualisation = () => {
                       }
                     }}
                     size='lg'
-                    className='px-4 py-4 flex justify-between  bg-c2 text-c6 rounded-8 hover:bg-c3 '>
+                    className='px-4 py-4 flex justify-between  bg-c2 text-c6 rounded-lg hover:bg-c3 '>
                     Nouvelle recherche
                     <SearchIcon size={18} />
                   </Button>
                 </DrawerHeader>
                 <DrawerBody className='text-c6 flex flex-col gap-8'>
-                  <a href='/recherche' className='text-c6 flex flex-row gap-4 border-2 border-c3  hover:border-c4 rounded-12 transition w-fit p-3'>
+                  <a href='/recherche' className='text-c6 flex flex-row gap-4 border-2 border-c3  hover:border-c4 rounded-xl transition w-fit p-3'>
                     <LibraryBig size={20} />
                     <div>Cahier de recherche</div>
                   </a>

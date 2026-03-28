@@ -163,7 +163,7 @@ export const EspaceEtudiant: React.FC = () => {
   };
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
+    <Layouts className='col-span-10 flex flex-col gap-36 z-0 overflow-visible'>
       <PageBanner
         title={
           <>
@@ -176,21 +176,21 @@ export const EspaceEtudiant: React.FC = () => {
 
       {/* Section Ressources Enseignantes */}
       {!loadingTeacher && teacherResources && teacherResources.total > 0 && (
-        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className='flex flex-col gap-50'>
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className='flex flex-col gap-12'>
           {/* En-tête de la section enseignants */}
-          <div className='flex justify-between items-start gap-15 h-full'>
-            <div className='flex items-start gap-15 bg-action/10 px-25 py-15 rounded-20 border-2 border-action/30 h-full'>
+          <div className='flex justify-between items-start gap-4 h-full'>
+            <div className='flex items-start gap-4 bg-action/10 px-6 py-4 rounded-3xl border-2 border-action/30 h-full'>
               <div className='pt-2'>
                 <UniversityIcon size={20} className='text-action' />
               </div>
-              <div className='flex flex-col gap-10'>
-                <h2 className='text-20 font-semibold text-c6'>Ressources enseignantes</h2>
-                <span className='text-c4 text-14'>Ressources partagées par les enseignants et chercheurs</span>
+              <div className='flex flex-col gap-2.5'>
+                <h2 className='text-xl font-medium text-c6'>Ressources enseignantes</h2>
+                <span className='text-c4 text-sm'>Ressources partagées par les enseignants et chercheurs</span>
               </div>
             </div>
 
             {/* Filtres par type */}
-            <div className='flex gap-15'>
+            <div className='flex gap-4'>
               {(['all', 'experimentation', 'outil', 'retour_experience'] as const).map((type) => {
                 const isActive = teacherFilter === type;
                 const Icon = type !== 'all' ? resourceTypeConfig[type].icon : null;
@@ -209,11 +209,11 @@ export const EspaceEtudiant: React.FC = () => {
                     onClick={() => setTeacherFilter(type)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`px-15 py-10 rounded-8 border-2 transition-all ease-in-out duration-200 flex items-center gap-10
+                    className={`px-4 py-2.5 rounded-lg border-2 transition-all ease-in-out duration-200 flex items-center gap-2.5
                       ${isActive ? 'shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-action/50 bg-action/10 text-c6' : 'border-c3 text-c5 hover:bg-c2 hover:border-c4'}`}>
                     {Icon && <Icon className='w-[14px] h-[14px]' />}
-                    <span className='text-16 font-medium'>{type === 'all' ? 'Tout' : resourceTypeConfig[type].label}</span>
-                    <span className='text-14 text-c4 font-light'>{count}</span>
+                    <span className='text-base font-medium'>{type === 'all' ? 'Tout' : resourceTypeConfig[type].label}</span>
+                    <span className='text-sm text-c4 font-normal'>{count}</span>
                   </motion.button>
                 );
               })}
@@ -221,7 +221,7 @@ export const EspaceEtudiant: React.FC = () => {
           </div>
 
           {/* Grille des ressources enseignantes */}
-          <div className='grid grid-cols-4 w-full gap-25'>
+          <div className='grid grid-cols-4 w-full gap-6'>
             {getFilteredTeacherResources().map((item, index) => (
               <motion.div key={`teacher-${item.type}-${item.id}`} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
                 <StudentCard
@@ -243,11 +243,11 @@ export const EspaceEtudiant: React.FC = () => {
 
       {/* Sections par cours */}
       {loadingCourses ? (
-        <div className='flex flex-col gap-50'>
+        <div className='flex flex-col gap-12'>
           {Array.from({ length: 2 }).map((_, idx) => (
-            <div key={idx} className='flex flex-col gap-25'>
-              <div className='h-[60px] w-[300px] bg-c3 rounded-20 animate-pulse' />
-              <div className='grid grid-cols-4 w-full gap-25'>
+            <div key={idx} className='flex flex-col gap-6'>
+              <div className='h-[60px] w-[300px] bg-c3 rounded-3xl animate-pulse' />
+              <div className='grid grid-cols-4 w-full gap-6'>
                 {Array.from({ length: 4 }).map((_, index) => (
                   <StudentCardSkeleton key={index} />
                 ))}
@@ -256,33 +256,33 @@ export const EspaceEtudiant: React.FC = () => {
           ))}
         </div>
       ) : coursesWithResources.length === 0 ? (
-        <div className='flex flex-col items-center justify-center py-50 text-c4'>
+        <div className='flex flex-col items-center justify-center py-12 text-c4'>
           <SchoolIcon size={48} />
-          <p className='mt-20 text-18'>Aucun cours disponible</p>
+          <p className='mt-5 text-lg'>Aucun cours disponible</p>
         </div>
       ) : (
-        <div className='flex flex-col gap-50'>
+        <div className='flex flex-col gap-12'>
           {coursesWithResources.map((course) => {
             const currentFilter = filters[course.id] || 'all';
             const filteredResources = getFilteredResourcesForCourse(course.id, course.resources);
             const hasResources = filteredResources.length > 0;
 
             return (
-              <motion.section key={course.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className='flex flex-col gap-50'>
+              <motion.section key={course.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className='flex flex-col gap-12'>
                 {/* En-tête de la section cours */}
-                <div className='flex justify-between items-start gap-15 h-full'>
-                  <div className='flex  items-start gap-15 bg-c2 px-25 py-15 rounded-20 border-2 border-c3 h-full'>
+                <div className='flex justify-between items-start gap-4 h-full'>
+                  <div className='flex  items-start gap-4 bg-c2 px-6 py-4 rounded-3xl border-2 border-c3 h-full'>
                     <div className='pt-2'>
                       <SchoolIcon size={20} className='text-c5 ' />
                     </div>
-                    <div className='flex flex-col gap-10 '>
-                      <h2 className='text-20 font-semibold text-c6 max-w-[500px] line-clamp-3 break-words'>{course.title}</h2>
-                      <span className='text-c4 text-14'>{[course.code, course.session, course.year].filter(Boolean).join(' • ')}</span>
+                    <div className='flex flex-col gap-2.5 '>
+                      <h2 className='text-xl font-medium text-c6 max-w-[500px] line-clamp-3 break-words'>{course.title}</h2>
+                      <span className='text-c4 text-sm'>{[course.code, course.session, course.year].filter(Boolean).join(' • ')}</span>
                     </div>
                   </div>
 
                   {/* Filtres par type pour ce cours */}
-                  <div className='flex gap-15 '>
+                  <div className='flex gap-4 '>
                     {(['all', 'experimentation', 'outil', 'retour_experience'] as const).map((type) => {
                       const isActive = currentFilter === type;
                       const Icon = type !== 'all' ? resourceTypeConfig[type].icon : null;
@@ -301,11 +301,11 @@ export const EspaceEtudiant: React.FC = () => {
                           onClick={() => setFilterForCourse(course.id, type)}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className={`px-15 py-10 rounded-8 border-2 transition-all ease-in-out duration-200 flex items-center gap-10
+                          className={`px-4 py-2.5 rounded-lg border-2 transition-all ease-in-out duration-200 flex items-center gap-2.5
                             ${isActive ? 'shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c4 bg-c2 text-c6' : 'border-c3 text-c5 hover:bg-c2 hover:border-c4'}`}>
                           {Icon && <Icon className='w-[14px] h-[14px]' />}
-                          <span className='text-16 font-medium'>{type === 'all' ? 'Tout' : resourceTypeConfig[type].label}</span>
-                          <span className='text-14 text-c4 font-light'>{count}</span>
+                          <span className='text-base font-medium'>{type === 'all' ? 'Tout' : resourceTypeConfig[type].label}</span>
+                          <span className='text-sm text-c4 font-normal'>{count}</span>
                         </motion.button>
                       );
                     })}
@@ -313,12 +313,12 @@ export const EspaceEtudiant: React.FC = () => {
                 </div>
 
                 {/* Grille des ressources */}
-                <div className='grid grid-cols-4 w-full gap-25'>
+                <div className='grid grid-cols-4 w-full gap-6'>
                   {course.loading ? (
                     Array.from({ length: 4 }).map((_, index) => <StudentCardSkeleton key={index} />)
                   ) : !hasResources ? (
-                    <div className='col-span-4 flex items-center justify-center py-40 text-c4 rounded-20 border-2 border-c3'>
-                      <p className='text-16'>Aucune ressource pour ce cours</p>
+                    <div className='col-span-4 flex items-center justify-center py-10 text-c4 rounded-3xl border-2 border-c3'>
+                      <p className='text-base'>Aucune ressource pour ce cours</p>
                     </div>
                   ) : (
                     filteredResources.map((item, index) => (
@@ -346,8 +346,8 @@ export const EspaceEtudiant: React.FC = () => {
 
       <div className='flex flex-col gap-16 justify-center'>
         <div className='flex flex-col gap-8'>
-          <h1 className='text-64 text-c6 font-medium flex flex-col items-center text-center'>Ressources pédagogiques</h1>
-          <p className='text-c5 text-16 z-[12] flex flex-col items-center text-center'>Découvrez les contenus d'Edisem produits par les chercheurs.</p>
+          <h1 className='text-6xl text-c6 font-medium flex flex-col items-center text-center'>Ressources pédagogiques</h1>
+          <p className='text-c5 text-base z-[12] flex flex-col items-center text-center'>Découvrez les contenus d'Edisem produits par les chercheurs.</p>
         </div>
         <CorpusSection />
       </div>

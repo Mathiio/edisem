@@ -35,13 +35,13 @@ export const Experimentations: React.FC = () => {
   }, []);
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
+    <Layouts className='col-span-10 flex flex-col gap-36 z-0 overflow-visible'>
       <PageBanner
         icon={<ExperimentationIcon size={40} />}
         title='Expérimentations Edisem'
         description="Plongez au cœur des collections intellectuelles d'EdiSem, une fenêtre ouverte sur la diversité des savoirs et des pratiques qui nourrissent nos événements."
       />
-      <div className='grid grid-cols-4 w-full gap-25'>
+      <div className='grid grid-cols-4 w-full gap-6'>
         {loading
           ? Array.from({ length: 8 }).map((_, index) => <ResourceCardSkeleton key={index} />)
           : experimentations.map((exp: any, index: number) => (

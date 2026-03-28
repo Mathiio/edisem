@@ -17,19 +17,19 @@ interface AffiliationCardProps {
 
 const AffiliationCard: React.FC<AffiliationCardProps> = ({ title, icon, items, emptyMessage, loading }) => {
   return (
-    <div className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-25 rounded-20 flex flex-col gap-1.5 h-full'>
-      <div className='flex items-center gap-10 border-b-1 border-c3 pb-10'>
+    <div className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 p-6 rounded-3xl flex flex-col gap-1.5 h-full'>
+      <div className='flex items-center gap-2.5 border-b-1 border-c3 pb-2.5'>
         <div className='text-c6'>
           {icon}
         </div>
-        <h3 className='text-16 font-medium text-c6'>{title}</h3>
+        <h3 className='text-base font-medium text-c6'>{title}</h3>
       </div>
       
-      <div className='flex flex-col gap-10'>
+      <div className='flex flex-col gap-2.5'>
         {loading ? (
-           <div className="flex flex-col gap-10">
-              <Skeleton className="h-6 w-3/4 rounded-8" />
-              <Skeleton className="h-6 w-1/2 rounded-8" />
+           <div className="flex flex-col gap-2.5">
+              <Skeleton className="h-6 w-3/4 rounded-lg" />
+              <Skeleton className="h-6 w-px/2 rounded-lg" />
            </div>
         ) : items && items.length > 0 ? (
           items.map((item, index) => (
@@ -38,13 +38,13 @@ const AffiliationCard: React.FC<AffiliationCardProps> = ({ title, icon, items, e
               href={item.url || '#'} 
               target={item.url ? "_blank" : undefined}
               rel="noopener noreferrer"
-              className={`text-14 text-c5 font-light transition-colors duration-300 px-4 py-3 hover:bg-c3 rounded-10 ${!item.url ? 'cursor-default' : 'cursor-pointer'}`}
+              className={`text-sm text-c5 font-normal transition-colors duration-300 px-4 py-3 hover:bg-c3 rounded-lg ${!item.url ? 'cursor-default' : 'cursor-pointer'}`}
             >
               {item.name}
             </a>
           ))
         ) : (
-          <p className='text-14 text-c5 italic opacity-50 px-4 py-3'>{emptyMessage}</p>
+          <p className='text-sm text-c5 italic opacity-50 px-4 py-3'>{emptyMessage}</p>
         )}
       </div>
     </div>
@@ -66,7 +66,7 @@ export const IntervenantAffiliations: React.FC<IntervenantAffiliationsProps> = (
 }) => {
   return (
     <div className='w-full flex justify-center'>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-25 w-[1000px]'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-[1000px]'>
             <AffiliationCard 
                 title="Université(s)" 
                 icon={<UniversityIcon size={22} />}

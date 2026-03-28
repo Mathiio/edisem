@@ -35,7 +35,7 @@ const MODAL_MOTION_PROPS = {
 export const CountryModal: React.FC<CountryModalProps> = ({ selectedCountry, universityGroups, onClose }) => (
   <Modal
     backdrop='blur' // Blurred background
-    className='bg-c2 rounded-30'
+    className='bg-c2 rounded-4xl'
     size='3xl'
     isOpen={!!selectedCountry} // Modal visibility based on selection
     onClose={onClose}
@@ -46,18 +46,18 @@ export const CountryModal: React.FC<CountryModalProps> = ({ selectedCountry, uni
     <ModalContent>
       {(onClose) => (
         <>
-          <ModalHeader className='flex justify-between p-40 border-b-2 border-c3'>
-            <h2 className='text-c6 text-32 font-medium'>Intervenants – {selectedCountry ? getFrCountryName(selectedCountry) : 'Pays'}</h2>
+          <ModalHeader className='flex justify-between p-10 border-b-2 border-c3'>
+            <h2 className='text-c6 text-3xl font-medium'>Intervenants – {selectedCountry ? getFrCountryName(selectedCountry) : 'Pays'}</h2>
             <Link onPress={onClose}>
               <CrossIcon className='text-c4 cursor-pointer hover:text-c6 transition-all ease-in-out duration-200' size={24} />
             </Link>
           </ModalHeader>
-          <ModalBody className='flex flex-col gap-40 p-40'>
+          <ModalBody className='flex flex-col gap-10 p-10'>
             {universityGroups.length > 0 ? (
               universityGroups.map((group) => (
-                <div key={group.university.name} className='flex flex-col gap-20'>
-                  <h2 className='text-24 font-medium text-c6'>{group.university.name}</h2>
-                  <div className='flex flex-col gap-10'>
+                <div key={group.university.name} className='flex flex-col gap-5'>
+                  <h2 className='text-2xl font-medium text-c6'>{group.university.name}</h2>
+                  <div className='flex flex-col gap-2.5'>
                     {group.intervenants.map((intervenant: any) => (
                       <IntervenantLongCard key={intervenant.id} {...intervenant} />
                     ))}
@@ -65,7 +65,7 @@ export const CountryModal: React.FC<CountryModalProps> = ({ selectedCountry, uni
                 </div>
               ))
             ) : (
-              <p className='text-c5 text-16'>Aucun intervenant répertorié.</p>
+              <p className='text-c5 text-base'>Aucun intervenant répertorié.</p>
             )}
           </ModalBody>
         </>

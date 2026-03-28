@@ -58,34 +58,34 @@ export const MicroresumeCard: React.FC<MicroresumeCardProps> = ({ title, descrip
   const displayText = expanded ? description : description.slice(0, CHARACTER_LIMIT);
 
   return (
-    <div className='w-full flex flex-row justify-start border-2 p-25 border-c3 rounded-12 items-start gap-10 transition-transform-colors-opacity'>
-      <div className='flex flex-col gap-25'>
-        <div className='w-full flex justify-between items-center gap-10'>
-          <div className='flex flex-row gap-10'>
-            <Button onClick={handleClick} className='px-10 py-5 h-auto text-16 rounded-6 text-c6 hover:text-c6 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'>
+    <div className='w-full flex flex-row justify-start border-2 p-6 border-c3 rounded-xl items-start gap-2.5 transition-transform-colors-opacity'>
+      <div className='flex flex-col gap-6'>
+        <div className='w-full flex justify-between items-center gap-2.5'>
+          <div className='flex flex-row gap-2.5'>
+            <Button onClick={handleClick} className='px-2.5 py-1.5 h-auto text-base rounded-md text-c6 hover:text-c6 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'>
               {formatTime(startTime) + ' - ' + formatTime(endTime)}
             </Button>
-            <h3 className='text-c6 text-16 font-medium'>{title}</h3>
+            <h3 className='text-c6 text-base font-medium'>{title}</h3>
           </div>
         </div>
 
-        <div className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200'>
+        <div className='text-base text-c4 font-normal transition-all ease-in-out duration-200'>
           {displayText}
           {shouldTruncate && (
             <div className='mt-2 w-full flex justify-start'>
-              <button onClick={toggleExpansion} className='text-16 text-c6 font-semibold cursor-pointer transition-all ease-in-out duration-200'>
+              <button onClick={toggleExpansion} className='text-base text-c6 font-medium cursor-pointer transition-all ease-in-out duration-200'>
                 {expanded ? 'afficher moins' : '...afficher plus'}
               </button>
             </div>
           )}
         </div>
         {outils && outils.length > 0 && (
-          <div className='w-full flex flex-row justify-start items-center gap-10'>
+          <div className='w-full flex flex-row justify-start items-center gap-2.5'>
             <Link
               href={'/corpus/outil/' + outils[0].id}
-              className='shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-8 border-2 border-c3 p-2 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'>
-              <img src={outils[0].thumbnail} alt={outils[0].title} className='w-8 object-cover rounded-6' />
-              <p className='text-14 text-c6'>{outils[0].title}</p>
+              className='shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-lg border-2 border-c3 p-2 text-base gap-2.5 text-c6 transition-all ease-in-out duration-200'>
+              <img src={outils[0].thumbnail} alt={outils[0].title} className='w-8 object-cover rounded-md' />
+              <p className='text-sm text-c6'>{outils[0].title}</p>
             </Link>
           </div>
         )}
@@ -96,17 +96,17 @@ export const MicroresumeCard: React.FC<MicroresumeCardProps> = ({ title, descrip
 
 export const MicroresumeSkeleton: React.FC = () => {
   return (
-    <div className='w-full flex flex-col justify-start rounded-12 bg-c3 items-start p-10 gap-5 transition-transform-colors-opacity'>
-      <div className='w-full flex justify-start items-center gap-10'>
-        <Skeleton className='w-[55%] h-4 rounded-6' />
+    <div className='w-full flex flex-col justify-start rounded-xl bg-c3 items-start p-2.5 gap-1.5 transition-transform-colors-opacity'>
+      <div className='w-full flex justify-start items-center gap-2.5'>
+        <Skeleton className='w-[55%] h-4 rounded-md' />
       </div>
-      <Skeleton className='w-full h-4 rounded-6' />
-      <Skeleton className='w-full h-4 rounded-6' />
-      <Skeleton className='w-full h-4 rounded-6' />
-      <Skeleton className='w-full h-4 rounded-6' />
-      <Skeleton className='w-full h-4 rounded-6' />
-      <Skeleton className='w-full h-4 rounded-6' />
-      <Skeleton className='w-[30%] h-4 rounded-6' />
+      <Skeleton className='w-full h-4 rounded-md' />
+      <Skeleton className='w-full h-4 rounded-md' />
+      <Skeleton className='w-full h-4 rounded-md' />
+      <Skeleton className='w-full h-4 rounded-md' />
+      <Skeleton className='w-full h-4 rounded-md' />
+      <Skeleton className='w-full h-4 rounded-md' />
+      <Skeleton className='w-[30%] h-4 rounded-md' />
     </div>
   );
 };
@@ -131,8 +131,8 @@ export const Microresumes: React.FC<MicroresumesProps> = ({ microresumes, loadin
   }
 
   return (
-    <div className='w-full h-max flex flex-col gap-20'>
-      <div className='flex flex-col gap-20 h-full overflow-y-auto scroll-container'>
+    <div className='w-full h-max flex flex-col gap-5'>
+      <div className='flex flex-col gap-5 h-full overflow-y-auto scroll-container'>
         {loading
           ? Array.from({ length: 8 }).map((_) => <MicroresumeSkeleton />)
           : microresumes.map((microresume, index) => (
@@ -156,11 +156,11 @@ export const Microresumes: React.FC<MicroresumesProps> = ({ microresumes, loadin
 
 export const UnloadedCard: React.FC = () => {
   return (
-    <div className='w-full h-full flex flex-col justify-center items-center gap-20 mt-50'>
+    <div className='w-full h-full flex flex-col justify-center items-center gap-5 mt-12'>
       <FileIcon size={42} className='text-c6' />
-      <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
-        <h2 className='text-c6 text-32 font-semibold'>Oups !</h2>
-        <p className='text-c5 text-16 text-regular text-center'>
+      <div className='w-[80%] flex flex-col justify-center items-center gap-2.5'>
+        <h2 className='text-c6 text-3xl font-medium'>Oups !</h2>
+        <p className='text-c5 text-base text-regular text-center'>
           Aucune citation n'est liée au contenu de cette conférence. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
         </p>
       </div>

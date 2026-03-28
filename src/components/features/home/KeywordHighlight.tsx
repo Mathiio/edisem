@@ -49,16 +49,16 @@ export const KeywordHighlight: React.FC = () => {
   if (!selectedKeyword) return null;
 
   return (
-    <div data-testid="keyword-section" className='w-full justify-center flex items-center flex-col gap-25 overflow-visible'>
-      <div className='py-50 gap-20 justify-between flex items-center flex-col'>
-        <h2 className='z-[12] text-64 text-c6 font-medium flex flex-col items-center transition-all ease-in-out duration-200 '>
+    <div data-testid="keyword-section" className='w-full justify-center flex items-center flex-col gap-6 overflow-visible'>
+      <div className='py-12 gap-5 justify-between flex items-center flex-col'>
+        <h2 className='z-[12] text-6xl text-c6 font-medium flex flex-col items-center transition-all ease-in-out duration-200 '>
           <span>Sujets autour de</span>
           <span className='text-center bg-gradient-to-t from-action to-action2 text-transparent bg-clip-text bg-[length:150%] bg-top font-[500]'>
             "{selectedKeyword?.title || ''}"
           </span>
         </h2>
       </div>
-      <div className='grid grid-cols-4 w-full gap-25'>
+      <div className='grid grid-cols-4 w-full gap-6'>
         {loading
           ? Array.from({ length: 12 }).map((_, index) => <ResourceCardSkeleton key={index} />)
           : filteredResources.map((resource, index) => (

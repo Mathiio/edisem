@@ -34,25 +34,25 @@ export const IntervenantsSection: React.FC = () => {
   }, []);
 
   return (
-    <section className="flex gap-50 h-[600px] items-center">
+    <section className="flex gap-12 h-[600px] items-center">
       {/* Left side - Title and description */}
-      <div className="flex-1 flex flex-col justify-center gap-20 max-w-md relative z-50">
-        <h2 className="text-c6 text-64 transition-all ease-in-out duration-200 leading-[1.1]"> 
+      <div className="flex-1 flex flex-col justify-center gap-5 max-w-md relative z-50">
+        <h2 className="text-c6 text-6xl transition-all ease-in-out duration-200 leading-[1.1]"> 
           Intervenants & <br/> Conférenciers 
         </h2>
-        <p className="text-c5 text-16 transition-all ease-in-out duration-200">
+        <p className="text-c5 text-base transition-all ease-in-out duration-200">
           Découvrez les chercheur·e·s, artistes et invité·e·s ayant contribué aux séminaires, colloques, journées d'études et œuvres d'EdiSem.
         </p>
         <Link 
           to="/intervenants" 
-          className="hover:bg-c3 bg-c2 border-c3 shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] w-fit cursor-pointer px-15 py-10 text-16 gap-10 text-c6 rounded-8 border-2 transition-all ease-in-out duration-200"
+          className="hover:bg-c3 bg-c2 border-c3 shadow-[inset_0_0px_10px_rgba(255,255,255,0.05)] w-fit cursor-pointer px-4 py-2.5 text-base gap-2.5 text-c6 rounded-lg border-2 transition-all ease-in-out duration-200"
         >
           <div className="font-medium">Voir plus</div>
         </Link>
       </div>
 
       {/* Right side - Abstract overlapping grid layout */}
-      <div className="flex-1 h-full relative flex items-center justify-center rounded-3xl group ml-5">
+      <div className="flex-1 h-full relative flex items-center justify-center rounded-3xl group ml-1.5">
         
         {/* Background Dot Pattern */}
         <BGPattern 
@@ -64,7 +64,7 @@ export const IntervenantsSection: React.FC = () => {
 
         {loading ? (
           <div className="relative w-full h-[500px] flex items-center justify-center">
-             <div className="w-[260px] h-[320px] animate-pulse bg-c3/20 rounded-[30px] border border-c3/50 shadow-2xl" />
+             <div className="w-[260px] h-[320px] animate-pulse bg-c3/20 rounded-4xl border border-c3/50 shadow-2xl" />
           </div>
         ) : (
           <div className="relative w-[600px] h-[500px] flex items-center justify-center">
@@ -73,7 +73,7 @@ export const IntervenantsSection: React.FC = () => {
                 key={actant.id}
                 {...actant}
                 disableClick
-                className={`absolute w-[260px] !h-fit p-40 transition-all duration-300 ${CARD_LAYOUTS[index] || ''}`}
+                className={`absolute w-[260px] !h-fit p-10 transition-all duration-300 ${CARD_LAYOUTS[index] || ''}`}
               />
             ))}
           </div>

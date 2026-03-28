@@ -86,11 +86,11 @@ export const IntervenantsWorldMap: React.FC<IntervenantsWorldMapProps> = ({
   }, [selectedCountry, countriesData, frenchNamesMap]);
 
   return (
-    <div className='flex flex-col gap-50'>
+    <div className='flex flex-col gap-12'>
       {/* Title Section */}
-      <div className='flex flex-col items-center justify-center gap-20'>
-        <p className='text-c5 text-16 z-[12] text-center'>Un réseau mondial</p>
-        <h2 className='text-24 font-medium text-c6 text-center leading-[120%]'>
+      <div className='flex flex-col items-center justify-center gap-5'>
+        <p className='text-c5 text-base z-[12] text-center'>Un réseau mondial</p>
+        <h2 className='text-2xl font-medium text-c6 text-center leading-[120%]'>
           Le réseau EdiSem rassemble une constellation de penseurs,<br />
           chercheur·es, artistes et praticien·nes du monde entier.
         </h2>

@@ -15,7 +15,7 @@ export default function AnnotatePopup({ onViewToggle }: AnnotatePopupProps) {
 
   return (
     <div className='w-full flex flex-col gap-4 h-full overflow-hidden justify-between'>
-      <div className='text-14 flex justify-start leading-[150%] w-full gap-2 rounded-0 text-c6 bg-transparent'>
+      <div className='text-sm flex justify-start leading-[150%] w-full gap-2 rounded-none text-c6 bg-transparent'>
         Annoter des données
       </div>
       <Divider />
@@ -24,7 +24,7 @@ export default function AnnotatePopup({ onViewToggle }: AnnotatePopupProps) {
         {/* Bouton False */}
         <button
           onClick={() => handleToggle(false)}
-          className={`text-14 py-4 w-full bg-c3 text-c6 rounded-8 flex flex-col justify-center items-center transition-colors ${
+          className={`text-sm py-4 w-full bg-c3 text-c6 rounded-lg flex flex-col justify-center items-center transition-colors ${
             !isActive ? 'border-2 border-c6' : ' border-2 border-transparent'
           }`}>
           Voir les annotations
@@ -33,7 +33,7 @@ export default function AnnotatePopup({ onViewToggle }: AnnotatePopupProps) {
         {/* Bouton True */}
         <button
           onClick={() => handleToggle(true)}
-          className={`text-14 py-4 w-full bg-c3 text-c6 rounded-8 flex flex-col justify-center items-center transition-colors ${
+          className={`text-sm py-4 w-full bg-c3 text-c6 rounded-lg flex flex-col justify-center items-center transition-colors ${
             isActive ? 'border-2 border-c6' : ' border-2 border-transparent'
           }`}>
           Annoter

@@ -59,36 +59,56 @@ const RechercheCard: React.FC<RechercheCardProps> = ({ recherche }) => {
   return (
     <div className='relative rounded-lg overflow-hidden border border-gray-200 h-full'>
       {/* Notification */}
-      {notification && <div className='absolute top-2 right-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-md z-10'>{notification}</div>}
+      {notification && <div className='absolute top-2 right-2 bg-black bg-opacity-70 text-white px-3 py-px rounded-md z-10'>{notification}</div>}
 
       <div className='flex flex-col h-full'>
         <a href={'/visualisation?config=' + encodeURIComponent(JSON.stringify(recherche.config))} className='w-full h-48 overflow-hidden'>
-          <img src={recherche.imageUrl || '/rechercheDefaultImage.png'} alt={recherche.title} className='w-full h-full object-cover rounded-12' />
+          <img src={recherche.imageUrl || '/rechercheDefaultImage.png'} alt={recherche.title} className='w-full h-full object-cover rounded-xl' />
         </a>
         <div className='pt-4 flex flex-col flex-grow'>
           <div className='flex justify-between items-start mb-2'>
             <div className='flex-1'>
-              <h3 className='text-lg font-semibold text-c6 mb-1'>{recherche.title}</h3>
+              <h3 className='text-lg font-medium text-c6 mb-px'>{recherche.title}</h3>
               <div className='flex items-center text-c4 text-sm'>
                 <span>{recherche.created}</span>
               </div>
             </div>
             <div className='flex items-center gap-2'>
-              <Dropdown>
+              <Dropdown
+                classNames={{
+                  content:
+                    'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3 min-w-[220px]',
+                }}>
                 <DropdownTrigger className='cursor-pointer text-c6 pt-[5px]' onClick={handleDropdownTriggerClick}>
                   <div className=''>
-                    <DotsIcon className='mx-1' size={18} />
+                    <DotsIcon className='mx-px' size={18} />
                   </div>
                 </DropdownTrigger>
 
-                <DropdownMenu aria-label='Menu de recherche' className='p-4 text-c6'>
-                  <DropdownItem className='gap-2' onPress={handleSaveImage} key={'Save'}>
+                <DropdownMenu
+                  aria-label='Menu de recherche'
+                  className='p-2 text-c6'
+                  classNames={{
+                    base: 'bg-transparent shadow-none border-0',
+                    list: 'bg-transparent',
+                  }}>
+                  <DropdownItem
+                    key='Save'
+                    className='gap-2 cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
+                    onPress={handleSaveImage}>
                     Enregistrer l'image
                   </DropdownItem>
-                  <DropdownItem className='gap-2' as='a' href={recherche.config} key={'See'}>
+                  <DropdownItem
+                    key='See'
+                    as='a'
+                    href={recherche.config}
+                    className='gap-2 cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'>
                     Visionner la recherche
                   </DropdownItem>
-                  <DropdownItem className='gap-2' onPress={handleShare} key={'Share'}>
+                  <DropdownItem
+                    key='Share'
+                    className='gap-2 cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
+                    onPress={handleShare}>
                     Partager le filtrage
                   </DropdownItem>
                   {/* <DropdownItem className='gap-2 text-red-500' onPress={handleDelete} key={'Delete'}>
@@ -110,8 +130,8 @@ export const RechercheSkeletonCard: React.FC = () => {
     <Card className='h-full w-full space-y-3 p-0 overflow-hidden' radius='lg'>
       <Skeleton className='rounded-t-12 h-48' />
       <div className='p-4 space-y-3'>
-        <Skeleton className='w-4/5 h-20 rounded-12' />
-        <Skeleton className='w-2/5 h-3 rounded-12' />
+        <Skeleton className='w-4/5 h-5 rounded-xl' />
+        <Skeleton className='w-2/5 h-3 rounded-xl' />
       </div>
     </Card>
   );
@@ -119,11 +139,11 @@ export const RechercheSkeletonCard: React.FC = () => {
 
 export const UnloadedCard: React.FC = () => (
   <div className='w-full h-full flex flex-col justify-center items-center gap-8 mt-12'>
-    <div className='max-w-lg flex flex-col justify-center items-center gap-5'>
+    <div className='max-w-lg flex flex-col justify-center items-center gap-1.5'>
       <FileIcon size={42} className='text-c4' />
       <div className='w-4/5 flex flex-col justify-center items-center gap-3'>
-        <h2 className='text-c6 text-2xl font-semibold'>Oups !</h2>
-        <p className='text-c6 text-base text-center font-semibold'>Aucune recherche disponible pour cette session...</p>
+        <h2 className='text-c6 text-2xl font-medium'>Oups !</h2>
+        <p className='text-c6 text-base text-center font-medium'>Aucune recherche disponible pour cette session...</p>
         <p className='text-c4 text-sm text-center'>
           Il n'existe actuellement aucune recherche d'enregistrée sur votre compte. Veuillez vérifier plus tard ou explorer la visualisation graphique pour sauvegarder vos
           recherches.
@@ -180,7 +200,7 @@ export const CahierRecherche: React.FC = () => {
   return (
     <Layouts className='flex flex-col col-span-10 justify-start gap-6 items-center p-6'>
       <div className='w-full flex flex-col'>
-        <h1 className='text-c6 text-32 font-semibold mb-8'>Recherches enregistrées</h1>
+        <h1 className='text-c6 text-3xl font-medium mb-8'>Recherches enregistrées</h1>
 
         {isLoading ? (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>{renderSkeletons()}</div>

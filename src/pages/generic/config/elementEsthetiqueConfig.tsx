@@ -71,17 +71,17 @@ export const elementEsthetiqueConfig: GenericDetailPageConfig = {
         ];
 
         return (
-          <div className='flex flex-col gap-20'>
+          <div className='flex flex-col gap-5'>
             {fields.map(
               (field) =>
                 itemDetails[field.key] && (
-                  <div key={field.key} className='flex flex-col gap-10'>
-                    <h3 className='text-18 font-medium text-c6'>{field.label}</h3>
-                    <div className='w-full flex flex-row justify-between border-2 rounded-12 items-center gap-25 border-c3'>
-                      <div className='w-full gap-25 p-25 flex flex-row justify-between'>
+                  <div key={field.key} className='flex flex-col gap-2.5'>
+                    <h3 className='text-lg font-medium text-c6'>{field.label}</h3>
+                    <div className='w-full flex flex-row justify-between border-2 rounded-xl items-center gap-6 border-c3'>
+                      <div className='w-full gap-6 p-6 flex flex-row justify-between'>
                         <div className='flex flex-col gap-4 items-start'>
-                          <div className='w-full flex flex-col gap-10'>
-                            <p className='text-c6 text-16'>{itemDetails[field.key]}</p>
+                          <div className='w-full flex flex-col gap-2.5'>
+                            <p className='text-c6 text-base'>{itemDetails[field.key]}</p>
                           </div>
                         </div>
                       </div>

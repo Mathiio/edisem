@@ -51,7 +51,7 @@ export default function AddPopup({ onCreateItem }: AnnotatePopupProps) {
 
   return (
     <div className='w-full flex flex-col gap-4 h-full overflow-hidden justify-between'>
-      <div className='text-14 flex justify-start leading-[150%] w-full gap-2 rounded-0 text-c6 bg-transparent'>
+      <div className='text-sm flex justify-start leading-[150%] w-full gap-2 rounded-none text-c6 bg-transparent'>
         Création de donnée
       </div>
       <Divider />
@@ -92,7 +92,7 @@ export default function AddPopup({ onCreateItem }: AnnotatePopupProps) {
 
       <div className='flex justify-end gap-2 mt-4'>
         <Button
-          className='text-16 h-auto px-10 py-5 rounded-8 text-selected gap-2 bg-action disabled:opacity-50 disabled:hover:opacity-50 transition-all ease-in-out duration-200'
+          className='text-base h-auto px-2.5 py-1.5 rounded-lg text-selected gap-2 bg-action disabled:opacity-50 disabled:hover:opacity-50 transition-all ease-in-out duration-200'
           color='primary'
           onClick={handleCreateClick}
           disabled={!selectedItem}>

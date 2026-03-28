@@ -47,7 +47,7 @@ export const AddResourceCard: React.FC<AddResourceCardProps> = ({
   const cardBaseClass = `
     flex flex-col items-center justify-center
     min-h-[120px] p-4
-    border-2 border-dashed border-c4 rounded-12
+    border-2 border-dashed border-c4 rounded-xl
     cursor-pointer
     transition-all duration-200
     hover:border-action hover:bg-c2
@@ -73,7 +73,7 @@ export const AddResourceCard: React.FC<AddResourceCardProps> = ({
       >
         <div className="flex items-center gap-2 text-c5">
           <PlusIcon size={18} />
-          <span className="text-16 font-medium">
+          <span className="text-base font-medium">
             Ajouter {resourceLabel}
           </span>
         </div>
@@ -110,7 +110,7 @@ export const AddResourceCard: React.FC<AddResourceCardProps> = ({
           `}
         >
           <LinkIcon size={24} className="text-c5 mb-2" />
-          <span className="text-14 font-medium text-c5 text-center">
+          <span className="text-sm font-medium text-c5 text-center">
             Lier une ressource existante
           </span>
         </div>
@@ -131,7 +131,7 @@ export const AddResourceCard: React.FC<AddResourceCardProps> = ({
           `}
         >
           <EditIcon size={24} className="text-c5 mb-2" />
-          <span className="text-14 font-medium text-c5 text-center">
+          <span className="text-sm font-medium text-c5 text-center">
             Creer une nouvelle ressource
           </span>
         </div>
@@ -160,9 +160,9 @@ export const AddButton: React.FC<AddButtonProps> = ({
   variant = 'chip',
 }) => {
   const sizeClasses = {
-    sm: 'h-6 px-2 text-12',
-    md: 'h-8 px-3 text-14',
-    lg: 'h-10 px-4 text-16',
+    sm: 'h-6 px-2 text-xs',
+    md: 'h-8 px-3 text-sm',
+    lg: 'h-2.5 px-4 text-base',
   };
 
   if (variant === 'icon') {
@@ -193,7 +193,7 @@ export const AddButton: React.FC<AddButtonProps> = ({
         className={`
           flex flex-col items-center justify-center
           min-h-[80px] p-3
-          border-2 border-dashed border-c4 rounded-8
+          border-2 border-dashed border-c4 rounded-lg
           cursor-pointer
           transition-all duration-200
           hover:border-action hover:bg-c2
@@ -201,7 +201,7 @@ export const AddButton: React.FC<AddButtonProps> = ({
         `}
       >
         <PlusIcon size={20} className="text-c5" />
-        {label && <span className="text-12 text-c5 mt-1">{label}</span>}
+        {label && <span className="text-xs text-c5 mt-px">{label}</span>}
       </div>
     );
   }
@@ -218,7 +218,7 @@ export const AddButton: React.FC<AddButtonProps> = ({
         hover:bg-action hover:text-selected
         rounded-full
         transition-all duration-200
-        flex items-center gap-1
+        flex items-center gap-px
       `}
       startContent={<PlusIcon size={size === 'sm' ? 12 : 14} />}
     >

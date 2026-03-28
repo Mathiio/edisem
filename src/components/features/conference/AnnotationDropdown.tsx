@@ -2,24 +2,12 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, L
 import React, { useEffect, useState } from 'react';
 import { CrossIcon, DotsIcon, UserIcon } from '@/components/ui/icons';
 import { IconSvgProps, ResourceDetails } from '@/types/ui';
-import Omk from '@/components/features/database/CreateModal';
-import { getResourceDetails } from '@/services/resourceDetails';
+import { getResourceDetails, getAnnotations } from '@/services/resourceDetails';
 
-const API_URL = 'https://edisem.arcanes.ca/omk/api/';
-const API_KEY = import.meta.env.VITE_API_KEY;
-const IDENT = 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj';
-
-export const omkInstance = new Omk({
-  api: API_URL,
-  key: API_KEY,
-  ident: IDENT,
-  vocabs: ['dcterms', 'oa'],
-});
-
-omkInstance.init();
+import { ApiProxy } from '@/services/ApiProxy';
 
 interface AnnotationDropdownProps {
-  id: Number;
+  id: string | number;
   content: string | React.ReactNode;
   image?: string | React.ReactElement<IconSvgProps>;
   actant?: string;
@@ -88,10 +76,9 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
     setIsLoading(true);
 
     try {
-      // Backend now returns fully enriched annotation with contributor resolved
-      const annotation = await getResourceDetails(id as string | number);
-      // Wrap in array since setAnnotations expects array
-      setAnnotations(annotation ? [annotation] : []);
+      // Use specifically registered backend action for fetching annotations list
+      const results = await getAnnotations(id as string | number);
+      setAnnotations(results || []);
     } catch (error) {
       console.error('Error loading annotations:', error);
     } finally {
@@ -103,22 +90,55 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
     setExpanded(!expanded);
   };
 
-  useEffect(() => {
-    if (!omkInstance.props) {
-      omkInstance.init();
-    }
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title || !description) return;
     setIsSubmitting(true);
 
     try {
+      const itemData = {
+        'o:resource_template': { 'o:id': 101 },
+        'dcterms:title': [
+          {
+            type: 'literal',
+            property_id: 1,
+            '@value': title,
+            is_public: true,
+          },
+        ],
+        'dcterms:description': [
+          {
+            type: 'literal',
+            property_id: 4,
+            '@value': description,
+            is_public: true,
+          },
+        ],
+        'oa:hasTarget': [
+          {
+            type: 'resource',
+            property_id: 199,
+            value_resource_id: Number(id),
+            is_public: true,
+          },
+        ],
+        'schema:contributor': [
+          {
+            type: 'resource',
+            property_id: 581,
+            value_resource_id: Number(user.id),
+            is_public: true,
+          },
+        ],
+      };
+
+      await ApiProxy.createItem(itemData);
+
       onAnnotateClose();
       setTitle('');
       setDescription('');
     } catch (error) {
-      console.error('Erreur lors de la création:', error);
+      console.error('Erreur lors de la création de l\'annotation:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -145,34 +165,34 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
           {() => (
             <>
               <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
-                <h1 className='text-32 text-c6 font-semibold'>Annotation</h1>
+                <h1 className='text-3xl text-c6 font-medium'>Annotation</h1>
                 <Link onPress={onAnnotateClose}>
                   <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
                 </Link>
               </ModalHeader>
-              <ModalBody className='flex p-[25px] gap-25'>
-                <div className='flex flex-col gap-10'>
-                  <p className='text-16 text-c6'>{type}</p>
-                  <div className='p-25 flex flex-row border-1 w-full gap-25 border-c3 rounded-12'>
+              <ModalBody className='flex p-[25px] gap-6'>
+                <div className='flex flex-col gap-2.5'>
+                  <p className='text-base text-c6'>{type}</p>
+                  <div className='p-6 flex flex-row border-1 w-full gap-6 border-c3 rounded-xl'>
                     {image && (
                       <div className='flex flex-row items-center text-c4'>
                         {typeof image === 'string' ? (
-                          <img src={image} alt='thumbnail' className='w-100 h-full object-cover rounded-6' />
+                          <img src={image} alt='thumbnail' className='w-24 h-full object-cover rounded-md' />
                         ) : React.isValidElement(image) ? (
                           image
                         ) : null}
                       </div>
                     )}
-                    <div className='flex gap-10 flex-col'>
+                    <div className='flex gap-2.5 flex-col'>
                       {actant ? (
                         <>
                           <div className='text-c6'>{actant}</div>
                           <p
-                            className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200'
+                            className='text-base text-c4 font-normal transition-all ease-in-out duration-200'
                             style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
                             {content}
                           </p>
-                          <p className='text-16 text-c5 font-semibold cursor-pointer transition-all ease-in-out duration-200' onClick={toggleExpansion}>
+                          <p className='text-base text-c5 font-medium cursor-pointer transition-all ease-in-out duration-200' onClick={toggleExpansion}>
                             {expanded ? 'affichez moins' : '...affichez plus'}
                           </p>
                         </>
@@ -183,13 +203,13 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                   </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className='flex flex-col w-full max-w-lg gap-25'>
+                <form onSubmit={handleSubmit} className='flex flex-col w-full max-w-lg gap-6'>
                   <Input
                     size='lg'
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     classNames={{
-                      label: 'text-semibold !text-c6 text-24',
+                      label: 'text-semibold !text-c6 text-2xl',
                       inputWrapper: 'bg-c2 shadow-none border-1 border-200',
                       input: 'h-[50px]',
                       mainWrapper: 'w-full',
@@ -204,7 +224,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     classNames={{
-                      label: 'text-semibold !text-c6 text-24',
+                      label: 'text-semibold !text-c6 text-2xl',
                       inputWrapper: 'w-full bg-c2 shadow-none border-1 border-200',
                       input: ' h-[50px]',
                       mainWrapper: 'w-full',
@@ -215,10 +235,10 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     placeholder='Entrez votre commentaire..'
                   />
                   <div className='flex w-full flex-row justify-end items-center gap-3 mt-4'>
-                    <Button onClick={onAnnotateClose} className='w-fit px-3 h-[40px] bg-c2 text-c6 rounded-8'>
+                    <Button onClick={onAnnotateClose} className='w-fit px-3 h-[40px] bg-c2 text-c6 rounded-lg'>
                       Annuler
                     </Button>
-                    <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected rounded-8 ' disabled={isSubmitting}>
+                    <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected rounded-lg ' disabled={isSubmitting}>
                       {isSubmitting ? 'Création...' : 'Annoter'}
                     </Button>
                   </div>
@@ -251,7 +271,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
           {() => (
             <>
               <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
-                <h1 className='text-32 text-c6 font-semibold'>Annotations</h1>
+                <h1 className='text-3xl text-c6 font-medium'>Annotations</h1>
                 <Link onPress={onViewClose}>
                   <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
                 </Link>
@@ -262,29 +282,29 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     <p className='text-c6'>Chargement des annotations...</p>
                   </div>
                 ) : annotations.length > 0 ? (
-                  <div className='flex flex-col gap-[30px] w-full'>
-                    <div className='flex flex-row items-center gap-10'>
-                      <h1 className='text-16 text-c6'>Annotations</h1>
-                      <div className='rounded-[7px] text-[12px] border-2 p-5 leading-[60%] text-c6 border-c3'>{annotations.length}</div>
+                  <div className='flex flex-col gap-8 w-full'>
+                    <div className='flex flex-row items-center gap-2.5'>
+                      <h1 className='text-base text-c6'>Annotations</h1>
+                      <div className='rounded-md text-[12px] border-2 p-1.5 leading-[60%] text-c6 border-c3'>{annotations.length}</div>
                     </div>
-                    <div className='flex flex-col gap-[30px] max-h-[350px] overflow-y-scroll'>
+                    <div className='flex flex-col gap-8 max-h-[350px] overflow-y-scroll'>
                       {annotations.map((annotation: any, index) => (
-                        <div key={index} className=' flex flex-col border-2 px-[15px] py-[15px] border-c3 w-fit gap-[15px] rounded-12'>
-                          <div className='flex flex-row rounded-8 items-center h-[40px] gap-10 text-c6 transition-all ease-in-out duration-200'>
+                        <div key={index} className=' flex flex-col border-2 px-[15px] py-[15px] border-c3 w-fit gap-4 rounded-xl'>
+                          <div className='flex flex-row rounded-lg items-center h-[40px] gap-2.5 text-c6 transition-all ease-in-out duration-200'>
                             {annotation.contributor?.picture ? (
-                              <img src={annotation.contributor.picture} alt='Avatar' className='w-[30px] h-[30px] rounded-[6px] object-cover' />
+                              <img src={annotation.contributor.picture} alt='Avatar' className='w-[30px] h-[30px] rounded-md object-cover' />
                             ) : (
                               <UserIcon size={16} className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200' />
                             )}
-                            <span className='text-14 font-normal text-c6'>
+                            <span className='text-sm font-normal text-c6'>
                               {annotation.contributor?.firstname && annotation.contributor?.lastname
                                 ? `${annotation.contributor.firstname} ${annotation.contributor.lastname.charAt(0)}.`
                                 : annotation.contributor?.firstname || annotation.contributor?.lastname || 'Utilisateur'}
                             </span>
                             <div className='w-[5px] h-[5px]'></div>
-                            <span className='text-14 font-normal text-c6'>{new Date(annotation.created).toLocaleDateString('ca-CA')}</span>
+                            <span className='text-sm font-normal text-c6'>{new Date(annotation.created).toLocaleDateString('ca-CA')}</span>
                           </div>
-                          <h3 className='text-xl text-c6 font-semibold'>{annotation.title}</h3>
+                          <h3 className='text-xl text-c6 font-medium'>{annotation.title}</h3>
                           <p className='text-base text-c4'>{annotation.description}</p>
                         </div>
                       ))}
@@ -306,18 +326,36 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
   // Mode dropdown par défaut
   return (
     <div>
-      <Dropdown isOpen={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+      <Dropdown
+        isOpen={isDropdownOpen}
+        onOpenChange={setIsDropdownOpen}
+        classNames={{
+          content:
+            'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3 min-w-[220px]',
+        }}>
         <DropdownTrigger className='cursor-pointer text-c6'>
           <div>
-            <DotsIcon className='mx-1' size={15} />
+            <DotsIcon className='mx-px' size={15} />
           </div>
         </DropdownTrigger>
 
-        <DropdownMenu aria-label='User menu' className='p-4 text-c6'>
-          <DropdownItem key='Annoter' onClick={onAnnotateOpen} className='gap-2'>
+        <DropdownMenu
+          aria-label='Actions annotation'
+          className='p-2 text-c6'
+          classNames={{
+            base: 'bg-transparent shadow-none border-0',
+            list: 'bg-transparent',
+          }}>
+          <DropdownItem
+            key='Annoter'
+            className='gap-2 cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
+            onPress={onAnnotateOpen}>
             Annoter
           </DropdownItem>
-          <DropdownItem key='VoirAnnoter' onClick={handleViewOpen} className='gap-2'>
+          <DropdownItem
+            key='VoirAnnoter'
+            className='gap-2 cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
+            onPress={() => void handleViewOpen()}>
             Voir les annotations
           </DropdownItem>
         </DropdownMenu>
@@ -341,34 +379,34 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
           {() => (
             <>
               <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
-                <h1 className='text-32 text-c6 font-semibold'>Annotation</h1>
+                <h1 className='text-3xl text-c6 font-medium'>Annotation</h1>
                 <Link onPress={onAnnotateClose}>
                   <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
                 </Link>
               </ModalHeader>
-              <ModalBody className='flex p-[25px] gap-25'>
-                <div className='flex flex-col gap-10'>
-                  <p className='text-16 text-c6'>{type}</p>
-                  <div className='p-25 flex flex-row border-1 w-full gap-25 border-c3 rounded-12'>
+              <ModalBody className='flex p-[25px] gap-6'>
+                <div className='flex flex-col gap-2.5'>
+                  <p className='text-base text-c6'>{type}</p>
+                  <div className='p-6 flex flex-row border-1 w-full gap-6 border-c3 rounded-xl'>
                     {image && (
                       <div className='flex flex-row items-center text-c4'>
                         {typeof image === 'string' ? (
-                          <img src={image} alt='thumbnail' className='w-100 h-full object-cover rounded-6' />
+                          <img src={image} alt='thumbnail' className='w-24 h-full object-cover rounded-md' />
                         ) : React.isValidElement(image) ? (
                           image
                         ) : null}
                       </div>
                     )}
-                    <div className='flex gap-10 flex-col'>
+                    <div className='flex gap-2.5 flex-col'>
                       {actant ? (
                         <>
                           <div className='text-c6'>{actant}</div>
                           <p
-                            className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200'
+                            className='text-base text-c4 font-normal transition-all ease-in-out duration-200'
                             style={{ lineHeight: '120%', maxHeight: expanded ? 'none' : '80px', overflow: 'hidden' }}>
                             {content}
                           </p>
-                          <p className='text-16 text-c5 font-semibold cursor-pointer transition-all ease-in-out duration-200' onClick={toggleExpansion}>
+                          <p className='text-base text-c5 font-medium cursor-pointer transition-all ease-in-out duration-200' onClick={toggleExpansion}>
                             {expanded ? 'affichez moins' : '...affichez plus'}
                           </p>
                         </>
@@ -379,13 +417,13 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                   </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className='flex flex-col w-full max-w-lg gap-25'>
+                <form onSubmit={handleSubmit} className='flex flex-col w-full max-w-lg gap-6'>
                   <Input
                     size='lg'
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     classNames={{
-                      label: 'text-semibold !text-c6 text-24',
+                      label: 'text-semibold !text-c6 text-2xl',
                       inputWrapper: 'bg-c2 shadow-none border-1 border-200',
                       input: 'h-[50px]',
                       mainWrapper: 'w-full',
@@ -400,7 +438,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     classNames={{
-                      label: 'text-semibold !text-c6 text-24',
+                      label: 'text-semibold !text-c6 text-2xl',
                       inputWrapper: 'w-full bg-c2 shadow-none border-1 border-200',
                       input: ' h-[50px]',
                       mainWrapper: 'w-full',
@@ -411,10 +449,10 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     placeholder='Entrez votre commentaire..'
                   />
                   <div className='flex w-full flex-row justify-end items-center gap-3 mt-4'>
-                    <Button onClick={onAnnotateClose} className='w-fit px-3 h-[40px] bg-c2 text-c6 rounded-8'>
+                    <Button onClick={onAnnotateClose} className='w-fit px-3 h-[40px] bg-c2 text-c6 rounded-lg'>
                       Annuler
                     </Button>
-                    <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected rounded-8 ' disabled={isSubmitting}>
+                    <Button type='submit' className='w-fit px-3 h-[40px] bg-action text-selected rounded-lg ' disabled={isSubmitting}>
                       {isSubmitting ? 'Création...' : 'Annoter'}
                     </Button>
                   </div>
@@ -443,7 +481,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
           {() => (
             <>
               <ModalHeader className='flex justify-between p-[25px] border-b-1 border-c4'>
-                <h1 className='text-32 text-c6 font-semibold'>Annotations</h1>
+                <h1 className='text-3xl text-c6 font-medium'>Annotations</h1>
                 <Link onPress={onViewClose}>
                   <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
                 </Link>
@@ -454,29 +492,29 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     <p className='text-c6'>Chargement des annotations...</p>
                   </div>
                 ) : annotations.length > 0 ? (
-                  <div className='flex flex-col gap-[30px] w-full'>
-                    <div className='flex flex-row items-center gap-10'>
-                      <h1 className='text-16 text-c6'>Annotations</h1>
-                      <div className='rounded-[7px] text-[12px] border-2 p-5 leading-[60%] text-c6 border-c3'>{annotations.length}</div>
+                  <div className='flex flex-col gap-8 w-full'>
+                    <div className='flex flex-row items-center gap-2.5'>
+                      <h1 className='text-base text-c6'>Annotations</h1>
+                      <div className='rounded-md text-[12px] border-2 p-1.5 leading-[60%] text-c6 border-c3'>{annotations.length}</div>
                     </div>
-                    <div className='flex flex-col gap-[30px] max-h-[350px] overflow-y-scroll'>
+                    <div className='flex flex-col gap-8 max-h-[350px] overflow-y-scroll'>
                       {annotations.map((annotation: any, index) => (
-                        <div key={index} className=' flex flex-col border-2 px-[15px] py-[15px] border-c3 w-fit gap-[15px] rounded-12'>
-                          <div className='flex flex-row rounded-8 items-center h-[40px] gap-10 text-c6 transition-all ease-in-out duration-200'>
+                        <div key={index} className=' flex flex-col border-2 px-[15px] py-[15px] border-c3 w-fit gap-4 rounded-xl'>
+                          <div className='flex flex-row rounded-lg items-center h-[40px] gap-2.5 text-c6 transition-all ease-in-out duration-200'>
                             {annotation.contributor?.picture ? (
-                              <img src={annotation.contributor.picture} alt='Avatar' className='w-[30px] h-[30px] rounded-[6px] object-cover' />
+                              <img src={annotation.contributor.picture} alt='Avatar' className='w-[30px] h-[30px] rounded-md object-cover' />
                             ) : (
                               <UserIcon size={16} className='text-c6 hover:opacity-100 transition-all ease-in-out duration-200' />
                             )}
-                            <span className='text-14 font-normal text-c6'>
+                            <span className='text-sm font-normal text-c6'>
                               {annotation.contributor?.firstname && annotation.contributor?.lastname
                                 ? `${annotation.contributor.firstname} ${annotation.contributor.lastname.charAt(0)}.`
                                 : annotation.contributor?.firstname || annotation.contributor?.lastname || 'Utilisateur'}
                             </span>
                             <div className='w-[5px] h-[5px]'></div>
-                            <span className='text-14 font-normal text-c6'>{new Date(annotation.created).toLocaleDateString('ca-CA')}</span>
+                            <span className='text-sm font-normal text-c6'>{new Date(annotation.created).toLocaleDateString('ca-CA')}</span>
                           </div>
-                          <h3 className='text-xl text-c6 font-semibold'>{annotation.title}</h3>
+                          <h3 className='text-xl text-c6 font-medium'>{annotation.title}</h3>
                           <p className='text-base text-c4'>{annotation.description}</p>
                         </div>
                       ))}

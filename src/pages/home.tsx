@@ -10,7 +10,7 @@ import { CorpusSection } from '@/components/features/home/CorpusSection';
 export const Home: React.FC = () => {
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
+    <Layouts className='col-span-10 flex flex-col gap-36 z-0 overflow-visible'>
       <HomeBaner />
       <LogoCarousel/>
       <CorpusSection />

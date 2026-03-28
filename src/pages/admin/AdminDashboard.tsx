@@ -31,7 +31,7 @@ export const AdminDashboard: React.FC = () => {
     <Layouts className='flex flex-col col-span-10 gap-6'>
       {/* Header */}
       <div className='flex items-center justify-between'>
-        <h1 className='text-32 font-semibold text-c6'>Administration</h1>
+        <h1 className='text-3xl font-medium text-c6'>Administration</h1>
       </div>
 
       {/* Tabs de navigation */}
@@ -40,9 +40,9 @@ export const AdminDashboard: React.FC = () => {
         selectedKey={activeTab}
         onSelectionChange={(key) => setActiveTab(key as TabKey)}
         classNames={{
-          tabList: 'bg-c2 p-1 rounded-12',
+          tabList: 'bg-c2 p-px rounded-xl',
           cursor: 'bg-c4',
-          tab: 'h-10 px-6 min-h-[40px]',
+          tab: 'h-2.5 px-6 min-h-[40px]',
           tabContent: 'group-data-[selected=true]:text-selected text-c5 min-h-[40px] flex items-center',
         }}>
         <Tab

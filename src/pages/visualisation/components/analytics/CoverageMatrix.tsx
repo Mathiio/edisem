@@ -136,10 +136,10 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
       loadingMessage='Chargement de la matrice...'>
       <div className='flex-1 w-full h-full bg-c1 overflow-hidden flex flex-col'>
         {/* Contenu principal */}
-        <div className='flex-1 flex overflow-hidden p-25'>
+        <div className='flex-1 flex overflow-hidden p-6'>
           {/* Matrice */}
-          <div ref={scrollContainerRef} className='w-fit max-w-full overflow-auto rounded-8 border-2 border-c3 ' style={{ scrollbarGutter: 'stable' }}>
-            <div className='w-fit flex flex-col  rounded-8'>
+          <div ref={scrollContainerRef} className='w-fit max-w-full overflow-auto rounded-lg border-2 border-c3 ' style={{ scrollbarGutter: 'stable' }}>
+            <div className='w-fit flex flex-col  rounded-lg'>
               {/* Header keywords */}
               <div className='flex border-b-2 border-c3 bg-c2 '>
                 <div
@@ -150,7 +150,7 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
                 {data?.keywords.map((kw, kwIndex) => (
                   <div
                     key={kw.keyword_id}
-                    className={`w-40 min-w-40 h-[220px] flex items-end justify-center pb-4 border-c3 ${kwIndex === (data?.keywords.length || 0) - 1 ? '' : 'border-r-2'}`}>
+                    className={`w-10 min-w-10 h-[220px] flex items-end justify-center pb-4 border-c3 ${kwIndex === (data?.keywords.length || 0) - 1 ? '' : 'border-r-2'}`}>
                     <span
                       className='text-c5 text-xs overflow-hidden text-ellipsis whitespace-nowrap truncate '
                       style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', maxHeight: '180px' }}
@@ -168,7 +168,7 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
                   <button
                     onClick={() => setSelectedType(selectedType === typeData.type ? null : typeData.type)}
                     style={{ width: typeLabelWidth, minWidth: typeLabelWidth }}
-                    className={`h-40 flex items-center text-c6 px-8 text-left transition-colors sticky left-0 z-10 border-r-2 border-b-2 border-c3
+                    className={`h-10 flex items-center text-c6 px-8 text-left transition-colors sticky left-0 z-10 border-r-2 border-b-2 border-c3
                     ${isScrolled ? 'border-l-2 rounded-l-8' : ''}
                     ${index % 2 === 0 ? 'bg-c1' : 'bg-c2'}
                     ${selectedType === typeData.type ? '!bg-action/20 text-action' : 'hover:bg-c3'}`}>
@@ -186,7 +186,7 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
                     return (
                       <div
                         key={`${typeData.type}-${kw.keyword_id}`}
-                        className={`w-40 min-w-40 h-40 flex items-center justify-center border-b-2 border-c3 ${isLastColumn ? '' : 'border-r-2'}
+                        className={`w-10 min-w-10 h-10 flex items-center justify-center border-b-2 border-c3 ${isLastColumn ? '' : 'border-r-2'}
                           ${isGap && onGapClick ? 'cursor-pointer hover:ring-2 hover:ring-datavisOrange' : 'hover:ring-2 hover:ring-white/30'}`}
                         style={getHeatmapStyle(count)}
                         onMouseEnter={() => setHoveredCell({ typeLabel: typeData.label, keywordTitle: kw.keyword_title, count })}
@@ -220,22 +220,22 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
             </ModalHeader>
             <ModalBody>
               {isLoadingType ? (
-                <div className='flex items-center justify-center h-200 p-20'>
-                  <Skeleton className='w-full h-150 rounded-8' />
+                <div className='flex items-center justify-center h-48 p-5'>
+                  <Skeleton className='w-full h-36 rounded-lg' />
                 </div>
               ) : typeKeywordsData ? (
-                <div className='p-20 space-y-20'>
+                <div className='p-5 space-y-20'>
                   {/* Stats en haut */}
-                  <div className='grid grid-cols-3 gap-15'>
-                    <div className='bg-c3 rounded-12 p-15 text-center'>
+                  <div className='grid grid-cols-3 gap-4'>
+                    <div className='bg-c3 rounded-xl p-4 text-center'>
                       <p className='text-c6 text-2xl font-bold'>{typeKeywordsData.totalResources}</p>
                       <p className='text-c4 text-xs mt-4'>Ressources</p>
                     </div>
-                    <div className='bg-c3 rounded-12 p-15 text-center'>
+                    <div className='bg-c3 rounded-xl p-4 text-center'>
                       <p className='text-c6 text-2xl font-bold'>{typeKeywordsData.resourcesWithKeywords}</p>
                       <p className='text-c4 text-xs mt-4'>Avec mots-clés</p>
                     </div>
-                    <div className='bg-c3 rounded-12 p-15 text-center'>
+                    <div className='bg-c3 rounded-xl p-4 text-center'>
                       <p className='text-datavisBlue text-2xl font-bold'>{typeKeywordsData.coveragePercentage}%</p>
                       <p className='text-c4 text-xs mt-4'>Couverture</p>
                     </div>
@@ -254,7 +254,7 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
                     </div>
 
                     {typeKeywordsData.keywords.length === 0 ? (
-                      <div className='bg-c3 rounded-12 p-20 text-center'>
+                      <div className='bg-c3 rounded-xl p-5 text-center'>
                         <AlertTriangle size={32} className='text-datavisOrange mx-auto mb-8' />
                         <p className='text-c4 text-sm'>Aucun mot-clé associé</p>
                       </div>
@@ -266,7 +266,7 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
                           const isInTopGlobal = data?.keywords.some((gk) => gk.keyword_id === String(kw.id));
 
                           return (
-                            <div key={kw.id} className={`rounded-8 p-10 ${isInTopGlobal ? 'bg-c3' : 'bg-datavisOrange/10 border border-datavisOrange/30'}`}>
+                            <div key={kw.id} className={`rounded-lg p-2.5 ${isInTopGlobal ? 'bg-c3' : 'bg-datavisOrange/10 border border-datavisOrange/30'}`}>
                               <div className='flex items-center justify-between mb-6'>
                                 <span className='text-c6 text-sm truncate flex-1'>{kw.title}</span>
                                 <span className='text-c5 text-sm font-medium ml-8'>{kw.count}</span>
@@ -284,7 +284,7 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
 
                   {/* Comparaison */}
                   {data && (
-                    <div className='bg-c3 rounded-12 p-15'>
+                    <div className='bg-c3 rounded-xl p-4'>
                       <div className='flex items-center gap-8 mb-12'>
                         <Info size={16} className='text-c5' />
                         <span className='text-c5 text-sm font-medium'>vs Top {topKeywordsCount} global</span>
@@ -296,7 +296,7 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
                         const notInTop = typeKeywordsData.keywords.length - inTop;
 
                         return (
-                          <div className='flex gap-20'>
+                          <div className='flex gap-5'>
                             <div className='flex items-center gap-8'>
                               <span className='text-c4 text-sm'>Dans le Top {topKeywordsCount}:</span>
                               <span className='text-datavisGreen font-bold text-lg'>{inTop}</span>
@@ -312,7 +312,7 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
                   )}
                 </div>
               ) : (
-                <div className='p-20 text-center'>
+                <div className='p-5 text-center'>
                   <p className='text-c4 text-sm'>Erreur de chargement</p>
                 </div>
               )}
@@ -321,9 +321,9 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
         </Modal>
 
         {/* Footer avec légende et infos hover */}
-        <div className='px-25 py-6 border-t border-c3 flex items-center justify-between bg-c2/50'>
+        <div className='px-6 py-6 border-t border-c3 flex items-center justify-between bg-c2/50'>
           {hoveredCell ? (
-            <span className='text-16'>
+            <span className='text-base'>
               <span className='text-c6 font-medium'>{hoveredCell.typeLabel}</span>
               <span className='text-c4'> × </span>
               <span className='text-c5'>{hoveredCell.keywordTitle}</span>
@@ -333,7 +333,7 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
               </span>
             </span>
           ) : (
-            <span className='text-c4 text-16'>
+            <span className='text-c4 text-base'>
               {filteredMatrix.length} types × {data?.keywords.length} keywords • {data?.gapCount} lacunes (
               {Math.round(((data?.gapCount || 0) / ((filteredMatrix.length || 1) * (data?.keywords.length || 1))) * 100)}%)
             </span>
@@ -341,7 +341,7 @@ export const CoverageMatrix: React.FC<CoverageMatrixProps> = ({ onGapClick, topK
           <div className='flex items-center gap-6'>
             {LEGEND_ITEMS.map(({ label, color }) => (
               <div key={label} className='flex items-center gap-2'>
-                <div className='w-15 h-15 rounded-[3px]' style={{ backgroundColor: color }} />
+                <div className='w-4 h-4 rounded-xs' style={{ backgroundColor: color }} />
                 <span className='text-c4 text-[10px]'>{label}</span>
               </div>
             ))}

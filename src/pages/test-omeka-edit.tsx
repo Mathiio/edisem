@@ -45,10 +45,10 @@ interface OmekaMedia {
   };
 }
 
+import { ApiProxy } from '@/services/ApiProxy';
+
 // Utilise le proxy Vite configuré dans vite.config.ts pour éviter les problèmes CORS
 const API_BASE = '/omk/api/';
-const API_KEY = import.meta.env.VITE_API_KEY;
-const API_IDENT = 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj';
 
 export default function TestOmekaEdit() {
   const [itemId, setItemId] = useState<string>('');
@@ -321,22 +321,12 @@ export default function TestOmekaEdit() {
         }
       });
 
-      const url = `${API_BASE}items/${itemId}?key_identity=${API_IDENT}&key_credential=${API_KEY}`;
+      // Sauvegarder via Proxy
+      const result = await ApiProxy.updateItem(itemId, updatedItem);
 
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedItem),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.errors?.[0]?.message || 'Erreur lors de la sauvegarde');
+      if (result.error) {
+        throw new Error(result.error || 'Erreur lors de la sauvegarde');
       }
-
-      const result = await response.json();
 
       // Gérer les médias
       let mediaErrors: string[] = [];
@@ -405,38 +395,22 @@ export default function TestOmekaEdit() {
     setNewMediaFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Uploader un nouveau média
+  // Uploader un nouveau média via Proxy
   const uploadMedia = async (file: File): Promise<boolean> => {
-    const url = `${API_BASE}media?key_identity=${API_IDENT}&key_credential=${API_KEY}`;
-
-    const formData = new FormData();
-    const mediaData = {
-      'o:ingester': 'upload',
-      'o:item': { 'o:id': parseInt(itemId) },
-      'file_index': '0',
-    };
-    formData.append('data', JSON.stringify(mediaData));
-    formData.append('file[0]', file);
-
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        body: formData,
-      });
-      return response.ok;
+      const result = await ApiProxy.uploadMedia(file, itemId);
+      return !result.error;
     } catch (err) {
       console.error('Erreur upload média:', err);
       return false;
     }
   };
 
-  // Supprimer un média
+  // Supprimer un média via Proxy
   const deleteMedia = async (mediaId: number): Promise<boolean> => {
-    const url = `${API_BASE}media/${mediaId}?key_identity=${API_IDENT}&key_credential=${API_KEY}`;
-
     try {
-      const response = await fetch(url, { method: 'DELETE' });
-      return response.ok;
+      const result = await ApiProxy.deleteMedia(mediaId);
+      return !result.error;
     } catch (err) {
       console.error('Erreur suppression média:', err);
       return false;
@@ -530,7 +504,7 @@ export default function TestOmekaEdit() {
             <div key={key} className="mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-sm font-medium text-c6">{propertyLabel}</span>
-                <code className="text-xs text-action bg-c3 px-2 py-1 rounded">{key}</code>
+                <code className="text-xs text-action bg-c3 px-2 py-px rounded">{key}</code>
                 <Chip size="sm" color="secondary" variant="flat">Médias associés</Chip>
                 {isModified && <Chip size="sm" color="warning" variant="flat">Modifié</Chip>}
               </div>
@@ -570,7 +544,7 @@ export default function TestOmekaEdit() {
                         </Button>
                       </div>
 
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-2 py-1">
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-2 py-px">
                         <p className="text-xs text-white truncate">
                           {resource?.title || `Item #${resourceId}`}
                         </p>
@@ -618,10 +592,10 @@ export default function TestOmekaEdit() {
                           <img
                             src={item.thumbnailUrl}
                             alt={item.title}
-                            className="w-full h-20 object-cover"
+                            className="w-full h-5 object-cover"
                           />
                         ) : (
-                          <div className="w-full h-20 bg-c3 flex items-center justify-center text-c5 text-xs p-1 text-center">
+                          <div className="w-full h-5 bg-c3 flex items-center justify-center text-c5 text-xs p-px text-center">
                             {item.title}
                           </div>
                         )}
@@ -640,7 +614,7 @@ export default function TestOmekaEdit() {
             <div key={key} className="mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-sm font-medium text-c6">{propertyLabel}</span>
-                <code className="text-xs text-action bg-c3 px-2 py-1 rounded">{key}</code>
+                <code className="text-xs text-action bg-c3 px-2 py-px rounded">{key}</code>
                 <Chip size="sm" color="primary" variant="flat">Ressources liées</Chip>
                 {isModified && <Chip size="sm" color="warning" variant="flat">Modifié</Chip>}
               </div>
@@ -657,7 +631,7 @@ export default function TestOmekaEdit() {
                         <img
                           src={resourceCache[resourceId].thumbnailUrl}
                           alt={resourceCache[resourceId]?.title || 'Thumbnail'}
-                          className="w-40 h-40 rounded-md object-cover"
+                          className="w-10 h-10 rounded-md object-cover"
                         />
                       ) : (
                         ""
@@ -755,7 +729,7 @@ export default function TestOmekaEdit() {
             <div key={key} className="mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-sm font-medium text-c6">{propertyLabel}</span>
-                <code className="text-xs text-action bg-c3 px-2 py-1 rounded">{key}</code>
+                <code className="text-xs text-action bg-c3 px-2 py-px rounded">{key}</code>
                 {isModified && <Chip size="sm" color="warning" variant="flat">Modifié</Chip>}
               </div>
               <Textarea
@@ -773,7 +747,7 @@ export default function TestOmekaEdit() {
             <div key={key} className="mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-sm font-medium text-c6">{propertyLabel}</span>
-                <code className="text-xs text-action bg-c3 px-2 py-1 rounded">{key}</code>
+                <code className="text-xs text-action bg-c3 px-2 py-px rounded">{key}</code>
                 {isModified && <Chip size="sm" color="warning" variant="flat">Modifié</Chip>}
               </div>
               <Input
@@ -799,7 +773,7 @@ export default function TestOmekaEdit() {
         <h1 className="text-4xl font-bold text-c6 mb-8">🧪 Test Édition Omeka S</h1>
 
         <Card className="bg-c2 p-6 mb-6">
-          <h2 className="text-2xl font-semibold text-c6 mb-4">Charger un item</h2>
+          <h2 className="text-2xl font-medium text-c6 mb-4">Charger un item</h2>
           <div className="flex gap-4">
             <Input
               label="ID de l'item"
@@ -845,7 +819,7 @@ export default function TestOmekaEdit() {
           <Card className="bg-c2 p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-2xl font-semibold text-c6">
+                <h2 className="text-2xl font-medium text-c6">
                   Édition de l'item #{itemData['o:id']}
                 </h2>
                 <div className="flex gap-2 mt-2">
@@ -877,7 +851,7 @@ export default function TestOmekaEdit() {
             {/* Section Médias */}
             <div className="mt-6 pt-6 border-t border-c3">
               <div className="flex items-center gap-2 mb-4">
-                <h3 className="text-lg font-semibold text-c6">Médias</h3>
+                <h3 className="text-lg font-medium text-c6">Médias</h3>
                 <Chip size="sm" variant="flat">
                   {mediaList.length - mediaToDelete.length + newMediaFiles.length} fichier(s)
                 </Chip>
@@ -936,7 +910,7 @@ export default function TestOmekaEdit() {
                           )}
                         </div>
 
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-2 py-1">
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-2 py-px">
                           <p className="text-xs text-white truncate">
                             {media['o:source'] || media['o:filename'] || `#${media['o:id']}`}
                           </p>
@@ -1020,7 +994,7 @@ export default function TestOmekaEdit() {
         {/* Guide d'utilisation */}
         {!itemData && !loading && (
           <Card className="bg-c2 p-6 mt-6">
-            <h3 className="text-xl font-semibold text-c6 mb-4">📖 Guide d'utilisation</h3>
+            <h3 className="text-xl font-medium text-c6 mb-4">📖 Guide d'utilisation</h3>
             <div className="space-y-3 text-c5">
               <p><strong className="text-c6">1.</strong> Entrez l'ID d'un item Omeka S (ex: 123)</p>
               <p><strong className="text-c6">2.</strong> Cliquez sur "Charger" pour récupérer les données</p>

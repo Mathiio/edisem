@@ -99,7 +99,7 @@ export const createTextView = (options: CreateTextViewOptions): ViewOption => {
         return (
           <div className='w-full'>
             <textarea
-              className='w-full min-h-[150px] p-20 bg-c1 border-2 border-c3 rounded-12 text-c6 text-16 resize-y focus:outline-none focus:border-action'
+              className='w-full min-h-[150px] p-5 bg-c1 border-2 border-c3 rounded-xl text-c6 text-base resize-y focus:outline-none focus:border-action'
               value={text || ''}
               onChange={(e) => onItemsChange?.(options.key, [{ value: e.target.value, dataPath: options.dataPath }])}
               placeholder={options.placeholder || options.emptyMessage || 'Saisissez du contenu...'}
@@ -111,8 +111,8 @@ export const createTextView = (options: CreateTextViewOptions): ViewOption => {
       // Mode affichage
       if (!text || text.trim() === '') {
         return (
-          <div className='p-20 bg-c2 rounded-12 border-2 border-c3 text-center'>
-            <p className='text-c4 text-14'>{options.emptyMessage || 'Aucun contenu disponible'}</p>
+          <div className='p-5 bg-c2 rounded-xl border-2 border-c3 text-center'>
+            <p className='text-c4 text-sm'>{options.emptyMessage || 'Aucun contenu disponible'}</p>
           </div>
         );
       }
@@ -151,15 +151,15 @@ export const createFormFieldsView = (options: CreateFormFieldsViewOptions): View
       // Mode édition : afficher les inputs
       if (isEditing) {
         return (
-          <div className='flex flex-col gap-15'>
+          <div className='flex flex-col gap-4'>
             {options.fields.map((field) => {
               const value = formData?.[field.key] ?? itemDetails?.[field.key] ?? '';
 
               return (
                 <div key={field.key} className='flex flex-col gap-2'>
-                  <label className='text-c6 font-semibold text-14'>
+                  <label className='text-c6 font-medium text-sm'>
                     {field.label}
-                    {field.required && <span className='text-danger ml-1'>*</span>}
+                    {field.required && <span className='text-danger ml-px'>*</span>}
                   </label>
                   {renderFormField(field, value, (newValue) => onItemsChange?.(field.key, newValue))}
                 </div>
@@ -178,16 +178,16 @@ export const createFormFieldsView = (options: CreateFormFieldsViewOptions): View
         .filter((item) => item.value);
 
       if (fieldsWithValues.length === 0) {
-        return <div className='p-20 bg-c2 rounded-12 border-2 border-c3 text-c4 text-center'>{options.emptyMessage || 'Aucune donnée disponible'}</div>;
+        return <div className='p-5 bg-c2 rounded-xl border-2 border-c3 text-c4 text-center'>{options.emptyMessage || 'Aucune donnée disponible'}</div>;
       }
 
       return (
-        <div className='flex flex-col gap-10'>
+        <div className='flex flex-col gap-2.5'>
           {fieldsWithValues.map((item) => (
-            <div key={item.label} className='flex flex-col gap-10'>
-              <div className='text-c6 font-semibold text-14'>{item.label}</div>
-              <div className='bg-c1 rounded-8 p-15 border-2 border-c3'>
-                <p className='text-c5 text-14 leading-[125%]'>{item.value}</p>
+            <div key={item.label} className='flex flex-col gap-2.5'>
+              <div className='text-c6 font-medium text-sm'>{item.label}</div>
+              <div className='bg-c1 rounded-lg p-4 border-2 border-c3'>
+                <p className='text-c5 text-sm leading-[125%]'>{item.value}</p>
               </div>
             </div>
           ))}
@@ -201,7 +201,7 @@ export const createFormFieldsView = (options: CreateFormFieldsViewOptions): View
  * Render un champ de formulaire selon son type
  */
 const renderFormField = (field: FormFieldConfig, value: any, onChange: (value: any) => void): JSX.Element => {
-  const baseInputClass = 'bg-c1 border border-c3 rounded-8 px-15 py-10 text-c6 text-14 focus:outline-none focus:border-action';
+  const baseInputClass = 'bg-c1 border border-c3 rounded-lg px-4 py-2.5 text-c6 text-sm focus:outline-none focus:border-action';
 
   switch (field.type) {
     case 'textarea':
@@ -229,7 +229,7 @@ const renderFormField = (field: FormFieldConfig, value: any, onChange: (value: a
 
     case 'slider':
       return (
-        <div className='flex items-center gap-10'>
+        <div className='flex items-center gap-2.5'>
           <input
             type='range'
             className='flex-1'
@@ -239,7 +239,7 @@ const renderFormField = (field: FormFieldConfig, value: any, onChange: (value: a
             max={field.max || 100}
             step={field.step || 1}
           />
-          <span className='text-c5 text-14 w-40 text-right'>{value || 0}%</span>
+          <span className='text-c5 text-sm w-2.5 text-right'>{value || 0}%</span>
         </div>
       );
 
@@ -309,13 +309,13 @@ export const createScientificReferencesView = (options?: { resourceTemplateIds?:
         <div className='space-y-6'>
           {mediagraphies.length > 0 && (
             <div>
-              <h3 className='text-lg text-c5 font-semibold mb-4'>Médias</h3>
+              <h3 className='text-lg text-c5 font-medium mb-4'>Médias</h3>
               <Mediagraphies items={mediagraphies} loading={loading} notitle />
             </div>
           )}
           {bibliographies.length > 0 && (
             <div>
-              <h3 className='text-lg text-c5 font-semibold mb-4'>Bibliographies</h3>
+              <h3 className='text-lg text-c5 font-medium mb-4'>Bibliographies</h3>
               <Bibliographies sections={[{ title: 'Bibliographies', bibliographies }]} loading={loading} notitle />
             </div>
           )}
@@ -386,13 +386,13 @@ export const createCulturalReferencesView = (options?: { resourceTemplateIds?: n
         <div className='space-y-6'>
           {mediagraphies.length > 0 && (
             <div>
-              <h3 className='text-lg text-c5 font-semibold mb-4'>Médias</h3>
+              <h3 className='text-lg text-c5 font-medium mb-4'>Médias</h3>
               <Mediagraphies items={mediagraphies} loading={loading} notitle />
             </div>
           )}
           {bibliographies.length > 0 && (
             <div>
-              <h3 className='text-lg text-c5 font-semibold mb-4'>Bibliographies</h3>
+              <h3 className='text-lg text-c5 font-medium mb-4'>Bibliographies</h3>
               <Bibliographies sections={[{ title: 'Bibliographies', bibliographies }]} loading={loading} notitle />
             </div>
           )}
@@ -720,7 +720,7 @@ export const createTargetView = (options?: { key?: string; title?: string; getTa
       return (
         <div className='space-y-4'>
           <div>
-            <span className='inline-block py-1 text-xs font-medium text-c5 rounded-full'>{getRessourceLabel(firstTarget.type)}</span>
+            <span className='inline-block py-px text-xs font-medium text-c5 rounded-full'>{getRessourceLabel(firstTarget.type)}</span>
           </div>
 
           {renderer(firstTarget)}
@@ -858,8 +858,8 @@ export const createTargetsListView = (options?: { key?: string; title?: string; 
           {Object.entries(targetsByType).map(([typeName, { typeInfo, items }]) => {
             return (
               <div key={typeName} className='space-y-3'>
-                <h3 className='text-lg font-semibold text-c5 flex items-center gap-2'>
-                  <span className='inline-block  py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full'>{typeName}</span>
+                <h3 className='text-lg font-medium text-c5 flex items-center gap-2'>
+                  <span className='inline-block  py-px text-xs font-medium bg-blue-100 text-blue-800 rounded-full'>{typeName}</span>
                 </h3>
                 <ItemsList items={items} mapUrl={(item) => (typeInfo.getUrl ? typeInfo.getUrl(item) : item.url || item.uri || '#')} />
               </div>

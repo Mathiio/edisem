@@ -62,27 +62,27 @@ const OverviewView: React.FC<{
   }, [data]);
 
   return (
-    <div className='flex-1 w-full bg-c1 overflow-auto p-25'>
+    <div className='flex-1 w-full bg-c1 overflow-auto p-6'>
       {/* Navigation Cards - Cliquables */}
-      <div className='grid grid-cols-3 gap-20 mb-20'>
+      <div className='grid grid-cols-3 gap-5 mb-5'>
         {/* Card Total ressources → Distribution */}
-        <button onClick={() => onNavigate('distribution')} className='bg-c2 rounded-12 p-20 border border-c3 hover:border-datavisBlue/50 transition-all text-left group'>
-          <div className='flex items-center justify-between mb-15'>
-            <div className='flex items-center gap-10'>
-              <div className='w-40 h-40 rounded-10 bg-datavisBlue/15 flex items-center justify-center'>
+        <button onClick={() => onNavigate('distribution')} className='bg-c2 rounded-xl p-5 border border-c3 hover:border-datavisBlue/50 transition-all text-left group'>
+          <div className='flex items-center justify-between mb-4'>
+            <div className='flex items-center gap-2.5'>
+              <div className='w-10 h-10 rounded-lg bg-datavisBlue/15 flex items-center justify-center'>
                 <Database size={20} className='text-datavisBlue' />
               </div>
-              <span className='text-c5 text-14'>Total ressources</span>
+              <span className='text-c5 text-sm'>Total ressources</span>
             </div>
-            <ArrowRight size={16} className='text-c4 group-hover:text-datavisBlue group-hover:translate-x-1 transition-all' />
+            <ArrowRight size={16} className='text-c4 group-hover:text-datavisBlue group-hover:translate-x-px transition-all' />
           </div>
-          <p className='text-c6 text-32 font-bold tracking-tight'>{formatNumber(stats.total)}</p>
-          <p className='text-c4 text-12 mt-8'>
+          <p className='text-c6 text-3xl font-bold tracking-tight'>{formatNumber(stats.total)}</p>
+          <p className='text-c4 text-xs mt-8'>
             {stats.typeCount} types · {stats.activeTypeCount} actifs
           </p>
           {stats.mostActive && (
-            <div className='mt-10 pt-10 border-t border-c3'>
-              <p className='text-c5 text-12'>
+            <div className='mt-2.5 pt-2.5 border-t border-c3'>
+              <p className='text-c5 text-xs'>
                 Top: <span className='text-datavisBlue font-medium'>{stats.mostActive.label}</span> ({stats.mostActivePercent}%)
               </p>
             </div>
@@ -90,59 +90,59 @@ const OverviewView: React.FC<{
         </button>
 
         {/* Card Complétude */}
-        <button onClick={() => onNavigate('completeness')} className='bg-c2 rounded-12 p-20 border border-c3 hover:border-datavisGreen/50 transition-all text-left group'>
-          <div className='flex items-center justify-between mb-15'>
-            <div className='flex items-center gap-10'>
-              <div className='w-40 h-40 rounded-10 bg-datavisGreen/15 flex items-center justify-center'>
+        <button onClick={() => onNavigate('completeness')} className='bg-c2 rounded-xl p-5 border border-c3 hover:border-datavisGreen/50 transition-all text-left group'>
+          <div className='flex items-center justify-between mb-4'>
+            <div className='flex items-center gap-2.5'>
+              <div className='w-10 h-10 rounded-lg bg-datavisGreen/15 flex items-center justify-center'>
                 <CheckCircle size={20} className='text-datavisGreen' />
               </div>
-              <span className='text-c5 text-14'>Complétude</span>
+              <span className='text-c5 text-sm'>Complétude</span>
             </div>
-            <ArrowRight size={16} className='text-c4 group-hover:text-datavisGreen group-hover:translate-x-1 transition-all' />
+            <ArrowRight size={16} className='text-c4 group-hover:text-datavisGreen group-hover:translate-x-px transition-all' />
           </div>
-          <p className='text-c6 text-32 font-bold tracking-tight'>{stats.completeness}%</p>
-          <p className='text-c4 text-12 mt-8'>Qualité des métadonnées</p>
-          <div className='mt-10 pt-10 border-t border-c3'>
+          <p className='text-c6 text-3xl font-bold tracking-tight'>{stats.completeness}%</p>
+          <p className='text-c4 text-xs mt-8'>Qualité des métadonnées</p>
+          <div className='mt-2.5 pt-2.5 border-t border-c3'>
             <Progress value={stats.completeness} color='success' size='md' radius='full' />
           </div>
         </button>
 
         {/* Card Ressources isolées */}
-        <button onClick={() => onNavigate('orphans')} className='bg-c2 rounded-12 p-20 border border-c3 hover:border-datavisOrange/50 transition-all text-left group'>
-          <div className='flex items-center justify-between mb-15'>
-            <div className='flex items-center gap-10'>
-              <div className='w-40 h-40 rounded-10 bg-datavisOrange/15 flex items-center justify-center'>
+        <button onClick={() => onNavigate('orphans')} className='bg-c2 rounded-xl p-5 border border-c3 hover:border-datavisOrange/50 transition-all text-left group'>
+          <div className='flex items-center justify-between mb-4'>
+            <div className='flex items-center gap-2.5'>
+              <div className='w-10 h-10 rounded-lg bg-datavisOrange/15 flex items-center justify-center'>
                 <AlertTriangle size={20} className='text-datavisOrange' />
               </div>
-              <span className='text-c5 text-14'>Ressources isolées</span>
+              <span className='text-c5 text-sm'>Ressources isolées</span>
             </div>
-            <ArrowRight size={16} className='text-c4 group-hover:text-datavisOrange group-hover:translate-x-1 transition-all' />
+            <ArrowRight size={16} className='text-c4 group-hover:text-datavisOrange group-hover:translate-x-px transition-all' />
           </div>
-          <p className='text-c6 text-32 font-bold tracking-tight'>{stats.orphans}</p>
-          <p className='text-c4 text-12 mt-8'>{stats.orphansPercent}% peu connectées</p>
-          <div className='mt-10 pt-10 border-t border-c3'>
-            <span className='text-datavisOrange text-12 font-medium'>≤2 connexions</span>
+          <p className='text-c6 text-3xl font-bold tracking-tight'>{stats.orphans}</p>
+          <p className='text-c4 text-xs mt-8'>{stats.orphansPercent}% peu connectées</p>
+          <div className='mt-2.5 pt-2.5 border-t border-c3'>
+            <span className='text-datavisOrange text-xs font-medium'>≤2 connexions</span>
           </div>
         </button>
       </div>
 
       {/* Carte Thématiques - Non cliquable */}
-      <div className='bg-c2 rounded-12 p-20 border border-c3'>
-        <div className='flex items-center gap-10 mb-20'>
-          <div className='w-40 h-40 rounded-10 bg-datavisYellow/15 flex items-center justify-center'>
+      <div className='bg-c2 rounded-xl p-5 border border-c3'>
+        <div className='flex items-center gap-2.5 mb-5'>
+          <div className='w-10 h-10 rounded-lg bg-datavisYellow/15 flex items-center justify-center'>
             <Tag size={20} className='text-datavisYellow' />
           </div>
           <div>
-            <span className='text-c6 text-14 font-semibold'>Thématiques principales</span>
-            <p className='text-c4 text-12'>{data.keywords.keywords.length} mots-clés dans la base</p>
+            <span className='text-c6 text-sm font-medium'>Thématiques principales</span>
+            <p className='text-c4 text-xs'>{data.keywords.keywords.length} mots-clés dans la base</p>
           </div>
         </div>
-        <div className='grid grid-cols-2 gap-x-20 gap-y-10'>
+        <div className='grid grid-cols-2 gap-x-5 gap-y-2.5'>
           {data.keywords.keywords.slice(0, 10).map((kw, index) => (
-            <div key={kw.keyword_id} className='flex items-center gap-10 bg-c3/50 rounded-8 px-25 py-8'>
-              <span className='text-c4 text-12 font-medium w-20'>{index + 1}.</span>
-              <span className='text-c6 text-16 flex-1 font-semibold truncate'>{kw.keyword_title}</span>
-              <span className='text-datavisYellow text-12 font-bold'>{kw.usage_count}</span>
+            <div key={kw.keyword_id} className='flex items-center gap-2.5 bg-c3/50 rounded-lg px-6 py-8'>
+              <span className='text-c4 text-xs font-medium w-5'>{index + 1}.</span>
+              <span className='text-c6 text-base flex-1 font-medium truncate'>{kw.keyword_title}</span>
+              <span className='text-datavisYellow text-xs font-bold'>{kw.usage_count}</span>
             </div>
           ))}
         </div>
@@ -171,36 +171,36 @@ const DistributionView: React.FC<{ types: TypeCount[] }> = ({ types }) => {
   }, [types, sortMode]);
 
   return (
-    <div className='flex-1 w-full bg-c1 overflow-auto p-25'>
+    <div className='flex-1 w-full bg-c1 overflow-auto p-6'>
       {/* Sort controls */}
-      <div className='flex items-center gap-10 mb-15'>
-        <span className='text-c4 text-12'>Trier par:</span>
+      <div className='flex items-center gap-2.5 mb-4'>
+        <span className='text-c4 text-xs'>Trier par:</span>
         <button
           onClick={() => setSortMode('count')}
-          className={`px-10 py-5 rounded-6 text-12 transition-colors ${sortMode === 'count' ? 'bg-datavisBlue text-selected' : 'bg-c2 text-c5 hover:bg-c3'}`}>
+          className={`px-2.5 py-1.5 rounded-md text-xs transition-colors ${sortMode === 'count' ? 'bg-datavisBlue text-selected' : 'bg-c2 text-c5 hover:bg-c3'}`}>
           Quantité
         </button>
         <button
           onClick={() => setSortMode('name')}
-          className={`px-10 py-5 rounded-6 text-12 transition-colors ${sortMode === 'name' ? 'bg-datavisBlue text-selected' : 'bg-c2 text-c5 hover:bg-c3'}`}>
+          className={`px-2.5 py-1.5 rounded-md text-xs transition-colors ${sortMode === 'name' ? 'bg-datavisBlue text-selected' : 'bg-c2 text-c5 hover:bg-c3'}`}>
           Nom
         </button>
       </div>
 
-      <div className='flex flex-col gap-15'>
+      <div className='flex flex-col gap-4'>
         {sortedTypes.map((type) => {
           const percentage = calculatePercentage(type.count, total);
           return (
-            <div key={type.type} className='bg-c2 rounded-8 p-15 border border-c3 hover:bg-c3 transition-colors flex items-center gap-15'>
+            <div key={type.type} className='bg-c2 rounded-lg p-4 border border-c3 hover:bg-c3 transition-colors flex items-center gap-4'>
               <div className='flex-1 min-w-0'>
-                <p className='text-c6 text-14 font-medium truncate'>{type.label}</p>
+                <p className='text-c6 text-sm font-medium truncate'>{type.label}</p>
               </div>
-              <div className='w-200'>
+              <div className='w-48'>
                 <Progress value={percentage} color='primary' size='lg' radius='md' />
               </div>
-              <div className='w-75 text-right'>
-                <p className='text-c6 text-14 font-bold'>{formatNumber(type.count)}</p>
-                <p className='text-c4 text-12'>{percentage.toFixed(1)}%</p>
+              <div className='w-20 text-right'>
+                <p className='text-c6 text-sm font-bold'>{formatNumber(type.count)}</p>
+                <p className='text-c4 text-xs'>{percentage.toFixed(1)}%</p>
               </div>
             </div>
           );
@@ -230,39 +230,39 @@ const CompletenessView: React.FC<{ stats: TypeCompleteness[] }> = ({ stats }) =>
   }, [stats, sortMode]);
 
   return (
-    <div className='flex-1 w-full bg-c1 overflow-auto p-25'>
+    <div className='flex-1 w-full bg-c1 overflow-auto p-6'>
       {/* Sort controls */}
-      <div className='flex items-center gap-10 mb-15'>
-        <span className='text-c4 text-12'>Trier par:</span>
+      <div className='flex items-center gap-2.5 mb-4'>
+        <span className='text-c4 text-xs'>Trier par:</span>
         <button
           onClick={() => setSortMode('completeness')}
-          className={`px-10 py-5 rounded-6 text-12 transition-colors ${sortMode === 'completeness' ? 'bg-datavisBlue text-selected' : 'bg-c2 text-c5 hover:bg-c3'}`}>
+          className={`px-2.5 py-1.5 rounded-md text-xs transition-colors ${sortMode === 'completeness' ? 'bg-datavisBlue text-selected' : 'bg-c2 text-c5 hover:bg-c3'}`}>
           Complétude
         </button>
         <button
           onClick={() => setSortMode('name')}
-          className={`px-10 py-5 rounded-6 text-12 transition-colors ${sortMode === 'name' ? 'bg-datavisBlue text-selected' : 'bg-c2 text-c5 hover:bg-c3'}`}>
+          className={`px-2.5 py-1.5 rounded-md text-xs transition-colors ${sortMode === 'name' ? 'bg-datavisBlue text-selected' : 'bg-c2 text-c5 hover:bg-c3'}`}>
           Nom
         </button>
       </div>
 
-      <div className='flex flex-col gap-15'>
+      <div className='flex flex-col gap-4'>
         {activeStats.map((type) => {
           const isExpanded = expandedType === type.type;
           const properties = Object.entries(type.properties);
 
           return (
-            <div key={type.type} className='bg-c2 rounded-8 border border-c3 overflow-hidden'>
+            <div key={type.type} className='bg-c2 rounded-lg border border-c3 overflow-hidden'>
               {/* Type Header - Clickable */}
-              <button onClick={() => setExpandedType(isExpanded ? null : type.type)} className='w-full p-15 flex items-center gap-10 hover:bg-c3 transition-colors text-left'>
-                <span className='text-c4 text-12'>{isExpanded ? '▼' : '▶'}</span>
+              <button onClick={() => setExpandedType(isExpanded ? null : type.type)} className='w-full p-4 flex items-center gap-2.5 hover:bg-c3 transition-colors text-left'>
+                <span className='text-c4 text-xs'>{isExpanded ? '▼' : '▶'}</span>
                 <div className='flex-1 min-w-0'>
-                  <p className='text-c6 text-14 font-medium truncate'>{type.label}</p>
-                  <p className='text-c4 text-12'>
+                  <p className='text-c6 text-sm font-medium truncate'>{type.label}</p>
+                  <p className='text-c4 text-xs'>
                     {type.total} ressources · {type.templatePropertyCount} propriétés
                   </p>
                 </div>
-                <div className='w-150 flex items-center gap-8'>
+                <div className='w-36 flex items-center gap-8'>
                   <Progress
                     value={type.overallCompleteness}
                     color={type.overallCompleteness >= 70 ? 'success' : type.overallCompleteness >= 40 ? 'warning' : 'danger'}
@@ -270,7 +270,7 @@ const CompletenessView: React.FC<{ stats: TypeCompleteness[] }> = ({ stats }) =>
                     radius='md'
                     className='flex-1'
                   />
-                  <span className='text-c6 text-12 font-bold w-40 text-right'>{type.overallCompleteness.toFixed(0)}%</span>
+                  <span className='text-c6 text-xs font-bold w-10 text-right'>{type.overallCompleteness.toFixed(0)}%</span>
                 </div>
               </button>
 
@@ -280,10 +280,10 @@ const CompletenessView: React.FC<{ stats: TypeCompleteness[] }> = ({ stats }) =>
                   <table className='w-full'>
                     <thead>
                       <tr className='border-b border-c3'>
-                        <th className='text-c4 text-12 font-normal text-left p-4 pl-40'>Propriété</th>
-                        <th className='text-c4 text-12 font-normal text-center p-4 w-80'>Rempli</th>
-                        <th className='text-c4 text-12 font-normal text-center p-4 w-80'>Manquant</th>
-                        <th className='text-c4 text-12 font-normal p-4 w-200'>Complétude</th>
+                        <th className='text-c4 text-xs font-normal text-left p-4 pl-10'>Propriété</th>
+                        <th className='text-c4 text-xs font-normal text-center p-4 w-80'>Rempli</th>
+                        <th className='text-c4 text-xs font-normal text-center p-4 w-80'>Manquant</th>
+                        <th className='text-c4 text-xs font-normal p-4 w-48'>Complétude</th>
                       </tr>
                     </thead>
                     <tbody className='divide-y divide-c3'>
@@ -291,16 +291,16 @@ const CompletenessView: React.FC<{ stats: TypeCompleteness[] }> = ({ stats }) =>
                         const color = getCompletenessColor(propData.percentage);
                         return (
                           <tr key={propName} className='hover:bg-c3 transition-colors'>
-                            <td className='text-c6 text-12 p-4 pl-40'>
+                            <td className='text-c6 text-xs p-4 pl-10'>
                               {propData.label}
-                              <span className='text-c4 text-12 ml-5'>({propName})</span>
+                              <span className='text-c4 text-xs ml-1.5'>({propName})</span>
                             </td>
-                            <td className='text-datavisGreen text-12 text-center p-4 font-bold'>{propData.filled}</td>
-                            <td className='text-c4 text-12 text-center p-4'>{propData.missing}</td>
+                            <td className='text-datavisGreen text-xs text-center p-4 font-bold'>{propData.filled}</td>
+                            <td className='text-c4 text-xs text-center p-4'>{propData.missing}</td>
                             <td className='p-4'>
-                              <div className='flex items-center gap-5'>
+                              <div className='flex items-center gap-1.5'>
                                 <Progress value={propData.percentage} style={{ '--heroui-primary': color } as React.CSSProperties} size='lg' radius='md' className='flex-1' />
-                                <span className='text-c6 text-12 w-40 text-right'>{propData.percentage.toFixed(0)}%</span>
+                                <span className='text-c6 text-xs w-10 text-right'>{propData.percentage.toFixed(0)}%</span>
                               </div>
                             </td>
                           </tr>
@@ -329,24 +329,24 @@ const OrphansView: React.FC<{ orphans: OrphanResourcesData }> = ({ orphans }) =>
   };
 
   return (
-    <div className='flex-1 w-full bg-c1 overflow-auto p-25'>
+    <div className='flex-1 w-full bg-c1 overflow-auto p-6'>
       {orphans.byType.length > 0 ? (
-        <div className='flex flex-col gap-15'>
+        <div className='flex flex-col gap-4'>
           {orphans.byType.map((typeGroup) => (
-            <div key={typeGroup.type} className='bg-c2 rounded-8 p-15 border border-c3'>
-              <div className='flex items-center justify-between mb-10'>
-                <span className='text-c6 text-14 font-semibold'>{getTypeLabel(typeGroup.label, typeGroup.type)}</span>
-                <span className='text-c4 text-12'>{typeGroup.count} isolées</span>
+            <div key={typeGroup.type} className='bg-c2 rounded-lg p-4 border border-c3'>
+              <div className='flex items-center justify-between mb-2.5'>
+                <span className='text-c6 text-sm font-medium'>{getTypeLabel(typeGroup.label, typeGroup.type)}</span>
+                <span className='text-c4 text-xs'>{typeGroup.count} isolées</span>
               </div>
               <div className='flex flex-col gap-8'>
                 {typeGroup.items.map((item) => (
-                  <div key={item.id} className='bg-c3 rounded-6 p-10 flex items-center justify-between hover:bg-c4/20 transition-colors'>
+                  <div key={item.id} className='bg-c3 rounded-md p-2.5 flex items-center justify-between hover:bg-c4/20 transition-colors'>
                     <div className='flex-1 min-w-0'>
-                      <p className='text-c6 text-12 truncate'>{item.title}</p>
-                      <p className='text-c4 text-12'>ID: {item.id}</p>
+                      <p className='text-c6 text-xs truncate'>{item.title}</p>
+                      <p className='text-c4 text-xs'>ID: {item.id}</p>
                     </div>
-                    <div className='flex items-center gap-10'>
-                      <span className='text-orange-500 text-12'>{item.link_count} conn.</span>
+                    <div className='flex items-center gap-2.5'>
+                      <span className='text-orange-500 text-xs'>{item.link_count} conn.</span>
                       <a
                         href={`https://tests.arcanes.ca/omk/admin/item/${item.id}`}
                         target='_blank'
@@ -363,9 +363,9 @@ const OrphansView: React.FC<{ orphans: OrphanResourcesData }> = ({ orphans }) =>
           ))}
         </div>
       ) : (
-        <div className='p-20 text-center'>
-          <CheckCircle size={32} className='text-datavisGreen mx-auto mb-10' />
-          <p className='text-c6 font-semibold text-14'>Aucune ressource isolée</p>
+        <div className='p-5 text-center'>
+          <CheckCircle size={32} className='text-datavisGreen mx-auto mb-2.5' />
+          <p className='text-c6 font-medium text-sm'>Aucune ressource isolée</p>
         </div>
       )}
     </div>

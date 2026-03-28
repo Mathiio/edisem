@@ -323,7 +323,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
       <div
         onClick={() => toggleSelection(resource)}
         className={`
-          relative cursor-pointer rounded-12 border-2 transition-all ease-in-out duration-200
+          relative cursor-pointer rounded-xl border-2 transition-all ease-in-out duration-200
           ${
             selected
               ? 'border-action bg-action/10 shadow-[inset_0_0px_30px_rgba(var(--action-rgb),0.1)]'
@@ -345,23 +345,23 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
         <div className='p-3 flex flex-col gap-2'>
           {/* Thumbnail ou placeholder */}
           <div
-            className={`w-full h-[80px] rounded-8 flex justify-center items-center overflow-hidden ${thumbnailUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'}`}
+            className={`w-full h-[80px] rounded-lg flex justify-center items-center overflow-hidden ${thumbnailUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-c2 to-c3'}`}
             style={thumbnailUrl ? { backgroundImage: `url(${thumbnailUrl})` } : {}}>
             {!thumbnailUrl && <ThumbnailIcon className='text-c4/30' size={28} />}
           </div>
 
           {/* Contenu */}
-          <div className='flex flex-col gap-1'>
+          <div className='flex flex-col gap-px'>
             {/* Titre */}
-            <p className='text-13 text-c6 font-medium line-clamp-2 leading-tight'>{getDisplayValue(resource)}</p>
+            <p className='text-sm text-c6 font-medium line-clamp-2 leading-tight'>{getDisplayValue(resource)}</p>
 
             {/* Actant ou classe */}
             {(actantName || resourceLabel) && (
               <div className='flex gap-1.5 items-center'>
-                <div className='w-5 h-5 flex items-center justify-center bg-c3 rounded-6'>
+                <div className='w-1.5 h-1.5 flex items-center justify-center bg-c3 rounded-md'>
                   <UserIcon className='text-c4' size={10} />
                 </div>
-                <p className='text-11 text-c4 font-extralight truncate'>{actantName || resourceLabel}</p>
+                <p className='text-[11px] text-c4 font-normal truncate'>{actantName || resourceLabel}</p>
               </div>
             )}
           </div>
@@ -383,8 +383,8 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
         footer: 'border-t border-c3',
       }}>
       <ModalContent>
-        <ModalHeader className='flex flex-col gap-1'>
-          <h2 className='text-c6 text-xl font-semibold'>{title}</h2>
+        <ModalHeader className='flex flex-col gap-px'>
+          <h2 className='text-c6 text-xl font-medium'>{title}</h2>
           <p className='text-c4 text-sm font-normal'>
             {localSelectedIds.size} sélectionné(s) sur {filteredResources.length} disponibles
             {maxSelection && ` (max: ${maxSelection})`}
@@ -400,8 +400,8 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                 selectedKey={activeTab}
                 onSelectionChange={(key) => setActiveTab(String(key))}
                 classNames={{
-                  tabList: 'bg-c2 border-2 border-c3 rounded-12 p-1 gap-1',
-                  cursor: 'bg-action rounded-8',
+                  tabList: 'bg-c2 border-2 border-c3 rounded-xl p-px gap-px',
+                  cursor: 'bg-action rounded-lg',
                   tab: 'px-4 py-2 text-c5 data-[selected=true]:text-white',
                   tabContent: 'group-data-[selected=true]:text-white',
                 }}>
@@ -434,8 +434,8 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
             <Input
               classNames={{
                 mainWrapper: 'flex-1',
-                input: 'text-c6 text-16',
-                inputWrapper: 'bg-c3 border-2 border-c3 hover:bg-c4 hover:border-c4 rounded-8 min-h-[40px]',
+                input: 'text-c6 text-base',
+                inputWrapper: 'bg-c3 border-2 border-c3 hover:bg-c4 hover:border-c4 rounded-lg min-h-[40px]',
               }}
               placeholder='Rechercher...'
               startContent={<SearchIcon size={16} className='text-c5' />}
@@ -446,11 +446,15 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
               onClear={() => setSearchTerm('')}
             />
 
-            <Dropdown>
+            <Dropdown
+              classNames={{
+                content:
+                  'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3 min-w-[140px]',
+              }}>
               <DropdownTrigger>
                 <Button
                   startContent={<SortIcon size={16} className='text-c6' />}
-                  className='px-4 min-h-[40px] bg-c3 border-2 border-c3 hover:bg-c4 hover:border-c4 rounded-8 text-c6 font-medium'>
+                  className='px-4 min-h-[40px] bg-c3 border-2 border-c3 hover:bg-c4 hover:border-c4 rounded-lg text-c6 font-medium'>
                   Trier
                 </Button>
               </DropdownTrigger>
@@ -461,11 +465,19 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                 selectedKeys={new Set([sortOrder])}
                 onSelectionChange={handleSortOrderChange}
                 selectionMode='single'
-                className='bg-c2 border-2 border-c3 rounded-8'>
-                <DropdownItem key='asc' className='text-c6 hover:bg-c3'>
+                className='p-2'
+                classNames={{
+                  base: 'bg-transparent shadow-none border-0',
+                  list: 'bg-transparent',
+                }}>
+                <DropdownItem
+                  key='asc'
+                  className='cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'>
                   A - Z
                 </DropdownItem>
-                <DropdownItem key='desc' className='text-c6 hover:bg-c3'>
+                <DropdownItem
+                  key='desc'
+                  className='cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'>
                   Z - A
                 </DropdownItem>
               </DropdownMenu>
@@ -480,13 +492,13 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                     const allIds = new Set(filteredResources.map((r) => getResourceId(r)));
                     setLocalSelectedIds((prev) => new Set([...prev, ...allIds]));
                   }}
-                  className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-4 min-h-[40px] font-medium'>
+                  className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-lg px-4 min-h-[40px] font-medium'>
                   Tout sélectionner
                 </Button>
                 <Button
                   size='md'
                   onPress={() => setLocalSelectedIds(new Set())}
-                  className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-4 min-h-[40px] font-medium'>
+                  className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-lg px-4 min-h-[40px] font-medium'>
                   Tout désélectionner
                 </Button>
               </div>
@@ -495,7 +507,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
 
           {/* Selected chips */}
           {localSelectedIds.size > 0 && (
-            <div className='flex flex-wrap gap-2 mb-4 p-3 bg-c2 rounded-8 border-2 border-c3'>
+            <div className='flex flex-wrap gap-2 mb-4 p-3 bg-c2 rounded-lg border-2 border-c3'>
               <span className='text-c5 text-sm mr-2'>Sélection :</span>
               {Array.from(localSelectedIds).map((id) => {
                 const resource = resources?.find((r) => getResourceId(r) === id);
@@ -506,7 +518,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                     onClose={() => toggleSelection(resource)}
                     variant='flat'
                     classNames={{
-                      base: 'bg-c6 text-white px-2 py-1 rounded-8',
+                      base: 'bg-c6 text-white px-2 py-px rounded-lg',
                       content: 'text-white font-medium px-3',
                       closeButton: 'text-white/70 hover:text-white',
                     }}>
@@ -535,8 +547,8 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                 </div>
               ) : displayMode === 'alphabetic' ? (
                 // Affichage alphabétique pour les mots-clés
-                <div className='max-h-[450px] overflow-y-auto pr-1'>
-                  <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-1'>
+                <div className='max-h-[450px] overflow-y-auto pr-px'>
+                  <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-px'>
                     {(() => {
                       // Grouper les ressources par première lettre
                       const grouped = filteredResources.reduce(
@@ -555,8 +567,8 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
 
                       return sortedLetters.map((letter) => (
                         <div key={letter} className='mb-4'>
-                          <div className='text-action font-bold text-lg mb-2 border-b border-c3 pb-1'>{letter}</div>
-                          <div className='flex flex-col gap-1'>
+                          <div className='text-action font-bold text-lg mb-2 border-b border-c3 pb-px'>{letter}</div>
+                          <div className='flex flex-col gap-px'>
                             {grouped[letter].map((resource: any) => {
                               const selected = isSelected(resource);
                               return (
@@ -564,7 +576,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                                   key={String(getResourceId(resource))}
                                   onClick={() => toggleSelection(resource)}
                                   className={`
-                                    flex items-center gap-2 px-2 py-1.5 rounded-8 cursor-pointer transition-all
+                                    flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-all
                                     ${selected ? 'bg-action/20 text-action' : 'hover:bg-c2 text-c6'}
                                   `}>
                                   <Checkbox
@@ -572,7 +584,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                                     onValueChange={() => toggleSelection(resource)}
                                     size='sm'
                                     classNames={{
-                                      wrapper: 'w-5 h-5 before:border-c4 before:border-2 after:bg-action',
+                                      wrapper: 'w-1.5 h-1.5 before:border-c4 before:border-2 after:bg-action',
                                       icon: 'w-3 h-3',
                                     }}
                                   />
@@ -588,7 +600,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
                 </div>
               ) : (
                 // Affichage en grille standard
-                <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[450px] overflow-y-auto pr-1'>
+                <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[450px] overflow-y-auto pr-px'>
                   {filteredResources.map((resource) => (
                     <ResourceCard key={String(getResourceId(resource))} resource={resource} />
                   ))}
@@ -599,10 +611,10 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
         </ModalBody>
 
         <ModalFooter>
-          <Button onPress={onClose} className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-8 px-6 min-h-[40px] font-medium'>
+          <Button onPress={onClose} className='bg-c3 border-2 border-c3 text-c6 hover:bg-c4 hover:border-c4 rounded-lg px-6 min-h-[40px] font-medium'>
             Annuler
           </Button>
-          <Button onPress={handleConfirm} className='bg-action hover:bg-action/80 text-c6 rounded-8 px-6 min-h-[40px] font-medium' isDisabled={localSelectedIds.size === 0}>
+          <Button onPress={handleConfirm} className='bg-action hover:bg-action/80 text-c6 rounded-lg px-6 min-h-[40px] font-medium' isDisabled={localSelectedIds.size === 0}>
             Confirmer ({localSelectedIds.size})
           </Button>
         </ModalFooter>

@@ -28,45 +28,45 @@ const containerVariants: Variants = {
 export const Footer: React.FC = () => {
   return (
     <motion.div
-      className='w-full col-span-10 grid grid-cols-12 gap-16 rounded-12 py-16'
+      className='w-full col-span-10 grid grid-cols-12 gap-16 rounded-xl py-16'
       initial='hidden'
       animate='visible'
       variants={containerVariants}>
       <motion.div className='flex col-span-3 flex-col items-start gap-8' variants={navbarVariants}>
         <RoutLink to='/' className='flex items-center gap-2'>
           <Image width={34} src={Logo} alt='Logo' />
-          <div className='text-24 text-c6 font-medium'>Arcanes</div>
+          <div className='text-2xl text-c6 font-medium'>Arcanes</div>
         </RoutLink>
-        <p className='text-16 text-c4 font-extralight transition-all ease-in-out duration-200'>
+        <p className='text-base text-c4 font-normal transition-all ease-in-out duration-200'>
           Une plateforme d’éditorialisation de la recherche Arcanes autour de l'intelligence artificielle, des pratiques narratives et des puissances du faux. Découvrez ses corpus et ses intervenants.
         </p>
       </motion.div>
       <motion.div className='flex col-span-3 flex-col items-start gap-8' variants={navbarVariants}>
-        <h3 className='text-16 text-c6 font-semibold'>Liens</h3>
+        <h3 className='text-base text-c6 font-medium'>Liens</h3>
         <div className='flex flex-col gap-6'>
-          <Link href='https://crilcq.arcanes.ca/' className='text-14 text-c5 font-extralight'>
+          <Link href='https://crilcq.arcanes.ca/' className='text-sm text-c5 font-normal'>
             <div>Arcanes</div>
           </Link>
           <CreditsModal />
           <Link
             href='https://www.youtube.com/channel/UCZT71fTyQaxqf13sNCPZSIA/featured'
             className='flex items-center gap-2'>
-            <p className='text-16 text-c5 font-medium'>Youtube</p>
+            <p className='text-base text-c5 font-medium'>Youtube</p>
           </Link>
         </div>
       </motion.div>
       <motion.div className='flex col-span-3 flex-col items-start gap-8' variants={navbarVariants}>
-        <h3 className='text-16 text-c6 font-semibold'>Support</h3>
+        <h3 className='text-base text-c6 font-medium'>Support</h3>
         <div className='flex flex-col gap-6'>
           <Link
             href='https://www.youtube.com/channel/UCZT71fTyQaxqf13sNCPZSIA/featured'
             className='flex items-center gap-2'>
-            <p className='text-16 text-c5 font-medium'>contact@arcanes.ca</p>
+            <p className='text-base text-c5 font-medium'>contact@arcanes.ca</p>
           </Link>
           <Link
             href='https://www.youtube.com/channel/UCZT71fTyQaxqf13sNCPZSIA/featured'
             className='flex items-center gap-2'>
-            <p className='text-16 text-c5 font-medium'>
+            <p className='text-base text-c5 font-medium'>
               295 Boul. Charest <br />
               Laval QC, G1K 3G8
             </p>
@@ -74,9 +74,9 @@ export const Footer: React.FC = () => {
         </div>
       </motion.div>
       <motion.div className='flex col-span-3 flex-col items-start gap-8' variants={navbarVariants}>
-        <h3 className='text-16 text-c6 font-semibold'>Nous contacter</h3>
+        <h3 className='text-base text-c6 font-medium'>Nous contacter</h3>
         <div className='flex flex-col gap-6'>
-          <Link href='mailto:contact@arcanes.ca' className='text-14 text-c5 font-extralight'>
+          <Link href='mailto:contact@arcanes.ca' className='text-sm text-c5 font-normal'>
             <div>Signaler un bug</div>
           </Link>
         </div>
@@ -84,7 +84,7 @@ export const Footer: React.FC = () => {
       <motion.div
         className='flex col-span-12 justify-center border-t-1 border-c3'
         variants={navbarVariants}></motion.div>
-      <p className='w-full col-span-12 text-center text-14 text-c5 font-extralight'>
+      <p className='w-full col-span-12 text-center text-sm text-c5 font-normal'>
         Copyright © 2025 Arcanes. Tous droits réservés.
       </p>
     </motion.div>

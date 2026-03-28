@@ -60,9 +60,9 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({ trigger, section
     <div ref={dropdownRef} className='relative' onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       {trigger}
 
-      {isOpen && (
+      { isOpen && (
         <div
-          className={`shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] absolute top-full columns-3 gap-40 p-25 shadow-2xl left-1/2 -translate-x-1/2 mt-2 bg-c2 rounded-20 border-2 border-c3 z-50 ${listMode ? 'min-w-fit' : 'min-w-max'}    `}
+          className={`shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] absolute top-full columns-3 gap-10 p-6 shadow-2xl left-1/2 mt-2 bg-c2 rounded-3xl border-2 border-c3 z-50 ${listMode ? 'min-w-fit' : 'min-w-max'}    `}
           style={{
             animation: isAnimating ? 'dropdownDisappear 200ms ease-in forwards' : 'dropdownAppear 200ms ease-out forwards',
           }}>
@@ -78,16 +78,16 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({ trigger, section
           `}</style>
 
           {sections.map((section, sIdx) => (
-            <div key={sIdx} className={`break-inside-avoid mb-25 flex flex-col gap-5 ${listMode ? 'max-w-[60px]' : ' max-w-[240px] '}  `}>
+            <div key={sIdx} className={`break-inside-avoid mb-6 flex flex-col gap-1.5 ${listMode ? 'max-w-[60px]' : ' max-w-[240px] '}  `}>
               <div className='flex flex-col'>
                 {section.items.map(({ to, label, icon: Icon, variant = 'simple' }) => {
-                  let linkClasses = 'flex items-center gap-10 rounded-8 transition-all duration-200 outline-none ';
+                  let linkClasses = 'flex items-center gap-2.5 rounded-lg transition-all duration-200 outline-none ';
                   if (variant === 'main') {
-                    linkClasses += 'text-16 font-medium text-c6 mb-1.5 px-3 py-2 hover:bg-c3 ';
+                    linkClasses += 'text-base font-medium text-c6 mb-1.5 px-3 py-2 hover:bg-c3 ';
                   } else if (variant === 'secondary') {
-                    linkClasses += 'text-16 font-normal text-c6 px-3 py-2 hover:bg-c3 ';
+                    linkClasses += 'text-base font-normal text-c6 px-3 py-2 hover:bg-c3 ';
                   } else {
-                    linkClasses += 'text-14 font-normal text-c4 px-3 py-2 hover:bg-c3 ';
+                    linkClasses += 'text-sm font-normal text-c4 px-3 py-2 hover:bg-c3 ';
                   }
 
                   return (
@@ -229,21 +229,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onReady }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const linkBaseClass = 'cursor-pointer flex flex-row items-center justify-center px-15 py-10 text-16 gap-10 text-c6 rounded-8 border-2 transition-all ease-in-out duration-200';
+  const linkBaseClass = 'cursor-pointer flex flex-row items-center justify-center px-4 py-2.5 text-base gap-2.5 text-c6 rounded-lg border-2 transition-all ease-in-out duration-200';
   const activeClass = 'bg-c2 border-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)]';
   const hoverClass = 'hover:bg-c2 hover:border-c3 hover:shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] border-transparent';
 
   return (
     <>
       <nav className={`sticky top-0 left-0 right-0 z-40 transition-all duration-300 ${hasScrolled ? 'bg-c1/90 backdrop-blur-sm shadow-lg' : 'bg-transparent'}`}>
-        <div className='max-w-screen-2xl mx-auto px-20 py-15'>
+        <div className='max-w-screen-2xl mx-auto px-5 py-4'>
           <div className='flex items-center justify-between'>
-            <Link to='/' className='flex items-center gap-15'>
-              <Image src={Logo} alt='Arcanes' className='h-40' />
-              <div className='text-24 text-c6 font-medium'>Arcanes</div>
+            <Link to='/' className='flex items-center gap-4'>
+              <Image src={Logo} alt='Arcanes' className='h-10' />
+              <div className='text-2xl text-c6 font-medium'>Arcanes</div>
             </Link>
 
-            <div className='flex items-center gap-10'>
+            <div className='flex items-center gap-2.5'>
               <CustomDropdown
                 trigger={
                   <div className={`${linkBaseClass} ${isCorpusPathValue ? activeClass : `${hoverClass}`}`}>
@@ -265,7 +265,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onReady }) => {
                 Espace étudiant
               </Link>
             </div>
-            <div className='flex items-center gap-10'>
+            <div className='flex items-center gap-2.5'>
               <SearchModal ref={searchModalRef} />
 
               <ProfilDropdown />

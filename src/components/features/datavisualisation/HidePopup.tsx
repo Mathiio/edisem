@@ -92,13 +92,13 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
   };
 
   return (
-    <div className='w-full flex flex-col justify-between gap-20 h-full overflow-hidden'>
+    <div className='w-full flex flex-col justify-between gap-5 h-full overflow-hidden'>
       <div className='flex flex-col gap-4'>
         <Link
           onClick={addMasque}
           underline='none'
           size='sm'
-          className='text-14 flex justify-start w-full gap-2 rounded-0 text-c6 bg-transparent cursor-pointer'>
+          className='text-sm flex justify-start w-full gap-2 rounded-none text-c6 bg-transparent cursor-pointer'>
           <PlusIcon size={12} />
           Ajouter un masque
         </Link>
@@ -108,15 +108,21 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
       <div className='flex flex-col justify-start h-full gap-2 overflow-y-auto'>
         {filterGroups.map((masque, index) => (
           <div key={index} className='flex flex-row items-center gap-2'>
-            <Dropdown className='w-full p-2'>
+            <Dropdown
+              className='w-full'
+              classNames={{
+                content:
+                  'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3',
+              }}>
               <DropdownTrigger className='w-full'>
-                <Button className='text-14 text-c6 px-2 py-2 flex bg-transparent justify-between gap-10 bg-c4 border-2 rounded-8 w-full'>
+                <Button className='text-sm text-c6 px-2 py-2 flex bg-transparent justify-between gap-2.5 bg-c4 border-2 rounded-lg w-full'>
                   {masque.displayType || 'Sélectionner un type'}
                   <ArrowIcon size={12} />
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
-                className='w-full'
+                className='p-2 w-full'
+                classNames={{ base: 'bg-transparent shadow-none border-0', list: 'bg-transparent' }}
                 aria-label="Sélectionner un type d'item"
                 selectionMode='single'
                 selectedKeys={[masque.displayType]}
@@ -125,7 +131,9 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
                   handleSelectionChange(index, displayType);
                 }}>
                 {Object.entries(ITEM_TYPES).map(([key, _]) => (
-                  <DropdownItem className='w-full' key={key}>
+                  <DropdownItem
+                    className='w-full min-w-0 cursor-pointer rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
+                    key={key}>
                     {key}
                   </DropdownItem>
                 ))}
@@ -140,10 +148,10 @@ const HidePopup: React.FC<HidePopupProps> = ({ onHide }) => {
       </div>
 
       <div className='flex justify-end gap-2 mt-4'>
-        <Button className='px-10 py-5 rounded-8 bg-transparent' variant='flat' onClick={resetMasques}>
+        <Button className='px-2.5 py-1.5 rounded-lg bg-transparent' variant='flat' onClick={resetMasques}>
           Réinitialiser
         </Button>
-        <Button className='px-10 py-5 rounded-8 bg-action text-selected' color='primary' onClick={applyMasques}>
+        <Button className='px-2.5 py-1.5 rounded-lg bg-action text-selected' color='primary' onClick={applyMasques}>
           Appliquer
         </Button>
       </div>

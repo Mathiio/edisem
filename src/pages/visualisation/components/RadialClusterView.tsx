@@ -441,11 +441,11 @@ export const RadialClusterView: React.FC<RadialClusterViewProps> = ({ externalDa
 
   if (!hierarchyData || (hierarchyData.children?.length || 0) === 0) {
     return (
-      <div className='flex-1 w-full h-full flex flex-col justify-center items-center gap-8 py-50 bg-c1'>
-        <div className='max-w-lg flex flex-col justify-center items-center gap-15'>
+      <div className='flex-1 w-full h-full flex flex-col justify-center items-center gap-8 py-12 bg-c1'>
+        <div className='max-w-lg flex flex-col justify-center items-center gap-4'>
           <Network size={42} className='text-c4' />
           <div className='flex flex-col justify-center items-center gap-3'>
-            <h2 className='text-c6 text-xl font-semibold'>Aucune donnée</h2>
+            <h2 className='text-c6 text-xl font-medium'>Aucune donnée</h2>
             <p className='text-c4 text-sm text-center'>Aucune donnée disponible pour afficher le graphe hiérarchique.</p>
           </div>
         </div>
@@ -455,7 +455,7 @@ export const RadialClusterView: React.FC<RadialClusterViewProps> = ({ externalDa
 
   return (
     <div ref={containerRef} className='flex-1 w-full h-full bg-c1 overflow-hidden relative'>
-      <div className='absolute top-4 left-4 z-10 bg-c2/80 backdrop-blur-sm rounded-8 p-3 text-xs text-c4'>Cliquez sur une catégorie (+) pour voir ses éléments</div>
+      <div className='absolute top-4 left-4 z-10 bg-c2/80 backdrop-blur-sm rounded-lg p-3 text-xs text-c4'>Cliquez sur une catégorie (+) pour voir ses éléments</div>
       <svg ref={svgRef} className='w-full h-full' />
     </div>
   );

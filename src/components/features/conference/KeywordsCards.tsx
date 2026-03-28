@@ -70,11 +70,11 @@ export const KeywordsCard: React.FC<KeywordsCardProps> = ({ word, description, d
         left: `${tooltipPosition.left}px`,
         zIndex: 10000,
       }}
-      className=' max-w-2xl bg-c2 border-2 border-c3 rounded-12 p-6 shadow-xl pointer-events-none flex flex-col gap-10'
+      className=' max-w-2xl bg-c2 border-2 border-c3 rounded-xl p-6 shadow-xl pointer-events-none flex flex-col gap-2.5'
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}>
-      <p className='text-14 text-c6 font-semibold'>Définition :</p>
-      <p className='text-14 text-c5 leading-[120%]'>{displayDescription}</p>
+      <p className='text-sm text-c6 font-medium'>Définition :</p>
+      <p className='text-sm text-c5 leading-[120%]'>{displayDescription}</p>
     </motion.div>
   );
 
@@ -83,9 +83,9 @@ export const KeywordsCard: React.FC<KeywordsCardProps> = ({ word, description, d
       <div ref={cardRef} className='relative' onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <motion.div
           variants={itemVariants}
-          className='border-2 border-c3 h-full rounded-8 flex items-center justify-start p-10 cursor-pointer hover:border-c4 hover:bg-c2 transition-all ease-in-out duration-200'
+          className='border-2 border-c3 h-full rounded-lg flex items-center justify-start p-2.5 cursor-pointer hover:border-c4 hover:bg-c2 transition-all ease-in-out duration-200'
           onClick={handleClick}>
-          <p className='text-14 text-c4 font-extralight'>{word}</p>
+          <p className='text-sm text-c4 font-normal'>{word}</p>
         </motion.div>
       </div>
       {typeof document !== 'undefined' && createPortal(tooltip, document.body)}
@@ -94,5 +94,5 @@ export const KeywordsCard: React.FC<KeywordsCardProps> = ({ word, description, d
 };
 
 export const KeywordsSkeleton: React.FC = () => {
-  return <Skeleton className='w-[100%] h-4 rounded-8' />;
+  return <Skeleton className='w-full h-4 rounded-lg' />;
 };

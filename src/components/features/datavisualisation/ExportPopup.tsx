@@ -5,20 +5,6 @@ import { useState } from 'react';
 import { GeneratedImage } from '@/pages/visualisation';
 
 import { ShareIcon } from '@/components/ui/icons';
-import Omk from '@/components/features/database/CreateModal';
-
-const API_URL = 'https://edisem.arcanes.ca/omk/api/';
-const API_KEY = import.meta.env.VITE_API_KEY;
-const IDENT = 'NUO2yCjiugeH7XbqwUcKskhE8kXg0rUj';
-
-export const omkInstance = new Omk({
-  api: API_URL,
-  key: API_KEY,
-  ident: IDENT,
-  vocabs: ['dcterms', 'oa'],
-});
-
-omkInstance.init();
 
 const STORAGE_KEY = 'filterGroups';
 
@@ -101,7 +87,7 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
   return (
     <div className='w-full flex flex-col gap-4 h-full justify-between'>
       <div className='flex flex-col gap-4'>
-        <div className='text-14 flex justify-start leading-[150%] w-full gap-2 rounded-0 text-c6 bg-transparent'>
+        <div className='text-sm flex justify-start leading-[150%] w-full gap-2 rounded-none text-c6 bg-transparent'>
           Exporter une recherche
         </div>
         <Divider />
@@ -114,7 +100,7 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
           className='focus:bg-c3 bg-c3 h-[50px] text-c6'
           classNames={{
             inputWrapper: 'bg-c3 !bg-c3 h-full',
-            base: 'rounded-8 h-full ',
+            base: 'rounded-lg h-full ',
             innerWrapper: 'focus:bg-c3 bg-c3 h-full',
           }}
         />
@@ -131,11 +117,11 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
       </div>
       {generatedImage && (
         <div className='flex-1 flex flex-col aspect-video overflow-hidden rounded-b-8'>
-          <div className='text-c6 text-12'>Prévisualisation :</div>
+          <div className='text-c6 text-xs'>Prévisualisation :</div>
           <img
             src={generatedImage.dataUrl}
             alt='Aperçu de la visualisation'
-            className='flex-1 w-full h-full object-cover mt-2 rounded-8'
+            className='flex-1 w-full h-full object-cover mt-2 rounded-lg'
           />
         </div>
       )}
@@ -144,7 +130,7 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
         <div className='flex justify-end gap-2 mt-4 h-[30px]'>
           <Button
             size='md'
-            className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+            className='text-base h-auto px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
             onClick={handleCopyConfig}
             onPress={() => {
               addToast({
@@ -162,7 +148,7 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
         </div>
         <div className='flex justify-end gap-2 mt-4'>
           <Button
-            className='text-16 h-auto px-10 py-5 rounded-8 text-selected gap-2 bg-action transition-all ease-in-out duration-200 disabled:opacity-50 disabled:hover:opacity-50 disabled:cursor-not-allowed'
+            className='text-base h-auto px-2.5 py-1.5 rounded-lg text-selected gap-2 bg-action transition-all ease-in-out duration-200 disabled:opacity-50 disabled:hover:opacity-50 disabled:cursor-not-allowed'
             color='primary'
             onClick={() => {
               const exportPromise = handleExport();

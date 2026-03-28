@@ -38,9 +38,9 @@ export const ResourceFormTabs: React.FC<ResourceFormTabsProps> = ({ tabs, active
         selectedKey={activeTabId}
         onSelectionChange={(key) => onTabChange(String(key))}
         classNames={{
-          tabList: 'bg-c2 p-1 rounded-12',
+          tabList: 'bg-c2 p-px rounded-xl',
           cursor: 'bg-c4',
-          tab: 'h-10 px-6 min-h-[40px]',
+          tab: 'h-2.5 px-6 min-h-[40px]',
           tabContent: 'group-data-[selected=true]:text-selected text-c5 min-h-[40px] flex items-center',
         }}>
         {tabs.map((tab) => {
@@ -61,7 +61,7 @@ export const ResourceFormTabs: React.FC<ResourceFormTabsProps> = ({ tabs, active
                         e.stopPropagation();
                         onTabClose(tab.id);
                       }}
-                      className='ml-2 p-1 rounded-full hover:bg-c3 transition-colors'>
+                      className='ml-2 p-px rounded-full hover:bg-c3 transition-colors'>
                       <CrossIcon size={12} />
                     </button>
                   )}

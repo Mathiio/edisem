@@ -152,51 +152,51 @@ export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onDayClick, se
       title='Aucune donnée'
       emptyMessage="Pas de données d'activité pour cette année."
       loadingMessage="Chargement du calendrier d'activité...">
-      <div className='flex-1 w-full h-full bg-c1 overflow-hidden flex flex-col gap-25 '>
+      <div className='flex-1 w-full h-full bg-c1 overflow-hidden flex flex-col gap-6 '>
         {/* Stats cards */}
-        <div className='px-25 pt-25 border-b border-c3'>
-          <div className='grid grid-cols-4 gap-20'>
-            <div className='flex items-center gap-8 bg-c2 rounded-12 p-15'>
+        <div className='px-6 pt-6 border-b border-c3'>
+          <div className='grid grid-cols-4 gap-5'>
+            <div className='flex items-center gap-8 bg-c2 rounded-xl p-4'>
               <TrendingUp size={16} className='text-c6' />
               <div>
                 <p className='text-c4 text-xs'>Total créations</p>
-                <p className='text-c6 font-semibold'>{data?.stats.totalActivity}</p>
+                <p className='text-c6 font-medium'>{data?.stats.totalActivity}</p>
               </div>
             </div>
 
-            <div className='flex items-center gap-8 bg-c2 rounded-12 p-15'>
+            <div className='flex items-center gap-8 bg-c2 rounded-xl p-4'>
               <Activity size={16} className='text-c6' />
               <div>
                 <p className='text-c4 text-xs'>Jours actifs</p>
-                <p className='text-c6 font-semibold'>{data?.stats.activeDays}</p>
+                <p className='text-c6 font-medium'>{data?.stats.activeDays}</p>
               </div>
             </div>
 
-            <div className='flex items-center gap-8 bg-c2 rounded-12 p-15'>
+            <div className='flex items-center gap-8 bg-c2 rounded-xl p-4'>
               <Calendar size={16} className='text-c6' />
               <div>
                 <p className='text-c4 text-xs'>Max journalier</p>
-                <p className='text-c6 font-semibold'>{data?.stats.maxDailyActivity}</p>
+                <p className='text-c6 font-medium'>{data?.stats.maxDailyActivity}</p>
               </div>
             </div>
 
-            <div className='flex items-center gap-8 bg-c2 rounded-12 p-15'>
+            <div className='flex items-center gap-8 bg-c2 rounded-xl p-4'>
               <TrendingUp size={16} className='text-c6' />
               <div>
                 <p className='text-c4 text-xs'>Moyenne/jour actif</p>
-                <p className='text-c6 font-semibold'>{data?.stats.avgDailyActivity}</p>
+                <p className='text-c6 font-medium'>{data?.stats.avgDailyActivity}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Heatmap par mois */}
-        <div className='flex-1 overflow-auto px-25 pb-25'>
-          <div className='grid grid-cols-4 gap-20'>
+        <div className='flex-1 overflow-auto px-6 pb-6'>
+          <div className='grid grid-cols-4 gap-5'>
             {monthsData.map((monthData) => (
-              <div key={monthData.month} className='bg-c2 rounded-12 p-15 flex flex-col '>
+              <div key={monthData.month} className='bg-c2 rounded-xl p-4 flex flex-col '>
                 {/* Nom du mois */}
-                <h3 className='text-c5 text-sm font-medium mb-10 text-center'>{monthData.name}</h3>
+                <h3 className='text-c5 text-sm font-medium mb-2.5 text-center'>{monthData.name}</h3>
 
                 {/* Grille du mois - 7 lignes (jours) x 6 colonnes (semaines) */}
                 <table className='border-collapse'>
@@ -228,7 +228,7 @@ export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onDayClick, se
                                   ) : null
                                 }>
                                 <div
-                                  className={`w-20 h-20 rounded-[4px] flex items-center justify-center transition-all duration-150
+                                  className={`w-1.5 h-1.5 rounded-sm flex items-center justify-center transition-all duration-150
                                   ${day && onDayClick ? 'cursor-pointer hover:ring-2 hover:ring-white/30' : ''}`}
                                   style={day ? getActivityStyle(day.count, maxActivity) : { backgroundColor: 'rgba(100, 116, 139, 0.1)' }}
                                   onClick={() => {
@@ -251,10 +251,10 @@ export const ActivityHeatmap: React.FC<ActivityHeatmapProps> = ({ onDayClick, se
           </div>
 
           {/* Légende */}
-          <div className='flex items-center justify-center gap-8 mt-20'>
+          <div className='flex items-center justify-center gap-8 mt-5'>
             <span className='text-c4 text-xs'>Moins</span>
             {LEGEND_COLORS.map((color, idx) => (
-              <div key={idx} className='w-20 h-20 rounded-6' style={{ backgroundColor: color }} />
+              <div key={idx} className='w-1.5 h-1.5 rounded-md' style={{ backgroundColor: color }} />
             ))}
             <span className='text-c4 text-xs'>Plus</span>
           </div>

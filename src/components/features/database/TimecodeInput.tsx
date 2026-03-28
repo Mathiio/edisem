@@ -45,7 +45,7 @@ export const TimecodeInput: React.FC<TimecodeInputProps> = ({ seconds = 0, label
       hourCycle={24}
       granularity='second'
       classNames={{
-        label: 'text-semibold text-c6 text-24',
+        label: 'text-semibold text-c6 text-2xl',
         inputWrapper: 'bg-c1 shadow-none border-1 border-200 h-[50px]',
         input: 'h-[50px]',
       }}
@@ -157,18 +157,18 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
   };
 
   return (
-    <div className='flex flex-col w-full gap-10'>
+    <div className='flex flex-col w-full gap-2.5'>
       <label>{label}</label>
-      <div className='flex flex-col gap-20'>
+      <div className='flex flex-col gap-5'>
         <div className='w-full'>
           <Calendar
             classNames={{
-              cellButton: 'rounded-12',
+              cellButton: 'rounded-xl',
               base: 'w-full calendarbase shadow-none',
               content: 'w-full',
               headerWrapper: 'w-full',
-              prevButton: 'rounded-8 w-[50px]',
-              nextButton: 'rounded-8 w-[50px]',
+              prevButton: 'rounded-lg w-[50px]',
+              nextButton: 'rounded-lg w-[50px]',
             }}
             aria-label='Date'
             value={parsedInterval.date as any}
@@ -231,12 +231,12 @@ export const DatePicker: React.FC<DateInputProps> = ({ label, date, handleInputC
       <label>{label}</label>
       <Calendar
         classNames={{
-          cellButton: 'rounded-12',
+          cellButton: 'rounded-xl',
           base: 'w-full calendarbase shadow-none',
           content: 'w-full',
           headerWrapper: 'w-full',
-          prevButton: 'rounded-8 w-[50px]',
-          nextButton: 'rounded-8 w-[50px]',
+          prevButton: 'rounded-lg w-[50px]',
+          nextButton: 'rounded-lg w-[50px]',
         }}
         aria-label='Date'
         value={selectedDate as any}

@@ -95,15 +95,15 @@ export const RecitsByGenre: React.FC = () => {
   const displayTitle = genreName || slugUtils.toTitle(slug || '') || 'Genre';
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-100'>
+    <Layouts className='col-span-10 flex flex-col gap-24'>
       {/* Header section */}
-      <div className='pt-100 justify-center flex items-center flex-col gap-20 relative'>
-        <div className='gap-10 justify-between flex items-center flex-col'>
+      <div className='pt-24 justify-center flex items-center flex-col gap-5 relative'>
+        <div className='gap-2.5 justify-between flex items-center flex-col'>
           {/* Title and description */}
-          <h1 className='z-[12] text-64 text-c6 font-medium flex text-center flex-col items-center max-w-[850px]'>
+          <h1 className='z-[12] text-6xl text-c6 font-medium flex text-center flex-col items-center max-w-[850px]'>
             {displayTitle}
           </h1>
-          <p className='text-c5 text-16 z-[12] text-center max-w-[600px]'>
+          <p className='text-c5 text-base z-[12] text-center max-w-[600px]'>
             Découvrez les {items.length} {items.length === 1 ? 'élément' : 'éléments'} en lien avec ce thème
           </p>
           {/* Background ellipse */}
@@ -120,7 +120,7 @@ export const RecitsByGenre: React.FC = () => {
         </div>
       </div>
       {/* Items grid */}
-      <div className='grid grid-cols-4 grid-rows-auto gap-20'>
+      <div className='grid grid-cols-4 grid-rows-auto gap-5'>
         {loading
           ? Array.from({ length: 8 }).map((_, index) => <ResourceCardSkeleton key={index} />)
           : items.map((item, index) => (
@@ -131,10 +131,10 @@ export const RecitsByGenre: React.FC = () => {
       </div>
       {/* No items found message */}
       {!loading && items.length === 0 && (
-        <div className='flex flex-col items-center justify-center py-100 gap-20'>
-          <div className='flex flex-col gap-10 text-center'>
-            <h3 className='text-24 font-medium text-c6'>Aucun élément trouvé</h3>
-            <p className='text-16 text-c4'>Il n'y a pas encore d'éléments dans la catégorie "{displayTitle}".</p>
+        <div className='flex flex-col items-center justify-center py-24 gap-5'>
+          <div className='flex flex-col gap-2.5 text-center'>
+            <h3 className='text-2xl font-medium text-c6'>Aucun élément trouvé</h3>
+            <p className='text-base text-c4'>Il n'y a pas encore d'éléments dans la catégorie "{displayTitle}".</p>
           </div>
         </div>
       )}

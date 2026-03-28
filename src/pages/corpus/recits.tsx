@@ -80,7 +80,7 @@ export const MisesEnRecits: React.FC = () => {
   }, []);
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
+    <Layouts className='col-span-10 flex flex-col gap-36 z-0 overflow-visible'>
       <PageBanner
         icon={<PratiqueNarrativeIcon size={40} />}
         title="Mises en Récits de l'IA"
@@ -91,7 +91,7 @@ export const MisesEnRecits: React.FC = () => {
         ]}
       />
 
-      <section className="w-full flex flex-col gap-100">
+      <section className="w-full flex flex-col gap-24">
         <FullCarrousel
           title="Explorer les Corpus"
           data={navCards}
@@ -118,12 +118,12 @@ const NavCard = ({ card, index }: { card: any, index: number }) => {
       animate={{ opacity: 1 }}
       transition={{ delay: index * 0.2 }}
       onClick={() => navigate(card.path)}
-      className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-40 rounded-30 justify-between flex flex-col gap-40 hover:bg-c2 h-full transition-all ease-in-out duration-300'
+      className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-10 rounded-4xl justify-between flex flex-col gap-10 hover:bg-c2 h-full transition-all ease-in-out duration-300'
     >
       <card.icon size={40} style={{ color: card.color }} />
-      <div className='flex flex-col gap-10'>
-        <p className='text-32 font-semibold transition-all ease-in-out duration-200 text-c6'>{card.title}</p>
-        <p className='text-16 text-c5 font-extralight transition-all ease-in-out duration-200'>{card.description}</p>
+      <div className='flex flex-col gap-2.5'>
+        <p className='text-3xl font-medium transition-all ease-in-out duration-200 text-c6'>{card.title}</p>
+        <p className='text-base text-c5 font-normal transition-all ease-in-out duration-200'>{card.description}</p>
       </div>
     </motion.div>
   );
@@ -162,11 +162,11 @@ const SubjectCarousels = ({ items, loading }: { items: any[], loading: boolean }
 
   if (loading) {
     return (
-        <div className="flex flex-col gap-100 w-full">
+        <div className="flex flex-col gap-24 w-full">
             {Array.from({ length: 2 }).map((_, i) => (
-                <div key={i} className="flex flex-col gap-20">
-                    <div className="h-40 w-300 bg-c2 animate-pulse rounded-10" />
-                    <div className="grid grid-cols-4 gap-20">
+                <div key={i} className="flex flex-col gap-5">
+                    <div className="h-2.5 w-72 bg-c2 animate-pulse rounded-lg" />
+                    <div className="grid grid-cols-4 gap-5">
                          {Array.from({ length: 4 }).map((_, j) => (
                             <ResourceCardSkeleton key={j} />
                         ))}
@@ -180,7 +180,7 @@ const SubjectCarousels = ({ items, loading }: { items: any[], loading: boolean }
   if (groupedSubjects.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-100 w-full">
+    <div className="flex flex-col gap-24 w-full">
       {groupedSubjects.map((subject) => (
         <FullCarrousel
           key={subject.id}

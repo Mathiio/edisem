@@ -8,6 +8,7 @@ import { AnnotationDropdown } from '../conference/AnnotationDropdown';
 import { Splide, SplideTrack, SplideSlide } from '@splidejs/react-splide';
 import MediaViewer from '../conference/MediaViewer';
 import { MediaFile } from '@/components/features/forms/MediaDropzone';
+import { carouselArrowButtonClass } from '@/components/ui/Carrousels';
 
 // Helper function to get the correct route based on person type
 const getPersonRoute = (person: any): string => {
@@ -258,14 +259,14 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
   const segmentSpan = 100 / totalSegments;
 
   return (
-    <motion.div className='w-full flex flex-col gap-25' initial='hidden' animate='visible' variants={containerVariants}>
+    <motion.div className='w-full flex flex-col gap-6' initial='hidden' animate='visible' variants={containerVariants}>
       <motion.div variants={itemVariants} className=' lg:w-full overflow-hidden relative'>
         {/* Mode édition: même design que lecture mais avec contrôles d'édition */}
         {isEditing ? (
-          <div className='flex flex-col gap-10'>
+          <div className='flex flex-col gap-2.5'>
             {/* Zone principale - MediaViewer ou zone de drop */}
             <div
-              className={`relative lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] rounded-12 overflow-hidden transition-all duration-200 ${
+              className={`relative lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] rounded-xl overflow-hidden transition-all duration-200 ${
                 isDragging ? 'ring-2 ring-action bg-c2' : ''
               }`}
               onDragEnter={handleDragEnter}
@@ -291,12 +292,12 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                   </Button>
 
                   {/* Indicateur nouveau/existant */}
-                  {!currentEditMedia.isExisting && <span className='absolute top-3 left-3 bg-action text-selected text-12 px-8 py-4 rounded-8 z-10'>Nouveau</span>}
+                  {!currentEditMedia.isExisting && <span className='absolute top-3 left-3 bg-action text-selected text-xs px-8 py-4 rounded-lg z-10'>Nouveau</span>}
 
                   {/* Bouton ajouter */}
                   <Button
                     size='sm'
-                    className='absolute bottom-3 right-3 bg-action text-selected rounded-8 z-10'
+                    className='absolute bottom-3 right-3 bg-action text-selected rounded-lg z-10'
                     startContent={<UploadIcon size={14} />}
                     onPress={() => fileInputRef.current?.click()}>
                     Ajouter
@@ -305,35 +306,35 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
               ) : (
                 /* Zone vide - invitation à ajouter */
                 <div
-                  className={`flex flex-col items-center justify-center w-full h-full bg-c3 rounded-12 border-2 border-dashed ${isDragging ? 'border-action' : 'border-c4'}`}
+                  className={`flex flex-col items-center justify-center w-full h-full bg-c3 rounded-xl border-2 border-dashed ${isDragging ? 'border-action' : 'border-c4'}`}
                   onDragEnter={handleDragEnter}
                   onDragLeave={handleDragLeave}
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}>
                   <CameraIcon size={48} className='text-c4 mb-4' />
-                  <p className='text-c5 text-16 font-medium mb-2'>Glissez-déposez vos médias ici</p>
-                  <p className='text-c4 text-14 mb-4'>ou</p>
-                  <div className='flex flex-col gap-10 items-center'>
-                    <Button className='bg-action text-selected rounded-8' startContent={<UploadIcon size={16} />} onPress={() => fileInputRef.current?.click()}>
+                  <p className='text-c5 text-base font-medium mb-2'>Glissez-déposez vos médias ici</p>
+                  <p className='text-c4 text-sm mb-4'>ou</p>
+                  <div className='flex flex-col gap-2.5 items-center'>
+                    <Button className='bg-action text-selected rounded-lg' startContent={<UploadIcon size={16} />} onPress={() => fileInputRef.current?.click()}>
                       Charger des fichiers
                     </Button>
 
                     {/* Section YouTube */}
                     {onYouTubeAdd && (
-                      <div className='flex flex-col gap-5 items-center mt-10'>
-                        <p className='text-c4 text-14'>ou ajouter une vidéo YouTube</p>
-                        <div className='flex gap-5 items-center'>
+                      <div className='flex flex-col gap-1.5 items-center mt-2.5'>
+                        <p className='text-c4 text-sm'>ou ajouter une vidéo YouTube</p>
+                        <div className='flex gap-1.5 items-center'>
                           <input
                             type='url'
                             placeholder='https://www.youtube.com/watch?v=...'
                             value={youtubeUrl}
                             onChange={(e) => setYoutubeUrl(e.target.value)}
                             onClick={(e) => e.stopPropagation()}
-                            className='bg-c1 border border-c3 rounded-8 px-10 py-5 text-c6 text-14 w-[280px] focus:outline-none focus:border-action'
+                            className='bg-c1 border border-c3 rounded-lg px-2.5 py-1.5 text-c6 text-sm w-[280px] focus:outline-none focus:border-action'
                           />
                           <Button
                             size='sm'
-                            className='bg-action text-selected rounded-8 px-10'
+                            className='bg-action text-selected rounded-lg px-2.5'
                             isDisabled={!isValidYouTubeUrl(youtubeUrl)}
                             onPress={() => {
                               if (isValidYouTubeUrl(youtubeUrl)) {
@@ -364,14 +365,14 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                 }}
                 hasTrack={false}
                 aria-label='Galerie de médias'
-                className='flex w-full justify-between items-center gap-25'>
+                className='flex w-full justify-between items-center gap-6'>
                 <SplideTrack className='w-full'>
                   {allMediaItems.map((media, index) => (
                     <SplideSlide key={media.id}>
                       <div className='relative'>
                         <button
                           onClick={() => setCurrentMediaIndex(index)}
-                          className={`flex-shrink-0 w-[136px] h-[50px] rounded-12 overflow-hidden transition-all duration-200 ${
+                          className={`flex-shrink-0 w-[136px] h-[50px] rounded-xl overflow-hidden transition-all duration-200 ${
                             index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
                           }`}>
                           {media.type === 'video' ? (
@@ -381,7 +382,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                           )}
                         </button>
                         {/* Badge nouveau */}
-                        {!media.isExisting && <span className='absolute -top-1 -right-1 bg-action text-selected text-10 px-4 py-1 rounded-full z-10'>+</span>}
+                        {!media.isExisting && <span className='absolute -top-px -right-px bg-action text-selected text-[10px] px-4 py-px rounded-full z-10'>+</span>}
                       </div>
                     </SplideSlide>
                   ))}
@@ -389,22 +390,22 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                   <SplideSlide>
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className='flex-shrink-0 w-[136px] h-[50px] rounded-12 border-2 border-dashed border-c4 flex items-center justify-center hover:border-action transition-all duration-200'>
+                      className='flex-shrink-0 w-[136px] h-[50px] rounded-xl border-2 border-dashed border-c4 flex items-center justify-center hover:border-action transition-all duration-200'>
                       <PlusIcon size={20} className='text-c4' />
                     </button>
                   </SplideSlide>
                 </SplideTrack>
                 <div className='flex justify-between items-center'>
-                  <div className='splide__arrows relative flex gap-10'>
+                  <div className='splide__arrows relative flex gap-2.5'>
                     <Button
-                      size='sm'
-                      className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
-                      <ArrowIcon size={20} transform='rotate(180deg)' />
+                      isIconOnly
+                      className={`${carouselArrowButtonClass} splide__arrow--prev`}>
+                      <ArrowIcon transform='rotate(180deg)' />
                     </Button>
                     <Button
-                      size='sm'
-                      className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
-                      <ArrowIcon size={20} />
+                      isIconOnly
+                      className={`${carouselArrowButtonClass} splide__arrow--next`}>
+                      <ArrowIcon />
                     </Button>
                   </div>
                 </div>
@@ -413,18 +414,18 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
 
             {/* Section YouTube - visible quand il y a déjà des médias */}
             {onYouTubeAdd && allMediaItems.length > 0 && (
-              <div className='flex items-center gap-10 p-10 bg-c2 rounded-12 border border-c3'>
-                <span className='text-c5 text-14 whitespace-nowrap'>Ajouter YouTube :</span>
+              <div className='flex items-center gap-2.5 p-2.5 bg-c2 rounded-xl border border-c3'>
+                <span className='text-c5 text-sm whitespace-nowrap'>Ajouter YouTube :</span>
                 <input
                   type='url'
                   placeholder='https://www.youtube.com/watch?v=...'
                   value={youtubeUrl}
                   onChange={(e) => setYoutubeUrl(e.target.value)}
-                  className='flex-1 bg-c1 border border-c3 rounded-8 px-10 py-5 text-c6 text-14 focus:outline-none focus:border-action'
+                  className='flex-1 bg-c1 border border-c3 rounded-lg px-2.5 py-1.5 text-c6 text-sm focus:outline-none focus:border-action'
                 />
                 <Button
                   size='sm'
-                  className='bg-action text-selected rounded-8 px-15'
+                  className='bg-action text-selected rounded-lg px-4'
                   isDisabled={!isValidYouTubeUrl(youtubeUrl)}
                   onPress={() => {
                     if (isValidYouTubeUrl(youtubeUrl)) {
@@ -451,11 +452,11 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
             />
           </div>
         ) : medias && medias.length > 0 ? (
-          <div className='flex flex-col gap-10'>
+          <div className='flex flex-col gap-2.5'>
             <MediaViewer
               src={medias[currentMediaIndex]}
               alt={`Média ${currentMediaIndex + 1}`}
-              className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] rounded-12 overflow-hidden'
+              className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] rounded-xl overflow-hidden'
               isVideo={
                 typeof medias[currentMediaIndex] === 'string'
                   ? (medias[currentMediaIndex] as string).includes('.mov') || (medias[currentMediaIndex] as string).includes('.mp4')
@@ -475,13 +476,13 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                 }}
                 hasTrack={false}
                 aria-label='Galerie de médias'
-                className='flex w-full justify-between items-center gap-25'>
+                className='flex w-full justify-between items-center gap-6'>
                 <SplideTrack className='w-full'>
                   {medias.map((_, index) => (
                      <SplideSlide key={index}>
                       <button
                         onClick={() => setCurrentMediaIndex(index)}
-                        className={`flex-shrink-0 w-[136px] h-[50px] rounded-12 overflow-hidden transition-all duration-200 ${
+                        className={`flex-shrink-0 w-[136px] h-[50px] rounded-xl overflow-hidden transition-all duration-200 ${
                           index === currentMediaIndex ? 'border-2 border-c6' : 'border-2 border-transparent hover:border-gray-300'
                         }`}>
                         {(() => {
@@ -504,16 +505,16 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                   ))}
                 </SplideTrack>
                 <div className='flex justify-between items-center'>
-                  <div className='splide__arrows relative flex gap-10'>
+                  <div className='splide__arrows relative flex gap-2.5'>
                     <Button
-                      size='sm'
-                      className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--prev relative left-0 focus:outline-none'>
-                      <ArrowIcon size={20} transform='rotate(180deg)' />
+                      isIconOnly
+                      className={`${carouselArrowButtonClass} splide__arrow--prev`}>
+                      <ArrowIcon transform='rotate(180deg)' />
                     </Button>
                     <Button
-                      size='sm'
-                      className='p-0 min-w-[32px] min-h-[32px] text-selected bg-action splide__arrow transform translate-y-0 splide__arrow--next relative right-0 focus:outline-none'>
-                      <ArrowIcon size={20} />
+                      isIconOnly
+                      className={`${carouselArrowButtonClass} splide__arrow--next`}>
+                      <ArrowIcon />
                     </Button>
                   </div>
                 </div>
@@ -528,7 +529,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
       {/* Section YouTube intégrée - affichée si fullUrl est une URL YouTube */}
       {!isEditing && fullUrl && isValidYouTubeUrl(fullUrl) && (
         <motion.div variants={itemVariants} className='w-full'>
-          <div className='w-full aspect-video rounded-12 overflow-hidden'>
+          <div className='w-full aspect-video rounded-xl overflow-hidden'>
             <MediaViewer src={fullUrl} alt='Vidéo YouTube' className='w-full h-full' isVideo={true} />
           </div>
         </motion.div>
@@ -536,71 +537,81 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
 
       {/* Section titre/personnes/liens - masquée en mode edit car dans la section unifiée */}
       {!isEditing && (
-        <motion.div variants={itemVariants} className='w-full flex flex-col gap-25'>
-          <div className='flex items-center gap-15'>
-            <h1 className='font-medium text-c6 text-24'>{title}</h1>
-            {type && <span className='text-14 text-c5 px-10 py-5 bg-c2 rounded-8 border border-c3 whitespace-nowrap'>{type}</span>}
+        <motion.div variants={itemVariants} className='w-full flex flex-col gap-6'>
+          <div className='flex items-center gap-4'>
+            <h1 className='font-medium text-c6 text-2xl'>{title}</h1>
+            {type && <span className='text-sm text-c5 px-2.5 py-1.5 bg-c2 rounded-lg border border-c3 whitespace-nowrap'>{type}</span>}
           </div>
-          <div className='w-full flex flex-col gap-10'>
-            <div className='w-full flex justify-between gap-10 items-center'>
-              <div className='w-fit flex justify-start gap-10 items-center'>
+          <div className='w-full flex flex-col gap-2.5'>
+            <div className='w-full flex justify-between gap-2.5 items-center'>
+              <div className='w-fit flex justify-start gap-2.5 items-center'>
                 {Array.isArray(personnes) &&
                   personnes.length > 0 &&
                   (personnes[0]?.id != null ? (
-                    <Link href={getPersonRoute(personnes[0])} className='w-fit flex justify-start gap-10 items-center'>
+                    <Link href={getPersonRoute(personnes[0])} className='w-fit flex justify-start gap-2.5 items-center'>
                       {getPersonPicture(personnes[0]) ? (
-                        <img src={getPersonPicture(personnes[0]) ?? ''} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                        <img src={getPersonPicture(personnes[0]) ?? ''} alt='Avatar' className='w-9 h-9 rounded-md object-cover' />
                       ) : (
                         <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                       )}
                       <div className='flex flex-col items-start gap-0.5'>
-                        <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{getPersonDisplayName(personnes[0])}</h3>
-                        {getPersonJobTitle(personnes[0]) && <p className='text-c4 font-extralight text-14'>{getPersonJobTitle(personnes[0])}</p>}
-                        {personnes[0]?.universities?.[0] && <p className='text-c4 font-extralight text-14'>{String(personnes[0].universities[0])}</p>}
+                        <h3 className='text-c6 font-medium text-base gap-2.5 transition-all ease-in-out duration-200'>{getPersonDisplayName(personnes[0])}</h3>
+                        {getPersonJobTitle(personnes[0]) && <p className='text-c4 font-normal text-sm'>{getPersonJobTitle(personnes[0])}</p>}
+                        {personnes[0]?.universities?.[0] && <p className='text-c4 font-normal text-sm'>{String(personnes[0].universities[0])}</p>}
                       </div>
                     </Link>
                   ) : (
-                    <div className='w-fit flex justify-start gap-10 items-center'>
+                    <div className='w-fit flex justify-start gap-2.5 items-center'>
                       {getPersonPicture(personnes[0]) ? (
-                        <img src={getPersonPicture(personnes[0]) ?? ''} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                        <img src={getPersonPicture(personnes[0]) ?? ''} alt='Avatar' className='w-9 h-9 rounded-md object-cover' />
                       ) : (
                         <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                       )}
                       <div className='flex flex-col items-start gap-0.5'>
-                        <h3 className='text-c6 font-medium text-16 gap-10 transition-all ease-in-out duration-200'>{getPersonDisplayName(personnes[0])}</h3>
-                        {getPersonJobTitle(personnes[0]) && <p className='text-c4 font-extralight text-14'>{getPersonJobTitle(personnes[0])}</p>}
-                        {personnes[0]?.universities?.[0] && <p className='text-c4 font-extralight text-14'>{String(personnes[0].universities[0])}</p>}
+                        <h3 className='text-c6 font-medium text-base gap-2.5 transition-all ease-in-out duration-200'>{getPersonDisplayName(personnes[0])}</h3>
+                        {getPersonJobTitle(personnes[0]) && <p className='text-c4 font-normal text-sm'>{getPersonJobTitle(personnes[0])}</p>}
+                        {personnes[0]?.universities?.[0] && <p className='text-c4 font-normal text-sm'>{String(personnes[0].universities[0])}</p>}
                       </div>
                     </div>
                   ))}
                 {Array.isArray(personnes) && personnes.length > 1 && (
-                  <Dropdown>
+                  <Dropdown
+                    classNames={{
+                      content:
+                        'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3 min-w-[240px]',
+                    }}>
                     <DropdownTrigger className='p-0'>
                       <Button
                         size='md'
-                        className='text-16 h-full min-h-[36px]  px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
-                        <h3 className='text-c6 font-medium h-full text-14 gap-10 transition-all ease-in-out duration-200'>+ {personnes.length - 1}</h3>
+                        className='text-base h-full min-h-[36px]  px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 border-2 border-c6 bg-c1 hover:bg-c2 transition-all ease-in-out duration-200'>
+                        <h3 className='text-c6 font-medium h-full text-sm gap-2.5 transition-all ease-in-out duration-200'>+ {personnes.length - 1}</h3>
                       </Button>
                     </DropdownTrigger>
 
-                    <DropdownMenu aria-label='View options' className='p-10 bg-c2 rounded-12'>
+                    <DropdownMenu
+                      aria-label='View options'
+                      className='p-2'
+                      classNames={{
+                        base: 'bg-transparent shadow-none border-0',
+                        list: 'bg-transparent',
+                      }}>
                       {Array.isArray(personnes) && personnes.length > 1
                         ? personnes.slice(1).map((option: any, index: number) => (
                             <DropdownItem
                               key={option.id || `person-${index}`}
-                              className={`p-0`}
+                              className='p-0 cursor-pointer rounded-lg bg-transparent data-[hover=true]:!bg-transparent data-[selectable=true]:focus:!bg-transparent'
                               textValue={getPersonDisplayName(option)}
                               onPress={() => option.id != null && navigate(getPersonRoute(option))}
                               isDisabled={option.id == null}>
-                              <div className={`flex items-center gap-15 w-full px-15 py-10 rounded-8 transition-all ease-in-out duration-200 hover:bg-c3 text-c6`}>
+                              <div className='flex items-center gap-4 w-full py-2 px-3 rounded-lg transition-all ease-in-out duration-200 hover:bg-c3 text-c6'>
                                 {getPersonPicture(option) ? (
-                                  <img src={getPersonPicture(option) ?? ''} alt='Avatar' className='w-9 h-9 rounded-[7px] object-cover' />
+                                  <img src={getPersonPicture(option) ?? ''} alt='Avatar' className='w-9 h-9 rounded-md object-cover' />
                                 ) : (
                                   <UserIcon size={22} className='text-default-500 hover:text-default-action hover:opacity-100 transition-all ease-in-out duration-200' />
                                 )}
                                 <div className='flex flex-col items-start gap-0.5'>
-                                  <span className='text-16'>{getPersonDisplayName(option)}</span>
-                                  {getPersonJobTitle(option) && <span className='text-14 text-c4 font-extralight'>{getPersonJobTitle(option)}</span>}
+                                  <span className='text-base'>{getPersonDisplayName(option)}</span>
+                                  {getPersonJobTitle(option) && <span className='text-sm text-c4 font-normal'>{getPersonJobTitle(option)}</span>}
                                 </div>
                               </div>
                             </DropdownItem>
@@ -612,10 +623,10 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
               </div>
 
               {/* Boutons de partage et lien externe */}
-              <div className='w-fit flex justify-between gap-10 items-center'>
+              <div className='w-fit flex justify-between gap-2.5 items-center'>
                 <Button
                   size='md'
-                  className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                  className='text-base h-auto px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
                   onPress={() => {
                     copyToClipboard();
                     addToast({
@@ -634,7 +645,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                 {fullUrl !== '' && !isValidYouTubeUrl(fullUrl) && (
                   <Button
                     size='md'
-                    className='text-16 h-auto px-10 py-5 rounded-8 text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
+                    className='text-base h-auto px-2.5 py-1.5 rounded-lg text-c6 hover:text-c6 gap-2 bg-c2 hover:bg-c3 transition-all ease-in-out duration-200'
                     onPress={() => window.open(fullUrl, '_blank')}>
                     <LinkIcon size={12} />
                     {buttonText}
@@ -648,7 +659,7 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
         </motion.div>
       )}
       {percentage > 0 && (
-        <motion.div variants={itemVariants} className='w-full flex justify-between items-center flex-row gap-20'>
+        <motion.div variants={itemVariants} className='w-full flex justify-between items-center flex-row gap-5'>
           <div className='w-full'>
             <div className='grid grid-cols-5 gap-2'>
               {Array.from({ length: totalSegments }).map((_, index) => {
@@ -657,16 +668,16 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
                 const segmentProgress = Math.max(0, Math.min(1, (clampedPercentage - segmentStart) / (segmentEnd - segmentStart)));
                 const widthStyle = `${segmentProgress * 100}%`;
                 return (
-                  <div key={index} className='w-full h-2 bg-c3 rounded-8 overflow-hidden'>
-                    <div className='h-full bg-action rounded-8' style={{ width: widthStyle }} />
+                  <div key={index} className='w-full h-2 bg-c3 rounded-lg overflow-hidden'>
+                    <div className='h-full bg-action rounded-lg' style={{ width: widthStyle }} />
                   </div>
                 );
               })}
             </div>
           </div>
-          <div className='flex flex-row justify-end items-center gap-10'>
-            <span className='text-c6 font-medium text-16 whitespace-nowrap'>{status}</span>
-            <span className='text-c6 font-medium text-16 whitespace-nowrap'>{clampedPercentage}%</span>
+          <div className='flex flex-row justify-end items-center gap-2.5'>
+            <span className='text-c6 font-medium text-base whitespace-nowrap'>{status}</span>
+            <span className='text-c6 font-medium text-base whitespace-nowrap'>{clampedPercentage}%</span>
           </div>
         </motion.div>
       )}
@@ -675,56 +686,56 @@ export const ExpOverviewCard: React.FC<ExpOverviewProps> = ({
 };
 export const ExpOverviewSkeleton: React.FC = () => {
   return (
-    <div className='w-full flex flex-col gap-25'>
+    <div className='w-full flex flex-col gap-6'>
       {/* Video skeleton */}
-      <div className='w-full flex flex-col gap-10'>
-        <div className='rounded-14 lg:w-full h-[400px] bg-c2 animate-pulse' />
-        <div className='flex w-full gap-10'>
-          <div className='w-full h-60 bg-c2 rounded-6 animate-pulse' />
-          <div className='w-full h-60 bg-c2 rounded-6 animate-pulse' />
-          <div className='w-full h-60 bg-c2 rounded-6 animate-pulse' />
-          <div className='w-full h-60 bg-c2 rounded-6 animate-pulse' />
+      <div className='w-full flex flex-col gap-2.5'>
+        <div className='rounded-xl lg:w-full h-[400px] bg-c2 animate-pulse' />
+        <div className='flex w-full gap-2.5'>
+          <div className='w-full h-14 bg-c2 rounded-md animate-pulse' />
+          <div className='w-full h-14 bg-c2 rounded-md animate-pulse' />
+          <div className='w-full h-14 bg-c2 rounded-md animate-pulse' />
+          <div className='w-full h-14 bg-c2 rounded-md animate-pulse' />
         </div>
       </div>
       
       {/* Content skeleton */}
-      <div className='flex flex-col gap-20'>
+      <div className='flex flex-col gap-5'>
         {/* Title skeleton */}
-        <div className='flex flex-col gap-10'>
-          <div className='w-[80%] h-8 bg-c2 rounded-8 animate-pulse' />
-          <div className='w-[60%] h-8 bg-c2 rounded-8 animate-pulse' />
+        <div className='flex flex-col gap-2.5'>
+          <div className='w-[80%] h-8 bg-c2 rounded-lg animate-pulse' />
+          <div className='w-[60%] h-8 bg-c2 rounded-lg animate-pulse' />
         </div>
         
         {/* Actant & buttons row skeleton */}
-        <div className='flex justify-between items-center gap-10'>
+        <div className='flex justify-between items-center gap-2.5'>
           {/* Actant skeleton */}
-          <div className='flex items-center gap-10'>
-            <div className='w-9 h-9 bg-c2 rounded-8 animate-pulse' />
-            <div className='flex flex-col gap-5'>
-              <div className='w-32 h-4 bg-c2 rounded-8 animate-pulse' />
-              <div className='w-24 h-3 bg-c2 rounded-8 animate-pulse' />
+          <div className='flex items-center gap-2.5'>
+            <div className='w-9 h-9 bg-c2 rounded-lg animate-pulse' />
+            <div className='flex flex-col gap-1.5'>
+              <div className='w-32 h-4 bg-c2 rounded-lg animate-pulse' />
+              <div className='w-24 h-3 bg-c2 rounded-lg animate-pulse' />
             </div>
           </div>
           
           {/* Buttons skeleton */}
-          <div className='flex gap-10'>
-            <div className='w-24 h-9 bg-c2 rounded-8 animate-pulse' />
-            <div className='w-24 h-9 bg-c2 rounded-8 animate-pulse' />
+          <div className='flex gap-2.5'>
+            <div className='w-24 h-9 bg-c2 rounded-lg animate-pulse' />
+            <div className='w-24 h-9 bg-c2 rounded-lg animate-pulse' />
           </div>
         </div>
       </div>
-      <div className='rounded-14 w-full h-2 bg-c2 animate-pulse' />
+      <div className='rounded-xl w-full h-2 bg-c2 animate-pulse' />
     </div>
   );
 };
 
 export const UnloadedCard: React.FC = () => {
   return (
-    <div className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] flex flex-col items-center justify-center p-20 bg-c3 rounded-14 gap-20'>
+    <div className='lg:w-[100%] lg:h-[400px] xl:h-[450px] h-[450px] sm:h-[450px] xs:h-[250px] flex flex-col items-center justify-center p-5 bg-c3 rounded-xl gap-5'>
       <CameraIcon size={42} className='text-c4' />
-      <div className='w-[80%] flex flex-col justify-center items-center gap-10'>
-        <h2 className='text-c5 text-32 font-semibold'>Oups !</h2>
-        <p className='w-[400px] text-c5 text-16 text-regular text-center'>
+      <div className='w-[80%] flex flex-col justify-center items-center gap-2.5'>
+        <h2 className='text-c5 text-3xl font-medium'>Oups !</h2>
+        <p className='w-[400px] text-c5 text-base text-regular text-center'>
           Aucune Image ou Vidéo n'est liée à ce contenu. Veuillez vérifier plus tard ou explorer d'autres sections de notre site.
         </p>
       </div>

@@ -21,7 +21,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ isLoading }) => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="flex flex-col items-center gap-20"
+            className="flex flex-col items-center gap-1"
           >
             {/* Logo with pulse animation */}
             <motion.div
@@ -35,12 +35,12 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ isLoading }) => {
                 ease: 'easeInOut'
               }}
             >
-              <Image src={Logo} alt='Arcanes' className='h-60' />
+              <Image src={Logo} alt='Arcanes' className='h-14' />
             </motion.div>
 
             {/* Site name */}
             <motion.div 
-              className='text-32 text-c6 font-medium'
+              className='text-3xl text-c6 font-medium'
               animate={{ opacity: [0.5, 1, 0.5] }}
               transition={{ 
                 duration: 2,

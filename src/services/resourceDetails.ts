@@ -36,3 +36,28 @@ export async function getResourceDetails(resourceId: string | number): Promise<R
         throw error;
     }
 }
+
+/**
+ * Fetch annotations specifically using the Query helper's getAnnotations action
+ */
+export async function getAnnotations(resourceId: string | number): Promise<any[]> {
+    try {
+        const params = new URLSearchParams({
+            helper: 'Query',
+            action: 'getAnnotations',
+            json: '1',
+            id: String(resourceId),
+        });
+
+        const response = await fetch(`${QUERY_API_URL}?${params.toString()}`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching annotations:', error);
+        throw error;
+    }
+}

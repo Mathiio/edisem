@@ -69,7 +69,7 @@ interface SidebarHeaderProps {
 }
 
 export const SidebarHeader = ({ children, className = '' }: SidebarHeaderProps) => {
-  return <div className={`p-15 border-b-2 border-c3 h-[62px] flex items-center ${className}`}>{children}</div>;
+  return <div className={`p-4 border-b-2 border-c3 h-[62px] flex items-center ${className}`}>{children}</div>;
 };
 
 // Sidebar Content (scrollable)
@@ -79,7 +79,7 @@ interface SidebarContentProps {
 }
 
 export const SidebarContent = ({ children, className = '' }: SidebarContentProps) => {
-  return <div className={`flex-1 overflow-y-auto p-15 ${className}`}>{children}</div>;
+  return <div className={`flex-1 overflow-y-auto p-4 ${className}`}>{children}</div>;
 };
 
 // Sidebar Footer
@@ -89,7 +89,7 @@ interface SidebarFooterProps {
 }
 
 export const SidebarFooter = ({ children, className = '' }: SidebarFooterProps) => {
-  return <div className={`p-15 border-t-2 border-c3 h-[62px] flex items-center ${className}`}>{children}</div>;
+  return <div className={`p-4 border-t-2 border-c3 h-[62px] flex items-center ${className}`}>{children}</div>;
 };
 
 // Sidebar Group
@@ -99,7 +99,7 @@ interface SidebarGroupProps {
 }
 
 export const SidebarGroup = ({ children, className = '' }: SidebarGroupProps) => {
-  return <div className={`mb-20 ${className}`}>{children}</div>;
+  return <div className={`mb-5 ${className}`}>{children}</div>;
 };
 
 // Sidebar Group Label
@@ -113,7 +113,7 @@ export const SidebarGroupLabel = ({ children, className = '' }: SidebarGroupLabe
 
   if (isCollapsed) return null;
 
-  return <div className={`text-12 font-medium text-c4 uppercase tracking-wider mb-10 px-10 ${className}`}>{children}</div>;
+  return <div className={`text-xs font-medium text-c4 uppercase tracking-wider mb-2.5 px-2.5 ${className}`}>{children}</div>;
 };
 
 // Sidebar Menu
@@ -144,7 +144,7 @@ export const SidebarMenuItem = ({ icon, label, onClick, isActive = false, classN
   const content = (
     <div
       className={`
-        flex items-center gap-10 px-10 py-10 rounded-8
+        flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg
         transition-all ease-in-out duration-200
         border-2
         ${disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}
@@ -155,19 +155,19 @@ export const SidebarMenuItem = ({ icon, label, onClick, isActive = false, classN
               ? 'border-transparent text-c4'
               : 'border-transparent text-c5 hover:bg-c3 hover:border-c3 hover:text-c6 hover:shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)]'
         }
-        ${isCollapsed ? 'justify-center px-10' : ''}
+        ${isCollapsed ? 'justify-center px-2.5' : ''}
         ${className}
       `}
       onClick={disabled ? undefined : onClick}>
       <span className='flex-shrink-0 w-[20px] h-[20px] flex items-center justify-center'>{icon}</span>
-      {!isCollapsed && <span className='text-14 font-medium truncate flex-1'>{label}</span>}
+      {!isCollapsed && <span className='text-sm font-medium truncate flex-1'>{label}</span>}
       {!isCollapsed && suffix && <span className='flex-shrink-0 text-c4'>{suffix}</span>}
     </div>
   );
 
   if (isCollapsed) {
     return (
-      <Tooltip content={label} placement='right' delay={0} closeDelay={0} classNames={{ content: 'bg-c2 text-c6 border-2 border-c3 px-10 py-5 rounded-8' }}>
+      <Tooltip content={label} placement='right' delay={0} closeDelay={0} classNames={{ content: 'bg-c2 text-c6 border-2 border-c3 px-2.5 py-1.5 rounded-lg' }}>
         {href ? (
           <a href={href} className='block'>
             {content}
@@ -204,7 +204,7 @@ export const SidebarTrigger = ({ className = '' }: SidebarTriggerProps) => {
       variant='light'
       onPress={toggleSidebar}
       className={`
-        h-8 w-8 min-w-8 rounded-8
+        h-8 w-8 min-w-8 rounded-lg
         bg-c3 hover:bg-c4 text-c6
         border-2 border-c3 hover:border-c4
         shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)]
@@ -219,5 +219,5 @@ export const SidebarTrigger = ({ className = '' }: SidebarTriggerProps) => {
 // Sidebar Separator
 export const SidebarSeparator = ({ className = '' }: { className?: string }) => {
   const { isCollapsed } = useSidebar();
-  return <div className={`h-[2px] bg-c3 my-15 ${isCollapsed ? 'mx-10' : 'mx-0'} rounded-full ${className}`} />;
+  return <div className={`h-[2px] bg-c3 my-4 ${isCollapsed ? 'mx-2.5' : 'mx-0'} rounded-full ${className}`} />;
 };

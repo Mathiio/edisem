@@ -44,29 +44,29 @@ export default function IntervenantsStats({ counts, loading }: IntervenantsStati
     value: string | number;
     description: string;
   }) => (
-    <div className="flex flex-col gap-10">
-      <h3 className="text-64 text-c6 font-bold">{loading ? '0' : value}</h3>
-      <div className="py-5 px-10 flex bg-c2 w-fit rounded-8">
-        <p className="text-16 font-medium text-c5">{title}</p>
+    <div className="flex flex-col gap-2.5">
+      <h3 className="text-6xl text-c6 font-bold">{loading ? '0' : value}</h3>
+      <div className="py-1.5 px-2.5 flex bg-c2 w-fit rounded-lg">
+        <p className="text-base font-medium text-c5">{title}</p>
       </div>
-      <p className="text-16 font-regular text-c5">{description}</p>
+      <p className="text-base font-regular text-c5">{description}</p>
     </div>
   );
 
   return (
-    <section className='flex gap-50'>
+    <section className='grid grid-cols-2 gap-12'>
       {/* Left side – Title and description */}
       <div className='flex-1 flex flex-col justify-between'>
-        <h2 className='text-c6 text-64 transition-all ease-in-out duration-200'>
+        <h2 className='text-c6 text-6xl transition-all ease-in-out duration-200'>
           Quelques <br/>
           Statistiques
         </h2>
-        <p className='text-c5 text-16 transition-all ease-in-out duration-200 max-w-md'>
+        <p className='text-c5 text-base transition-all ease-in-out duration-200 max-w-md'>
           De Paris à Montréal, de Londres à Turin, en passant par Tokyo ou Boston, les intervenant·es explorent des thématiques aussi diverses que l’intelligence artificielle, les pratiques artistiques numériques, la sémiotique ou l’éthique des technologies.          
         </p>
       </div>
       {/* Right side – Grid of stat cards */}
-      <div className="grid grid-cols-2 w-1/2 gap-40">
+      <div className="grid grid-cols-2 w-px/2 gap-10">
         <StatCard
           value={statistics.intervenantsCount}
           title="Intervenants identifiés"

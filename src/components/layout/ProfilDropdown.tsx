@@ -48,31 +48,43 @@ export const ProfilDropdown = () => {
     }
   }, [userTypeValue]);
 
+  const menuItemClass = 'p-0 cursor-pointer text-c5 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3 rounded-lg';
+  const itemInnerPadding = 'py-2 px-3';
+
   return (
-    <Dropdown>
+    <Dropdown
+      classNames={{
+        content: 'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] bg-c2 rounded-xl border-2 border-c3',
+      }}>
       {/* Button trigger for opening the dropdown */}
       <DropdownTrigger className='p-3'>
-        <div className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-15 py-10 text-16 gap-10 text-c6 transition-all ease-in-out duration-200'>
+        <div className='hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-lg border-2 border-c3 items-center justify-center px-4 py-2.5 text-base gap-2.5 text-c6 transition-all ease-in-out duration-200'>
           {/* User avatar if authenticated, otherwise fallback icon */}
           {isAuthenticated && userData?.picture ? (
-            <img src={userData.picture} alt='Avatar' className='w-6 h-6 rounded-[6px] object-cover' />
+            <img src={userData.picture} alt='Avatar' className='w-6 h-6 rounded-md object-cover' />
           ) : (
             <UserIcon size={16} className='text-c6' />
           )}
           {/* Display name or "Profil" */}
-          <span className='text-16 font-normal text-c6'>{isAuthenticated ? displayName : 'Profil'}</span>
+          <span className='text-base font-normal text-c6'>{isAuthenticated ? displayName : 'Profil'}</span>
         </div>
       </DropdownTrigger>
 
       {/* Main dropdown menu content */}
-      <DropdownMenu aria-label='User menu' className='p-10 bg-c2 rounded-12'>
+      <DropdownMenu
+        aria-label='User menu'
+        className='p-2'
+        classNames={{
+          base: 'bg-transparent shadow-none border-0',
+          list: 'bg-transparent',
+        }}>
         {isAuthenticated ? (
           // When the user is authenticated
           <>
             {/* Top section with user profile info (readonly) */}
             <DropdownSection showDivider>
-              <DropdownItem isReadOnly key='profile' className='opacity-100 p-0'>
-                <div className='flex gap-2 items-center w-full bg-c2 hover:bg-c3 px-4 py-2 rounded-8 transition-all ease-in-out duration-200'>
+              <DropdownItem isReadOnly key='profile' className='opacity-100 p-0 cursor-default'>
+                <div className='flex gap-2 items-center w-full bg-c2 rounded-lg p-1'>
                   <User
                     name={fullName}
                     description={userType}
@@ -82,7 +94,7 @@ export const ProfilDropdown = () => {
                     }}
                     avatarProps={{
                       src: userData?.picture || undefined,
-                      fallback: <UserIcon className='text-c6' size={20} />,
+                      fallback: <UserIcon className='text-c6' size={16} />,
                       size: 'sm',
                       radius: 'sm',
                     }}
@@ -91,42 +103,42 @@ export const ProfilDropdown = () => {
               </DropdownItem>
             </DropdownSection>
 
-            <DropdownSection>
+            <DropdownSection className='mb-0'>
               {userTypeValue === 'actant' ? (
                 <>
-                  <DropdownItem key='mon-espace' className='p-0 hover:text-c6 text-c5'>
-                    <Link to='/mon-espace' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
+                  <DropdownItem key='mon-espace' className={menuItemClass}>
+                    <Link to='/mon-espace' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
                       <UserIcon size={16} />
-                      <p className='text-16 text-extralight'>Mon espace</p>
+                      <p className='text-base font-normal'>Mon espace</p>
                     </Link>
                   </DropdownItem>
-                  <DropdownItem key='adminStudent' className='p-0 hover:text-c6 text-c5'>
-                    <Link to='/admin' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
+                  <DropdownItem key='adminStudent' className={menuItemClass}>
+                    <Link to='/admin' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
                       <UserIcon size={16} />
-                      <p className='text-16 text-extralight'>Administration</p>
+                      <p className='text-base font-normal'>Administration</p>
                     </Link>
                   </DropdownItem>
                 </>
               ) : userTypeValue === 'student' ? (
-                <DropdownItem key='mon-espace' className='p-0 hover:text-c6 text-c5'>
-                  <Link to='/mon-espace' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
+                <DropdownItem key='mon-espace' className={menuItemClass}>
+                  <Link to='/mon-espace' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
                     <UserIcon size={16} />
-                    <p className='text-16 text-extralight'>Mon espace</p>
+                    <p className='text-base font-normal'>Mon espace</p>
                   </Link>
                 </DropdownItem>
               ) : null}
 
-              <DropdownItem key='theme' className='p-0 hover:text-c6 text-c5'>
-                <button onClick={toggleThemeMode} className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
+              <DropdownItem key='theme' className={menuItemClass}>
+                <button onClick={toggleThemeMode} className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
                   {isDark ? <SunIcon size={16} /> : <MoonIcon size={16} />}
-                  <span className='text-16 text-extralight'>{isDark ? 'Thème clair' : 'Thème sombre'}</span>
+                  <span className='text-base font-normal'>{isDark ? 'Thème clair' : 'Thème sombre'}</span>
                 </button>
               </DropdownItem>
 
-              <DropdownItem key='logout' className='p-0 hover:text-c6 text-c5'>
-                <button onClick={handleLogout} className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
+              <DropdownItem key='logout' className={menuItemClass}>
+                <button onClick={handleLogout} className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
                   <Logout size={16} />
-                  <p className='text-16 text-extralight'>Se déconnecter</p>
+                  <p className='text-base font-normal'>Se déconnecter</p>
                 </button>
               </DropdownItem>
             </DropdownSection>
@@ -135,18 +147,18 @@ export const ProfilDropdown = () => {
           // When the user is not authenticated
           <DropdownSection className='mb-0'>
             {/* Link to Login page */}
-            <DropdownItem key='login' className='p-0 hover:text-c6 text-c5'>
-              <Link to='/login' className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
+            <DropdownItem key='login' className={menuItemClass}>
+              <Link to='/login' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
                 <UserIcon size={16} />
-                <p className='text-16 text-extralight'>Connexion</p>
+                <p className='text-base font-normal'>Connexion</p>
               </Link>
             </DropdownItem>
 
             {/* Theme toggle for unauthenticated users */}
-            <DropdownItem key='theme' className='p-0 hover:text-c6 text-c5'>
-              <button onClick={toggleThemeMode} className='flex justify-start gap-2 hover:bg-c3 items-center w-full p-2 rounded-8 transition-all ease-in-out duration-200'>
+            <DropdownItem key='theme' className={menuItemClass}>
+              <button onClick={toggleThemeMode} className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
                 {isDark ? <SunIcon size={16} /> : <MoonIcon size={16} />}
-                <span className='text-16 text-extralight'>{isDark ? 'Thème clair' : 'Thème sombre'}</span>
+                <span className='text-base font-normal'>{isDark ? 'Thème clair' : 'Thème sombre'}</span>
               </button>
             </DropdownItem>
           </DropdownSection>

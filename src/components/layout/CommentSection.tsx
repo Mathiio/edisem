@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button, Link, Popover, PopoverContent, PopoverTrigger, Spinner } from '@heroui/react';
 import { useAuth } from '@/hooks/useAuth';
-import { createEdisemComment } from '@/services/api';
+import { ApiProxy } from '@/services/ApiProxy';
 import { getComments } from '@/services/Items';
 import { formatDate } from '@/lib/utils';
 
@@ -22,7 +22,7 @@ interface Comment {
 }
 
 const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, userData } = useAuth();
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -54,15 +54,21 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
     }
 
     try {
-      // Créer le commentaire via l'API réelle (utilise temporairement owner_id = 1)
-      const result = await createEdisemComment({
-        contenu: newContenu.trim(),
-        relatedResourceId: LinkedResourceId, // Lier le commentaire à la ressource spécifique
-        owner_id: 1, // Utilise temporairement l'administrateur comme owner
-        class_id: 302, // Classe Edisem Commentaire
-      });
+      // Structure JSON-LD pour Omeka S (Template 123: Edisem Commentaire)
+      const commentData = {
+        'o:resource_template': { 'o:id': 123 },
+        'o:resource_class': { 'o:id': 302 }, // Edisem Commentaire
+        'dcterms:title': [{ 'type': 'literal', 'property_id': 1, '@value': newContenu.trim() }],
+        'schema:commentText': [{ 'type': 'literal', 'property_id': 561, '@value': newContenu.trim() }],
+        'schema:commentTime': [{ 'type': 'literal', 'property_id': 562, '@value': new Date().toISOString() }],
+        'jdc:hasActant': userData?.id ? [{ 'type': 'resource', 'property_id': 2095, 'value_resource_id': userData.id }] : [],
+        'ma:hasRelatedResource': [{ 'type': 'resource', 'property_id': 1794, 'value_resource_id': LinkedResourceId }]
+      };
 
-      if (result.success) {
+      // Utiliser ApiProxy pour la création afin de forcer le owner au niveau backend
+      const result = await ApiProxy.createItem(commentData);
+
+      if (result && result['o:id']) {
         // Forcer le rechargement des commentaires depuis l'API
         try {
           const updatedComments = await getComments(); // Force refresh
@@ -81,26 +87,22 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
           // Vider le champ
           setNewContenu('');
 
-          // Arrêter le loading après succès
-          setIsLoading(false);
         } catch (refreshError) {
           console.error('Erreur lors du rechargement des commentaires:', refreshError);
           // En cas d'erreur, garder les commentaires actuels mais vider le champ
           setNewContenu('');
-          setIsLoading(false);
         }
       } else {
-        // Arrêter le loading en cas d'échec de création du commentaire
-        setIsLoading(false);
         throw new Error(result.message || 'Erreur lors de la création');
       }
     } catch (error) {
       console.error('Erreur lors de la création du commentaire:', error);
       alert('Erreur lors de la création du commentaire. Veuillez réessayer.');
-      // Le loading est déjà arrêté dans le finally du try interne ou dans le else ci-dessus
 
       // Réinitialiser l'animation après 500ms
       setTimeout(() => setLastAddedId(null), 500);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,11 +114,11 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
   };
 
   return (
-    <div className='w-full flex flex-col gap-25'>
-      <h2 className='text-24 font-medium text-c6 min-h-[32px]'>Commentaires</h2>
+    <div className='w-full flex flex-col gap-6'>
+      <h2 className='text-2xl font-medium text-c6 min-h-[32px]'>Commentaires</h2>
 
       {/* Zone de saisie */}
-      <div className='w-full p-5 md:p-6 bg-c2 text-c6 rounded-12 flex flex-col gap-4'>
+      <div className='w-full p-1.5 md:p-6 bg-c2 text-c6 rounded-xl flex flex-col gap-4'>
         {isAuthenticated ? (
           <textarea
             value={newContenu}
@@ -143,8 +145,8 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
               />
             </PopoverTrigger>
             <PopoverContent className='p-4 flex flex-col gap-2 items-center max-w-[350px]'>
-              <h3 className='text-16 font-bold text-c6 text-center mb-1 w-full'>Envie de participer à la conversation ?</h3>
-              <div className='text-14 text-c4 text-center mb-2'>Connectez-vous pour continuer</div>
+              <h3 className='text-base font-bold text-c6 text-center mb-px w-full'>Envie de participer à la conversation ?</h3>
+              <div className='text-sm text-c4 text-center mb-2'>Connectez-vous pour continuer</div>
               <Link href='/login'>
                 <Button size='sm' className='w-full bg-action' onClick={() => setPopoverOpen(false)}>
                   Se connecter
@@ -155,13 +157,25 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
         )}
         <div className='flex justify-between items-center'>
           <div className='text-xs text-[#adadad]'>{!isAuthenticated ? 'Connectez-vous pour commenter' : `${500 - newContenu.length} caractères restants`}</div>
-          <button
+          <Button
             onClick={handleSubmit}
-            disabled={!isAuthenticated || !newContenu.trim() || isLoading}
-            className='px-4 py-2 bg-action hover:opacity-100 disabled:bg-action/50 disabled:cursor-not-allowed transition-colors rounded-6 text-selected text-14 flex flex-row justify-center items-center gap-2'>
-            {(!isLoading && 'Envoyer') || 'Envoi...'}
-            {isLoading && <Spinner color='white' size='sm' classNames={{ circle1: 'w-[15px] h-[15px] ', circle2: 'w-[15px] h-[15px] ', wrapper: 'w-[15px] h-[15px]' }} />}
-          </button>
+            isLoading={isLoading}
+            isDisabled={!isAuthenticated}
+            className='px-4 py-2 bg-action hover:opacity-100 disabled:bg-action/50 disabled:cursor-not-allowed transition-all duration-300 rounded-md text-selected text-sm flex flex-row justify-center items-center gap-2'
+            spinner={
+              <Spinner 
+                color='white' 
+                size='sm' 
+                classNames={{ 
+                  circle1: 'w-[15px] h-[15px]', 
+                  circle2: 'w-[15px] h-[15px]', 
+                  wrapper: 'w-[15px] h-[15px]' 
+                }} 
+              />
+            }
+          >
+            {isLoading ? 'Envoi...' : 'Envoyer'}
+          </Button>
         </div>
       </div>
       {/* Liste des commentaires */}
@@ -172,7 +186,7 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
           comments.map((comment: any) => (
             <motion.div
               key={comment.id}
-              className='w-full p-5 md:p-6 rounded-12 border-2 border-[#262233] flex gap-3'
+              className='w-full p-1.5 md:p-6 rounded-xl border-2 border-[#262233] flex gap-3'
               initial={comment.id === lastAddedId ? { opacity: 0, scale: 0.8, y: -20 } : false}
               animate={comment.id === lastAddedId ? { opacity: 1, scale: 1, y: 0 } : {}}
               transition={{
@@ -181,14 +195,14 @@ const CommentSection = ({ LinkedResourceId }: { LinkedResourceId: number }) => {
                 stiffness: 300,
                 damping: 20,
               }}>
-              <img className='w-[45px] h-[45px] rounded-6 flex-shrink-0' src={comment.actant?.picture || '/default-avatar.png'} alt={comment.author || 'Avatar'} />
+              <img className='w-[45px] h-[45px] rounded-md flex-shrink-0' src={comment.actant?.picture || '/default-avatar.png'} alt={comment.author || 'Avatar'} />
               <div className='flex-1 flex flex-col gap-2'>
                 <div className='flex items-center gap-2'>
-                  <span className='text-c4 text-14 font-regular'>{comment.actant?.title || 'Anonyme'}</span>
-                  <span className='text-[#adadad] text-12'>{comment.commentTime ? formatDate(comment.commentTime) : "À l'instant"}</span>
+                  <span className='text-c4 text-sm font-regular'>{comment.actant?.title || 'Anonyme'}</span>
+                  <span className='text-[#adadad] text-xs'>{comment.commentTime ? formatDate(comment.commentTime) : "À l'instant"}</span>
                 </div>
-                <div className='flex flex-col gap-1'>
-                  <p className='text-c6 font-regular text-14 opacity-90'>{comment.commentText}</p>
+                <div className='flex flex-col gap-px'>
+                  <p className='text-c6 font-regular text-sm opacity-90'>{comment.commentText}</p>
                 </div>
               </div>
             </motion.div>

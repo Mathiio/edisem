@@ -55,9 +55,9 @@ async function updateResourceCourse(resourceId: number, courseId: number | null)
 // Composant Wrapper
 const Wrapper: React.FC<{ children: React.ReactNode; embedded?: boolean }> = ({ children, embedded }) => {
   if (embedded) {
-    return <div className='flex flex-col gap-30'>{children}</div>;
+    return <div className='flex flex-col gap-8'>{children}</div>;
   }
-  return <Layouts className='col-span-10 flex flex-col gap-50 z-0 overflow-visible'>{children}</Layouts>;
+  return <Layouts className='col-span-10 flex flex-col gap-12 z-0 overflow-visible'>{children}</Layouts>;
 };
 
 interface ResourceManagementProps {
@@ -208,7 +208,7 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
   if (loading) {
     return (
       <Wrapper embedded={embedded}>
-        <div className='flex flex-col gap-4 min-h-[400px] items-center justify-center py-20'>
+        <div className='flex flex-col gap-4 min-h-[400px] items-center justify-center py-5'>
           <Spinner color="current" className="text-c6" />
           <p className="text-c6">Chargement en cours...</p>
         </div>
@@ -221,13 +221,13 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div>
-          <h1 className='text-28 font-semibold text-c6'>Gestion des Ressources</h1>
-          <p className='text-14 text-c5 mt-1'>
+          <h1 className='text-3xl font-medium text-c6'>Gestion des Ressources</h1>
+          <p className='text-sm text-c5 mt-px'>
             {stats.total} ressource{stats.total > 1 ? 's' : ''} • {stats.withCourse} liée{stats.withCourse > 1 ? 's' : ''} à un cours • {stats.teacherResources} enseignante
             {stats.teacherResources > 1 ? 's' : ''}
           </p>
         </div>
-        <div className='flex gap-10 pb-25'>
+        <div className='flex gap-2.5 pb-6'>
           <Select
             label='Filtrer par cours'
             selectedKeys={[filterCourse]}
@@ -272,11 +272,11 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
       </div>
 
       {/* Tableau */}
-      <div className='bg-c2 rounded-12 p-20'>
+      <div className='bg-c2 rounded-xl p-5'>
         <Table
           aria-label='Tableau des ressources'
           classNames={{
-            wrapper: 'bg-transparent shadow-none rounded-12',
+            wrapper: 'bg-transparent shadow-none rounded-xl',
             th: 'bg-c3 text-c6 h-12 first:rounded-l-8 last:rounded-r-8',
             td: 'text-c6',
           }}>
@@ -293,12 +293,12 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
             {filteredResources.map((resource) => (
               <TableRow key={resource.id}>
                 <TableCell>
-                  <div className='flex items-center gap-10'>
+                  <div className='flex items-center gap-2.5'>
                     {resource.thumbnail && (
                       <img
                         src={resource.thumbnail.startsWith('http') ? resource.thumbnail : `https://tests.arcanes.ca/omk${resource.thumbnail}`}
                         alt={resource.title}
-                        className='w-25 h-25 rounded-[4px] object-cover'
+                        className='w-6 h-6 rounded-sm object-cover'
                       />
                     )}
                     <span className='font-medium'>{resource.title}</span>
@@ -309,7 +309,7 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
                   {resource.courseId ? (
                     <span
                       className={
-                        onNavigateToCourse ? 'text-c6 border-2 border-c4 hover:text-c1 cursor-pointer transition-colors px-4 py-1.5 bg-c3 hover:bg-c4 rounded-8 ' : 'text-c6'
+                        onNavigateToCourse ? 'text-c6 border-2 border-c4 hover:text-c1 cursor-pointer transition-colors px-4 py-1.5 bg-c3 hover:bg-c4 rounded-lg ' : 'text-c6'
                       }
                       onClick={() => onNavigateToCourse?.(resource.courseId as number)}>
                       {courses.find((c) => c.id === resource.courseId)?.code || resource.courseTitle}
@@ -319,20 +319,20 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
                   )}
                 </TableCell>
                 <TableCell>
-                  <div className='flex flex-col gap-5 max-w-[200px]'>
+                  <div className='flex flex-col gap-1.5 max-w-[200px]'>
                     {resource.actants?.slice(0, 2).map((actant, index) => (
                       <div key={index} className='flex items-center gap-4'>
                         <Avatar
                           src={actant.picture ? (actant.picture.startsWith('http') ? actant.picture : `https://tests.arcanes.ca/omk${actant.picture}`) : undefined}
                           fallback={<UserIcon size={14} />}
                           size='sm'
-                          className='w-25 h-25 rounded-[4px] flex-shrink-0'
+                          className='w-6 h-6 rounded-sm flex-shrink-0'
                         />
-                        <span className='text-c6 text-14 truncate'>{actant.title}</span>
+                        <span className='text-c6 text-sm truncate'>{actant.title}</span>
                       </div>
                     ))}
                     {resource.actants && resource.actants.length > 2 && (
-                      <span className='text-c5 text-12'>
+                      <span className='text-c5 text-xs'>
                         +{resource.actants.length - 2} autre{resource.actants.length - 2 > 1 ? 's' : ''}
                       </span>
                     )}
@@ -359,22 +359,22 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
         <ModalContent className='bg-c2'>
           <ModalHeader className='text-c6'>Déplacer la ressource</ModalHeader>
           <ModalBody>
-            <div className='flex flex-col gap-20'>
-              <div className='flex items-center gap-10 p-15 bg-c3 rounded-12'>
+            <div className='flex flex-col gap-5'>
+              <div className='flex items-center gap-2.5 p-4 bg-c3 rounded-xl'>
                 {selectedResource?.thumbnail ? (
                   <img
                     src={selectedResource.thumbnail.startsWith('http') ? selectedResource.thumbnail : `https://tests.arcanes.ca/omk${selectedResource.thumbnail}`}
                     alt={selectedResource.title}
-                    className='w-12 h-12 rounded-8 object-cover'
+                    className='w-12 h-12 rounded-lg object-cover'
                   />
                 ) : (
-                  <div className='w-12 h-12 rounded-8 bg-c4 flex items-center justify-center'>
+                  <div className='w-12 h-12 rounded-lg bg-c4 flex items-center justify-center'>
                     <ExperimentationIcon size={20} className='text-c5' />
                   </div>
                 )}
                 <div>
                   <p className='text-c6 font-medium'>{selectedResource?.title}</p>
-                  <p className='text-c5 text-12'>{getRessourceLabel(selectedResource?.type || '')}</p>
+                  <p className='text-c5 text-xs'>{getRessourceLabel(selectedResource?.type || '')}</p>
                 </div>
               </div>
 
@@ -417,7 +417,7 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
             <p className='text-c5'>
               Êtes-vous sûr de vouloir supprimer la ressource <span className='text-c6 font-medium'>"{resourceToDelete?.title}"</span> ?
             </p>
-            <p className='text-c4 text-14 mt-10'>Cette action est irréversible.</p>
+            <p className='text-c4 text-sm mt-2.5'>Cette action est irréversible.</p>
           </ModalBody>
           <ModalFooter>
             <Button variant='flat' onPress={() => setDeleteModalOpen(false)} className='bg-c3 text-c6'>

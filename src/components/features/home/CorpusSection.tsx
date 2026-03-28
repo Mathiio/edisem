@@ -75,11 +75,11 @@ export const CorpusSection: React.FC = () => {
         variants={cardVariants}
         data-testid="corpus-section-card"
         onClick={() => handleNavigation(card.path)}
-        className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-40 rounded-30 justify-between flex flex-col gap-40 hover:bg-c2 h-full transition-all ease-in-out duration-200'>
+        className='shadow-[inset_0_0px_50px_rgba(255,255,255,0.06)] border-c3 border-2 cursor-pointer p-10 rounded-4xl justify-between flex flex-col gap-10 hover:bg-c2 h-full transition-all ease-in-out duration-200'>
         <IconComponent size={40} className='text-c6' />
-        <div className='flex flex-col gap-10'>
-          <p className='text-32 font-semibold transition-all ease-in-out duration-200 text-c6'>{card.title}</p>
-          <p className='text-16 text-c5 font-extralight transition-all ease-in-out duration-200'>{card.description}</p>
+        <div className='flex flex-col gap-2.5'>
+          <p className='text-3xl font-medium transition-all ease-in-out duration-200 text-c6'>{card.title}</p>
+          <p className='text-base text-c5 font-normal transition-all ease-in-out duration-200'>{card.description}</p>
         </div>
       </motion.div>
     );

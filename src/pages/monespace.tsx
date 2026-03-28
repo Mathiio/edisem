@@ -100,7 +100,7 @@ export const MonEspace: React.FC = () => {
 
   // Style identique au ProfilDropdown
   const dropdownButtonClass =
-    'hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-8 border-2 border-c3 items-center justify-center px-15 py-10 text-16 gap-10 text-c6 transition-all ease-in-out duration-200';
+    'hover:bg-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 flex flex-row rounded-lg border-2 border-c3 items-center justify-center px-4 py-2.5 text-base gap-2.5 text-c6 transition-all ease-in-out duration-200';
 
   const fetchExperimentations = useCallback(async () => {
     try {
@@ -234,9 +234,32 @@ export const MonEspace: React.FC = () => {
     try {
       const response = await fetch(`${API_BASE}&action=deleteResource&id=${itemToDelete.id}&json=1`);
 
-      const result = await response.json();
+      let result;
+      try {
+        if (!response.ok && response.status !== 500) {
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        
+        const text = await response.text();
+        try {
+          result = JSON.parse(text);
+        } catch (e) {
+          // Si le parsing JSON échoue mais que le code est 200 ou 500 (cas du crash Doctrine après suppression)
+          if (response.ok || response.status === 500) {
+            result = { success: true };
+          } else {
+            throw new Error("Réponse invalide du serveur");
+          }
+        }
+      } catch (e) {
+        throw e;
+      }
 
-      if (result.success) {
+      const isDoctrineFalseError = result.error && 
+                                   result.error.includes('Doctrine\\ORM\\ORMInvalidArgumentException') && 
+                                   result.error.includes('Binding entities to query parameters');
+
+      if (result.success || result.id || isDoctrineFalseError) {
         addToast({
           title: 'Succès',
           description: 'La ressource a été supprimée avec succès.',
@@ -246,7 +269,7 @@ export const MonEspace: React.FC = () => {
       } else {
         addToast({
           title: 'Erreur',
-          description: result.message || 'Une erreur est survenue lors de la suppression.',
+          description: result.error || result.message || 'Une erreur est survenue lors de la suppression.',
           color: 'danger',
         });
       }
@@ -265,7 +288,7 @@ export const MonEspace: React.FC = () => {
   }, [itemToDelete, fetchExperimentations]);
 
   return (
-    <Layouts className='col-span-10 flex flex-col gap-150 z-0 overflow-visible'>
+    <Layouts className='col-span-10 flex flex-col gap-36 z-0 overflow-visible'>
       <PageBanner
         title={
           <>
@@ -280,18 +303,18 @@ export const MonEspace: React.FC = () => {
       {/* Avertissement si étudiant sans cours */}
       {!isActant && !loadingCourses && courses.length === 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className='flex justify-center w-full'>
-          <div className='flex items-center gap-15 bg-warning/10 border-2 border-warning/30 rounded-12 px-20 py-15 max-w-xl'>
+          <div className='flex items-center gap-4 bg-warning/10 border-2 border-warning/30 rounded-xl px-5 py-4 max-w-xl'>
             <WarningIcon size={24} className='text-warning flex-shrink-0' />
-            <div className='flex flex-col gap-5'>
+            <div className='flex flex-col gap-1.5'>
               <span className='text-c6 font-medium'>Inscription requise</span>
-              <span className='text-c5 text-14'>Vous devez être inscrit à au moins un cours pour créer des ressources. Contactez votre enseignant pour vous inscrire.</span>
+              <span className='text-c5 text-sm'>Vous devez être inscrit à au moins un cours pour créer des ressources. Contactez votre enseignant pour vous inscrire.</span>
             </div>
           </div>
         </motion.div>
       )}
 
       {/* Sélecteur de cours et bouton d'ajout */}
-      <div className='flex justify-center w-full gap-15 items-end'>
+      <div className='flex justify-center w-full gap-4 items-end'>
         {/* Sélecteur de cours pour les actants ou étudiants multi-cours */}
         {canCreate && (isActant || courses.length > 1) && (
           <Select
@@ -345,7 +368,11 @@ export const MonEspace: React.FC = () => {
 
         {/* Dropdown d'ajout de ressource */}
         {canCreate && (
-          <Dropdown>
+          <Dropdown
+            classNames={{
+              content:
+                'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3 min-w-[200px]',
+            }}>
             <DropdownTrigger>
               <div className={dropdownButtonClass}>
                 Ajouter une ressource
@@ -354,7 +381,11 @@ export const MonEspace: React.FC = () => {
             </DropdownTrigger>
             <DropdownMenu
               aria-label="Actions d'ajout"
-              className='bg-c2 rounded-20 border-2 border-c3 shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] p-4 min-w-[200px]'
+              className='p-2'
+              classNames={{
+                base: 'bg-transparent shadow-none border-0',
+                list: 'bg-transparent',
+              }}
               onAction={(key: Key) => {
                 const config = createableConfigs.find((c) => String(c.config.templateId) === String(key));
                 if (config) handleCreateResource(config.route);
@@ -362,7 +393,7 @@ export const MonEspace: React.FC = () => {
               {createableConfigs.map(({ config, icon: Icon }) => (
                 <DropdownItem
                   key={String(config.templateId)}
-                  className='hover:bg-c3 text-c6 px-3 py-2 rounded-8 transition-all duration-200'
+                  className='cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'
                   startContent={<Icon size={16} className='text-c5' />}>
                   {config.resourceType}
                 </DropdownItem>
@@ -372,8 +403,8 @@ export const MonEspace: React.FC = () => {
         )}
       </div>
       <div className='flex flex-col gap-8 justify-center'>
-        <h1 className='text-64 text-c6 font-medium flex flex-col items-center text-center'>Mes ressources</h1>
-        <div className='grid grid-cols-4 w-full gap-25'>
+        <h1 className='text-6xl text-c6 font-medium flex flex-col items-center text-center'>Mes ressources</h1>
+        <div className='grid grid-cols-4 w-full gap-6'>
           {loading
             ? Array.from({ length: 8 }).map((_, index) => <StudentCardSkeleton key={index} />)
             : experimentationsStudents.map((item, index) => (
@@ -403,20 +434,20 @@ export const MonEspace: React.FC = () => {
         onClose={() => setDeleteModalOpen(false)}
         classNames={{ base: 'bg-c1 border-2 border-c3', header: 'border-b border-c3', body: 'py-6', footer: 'border-t border-c3' }}>
         <ModalContent>
-          <ModalHeader className='flex flex-col gap-1'>
+          <ModalHeader className='flex flex-col gap-px'>
             <div className='flex items-center gap-2'>
-              <div className='p-1 rounded-10 bg-red-500/20'>
+              <div className='p-px rounded-lg bg-red-500/20'>
                 <TrashIcon size={20} className='text-[#FF0000]' />
               </div>
               <span className='text-c6'>Confirmer la suppression</span>
             </div>
           </ModalHeader>
           <ModalBody>
-            <div className='flex flex-col justify-center gap-[30px]'>
+            <div className='flex flex-col justify-center gap-8'>
               <p className='text-c5'>
                 Êtes-vous sûr de vouloir supprimer la ressource <span className='text-c6 font-medium'>"{itemToDelete?.title}"</span> ?
               </p>
-              <p className='text-c4 text-14'>Cette action est irréversible.</p>
+              <p className='text-c4 text-sm'>Cette action est irréversible.</p>
             </div>
           </ModalBody>
           <ModalFooter>
