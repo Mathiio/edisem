@@ -156,7 +156,7 @@ export class Omk {
       const formValueKey = Object.keys(formValues).find((key) => key.split('.')[0] === term['o:term']);
       if (!formValueKey) continue;
 
-      let formValue = formValues[formValueKey];
+      const formValue = formValues[formValueKey];
       if (!result[term['o:term']]) result[term['o:term']] = [];
 
       if (Array.isArray(formValue)) {
@@ -181,7 +181,7 @@ export class Omk {
   public buildObjectUpdate = (existingObject: any, formValues: any): any => {
     const result = { ...existingObject };
     for (const formValueKey in formValues) {
-      if (formValues.hasOwnProperty(formValueKey)) {
+      if (Object.prototype.hasOwnProperty.call(formValues, formValueKey)) {
         const term_isolated = formValueKey.split('.')[0];
         const term = this.props?.find((prp: any) => prp['o:term'] === term_isolated);
         if (!term) continue;

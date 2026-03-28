@@ -235,24 +235,20 @@ export const MonEspace: React.FC = () => {
       const response = await fetch(`${API_BASE}&action=deleteResource&id=${itemToDelete.id}&json=1`);
 
       let result;
+      if (!response.ok && response.status !== 500) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+
+      const text = await response.text();
       try {
-        if (!response.ok && response.status !== 500) {
-          throw new Error(`Erreur HTTP: ${response.status}`);
+        result = JSON.parse(text);
+      } catch {
+        // Si le parsing JSON échoue mais que le code est 200 ou 500 (cas du crash Doctrine après suppression)
+        if (response.ok || response.status === 500) {
+          result = { success: true };
+        } else {
+          throw new Error("Réponse invalide du serveur");
         }
-        
-        const text = await response.text();
-        try {
-          result = JSON.parse(text);
-        } catch (e) {
-          // Si le parsing JSON échoue mais que le code est 200 ou 500 (cas du crash Doctrine après suppression)
-          if (response.ok || response.status === 500) {
-            result = { success: true };
-          } else {
-            throw new Error("Réponse invalide du serveur");
-          }
-        }
-      } catch (e) {
-        throw e;
       }
 
       const isDoctrineFalseError = result.error && 

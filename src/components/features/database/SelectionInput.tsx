@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { InputConfig } from '@/components/features/database/EditModal';
-import { usegetDataByClass } from '@/hooks/useFetchData';
+import { useGetDataByClass } from '@/hooks/useFetchData';
 import { Button, Input, Spinner } from '@heroui/react';
 import { CrossIcon, SearchIcon, SortIcon } from '@/components/ui/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
@@ -39,7 +39,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
 
   const selectionId = col.selectionId?.[0] ?? null;
 
-  const { data: speakersData, loading } = usegetDataByClass(selectionId);
+  const { data: speakersData, loading } = useGetDataByClass(selectionId);
 
   useEffect(() => {
     if (speakersData) {

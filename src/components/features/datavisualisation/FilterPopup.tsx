@@ -33,7 +33,7 @@ const generateSearchTitle = (filterGroups: any[]): string => {
 
     // Récupérer le type d'élément en français
     const itemTypeLabel =
-      Object.entries(ITEM_TYPES).find(([_, value]) => value === group.itemType)?.[0] || group.itemType;
+      Object.entries(ITEM_TYPES).find(([, value]) => value === group.itemType)?.[0] || group.itemType;
 
     // Créer une description des conditions
     if (group.conditions && group.conditions.length > 0) {

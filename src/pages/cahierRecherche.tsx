@@ -155,21 +155,19 @@ export const UnloadedCard: React.FC = () => (
 
 export const CahierRecherche: React.FC = () => {
   const userString = localStorage.getItem('user');
-  const user: any | null = userString ? JSON.parse(userString) : null;
+  const user: { id: string } | null = userString ? JSON.parse(userString) : null;
 
-  if (!user) {
-    return null; // Empêche le rendu du composant proprement
-  }
-
-  // État pour gérer les recherches
   const [recherches, setRecherches] = useState<Recherche[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Simulation du chargement des données
   useEffect(() => {
+    if (!user?.id) {
+      setIsLoading(false);
+      return;
+    }
+
     const loadData = async () => {
       try {
-        // Remplace ça dynamiquement si besoin
         const result = await getResearchByActant(user.id);
         setRecherches(result);
       } catch (error) {
@@ -179,8 +177,12 @@ export const CahierRecherche: React.FC = () => {
       }
     };
 
-    loadData();
-  }, []);
+    void loadData();
+  }, [user?.id]);
+
+  if (!user) {
+    return null;
+  }
 
   // Fonction pour supprimer une recherche
   // const handleDelete = (id: number) => {

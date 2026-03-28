@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Spinner, Chip, Checkbox, Tabs, Tab } from '@heroui/react';
 import { SearchIcon, SortIcon, ThumbnailIcon, UserIcon } from '@/components/ui/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
-import { usegetDataByClass } from '@/hooks/useFetchData';
+import { useGetDataByClass } from '@/hooks/useFetchData';
 
 export interface ResourcePickerProps {
   isOpen: boolean;
@@ -131,7 +131,7 @@ export const ResourcePicker: React.FC<ResourcePickerProps> = ({
   const [templateLoading, setTemplateLoading] = useState(false);
 
   // Fetch resources (ancien système avec resourceClassId)
-  const { data: classResources, loading: classLoading } = usegetDataByClass(resourceClassId || 0);
+  const { data: classResources, loading: classLoading } = useGetDataByClass(resourceClassId || 0);
 
   // Charger les ressources par template ID(s) quand le modal s'ouvre
   useEffect(() => {

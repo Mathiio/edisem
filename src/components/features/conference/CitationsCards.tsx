@@ -107,7 +107,7 @@ export const Citations: React.FC<CitationsProps> = ({ citations, loading, onTime
     <div className='w-full h-max flex flex-col gap-5'>
       <div className='flex flex-col gap-5 h-full overflow-y-auto scroll-container'>
         {loading ? (
-          Array.from({ length: 8 }).map((_) => <CitationSkeleton />)
+          Array.from({ length: 8 }, (_, i) => <CitationSkeleton key={i} />)
         ) : citations.length === 0 ? (
           <UnloadedCard />
         ) : (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Spinner, Button, ModalBody, ModalFooter, ModalContent, Modal, Link, ModalHeader, LinkIcon, addToast } from '@heroui/react';
-import { usegetDataByClassDetails } from '@/hooks/useFetchData';
+import { useGetDataByClassDetails } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/features/database/SelectionInput';
 import { Textarea } from '@heroui/react';
 
@@ -252,7 +252,7 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
 };
 
 export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, activeConfig, itemPropertiesData, propertiesLoading, justView = false }) => {
-  const { data: itemDetailsData, loading: detailsLoading, error: detailsError, refetch: refetchItemDetails } = usegetDataByClassDetails(itemUrl);
+  const { data: itemDetailsData, loading: detailsLoading, error: detailsError, refetch: refetchItemDetails } = useGetDataByClassDetails(itemUrl);
 
   const [itemData, setItemData] = useState<any>({});
   const [saving, setSaving] = useState(false);
@@ -287,7 +287,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
     setItemData((prevData: any) => {
       const newData = { ...prevData };
       const keys = path;
-      let current = newData;
+      const current = newData;
 
       if (Array.isArray(value)) {
         if (Array.isArray(current[keys])) {

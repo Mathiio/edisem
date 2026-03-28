@@ -16,16 +16,28 @@ interface ExportPopupProps {
 
 export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, generatedImage, exportEnabled }) => {
   const userString = localStorage.getItem('user');
-  const user: any | null = userString ? JSON.parse(userString) : null;
-
-  if (!user) {
-    return null; // Empêche le rendu du composant proprement
-  }
+  const user: Record<string, unknown> | null = userString ? JSON.parse(userString) : null;
 
   const [, setCopyConfirmation] = useState<string | null>(null);
   const [shouldExportImage, setShouldExportImage] = useState(true);
   const [, setIsExporting] = useState(false);
   const [title, setTitle] = useState('');
+
+  const [alertConfig, setAlertConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'danger' | 'warning' | 'info' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+  });
+
+  if (!user) {
+    return null;
+  }
 
   const handleExport = async (): Promise<void> => {
     if (!title.trim()) {
@@ -68,18 +80,6 @@ export const ExportPopup: React.FC<ExportPopupProps> = ({ handleExportClick, gen
     setIsExporting(false);
     setTimeout(() => setCopyConfirmation(null), 3000);
   };
-
-  const [alertConfig, setAlertConfig] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    type: 'danger' | 'warning' | 'info' | 'success';
-  }>({
-    isOpen: false,
-    title: '',
-    message: '',
-    type: 'info',
-  });
 
   const showAlert = (title: string, message: string, type: 'danger' | 'warning' | 'info' | 'success' = 'info') => {
     setAlertConfig({ isOpen: true, title, message, type });

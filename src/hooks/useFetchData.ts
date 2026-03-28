@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getDataByClass, getDataByUrl, fetchRT, Data, getAllProperties } from '../services/Items';
 
-export const usegetDataByClass = (resourceClassId: number | null, refreshTrigger: number = 0) => {
+export const useGetDataByClass = (resourceClassId: number | null, refreshTrigger: number = 0) => {
   const [data, setData] = useState<Data[]>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -35,7 +35,7 @@ export const usegetDataByClass = (resourceClassId: number | null, refreshTrigger
   return { data, loading, error };
 };
 
-export const usegetDataByClassDetails = (ItemUrl: string | null) => {
+export const useGetDataByClassDetails = (ItemUrl: string | null) => {
   const [data, setData] = useState<Data[] | undefined>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -116,7 +116,7 @@ export const useFetchRT = (resourceTemplateId: number | null) => {
   return { data, loading, error, refetch };
 };
 
-export const usegetAllProperties = () => {
+export const useGetAllProperties = () => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

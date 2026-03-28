@@ -329,7 +329,7 @@ export default function TestOmekaEdit() {
       }
 
       // Gérer les médias
-      let mediaErrors: string[] = [];
+      const mediaErrors: string[] = [];
 
       // Supprimer les médias marqués
       for (const mediaId of mediaToDelete) {

@@ -1384,7 +1384,7 @@ export const GenericDetailPage: React.FC<GenericDetailPageProps> = ({
     }
 
     // Sinon, rediriger comme avant
-    let redirectPath = `/espace-etudiant/`;
+    const redirectPath = `/espace-etudiant/`;
 
     navigate(redirectPath);
     return result;

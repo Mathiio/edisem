@@ -51,7 +51,7 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
     setItemData((prevData: any) => {
       const newData = { ...prevData };
       const keys = path;
-      let current = newData;
+      const current = newData;
 
       if (Array.isArray(value)) {
         if (Array.isArray(current[keys])) {
@@ -78,7 +78,7 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
       }
 
       omks.props = itemPropertiesData;
-      let object = omks.buildObject(itemDetailsData, itemData);
+      const object = omks.buildObject(itemDetailsData, itemData);
 
       // Toast avec promesse pour montrer le loading
       const savePromise = omks.createItem(object);

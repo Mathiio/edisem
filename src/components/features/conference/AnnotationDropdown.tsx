@@ -1,5 +1,5 @@
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Link, Modal, ModalBody, ModalContent, ModalHeader, Textarea } from '@heroui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { CrossIcon, DotsIcon, UserIcon } from '@/components/ui/icons';
 import { IconSvgProps, ResourceDetails } from '@/types/ui';
 import { getAnnotations } from '@/services/resourceDetails';
@@ -20,11 +20,7 @@ interface AnnotationDropdownProps {
 
 export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, content, image, actant, type, mode = 'dropdown', isOpen = false, onClose: externalOnClose }) => {
   const userString = localStorage.getItem('user');
-  const user: any | null = userString ? JSON.parse(userString) : null;
-
-  if (!user) {
-    return null;
-  }
+  const user: { id?: number } | null = userString ? JSON.parse(userString) : null;
 
   // États pour le mode dropdown
   const [isAnnotateOpen, setIsAnnotateOpen] = useState(false);
@@ -39,6 +35,19 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
   const [annotations, setAnnotations] = useState<ResourceDetails[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleViewAnnotations = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      const results = await getAnnotations(id as string | number);
+      setAnnotations(results || []);
+    } catch (error) {
+      console.error('Error loading annotations:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id]);
+
   // Gestion des états selon le mode
   useEffect(() => {
     if (mode === 'annotate') {
@@ -46,10 +55,10 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
     } else if (mode === 'view') {
       setIsViewOpen(isOpen);
       if (isOpen) {
-        handleViewAnnotations();
+        void handleViewAnnotations();
       }
     }
-  }, [mode, isOpen]);
+  }, [mode, isOpen, handleViewAnnotations]);
 
   const onAnnotateClose = () => {
     setIsAnnotateOpen(false);
@@ -70,20 +79,6 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
     setIsViewOpen(true);
     setIsDropdownOpen(false);
     await handleViewAnnotations();
-  };
-
-  const handleViewAnnotations = async () => {
-    setIsLoading(true);
-
-    try {
-      // Use specifically registered backend action for fetching annotations list
-      const results = await getAnnotations(id as string | number);
-      setAnnotations(results || []);
-    } catch (error) {
-      console.error('Error loading annotations:', error);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const toggleExpansion = () => {
@@ -126,7 +121,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
           {
             type: 'resource',
             property_id: 581,
-            value_resource_id: Number(user.id),
+            value_resource_id: Number(user?.id),
             is_public: true,
           },
         ],
@@ -143,6 +138,10 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
       setIsSubmitting(false);
     }
   };
+
+  if (!user) {
+    return null;
+  }
 
   // Rendu selon le mode
   if (mode === 'annotate') {

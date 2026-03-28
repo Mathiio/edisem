@@ -617,9 +617,9 @@ export const SimpleDetailsCard: React.FC<SimpleDetailsProps> = ({
               <label className='text-sm text-c5 font-medium'>{dateField.label}</label>
               <DatePicker
                 aria-label={dateField.label}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
                 value={parsedDate as any}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                 
                 onChange={(value: any) => onFieldChange?.(dateField.property, value ? value.toString() : null)}
                 classNames={{
                   base: 'w-full',

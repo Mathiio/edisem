@@ -134,7 +134,7 @@ export const Microresumes: React.FC<MicroresumesProps> = ({ microresumes, loadin
     <div className='w-full h-max flex flex-col gap-5'>
       <div className='flex flex-col gap-5 h-full overflow-y-auto scroll-container'>
         {loading
-          ? Array.from({ length: 8 }).map((_) => <MicroresumeSkeleton />)
+          ? Array.from({ length: 8 }, (_, i) => <MicroresumeSkeleton key={i} />)
           : microresumes.map((microresume, index) => (
               <motion.div key={microresume.id} initial='hidden' animate='visible' variants={fadeIn} custom={index}>
                 <MicroresumeCard
