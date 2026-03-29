@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  Input,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Table,
   TableHeader,
   TableColumn,
@@ -16,13 +10,13 @@ import {
   Spinner,
   addToast,
   Chip,
-  Select,
-  SelectItem,
-  Textarea,
 } from '@heroui/react';
 import { Button } from '@/theme/components/button';
+import { Input, Select, SelectItem, Textarea, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@/theme/components';
 import { Layouts } from '@/components/layout/Layouts';
 import { PlusIcon, EditIcon, TrashIcon, UserIcon } from '@/components/ui/icons';
+import { ModalTitle } from '@/components/ui/ModalTitle';
+import { AlertModal } from '@/components/ui/AlertModal';
 import { getCourses, createCourse, updateCourse, deleteCourse, getCourseStudents, type Course, type CourseFormData, type Student } from '@/services/StudentSpace';
 
 // Sessions disponibles
@@ -53,6 +47,9 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
   const [submitting, setSubmitting] = useState(false);
   const [highlightedCourseId, setHighlightedCourseId] = useState<number | null>(null);
   const [lastHighlightedId, setLastHighlightedId] = useState<number | null>(null);
+  const [deleteCourseModalOpen, setDeleteCourseModalOpen] = useState(false);
+  const [coursePendingDelete, setCoursePendingDelete] = useState<Course | null>(null);
+  const [deletingCourse, setDeletingCourse] = useState(false);
 
   // Appliquer le highlight directement sur le DOM (HeroUI ne passe pas les props au tr)
   useEffect(() => {
@@ -240,23 +237,39 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
     }
   };
 
-  const handleDelete = async (course: Course) => {
-    if (!confirm(`Supprimer le cours "${course.title}" ? Les étudiants seront désinscrits.`)) return;
+  const openDeleteCourseModal = (course: Course) => {
+    setCoursePendingDelete(course);
+    setDeleteCourseModalOpen(true);
+  };
 
+  const closeDeleteCourseModal = () => {
+    if (deletingCourse) return;
+    setDeleteCourseModalOpen(false);
+    setCoursePendingDelete(null);
+  };
+
+  const handleConfirmDeleteCourse = async () => {
+    if (!coursePendingDelete) return;
+
+    setDeletingCourse(true);
     try {
-      await deleteCourse(course.id);
+      await deleteCourse(coursePendingDelete.id);
       addToast({
         title: 'Succès',
         description: 'Cours supprimé',
         classNames: { base: 'bg-success text-white' },
       });
       loadData();
+      setDeleteCourseModalOpen(false);
+      setCoursePendingDelete(null);
     } catch (error: any) {
       addToast({
         title: 'Erreur',
         description: error.message,
         classNames: { base: 'bg-danger text-white' },
       });
+    } finally {
+      setDeletingCourse(false);
     }
   };
 
@@ -319,7 +332,7 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
                   </TableCell>
                   <TableCell>
                     {course.code ? (
-                      <Chip size='sm' variant='flat' className='bg-c3'>
+                      <Chip variant='flat' className='text-c6 border border-c4/10 px-4 py-2 bg-c3 rounded-lg'>
                         {course.code}
                       </Chip>
                     ) : (
@@ -340,7 +353,7 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
                       <Button isIconOnly variant='flat' className='bg-c3' onPress={() => handleOpenEdit(course)}>
                         <EditIcon size={18} />
                       </Button>
-                      <Button isIconOnly variant='flat' className='bg-danger/20 text-danger' onPress={() => handleDelete(course)}>
+                      <Button isIconOnly variant='flat' className='bg-danger/20 text-danger' onPress={() => openDeleteCourseModal(course)}>
                         <TrashIcon size={18} />
                       </Button>
                     </div>
@@ -353,54 +366,49 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
 
         {/* Modal Création/Édition */}
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} size='lg'>
-          <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6'>{editingCourse ? 'Modifier le cours' : 'Nouveau cours'}</ModalHeader>
+          <ModalContent>
+            <ModalHeader className='flex flex-col gap-px'>
+              <ModalTitle
+                icon={editingCourse ? EditIcon : PlusIcon}
+                iconColor='text-action'
+                iconBg='bg-action/20'
+                title={editingCourse ? 'Modifier le cours' : 'Nouveau cours'}
+              />
+            </ModalHeader>
             <ModalBody className='gap-4'>
               <Input
                 label='Titre du cours'
+                labelPlacement='outside-top'
                 placeholder='Introduction à la narratologie'
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 isRequired
-                classNames={{
-                  inputWrapper: 'bg-c1 border-c3',
-                  label: 'text-c5',
-                }}
               />
 
               <Textarea
                 label='Description'
+                labelPlacement='outside-top'
                 placeholder='Description du cours...'
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                classNames={{
-                  inputWrapper: 'bg-c1 border-c3',
-                  label: 'text-c5',
-                }}
               />
 
               <div className='grid grid-cols-2 gap-4'>
                 <Input
                   label='Code du cours'
+                  labelPlacement='outside-top'
                   placeholder='ART2030'
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                  classNames={{
-                    inputWrapper: 'bg-c1 border-c3',
-                    label: 'text-c5',
-                  }}
                 />
                 <Select
                   label='Niveau'
+                  labelPlacement='outside-top'
                   placeholder='Sélectionner un niveau'
                   selectedKeys={formData.level ? [formData.level] : []}
                   onSelectionChange={(keys) => {
                     const selected = Array.from(keys)[0] as string;
                     setFormData({ ...formData, level: selected || '' });
-                  }}
-                  classNames={{
-                    trigger: 'bg-c1 border-c3',
-                    label: 'text-c5',
                   }}>
                   {LEVELS.map((level) => (
                     <SelectItem key={level}>{level}</SelectItem>
@@ -411,15 +419,12 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
               <div className='grid grid-cols-2 gap-4'>
                 <Select
                   label='Session'
+                  labelPlacement='outside-top'
                   placeholder='Sélectionner une session'
                   selectedKeys={formData.session ? [formData.session] : []}
                   onSelectionChange={(keys) => {
                     const selected = Array.from(keys)[0] as string;
                     setFormData({ ...formData, session: selected || '' });
-                  }}
-                  classNames={{
-                    trigger: 'bg-c1 border-c3',
-                    label: 'text-c5',
                   }}>
                   {SESSIONS.map((session) => (
                     <SelectItem key={session}>{session}</SelectItem>
@@ -428,15 +433,12 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
 
                 <Select
                   label='Année'
+                  labelPlacement='outside-top'
                   placeholder='Sélectionner une année'
                   selectedKeys={formData.year ? [formData.year] : []}
                   onSelectionChange={(keys) => {
                     const selected = Array.from(keys)[0] as string;
                     setFormData({ ...formData, year: selected || '' });
-                  }}
-                  classNames={{
-                    trigger: 'bg-c1 border-c3',
-                    label: 'text-c5',
                   }}>
                   {YEARS.map((year) => (
                     <SelectItem key={year}>{year}</SelectItem>
@@ -457,8 +459,15 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
 
         {/* Modal Liste des étudiants */}
         <Modal isOpen={isStudentsModalOpen} onClose={() => setIsStudentsModalOpen(false)} size='lg'>
-          <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6'>Étudiants inscrits à "{viewingCourse?.title}"</ModalHeader>
+          <ModalContent>
+            <ModalHeader className='flex flex-col gap-px'>
+              <ModalTitle
+                icon={UserIcon}
+                iconColor='text-action'
+                iconBg='bg-action/20'
+                title={<>Étudiants inscrits à &quot;{viewingCourse?.title}&quot;</>}
+              />
+            </ModalHeader>
             <ModalBody>
               {loadingStudents ? (
                 <div className='flex justify-center py-8'>
@@ -469,11 +478,11 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
               ) : (
                 <div className='flex flex-col gap-2 max-h-[400px] overflow-y-auto'>
                   {courseStudents.map((student) => (
-                    <div key={student.id} className='flex items-center gap-3 p-3 bg-c3 rounded-lg'>
+                    <div key={student.id} className='flex items-center gap-3 p-3 bg-c2 border border-c3 rounded-lg'>
                       {student.picture ? (
-                        <img src={student.picture} alt={student.title} className='w-2.5 h-2.5 rounded-full object-cover' />
+                        <img src={student.picture} alt={student.title} className='w-7 h-7 rounded-lg object-cover' />
                       ) : (
-                        <div className='w-2.5 h-2.5 rounded-full bg-c4 flex items-center justify-center text-c6 font-medium'>
+                        <div className='w-7 h-7 rounded-lg bg-c3 border border-c4/10 flex items-center justify-center text-c6 text-sm font-medium'>
                           {student.firstname?.[0]}
                           {student.lastname?.[0]}
                         </div>
@@ -483,9 +492,9 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
                         <p className='text-c5 text-xs'>{student.mail}</p>
                       </div>
                       {student.studentNumber && (
-                        <Chip size='sm' variant='flat' className='bg-c4'>
+                        <div className='bg-c3 rounded-lg px-4 py-1 text-c6 text-sm font-medium'>
                           {student.studentNumber}
-                        </Chip>
+                        </div>
                       )}
                     </div>
                   ))}
@@ -499,6 +508,23 @@ export const CourseManagement: React.FC<CourseManagementProps> = ({ embedded = f
             </ModalFooter>
           </ModalContent>
         </Modal>
+
+        <AlertModal
+          isOpen={deleteCourseModalOpen}
+          onClose={closeDeleteCourseModal}
+          title='Supprimer le cours'
+          type='danger'
+          confirmLabel='Supprimer'
+          onConfirm={handleConfirmDeleteCourse}
+          isLoading={deletingCourse}
+          description={
+            <>
+              <p>
+                Supprimer le cours <span className='text-c6 font-medium'>&quot;{coursePendingDelete?.title}&quot;</span> ? Les étudiants seront désinscrits.
+              </p>
+            </>
+          }
+        />
       </div>
     </Wrapper>
   );

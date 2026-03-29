@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { InputConfig } from '@/components/features/database/EditModal';
 import { useGetDataByClass } from '@/hooks/useFetchData';
-import { Button, Input, Spinner } from '@heroui/react';
+import { Button, Spinner } from '@heroui/react';
+import { Input, Select, SelectItem } from '@/theme/components';
 import { CrossIcon, SearchIcon, SortIcon } from '@/components/ui/icons';
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 
 import AutoResizingField from './AutoResizingTextarea';
 
@@ -79,7 +79,7 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   if (loading) {
     return (
       <div className='flex items-center flex-col w-full'>
-        <Spinner label={`Chargement des ${col.label}`} color='secondary' size='md' />
+        <Spinner label={`Chargement des ${col.label}`} color='current' className='text-c6' size='md' />
       </div>
     );
   }
@@ -92,29 +92,15 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   if (justView) {
     return selectedValues.length > 0 ? (
       <div className='flex flex-col gap-2.5 w-full' key={col.key}>
-        <label className='text-c6'>{col.label}</label>
+        <label className='text-semibold text-c6 text-xl'>{col.label}</label>
         <div className='flex flex-col w-full'>
           <ul className='flex items-center gap-2.5 pt-2.5 pb-5 flex-wrap'>
             {selectedValues.map((id) => (
               <AutoResizingField
+                key={id}
                 value={idToDisplayNameMap[id]}
-                textareaProps={{
-                  radius: 'lg',
-                  size: 'lg',
-                  classNames: {
-                    label: 'text-semibold',
-                    inputWrapper: 'bg-c1 shadow-none border-1 border-200',
-                  },
-                }}
-                inputProps={{
-                  radius: 'lg',
-                  size: 'lg',
-                  classNames: {
-                    label: 'text-semibold',
-                    inputWrapper: 'bg-c1 shadow-none border-1 border-200',
-                    input: 'h-[50px]',
-                  },
-                }}
+                textareaProps={{ minRows: 1, classNames: { input: 'resize-none' } }}
+                inputProps={{ size: 'md', classNames: { inputWrapper: '!min-h-12' } }}
               />
             ))}
           </ul>
@@ -152,16 +138,6 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
     setSearchTerm(event.target.value);
   };
 
-  // Function to handle sort order change
-  const handleSortOrderChange = (key: any) => {
-    const selectedKey = Array.from(key)[0];
-    if (selectedKey === 'asc') {
-      setSortOrder('asc');
-    } else if (selectedKey === 'desc') {
-      setSortOrder('desc');
-    }
-  };
-
   // Function to filter nonSelectedValues based on searchTerm
   const filteredNonSelectedValues = sortedValues.filter((id) => {
     const displayName = idToDisplayNameMap[id] || '';
@@ -171,61 +147,43 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
   // Mode édition (justView = false)
   return (
     <div className='flex flex-col gap-2.5 w-full' key={col.key}>
-      <label className='text-c6'>{col.label}</label>
-      <div className='flex flex-row gap-2.5 items-center'>
+      <label className='text-semibold text-c6 text-xl'>{col.label}</label>
+      <div className='flex flex-row gap-2.5 items-center w-full'>
         <Input
           classNames={{
-            base: '',
-            clearButton: 'bg-600',
-            mainWrapper: ' h-[40px] ',
-            input: 'text-c5 text-base nav_searchbar h-[40px] px-[10px]',
+            base: 'w-full flex-1 min-w-0',
+            mainWrapper: 'w-full',
             inputWrapper:
-              ' shadow-none border-1 border-200 group-data-[focus=true]:bg-c3 rounded-lg font-normal text-c6 bg-c1 dark:bg-c3 px-[15px] py-[10px] h-[40px] ',
+              '!min-h-10 !h-10 max-h-10 !py-0 !px-3 group-data-[focus=true]:!bg-c3 data-[hover=true]:!bg-c3',
+            input: '!text-c6 text-sm !min-h-10 h-10 py-0',
           }}
           placeholder='Recherche avancée...'
-          startContent={<SearchIcon size={16} />}
+          startContent={<SearchIcon size={16} className='text-c4 shrink-0' />}
           value={searchTerm}
           onChange={handleSearchChange}
           type='search'
-          fullWidth
         />
 
-        <Dropdown
+        <Select
+          aria-label='Ordre de tri'
+          disallowEmptySelection
+          selectionMode='single'
+          selectedKeys={[sortOrder]}
+          onSelectionChange={(keys) => {
+            const selectedKey = Array.from(keys)[0] as string;
+            if (selectedKey === 'asc') setSortOrder('asc');
+            else if (selectedKey === 'desc') setSortOrder('desc');
+          }}
+          startContent={<SortIcon size={16} className='text-c4 shrink-0' />}
           classNames={{
-            content:
-              'shadow-[inset_0_0px_15px_rgba(255,255,255,0.05)] cursor-pointer bg-c2 rounded-xl border-2 border-c3 min-w-[140px]',
+            base: 'w-auto min-w-28 shrink-0',
+            trigger:
+              '!min-h-10 !h-10 max-h-10 !py-0 !px-3 group-data-[focus=true]:!bg-c3 data-[hover=true]:!bg-c3',
+            value: 'text-c6 text-sm',
           }}>
-          <DropdownTrigger>
-            <Button
-              startContent={<SortIcon size={16} className='text-c6' />}
-              className='px-[15px] py-2.5 h-full flex gap-2.5 bg-c3 border-none rounded-lg'>
-              Trier
-            </Button>
-          </DropdownTrigger>
-          <DropdownMenu
-            aria-label='Sort order selection'
-            variant='flat'
-            disallowEmptySelection
-            selectedKeys={new Set([sortOrder])}
-            onSelectionChange={handleSortOrderChange}
-            selectionMode='single'
-            className='p-2'
-            classNames={{
-              base: 'bg-transparent shadow-none border-0',
-              list: 'bg-transparent',
-            }}>
-            <DropdownItem
-              key='asc'
-              className='cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'>
-              A - Z
-            </DropdownItem>
-            <DropdownItem
-              key='desc'
-              className='cursor-pointer text-c6 rounded-lg py-2 px-3 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3'>
-              Z - A
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+          <SelectItem key='asc'>A-Z</SelectItem>
+          <SelectItem key='desc'>Z-A</SelectItem>
+        </Select>
       </div>
       <div className='flex flex-col w-full'>
         <ul className='flex items-center gap-2.5 pt-2.5 pb-5 flex-wrap'>
@@ -241,13 +199,13 @@ export const SelectionInput: React.FC<SelectionInputProps> = ({ col, actualData,
             </Button>
           ))}
         </ul>
-        <ul className='flex items-center gap-5 py-2.5 flex-wrap max-h-[150px] overflow-y-auto'>
+        <ul className='flex items-center gap-3 py-2.5 flex-wrap max-h-[150px] overflow-y-auto'>
           {filteredNonSelectedValues.map((id, index) => (
             <Button
               key={index}
               onClick={() => handleSelect(id)}
               radius='none'
-              className={` py-2.5 h-full px-2.5 text-sm rounded-lg text-c6 bg-c1 hover:text-selected hover:bg-action transition-all ease-in-out duration-200  flex items-center`}>
+              className={`py-2.5 h-full px-2.5 text-sm rounded-xl text-c6 bg-c2 border-2 border-c3 hover:text-selected hover:bg-c3 transition-all ease-in-out duration-200 flex items-center`}>
               {reducer(idToDisplayNameMap[id])}
             </Button>
           ))}

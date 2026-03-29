@@ -78,7 +78,7 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
           <div>
             <Input
               label='Titre'
-              labelPlacement='outside'
+              labelPlacement='outside-top'
               placeholder="Titre de l'expérimentation"
               value={formData.title}
               onChange={(e) => handleChange('title', e.target.value)}
@@ -86,7 +86,7 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
               isInvalid={!!errors.title}
               errorMessage={errors.title}
               classNames={{
-                label: 'text-semibold !text-c6 text-lg mb-1.5',
+                label: 'text-semibold !text-c6 text-lg mb-1',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}
@@ -97,13 +97,13 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
           <div>
             <Textarea
               label='Description'
-              labelPlacement='outside'
+              labelPlacement='outside-top'
               placeholder='Décrivez votre expérimentation...'
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
               minRows={4}
               classNames={{
-                label: 'text-semibold text-c6 text-lg mb-1.5',
+                label: 'text-semibold text-c6 text-lg mb-1',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}
@@ -114,13 +114,13 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
           <div>
             <Textarea
               label='Hypothèse'
-              labelPlacement='outside'
+              labelPlacement='outside-top'
               placeholder='Hypothèse à expérimenter...'
               value={formData.abstract}
               onChange={(e) => handleChange('abstract', e.target.value)}
               minRows={3}
               classNames={{
-                label: 'text-semibold text-c6 text-lg mb-1.5',
+                label: 'text-semibold text-c6 text-lg mb-1',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}
@@ -159,12 +159,12 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
           <div>
             <Input
               label='Statut'
-              labelPlacement='outside'
+              labelPlacement='outside-top'
               placeholder='En cours, Terminé, Suspendu...'
               value={formData.status}
               onChange={(e) => handleChange('status', e.target.value)}
               classNames={{
-                label: 'text-semibold !text-c6 text-lg mb-1.5',
+                label: 'text-semibold !text-c6 text-lg mb-1',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}
@@ -175,12 +175,12 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
           <div>
             <Input
               label='Date'
-              labelPlacement='outside'
+              labelPlacement='outside-top'
               type='date'
               value={formData.date}
               onChange={(e) => handleChange('date', e.target.value)}
               classNames={{
-                label: 'text-semibold !text-c6 text-lg mb-1.5',
+                label: 'text-semibold !text-c6 text-lg mb-1',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}
@@ -198,13 +198,13 @@ export const ExperimentationForm: React.FC<ExperimentationFormProps> = ({ onSubm
           <div>
             <Input
               label='Lien externe'
-              labelPlacement='outside'
+              labelPlacement='outside-top'
               type='url'
               placeholder='https://...'
               value={formData.url}
               onChange={(e) => handleChange('url', e.target.value)}
               classNames={{
-                label: 'text-semibold !text-c6 text-lg mb-1.5',
+                label: 'text-semibold !text-c6 text-lg mb-1',
                 inputWrapper: 'bg-c1 shadow-none border-1 border-c3',
                 input: 'text-c6',
               }}

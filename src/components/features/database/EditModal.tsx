@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Spinner, Button, ModalBody, ModalFooter, ModalContent, Modal, Link, ModalHeader, LinkIcon, addToast } from '@heroui/react';
+import { Input, Spinner, Button, ModalBody, ModalFooter, ModalContent, Modal, ModalHeader, LinkIcon, addToast } from '@heroui/react';
+import { modalCloseButtonClasses } from '@/theme/components/modal';
 import { useGetDataByClassDetails } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/features/database/SelectionInput';
 import { Textarea } from '@heroui/react';
 
 import { TimecodeInput, DatePicker } from '@/components/features/database/TimecodeInput';
-import { CrossIcon } from '@/components/ui/icons';
+import { ModalTitle } from '@/components/ui/ModalTitle';
+import { EditIcon, EyeIcon } from '@/components/ui/icons';
 import MultipleInputs from '@/components/features/database/MultipleInputs';
 
 import Omk from '@/services/Omk';
@@ -79,18 +81,16 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
     },
     { key: 'url', label: 'Url de la vidéo', dataPath: 'schema:url.0.@id', type: 'input' },
     {
+      key: 'schema:contentUrl',
+      label: 'URL de la séance',
+      dataPath: 'schema:contentUrl.0.@id',
+      type: 'input',
+    },
+    {
       key: 'dcterms:date',
       label: 'Date',
       dataPath: 'dcterms:date.0.@value',
       type: 'date',
-    },
-    {
-      key: 'dcterms:isPartOf',
-      label: 'Séances',
-      dataPath: 'dcterms:isPartOf',
-      type: 'selection',
-      options: ['display_title'],
-      selectionId: [76],
     },
     {
       key: 'jdc:hasConcept',
@@ -385,7 +385,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
           clearDetailsState();
           onClose(); // Close the modal
         }}
-        hideCloseButton={true}
+        classNames={{ closeButton: modalCloseButtonClasses }}
         scrollBehavior='inside'
         motionProps={{
           variants: {
@@ -410,12 +410,14 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className='flex justify-between p-6 '>
-                <h2 className='text-c6 text-3xl font-medium'>{justView ? 'Details' : 'Modification'}</h2>
-
-                <Link onPress={onClose}>
-                  <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
-                </Link>
+              <ModalHeader className='p-6'>
+                <ModalTitle
+                  title={justView ? 'Détails' : 'Modification'}
+                  icon={justView ? EyeIcon : EditIcon}
+                  iconColor='text-action'
+                  iconBg='bg-action/20'
+                  titleClassName='text-c6 text-3xl font-medium'
+                />
               </ModalHeader>
               <ModalBody className='flex p-6'>
                 <div className='flex flex-col gap-12 items-start scroll-y-auto text-c6'>
@@ -439,7 +441,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                               className='min-h-[50px]'
                               type='text'
                               label={col.label}
-                              labelPlacement='outside'
+                              labelPlacement='outside-top'
                               placeholder={`Entrez ${col.label}`}
                               defaultValue={value}
                               onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
@@ -460,7 +462,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                             className='min-h-[50px]'
                             type='text'
                             label={col.label}
-                            labelPlacement='outside'
+                            labelPlacement='outside-top'
                             placeholder={`Entrez ${col.label}`}
                             defaultValue={value}
                             onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
@@ -469,7 +471,13 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, itemUrl, 
                       } else if (col.type === 'time') {
                         return (
                           <>
-                            <TimecodeInput key={col.key} label={col.label} seconds={value} handleInputChange={(value) => handleInputChange(col.dataPath, value)} />
+                            <TimecodeInput
+                              key={col.key}
+                              label={col.label}
+                              value={value}
+                              isReadOnly={justView}
+                              handleInputChange={(v) => handleInputChange(col.dataPath, v)}
+                            />
                           </>
                         );
                       } else if (col.type === 'date') {

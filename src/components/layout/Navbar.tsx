@@ -238,8 +238,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onReady }) => {
       <nav className={`sticky top-0 left-0 right-0 z-40 transition-all duration-300 ${hasScrolled ? 'bg-c1/90 backdrop-blur-sm shadow-lg' : 'bg-transparent'}`}>
         <div className='max-w-screen-2xl mx-auto px-5 py-4'>
           <div className='flex items-center justify-between'>
-            <Link to='/' className='flex items-center gap-4'>
-              <Image src={Logo} alt='Arcanes' className='h-10' />
+            <Link to='/' className='flex items-center gap-2'>
+              <Image src={Logo} alt='Arcanes' className='h-8' />
               <div className='text-2xl text-c6 font-medium'>Arcanes</div>
             </Link>
 

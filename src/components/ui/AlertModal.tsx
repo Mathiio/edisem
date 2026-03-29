@@ -1,5 +1,7 @@
 import React from 'react';
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@heroui/react';
+import { Button } from '@heroui/react';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@/theme/components';
+import { ModalTitle } from '@/components/ui/ModalTitle';
 import { TrashIcon, WarningIcon, InfoIcon, CheckIcon, LockIcon } from '@/components/ui/icons';
 
 export type AlertModalType = 'danger' | 'warning' | 'info' | 'success' | 'forbidden';
@@ -66,23 +68,10 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   const Icon = icon || config.icon;
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      classNames={{
-        base: 'bg-c1 border-2 border-c3',
-        header: 'border-b border-c3',
-        body: 'py-6',
-        footer: 'border-t border-c3',
-      }}>
+    <Modal isOpen={isOpen} onClose={onClose}>
       <ModalContent>
         <ModalHeader className='flex flex-col gap-px'>
-          <div className='flex items-center gap-2'>
-            <div className={`p-1 rounded-lg ${config.iconBg}`}>
-              <Icon size={20} className={config.iconColor} />
-            </div>
-            <span className='text-c6'>{title}</span>
-          </div>
+          <ModalTitle title={title} icon={Icon} iconColor={config.iconColor} iconBg={config.iconBg} />
         </ModalHeader>
         <ModalBody>
           <div className='flex flex-col justify-center gap-4'>

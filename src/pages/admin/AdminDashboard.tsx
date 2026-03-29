@@ -40,13 +40,14 @@ export const AdminDashboard: React.FC = () => {
         selectedKey={activeTab}
         onSelectionChange={(key) => setActiveTab(key as TabKey)}
         classNames={{
-          tabList: 'bg-c2 p-px rounded-xl',
-          cursor: 'bg-c4',
-          tab: 'h-2.5 px-6 min-h-[40px]',
-          tabContent: 'group-data-[selected=true]:text-selected text-c5 min-h-[40px] flex items-center',
+          tabList: 'bg-c2 rounded-xl border border-c3 p-2',
+          cursor: 'w-full shadow-lg rounded-lg',
+          tab: 'p-4 text-c4 data-[selected=true]:text-selected font-medium transition-all',
+          tabContent: 'group-data-[selected=true]:font-medium flex items-center justify-center gap-2',
         }}>
         <Tab
           key='etudiants'
+          className='py-0'
           title={
             <div className='flex items-center gap-2'>
               <UserIcon size={18} />
@@ -56,6 +57,7 @@ export const AdminDashboard: React.FC = () => {
         />
         <Tab
           key='cours'
+          className='py-0'
           title={
             <div className='flex items-center gap-2'>
               <SchoolIcon size={18} />
@@ -65,6 +67,7 @@ export const AdminDashboard: React.FC = () => {
         />
         <Tab
           key='actants'
+          className='py-0'
           title={
             <div className='flex items-center gap-2'>
               <EditIcon size={18} />
@@ -74,6 +77,7 @@ export const AdminDashboard: React.FC = () => {
         />
         <Tab
           key='ressources'
+          className='py-0'
           title={
             <div className='flex items-center gap-2'>
               <ExperimentationIcon size={18} />

@@ -9,7 +9,6 @@ import { CahierRecherche } from '@/pages/cahierRecherche';
 import { withAuth } from '@/pages/withAuth';
 import Visualisation from '@/pages/visualisation';
 import { ToastProvider } from '@heroui/react';
-import { HeroUIProvider } from '@heroui/react';
 import { Intervenants } from '@/pages/intervenants';
 import { Colloques } from '@/pages/corpus/Colloques';
 import { PratiquesNarratives } from '@/pages/corpus/pratiquesNarratives';
@@ -91,7 +90,7 @@ function App() {
   const isLoading = !navbarReady || !minTimeElapsed;
 
   return (
-    <HeroUIProvider>
+    <>
       <ToastProvider
         placement="bottom-center"
         toastProps={{
@@ -191,7 +190,7 @@ function App() {
         </Routes>
       </NavigationTrailProvider>
       </NavbarReadyContext.Provider>
-    </HeroUIProvider>
+    </>
   );
 }
 

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCallback, useMemo } from 'react';
-import { UserIcon, Logout, SunIcon, MoonIcon } from '@/components/ui/icons';
+import { UserIcon, Logout, SunIcon, MoonIcon, SettingsIcon } from '@/components/ui/icons';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem, User } from '@heroui/react';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { useAuth } from '@/hooks/useAuth';
@@ -114,7 +114,7 @@ export const ProfilDropdown = () => {
                   </DropdownItem>
                   <DropdownItem key='adminStudent' className={menuItemClass}>
                     <Link to='/admin' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
-                      <UserIcon size={16} />
+                      <SettingsIcon size={16} />
                       <p className='text-base font-normal'>Administration</p>
                     </Link>
                   </DropdownItem>

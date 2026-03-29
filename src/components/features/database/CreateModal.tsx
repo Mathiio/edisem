@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Spinner, Button, ModalBody, ModalFooter, ModalContent, Modal, Link, ModalHeader, addToast } from '@heroui/react';
+import { Spinner, addToast } from '@heroui/react';
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Input,
+  Textarea,
+  modalCloseButtonClasses,
+} from '@/theme/components';
+import { Button } from '@/theme/components/button';
 import { useFetchRT } from '@/hooks/useFetchData';
 import { SelectionInput } from '@/components/features/database/SelectionInput';
-import { Textarea } from '@heroui/react';
-
 import { DatePicker, TimecodeInput } from '@/components/features/database/TimecodeInput';
-import { CrossIcon } from '@/components/ui/icons';
+import { ModalTitle } from '@/components/ui/ModalTitle';
+import { EditIcon } from '@/components/ui/icons';
 import { inputConfigs, InputConfig } from '@/components/features/database/EditModal';
 import MultipleInputs from './MultipleInputs';
 import Omk from '@/services/Omk';
@@ -18,6 +28,8 @@ interface NewModalProps {
   itemPropertiesData: any;
   propertiesLoading: boolean;
 }
+
+const fieldLabelClass = 'text-semibold text-c6 text-xl';
 
 export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, activeConfig, itemPropertiesData, propertiesLoading }) => {
   const { data: itemDetailsData, loading: detailsLoading, error: detailsError, refetch: refetchItemDetails } = useFetchRT(itemId);
@@ -67,7 +79,6 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
     });
   };
 
-  // Version avec toast de promisse + résultat
   const handleSave = async () => {
     setSaving(true);
     setSaveError(null);
@@ -80,7 +91,6 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
       omks.props = itemPropertiesData;
       const object = omks.buildObject(itemDetailsData, itemData);
 
-      // Toast avec promesse pour montrer le loading
       const savePromise = omks.createItem(object);
 
       addToast({
@@ -91,9 +101,7 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
 
       await savePromise;
 
-      // Toast de succès
       addToast({
-        
         title: 'Succès',
         description: "L'item a été créé avec succès",
         color: 'success',
@@ -103,7 +111,6 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
       refetchItemDetails();
       onClose();
     } catch (error) {
-      // Toast d'erreur
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
 
       addToast({
@@ -121,7 +128,7 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
     return (
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
-          <Spinner color='secondary' />
+          <Spinner color='current' className='text-c6' />
           <p>Chargement...</p>
         </ModalContent>
       </Modal>
@@ -132,7 +139,6 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
     <>
       <Modal
         backdrop='blur'
-        className='bg-c2'
         size='2xl'
         isOpen={isOpen}
         onClose={() => {
@@ -140,7 +146,7 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
           clearDetailsState();
           onClose();
         }}
-        hideCloseButton={true}
+        classNames={{ closeButton: modalCloseButtonClasses }}
         scrollBehavior='inside'
         motionProps={{
           variants: {
@@ -163,81 +169,71 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
           },
         }}>
         <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className='flex justify-between p-6 '>
-                <h2 className='text-c6 text-3xl font-medium'>Nouvel item</h2>
-                <Link onPress={onClose}>
-                  <CrossIcon className='text-c6 cursor-pointer hover:text-action transition-all ease-in-out duration-200' size={24} />
-                </Link>
-              </ModalHeader>
+          <>
+            <ModalHeader className='p-6'>
+              <ModalTitle title='Nouvel item' icon={EditIcon} iconColor='text-action' iconBg='bg-action/20' />
+            </ModalHeader>
               <ModalBody className='flex p-6'>
-                <div className='flex flex-col gap-12 items-start scroll-y-auto'>
+                <div className='flex flex-col gap-12 items-start scroll-y-auto w-full'>
                   {activeConfig && !detailsLoading ? (
                     itemDetailsData &&
                     inputConfigs[activeConfig]?.map((col: InputConfig) => {
                       if (col.type === 'input') {
                         return (
-                          <>
+                          <div key={col.key} className='w-full'>
                             <Input
-                              key={col.key}
-                              size='lg'
+                              size='md'
                               classNames={{
-                                label: 'text-semibold !text-c6 text-2xl',
-                                inputWrapper: 'bg-c1',
-                                input: 'h-[50px]',
+                                label: `${fieldLabelClass} !text-c6`,
                               }}
-                              className='min-h-[50px]'
                               type='text'
                               label={col.label}
-                              labelPlacement='outside'
+                              labelPlacement='outside-top'
                               placeholder={`Entrez ${col.label}`}
                               isRequired
                               onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
                             />
-                          </>
+                          </div>
                         );
-                      } else if (col.type === 'textarea') {
-                        return (
-                          <Textarea
-                            key={col.key}
-                            size='lg'
-                            classNames={{
-                              label: 'text-semibold text-c6 text-2xl',
-                              inputWrapper: 'bg-c1 shadow-none border-1 border-200 rounded-lg',
-                              input: 'h-[50px]',
-                            }}
-                            className='min-h-[50px]'
-                            type='text'
-                            label={col.label}
-                            labelPlacement='outside'
-                            placeholder={`Entrez ${col.label}`}
-                            isRequired
-                            onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
-                          />
-                        );
-                      } else if (col.type === 'time') {
-                        return (
-                          <>
-                            <TimecodeInput label={col.label} handleInputChange={(value) => handleInputChange(col.dataPath, value)} />
-                          </>
-                        );
-                      } else if (col.type === 'date') {
-                        return (
-                          <>
-                            <DatePicker key={col.key} label={col.label} handleInputChange={(value) => handleInputChange(col.dataPath, value)} />
-                          </>
-                        );
-                      } else if (col.type === 'selection') {
-                        return <SelectionInput key={col.key} col={col} handleInputChange={handleInputChange} />;
-                      } else if (col.type === 'inputs') {
-                        return <MultipleInputs key={col.key} col={col} actualData={itemDetailsData} handleInputChange={handleInputChange} />;
-                      } else {
-                        return null;
                       }
+                      if (col.type === 'textarea') {
+                        return (
+                          <div key={col.key} className='w-full'>
+                            <Textarea
+                              size='md'
+                              classNames={{
+                                label: fieldLabelClass,
+                              }}
+                              label={col.label}
+                              labelPlacement='outside-top'
+                              placeholder={`Entrez ${col.label}`}
+                              isRequired
+                              minRows={3}
+                              onChange={(e) => handleInputChange(col.dataPath, e.target.value)}
+                            />
+                          </div>
+                        );
+                      }
+                      if (col.type === 'time') {
+                        return (
+                          <div key={col.key} className='w-full'>
+                            <TimecodeInput label={col.label} handleInputChange={(value) => handleInputChange(col.dataPath, value)} />
+                          </div>
+                        );
+                      }
+                      if (col.type === 'date') {
+                        return <DatePicker key={col.key} label={col.label} handleInputChange={(value) => handleInputChange(col.dataPath, value)} />;
+                      }
+                      if (col.type === 'selection') {
+                        return <SelectionInput key={col.key} col={col} handleInputChange={handleInputChange} />;
+                      }
+                      if (col.type === 'inputs') {
+                        return <MultipleInputs key={col.key} col={col} actualData={itemDetailsData} handleInputChange={handleInputChange} />;
+                      }
+                      return null;
                     })
                   ) : (
-                    <Spinner color='secondary' />
+                    <Spinner color='current' className='text-c6' />
                   )}
 
                   {saveError && <div className='error'>{saveError}</div>}
@@ -246,17 +242,15 @@ export const CreateModal: React.FC<NewModalProps> = ({ isOpen, onClose, itemId, 
               <ModalFooter className='flex items-center justify-end p-6 '>
                 <div className='flex flex-row gap-6'>
                   <Button
-                    onPress={onClose}
-                    onClick={handleSave}
-                    disabled={saving}
+                    onPress={handleSave}
+                    isDisabled={saving}
                     radius='none'
-                    className={`h-[32px] px-2.5 text-base rounded-lg text-selected bg-action transition-all ease-in-out duration-200 navfilter flex items-center`}>
-                    Créer
+                    className='h-[32px] px-2.5 text-base rounded-lg text-selected bg-action transition-all ease-in-out duration-200 navfilter flex items-center'>
+                    Créer la ressource
                   </Button>
                 </div>
               </ModalFooter>
-            </>
-          )}
+          </>
         </ModalContent>
       </Modal>
     </>

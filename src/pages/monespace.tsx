@@ -331,7 +331,7 @@ export const MonEspace: React.FC = () => {
             className='max-w-xs'
             classNames={{
               trigger: 'bg-c2 border-2 border-c3 data-[hover=true]:border-c4 group-data-[focus=true]:bg-c3 group-data-[focus=true]:border-action',
-              label: 'text-c6 font-medium mb-1.5',
+              label: 'text-c6 font-medium',
               value: 'text-c6',
               popoverContent: 'bg-c2 border-2 border-c3',
             }}>

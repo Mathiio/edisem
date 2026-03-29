@@ -167,7 +167,9 @@ export const Toolbar: React.FC<ItemsProps> = ({
     return (
       <Button
         key={key}
-        ref={(el) => (iconRefs.current[key] = el)}
+        ref={(el: HTMLElement | null) => {
+          iconRefs.current[key] = el;
+        }}
         className={`cursor-pointer group text-base p-2.5 rounded-lg h-11 w-11 ${
           isActive ? `text-selected ${getBackgroundColor()}` : 'text-c6 bg-transparent hover:bg-c3 hover:text-selected'
         } transition-all ease-in-out duration-200`}

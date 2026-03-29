@@ -8,7 +8,11 @@ import './main.css';
 function Providers({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
-  return <HeroUIProvider navigate={navigate}>{children}</HeroUIProvider>;
+  return (
+    <HeroUIProvider navigate={navigate} labelPlacement="outside-top">
+      {children}
+    </HeroUIProvider>
+  );
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

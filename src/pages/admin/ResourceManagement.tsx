@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Table,
   TableHeader,
   TableColumn,
@@ -14,12 +9,13 @@ import {
   Spinner,
   addToast,
   Avatar,
-  Select,
-  SelectItem,
 } from '@heroui/react';
 import { Button } from '@/theme/components/button';
+import { Select, SelectItem, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@/theme/components';
 import { Layouts } from '@/components/layout/Layouts';
 import { TrashIcon, EditIcon, ExperimentationIcon, UserIcon } from '@/components/ui/icons';
+import { ModalTitle } from '@/components/ui/ModalTitle';
+import { AlertModal } from '@/components/ui/AlertModal';
 import { getCourses, type Course, type StudentResourceCard } from '@/services/StudentSpace';
 import { getRessourceLabel } from '@/config/resourceConfig';
 
@@ -171,6 +167,12 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
     setDeleteModalOpen(true);
   };
 
+  const closeDeleteModal = () => {
+    if (isDeleting) return;
+    setDeleteModalOpen(false);
+    setResourceToDelete(null);
+  };
+
   // Confirmer la suppression (soft delete via API PHP)
   const handleConfirmDelete = async () => {
     if (!resourceToDelete) return;
@@ -230,42 +232,34 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
         <div className='flex gap-2.5 pb-6'>
           <Select
             label='Filtrer par cours'
+            labelPlacement='outside-top'
             selectedKeys={[filterCourse]}
             onSelectionChange={(keys) => setFilterCourse(Array.from(keys)[0] as string)}
             className='max-w-lg'
-            classNames={{
-              trigger: 'bg-c2 border-2 border-c3 min-w-[200px]',
-              label: 'text-c5',
-              value: 'text-c6',
-            }}>
+            classNames={{ trigger: 'min-w-[200px]' }}
+            >
             {[{ id: 'all', label: 'Tous les cours' }, { id: 'teacher', label: 'Ressources enseignantes' }, ...courses.map((c) => ({ id: String(c.id), label: c.title }))].map(
               (option) => (
-                <SelectItem key={option.id} className='text-c6'>
-                  {option.label}
-                </SelectItem>
+                <SelectItem key={option.id}>{option.label}</SelectItem>
               ),
             )}
           </Select>
 
           <Select
             label='Filtrer par type'
+            labelPlacement='outside-top'
             selectedKeys={[filterType]}
             onSelectionChange={(keys) => setFilterType(Array.from(keys)[0] as string)}
             className='max-w-lg'
-            classNames={{
-              trigger: 'bg-c2 border-2 border-c3 min-w-[200px]',
-              label: 'text-c5',
-              value: 'text-c6',
-            }}>
+            classNames={{ trigger: 'min-w-[200px]' }}
+            >
             {[
               { id: 'all', label: 'Tous les types' },
               { id: 'experimentation_etudiant', label: 'Expérimentations' },
               { id: 'outil_etudiant', label: 'Outils' },
               { id: 'retour_experience_etudiant', label: "Retours d'expérience" },
             ].map((option) => (
-              <SelectItem key={option.id} className='text-c6'>
-                {option.label}
-              </SelectItem>
+              <SelectItem key={option.id}>{option.label}</SelectItem>
             ))}
           </Select>
         </div>
@@ -309,24 +303,24 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
                   {resource.courseId ? (
                     <span
                       className={
-                        onNavigateToCourse ? 'text-c6 border-2 border-c4 hover:text-c1 cursor-pointer transition-colors px-4 py-1.5 bg-c3 hover:bg-c4 rounded-lg ' : 'text-c6'
+                        onNavigateToCourse ? 'text-c6 border border-c4/10 cursor-pointer transition-colors px-4 py-1.5 bg-c3 hover:bg-c4/10 rounded-xl' : 'text-c6'
                       }
                       onClick={() => onNavigateToCourse?.(resource.courseId as number)}>
                       {courses.find((c) => c.id === resource.courseId)?.code || resource.courseTitle}
                     </span>
                   ) : (
-                    <span className='text-c5'>Ressource enseignante</span>
+                    <span className='text-c5 text-12 border border-c4/10 px-4 py-1.5 bg-c3 rounded-xl'>Enseignant</span>
                   )}
                 </TableCell>
                 <TableCell>
                   <div className='flex flex-col gap-1.5 max-w-[200px]'>
                     {resource.actants?.slice(0, 2).map((actant, index) => (
-                      <div key={index} className='flex items-center gap-4'>
+                      <div key={index} className='flex items-center gap-1'>
                         <Avatar
                           src={actant.picture ? (actant.picture.startsWith('http') ? actant.picture : `https://tests.arcanes.ca/omk${actant.picture}`) : undefined}
-                          fallback={<UserIcon size={14} />}
+                          fallback={<UserIcon size={12} />}
                           size='sm'
-                          className='w-6 h-6 rounded-sm flex-shrink-0'
+                          className='w-7 h-7 rounded-lg bg-c3 flex-shrink-0'
                         />
                         <span className='text-c6 text-sm truncate'>{actant.title}</span>
                       </div>
@@ -356,8 +350,10 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
 
       {/* Modal Déplacer */}
       <Modal isOpen={moveModalOpen} onClose={() => setMoveModalOpen(false)} size='md'>
-        <ModalContent className='bg-c2'>
-          <ModalHeader className='text-c6'>Déplacer la ressource</ModalHeader>
+        <ModalContent>
+          <ModalHeader className='flex flex-col gap-px'>
+            <ModalTitle icon={EditIcon} iconColor='text-action' iconBg='bg-action/20' title='Déplacer la ressource' />
+          </ModalHeader>
           <ModalBody>
             <div className='flex flex-col gap-5'>
               <div className='flex items-center gap-2.5 p-4 bg-c3 rounded-xl'>
@@ -380,18 +376,14 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
 
               <Select
                 label='Nouvelle destination'
+                labelPlacement='outside-top'
                 selectedKeys={newCourseId ? [newCourseId] : []}
-                onSelectionChange={(keys) => setNewCourseId(Array.from(keys)[0] as string)}
-                classNames={{
-                  trigger: 'bg-c3 border-2 border-c4',
-                  label: 'text-c5',
-                  value: 'text-c6',
-                }}>
+                onSelectionChange={(keys) => setNewCourseId(Array.from(keys)[0] as string)}>
                 {[
                   { id: 'teacher', label: 'Ressources enseignantes', isTeacher: true },
                   ...courses.map((c) => ({ id: String(c.id), label: `${c.title}${c.code ? ` (${c.code})` : ''}`, isTeacher: false })),
                 ].map((option) => (
-                  <SelectItem key={option.id} className={option.isTeacher ? 'text-action font-medium' : 'text-c6'}>
+                  <SelectItem key={option.id} className={option.isTeacher ? '!text-action font-medium' : undefined}>
                     {option.label}
                   </SelectItem>
                 ))}
@@ -409,26 +401,24 @@ const ResourceManagement: React.FC<ResourceManagementProps> = ({ embedded = fals
         </ModalContent>
       </Modal>
 
-      {/* Modal Suppression */}
-      <Modal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <ModalContent className='bg-c2'>
-          <ModalHeader className='text-c6'>Confirmer la suppression</ModalHeader>
-          <ModalBody>
-            <p className='text-c5'>
-              Êtes-vous sûr de vouloir supprimer la ressource <span className='text-c6 font-medium'>"{resourceToDelete?.title}"</span> ?
+      <AlertModal
+        isOpen={deleteModalOpen}
+        onClose={closeDeleteModal}
+        title='Confirmer la suppression'
+        type='danger'
+        confirmLabel='Supprimer'
+        onConfirm={handleConfirmDelete}
+        isLoading={isDeleting}
+        description={
+          <>
+            <p>
+              Êtes-vous sûr de vouloir supprimer la ressource{' '}
+              <span className='text-c6 font-medium'>&quot;{resourceToDelete?.title}&quot;</span> ?
             </p>
             <p className='text-c4 text-sm mt-2.5'>Cette action est irréversible.</p>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant='flat' onPress={() => setDeleteModalOpen(false)} className='bg-c3 text-c6'>
-              Annuler
-            </Button>
-            <Button onPress={handleConfirmDelete} isLoading={isDeleting} className='bg-[#FF0000] text-white'>
-              Supprimer
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+          </>
+        }
+      />
     </Wrapper>
   );
 };

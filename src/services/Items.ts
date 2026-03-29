@@ -206,32 +206,7 @@ export async function getDataByUrl(url: string) {
     throw error;
   }
 }
-export async function getBibliographies(id?: number) {
-  try {
-    checkAndClearDailyCache();
-    const storedBibliographies = sessionStorage.getItem('bibliographies');
 
-    if (storedBibliographies) {
-      const bibliographies = JSON.parse(storedBibliographies);
-      // Si un ID est spécifié, retourner la bibliographie spécifique
-      return id ? bibliographies.find((b: any) => String(b.id) === String(id)) : bibliographies;
-    }
-
-    const bibliographies = await getDataByUrl('https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=Query&action=getBibliographies&json=1');
-    const bibliographiesFull = bibliographies.map((bibliographie: any) => ({
-      ...bibliographie,
-      type: 'bibliographie',
-    }));
-
-    sessionStorage.setItem('bibliographies', JSON.stringify(bibliographiesFull));
-
-    // Si un ID est spécifié, retourner la bibliographie spécifique
-    return id ? bibliographiesFull.find((b: any) => String(b.id) === String(id)) : bibliographiesFull;
-  } catch (error) {
-    console.error('Error fetching bibliographies:', error);
-    throw new Error('Failed to fetch bibliographies');
-  }
-}
 export async function getMediagraphies(id?: number) {
   try {
     checkAndClearDailyCache();
@@ -341,7 +316,6 @@ export async function getAllItems() {
     }
 
     const [
-      bibliographies,
       mediagraphies,
       keywords,
       students,
@@ -349,7 +323,6 @@ export async function getAllItems() {
       personnes,
       comments,
     ] = await Promise.all([
-      getBibliographies(),
       getMediagraphies(),
       getKeywords(),
       getStudents(),
@@ -359,7 +332,6 @@ export async function getAllItems() {
     ]);
 
     const allItems = [
-      ...bibliographies,
       ...mediagraphies,
       ...keywords,
       ...students,

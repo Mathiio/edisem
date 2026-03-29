@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Input,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Table,
   TableHeader,
   TableColumn,
@@ -16,12 +10,13 @@ import {
   addToast,
   Chip,
   Avatar,
-  Select,
-  SelectItem,
 } from '@heroui/react';
 import { Button } from '@/theme/components/button';
+import { Input, Select, SelectItem, Textarea, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@/theme/components';
 import { Layouts } from '@/components/layout/Layouts';
-import { LinkIcon, UserIcon, UploadIcon, TrashIcon, EditIcon } from '@/components/ui/icons';
+import { ChainLinkIcon, UserIcon, UploadIcon, TrashIcon, EditIcon } from '@/components/ui/icons';
+import { ModalTitle } from '@/components/ui/ModalTitle';
+import { AlertModal } from '@/components/ui/AlertModal';
 import { getActantsForLogin, linkActantToUser, createOmekaUserForActant, createActantWithUser, deleteActant, type Actant } from '@/services/StudentSpace';
 
 // Types
@@ -307,6 +302,12 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
     setIsDeleteModalOpen(true);
   };
 
+  const closeDeleteModal = () => {
+    if (deleting) return;
+    setIsDeleteModalOpen(false);
+    setActantToDelete(null);
+  };
+
   // Confirmer la suppression
   const handleConfirmDelete = async () => {
     if (!actantToDelete) return;
@@ -320,6 +321,7 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
         classNames: { base: 'bg-success text-white' },
       });
       setIsDeleteModalOpen(false);
+      setActantToDelete(null);
       loadData();
     } catch (error: any) {
       addToast({
@@ -365,11 +367,15 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
               {unlinkedCount > 1 ? 's' : ''}
             </p>
           </div>
-          <div className='flex gap-2 items-center'>
-            <Chip variant='flat' className='bg-c3 text-c5'>
-              <UserIcon size={14} className='mr-px' />
-              {omekaUsers.length} utilisateur{omekaUsers.length > 1 ? 's' : ''} Omeka S
-            </Chip>
+          <div className='flex flex-wrap gap-2 items-center'>
+            <div
+              role='status'
+              className='inline-flex h-[40px] min-h-[40px] items-center justify-center gap-2 rounded-xl px-4 bg-c3 text-selected text-sm font-medium pointer-events-none select-none border border-c4/10'>
+              <UserIcon size={14} className='shrink-0' aria-hidden />
+              <span className='whitespace-nowrap'>
+                {omekaUsers.length} utilisateur{omekaUsers.length > 1 ? 's' : ''} Omeka S
+              </span>
+            </div>
             <Button
               className='bg-action text-selected'
               startContent={<UploadIcon size={16} />}
@@ -381,14 +387,6 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
               Import batch
             </Button>
           </div>
-        </div>
-
-        {/* Info box */}
-        <div className='bg-action/10 border-2 border-action/30 rounded-xl p-4'>
-          <p className='text-c6 text-sm'>
-            Les actants sont les enseignants, chercheurs et contributeurs (items template 72). Pour qu'un actant puisse créer des ressources avec son propre compte, il doit être
-            lié à un utilisateur Omeka S. Vous pouvez lier un actant à un utilisateur existant ou créer un nouvel utilisateur.
-          </p>
         </div>
 
         {/* Table des actants */}
@@ -411,7 +409,7 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                 <TableRow key={actant.id}>
                   <TableCell>
                     <div className='flex items-center gap-3'>
-                      <Avatar src={actant.picture || undefined} name={actant.title} size='sm' className='bg-c4' />
+                      <Avatar src={actant.picture || undefined} name={actant.title} size='sm' className='bg-c4 rounded-xl' />
                       <div className='flex flex-col'>
                         <span className='font-medium'>{actant.title || `${actant.firstname} ${actant.lastname}`.trim() || 'Sans nom'}</span>
                         <span className='text-c4 text-xs'>Item #{actant.id}</span>
@@ -421,7 +419,7 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                   <TableCell>{actant.mail || <span className='text-c4'>-</span>}</TableCell>
                   <TableCell>
                     {actant.omekaUserId ? (
-                      <div className='flex flex-col gap-px'>
+                      <div className='flex gap-2 items-center'>
                         <Chip size='sm' color='success' variant='flat'>
                           ID: {actant.omekaUserId}
                         </Chip>
@@ -441,7 +439,7 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                         <EditIcon size={18} />
                       </Button>
                       <Button isIconOnly variant='flat' className='bg-c3' onPress={() => handleOpenLink(actant)} title='Lier à un utilisateur Omeka S'>
-                        <LinkIcon size={18} />
+                        <ChainLinkIcon size={18} />
                       </Button>
                       <Button isIconOnly variant='flat' className='bg-danger/20 text-danger' onPress={() => handleOpenDelete(actant)} title='Supprimer'>
                         <TrashIcon size={18} />
@@ -456,23 +454,32 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
 
         {/* Modal Liaison / Création Utilisateur */}
         <Modal isOpen={isLinkModalOpen} onClose={() => setIsLinkModalOpen(false)} size='lg'>
-          <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6'>
-              {selectedActant?.omekaUserId ? 'Modifier la liaison' : 'Lier'} {selectedActant?.title} à un utilisateur Omeka S
+          <ModalContent>
+            <ModalHeader className='flex flex-col gap-px'>
+              <ModalTitle
+                icon={ChainLinkIcon}
+                iconColor='text-action'
+                iconBg='bg-action/20'
+                title={
+                  <>
+                    {selectedActant?.omekaUserId ? 'Modifier la liaison' : 'Lier'} {selectedActant?.title} à un utilisateur Omeka S
+                  </>
+                }
+              />
             </ModalHeader>
             <ModalBody className='gap-4'>
               {/* Onglets */}
               <div className='flex gap-2 border-b border-c3 pb-2'>
-                <button
+                <Button
                   onClick={() => setLinkMode('link')}
-                  className={`px-4 py-2 rounded-t-8 text-sm transition-colors ${linkMode === 'link' ? 'bg-action text-selected' : 'bg-c3 text-c5 hover:bg-c4'}`}>
+                  className={`w-full ${linkMode === 'link' ? 'bg-action text-selected' : 'bg-c3 text-c5 hover:bg-c4/10'}`}>
                   Utilisateur existant
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setLinkMode('create')}
-                  className={`px-4 py-2 rounded-t-8 text-sm transition-colors ${linkMode === 'create' ? 'bg-action text-selected' : 'bg-c3 text-c5 hover:bg-c4'}`}>
+                  className={`w-full ${linkMode === 'create' ? 'bg-action text-selected' : 'bg-c3 text-c5 hover:bg-c4/10'}`}>
                   Créer un utilisateur
-                </button>
+                </Button>
               </div>
 
               {linkMode === 'link' ? (
@@ -487,7 +494,7 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                           key={user.id}
                           onClick={() => setSelectedUserId(user.id)}
                           className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
-                            selectedUserId === user.id ? 'bg-action/20 border-2 border-action' : 'bg-c3 hover:bg-c4'
+                            selectedUserId === user.id ? 'bg-action/20 border-2 border-action' : 'bg-c2 border border-c3 hover:bg-c3'
                           }`}>
                           <div>
                             <p className='text-c6 font-medium'>{user.name}</p>
@@ -506,49 +513,32 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                   <p className='text-c5 text-sm'>Créez un nouvel utilisateur Omeka S qui sera automatiquement lié à cet actant.</p>
                   <Input
                     label='Email'
+                    labelPlacement='outside-top'
                     placeholder='email@exemple.com'
                     type='email'
                     value={newUserEmail}
                     onChange={(e) => setNewUserEmail(e.target.value)}
                     isRequired
-                    classNames={{
-                      inputWrapper: 'bg-c1 border-c3',
-                      label: 'text-c5',
-                    }}
                   />
                   <Input
                     label='Nom complet'
+                    labelPlacement='outside-top'
                     placeholder='Prénom Nom'
                     value={newUserName}
                     onChange={(e) => setNewUserName(e.target.value)}
                     isRequired
-                    classNames={{
-                      inputWrapper: 'bg-c1 border-c3',
-                      label: 'text-c5',
-                    }}
                   />
                   <Select
                     label='Rôle'
+                    labelPlacement='outside-top'
                     selectedKeys={[newUserRole]}
                     onSelectionChange={(keys) => {
                       const selected = Array.from(keys)[0];
                       if (selected) setNewUserRole(String(selected));
-                    }}
-                    classNames={{
-                      trigger: 'bg-c1 border-c3',
-                      label: 'text-c5',
-                      value: 'text-c6',
-                      popoverContent: 'bg-c2 border-c3',
                     }}>
-                    <SelectItem key='author' className='text-c6'>
-                      Auteur (author)
-                    </SelectItem>
-                    <SelectItem key='editor' className='text-c6'>
-                      Éditeur (editor)
-                    </SelectItem>
-                    <SelectItem key='admin' className='text-c6'>
-                      Administrateur (admin)
-                    </SelectItem>
+                    <SelectItem key='author'>Auteur (author)</SelectItem>
+                    <SelectItem key='editor'>Éditeur (editor)</SelectItem>
+                    <SelectItem key='admin'>Administrateur (admin)</SelectItem>
                   </Select>
                   <p className='text-c4 text-xs'>Un mot de passe temporaire sera généré. L'utilisateur devra le réinitialiser via Omeka S.</p>
                 </>
@@ -573,8 +563,10 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
 
         {/* Modal Import Batch */}
         <Modal isOpen={isBatchModalOpen} onClose={() => !batchProcessing && setIsBatchModalOpen(false)} size='2xl'>
-          <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6'>Import batch d'actants</ModalHeader>
+          <ModalContent>
+            <ModalHeader className='flex flex-col gap-px'>
+              <ModalTitle icon={UploadIcon} iconColor='text-blue-500' iconBg='bg-blue-500/20' title="Import batch d'actants" />
+            </ModalHeader>
             <ModalBody className='gap-4'>
               <p className='text-c5 text-sm'>Collez une liste d'actants avec leurs emails. Chaque ligne créera un actant et un utilisateur Omeka S.</p>
               <div className='bg-c3 rounded-lg p-2.5'>
@@ -582,36 +574,27 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
                 <code className='text-c5 text-xs block'>Prénom Nom &lt;email@domain.com&gt;</code>
                 <code className='text-c5 text-xs block'>Nom, Prénom &lt;email@domain.com&gt;</code>
               </div>
-              <textarea
-                className='w-full h-[200px] bg-c1 border-2 border-c3 rounded-lg p-2.5 text-c6 text-sm resize-none focus:outline-none focus:border-action'
+              <Textarea
+                aria-label="Liste d'actants à importer"
                 placeholder={`Maxime Girard <maxime.girard@example.com>\nJean-Marc Larrue <jean-marc.larrue@example.com>\nRichert, Fabien <fabien.richert@example.com>`}
                 value={batchInput}
-                onChange={(e) => setBatchInput(e.target.value)}
-                disabled={batchProcessing}
+                onValueChange={setBatchInput}
+                isDisabled={batchProcessing}
+                minRows={10}
+                classNames={{ input: 'min-h-[200px]' }}
               />
               <Select
                 label='Rôle pour tous les utilisateurs'
+                labelPlacement='outside-top'
                 selectedKeys={[batchRole]}
                 onSelectionChange={(keys) => {
                   const selected = Array.from(keys)[0];
                   if (selected) setBatchRole(String(selected));
                 }}
-                isDisabled={batchProcessing}
-                classNames={{
-                  trigger: 'bg-c1 border-c3',
-                  label: 'text-c5',
-                  value: 'text-c6',
-                  popoverContent: 'bg-c2 border-c3',
-                }}>
-                <SelectItem key='author' className='text-c6'>
-                  Auteur (author)
-                </SelectItem>
-                <SelectItem key='editor' className='text-c6'>
-                  Éditeur (editor)
-                </SelectItem>
-                <SelectItem key='admin' className='text-c6'>
-                  Administrateur (admin)
-                </SelectItem>
+                isDisabled={batchProcessing}>
+                <SelectItem key='author'>Auteur (author)</SelectItem>
+                <SelectItem key='editor'>Éditeur (editor)</SelectItem>
+                <SelectItem key='admin'>Administrateur (admin)</SelectItem>
               </Select>
 
               {/* Résultats */}
@@ -649,82 +632,77 @@ export const ActantManagement: React.FC<ActantManagementProps> = ({ embedded = f
           </ModalContent>
         </Modal>
 
-        {/* Modal Suppression */}
-        <Modal isOpen={isDeleteModalOpen} onClose={() => !deleting && setIsDeleteModalOpen(false)}>
-          <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6'>Supprimer l'actant</ModalHeader>
-            <ModalBody>
-              <p className='text-c5'>
-                Êtes-vous sûr de vouloir supprimer l'actant <span className='text-c6 font-medium'>"{actantToDelete?.title}"</span> ?
+        <AlertModal
+          isOpen={isDeleteModalOpen}
+          onClose={closeDeleteModal}
+          title="Supprimer l'actant"
+          type='danger'
+          confirmLabel='Supprimer'
+          onConfirm={handleConfirmDelete}
+          isLoading={deleting}
+          description={
+            <>
+              <p>
+                Êtes-vous sûr de vouloir supprimer l&apos;actant{' '}
+                <span className='text-c6 font-medium'>&quot;{actantToDelete?.title}&quot;</span> ?
               </p>
               {actantToDelete?.omekaUserId && (
-                <div className='mt-4 p-3 bg-c3 rounded-lg'>
-                  <label className='flex items-center gap-2 cursor-pointer'>
-                    <input type='checkbox' checked={deleteUserToo} onChange={(e) => setDeleteUserToo(e.target.checked)} className='w-4 h-4 accent-action' />
-                    <span className='text-c6 text-sm'>Supprimer aussi l'utilisateur Omeka S ({actantToDelete.omekaUserName})</span>
+                <div className='mt-4 rounded-lg bg-c3 p-3'>
+                  <label className='flex cursor-pointer items-center gap-2'>
+                    <input
+                      type='checkbox'
+                      checked={deleteUserToo}
+                      onChange={(e) => setDeleteUserToo(e.target.checked)}
+                      className='h-4 w-4 accent-action'
+                    />
+                    <span className='text-sm text-c6'>
+                      Supprimer aussi l&apos;utilisateur Omeka S ({actantToDelete.omekaUserName})
+                    </span>
                   </label>
-                  <p className='text-c4 text-xs mt-2'>L'utilisateur sera supprimé uniquement s'il n'a pas d'autres ressources.</p>
+                  <p className='mt-2 text-xs text-c4'>L&apos;utilisateur sera supprimé uniquement s&apos;il n&apos;a pas d&apos;autres ressources.</p>
                 </div>
               )}
-            </ModalBody>
-            <ModalFooter>
-              <Button variant='flat' onPress={() => setIsDeleteModalOpen(false)} className='bg-c3 text-c6' isDisabled={deleting}>
-                Annuler
-              </Button>
-              <Button className='bg-danger text-white' onPress={handleConfirmDelete} isLoading={deleting}>
-                Supprimer
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+            </>
+          }
+        />
 
         {/* Modal Édition */}
         <Modal isOpen={isEditModalOpen} onClose={() => !saving && setIsEditModalOpen(false)} size='lg'>
-          <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6'>Modifier l'actant</ModalHeader>
+          <ModalContent>
+            <ModalHeader className='flex flex-col gap-px'>
+              <ModalTitle icon={EditIcon} iconColor='text-action' iconBg='bg-action/20' title="Modifier l'actant" />
+            </ModalHeader>
             <ModalBody className='gap-4'>
               <Input
                 label='Nom complet (titre)'
+                labelPlacement='outside-top'
                 placeholder='Prénom Nom'
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                classNames={{
-                  inputWrapper: 'bg-c1 border-c3',
-                  label: 'text-c5',
-                }}
               />
               <div className='grid grid-cols-2 gap-4'>
                 <Input
                   label='Prénom'
+                  labelPlacement='outside-top'
                   placeholder='Prénom'
                   value={editFirstname}
                   onChange={(e) => setEditFirstname(e.target.value)}
-                  classNames={{
-                    inputWrapper: 'bg-c1 border-c3',
-                    label: 'text-c5',
-                  }}
                 />
                 <Input
                   label='Nom de famille'
+                  labelPlacement='outside-top'
                   placeholder='Nom'
                   value={editLastname}
                   onChange={(e) => setEditLastname(e.target.value)}
-                  classNames={{
-                    inputWrapper: 'bg-c1 border-c3',
-                    label: 'text-c5',
-                  }}
                 />
               </div>
               <Input
                 label='Email'
+                labelPlacement='outside-top'
                 placeholder='email@exemple.com'
                 type='email'
                 value={editEmail}
                 onChange={(e) => setEditEmail(e.target.value)}
-                classNames={{
-                  inputWrapper: 'bg-c1 border-c3',
-                  label: 'text-c5',
-                }}
               />
               {editingActant?.omekaUserId && (
                 <p className='text-c4 text-xs'>

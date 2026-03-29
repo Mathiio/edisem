@@ -97,6 +97,26 @@ export const LinkIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...
   </svg>
 );
 
+/** Deux maillons entrelacés (liaison / rattachement), distinct de `LinkIcon` (fenêtre externe). */
+export const ChainLinkIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
+  <svg width={size || width} height={size || height} viewBox='0 0 24 24' fill='none' {...props}>
+    <path
+      d='M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7.07 7.07l-1.41 1.42'
+      stroke='currentColor'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
+    <path
+      d='M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7.07-7.07l1.41-1.41'
+      stroke='currentColor'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    />
+  </svg>
+);
+
 export const CameraIcon: React.FC<IconSvgProps> = ({ size = 24, width, height, ...props }) => (
   <svg width={size || width} viewBox='0 0 22 22' height={size || height} {...props}>
     <path

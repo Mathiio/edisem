@@ -1,47 +1,19 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
-/* Désactiver le ring de focus blanc par défaut de HeroUI */
-*:focus {
-  outline: none !important;
-}
-
-*:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-/* Override HeroUI focus ring styles */
-[data-focus-visible='true'],
-[data-focused='true'] {
-  outline: none !important;
-  --tw-ring-color: transparent !important;
-  --tw-ring-shadow: none !important;
-}
-
-/* Pour les inputs HeroUI */
-.group[data-focus-visible='true'] [data-slot='input-wrapper'],
-.group[data-focused='true'] [data-slot='input-wrapper'],
-[data-slot='input-wrapper']:focus-within {
-  outline: none !important;
-  box-shadow: none !important;
-  border-color: var(--c4) !important;
-}
-
-/* Pour les selects */
-[data-slot='trigger']:focus,
-[data-slot='trigger']:focus-visible,
-[data-slot='trigger'][data-focus-visible='true'] {
-  outline: none !important;
-  box-shadow: none !important;
-  border-color: var(--c4) !important;
-}
-
-/* Remove focus ring from all HeroUI components */
-.outline-none:focus,
-.outline-none:focus-visible {
-  outline: none !important;
-  box-shadow: 0 0 0 0 transparent !important;
+@layer base {
+  *:focus,
+  *:focus-visible,
+  [data-focus-visible='true'],
+  [data-focused='true'],
+  [data-focus='true'],
+  [data-pressed='true'] {
+    outline-color: transparent !important;
+    outline-style: none !important;
+    outline-width: 0 !important;
+    outline-offset: 0 !important;
+    --tw-ring-color: transparent !important;
+  }
 }
 
 /* Curseur de texte (caret) en c6 */

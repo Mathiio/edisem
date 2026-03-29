@@ -215,7 +215,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     }}
                     className='min-h-[50px]'
                     label="Titre de l'annotation *"
-                    labelPlacement='outside'
+                    labelPlacement='outside-top'
                     placeholder='Entrez un titre..'
                   />
                   <Textarea
@@ -230,7 +230,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     }}
                     className='min-h-[50px]'
                     label='Commentaire *'
-                    labelPlacement='outside'
+                    labelPlacement='outside-top'
                     placeholder='Entrez votre commentaire..'
                   />
                   <div className='flex w-full flex-row justify-end items-center gap-3 mt-4'>
@@ -429,7 +429,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     }}
                     className='min-h-[50px]'
                     label="Titre de l'annotation *"
-                    labelPlacement='outside'
+                    labelPlacement='outside-top'
                     placeholder='Entrez un titre..'
                   />
                   <Textarea
@@ -444,7 +444,7 @@ export const AnnotationDropdown: React.FC<AnnotationDropdownProps> = ({ id, cont
                     }}
                     className='min-h-[50px]'
                     label='Commentaire *'
-                    labelPlacement='outside'
+                    labelPlacement='outside-top'
                     placeholder='Entrez votre commentaire..'
                   />
                   <div className='flex w-full flex-row justify-end items-center gap-3 mt-4'>

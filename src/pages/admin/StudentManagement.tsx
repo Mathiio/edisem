@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Input,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Table,
   TableHeader,
   TableColumn,
@@ -16,11 +10,13 @@ import {
   addToast,
   Chip,
   Avatar,
-  Checkbox,
 } from '@heroui/react';
 import { Button } from '@/theme/components/button';
+import { Input, Checkbox, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@/theme/components';
 import { Layouts } from '@/components/layout/Layouts';
-import { PlusIcon, EditIcon, TrashIcon, LinkIcon, ImportIcon, ExportIcon, SchoolIcon } from '@/components/ui/icons';
+import { PlusIcon, EditIcon, TrashIcon, ChainLinkIcon, ImportIcon, ExportIcon, SchoolIcon } from '@/components/ui/icons';
+import { ModalTitle } from '@/components/ui/ModalTitle';
+import { AlertModal } from '@/components/ui/AlertModal';
 import { getCourses, getStudentCourses, enrollStudent, unenrollStudent, type Course } from '@/services/StudentSpace';
 
 // Types
@@ -225,6 +221,10 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
   // États pour la sélection multiple (batch actions)
   const [selectedStudentIds, setSelectedStudentIds] = useState<Set<number>>(new Set());
   const [deletingBatch, setDeletingBatch] = useState(false);
+  const [deleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState<StudentItem | null>(null);
+  const [deletingStudent, setDeletingStudent] = useState(false);
+  const [batchDeleteModalOpen, setBatchDeleteModalOpen] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -445,23 +445,39 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
     }
   };
 
-  const handleDelete = async (student: StudentItem) => {
-    if (!confirm(`Supprimer l'étudiant ${student.title} ?`)) return;
+  const openDeleteStudentModal = (student: StudentItem) => {
+    setStudentToDelete(student);
+    setDeleteStudentModalOpen(true);
+  };
 
+  const closeDeleteStudentModal = () => {
+    if (deletingStudent) return;
+    setDeleteStudentModalOpen(false);
+    setStudentToDelete(null);
+  };
+
+  const handleConfirmDeleteStudent = async () => {
+    if (!studentToDelete) return;
+
+    setDeletingStudent(true);
     try {
-      await deleteStudent(student.id);
+      await deleteStudent(studentToDelete.id);
       addToast({
         title: 'Succès',
         description: 'Étudiant supprimé',
         classNames: { base: 'bg-success text-white' },
       });
       loadData();
+      setDeleteStudentModalOpen(false);
+      setStudentToDelete(null);
     } catch (error: any) {
       addToast({
         title: 'Erreur',
         description: error.message,
         classNames: { base: 'bg-danger text-white' },
       });
+    } finally {
+      setDeletingStudent(false);
     }
   };
 
@@ -486,17 +502,25 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
     }
   };
 
-  const handleBatchDelete = async () => {
+  const openBatchDeleteModal = () => {
+    if (selectedStudentIds.size === 0) return;
+    setBatchDeleteModalOpen(true);
+  };
+
+  const closeBatchDeleteModal = () => {
+    if (deletingBatch) return;
+    setBatchDeleteModalOpen(false);
+  };
+
+  const handleConfirmBatchDelete = async () => {
     if (selectedStudentIds.size === 0) return;
 
-    const count = selectedStudentIds.size;
-    if (!confirm(`Supprimer ${count} étudiant${count > 1 ? 's' : ''} sélectionné${count > 1 ? 's' : ''} ?`)) return;
-
+    const idsToDelete = Array.from(selectedStudentIds);
     setDeletingBatch(true);
     let success = 0;
     let errors = 0;
 
-    for (const studentId of selectedStudentIds) {
+    for (const studentId of idsToDelete) {
       try {
         await deleteStudent(studentId);
         success++;
@@ -507,6 +531,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
 
     setDeletingBatch(false);
     setSelectedStudentIds(new Set());
+    setBatchDeleteModalOpen(false);
 
     if (errors > 0) {
       addToast({
@@ -876,17 +901,17 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
 
         {/* Barre d'actions batch */}
         {selectedStudentIds.size > 0 && (
-          <div className='bg-c3 rounded-xl p-4 flex items-center justify-between'>
+          <div className='bg-c2 rounded-xl p-4 flex items-center justify-between'>
             <div className='flex items-center gap-3'>
               <span className='text-c6 font-medium'>
                 {selectedStudentIds.size} étudiant{selectedStudentIds.size > 1 ? 's' : ''} sélectionné{selectedStudentIds.size > 1 ? 's' : ''}
               </span>
-              <Button size='sm' variant='flat' className='bg-c4 text-c6' onPress={handleClearSelection}>
-                Annuler la sélection
-              </Button>
             </div>
             <div className='flex items-center gap-2'>
-              <Button size='sm' className='bg-danger text-white' startContent={<TrashIcon size={16} />} onPress={handleBatchDelete} isLoading={deletingBatch}>
+              <Button size='sm' variant='flat' className='bg-c3 border border-c4/10 text-c6' onPress={handleClearSelection}>
+                Annuler la sélection
+              </Button>
+              <Button size='sm' className='bg-danger text-white' startContent={<TrashIcon size={16} />} onPress={openBatchDeleteModal} isLoading={deletingBatch}>
                 Supprimer ({selectedStudentIds.size})
               </Button>
             </div>
@@ -909,7 +934,6 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                   isIndeterminate={selectedStudentIds.size > 0 && selectedStudentIds.size < students.length}
                   onValueChange={handleSelectAllStudents}
                   size='sm'
-                  classNames={{ wrapper: 'before:border-c4' }}
                 />
               </TableColumn>
               <TableColumn>ÉTUDIANT</TableColumn>
@@ -926,11 +950,11 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                 return (
                   <TableRow key={student.id} className={isSelected ? 'bg-action/10' : ''}>
                     <TableCell>
-                      <Checkbox isSelected={isSelected} onValueChange={() => handleToggleStudentSelection(student.id)} size='sm' classNames={{ wrapper: 'before:border-c4' }} />
+                      <Checkbox isSelected={isSelected} onValueChange={() => handleToggleStudentSelection(student.id)} size='sm' />
                     </TableCell>
                     <TableCell>
-                      <div className='flex items-center gap-3'>
-                        <Avatar src={student.picture || undefined} name={student.title} size='sm' className='bg-c4' />
+                      <div className='flex items-center gap-2'>
+                        <Avatar src={student.picture || undefined} name={student.title} size='sm' className='bg-c3 p-2 border border-c4/10 rounded-xl' />
                         <span className='font-medium'>{student.title}</span>
                       </div>
                     </TableCell>
@@ -944,8 +968,8 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                                 key={course.id}
                                 className={
                                   onNavigateToCourse
-                                    ? 'text-c6 border-2 border-c4 hover:text-c1 cursor-pointer transition-colors px-4 py-1.5 bg-c3 hover:bg-c4 rounded-lg'
-                                    : 'text-c6 border-2 border-c4 px-4 py-1.5 bg-c3 rounded-lg'
+                                    ? 'text-c6 border border-c4/10 cursor-pointer transition-colors px-4 py-1.5 bg-c3 hover:bg-c4/10 rounded-xl'
+                                    : 'text-c6 border border-c4/10 px-4 py-1.5 bg-c3 rounded-xl'
                                 }
                                 onClick={() => onNavigateToCourse?.(course.id)}>
                                 {course.code || course.title.substring(0, 12)}
@@ -958,7 +982,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                             )}
                           </>
                         ) : (
-                          <Chip size='sm' variant='flat' className='bg-c3 text-c4'>
+                          <Chip variant='flat' className='text-c6 border border-c4/10 px-4 py-2 bg-c3 rounded-xl text-md'>
                             Aucun
                           </Chip>
                         )}
@@ -992,12 +1016,12 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                             <SchoolIcon size={18} />
                           </Button>
                           <Button isIconOnly variant='flat' className='bg-c3' onPress={() => handleOpenLink(student)} title='Lier utilisateur'>
-                            <LinkIcon size={18} />
+                            <ChainLinkIcon size={18} />
                           </Button>
                           <Button isIconOnly variant='flat' className='bg-c3' onPress={() => handleOpenEdit(student)} title='Modifier'>
                             <EditIcon size={18} />
                           </Button>
-                          <Button isIconOnly variant='flat' className='bg-danger/20 text-danger' onPress={() => handleDelete(student)} title='Supprimer'>
+                          <Button isIconOnly variant='flat' className='bg-danger/20 text-danger' onPress={() => openDeleteStudentModal(student)} title='Supprimer'>
                             <TrashIcon size={18} />
                           </Button>
                         </div>
@@ -1012,54 +1036,49 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
 
         {/* Modal Création/Édition */}
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} size='lg'>
-          <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6'>{editingStudent ? "Modifier l'étudiant" : 'Nouvel étudiant'}</ModalHeader>
+          <ModalContent>
+            <ModalHeader className='flex flex-col gap-px'>
+              <ModalTitle
+                icon={editingStudent ? EditIcon : PlusIcon}
+                iconColor='text-action'
+                iconBg='bg-action/20'
+                title={editingStudent ? "Modifier l'étudiant" : 'Nouvel étudiant'}
+              />
+            </ModalHeader>
             <ModalBody className='gap-4'>
               <div className='grid grid-cols-2 gap-4'>
                 <Input
                   label='Prénom'
+                  labelPlacement='outside-top'
                   placeholder='Jean'
                   value={formData.firstname}
                   onChange={(e) => setFormData({ ...formData, firstname: e.target.value })}
                   isRequired
-                  classNames={{
-                    inputWrapper: 'bg-c1 border-c3',
-                    label: 'text-c5',
-                  }}
                 />
                 <Input
                   label='Nom'
+                  labelPlacement='outside-top'
                   placeholder='Dupont'
                   value={formData.lastname}
                   onChange={(e) => setFormData({ ...formData, lastname: e.target.value })}
                   isRequired
-                  classNames={{
-                    inputWrapper: 'bg-c1 border-c3',
-                    label: 'text-c5',
-                  }}
                 />
               </div>
               <Input
                 label='Email'
+                labelPlacement='outside-top'
                 placeholder='jean.dupont@universite.fr'
                 type='email'
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 isRequired
-                classNames={{
-                  inputWrapper: 'bg-c1 border-c3',
-                  label: 'text-c5',
-                }}
               />
               <Input
                 label='Numéro étudiant'
+                labelPlacement='outside-top'
                 placeholder='20231234'
                 value={formData.studentNumber}
                 onChange={(e) => setFormData({ ...formData, studentNumber: e.target.value })}
-                classNames={{
-                  inputWrapper: 'bg-c1 border-c3',
-                  label: 'text-c5',
-                }}
               />
               {!editingStudent && (
                 <div className='flex items-center gap-2'>
@@ -1106,7 +1125,6 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                                 }
                               }}
                               size='sm'
-                              classNames={{ wrapper: 'before:border-c4' }}
                             />
                             <span className='text-c6 text-sm'>{course.title}</span>
                             {course.code && (
@@ -1140,8 +1158,15 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
 
         {/* Modal Liaison */}
         <Modal isOpen={isLinkModalOpen} onClose={() => setIsLinkModalOpen(false)} size='lg'>
-          <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6'>Lier {linkingStudent?.title} à un utilisateur</ModalHeader>
+          <ModalContent>
+            <ModalHeader className='flex flex-col gap-px'>
+              <ModalTitle
+                icon={ChainLinkIcon}
+                iconColor='text-action'
+                iconBg='bg-action/20'
+                title={<>Lier {linkingStudent?.title} à un utilisateur</>}
+              />
+            </ModalHeader>
             <ModalBody>
               <p className='text-c5 text-sm mb-4'>
                 Sélectionnez l'utilisateur Omeka S à associer à cet étudiant. Cela permettra de définir le bon propriétaire lors de la création de ressources.
@@ -1155,7 +1180,7 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                       key={user.id}
                       onClick={() => setSelectedUserId(user.id)}
                       className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
-                        selectedUserId === user.id ? 'bg-action/20 border-2 border-action' : 'bg-c3 hover:bg-c4'
+                        selectedUserId === user.id ? 'bg-action/20 border-2 border-action' : 'bg-c2 border border-c3 hover:bg-c3'
                       }`}>
                       <div>
                         <p className='text-c6 font-medium'>{user.name}</p>
@@ -1188,8 +1213,10 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
             setImportFile(null);
           }}
           size='lg'>
-          <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6'>Importer des étudiants depuis un fichier CSV</ModalHeader>
+          <ModalContent>
+            <ModalHeader className='flex flex-col gap-px'>
+              <ModalTitle icon={ImportIcon} iconColor='text-blue-500' iconBg='bg-blue-500/20' title='Importer des étudiants depuis un fichier CSV' />
+            </ModalHeader>
             <ModalBody className='gap-4'>
               <div className='bg-c3 p-4 rounded-lg'>
                 <p className='text-c5 text-sm mb-2'>Format attendu (séparateur: virgule ou point-virgule):</p>
@@ -1226,13 +1253,20 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
 
         {/* Modal Prévisualisation Import CSV */}
         <Modal isOpen={isPreviewModalOpen} onClose={handleClosePreview} size='5xl' scrollBehavior='inside'>
-          <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6 flex flex-col gap-px'>
-              <span>Prévisualisation de l'import</span>
-              <span className='text-sm font-normal text-c5'>
-                {previewRows.length} étudiant(s) trouvé(s) • {previewRows.filter((r) => r.selected).length} sélectionné(s) •{' '}
-                <span className='text-warning'>{previewRows.filter((r) => r.isDuplicate).length} doublon(s)</span>
-              </span>
+          <ModalContent>
+            <ModalHeader className='flex flex-col gap-px'>
+              <ModalTitle
+                icon={ImportIcon}
+                iconColor='text-blue-500'
+                iconBg='bg-blue-500/20'
+                title="Prévisualisation de l'import"
+                subtitle={
+                  <>
+                    {previewRows.length} étudiant(s) trouvé(s) • {previewRows.filter((r) => r.selected).length} sélectionné(s) •{' '}
+                    <span className='text-warning'>{previewRows.filter((r) => r.isDuplicate).length} doublon(s)</span>
+                  </>
+                }
+              />
             </ModalHeader>
             <ModalBody className='gap-4'>
               {/* Actions rapides */}
@@ -1264,7 +1298,6 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                         isIndeterminate={previewRows.some((r) => r.selected) && !previewRows.every((r) => r.selected)}
                         onValueChange={(checked) => handleSelectAll(checked)}
                         size='sm'
-                        classNames={{ wrapper: 'before:border-c4' }}
                       />
                     </TableColumn>
                     <TableColumn>PRÉNOM</TableColumn>
@@ -1282,7 +1315,6 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                             isSelected={row.selected}
                             onValueChange={(checked) => handleUpdatePreviewRow(row.id, 'selected', checked)}
                             size='sm'
-                            classNames={{ wrapper: 'before:border-c4' }}
                           />
                         </TableCell>
                         <TableCell>
@@ -1291,7 +1323,6 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                               size='sm'
                               value={row.firstname}
                               onChange={(e) => handleUpdatePreviewRow(row.id, 'firstname', e.target.value)}
-                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-sm' }}
                             />
                           ) : (
                             <span className='cursor-pointer hover:text-action' onClick={() => setEditingRowId(row.id)} title='Cliquer pour modifier'>
@@ -1305,7 +1336,6 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                               size='sm'
                               value={row.lastname}
                               onChange={(e) => handleUpdatePreviewRow(row.id, 'lastname', e.target.value)}
-                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-sm' }}
                             />
                           ) : (
                             <span className='cursor-pointer hover:text-action' onClick={() => setEditingRowId(row.id)} title='Cliquer pour modifier'>
@@ -1319,7 +1349,6 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                               size='sm'
                               value={row.email}
                               onChange={(e) => handleUpdatePreviewRow(row.id, 'email', e.target.value)}
-                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-sm' }}
                             />
                           ) : (
                             <span className='cursor-pointer hover:text-action' onClick={() => setEditingRowId(row.id)} title='Cliquer pour modifier'>
@@ -1333,7 +1362,6 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
                               size='sm'
                               value={row.studentNumber}
                               onChange={(e) => handleUpdatePreviewRow(row.id, 'studentNumber', e.target.value)}
-                              classNames={{ inputWrapper: 'bg-c1 border-c3 h-8', input: 'text-sm' }}
                             />
                           ) : (
                             <span className='cursor-pointer hover:text-action' onClick={() => setEditingRowId(row.id)} title='Cliquer pour modifier'>
@@ -1413,8 +1441,15 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
 
         {/* Modal Gestion des Cours */}
         <Modal isOpen={isCoursesModalOpen} onClose={() => setIsCoursesModalOpen(false)} size='lg'>
-          <ModalContent className='bg-c2'>
-            <ModalHeader className='text-c6'>Cours de {managingCoursesStudent?.title}</ModalHeader>
+          <ModalContent>
+            <ModalHeader className='flex flex-col gap-px'>
+              <ModalTitle
+                icon={SchoolIcon}
+                iconColor='text-action'
+                iconBg='bg-action/20'
+                title={<>Cours de {managingCoursesStudent?.title}</>}
+              />
+            </ModalHeader>
             <ModalBody>
               {loadingCourses ? (
                 <div className='flex justify-center py-8'>
@@ -1471,6 +1506,37 @@ export const StudentManagement: React.FC<StudentManagementProps> = ({ embedded =
             </ModalFooter>
           </ModalContent>
         </Modal>
+
+        <AlertModal
+          isOpen={deleteStudentModalOpen}
+          onClose={closeDeleteStudentModal}
+          title="Supprimer l'étudiant"
+          type='danger'
+          confirmLabel='Supprimer'
+          onConfirm={handleConfirmDeleteStudent}
+          isLoading={deletingStudent}
+          description={
+            <p>
+              Supprimer l&apos;étudiant <span className='text-c6 font-medium'>{studentToDelete?.title}</span> ?
+            </p>
+          }
+        />
+
+        <AlertModal
+          isOpen={batchDeleteModalOpen}
+          onClose={closeBatchDeleteModal}
+          title='Supprimer la sélection'
+          type='danger'
+          confirmLabel='Supprimer'
+          onConfirm={handleConfirmBatchDelete}
+          isLoading={deletingBatch}
+          description={
+            <p>
+              Supprimer {selectedStudentIds.size} étudiant{selectedStudentIds.size > 1 ? 's' : ''} sélectionné
+              {selectedStudentIds.size > 1 ? 's' : ''} ?
+            </p>
+          }
+        />
       </div>
     </Wrapper>
   );

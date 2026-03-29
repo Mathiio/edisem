@@ -1,5 +1,6 @@
-import { Input, Textarea, TextAreaProps, InputProps } from '@heroui/react';
+import { Input, Textarea } from '@/theme/components';
 import { useEffect, useRef } from 'react';
+import type { TextAreaProps, InputProps } from '@heroui/react';
 
 interface AutoResizingFieldProps {
   value: string;
@@ -20,10 +21,8 @@ export default function AutoResizingField({
 }: AutoResizingFieldProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Add safety check for value - ensure it's always a string
   const safeValue = typeof value === 'string' ? value : String(value || '');
 
-  // Always use Textarea when editable, Input only when read-only and short
   const shouldUseTextarea = !isReadOnly || safeValue.split('\n').length > 1 || safeValue.length > 50;
 
   useEffect(() => {

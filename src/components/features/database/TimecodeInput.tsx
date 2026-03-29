@@ -1,61 +1,120 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { TimeInput } from '@heroui/date-input';
-import { Time, CalendarDate } from '@internationalized/date';
+import { CalendarDate } from '@internationalized/date';
 import { Calendar } from '@heroui/react';
+import { Input } from '@/theme/components';
+
+/** Convertit une valeur API Omeka (nombre, chaîne, HH:MM:SS, PT…) en secondes entières ≥ 0. */
+export function parseSecondsFromValue(value: unknown): number {
+  if (value == null || value === '') return 0;
+  if (typeof value === 'number' && !Number.isNaN(value)) {
+    return Math.max(0, Math.floor(value));
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return 0;
+    if (/^\d+$/.test(trimmed)) {
+      return Math.max(0, parseInt(trimmed, 10));
+    }
+    // ISO 8601 duration : PT1H2M3S ou PT90S
+    const iso = trimmed.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$/i);
+    if (iso) {
+      const h = parseInt(iso[1] || '0', 10);
+      const m = parseInt(iso[2] || '0', 10);
+      const s = Math.floor(parseFloat(iso[3] || '0'));
+      return Math.max(0, h * 3600 + m * 60 + s);
+    }
+    // HH:MM:SS ou H:MM:SS
+    const hms = trimmed.match(/^(\d+):(\d{1,2}):(\d{1,2})$/);
+    if (hms) {
+      const h = parseInt(hms[1], 10);
+      const m = parseInt(hms[2], 10);
+      const s = parseInt(hms[3], 10);
+      if (m < 60 && s < 60) return Math.max(0, h * 3600 + m * 60 + s);
+    }
+    // MM:SS
+    const ms = trimmed.match(/^(\d{1,2}):(\d{1,2})$/);
+    if (ms) {
+      const m = parseInt(ms[1], 10);
+      const s = parseInt(ms[2], 10);
+      if (s < 60) return Math.max(0, m * 60 + s);
+    }
+    const asNum = Number(trimmed);
+    if (!Number.isNaN(asNum)) return Math.max(0, Math.floor(asNum));
+  }
+  return 0;
+}
+
+/** Affichage vidéo standard hh:mm:ss (toujours deux chiffres pour m et s). Les heures ne sont pas limitées à 2 digits. */
+export function secondsToTimecodeString(seconds: number): string {
+  const s = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
 
 interface TimecodeInputProps {
+  /** Secondes, ou chaîne / valeur telle que renvoyée par Omeka (`@value`). */
+  value?: unknown;
+  /** @deprecated utilisez `value` — conservé pour compatibilité */
   seconds?: number;
   handleInputChange: (value: number) => void;
   label: string;
+  isReadOnly?: boolean;
+  isDisabled?: boolean;
+  isRequired?: boolean;
 }
 
-export const TimecodeInput: React.FC<TimecodeInputProps> = ({ seconds = 0, label, handleInputChange }) => {
-  const convertSecondsToTime = (seconds: number): Time => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-    return new Time(hours, minutes, remainingSeconds);
-  };
+export const TimecodeInput: React.FC<TimecodeInputProps> = ({
+  value,
+  seconds: secondsProp,
+  label,
+  handleInputChange,
+  isReadOnly = false,
+  isDisabled = false,
+  isRequired = false,
+}) => {
+  const syncedSeconds = parseSecondsFromValue(value !== undefined ? value : secondsProp ?? 0);
 
-  const convertTimeToSeconds = (time: Time): number => {
-    return time.hour * 3600 + time.minute * 60 + time.second;
-  };
-
-  const [time, setTime] = useState<Time>(convertSecondsToTime(seconds));
+  const [draft, setDraft] = useState(() => secondsToTimecodeString(syncedSeconds));
 
   useEffect(() => {
-    setTime(convertSecondsToTime(seconds));
-  }, [seconds]);
+    setDraft(secondsToTimecodeString(parseSecondsFromValue(value !== undefined ? value : secondsProp ?? 0)));
+  }, [value, secondsProp]);
 
-  const handleTimeChange = (newTime: any) => {
-    if (newTime instanceof Time) {
-      setTime(newTime);
-      handleInputChange(convertTimeToSeconds(newTime));
-    } else {
-      console.error('Unexpected time format:', newTime);
-    }
-  };
+  const commit = useCallback(() => {
+    const sec = parseSecondsFromValue(draft);
+    setDraft(secondsToTimecodeString(sec));
+    handleInputChange(sec);
+  }, [draft, handleInputChange]);
 
   return (
-    <TimeInput
+    <Input
       label={label}
-      labelPlacement='outside'
-      value={time as any}
-      onChange={handleTimeChange}
-      hourCycle={24}
-      granularity='second'
+      labelPlacement='outside-top'
+      size='md'
+      value={draft}
+      onValueChange={setDraft}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          (e.target as HTMLInputElement).blur();
+        }
+      }}
+      placeholder='0:00:00'
+      isReadOnly={isReadOnly}
+      isDisabled={isDisabled}
+      isRequired={isRequired}
+      autoComplete='off'
       classNames={{
         label: 'text-semibold text-c6 text-2xl',
-        inputWrapper: 'bg-c1 shadow-none border-1 border-200 h-[50px]',
-        input: 'h-[50px]',
+        input: 'tabular-nums',
       }}
-      className='min-h-[50px]'
-      hideTimeZone
     />
   );
 };
 
-// Function to parse ISO date string
 function intlParseDate(dateString: string): CalendarDate {
   const [year, month, day] = dateString.split('-').map(Number);
   return new CalendarDate(year, month, day);
@@ -103,7 +162,7 @@ const parseInterval = (interval: string) => {
 
 export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
   label,
-  interval = '2023-01-01T00:00:00/2023-01-01T00:00:00', // Provide a default interval
+  interval = '2023-01-01T00:00:00/2023-01-01T00:00:00',
   handleInputChange,
 }) => {
   const [parsedInterval, setParsedInterval] = useState<{ date: CalendarDate; start: number; end: number }>(() => {
@@ -111,7 +170,6 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
       return parseInterval(interval);
     } catch (error) {
       console.error(error);
-      // Provide a default value in case of error
       const now = new Date();
       const defaultDate = new CalendarDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
       return { date: defaultDate, start: 0, end: 0 };
@@ -131,24 +189,22 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
     const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-    const dateString = date.toString();
-    return `${dateString}T${timeString}`;
+    return `${date.toString()}T${timeString}`;
   };
 
-  const handleStartChange = (seconds: number) => {
-    const newInterval = { ...parsedInterval, start: seconds };
+  const handleStartChange = (sec: number) => {
+    const newInterval = { ...parsedInterval, start: sec };
     setParsedInterval(newInterval);
     handleInputChange(`${formatDateTime(newInterval.date, newInterval.start)}/${formatDateTime(newInterval.date, newInterval.end)}`);
   };
 
-  const handleEndChange = (seconds: number) => {
-    const newInterval = { ...parsedInterval, end: seconds };
+  const handleEndChange = (sec: number) => {
+    const newInterval = { ...parsedInterval, end: sec };
     setParsedInterval(newInterval);
     handleInputChange(`${formatDateTime(newInterval.date, newInterval.start)}/${formatDateTime(newInterval.date, newInterval.end)}`);
   };
 
-  const handleDateChange = (newDate: any) => {
+  const handleDateChange = (newDate: CalendarDate | null) => {
     if (newDate instanceof CalendarDate) {
       const newInterval = { ...parsedInterval, date: newDate };
       setParsedInterval(newInterval);
@@ -158,20 +214,20 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
 
   return (
     <div className='flex flex-col w-full gap-2.5'>
-      <label>{label}</label>
+      <span className='text-semibold text-c6 text-2xl'>{label}</span>
       <div className='flex flex-col gap-5'>
         <div className='w-full'>
           <Calendar
             classNames={{
-              cellButton: 'rounded-xl',
-              base: 'w-full calendarbase shadow-none',
+              cellButton: 'rounded-xl text-c6',
+              base: 'w-full calendarbase shadow-none bg-c2 border-2 border-c3 rounded-xl p-2',
               content: 'w-full',
               headerWrapper: 'w-full',
               prevButton: 'rounded-lg w-[50px]',
               nextButton: 'rounded-lg w-[50px]',
             }}
             aria-label='Date'
-            value={parsedInterval.date as any}
+            value={parsedInterval.date}
             onChange={handleDateChange}
             showMonthAndYearPickers
             visibleMonths={2}
@@ -179,9 +235,9 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
             showShadow={false}
           />
         </div>
-        <div className='flex flex-col w-full'>
-          <TimecodeInput label='Start Time' seconds={parsedInterval.start} handleInputChange={handleStartChange} />
-          <TimecodeInput label='End Time' seconds={parsedInterval.end} handleInputChange={handleEndChange} />
+        <div className='flex flex-col w-full gap-3'>
+          <TimecodeInput label='Heure de début' seconds={parsedInterval.start} handleInputChange={handleStartChange} />
+          <TimecodeInput label='Heure de fin' seconds={parsedInterval.end} handleInputChange={handleEndChange} />
         </div>
       </div>
     </div>
@@ -193,6 +249,15 @@ interface DateInputProps {
   handleInputChange: (value: string) => void;
   label: string;
 }
+
+const calendarClassNames = {
+  cellButton: 'rounded-xl text-c6',
+  base: 'w-full calendarbase shadow-none bg-c2 border-2 border-c3 rounded-xl p-2',
+  content: 'w-full',
+  headerWrapper: 'w-full',
+  prevButton: 'rounded-lg w-[50px]',
+  nextButton: 'rounded-lg w-[50px]',
+} as const;
 
 export const DatePicker: React.FC<DateInputProps> = ({ label, date, handleInputChange }) => {
   const isValidDate = (d: Date): boolean => {
@@ -220,30 +285,23 @@ export const DatePicker: React.FC<DateInputProps> = ({ label, date, handleInputC
     setSelectedDate(getInitialDateValue());
   }, [getInitialDateValue]);
 
-  const handleDateChange = (newDate: any) => {
+  const handleDateChange = (newDate: CalendarDate | null) => {
     if (newDate instanceof CalendarDate) {
       setSelectedDate(newDate);
-      handleInputChange(newDate.toString().split('T')[0]); // Exemple de format ISO 8601 sans l'heure
+      handleInputChange(newDate.toString().split('T')[0]);
     } else {
       setSelectedDate(null);
-      handleInputChange(''); // Peut-être gérer le cas où newDate est null
+      handleInputChange('');
     }
   };
 
   return (
-    <div className='datetime-picker'>
-      <label>{label}</label>
+    <div className='flex flex-col gap-2.5 w-full'>
+      <span className='text-semibold text-c6 text-2xl'>{label}</span>
       <Calendar
-        classNames={{
-          cellButton: 'rounded-xl',
-          base: 'w-full calendarbase shadow-none',
-          content: 'w-full',
-          headerWrapper: 'w-full',
-          prevButton: 'rounded-lg w-[50px]',
-          nextButton: 'rounded-lg w-[50px]',
-        }}
-        aria-label='Date'
-        value={selectedDate as any}
+        classNames={calendarClassNames}
+        aria-label={label}
+        value={selectedDate}
         onChange={handleDateChange}
         showMonthAndYearPickers
         visibleMonths={2}
