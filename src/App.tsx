@@ -2,7 +2,6 @@ import { useThemeMode } from '@/hooks/useThemeMode';
 import { Route, Routes } from 'react-router-dom';
 import { Intervenant } from '@/pages/intervenant';
 import { Home } from '@/pages/home';
-import { Database } from '@/pages/database';
 import { Edition } from '@/pages/corpus/confsByEdition';
 import { LoginPage } from '@/pages/login';
 import { CahierRecherche } from '@/pages/cahierRecherche';
@@ -60,7 +59,6 @@ export const useNavbarReadyContext = () => {
   return context;
 };
 
-const ProtectedDatabase = withAuth(Database, { requiredRole: 'actant' });
 const ProtectedStudentManagement = withAuth(StudentManagement, { requiredRole: 'actant' });
 const ProtectedCourseManagement = withAuth(CourseManagement, { requiredRole: 'actant' });
 const ProtectedActantManagement = withAuth(ActantManagement, { requiredRole: 'actant' });
@@ -109,7 +107,6 @@ function App() {
           {/* Base routes */}
           <Route index path='/' Component={Home} />
           <Route path='/login' Component={LoginPage} />
-          <Route path='/database' Component={ProtectedDatabase} />
           <Route path='/intervenants' Component={Intervenants} />
           <Route path='/visualisation' Component={Visualisation} />
           <Route path='/recherche/' Component={CahierRecherche} />
