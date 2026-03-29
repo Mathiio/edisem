@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Pencil,
-  Plus,
+
   MessageSquare,
   Eye,
   PenTool,
@@ -21,10 +21,9 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel
 import { useAuth } from '@/hooks/useAuth';
 
 interface DatavisSidebarProps {
-  activeView: 'datavis' | 'cahiers' | 'create' | 'radialTree' | 'oeuvres' | 'coverageMatrix' | 'activityHeatmap' | 'dashboard';
+  activeView: 'datavis' | 'cahiers' | 'radialTree' | 'oeuvres' | 'coverageMatrix' | 'activityHeatmap' | 'dashboard';
   onShowDatavis: () => void;
   onShowCahiers: () => void;
-  onShowCreate: () => void;
   onShowRadialTree: () => void;
   onShowOeuvres: () => void;
   onShowCoverageMatrix?: () => void;
@@ -49,7 +48,6 @@ export const DatavisSidebar = ({
   activeView,
   onShowDatavis,
   onShowCahiers,
-  onShowCreate,
   onShowRadialTree,
   onShowOeuvres,
   onShowCoverageMatrix,
@@ -108,14 +106,8 @@ export const DatavisSidebar = ({
               {!isCollapsed && (
                 <div
                   className={`ml-5 flex flex-col gap-2 overflow-hidden transition-all duration-300 ease-in-out ${
-                    activeView === 'datavis' || activeView === 'create' ? 'max-h-96 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'
+                    activeView === 'datavis' ? 'max-h-96 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'
                   }`}>
-                  <SidebarMenuItem
-                    icon={<Plus size={14} className={activeView === 'create' ? 'text-datavisGreen' : ''} />}
-                    label='Créer un élément'
-                    onClick={onShowCreate}
-                    isActive={activeView === 'create'}
-                  />
                   {isActant && (
                     <SidebarMenuItem
                       icon={<Pencil size={14} className={isEditMode ? 'text-datavisOrange' : ''} />}

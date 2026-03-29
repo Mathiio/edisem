@@ -35,14 +35,12 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { EditModal } from '@/components/features/database/EditModal';
 import { useLocalStorageProperties } from './database';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
-import { CreateModal } from '@/components/features/database/CreateModal';
 import { Layouts } from '@/components/layout/Layouts';
 import { BGPattern } from '@/components/ui/bg-pattern';
 
 // Nouveaux composants extraits
 import { DatavisSidebar } from './visualisation/components/DatavisSidebar';
 import { CahiersView } from './visualisation/components/CahiersView';
-import { CreateView } from './visualisation/components/CreateView';
 import { RadialClusterView } from './visualisation/components/RadialClusterView';
 import { RecitsClusterView } from './visualisation/components/RecitsClusterView';
 import { getConfigKey, getImageForType, getRadiusForType, getSizeForType } from './visualisation/utils/nodeHelpers';
@@ -240,7 +238,7 @@ const Visualisation = () => {
   const [filteredLinks, setFilteredLinks] = useState<any[]>([]);
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
   const [showOverlay, setShowOverlay] = useState(true);
-  const [activeView, setActiveView] = useState<'datavis' | 'cahiers' | 'create' | 'radialTree' | 'oeuvres' | 'coverageMatrix' | 'activityHeatmap' | 'dashboard'>('oeuvres');
+  const [activeView, setActiveView] = useState<'datavis' | 'cahiers' | 'radialTree' | 'oeuvres' | 'coverageMatrix' | 'activityHeatmap' | 'dashboard'>('oeuvres');
   const [dashboardView, setDashboardView] = useState<DashboardView>('overview');
   const [coverageTopKeywords, setCoverageTopKeywords] = useState(200);
   const [heatmapYear, setHeatmapYear] = useState(new Date().getFullYear());
@@ -303,7 +301,6 @@ const Visualisation = () => {
   const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
   const { isOpen: isOpenDrawer, onOpenChange: onOpenChangeDrawer } = useDisclosure();
   const { isOpen: isOpenAnnote, onOpen: onOpenAnnote, onClose: onCloseAnnote } = useDisclosure();
-  const { isOpen: isOpenCreate, onOpen: onOpenCreate, onClose: onCloseCreate } = useDisclosure();
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLinkMode, setIsLinkMode] = useState(false);
@@ -327,7 +324,6 @@ const Visualisation = () => {
   // Référence aux nodes actuels de la simulation pour pouvoir capturer leurs positions
   const simulationNodesRef = useRef<any[]>([]);
 
-  const [createItemId, setCreateItemId] = useState<number | null>(null);
 
   const [annoteObject, setAnnoteObject] = useState({
     id: '',
@@ -357,22 +353,12 @@ const Visualisation = () => {
 
   // Navigation simple entre vues
   const navigateToView = useCallback(
-    (view: 'datavis' | 'cahiers' | 'create' | 'radialTree' | 'oeuvres' | 'coverageMatrix' | 'activityHeatmap' | 'dashboard') => {
+    (view: 'datavis' | 'cahiers' | 'radialTree' | 'oeuvres' | 'coverageMatrix' | 'activityHeatmap' | 'dashboard') => {
       if (view !== activeView) {
         setActiveView(view);
       }
     },
     [activeView],
-  );
-
-  const handleCreateItem = useCallback(
-    (num: number, config: string) => {
-      setCreateItemId(num);
-      setSelectedConfigKey(config);
-      setSelectedConfig(config);
-      onOpenCreate();
-    },
-    [onOpenCreate],
   );
 
   // Gestionnaire de clic sur un nœud
@@ -1400,12 +1386,6 @@ const Visualisation = () => {
                       <span className='text-c6'>Mises en récits de l'IA</span>
                     </BreadcrumbItem>
                   </Breadcrumbs>
-                ) : activeView === 'create' ? (
-                  <Breadcrumbs underline='hover' size='sm'>
-                    <BreadcrumbItem isCurrent>
-                      <span className='text-c6'>Créer un élément</span>
-                    </BreadcrumbItem>
-                  </Breadcrumbs>
                 ) : activeView === 'coverageMatrix' ? (
                   <Breadcrumbs underline='hover' size='sm'>
                     <BreadcrumbItem isCurrent>
@@ -1592,7 +1572,6 @@ const Visualisation = () => {
                 activeView={activeView}
                 onShowDatavis={() => navigateToView('datavis')}
                 onShowCahiers={() => navigateToView('cahiers')}
-                onShowCreate={() => navigateToView('create')}
                 onShowRadialTree={() => navigateToView('radialTree')}
                 onShowOeuvres={() => navigateToView('oeuvres')}
                 onShowCoverageMatrix={() => navigateToView('coverageMatrix')}
@@ -1623,7 +1602,6 @@ const Visualisation = () => {
                     }}
                   />
                 )}
-                {activeView === 'create' && <CreateView onCreateItem={handleCreateItem} />}
                 {activeView === 'radialTree' && (
                   <RadialClusterView
                     externalData={itemsDataviz.length > 0 ? itemsDataviz : undefined}
@@ -1789,16 +1767,6 @@ const Visualisation = () => {
           propertiesLoading={propertiesLoading}
           justView={!isEditMode}
         />
-        {createItemId && (
-          <CreateModal
-            isOpen={isOpenCreate}
-            onClose={onCloseCreate}
-            activeConfig={selectedConfigKey}
-            itemPropertiesData={itemPropertiesData}
-            propertiesLoading={propertiesLoading}
-            itemId={createItemId}
-          />
-        )}
         <AnnotationDropdown
           id={Number(annoteObject.id)}
           content={annoteObject.content}

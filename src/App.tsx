@@ -46,6 +46,7 @@ import { CourseManagement } from './pages/admin/CourseManagement';
 import { ActantManagement } from './pages/admin/ActantManagement';
 import ResourceManagement from './pages/admin/ResourceManagement';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { CreerPage } from './pages/creer';
 
 // Create context for navbar ready callback
 interface NavbarReadyContextType {
@@ -65,6 +66,7 @@ const ProtectedCourseManagement = withAuth(CourseManagement, { requiredRole: 'ac
 const ProtectedActantManagement = withAuth(ActantManagement, { requiredRole: 'actant' });
 const ProtectedResourceManagement = withAuth(ResourceManagement, { requiredRole: 'actant' });
 const ProtectedAdminDashboard = withAuth(AdminDashboard, { requiredRole: 'actant' });
+const ProtectedCreerPage = withAuth(CreerPage, { requiredRole: 'actant' });
 
 // Wrapper pour protéger ConfigurableDetailPage en mode création (actants et étudiants)
 const ProtectedConfigurableDetailPage = withAuth(ConfigurableDetailPage, { requiredRole: 'any' });
@@ -114,6 +116,9 @@ function App() {
           <Route path='/espace-etudiant' Component={EspaceEtudiant} />
           <Route path='/mon-espace' Component={MonEspace} />
           <Route path='/test-omeka-edit' Component={TestOmekaEdit} />
+
+          {/* Create route - actants only */}
+          <Route path='/creer' Component={ProtectedCreerPage} />
 
           {/* Admin routes */}
           <Route path='/admin' Component={ProtectedAdminDashboard} />
