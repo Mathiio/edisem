@@ -33,7 +33,7 @@ import { PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight, LibraryBig, S
 import SearchHistory from '@/components/features/datavisualisation/SearchHistory';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { EditModal } from '@/components/features/database/EditModal';
-import { useLocalStorageProperties } from './database';
+import { useLocalStorageProperties } from '@/hooks/useLocalStorageProperties';
 import { AnnotationDropdown } from '@/components/features/conference/AnnotationDropdown';
 import { Layouts } from '@/components/layout/Layouts';
 import { BGPattern } from '@/components/ui/bg-pattern';
@@ -139,11 +139,11 @@ export interface GeneratedImage {
 // Composant boutons navigation
 const NavigationButtons = ({ canGoBack, canGoForward, onBack, onForward }: { canGoBack: boolean; canGoForward: boolean; onBack: () => void; onForward: () => void }) => {
   return (
-    <div className='flex items-center bg-c1  rounded-full'>
+    <div className='flex items-center bg-c1  rounded-lg'>
       <button
         onClick={onBack}
         disabled={!canGoBack}
-        className={`w-22 h-22 flex items-center justify-center rounded-full transition-all duration-200 rounded-full p-[5px] ${
+        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200 p-2 ${
           canGoBack ? 'text-c5 hover:text-c6 hover:bg-c3 cursor-pointer' : 'text-c4/30 cursor-not-allowed'
         }`}>
         <ChevronLeft size={16} />
@@ -151,7 +151,7 @@ const NavigationButtons = ({ canGoBack, canGoForward, onBack, onForward }: { can
       <button
         onClick={onForward}
         disabled={!canGoForward}
-        className={`w-22 h-22 flex items-center justify-center rounded-full transition-all duration-200 rounded-full p-[5px] ${
+        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200 p-2 ${
           canGoForward ? 'text-c5 hover:text-c6 hover:bg-c3 cursor-pointer' : 'text-c4/30 cursor-not-allowed'
         }`}>
         <ChevronRight size={16} />

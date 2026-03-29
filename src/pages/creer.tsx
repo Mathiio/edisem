@@ -3,7 +3,7 @@ import { useDisclosure } from '@heroui/react';
 import { Layouts } from '@/components/layout/Layouts';
 import { CreateView } from './visualisation/components/CreateView';
 import { CreateModal } from '@/components/features/database/CreateModal';
-import { useLocalStorageProperties } from './database';
+import { useLocalStorageProperties } from '@/hooks/useLocalStorageProperties';
 
 export const CreerPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
