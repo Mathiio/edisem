@@ -1,40 +1,55 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertModal } from '@/components/ui/AlertModal';
+import { hasPermission, type Permission } from '@/config/permissions';
+import type { UserData } from '@/hooks/useAuth';
 
 type AuthOptions = {
+  /** Permission required to access this page ('admin', 'create', 'view', or 'any' for authenticated-only). */
+  requiredPermission?: Permission | 'any';
+  /** @deprecated Use requiredPermission instead. Kept for backward compat. */
   requiredRole?: 'actant' | 'student' | 'any';
 };
 
+function isUserAuthorized(user: UserData | null, options: AuthOptions): boolean {
+  if (!user) return false;
+
+  // New permission-based check takes precedence
+  if (options.requiredPermission && options.requiredPermission !== 'any') {
+    return hasPermission(user.role, user.type, options.requiredPermission);
+  }
+
+  // Legacy role-based check (backward compat)
+  if (options.requiredRole && options.requiredRole !== 'any') {
+    const userRole = user.type === 'actant' ? 'actant' : 'student';
+    return options.requiredRole === userRole;
+  }
+
+  return true;
+}
+
 export function withAuth<P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  options: AuthOptions = { requiredRole: 'any' },
+  options: AuthOptions = { requiredPermission: 'any' },
 ) {
   return function WithAuth(props: P) {
     const navigate = useNavigate();
-    
-    const user = React.useMemo(() => {
+
+    const user = React.useMemo<UserData | null>(() => {
       const userString = localStorage.getItem('user');
-      return userString ? JSON.parse(userString) : null;
+      if (!userString || userString === 'null') return null;
+      try { return JSON.parse(userString); } catch { return null; }
     }, []);
 
     const [showError, setShowError] = React.useState(false);
 
-    const isAuthorized = React.useMemo(() => {
-      if (!user) return false;
-      if (options.requiredRole && options.requiredRole !== 'any') {
-        const userRole = user.type === 'actant' ? 'actant' : 'student';
-        return options.requiredRole === userRole;
-      }
-      return true;
-    }, [user]);
+    const isAuthorized = React.useMemo(() => isUserAuthorized(user, options), [user]);
 
     useEffect(() => {
       if (!user) {
         navigate('/login');
         return;
       }
-
       if (!isAuthorized) {
         setShowError(true);
       }
@@ -45,7 +60,6 @@ export function withAuth<P extends object>(
       navigate('/');
     };
 
-    // Si on n'est pas autorisé, on ne rend SURTOUT PAS le composant protégé
     if (!isAuthorized && user) {
       return (
         <div className="min-h-screen bg-c1 flex items-center justify-center">
@@ -53,7 +67,7 @@ export function withAuth<P extends object>(
             isOpen={showError}
             onClose={handleConfirm}
             title="Accès refusé"
-            description="Vous n'avez pas les droits nécessaires pour accéder à cette page"
+            description="Vous n'avez pas les droits nécessaires pour accéder à cette page."
             type="forbidden"
             confirmLabel="Retour à l'accueil"
             onConfirm={handleConfirm}
@@ -62,10 +76,7 @@ export function withAuth<P extends object>(
       );
     }
 
-    // Si pas de user du tout, on attend la redirection du useEffect
-    if (!user) {
-      return null;
-    }
+    if (!user) return null;
 
     return <WrappedComponent {...props} />;
   };

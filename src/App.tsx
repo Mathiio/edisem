@@ -35,6 +35,8 @@ import { NavigationTrailProvider } from './hooks/useNavigationTrail';
 import { EspaceEtudiant } from './pages/espaceEtudiant';
 import { LoadingScreen } from './components/layout/LoadingScreen';
 import { useState, useCallback, useEffect, createContext, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
 import { experimentationStudentConfig } from './pages/generic/config/experimentationStudentConfig';
 import { toolStudentConfig } from './pages/generic/config/toolStudentConfig';
 import { feedbackStudentConfig } from './pages/generic/config/feedbackStudentConfig';
@@ -46,6 +48,7 @@ import { ActantManagement } from './pages/admin/ActantManagement';
 import ResourceManagement from './pages/admin/ResourceManagement';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { CreerPage } from './pages/creer';
+import { AlertModal } from './components/ui/AlertModal';
 
 // Create context for navbar ready callback
 interface NavbarReadyContextType {
@@ -59,15 +62,44 @@ export const useNavbarReadyContext = () => {
   return context;
 };
 
-const ProtectedStudentManagement = withAuth(StudentManagement, { requiredRole: 'actant' });
-const ProtectedCourseManagement = withAuth(CourseManagement, { requiredRole: 'actant' });
-const ProtectedActantManagement = withAuth(ActantManagement, { requiredRole: 'actant' });
-const ProtectedResourceManagement = withAuth(ResourceManagement, { requiredRole: 'actant' });
-const ProtectedAdminDashboard = withAuth(AdminDashboard, { requiredRole: 'actant' });
-const ProtectedCreerPage = withAuth(CreerPage, { requiredRole: 'actant' });
+/**
+ * Watches for session expiry (JWT timeout or 401 from backend)
+ * and shows a modal before redirecting to login.
+ */
+function SessionGuard() {
+  const navigate = useNavigate();
+  const { sessionExpired, logout } = useAuth();
 
-// Wrapper pour protéger ConfigurableDetailPage en mode création (actants et étudiants)
-const ProtectedConfigurableDetailPage = withAuth(ConfigurableDetailPage, { requiredRole: 'any' });
+  const handleExpiredConfirm = useCallback(() => {
+    logout();
+    navigate('/login');
+  }, [logout, navigate]);
+
+  if (!sessionExpired) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center">
+      <AlertModal
+        isOpen
+        onClose={handleExpiredConfirm}
+        title="Session expirée"
+        description="Votre session a expiré. Veuillez vous reconnecter."
+        type="warning"
+        confirmLabel="Se reconnecter"
+        onConfirm={handleExpiredConfirm}
+      />
+    </div>
+  );
+}
+
+const ProtectedStudentManagement = withAuth(StudentManagement, { requiredPermission: 'admin' });
+const ProtectedCourseManagement = withAuth(CourseManagement, { requiredPermission: 'admin' });
+const ProtectedActantManagement = withAuth(ActantManagement, { requiredPermission: 'admin' });
+const ProtectedResourceManagement = withAuth(ResourceManagement, { requiredPermission: 'admin' });
+const ProtectedAdminDashboard = withAuth(AdminDashboard, { requiredPermission: 'admin' });
+const ProtectedCreerPage = withAuth(CreerPage, { requiredPermission: 'create' });
+
+const ProtectedConfigurableDetailPage = withAuth(ConfigurableDetailPage, { requiredPermission: 'any' });
 //const ProtectedCahierRecherche = withAuth(CahierRecherche, { requiredRole: 'actant' });
 
 function App() {
@@ -101,6 +133,7 @@ function App() {
         }}
       />
       <LoadingScreen isLoading={isLoading} />
+      <SessionGuard />
       <NavbarReadyContext.Provider value={{ onNavbarReady: handleNavbarReady }}>
         <NavigationTrailProvider>
         <Routes>

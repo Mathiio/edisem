@@ -4,7 +4,7 @@ import { motion, Variants } from 'framer-motion';
 import { StudentCard, StudentCardSkeleton } from '@/components/features/espaceEtudiant/StudentCard';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { getAllStudentResources, getStudentCourses, getCourses, type StudentResourceCard, type Course } from '@/services/StudentSpace';
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, addToast, Select, SelectItem } from '@heroui/react';
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, addToast } from '@heroui/react';
 import { ExperimentationIcon, UniversityIcon, PlusIcon, WarningIcon } from '@/components/ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { experimentationStudentConfigSimplified } from '@/pages/generic/config/experimentationStudentConfig';
@@ -13,6 +13,7 @@ import { toolStudentConfigSimplified } from '@/pages/generic/config/toolStudentC
 import { useAuth } from '@/hooks/useAuth';
 import type { Key } from 'react';
 import { AlertModal } from '@/components/ui/AlertModal';
+import { Select, SelectItem } from '@/theme/components';
 
 const API_BASE = 'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=StudentSpace';
 
@@ -315,7 +316,6 @@ export const MonEspace: React.FC = () => {
         {canCreate && (isActant || courses.length > 1) && (
           <Select
             label='Destination'
-            labelPlacement="outside"
             placeholder='Sélectionnez une destination'
             selectedKeys={selectedCourseId ? [String(selectedCourseId)] : []}
             onSelectionChange={(keys) => {
@@ -329,12 +329,7 @@ export const MonEspace: React.FC = () => {
             isLoading={loadingCourses}
             isRequired={isActant}
             className='max-w-xs'
-            classNames={{
-              trigger: 'bg-c2 border-2 border-c3 data-[hover=true]:border-c4 group-data-[focus=true]:bg-c3 group-data-[focus=true]:border-action',
-              label: 'text-c6 font-medium',
-              value: 'text-c6',
-              popoverContent: 'bg-c2 border-2 border-c3',
-            }}>
+          >
             {(() => {
               const options = [
                 // Option Ressources enseignantes pour les actants

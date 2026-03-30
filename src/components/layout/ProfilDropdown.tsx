@@ -4,10 +4,11 @@ import { UserIcon, Logout, SunIcon, MoonIcon, SettingsIcon, PlusIcon } from '@/c
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownSection, DropdownItem, User } from '@heroui/react';
 import { useThemeMode } from '@/hooks/useThemeMode';
 import { useAuth } from '@/hooks/useAuth';
+import { getRoleLabel } from '@/config/permissions';
 
 export const ProfilDropdown = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, userData, logout } = useAuth();
+  const { isAuthenticated, userData, logout, can } = useAuth();
   const { isDark, toggleThemeMode } = useThemeMode();
 
   const handleLogout = useCallback(() => {
@@ -15,38 +16,28 @@ export const ProfilDropdown = () => {
     navigate('/');
   }, [logout, navigate]);
 
-  // Optimiser l'accès aux propriétés de userData
   const userFirstName = userData?.firstname;
   const userLastName = userData?.lastname;
-  const userTypeValue = userData?.type;
 
-  // Full name for profile triger
   const displayName = useMemo(() => {
     if (userFirstName && userLastName)
-      // If userData exist, return full name
       return `${userFirstName} ${userLastName.charAt(0)}.`;
-    return userFirstName || userLastName || 'Profil'; // Return whichever is available
+    return userFirstName || userLastName || 'Profil';
   }, [userFirstName, userLastName]);
 
-  // Full name for profile dropdown
   const fullName = useMemo(() => {
     if (userFirstName && userLastName)
-      // If userData exist, return full name
       return `${userFirstName} ${userLastName}`;
-    return userFirstName || userLastName || 'Utilisateur'; // Return whichever is available
+    return userFirstName || userLastName || 'Utilisateur';
   }, [userFirstName, userLastName]);
 
-  // Convert user type label
-  const userType = useMemo(() => {
-    switch (userTypeValue) {
-      case 'actant':
-        return 'Actant';
-      case 'student':
-        return 'Étudiant';
-      default:
-        return 'Type non spécifié';
-    }
-  }, [userTypeValue]);
+  const roleLabel = useMemo(
+    () => getRoleLabel(userData?.role, userData?.type),
+    [userData?.role, userData?.type],
+  );
+
+  const canCreate = can('create');
+  const canAdmin = can('admin');
 
   const menuItemClass = 'p-0 cursor-pointer text-c5 data-[hover=true]:!bg-c3 data-[selectable=true]:focus:!bg-c3 rounded-lg';
   const itemInnerPadding = 'py-2 px-3';
@@ -87,7 +78,7 @@ export const ProfilDropdown = () => {
                 <div className='flex gap-2 items-center w-full bg-c2 rounded-lg p-1'>
                   <User
                     name={fullName}
-                    description={userType}
+                    description={roleLabel}
                     classNames={{
                       name: 'text-c6',
                       description: 'text-c5',
@@ -104,35 +95,26 @@ export const ProfilDropdown = () => {
             </DropdownSection>
 
             <DropdownSection className='mb-0'>
-              {userTypeValue === 'actant' ? (
-                <>
-                  <DropdownItem key='mon-espace' className={menuItemClass}>
-                    <Link to='/mon-espace' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
-                      <UserIcon size={16} />
-                      <p className='text-base font-normal'>Mon espace</p>
-                    </Link>
-                  </DropdownItem>
-                  <DropdownItem key='create' className={menuItemClass}>
-                    <Link to='/creer' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
-                      <PlusIcon size={16} />
-                      <p className='text-base font-normal'>Créer</p>
-                    </Link>
-                  </DropdownItem>
-                  <DropdownItem key='adminStudent' className={menuItemClass}>
-                    <Link to='/admin' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
-                      <SettingsIcon size={16} />
-                      <p className='text-base font-normal'>Administration</p>
-                    </Link>
-                  </DropdownItem>
-                </>
-              ) : userTypeValue === 'student' ? (
-                <DropdownItem key='mon-espace' className={menuItemClass}>
-                  <Link to='/mon-espace' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
-                    <UserIcon size={16} />
-                    <p className='text-base font-normal'>Mon espace</p>
-                  </Link>
-                </DropdownItem>
-              ) : null}
+              <DropdownItem key='mon-espace' className={menuItemClass}>
+                <Link to='/mon-espace' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
+                  <UserIcon size={16} />
+                  <p className='text-base font-normal'>Mon espace</p>
+                </Link>
+              </DropdownItem>
+
+              <DropdownItem key='create' className={`${menuItemClass} ${canCreate ? '' : 'hidden'}`}>
+                <Link to='/creer' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
+                  <PlusIcon size={16} />
+                  <p className='text-base font-normal'>Créer</p>
+                </Link>
+              </DropdownItem>
+
+              <DropdownItem key='adminStudent' className={`${menuItemClass} ${canAdmin ? '' : 'hidden'}`}>
+                <Link to='/admin' className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>
+                  <SettingsIcon size={16} />
+                  <p className='text-base font-normal'>Administration</p>
+                </Link>
+              </DropdownItem>
 
               <DropdownItem key='theme' className={menuItemClass}>
                 <button onClick={toggleThemeMode} className={`flex justify-start gap-2 hover:bg-c3 items-center w-full ${itemInnerPadding} rounded-lg transition-all ease-in-out duration-200 cursor-pointer`}>

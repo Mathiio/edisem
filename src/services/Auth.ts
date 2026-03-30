@@ -1,4 +1,4 @@
-import { UserData } from '@/hooks/useAuth';
+import { UserData, SESSION_EXPIRED_EVENT } from '@/hooks/useAuth';
 
 const AUTH_URL = 'https://tests.arcanes.ca/omk/s/edisem/page/ajax?helper=ActantAuth';
 
@@ -13,15 +13,19 @@ export interface LoginResponse {
   firstname?: string;
   lastname?: string;
   picture?: string | null;
-  error?: string; // Backend sometimes uses 'error' instead of 'message'
+  error?: string;
   expires_in?: number;
   user?: UserData;
+  code?: number;
+}
+
+function handle401(response: Response, data?: { code?: number }) {
+  if (response.status === 401 || data?.code === 401) {
+    window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
+  }
 }
 
 export const AuthService = {
-  /**
-   * Helper to map flat response to nested user object
-   */
   mapResponseToUser(data: any): UserData | undefined {
     if (!data.success) return undefined;
     return {
@@ -32,13 +36,10 @@ export const AuthService = {
       firstname: data.firstname,
       lastname: data.lastname,
       picture: data.picture,
-      email: data.email
+      email: data.email,
     };
   },
 
-  /**
-   * Authenticate a user (Student or Actant)
-   */
   async login(email: string, password: string, type: 'student' | 'actant' | string): Promise<LoginResponse> {
     const action = type === 'student' ? 'loginStudent' : 'login';
     const params = new URLSearchParams();
@@ -70,9 +71,6 @@ export const AuthService = {
     }
   },
 
-  /**
-   * Check if an email exists as an actant and/or user
-   */
   async checkEmail(email: string): Promise<{ success: boolean; exists: boolean; hasUser: boolean; actantItemId?: number; error?: string }> {
     try {
       const response = await fetch(`${AUTH_URL}&action=checkEmail&email=${encodeURIComponent(email)}&json=1`, {
@@ -80,7 +78,6 @@ export const AuthService = {
         credentials: 'include',
       });
       const data = await response.json();
-      console.log('AuthService.checkEmail data:', data);
       return data;
     } catch (error) {
       console.error('AuthService.checkEmail failure:', error);
@@ -88,9 +85,6 @@ export const AuthService = {
     }
   },
 
-  /**
-   * Register a new user account for an existing actant
-   */
   async register(email: string, password: string, confirmPassword: string): Promise<LoginResponse> {
     const params = new URLSearchParams();
     params.append('email', email);
@@ -117,15 +111,13 @@ export const AuthService = {
     }
   },
 
-  /**
-   * Get current user data from session
-   */
   async me(): Promise<LoginResponse> {
     try {
       const response = await fetch(`${AUTH_URL}&action=me&json=1`, {
         credentials: 'include',
       });
       const data = await response.json();
+      handle401(response, data);
       if (data.success) {
         data.user = this.mapResponseToUser(data);
       }
@@ -133,5 +125,5 @@ export const AuthService = {
     } catch (error) {
       return { success: false };
     }
-  }
+  },
 };
