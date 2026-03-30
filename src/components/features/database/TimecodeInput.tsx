@@ -218,14 +218,7 @@ export const DateTimeIntervalPicker: React.FC<DateTimeIntervalPickerProps> = ({
       <div className='flex flex-col gap-5'>
         <div className='w-full'>
           <Calendar
-            classNames={{
-              cellButton: 'rounded-xl text-c6',
-              base: 'w-full calendarbase shadow-none bg-c2 border-2 border-c3 rounded-xl p-2',
-              content: 'w-full',
-              headerWrapper: 'w-full',
-              prevButton: 'rounded-lg w-[50px]',
-              nextButton: 'rounded-lg w-[50px]',
-            }}
+            classNames={calendarClassNames}
             aria-label='Date'
             value={parsedInterval.date}
             onChange={handleDateChange}
@@ -251,10 +244,11 @@ interface DateInputProps {
 }
 
 const calendarClassNames = {
-  cellButton: 'rounded-xl text-c6',
-  base: 'w-full calendarbase shadow-none bg-c2 border-2 border-c3 rounded-xl p-2',
+  cellButton: 'rounded-xl !text-c6 !cursor-pointer data-[hover=true]:!bg-c4/10 transition-colors data-[disabled=true]:opacity-40',
+  base: 'w-full calendarbase !shadow-none !bg-c2 border-2 !border-c3 rounded-xl p-2',
   content: 'w-full',
-  headerWrapper: 'w-full',
+  headerWrapper: 'w-full !bg-c4/10 rounded-t-lg',
+  gridHeader: 'w-full !bg-c4/10 rounded-b-lg',
   prevButton: 'rounded-lg w-[50px]',
   nextButton: 'rounded-lg w-[50px]',
 } as const;

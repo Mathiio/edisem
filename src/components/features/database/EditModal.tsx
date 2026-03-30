@@ -127,10 +127,10 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
     { key: 'Conférence', label: 'Conférence associé', dataPath: '@reverse.schema:citation.0.@id', type: 'lien' },
   ],
   conferenciers: [
-    { key: 'nom', label: 'Nom', dataPath: 'foaf:lastName.0.@value', type: 'input' },
+    { key: 'titre', label: 'Nom et Prénom*', dataPath: 'dcterms:title.0.@value', type: 'input' },
     { key: 'prenom', label: 'Prénom', dataPath: 'foaf:firstName.0.@value', type: 'input' },
-    { key: 'titre', label: 'Nom et prénom', dataPath: 'dcterms:title.0.@value', type: 'input' },
-    { key: 'portfolio', label: 'Portfolio', dataPath: 'schema:url.0.@id', type: 'lien' },
+    { key: 'nom', label: 'Nom', dataPath: 'foaf:lastName.0.@value', type: 'input' },
+    { key: 'schema:url', label: 'URL cv en ligne', dataPath: 'schema:url.0.@id', type: 'input' },
     {
       key: 'jdc:hasUniversity',
       label: 'Université',
@@ -155,6 +155,7 @@ export const inputConfigs: { [key: string]: InputConfig[] } = {
       options: ['display_title'],
       selectionId: [91],
     },
+    { key: 'schema:email', label: 'Email', dataPath: 'schema:email.0.@value', type: 'input' },
   ],
   pays: [{ key: 'Pays', label: 'Nom du pays', dataPath: 'dcterms:title.0.@value', type: 'input' }],
   laboratoire: [
